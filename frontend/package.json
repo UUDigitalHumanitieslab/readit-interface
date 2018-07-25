@@ -19,6 +19,7 @@
     "@types/lodash": "^4.14.113",
     "gulp": "^3.9.1",
     "gulp-cli": "^2.0.1",
-    "gulp-load-plugins": "^1.5.0"
+    "gulp-load-plugins": "^1.5.0",
+    "ts-node": "^7.0.0"
   }
 }

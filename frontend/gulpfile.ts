@@ -1,5 +1,6 @@
-const gulp = require('gulp');
-const plugins = require('gulp-load-plugins')();
+import gulp = require('gulp');
+import loadPlugins = require('gulp-load-plugins');
+const plugins = loadPlugins();
 
 gulp.task('default', function() {
     // TODO
