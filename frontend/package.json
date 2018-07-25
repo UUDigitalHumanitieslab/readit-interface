@@ -5,5 +5,10 @@
   "repository": "github:UUDigitalHumanitieslab/readit-interface",
   "author": "UU Digital Humanities Lab",
   "license": "BSD-3-Clause",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-cli": "^2.0.1",
+    "typescript": "^2.9.2"
+  }
 }
