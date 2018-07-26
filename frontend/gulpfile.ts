@@ -32,6 +32,12 @@ gulp.task('bundle', bundle(tsModules));
 
 gulp.task('bundle-dist', bundle(tsModules, true));
 
+gulp.task('sass', function() {
+    return gulp.src('style/main.sass')
+    .pipe(plugins.sass({includePaths: ['node_modules']}))
+    .pipe(gulp.dest('build'));
+});
+
 gulp.task('watch', function() {
     const tsModulesWatched = tsModules.plugin(watchify);
     const bundleWatched = bundle(tsModulesWatched);
