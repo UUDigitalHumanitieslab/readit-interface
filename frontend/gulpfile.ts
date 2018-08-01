@@ -17,7 +17,7 @@ const tsModules = browserify({
     target: 'es5',
 });
 
-function bundle(modules, optimize = false) {
+function jsbundle(modules, optimize = false) {
     return function() {
         const base = modules.bundle().pipe(vinylStream('bundle.js'));
         if (optimize) {
@@ -28,9 +28,9 @@ function bundle(modules, optimize = false) {
     };
 }
 
-gulp.task('bundle', bundle(tsModules));
+gulp.task('bundle', jsbundle(tsModules));
 
-gulp.task('bundle-dist', bundle(tsModules, true));
+gulp.task('bundle-dist', jsbundle(tsModules, true));
 
 gulp.task('sass', function() {
     return gulp.src('style/main.sass')
@@ -40,7 +40,7 @@ gulp.task('sass', function() {
 
 gulp.task('watch', function() {
     const tsModulesWatched = tsModules.plugin(watchify);
-    const bundleWatched = bundle(tsModulesWatched);
+    const bundleWatched = jsbundle(tsModulesWatched);
     tsModulesWatched.on('update', bundleWatched);
     tsModulesWatched.on('log', log);
     bundleWatched();
