@@ -4,29 +4,36 @@ import vinylStream = require('vinyl-source-stream');
 import vinylBuffer = require('vinyl-buffer');
 import tsify = require('tsify');
 import watchify = require('watchify');
+import exorcist = require('exorcist');
 import log = require('fancy-log');
 import cssnano = require('cssnano');
 import autoprefixer = require('autoprefixer');
 import loadPlugins = require('gulp-load-plugins');
 const plugins = loadPlugins();
 
-const tsModules = browserify({
-    debug: true,
-    entries: ['main.ts'],
-    cache: {},
-    packageCache: {},
-}).plugin(tsify, {
-    target: 'es5',
-});
+function tsModules(debug = true) {
+    return browserify({
+        debug: debug,
+        entries: ['main.ts'],
+        cache: {},
+        packageCache: {},
+    }).plugin(tsify, {
+        target: 'es5',
+    });
+}
 
 function jsbundle(modules, optimize = false) {
-    return function() {
-        const base = modules.bundle().pipe(vinylStream('bundle.js'));
-        if (optimize) {
-            return base.pipe(vinylBuffer()).pipe(plugins.uglify()).pipe(gulp.dest('dist'));
-        } else {
-            return base.pipe(gulp.dest('build'));
-        }
+    if (optimize) return function() {
+        return modules.bundle()
+            .pipe(vinylStream('bundle.js'))
+            .pipe(vinylBuffer())
+            .pipe(plugins.uglify())
+            .pipe(gulp.dest('dist'));
+    }; else return function() {
+        return modules.bundle()
+            .pipe(exorcist('build/bundle.js.map'))
+            .pipe(vinylStream('bundle.js'))
+            .pipe(gulp.dest('build'));
     };
 }
 
@@ -41,9 +48,9 @@ function style(optimize = false) {
     return stream;
 }
 
-gulp.task('bundle', jsbundle(tsModules));
+gulp.task('ts', jsbundle(tsModules()));
 
-gulp.task('bundle-dist', jsbundle(tsModules, true));
+gulp.task('ts:dist', jsbundle(tsModules(false), true));
 
 gulp.task('sass', function() {
     return style().pipe(gulp.dest('build'));
@@ -54,7 +61,7 @@ gulp.task('sass:dist', function() {
 });
 
 gulp.task('watch', ['sass'], function() {
-    const tsModulesWatched = tsModules.plugin(watchify);
+    const tsModulesWatched = tsModules().plugin(watchify);
     const bundleWatched = jsbundle(tsModulesWatched);
     tsModulesWatched.on('update', bundleWatched);
     tsModulesWatched.on('log', log);
