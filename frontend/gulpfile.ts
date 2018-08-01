@@ -14,7 +14,7 @@ const plugins = loadPlugins();
 function tsModules(debug = true) {
     return browserify({
         debug: debug,
-        entries: ['main.ts'],
+        entries: ['src/main.ts'],
         cache: {},
         packageCache: {},
     }).plugin(tsify, {
@@ -40,7 +40,7 @@ function jsbundle(modules, optimize = false) {
 function style(optimize = false) {
     let postcssPlugins = [autoprefixer()];
     if (optimize) postcssPlugins.push(cssnano());
-    let stream = gulp.src('style/main.sass');
+    let stream = gulp.src('src/style/main.sass');
     if (!optimize) stream = stream.pipe(plugins.sourcemaps.init());
     stream = stream.pipe(plugins.sass({includePaths: ['node_modules']}))
         .pipe(plugins.postcss(postcssPlugins));
@@ -66,7 +66,7 @@ gulp.task('watch', ['sass'], function() {
     tsModulesWatched.on('update', bundleWatched);
     tsModulesWatched.on('log', log);
     bundleWatched();
-    gulp.watch('style/*.sass', ['sass']);
+    gulp.watch('src/style/*.sass', ['sass']);
 });
 
 gulp.task('default', function() {
