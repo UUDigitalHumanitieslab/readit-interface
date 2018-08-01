@@ -5,6 +5,8 @@ import vinylBuffer = require('vinyl-buffer');
 import tsify = require('tsify');
 import watchify = require('watchify');
 import log = require('fancy-log');
+import cssnano = require('cssnano');
+import autoprefixer = require('autoprefixer');
 import loadPlugins = require('gulp-load-plugins');
 const plugins = loadPlugins();
 
@@ -28,22 +30,36 @@ function jsbundle(modules, optimize = false) {
     };
 }
 
+function style(optimize = false) {
+    let postcssPlugins = [autoprefixer()];
+    if (optimize) postcssPlugins.push(cssnano());
+    let stream = gulp.src('style/main.sass');
+    if (!optimize) stream = stream.pipe(plugins.sourcemaps.init());
+    stream = stream.pipe(plugins.sass({includePaths: ['node_modules']}))
+        .pipe(plugins.postcss(postcssPlugins));
+    if (!optimize) stream = stream.pipe(plugins.sourcemaps.write('.'));
+    return stream;
+}
+
 gulp.task('bundle', jsbundle(tsModules));
 
 gulp.task('bundle-dist', jsbundle(tsModules, true));
 
 gulp.task('sass', function() {
-    return gulp.src('style/main.sass')
-    .pipe(plugins.sass({includePaths: ['node_modules']}))
-    .pipe(gulp.dest('build'));
+    return style().pipe(gulp.dest('build'));
 });
 
-gulp.task('watch', function() {
+gulp.task('sass:dist', function() {
+    return style(true).pipe(gulp.dest('dist'));
+});
+
+gulp.task('watch', ['sass'], function() {
     const tsModulesWatched = tsModules.plugin(watchify);
     const bundleWatched = jsbundle(tsModulesWatched);
     tsModulesWatched.on('update', bundleWatched);
     tsModulesWatched.on('log', log);
     bundleWatched();
+    gulp.watch('style/*.sass', ['sass']);
 });
 
 gulp.task('default', function() {
