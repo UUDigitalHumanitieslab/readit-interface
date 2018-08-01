@@ -8,6 +8,7 @@ import exorcist = require('exorcist');
 import log = require('fancy-log');
 import cssnano = require('cssnano');
 import autoprefixer = require('autoprefixer');
+import hbsfy = require('hbsfy');
 import loadPlugins = require('gulp-load-plugins');
 const plugins = loadPlugins();
 
@@ -17,9 +18,10 @@ function tsModules(debug = true) {
         entries: ['src/main.ts'],
         cache: {},
         packageCache: {},
+        extensions: ['hbs'],
     }).plugin(tsify, {
         target: 'es5',
-    });
+    }).transform(hbsfy);
 }
 
 function jsbundle(modules, optimize = false) {
@@ -59,6 +61,13 @@ gulp.task('sass', function() {
 gulp.task('sass:dist', function() {
     return style(true).pipe(gulp.dest('dist'));
 });
+
+// gulp.task('hbs', function() {
+//     return gulp.src('src/**/*-template.hbs')
+//         .pipe(plugins.handlebars())
+//         .pipe(plugins.defineModule('es6'))
+//         .pipe(gulp.dest('src'));
+// });
 
 gulp.task('watch', ['sass'], function() {
     const tsModulesWatched = tsModules().plugin(watchify);

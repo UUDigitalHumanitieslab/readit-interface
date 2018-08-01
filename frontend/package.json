@@ -13,6 +13,7 @@
   "dependencies": {
     "backbone": "^1.3.3",
     "bulma": "^0.7.1",
+    "handlebars": "^4.0.11",
     "jquery": "^3.3.1",
     "lodash": "^4.17.10",
     "machina": "^2.0.2",
@@ -34,6 +35,7 @@
     "gulp-sass": "^4.0.1",
     "gulp-sourcemaps": "^2.6.4",
     "gulp-uglify": "^3.0.1",
+    "hbsfy": "^2.8.1",
     "ts-node": "^7.0.0",
     "tsify": "^4.0.0",
     "vinyl-buffer": "^1.0.1",
