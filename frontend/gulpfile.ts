@@ -9,6 +9,7 @@ import log = require('fancy-log');
 import cssnano = require('cssnano');
 import autoprefixer = require('autoprefixer');
 import del = require('del');
+import yargs = require('yargs');
 import loadPlugins = require('gulp-load-plugins');
 const plugins = loadPlugins();
 
@@ -88,6 +89,16 @@ gulp.task('hbs', function() {
             require: {Handlebars: 'handlebars/runtime'},
         }))
         .pipe(gulp.dest('src'));
+});
+
+gulp.task('index', function() {
+    const config = yargs.argv.config || 'config.json';
+    log(yargs.argv.config);
+    log(config);
+    const hbsTransform = plugins.hb().data(config);
+    return gulp.src('src/index.hbs')
+    .pipe(hbsTransform)
+    .pipe(gulp.dest(buildDir));
 });
 
 gulp.task('watch', ['sass', 'hbs'], function() {
