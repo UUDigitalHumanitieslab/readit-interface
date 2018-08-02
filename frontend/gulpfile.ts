@@ -8,6 +8,7 @@ import exorcist = require('exorcist');
 import log = require('fancy-log');
 import cssnano = require('cssnano');
 import autoprefixer = require('autoprefixer');
+import del = require('del');
 import loadPlugins = require('gulp-load-plugins');
 const plugins = loadPlugins();
 
@@ -82,6 +83,10 @@ gulp.task('watch', ['sass', 'hbs'], function() {
     bundleWatched();
     gulp.watch('src/style/*.sass', ['sass']);
     gulp.watch('src/**/*-template.hbs', ['hbs']);
+});
+
+gulp.task('clean', function() {
+    return del(['build', 'dist', 'src/**/*-template.js']);
 });
 
 gulp.task('default', function() {
