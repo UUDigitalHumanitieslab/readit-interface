@@ -38,3 +38,4 @@ venv.bak/
 
 # Frontend stuff
 node_modules/
+*-template.js
