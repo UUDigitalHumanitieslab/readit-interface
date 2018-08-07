@@ -15,8 +15,7 @@ import loadPlugins = require('gulp-load-plugins');
 const plugins = loadPlugins();
 
 const sourceDir = 'src',
-    buildDir = 'build',
-    distDir = 'dist',
+    buildDir = 'dist',
     nodeDir = 'node_modules',
     mainScript = `${sourceDir}/main.ts`,
     jsBundleName = 'bundle.js',
@@ -29,55 +28,48 @@ const sourceDir = 'src',
     mainStylesheet = '${styleDir}/main.sass',
     styleSourceGlob = '${styleDir}/*.sass',
     indexConfig = yargs.argv.config || 'config.json',
-    indexTemplate = `${sourceDir}/index.hbs`;
+    indexTemplate = `${sourceDir}/index.hbs`,
+    production = yargs.argv.production || false;
 
-function tsModules(debug = true) {
-    return browserify({
-        debug: debug,
-        entries: [mainScript],
-        cache: {},
-        packageCache: {},
-    }).plugin(tsify, {
-        target: jsTargetVersion,
-    });
+const tsModules = browserify({
+    debug: !production,
+    entries: [mainScript],
+    cache: {},
+    packageCache: {},
+}).plugin(tsify, {
+    target: jsTargetVersion,
+});
+
+function ifProd(stream, otherwise?) {
+    return plugins['if'](production, stream, otherwise);
 }
 
-function jsbundle(modules, optimize = false) {
-    if (optimize) return function() {
+function ifNotProd(stream) {
+    return plugins['if'](!production, stream);
+}
+
+function jsbundle(modules) {
+    return function() {
         return modules.bundle()
+            .pipe(ifNotProd(exorcist(jsSourceMapDest)))
             .pipe(vinylStream(jsBundleName))
-            .pipe(vinylBuffer())
-            .pipe(plugins.uglify())
-            .pipe(gulp.dest(distDir));
-    }; else return function() {
-        return modules.bundle()
-            .pipe(exorcist(jsSourceMapDest))
-            .pipe(vinylStream(jsBundleName))
+            .pipe(ifProd(vinylBuffer()))
+            .pipe(ifProd(plugins.uglify()))
             .pipe(gulp.dest(buildDir));
     };
 }
 
-function style(optimize = false) {
-    let postcssPlugins = [autoprefixer()];
-    if (optimize) postcssPlugins.push(cssnano());
-    let stream = gulp.src(mainStylesheet);
-    if (!optimize) stream = stream.pipe(plugins.sourcemaps.init());
-    stream = stream.pipe(plugins.sass({includePaths: [nodeDir]}))
-        .pipe(plugins.postcss(postcssPlugins));
-    if (!optimize) stream = stream.pipe(plugins.sourcemaps.write('.'));
-    return stream;
-}
-
-gulp.task('ts', ['hbs'], jsbundle(tsModules()));
-
-gulp.task('ts:dist', ['hbs'], jsbundle(tsModules(false), true));
+gulp.task('ts', ['hbs'], jsbundle(tsModules));
 
 gulp.task('sass', function() {
-    return style().pipe(gulp.dest(buildDir));
-});
-
-gulp.task('sass:dist', function() {
-    return style(true).pipe(gulp.dest(distDir));
+    let postcssPlugins = [autoprefixer()];
+    if (production) postcssPlugins.push(cssnano());
+    return gulp.src(mainStylesheet)
+        .pipe(ifNotProd(plugins.sourcemaps.init()))
+        .pipe(plugins.sass({includePaths: [nodeDir]}))
+        .pipe(plugins.postcss(postcssPlugins))
+        .pipe(ifNotProd(plugins.sourcemaps.write('.')))
+        .pipe(gulp.dest(buildDir));
 });
 
 gulp.task('hbs', function() {
@@ -106,7 +98,7 @@ gulp.task('index', function(done) {
 });
 
 gulp.task('watch', ['sass', 'hbs', 'index'], function() {
-    const tsModulesWatched = tsModules().plugin(watchify);
+    const tsModulesWatched = tsModules.plugin(watchify);
     const bundleWatched = jsbundle(tsModulesWatched);
     tsModulesWatched.on('update', bundleWatched);
     tsModulesWatched.on('log', log);
@@ -117,7 +109,7 @@ gulp.task('watch', ['sass', 'hbs', 'index'], function() {
 });
 
 gulp.task('clean', function() {
-    return del([buildDir, distDir, templateOutputGlob]);
+    return del([buildDir, templateOutputGlob]);
 });
 
 gulp.task('default', function() {
