@@ -8,6 +8,7 @@ import exorcist = require('exorcist');
 import log = require('fancy-log');
 import cssnano = require('cssnano');
 import autoprefixer = require('autoprefixer');
+import fs = require('fs');
 import del = require('del');
 import yargs = require('yargs');
 import loadPlugins = require('gulp-load-plugins');
@@ -26,7 +27,9 @@ const sourceDir = 'src',
     templateOutputGlob = `${sourceDir}/**/*-template.js`,
     styleDir = `${sourceDir}/style`,
     mainStylesheet = '${styleDir}/main.sass',
-    styleSourceGlob = '${styleDir}/*.sass';
+    styleSourceGlob = '${styleDir}/*.sass',
+    indexConfig = yargs.argv.config || 'config.json',
+    indexTemplate = `${sourceDir}/index.hbs`;
 
 function tsModules(debug = true) {
     return browserify({
@@ -91,17 +94,18 @@ gulp.task('hbs', function() {
         .pipe(gulp.dest('src'));
 });
 
-gulp.task('index', function() {
-    const config = yargs.argv.config || 'config.json';
-    log(yargs.argv.config);
-    log(config);
-    const hbsTransform = plugins.hb().data(config);
-    return gulp.src('src/index.hbs')
-    .pipe(hbsTransform)
-    .pipe(gulp.dest(buildDir));
+gulp.task('index', function(done) {
+    fs.readFile(indexConfig, 'utf-8', function(error, data) {
+        if (error) return done(error);
+        gulp.src(indexTemplate)
+            .pipe(plugins.hb().data(JSON.parse(data)))
+            .pipe(plugins.rename({extname: '.html'}))
+            .pipe(gulp.dest(buildDir));
+        return done();
+    });
 });
 
-gulp.task('watch', ['sass', 'hbs'], function() {
+gulp.task('watch', ['sass', 'hbs', 'index'], function() {
     const tsModulesWatched = tsModules().plugin(watchify);
     const bundleWatched = jsbundle(tsModulesWatched);
     tsModulesWatched.on('update', bundleWatched);
@@ -109,6 +113,7 @@ gulp.task('watch', ['sass', 'hbs'], function() {
     bundleWatched();
     gulp.watch(styleSourceGlob, ['sass']);
     gulp.watch(templateSourceGlob, ['hbs']);
+    gulp.watch([indexConfig, indexTemplate], ['index']);
 });
 
 gulp.task('clean', function() {
