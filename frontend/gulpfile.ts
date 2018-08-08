@@ -14,20 +14,20 @@ import yargs = require('yargs');
 import loadPlugins = require('gulp-load-plugins');
 const plugins = loadPlugins();
 
-const sourceDir = 'src',
-    buildDir = 'dist',
-    nodeDir = 'node_modules',
+const sourceDir = `src`,
+    buildDir = `dist`,
+    nodeDir = `node_modules`,
     mainScript = `${sourceDir}/main.ts`,
-    jsBundleName = 'bundle.js',
+    jsBundleName = `bundle.js`,
     jsSourceMapDest = `${buildDir}/bundle.js.map`,
-    jsTargetVersion = 'es5',
-    jsModuleType = 'commonjs',
+    jsTargetVersion = `es5`,
+    jsModuleType = `commonjs`,
     templateSourceGlob = `${sourceDir}/**/*-template.hbs`,
     templateOutputGlob = `${sourceDir}/**/*-template.js`,
     styleDir = `${sourceDir}/style`,
-    mainStylesheet = '${styleDir}/main.sass',
-    styleSourceGlob = '${styleDir}/*.sass',
-    indexConfig = yargs.argv.config || 'config.json',
+    mainStylesheet = `${styleDir}/main.sass`,
+    styleSourceGlob = `${styleDir}/*.sass`,
+    indexConfig = yargs.argv.config || `config.json`,
     indexTemplate = `${sourceDir}/index.hbs`,
     production = yargs.argv.production || false;
 
@@ -83,7 +83,7 @@ gulp.task('hbs', function() {
         .pipe(plugins.defineModule(jsModuleType, {
             require: {Handlebars: 'handlebars/runtime'},
         }))
-        .pipe(gulp.dest('src'));
+        .pipe(gulp.dest(sourceDir));
 });
 
 gulp.task('index', function(done) {
