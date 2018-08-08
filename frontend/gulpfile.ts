@@ -38,6 +38,8 @@ const tsModules = browserify({
     packageCache: {},
 }).plugin(tsify, {
     target: jsTargetVersion,
+}).require('lodash', {
+    expose: 'underscore',
 });
 
 function ifProd(stream, otherwise?) {
