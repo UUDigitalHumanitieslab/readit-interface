@@ -5,10 +5,12 @@ import vinylBuffer = require('vinyl-buffer');
 import tsify = require('tsify');
 import watchify = require('watchify');
 import exorcist = require('exorcist');
+import exposify = require('exposify');
 import log = require('fancy-log');
 import cssnano = require('cssnano');
 import autoprefixer = require('autoprefixer');
 import fs = require('fs');
+import path = require('path');
 import del = require('del');
 import yargs = require('yargs');
 import loadPlugins = require('gulp-load-plugins');
@@ -29,7 +31,23 @@ const sourceDir = `src`,
     styleSourceGlob = `${styleDir}/*.sass`,
     indexConfig = yargs.argv.config || `config.json`,
     indexTemplate = `${sourceDir}/index.hbs`,
-    production = yargs.argv.production || false;
+    production = yargs.argv.production || false,
+    browserLibs = {
+        jquery: '$',
+        lodash: '_',
+        underscore: '_',
+        backbone: 'Backbone',
+        'handlebars/runtime': 'Handlebars',
+    }, localBrowerLibs = Object.keys(browserLibs).map(
+        lib => path.relative(buildDir, require.resolve(lib))
+    );
+
+// We override the filePattern (normally /\.js$/) because tsify
+// outputs files without an extension. Basically, we tell exposify to
+// not be picky. This is fine because we only feed JS files into
+// browserify anyway.
+exposify.filePattern = /./;
+exposify.config = browserLibs;
 
 const tsModules = browserify({
     debug: !production,
@@ -38,9 +56,7 @@ const tsModules = browserify({
     packageCache: {},
 }).plugin(tsify, {
     target: jsTargetVersion,
-}).require('lodash', {
-    expose: 'underscore',
-});
+}).transform(exposify);
 
 function ifProd(stream, otherwise?) {
     return plugins['if'](production, stream, otherwise);
