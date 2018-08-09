@@ -5,5 +5,6 @@
     <title>READ-IT</title>
     <link rel=stylesheet href="{{{staticRoot}}}main.css">
 </head><body>
-    <script src="{{{staticRoot}}}bundle.js"></script>
+    {{#libs}}<script src="{{{@root.nodeRoot}}}{{{path}}}"></script>
+    {{/libs}}<script src="{{{staticRoot}}}bundle.js"></script>
 </body><html>

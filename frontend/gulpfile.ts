@@ -16,6 +16,16 @@ import yargs = require('yargs');
 import loadPlugins = require('gulp-load-plugins');
 const plugins = loadPlugins();
 
+type LibraryProps = {
+    module: string,
+    global: string,
+    alias?: string[],
+    path?: string,
+};
+type ExposeConfig = {
+    [moduleName: string]: string,
+};
+
 const sourceDir = `src`,
     buildDir = `dist`,
     nodeDir = `node_modules`,
@@ -26,28 +36,43 @@ const sourceDir = `src`,
     jsModuleType = `commonjs`,
     templateSourceGlob = `${sourceDir}/**/*-template.hbs`,
     templateOutputGlob = `${sourceDir}/**/*-template.js`,
+    hbsModule = 'handlebars/dist/handlebars.runtime',
+    hbsGlobal = 'Handlebars',
     styleDir = `${sourceDir}/style`,
     mainStylesheet = `${styleDir}/main.sass`,
     styleSourceGlob = `${styleDir}/*.sass`,
     indexConfig = yargs.argv.config || `config.json`,
     indexTemplate = `${sourceDir}/index.hbs`,
     production = yargs.argv.production || false,
-    browserLibs = {
-        jquery: '$',
-        lodash: '_',
-        underscore: '_',
-        backbone: 'Backbone',
-        'handlebars/runtime': 'Handlebars',
-    }, localBrowerLibs = Object.keys(browserLibs).map(
-        lib => path.relative(buildDir, require.resolve(lib))
-    );
+    browserLibs: LibraryProps[] = [{
+        module: 'jquery',
+        global: '$',
+    }, {
+        module: 'lodash',
+        global: '_',
+        alias: ['underscore'],
+    }, {
+        module: 'backbone',
+        global: 'Backbone',
+    }, {
+        module: hbsModule,
+        global: hbsGlobal,
+    }];
+
+browserLibs.forEach(
+    lib => lib.path = path.relative(nodeDir, require.resolve(lib.module))
+);
 
 // We override the filePattern (normally /\.js$/) because tsify
 // outputs files without an extension. Basically, we tell exposify to
 // not be picky. This is fine because we only feed JS files into
 // browserify anyway.
 exposify.filePattern = /./;
-exposify.config = browserLibs;
+exposify.config = browserLibs.reduce((config: ExposeConfig, lib) => {
+    config[lib.module] = lib.global;
+    if (lib.alias) lib.alias.forEach(alias => config[alias] = lib.global);
+    return config;
+}, {});
 
 const tsModules = browserify({
     debug: !production,
@@ -99,7 +124,7 @@ gulp.task('hbs', function() {
             },
         }))
         .pipe(plugins.defineModule(jsModuleType, {
-            require: {Handlebars: 'handlebars/runtime'},
+            require: {[hbsGlobal]: hbsModule},
         }))
         .pipe(gulp.dest(sourceDir));
 });
@@ -108,7 +133,9 @@ gulp.task('index', function(done) {
     fs.readFile(indexConfig, 'utf-8', function(error, data) {
         if (error) return done(error);
         gulp.src(indexTemplate)
-            .pipe(plugins.hb().data(JSON.parse(data)))
+            .pipe(plugins.hb().data(JSON.parse(data)).data({
+                libs: browserLibs,
+            }))
             .pipe(plugins.rename({extname: '.html'}))
             .pipe(gulp.dest(buildDir));
         return done();

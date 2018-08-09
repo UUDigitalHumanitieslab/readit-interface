@@ -1,3 +1,4 @@
 {
-  "staticRoot": "/"
+  "staticRoot": "/",
+  "nodeRoot": "/node_modules/"
 }
