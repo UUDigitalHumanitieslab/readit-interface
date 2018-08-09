@@ -21,6 +21,8 @@ type LibraryProps = {
     global: string,
     alias?: string[],
     path?: string,
+    package?: string,
+    cdn: string,
 };
 type ExposeConfig = {
     [moduleName: string]: string,
@@ -36,7 +38,8 @@ const sourceDir = `src`,
     jsModuleType = `commonjs`,
     templateSourceGlob = `${sourceDir}/**/*-template.hbs`,
     templateOutputGlob = `${sourceDir}/**/*-template.js`,
-    hbsModule = 'handlebars/dist/handlebars.runtime',
+    hbsModuleTail = 'dist/handlebars.runtime',
+    hbsModule = `handlebars/${hbsModuleTail}`,
     hbsGlobal = 'Handlebars',
     styleDir = `${sourceDir}/style`,
     mainStylesheet = `${styleDir}/main.sass`,
@@ -45,20 +48,36 @@ const sourceDir = `src`,
     indexConfig = yargs.argv.config || `config.json`,
     indexTemplate = `${sourceDir}/index.hbs`,
     production = yargs.argv.production || false,
+    jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
+    cdnjsBase = 'https://cdnjs.cloudflare.com/ajax/libs',
+    cdnjsPattern = `${cdnjsBase}/\${package}/\${version}`,
     browserLibs: LibraryProps[] = [{
         module: 'jquery',
         global: '$',
+        cdn: `${cdnjsPattern}/\${filenameMin}`,
     }, {
         module: 'lodash',
         global: '_',
         alias: ['underscore'],
+        cdn: `${jsdelivrPattern}/\${filenameMin}`,
     }, {
         module: 'backbone',
         global: 'Backbone',
+        cdn: `${cdnjsBase}/backbone.js/\${version}/backbone-min.js`,
     }, {
         module: hbsModule,
         global: hbsGlobal,
-    }];
+        package: 'handlebars',
+        cdn: `${jsdelivrPattern}/${hbsModuleTail}.min.js`,
+    }],
+    cdnizerConfig = {files: browserLibs.map(lib => {
+        let pkg = lib.package || lib.module;
+        return {
+            file: `**/node_modules/${pkg}/**`,
+            package: pkg,
+            cdn: lib.cdn,
+        };
+    })};
 
 browserLibs.forEach(
     lib => lib.path = path.relative(nodeDir, require.resolve(lib.module))
@@ -140,6 +159,7 @@ gulp.task('index', function(done) {
                 jsBundleName,
                 cssBundleName,
             }))
+            .pipe(ifProd(plugins.cdnizer(cdnizerConfig)))
             .pipe(plugins.rename({extname: '.html'}))
             .pipe(gulp.dest(buildDir));
         return done();
