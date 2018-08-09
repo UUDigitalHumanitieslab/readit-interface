@@ -73,7 +73,7 @@ const sourceDir = `src`,
     cdnizerConfig = {files: browserLibs.map(lib => {
         let pkg = lib.package || lib.module;
         return {
-            file: `**/node_modules/${pkg}/**`,
+            file: `/**/${pkg}/**`,
             package: pkg,
             cdn: lib.cdn,
         };
