@@ -30,8 +30,8 @@ const sourceDir = `src`,
     buildDir = `dist`,
     nodeDir = `node_modules`,
     mainScript = `${sourceDir}/main.ts`,
-    jsBundleName = `bundle.js`,
-    jsSourceMapDest = `${buildDir}/bundle.js.map`,
+    jsBundleName = `index.js`,
+    jsSourceMapDest = `${buildDir}/${jsBundleName}.map`,
     jsTargetVersion = `es5`,
     jsModuleType = `commonjs`,
     templateSourceGlob = `${sourceDir}/**/*-template.hbs`,
@@ -41,6 +41,7 @@ const sourceDir = `src`,
     styleDir = `${sourceDir}/style`,
     mainStylesheet = `${styleDir}/main.sass`,
     styleSourceGlob = `${styleDir}/*.sass`,
+    cssBundleName = 'index.css',
     indexConfig = yargs.argv.config || `config.json`,
     indexTemplate = `${sourceDir}/index.hbs`,
     production = yargs.argv.production || false,
@@ -111,6 +112,7 @@ gulp.task('sass', function() {
         .pipe(ifNotProd(plugins.sourcemaps.init()))
         .pipe(plugins.sass({includePaths: [nodeDir]}))
         .pipe(plugins.postcss(postcssPlugins))
+        .pipe(plugins.rename(cssBundleName))
         .pipe(ifNotProd(plugins.sourcemaps.write('.')))
         .pipe(gulp.dest(buildDir));
 });
@@ -135,6 +137,8 @@ gulp.task('index', function(done) {
         gulp.src(indexTemplate)
             .pipe(plugins.hb().data(JSON.parse(data)).data({
                 libs: browserLibs,
+                jsBundleName,
+                cssBundleName,
             }))
             .pipe(plugins.rename({extname: '.html'}))
             .pipe(gulp.dest(buildDir));
