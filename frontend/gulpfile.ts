@@ -47,6 +47,7 @@ const sourceDir = `src`,
     cssBundleName = 'index.css',
     indexConfig = yargs.argv.config || `config.json`,
     indexTemplate = `${sourceDir}/index.hbs`,
+    livereloadTargets = `${buildDir}/**`,
     production = yargs.argv.production || false,
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
     cdnjsBase = 'https://cdnjs.cloudflare.com/ajax/libs',
@@ -158,6 +159,7 @@ gulp.task('index', function(done) {
                 libs: browserLibs,
                 jsBundleName,
                 cssBundleName,
+                production,
             }))
             .pipe(ifProd(plugins.cdnizer(cdnizerConfig)))
             .pipe(plugins.rename({extname: '.html'}))
@@ -172,9 +174,11 @@ gulp.task('watch', ['sass', 'hbs', 'index'], function() {
     tsModulesWatched.on('update', bundleWatched);
     tsModulesWatched.on('log', log);
     bundleWatched();
+    plugins.livereload.listen();
     gulp.watch(styleSourceGlob, ['sass']);
     gulp.watch(templateSourceGlob, ['hbs']);
     gulp.watch([indexConfig, indexTemplate], ['index']);
+    gulp.watch(livereloadTargets).on('change', plugins.livereload.changed);
 });
 
 gulp.task('clean', function() {
