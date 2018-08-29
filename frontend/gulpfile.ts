@@ -232,6 +232,6 @@ gulp.task(CLEAN, function() {
     return del([buildDir, templateOutputGlob]);
 });
 
-gulp.task('default', function() {
-    // TODO
+gulp.task('default', [CLEAN], function() {
+    gulp.start(WATCH);
 });
