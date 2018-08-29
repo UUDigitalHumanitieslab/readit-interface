@@ -58,8 +58,11 @@ const sourceDir = `src`,
     production = yargs.argv.production || false,
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
     cdnjsBase = 'https://cdnjs.cloudflare.com/ajax/libs',
-    cdnjsPattern = `${cdnjsBase}/\${package}/\${version}`,
-    browserLibs: LibraryProps[] = [{
+    cdnjsPattern = `${cdnjsBase}/\${package}/\${version}`;
+
+// Libraries which are inserted through <script> tags rather than being bundled
+// by Browserify.
+const browserLibs: LibraryProps[] = [{
         module: 'jquery',
         global: '$',
         cdn: `${cdnjsPattern}/\${filenameMin}`,
