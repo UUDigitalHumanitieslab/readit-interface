@@ -30,6 +30,16 @@ type ExposeConfig = {
     [moduleName: string]: string,
 };
 
+// Task names.
+const SCRIPT = 'script',
+    UNITTEST = 'unittest',
+    STYLE = 'style',
+    TEMPLATE = 'template',
+    INDEX = 'index',
+    WATCH = 'watch',
+    CLEAN = 'clean';
+
+// General configuration.
 const sourceDir = `src`,
     buildDir = `dist`,
     nodeDir = `node_modules`,
@@ -61,7 +71,7 @@ const sourceDir = `src`,
     cdnjsPattern = `${cdnjsBase}/\${package}/\${version}`;
 
 // Libraries which are inserted through <script> tags rather than being bundled
-// by Browserify.
+// by Browserify. They will be inserted in the order shown.
 const browserLibs: LibraryProps[] = [{
         module: 'jquery',
         global: '$',
@@ -154,11 +164,11 @@ function jsUnittest() {
         }));
 }
 
-gulp.task('ts', ['hbs'], jsBundle);
+gulp.task(SCRIPT, [TEMPLATE], jsBundle);
 
-gulp.task('unittest', ['hbs'], jsUnittest);
+gulp.task(UNITTEST, [TEMPLATE], jsUnittest);
 
-gulp.task('sass', function() {
+gulp.task(STYLE, function() {
     let postcssPlugins = [autoprefixer()];
     if (production) postcssPlugins.push(cssnano());
     return gulp.src(mainStylesheet)
@@ -170,7 +180,7 @@ gulp.task('sass', function() {
         .pipe(gulp.dest(buildDir));
 });
 
-gulp.task('hbs', function() {
+gulp.task(TEMPLATE, function() {
     return gulp.src(templateSourceGlob)
         .pipe(plugins.cached(templateCacheName))
         .pipe(plugins.handlebars({
@@ -186,7 +196,7 @@ gulp.task('hbs', function() {
         .pipe(gulp.dest(sourceDir));
 });
 
-gulp.task('index', function(done) {
+gulp.task(INDEX, function(done) {
     fs.readFile(indexConfig, 'utf-8', function(error, data) {
         if (error) return done(error);
         gulp.src(indexTemplate)
@@ -203,7 +213,7 @@ gulp.task('index', function(done) {
     });
 });
 
-gulp.task('watch', ['sass', 'hbs', 'index'], function(callback) {
+gulp.task(WATCH, [STYLE, TEMPLATE, INDEX], function(callback) {
     tsModules.plugin(watchify);
     tsModules.on('update', jsBundle);
     tsModules.on('log', log);
@@ -212,13 +222,13 @@ gulp.task('watch', ['sass', 'hbs', 'index'], function(callback) {
     tsTestModules.on('update', jsUnittest);
     jsUnittest();
     plugins.livereload.listen();
-    gulp.watch(styleSourceGlob, ['sass']);
-    gulp.watch(templateSourceGlob, ['hbs']);
-    gulp.watch([indexConfig, indexTemplate], ['index']);
+    gulp.watch(styleSourceGlob, [STYLE]);
+    gulp.watch(templateSourceGlob, [TEMPLATE]);
+    gulp.watch([indexConfig, indexTemplate], [INDEX]);
     gulp.watch(livereloadTargets).on('change', plugins.livereload.changed);
 });
 
-gulp.task('clean', function() {
+gulp.task(CLEAN, function() {
     return del([buildDir, templateOutputGlob]);
 });
 
