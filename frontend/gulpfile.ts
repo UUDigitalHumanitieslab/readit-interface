@@ -126,15 +126,13 @@ function ifNotProd(stream) {
     return plugins['if'](!production, stream);
 }
 
-function jsbundle(modules) {
-    return function() {
-        return modules.bundle()
-            .pipe(ifNotProd(exorcist(jsSourceMapDest)))
-            .pipe(vinylStream(jsBundleName))
-            .pipe(ifProd(vinylBuffer()))
-            .pipe(ifProd(plugins.uglify()))
-            .pipe(gulp.dest(buildDir));
-    };
+function jsBundle() {
+    return tsModules.bundle()
+        .pipe(ifNotProd(exorcist(jsSourceMapDest)))
+        .pipe(vinylStream(jsBundleName))
+        .pipe(ifProd(vinylBuffer()))
+        .pipe(ifProd(plugins.uglify()))
+        .pipe(gulp.dest(buildDir));
 }
 
 function jsUnittest() {
@@ -150,7 +148,7 @@ function jsUnittest() {
         }));
 }
 
-gulp.task('ts', ['hbs'], jsbundle(tsModules));
+gulp.task('ts', ['hbs'], jsBundle);
 
 gulp.task('unittest', ['hbs'], jsUnittest);
 
@@ -198,11 +196,10 @@ gulp.task('index', function(done) {
 });
 
 gulp.task('watch', ['sass', 'hbs', 'index'], function(callback) {
-    const tsModulesWatched = tsModules.plugin(watchify);
-    const bundleWatched = jsbundle(tsModulesWatched);
-    tsModulesWatched.on('update', bundleWatched);
-    tsModulesWatched.on('log', log);
-    bundleWatched();
+    tsModules.plugin(watchify);
+    tsModules.on('update', jsBundle);
+    tsModules.on('log', log);
+    jsBundle();
     tsTestModules.plugin(watchify);
     tsTestModules.on('update', jsUnittest);
     jsUnittest();
