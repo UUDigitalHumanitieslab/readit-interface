@@ -1,3 +1,3 @@
-import ExampleView from '../example-topic/example-view';
+import ExampleView from '../example/example-view';
 
 export default new ExampleView();

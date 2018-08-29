@@ -1,3 +1,3 @@
-import Example from '../example-topic/example-model';
+import Example from '../example/example-model';
 
 export default new Example();
