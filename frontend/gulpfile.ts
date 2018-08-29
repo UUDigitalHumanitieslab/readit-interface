@@ -11,8 +11,10 @@ import cssnano = require('cssnano');
 import autoprefixer = require('autoprefixer');
 import fs = require('fs');
 import path = require('path');
+import streamqueue = require('streamqueue');
 import del = require('del');
 import yargs = require('yargs');
+import glob = require('glob');
 import loadPlugins = require('gulp-load-plugins');
 const plugins = loadPlugins();
 
@@ -36,6 +38,8 @@ const sourceDir = `src`,
     jsSourceMapDest = `${buildDir}/${jsBundleName}.map`,
     jsTargetVersion = `es5`,
     jsModuleType = `commonjs`,
+    unittestBundleName = 'tests.js',
+    unittestEntries = glob.sync(`${sourceDir}/**/*-test.ts`),
     templateSourceGlob = `${sourceDir}/**/*-template.hbs`,
     templateOutputGlob = `${sourceDir}/**/*-template.js`,
     hbsModuleTail = 'dist/handlebars.runtime',
@@ -71,6 +75,7 @@ const sourceDir = `src`,
         package: 'handlebars',
         cdn: `${jsdelivrPattern}/${hbsModuleTail}.min.js`,
     }],
+    browserLibsRootedPaths: string[] = [],
     cdnizerConfig = {files: browserLibs.map(lib => {
         let pkg = lib.package || lib.module;
         return {
@@ -80,9 +85,10 @@ const sourceDir = `src`,
         };
     })};
 
-browserLibs.forEach(
-    lib => lib.path = path.relative(nodeDir, require.resolve(lib.module))
-);
+browserLibs.forEach(lib => {
+    lib.path = path.relative(nodeDir, require.resolve(lib.module));
+    browserLibsRootedPaths.push(path.join(nodeDir, lib.path));
+});
 
 // We override the filePattern (normally /\.js$/) because tsify
 // outputs files without an extension. Basically, we tell exposify to
@@ -98,6 +104,14 @@ exposify.config = browserLibs.reduce((config: ExposeConfig, lib) => {
 const tsModules = browserify({
     debug: !production,
     entries: [mainScript],
+    cache: {},
+    packageCache: {},
+}).plugin(tsify, {
+    target: jsTargetVersion,
+}).transform(exposify);
+
+const tsTestModules = browserify({
+    entries: unittestEntries,
     cache: {},
     packageCache: {},
 }).plugin(tsify, {
@@ -123,7 +137,22 @@ function jsbundle(modules) {
     };
 }
 
+function jsUnittest() {
+    const libs = gulp.src(browserLibsRootedPaths);
+    const bundle = tsTestModules.bundle()
+        .pipe(vinylStream(unittestBundleName))
+        .pipe(vinylBuffer());
+    return streamqueue({objectMode: true}, libs, bundle)
+        .pipe(plugins.jasmineBrowser.specRunner({console: true}))
+        .pipe(plugins.jasmineBrowser.headless({
+            driver: 'phantomjs',
+            port: 8088,
+        }));
+}
+
 gulp.task('ts', ['hbs'], jsbundle(tsModules));
+
+gulp.task('unittest', ['hbs'], jsUnittest);
 
 gulp.task('sass', function() {
     let postcssPlugins = [autoprefixer()];
@@ -168,12 +197,15 @@ gulp.task('index', function(done) {
     });
 });
 
-gulp.task('watch', ['sass', 'hbs', 'index'], function() {
+gulp.task('watch', ['sass', 'hbs', 'index'], function(callback) {
     const tsModulesWatched = tsModules.plugin(watchify);
     const bundleWatched = jsbundle(tsModulesWatched);
     tsModulesWatched.on('update', bundleWatched);
     tsModulesWatched.on('log', log);
     bundleWatched();
+    tsTestModules.plugin(watchify);
+    tsTestModules.on('update', jsUnittest);
+    jsUnittest();
     plugins.livereload.listen();
     gulp.watch(styleSourceGlob, ['sass']);
     gulp.watch(templateSourceGlob, ['hbs']);
