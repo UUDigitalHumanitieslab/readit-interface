@@ -40,8 +40,11 @@ const sourceDir = `src`,
     jsModuleType = `commonjs`,
     unittestBundleName = 'tests.js',
     unittestEntries = glob.sync(`${sourceDir}/**/*-test.ts`),
+    templateRenameOptions = {extname: '.ts'},
     templateSourceGlob = `${sourceDir}/**/*-template.hbs`,
-    templateOutputGlob = `${sourceDir}/**/*-template.js`,
+    templateOutputGlob = `${sourceDir}/**/*-template${templateRenameOptions.extname}`,
+    templateModuleType = 'es6',
+    templateCacheName = 'templates',
     hbsModuleTail = 'dist/handlebars.runtime',
     hbsModule = `handlebars/${hbsModuleTail}`,
     hbsGlobal = 'Handlebars',
@@ -166,15 +169,17 @@ gulp.task('sass', function() {
 
 gulp.task('hbs', function() {
     return gulp.src(templateSourceGlob)
+        .pipe(plugins.cached(templateCacheName))
         .pipe(plugins.handlebars({
             compilerOptions: {
                 knownHelpers: {},
                 knownHelpersOnly: true,
             },
         }))
-        .pipe(plugins.defineModule(jsModuleType, {
+        .pipe(plugins.defineModule(templateModuleType, {
             require: {[hbsGlobal]: hbsModule},
         }))
+        .pipe(plugins.rename(templateRenameOptions))
         .pipe(gulp.dest(sourceDir));
 });
 
