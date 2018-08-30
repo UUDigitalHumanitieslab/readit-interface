@@ -58,7 +58,10 @@ const sourceDir = `src`,
     templateCacheName = 'templates',
     hbsModuleTail = 'dist/handlebars.runtime',
     hbsModule = `handlebars/${hbsModuleTail}`,
+    hbsKnownHelpers = {i18n: true},
     hbsGlobal = 'Handlebars',
+    i18nModuleTail = 'dist/umd/i18next',
+    i18nModule = `i18next/${i18nModuleTail}`,
     styleDir = `${sourceDir}/style`,
     mainStylesheet = `${styleDir}/main.sass`,
     styleSourceGlob = `${styleDir}/*.sass`,
@@ -68,6 +71,7 @@ const sourceDir = `src`,
     livereloadTargets = `${buildDir}/**`,
     production = yargs.argv.production || false,
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
+    unpkgPattern = 'https://unpkg.com/${package}@${version}',
     cdnjsBase = 'https://cdnjs.cloudflare.com/ajax/libs',
     cdnjsPattern = `${cdnjsBase}/\${package}/\${version}`;
 
@@ -91,6 +95,11 @@ const browserLibs: LibraryProps[] = [{
         global: hbsGlobal,
         package: 'handlebars',
         cdn: `${jsdelivrPattern}/${hbsModuleTail}.min.js`,
+    }, {
+        module: i18nModule,
+        global: 'i18next',
+        package: 'i18next',
+        cdn: `${unpkgPattern}/${i18nModuleTail}.min.js`,
     }],
     browserLibsRootedPaths: string[] = [],
     cdnizerConfig = {files: browserLibs.map(lib => {
@@ -186,7 +195,7 @@ gulp.task(TEMPLATE, function() {
         .pipe(plugins.cached(templateCacheName))
         .pipe(plugins.handlebars({
             compilerOptions: {
-                knownHelpers: {},
+                knownHelpers: hbsKnownHelpers,
                 knownHelpersOnly: true,
             },
         }))
