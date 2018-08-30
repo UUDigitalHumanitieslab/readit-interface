@@ -49,6 +49,7 @@ const sourceDir = `src`,
     jsSourceMapDest = `${buildDir}/${jsBundleName}.map`,
     jsTargetVersion = `es5`,
     jsModuleType = `commonjs`,
+    tsLibs = ['DOM', 'ES5', 'ES6', 'DOM.Iterable', 'ScriptHost'],
     unittestBundleName = 'tests.js',
     unittestEntries = glob.sync(`${sourceDir}/**/*-test.ts`),
     templateRenameOptions = {extname: '.ts'},
@@ -134,6 +135,7 @@ const tsModules = browserify({
     packageCache: {},
 }).plugin(tsify, {
     target: jsTargetVersion,
+    lib: tsLibs,
 }).transform(exposify);
 
 const tsTestModules = browserify({
@@ -142,6 +144,7 @@ const tsTestModules = browserify({
     packageCache: {},
 }).plugin(tsify, {
     target: jsTargetVersion,
+    lib: tsLibs,
 }).transform(exposify);
 
 function ifProd(stream, otherwise?) {
