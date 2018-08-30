@@ -36,6 +36,7 @@ const SCRIPT = 'script',
     STYLE = 'style',
     TEMPLATE = 'template',
     INDEX = 'index',
+    DIST = 'dist',
     WATCH = 'watch',
     CLEAN = 'clean';
 
@@ -212,6 +213,8 @@ gulp.task(INDEX, function(done) {
         return done();
     });
 });
+
+gulp.task(DIST, [SCRIPT, STYLE, INDEX]);
 
 gulp.task(WATCH, [STYLE, TEMPLATE, INDEX], function(callback) {
     tsModules.plugin(watchify);
