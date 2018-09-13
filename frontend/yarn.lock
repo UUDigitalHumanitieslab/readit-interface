@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@dhl-uu/jquery-promise@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@dhl-uu/jquery-promise/-/jquery-promise-1.1.1.tgz#0fbe7ed60a3ce36f1729a5fbd9f4f708c0e5bf10"
+
 "@gulp-sourcemaps/identity-map@1.X":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@gulp-sourcemaps/identity-map/-/identity-map-1.0.2.tgz#1e6fe5d8027b1f285dc0d31762f566bccd73d5a9"
