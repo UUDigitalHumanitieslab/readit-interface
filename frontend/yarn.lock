@@ -2604,6 +2604,10 @@ gulplog@^1.0.0:
   dependencies:
     glogg "^1.0.0"
 
+handlebars-i18next@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/handlebars-i18next/-/handlebars-i18next-1.0.1.tgz#e810e37b4022d7f7a5eca85c00dd51092d1b4eff"
+
 handlebars-wax@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/handlebars-wax/-/handlebars-wax-6.1.0.tgz#9d9a899e6c67b946c7742ce1b7d1bf58f2ba1722"
