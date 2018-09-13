@@ -136,7 +136,7 @@ const tsModules = browserify({
 }).plugin(tsify, {
     target: jsTargetVersion,
     lib: tsLibs,
-}).transform(exposify);
+}).transform(exposify, {global: true});
 
 const tsTestModules = browserify({
     entries: unittestEntries,
@@ -145,7 +145,7 @@ const tsTestModules = browserify({
 }).plugin(tsify, {
     target: jsTargetVersion,
     lib: tsLibs,
-}).transform(exposify);
+}).transform(exposify, {global: true});
 
 function ifProd(stream, otherwise?) {
     return plugins['if'](production, stream, otherwise);
