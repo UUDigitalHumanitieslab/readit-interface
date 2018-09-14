@@ -1,10 +1,10 @@
 // This module only exists to illustrate what to do if you need to
-// customize some core type.
+// create a customized intermediate base class.
 
-import * as bb from 'backbone'
+import Model from './model';
 
 export type FancynessLevel = 'low' | 'moderate' | 'high';
 
-export default class FancyModel extends bb.Model {
+export default class FancyModel extends Model {
     level: FancynessLevel = 'moderate';
 }
