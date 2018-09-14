@@ -59,7 +59,7 @@
     "streamqueue": "^1.1.2",
     "ts-node": "^7.0.0",
     "tsify": "^4.0.0",
-    "typescript": "^2.9.2",
+    "typescript": "^3.0.3",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0",
     "watchify": "^3.11.0",

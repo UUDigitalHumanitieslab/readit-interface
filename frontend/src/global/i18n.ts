@@ -4,7 +4,7 @@ import * as languageDetector from 'i18next-browser-languagedetector';
 import Handlebars from 'handlebars/dist/handlebars.runtime';
 import registerI18nHelper from 'handlebars-i18next';
 
-const french = require('../i18n/fr.json');
+import * as french from '../i18n/fr.json';
 
 const deferred = $.Deferred();
 const i18nPromise = deferred.promise();

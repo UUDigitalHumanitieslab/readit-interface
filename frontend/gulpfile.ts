@@ -47,9 +47,12 @@ const sourceDir = `src`,
     mainScript = `${sourceDir}/main.ts`,
     jsBundleName = `index.js`,
     jsSourceMapDest = `${buildDir}/${jsBundleName}.map`,
-    jsTargetVersion = `es5`,
     jsModuleType = `commonjs`,
-    tsLibs = ['DOM', 'ES5', 'ES6', 'DOM.Iterable', 'ScriptHost'],
+    tsOptions = {
+        target: `es5`,
+        lib: ['DOM', 'ES5', 'ES6', 'DOM.Iterable', 'ScriptHost'],
+        resolveJsonModule: true,
+    },
     unittestBundleName = 'tests.js',
     unittestEntries = glob.sync(`${sourceDir}/**/*-test.ts`),
     templateRenameOptions = {extname: '.ts'},
@@ -133,19 +136,13 @@ const tsModules = browserify({
     entries: [mainScript],
     cache: {},
     packageCache: {},
-}).plugin(tsify, {
-    target: jsTargetVersion,
-    lib: tsLibs,
-}).transform(exposify, {global: true});
+}).plugin(tsify, tsOptions).transform(exposify, {global: true});
 
 const tsTestModules = browserify({
     entries: unittestEntries,
     cache: {},
     packageCache: {},
-}).plugin(tsify, {
-    target: jsTargetVersion,
-    lib: tsLibs,
-}).transform(exposify, {global: true});
+}).plugin(tsify, tsOptions).transform(exposify, {global: true});
 
 function ifProd(stream, otherwise?) {
     return plugins['if'](production, stream, otherwise);
