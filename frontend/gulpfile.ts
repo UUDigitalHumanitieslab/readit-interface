@@ -6,6 +6,7 @@ import tsify = require('tsify');
 import watchify = require('watchify');
 import exorcist = require('exorcist');
 import exposify = require('exposify');
+import aliasify = require('aliasify');
 import log = require('fancy-log');
 import cssnano = require('cssnano');
 import autoprefixer = require('autoprefixer');
@@ -44,6 +45,9 @@ const SCRIPT = 'script',
 const sourceDir = `src`,
     buildDir = `dist`,
     nodeDir = `node_modules`,
+    configModuleName = 'config.json',
+    indexConfig = yargs.argv.config || configModuleName,
+    indexTemplate = `${sourceDir}/index.hbs`,
     mainScript = `${sourceDir}/main.ts`,
     jsBundleName = `index.js`,
     jsSourceMapDest = `${buildDir}/${jsBundleName}.map`,
@@ -52,6 +56,12 @@ const sourceDir = `src`,
         target: `es5`,
         lib: ['DOM', 'ES5', 'ES6', 'DOM.Iterable', 'ScriptHost'],
         resolveJsonModule: true,
+        paths: {configModuleName: indexConfig},
+        baseUrl: '.',
+    },
+    aliasOptions = {
+        aliases: {[configModuleName]: `./${indexConfig}`},
+        appliesTo: {excludeExtensions: ['.json']},
     },
     unittestBundleName = 'tests.js',
     unittestEntries = glob.sync(`${sourceDir}/**/*-test.ts`),
@@ -70,8 +80,6 @@ const sourceDir = `src`,
     mainStylesheet = `${styleDir}/main.sass`,
     styleSourceGlob = `${styleDir}/*.sass`,
     cssBundleName = 'index.css',
-    indexConfig = yargs.argv.config || `config.json`,
-    indexTemplate = `${sourceDir}/index.hbs`,
     livereloadTargets = `${buildDir}/**`,
     production = yargs.argv.production || false,
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
@@ -136,7 +144,10 @@ const tsModules = browserify({
     entries: [mainScript],
     cache: {},
     packageCache: {},
-}).plugin(tsify, tsOptions).transform(exposify, {global: true});
+}).plugin(tsify, tsOptions).transform(
+    aliasify,
+    aliasOptions,
+).transform(exposify, {global: true});
 
 const tsTestModules = browserify({
     entries: unittestEntries,
