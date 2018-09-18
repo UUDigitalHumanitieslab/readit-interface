@@ -1,4 +1,5 @@
 {
+  "baseUrl": "/",
   "staticRoot": "/",
   "nodeRoot": "/node_modules/"
 }
