@@ -38,6 +38,7 @@ const SCRIPT = 'script',
     TEMPLATE = 'template',
     INDEX = 'index',
     DIST = 'dist',
+    SERVE = 'serve',
     WATCH = 'watch',
     CLEAN = 'clean';
 
@@ -82,6 +83,7 @@ const sourceDir = `src`,
     cssBundleName = 'index.css',
     livereloadTargets = `${buildDir}/**`,
     production = yargs.argv.production || false,
+    ports = {frontend: 8080, unittest: 8088},
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
     unpkgPattern = 'https://unpkg.com/${package}@${version}',
     cdnjsBase = 'https://cdnjs.cloudflare.com/ajax/libs',
@@ -181,7 +183,7 @@ function jsUnittest() {
         .pipe(plugins.jasmineBrowser.specRunner({console: true}))
         .pipe(plugins.jasmineBrowser.headless({
             driver: 'phantomjs',
-            port: 8088,
+            port: ports.unittest,
         }));
 }
 
@@ -236,7 +238,15 @@ gulp.task(INDEX, function(done) {
 
 gulp.task(DIST, [SCRIPT, STYLE, INDEX]);
 
-gulp.task(WATCH, [STYLE, TEMPLATE, INDEX], function(callback) {
+gulp.task(SERVE, function() {
+    plugins.connect.server({
+        root: [buildDir, __dirname],
+        port: ports.frontend,
+        name: 'frontend',
+    });
+});
+
+gulp.task(WATCH, [STYLE, TEMPLATE, INDEX, SERVE], function(callback) {
     tsModules.plugin(watchify);
     tsModules.on('update', jsBundle);
     tsModules.on('log', log);

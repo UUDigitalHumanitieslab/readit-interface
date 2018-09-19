@@ -43,6 +43,7 @@
     "gulp-cached": "^1.1.1",
     "gulp-cdnizer": "^2.0.0",
     "gulp-cli": "^2.0.1",
+    "gulp-connect": "^5.6.1",
     "gulp-define-module": "^0.1.5",
     "gulp-handlebars": "^5.0.2",
     "gulp-hb": "^7.0.1",
