@@ -81,7 +81,6 @@ const sourceDir = `src`,
     mainStylesheet = `${styleDir}/main.sass`,
     styleSourceGlob = `${styleDir}/*.sass`,
     cssBundleName = 'index.css',
-    livereloadTargets = `${buildDir}/**`,
     production = yargs.argv.production || false,
     ports = {frontend: 8080, unittest: 8088},
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
@@ -243,6 +242,7 @@ gulp.task(SERVE, function() {
         root: [buildDir, __dirname],
         port: ports.frontend,
         name: 'frontend',
+        livereload: true,
     });
 });
 
@@ -254,11 +254,9 @@ gulp.task(WATCH, [STYLE, TEMPLATE, INDEX, SERVE], function(callback) {
     tsTestModules.plugin(watchify);
     tsTestModules.on('update', jsUnittest);
     jsUnittest();
-    plugins.livereload.listen();
     gulp.watch(styleSourceGlob, [STYLE]);
     gulp.watch(templateSourceGlob, [TEMPLATE]);
     gulp.watch([indexConfig, indexTemplate], [INDEX]);
-    gulp.watch(livereloadTargets).on('change', plugins.livereload.changed);
 });
 
 gulp.task(CLEAN, function() {
