@@ -1,10 +1,11 @@
 import { i18nPromise } from '../test-util';
 
-import ExampleView from './example-view';
+import EnterView from './enter-view';
+import Person from './person-model';
 
-describe('ExampleView', function() {
+describe('EnterView', function() {
     beforeEach(function() {
-        this.view = new ExampleView();
+        this.view = new EnterView({model: new Person()});
     });
     it('renders a simple greeting message', async function() {
         await i18nPromise;

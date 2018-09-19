@@ -1,9 +1,11 @@
-import example from '../global/example-model';
-import exampleView from '../global/example-view';
-import { i18nPromise } from '../global/i18n';
+import directionRouter from '../global/ex_direction-router';
+import directionFsm from '../global/ex_direction-fsm';
+import enterView from '../global/ex_enter-view';
+import exitView from '../global/ex_exit-view';
 
-// Normally the promise wouldn't be required. It is only used in this
-// example because we are not waiting for bb.history.start() before
-// rendering. This will be fixed in a later commit.
-i18nPromise.then(() => exampleView.render().$el.appendTo(document.body));
-exampleView.listenTo(example, 'change:property1', exampleView.render);
+directionRouter.on('route:arrive', () => directionFsm.handle('arrive'));
+directionRouter.on('route:leave', () => directionFsm.handle('leave'));
+directionFsm.on('enter:arriving', () => enterView.render().$el.appendTo('main'));
+directionFsm.on('exit:arriving', () => enterView.remove());
+directionFsm.on('enter:leaving', () => exitView.render().$el.appendTo('main'));
+directionFsm.on('exit:leaving', () => exitView.remove());

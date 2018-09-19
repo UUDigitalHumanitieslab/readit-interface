@@ -1,3 +1,4 @@
 {
-    "greeting": "Bonjour {{name}}!"
+    "greeting": "Bonjour {{name}}!",
+    "farewell": "Au revoir {{name}}!"
 }
