@@ -5,8 +5,6 @@ const routes = {
     'leave': 'leave',
 };
 
-export default class DirectionRouter extends Router {
-    routes() {
-        return routes;
-    }
-}
+export default class DirectionRouter extends Router {}
+
+DirectionRouter.prototype.routes = routes;
