@@ -21,6 +21,7 @@ const plugins = loadPlugins();
 
 type LibraryProps = {
     module: string,
+    browser?: string,
     global: string,
     alias?: string[],
     path?: string,
@@ -109,23 +110,26 @@ const browserLibs: LibraryProps[] = [{
         package: 'handlebars',
         cdn: `${jsdelivrPattern}/${hbsModuleTail}.min.js`,
     }, {
-        module: i18nModule,
+        module: 'i18next',
+        browser: i18nModule,
         global: 'i18next',
-        package: 'i18next',
-        cdn: `${unpkgPattern}/${i18nModuleTail}.min.js`,
+        cdn: `${unpkgPattern}/i18next.min.js`,
     }],
     browserLibsRootedPaths: string[] = [],
     cdnizerConfig = {files: browserLibs.map(lib => {
-        let pkg = lib.package || lib.module;
+        let mod = lib.module,
+            browser = lib.browser || mod,
+            pkg = lib.package || mod;
         return {
-            file: `/**/${pkg}/**`,
+            file: `/**/${browser}.*`,
             package: pkg,
             cdn: lib.cdn,
         };
     })};
 
 browserLibs.forEach(lib => {
-    lib.path = path.relative(nodeDir, require.resolve(lib.module));
+    let browser = lib.browser || lib.module;
+    lib.path = path.relative(nodeDir, require.resolve(browser));
     browserLibsRootedPaths.push(path.join(nodeDir, lib.path));
 });
 
