@@ -50,6 +50,7 @@ const sourceDir = `src`,
     configModuleName = 'config.json',
     indexConfig = yargs.argv.config || configModuleName,
     indexTemplate = `${sourceDir}/index.hbs`,
+    indexOutput = `${buildDir}/index.html`,
     mainScript = `${sourceDir}/main.ts`,
     jsBundleName = `index.js`,
     jsSourceMapDest = `${buildDir}/${jsBundleName}.map`,
@@ -243,10 +244,11 @@ gulp.task(DIST, [SCRIPT, STYLE, INDEX]);
 
 gulp.task(SERVE, function() {
     plugins.connect.server({
-        root: [buildDir, __dirname],
+        root: __dirname,
         port: ports.frontend,
         name: 'frontend',
         livereload: true,
+        fallback: indexOutput,
     });
 });
 

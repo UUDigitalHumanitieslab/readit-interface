@@ -1,5 +1,5 @@
 {
   "baseUrl": "/",
-  "staticRoot": "/",
+  "staticRoot": "/dist/",
   "nodeRoot": "/node_modules/"
 }

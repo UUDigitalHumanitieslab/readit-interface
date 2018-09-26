@@ -5,6 +5,7 @@ const DirectionFsm = Fsm.extend({
     states: {
         travelling: {
             arrive: 'arriving',
+            leave: 'leaving',
         },
         arriving: {
             leave: 'leaving',
