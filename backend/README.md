@@ -7,9 +7,19 @@ grant all on database readit to readit;
 ```
 
 
+## Installing the packages
+
+```console
+$ pip install pip-tools psycopg2 --no-binary psycopg2
+$ pip-sync
+```
+
+We need to install `psycopg2` with the `--no-binary` flag until we can upgrade to version 2.8 of `psycopg2`.
+
+
 ## Initializing Django
 
-```py
-python manage.py migrate
-python manage.py createsuperuser
+```console
+$ python manage.py migrate
+$ python manage.py createsuperuser
 ```
