@@ -27,6 +27,6 @@ $ python manage.py createsuperuser
 
 ## Testing
 
-Run `pytest` to execute all tests. Use the [pytest-django helpers][1] when writing new tests. **Don't** write tests in the way described in the Django tutorial.
+Run `pytest` to execute all tests once or `pytest --looponfail` to retest continuously as files change. Use the [pytest-django helpers][1] when writing new tests. **Don't** write tests in the way described in the Django tutorial.
 
 [1]: https://pytest-django.readthedocs.io/en/latest/helpers.html
