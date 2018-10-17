@@ -1,0 +1,15 @@
+{
+  "name": "READ-IT-application",
+  "version": "0.0.0",
+  "description": "Public interface for READ-IT",
+  "repository": "https://github.com/github:UUDigitalHumanitieslab/readit-interface",
+  "author": "UU Digital Humanities Lab",
+  "license": "BSD-3-Clause",
+  "private": true,
+  "scripts": {
+    "front": "cd frontend ; ",
+    "back": "cd backend ; ",
+    "gulp": "yarn front yarn gulp",
+    "django": "yarn back python manage.py"
+  }
+}

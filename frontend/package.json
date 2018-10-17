@@ -1,7 +1,6 @@
 {
   "name": "READ-IT-frontend",
-  "version": "0.0.0",
-  "description": "Public interface for READ-IT",
+  "description": "Public interface for READ-IT (frontend)",
   "repository": "github:UUDigitalHumanitieslab/readit-interface",
   "author": "UU Digital Humanities Lab",
   "license": "BSD-3-Clause",
