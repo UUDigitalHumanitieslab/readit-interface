@@ -9,7 +9,22 @@
   "scripts": {
     "front": "cd frontend ; ",
     "back": "cd backend ; ",
+    "add-front": "yarn front yarn add",
+    "install-front": "yarn front yarn",
+    "preinstall-back": "pip install pip-tools psycopg2 --no-binary psycopg2",
+    "install-back": "yarn preinstall-back && yarn back pip-sync",
+    "postinstall": "yarn install-front && yarn install-back",
     "gulp": "yarn front yarn gulp",
-    "django": "yarn back python manage.py"
+    "django": "yarn back python manage.py",
+    "test-front": "yarn gulp unittest",
+    "test-back": "yarn back pytest",
+    "test": "yarn test-front && yarn test-back",
+    "start-front": "yarn gulp clean && yarn gulp watch --config ../config.json",
+    "start-back": "yarn django runserver --settings settings --pythonpath ..",
+    "livereload-back": "yarn django livereload --settings settings --pythonpath ..",
+    "watch-test-back": "yarn test-back --looponfail",
+    "watch-back": "yarn livereload-back & yarn watch-test-back",
+    "start": "yarn start-front & yarn start-back & yarn watch-back",
+    "dist": "yarn gulp dist --production"
   }
 }

@@ -1,0 +1,5 @@
+{
+  "baseUrl": "/",
+  "staticRoot": "/static/",
+  "nodeRoot": "/static/"
+}
