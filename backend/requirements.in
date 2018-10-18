@@ -1,5 +1,6 @@
 django>=1.11,<2
 djangorestframework
+django-livereload-server
 psycopg2
 pytest
 pytest-django

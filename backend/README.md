@@ -30,3 +30,12 @@ $ python manage.py createsuperuser
 Run `pytest` to execute all tests once or `pytest --looponfail` to retest continuously as files change. Use the [pytest-django helpers][1] when writing new tests. **Don't** write tests in the way described in the Django tutorial.
 
 [1]: https://pytest-django.readthedocs.io/en/latest/helpers.html
+
+
+## Livereload
+
+```console
+$ python manage.py livereload
+```
+
+This works for all Python modules, templates and static files that Django knows about. If the `DEBUG` setting is `True`, the livereload script is automatically inserted in HTML pages.
