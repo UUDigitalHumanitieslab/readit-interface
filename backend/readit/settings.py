@@ -79,6 +79,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'readit',
         'USER': 'readit',
+        'PASSWORD': 'readit',
         'HOST': 'localhost',
     }
 }

@@ -1,7 +1,7 @@
 ## Preparing the database
 
 ```sql
-create user readit with createdb;
+create user readit with createdb with password 'readit';
 create database readit;
 grant all on database readit to readit;
 ```
