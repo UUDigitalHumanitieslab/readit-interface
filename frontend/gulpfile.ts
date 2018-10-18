@@ -252,7 +252,7 @@ gulp.task(SERVE, function() {
     });
 });
 
-gulp.task(WATCH, [STYLE, TEMPLATE, INDEX, SERVE], function(callback) {
+gulp.task(WATCH, [STYLE, TEMPLATE, INDEX], function(callback) {
     tsModules.plugin(watchify);
     tsModules.on('update', jsBundle);
     tsModules.on('log', log);
@@ -271,4 +271,5 @@ gulp.task(CLEAN, function() {
 
 gulp.task('default', [CLEAN], function() {
     gulp.start(WATCH);
+    gulp.start(SERVE);
 });
