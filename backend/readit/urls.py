@@ -18,6 +18,8 @@ from django.contrib import admin
 
 from rest_framework import routers
 
+from .index import index
+
 api_router = routers.DefaultRouter()  # register viewsets with this router
 
 urlpatterns = [
@@ -27,4 +29,5 @@ urlpatterns = [
         'rest_framework.urls',
         namespace='rest_framework',
     )),
+    url(r'', index),  # catch-all; unknown paths to be handled by a SPA
 ]
