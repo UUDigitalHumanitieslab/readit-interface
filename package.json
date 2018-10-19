@@ -9,11 +9,10 @@
   "scripts": {
     "front": "cd frontend ; ",
     "back": "cd backend ; ",
-    "add-front": "yarn front yarn add",
-    "install-front": "yarn front yarn",
+    "fyarn": "yarn front yarn",
     "preinstall-back": "pip install pip-tools psycopg2 --no-binary psycopg2",
     "install-back": "yarn preinstall-back && yarn back pip-sync",
-    "postinstall": "yarn install-front && yarn install-back",
+    "postinstall": "yarn fyarn && yarn install-back",
     "gulp": "yarn front yarn gulp",
     "django": "yarn back python manage.py",
     "test-front": "yarn gulp unittest",
