@@ -169,6 +169,22 @@ function ifNotProd(stream) {
     return plugins['if'](!production, stream);
 }
 
+gulp.task(TEMPLATE, function() {
+    return gulp.src(templateSourceGlob)
+        .pipe(plugins.cached(templateCacheName))
+        .pipe(plugins.handlebars({
+            compilerOptions: {
+                knownHelpers: hbsKnownHelpers,
+                knownHelpersOnly: true,
+            },
+        }))
+        .pipe(plugins.defineModule(templateModuleType, {
+            require: {[hbsGlobal]: hbsModule},
+        }))
+        .pipe(plugins.rename(templateRenameOptions))
+        .pipe(gulp.dest(sourceDir));
+});
+
 function jsBundle() {
     return tsModules.bundle()
         .pipe(ifNotProd(exorcist(jsSourceMapDest)))
@@ -191,9 +207,9 @@ function jsUnittest() {
         }));
 }
 
-gulp.task(SCRIPT, [TEMPLATE], jsBundle);
+gulp.task(SCRIPT, gulp.series(TEMPLATE, jsBundle));
 
-gulp.task(UNITTEST, [TEMPLATE], jsUnittest);
+gulp.task(UNITTEST, gulp.series(TEMPLATE, jsUnittest));
 
 gulp.task(STYLE, function() {
     let postcssPlugins = [autoprefixer()];
@@ -205,22 +221,6 @@ gulp.task(STYLE, function() {
         .pipe(plugins.rename(cssBundleName))
         .pipe(ifNotProd(plugins.sourcemaps.write('.')))
         .pipe(gulp.dest(buildDir));
-});
-
-gulp.task(TEMPLATE, function() {
-    return gulp.src(templateSourceGlob)
-        .pipe(plugins.cached(templateCacheName))
-        .pipe(plugins.handlebars({
-            compilerOptions: {
-                knownHelpers: hbsKnownHelpers,
-                knownHelpersOnly: true,
-            },
-        }))
-        .pipe(plugins.defineModule(templateModuleType, {
-            require: {[hbsGlobal]: hbsModule},
-        }))
-        .pipe(plugins.rename(templateRenameOptions))
-        .pipe(gulp.dest(sourceDir));
 });
 
 gulp.task(INDEX, function(done) {
@@ -240,7 +240,7 @@ gulp.task(INDEX, function(done) {
     });
 });
 
-gulp.task(DIST, [SCRIPT, STYLE, INDEX]);
+gulp.task(DIST, gulp.parallel(SCRIPT, STYLE, INDEX));
 
 gulp.task(SERVE, function() {
     plugins.connect.server({
@@ -252,7 +252,7 @@ gulp.task(SERVE, function() {
     });
 });
 
-gulp.task(WATCH, [STYLE, TEMPLATE, INDEX], function(callback) {
+gulp.task(WATCH, gulp.series(gulp.parallel(STYLE, TEMPLATE, INDEX), function() {
     tsModules.plugin(watchify);
     tsModules.on('update', jsBundle);
     tsModules.on('log', log);
@@ -260,16 +260,13 @@ gulp.task(WATCH, [STYLE, TEMPLATE, INDEX], function(callback) {
     tsTestModules.plugin(watchify);
     tsTestModules.on('update', jsUnittest);
     jsUnittest();
-    gulp.watch(styleSourceGlob, [STYLE]);
-    gulp.watch(templateSourceGlob, [TEMPLATE]);
-    gulp.watch([indexConfig, indexTemplate], [INDEX]);
-});
+    gulp.watch(styleSourceGlob, gulp.task(STYLE));
+    gulp.watch(templateSourceGlob, gulp.task(TEMPLATE));
+    gulp.watch([indexConfig, indexTemplate], gulp.task(INDEX));
+}));
 
 gulp.task(CLEAN, function() {
     return del([buildDir, templateOutputGlob]);
 });
 
-gulp.task('default', [CLEAN], function() {
-    gulp.start(WATCH);
-    gulp.start(SERVE);
-});
+gulp.task('default', gulp.series(CLEAN, gulp.parallel(WATCH, SERVE)));
