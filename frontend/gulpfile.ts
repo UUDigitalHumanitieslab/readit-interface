@@ -13,6 +13,7 @@ import autoprefixer = require('autoprefixer');
 import fs = require('fs');
 import path = require('path');
 import streamqueue = require('streamqueue');
+import proxy = require('http-proxy-middleware');
 import del = require('del');
 import yargs = require('yargs');
 import glob = require('glob');
@@ -84,6 +85,8 @@ const sourceDir = `src`,
     styleSourceGlob = `${styleDir}/*.sass`,
     cssBundleName = 'index.css',
     production = yargs.argv.production || false,
+    proxyConfig = yargs.argv.proxy,
+    serverRoot = yargs.argv.root,
     ports = {frontend: 8080, unittest: 8088},
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
     unpkgPattern = 'https://unpkg.com/${package}@${version}',
@@ -243,13 +246,20 @@ gulp.task(INDEX, function(done) {
 gulp.task(DIST, gulp.parallel(SCRIPT, STYLE, INDEX));
 
 gulp.task(SERVE, function() {
-    plugins.connect.server({
-        root: __dirname,
+    let serverOptions: any = {
+        root: serverRoot || __dirname,
         port: ports.frontend,
         name: 'frontend',
-        livereload: true,
+        livereload: !proxyConfig,
         fallback: indexOutput,
-    });
+    };
+    if (proxyConfig) {
+        const proxyData = JSON.parse(fs.readFileSync(proxyConfig, 'utf-8'));
+        serverOptions.middleware = (connect, connectOptions) => proxyData.map(
+            ({context, options}) => proxy(context, options)
+        );
+    }
+    plugins.connect.server(serverOptions);
 });
 
 gulp.task(WATCH, gulp.series(gulp.parallel(STYLE, TEMPLATE, INDEX), function() {
