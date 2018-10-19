@@ -4,8 +4,8 @@ __pycache__/
 *$py.class
 
 # Distribution / packaging
-build/
 dist/
+/static/
 
 # Installer logs
 pip-log.txt

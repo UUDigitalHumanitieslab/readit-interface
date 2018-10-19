@@ -18,12 +18,20 @@
     "test-front": "yarn gulp unittest",
     "test-back": "yarn back pytest",
     "test": "yarn test-front && yarn test-back",
-    "start-front": "yarn gulp clean && yarn gulp watch --config ../config.json",
+    "watch-front": "yarn gulp watch --config ../config.json",
+    "start-front": "yarn gulp clean && yarn watch-front",
     "start-back": "yarn django runserver --settings settings --pythonpath ..",
     "livereload-back": "yarn django livereload --settings settings --pythonpath ..",
     "watch-test-back": "yarn test-back --looponfail",
     "watch-back": "yarn livereload-back & yarn watch-test-back",
     "start": "yarn start-front & yarn start-back & yarn watch-back",
-    "dist": "yarn gulp dist --production"
+    "dist": "yarn gulp dist",
+    "dist-p": "yarn dist --production --config ../config.json",
+    "collectstatic-p": "yarn django collectstatic -v 0 --settings production --pythonpath ..",
+    "static-p": "yarn gulp clean && yarn dist-p && rm -r static && yarn collectstatic-p",
+    "serve-front-p": "yarn gulp serve --proxy ../proxy.json --root ..",
+    "serve-back-p": "yarn django runserver --settings production --pythonpath ..",
+    "serve-p": "yarn serve-front-p & yarn serve-back-p",
+    "start-p": "yarn static-p && yarn serve-p"
   }
 }
