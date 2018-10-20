@@ -19,7 +19,7 @@
     "django": "yarn back python manage.py",
     "test-front": "yarn gulp unittest",
     "test-back": "yarn back pytest",
-    "test-func": "yarn func pytest",
+    "test-func": "yarn install-func && yarn func pytest",
     "test": "yarn test-back && yarn test-front && test-func",
     "watch-front": "yarn gulp watch --config ../config.json",
     "start-front": "yarn gulp clean && yarn watch-front",
