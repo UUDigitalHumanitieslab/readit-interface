@@ -3,12 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Distribution / packaging
-dist/
-
-# Temporary files
-/static/
-
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
@@ -21,6 +15,11 @@ coverage.xml
 *.cover
 .pytest_cache/
 
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+
 # pyenv
 .python-version
 
@@ -32,6 +31,3 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
-# Node
-node_modules/
