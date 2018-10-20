@@ -40,3 +40,23 @@ def browser(webdriver_instance):
     """ Provides a WebDriver instance and performs some cleanups afterwards. """
     yield webdriver_instance
     webdriver_instance.delete_all_cookies()
+
+
+@pytest.fixture
+def base_address():
+    return 'http://localhost:8080/'
+
+
+@pytest.fixture
+def api_address(base_address):
+    return base_address + 'api/'
+
+
+@pytest.fixture
+def api_auth_address(base_address):
+    return base_address + 'api-auth/'
+
+
+@pytest.fixture
+def admin_address(base_address):
+    return base_address + 'admin/'
