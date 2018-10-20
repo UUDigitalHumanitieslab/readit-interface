@@ -2,6 +2,7 @@ import pytest
 from selenium import webdriver
 
 WEBDRIVER_INI_NAME = 'webdriver'
+BASE_ADDRESS_OPTION_NAME = 'base_address'
 
 
 def pytest_addoption(parser):
@@ -11,6 +12,12 @@ def pytest_addoption(parser):
         'Specify browsers in which the tests should run',
         type='linelist',
         default=['Chrome' ,'Firefox'],
+    )
+    parser.addoption(
+        '--base-address',
+        default='http://localhost:8080/',
+        help='specifies the base address where the application is running',
+        dest=BASE_ADDRESS_OPTION_NAME,
     )
 
 
@@ -42,9 +49,9 @@ def browser(webdriver_instance):
     webdriver_instance.delete_all_cookies()
 
 
-@pytest.fixture
-def base_address():
-    return 'http://localhost:8080/'
+@pytest.fixture(scope='session')
+def base_address(pytestconfig):
+    return pytestconfig.getoption(BASE_ADDRESS_OPTION_NAME)
 
 
 @pytest.fixture
