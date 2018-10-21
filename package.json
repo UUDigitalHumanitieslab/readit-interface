@@ -31,7 +31,7 @@
     "dist": "yarn gulp dist",
     "dist-p": "yarn dist --production --config ../config.json",
     "collectstatic-p": "yarn django collectstatic -v 0 --settings production --pythonpath ..",
-    "static-p": "yarn gulp clean && yarn dist-p && rm -r static && yarn collectstatic-p",
+    "static-p": "yarn gulp clean && yarn dist-p && rm -rf static && yarn collectstatic-p",
     "serve-front-p": "yarn gulp serve --proxy ../proxy.json --root ..",
     "serve-back-p": "yarn django runserver --settings production --pythonpath ..",
     "serve-p": "yarn serve-front-p & yarn serve-back-p",
