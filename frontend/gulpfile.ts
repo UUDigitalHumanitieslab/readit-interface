@@ -202,12 +202,16 @@ function jsUnittest() {
     const bundle = tsTestModules.bundle()
         .pipe(vinylStream(unittestBundleName))
         .pipe(vinylBuffer());
+    const headless = plugins.jasmineBrowser.headless({
+        driver: 'phantomjs',
+        port: ports.unittest,
+    });
+    // The next line is a fix based on
+    // https://github.com/gulpjs/gulp/issues/71#issuecomment-41512070
+    headless.on('error', e => headless.end());
     return streamqueue({objectMode: true}, libs, bundle)
         .pipe(plugins.jasmineBrowser.specRunner({console: true}))
-        .pipe(plugins.jasmineBrowser.headless({
-            driver: 'phantomjs',
-            port: ports.unittest,
-        }));
+        .pipe(headless);
 }
 
 gulp.task(SCRIPT, gulp.series(TEMPLATE, jsBundle));
