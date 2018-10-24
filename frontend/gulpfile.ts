@@ -273,6 +273,10 @@ gulp.task(WATCH, gulp.series(gulp.parallel(STYLE, TEMPLATE, INDEX), function() {
     gulp.watch(styleSourceGlob, gulp.task(STYLE));
     gulp.watch(templateSourceGlob, gulp.task(TEMPLATE));
     gulp.watch([indexConfig, indexTemplate], gulp.task(INDEX));
+    // workaround until https://github.com/jasmine/gulp-jasmine-browser/pull/62
+    // is released
+    process.once('SIGINT', () => process.exit());
+    process.once('SIGTERM', () => process.exit());
 }));
 
 gulp.task(CLEAN, function() {
