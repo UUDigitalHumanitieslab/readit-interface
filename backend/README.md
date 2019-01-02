@@ -10,11 +10,11 @@ grant all on database readit to readit;
 ## Installing the packages
 
 ```console
-$ pip install pip-tools psycopg2 --no-binary psycopg2
-$ pip-sync
+$ pip install pip-tools
+$ pip install -r requirements.txt
 ```
 
-We need to install `psycopg2` with the `--no-binary` flag until we can upgrade to version 2.8 of `psycopg2`.
+We need to install `psycopg2` with the `--no-binary` flag until we can upgrade to version 2.8 of `psycopg2`. If this were not the case, we could use `pip-sync` instead of `pip install -r`; the former currently doesn't work because of the `--no-binary` flag being present in the `requirements.txt`.
 
 
 ## Initializing Django
