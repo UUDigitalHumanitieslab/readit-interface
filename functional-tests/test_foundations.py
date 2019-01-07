@@ -1,4 +1,4 @@
-def test_readit(browser, base_address):
+def test_readit_frontend(browser, base_address):
     browser.get(base_address)
     assert 'READ-IT' in browser.title
 

@@ -39,6 +39,8 @@ const SCRIPT = 'script',
     STYLE = 'style',
     TEMPLATE = 'template',
     INDEX = 'index',
+    IMAGE = 'image',
+    COMPLEMENT = 'complement',  // non-script static
     DIST = 'dist',
     SERVE = 'serve',
     WATCH = 'watch',
@@ -52,6 +54,7 @@ const sourceDir = `src`,
     indexConfig = yargs.argv.config || configModuleName,
     indexTemplate = `${sourceDir}/index.hbs`,
     indexOutput = `${buildDir}/index.html`,
+    imageDir = `${sourceDir}/image`,
     mainScript = `${sourceDir}/main.ts`,
     jsBundleName = `index.js`,
     jsSourceMapDest = `${buildDir}/${jsBundleName}.map`,
@@ -76,7 +79,7 @@ const sourceDir = `src`,
     templateCacheName = 'templates',
     hbsModuleTail = 'dist/handlebars.runtime',
     hbsModule = `handlebars/${hbsModuleTail}`,
-    hbsKnownHelpers = {i18n: true},
+    hbsKnownHelpers = {i18n: true, static: true},
     hbsGlobal = 'Handlebars',
     i18nModuleTail = 'dist/umd/i18next',
     i18nModule = `i18next/${i18nModuleTail}`,
@@ -117,7 +120,7 @@ const browserLibs: LibraryProps[] = [{
         module: 'i18next',
         browser: i18nModule,
         global: 'i18next',
-        cdn: `${unpkgPattern}/i18next.min.js`,
+        cdn: `${cdnjsPattern}/\${filenameMin}`,
     }],
     browserLibsRootedPaths: string[] = [],
     cdnizerConfig = {files: browserLibs.map(lib => {
@@ -148,21 +151,25 @@ exposify.config = browserLibs.reduce((config: ExposeConfig, lib) => {
     return config;
 }, {});
 
-const tsModules = browserify({
+function decoratedBrowserify(options) {
+    return browserify(options)
+        .plugin(tsify, tsOptions)
+        .transform(aliasify, aliasOptions)
+        .transform(exposify, {global: true});
+}
+
+const tsModules = decoratedBrowserify({
     debug: !production,
     entries: [mainScript],
     cache: {},
     packageCache: {},
-}).plugin(tsify, tsOptions).transform(
-    aliasify,
-    aliasOptions,
-).transform(exposify, {global: true});
+});
 
-const tsTestModules = browserify({
+const tsTestModules = decoratedBrowserify({
     entries: unittestEntries,
     cache: {},
     packageCache: {},
-}).plugin(tsify, tsOptions).transform(exposify, {global: true});
+});
 
 function ifProd(stream, otherwise?) {
     return plugins['if'](production, stream, otherwise);
@@ -247,7 +254,13 @@ gulp.task(INDEX, function(done) {
     });
 });
 
-gulp.task(DIST, gulp.parallel(SCRIPT, STYLE, INDEX));
+gulp.task(IMAGE, function() {
+    return gulp.src(imageDir).pipe(gulp.symlink(buildDir));
+});
+
+gulp.task(COMPLEMENT, gulp.parallel(STYLE, INDEX, IMAGE));
+
+gulp.task(DIST, gulp.parallel(SCRIPT, COMPLEMENT));
 
 gulp.task(SERVE, function() {
     let serverOptions: any = {
@@ -266,7 +279,7 @@ gulp.task(SERVE, function() {
     plugins.connect.server(serverOptions);
 });
 
-gulp.task(WATCH, gulp.series(gulp.parallel(STYLE, TEMPLATE, INDEX), function() {
+gulp.task(WATCH, gulp.series(gulp.parallel(TEMPLATE, COMPLEMENT), function() {
     tsModules.plugin(watchify);
     tsModules.on('update', jsBundle);
     tsModules.on('log', log);
@@ -277,10 +290,6 @@ gulp.task(WATCH, gulp.series(gulp.parallel(STYLE, TEMPLATE, INDEX), function() {
     gulp.watch(styleSourceGlob, gulp.task(STYLE));
     gulp.watch(templateSourceGlob, gulp.task(TEMPLATE));
     gulp.watch([indexConfig, indexTemplate], gulp.task(INDEX));
-    // workaround until https://github.com/jasmine/gulp-jasmine-browser/pull/62
-    // is released
-    process.once('SIGINT', () => process.exit());
-    process.once('SIGTERM', () => process.exit());
 }));
 
 gulp.task(CLEAN, function() {

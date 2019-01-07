@@ -1,10 +1,12 @@
-import Router from '../core/router';
+import { extend } from 'lodash';
 
-const routes = {
-    '(arrive)': 'arrive',
-    'leave': 'leave',
-};
+import Router from '../core/router';
 
 export default class DirectionRouter extends Router {}
 
-DirectionRouter.prototype.routes = routes;
+extend(DirectionRouter.prototype, {
+    routes: {
+        '(arrive)': 'arrive',
+        'leave': 'leave',
+    },
+});

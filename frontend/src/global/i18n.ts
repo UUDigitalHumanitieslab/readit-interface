@@ -25,11 +25,4 @@ i18next.use(
     }
 });
 
-/**
- * Handlebars helper allowing you to do {{i18n 'key'}} in templates.
- *
- * See the README of the handlebars-i18next package for details.
- */
-registerI18nHelper(Handlebars, i18next);
-
 export { i18nPromise, i18next };

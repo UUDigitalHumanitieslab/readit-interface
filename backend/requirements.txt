@@ -10,21 +10,22 @@ apipkg==1.5               # via execnet
 atomicwrites==1.2.1       # via pytest
 attrs==18.2.0             # via pytest
 backports-abc==0.5        # via tornado
-beautifulsoup4==4.6.3     # via django-livereload-server
+beautifulsoup4==4.7.1     # via django-livereload-server
 django-livereload-server==0.3.2
-django==1.11.16
-djangorestframework==3.8.2
+django==1.11.18
+djangorestframework==3.9.0
 execnet==1.5.0            # via pytest-xdist
-more-itertools==4.3.0     # via pytest
+more-itertools==5.0.0     # via pytest
 pathlib2==2.3.3           # via pytest
-pluggy==0.7.1             # via pytest
-psycopg2==2.7.5
-py==1.6.0                 # via pytest
-pytest-django==3.4.3
+pluggy==0.8.0             # via pytest
+psycopg2==2.7.6.1
+py==1.7.0                 # via pytest
+pytest-django==3.4.5
 pytest-forked==0.2        # via pytest-xdist
-pytest-xdist==1.23.2
-pytest==3.8.2
-pytz==2018.5              # via django
+pytest-xdist==1.25.0
+pytest==4.1.0
+pytz==2018.9              # via django
 scandir==1.9.0            # via pathlib2
-six==1.11.0               # via django-livereload-server, more-itertools, pathlib2, pytest, pytest-xdist
+six==1.12.0               # via django-livereload-server, more-itertools, pathlib2, pytest, pytest-xdist
+soupsieve==1.6.2          # via beautifulsoup4
 tornado==5.1.1            # via django-livereload-server
