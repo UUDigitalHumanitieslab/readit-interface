@@ -7,9 +7,9 @@
   "license": "BSD-3-Clause",
   "private": true,
   "scripts": {
-    "front": "cd frontend ; ",
-    "back": "cd backend ; ",
-    "func": "cd functional-tests ; ",
+    "front": "cd frontend && ",
+    "back": "cd backend && ",
+    "func": "cd functional-tests && ",
     "fyarn": "yarn front yarn",
     "preinstall": "pip install pip-tools",
     "install-back": "yarn back pip install -r requirements.txt",
