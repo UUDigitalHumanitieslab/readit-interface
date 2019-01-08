@@ -1,4 +1,6 @@
 import { Model as BackboneModel } from 'backbone';
+import { extend } from 'lodash';
+
 import { syncWithCSRF } from './csrf';
 
 /**
@@ -8,7 +10,9 @@ import { syncWithCSRF } from './csrf';
  */
 export default class Model extends BackboneModel {}
 
-Model.prototype.sync = syncWithCSRF;
+extend(Model.prototype, {
+    sync: syncWithCSRF,
+});
 
 // Example: suppose we want to type-check the attributes of every
 // model. We could do something like the following.
