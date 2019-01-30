@@ -13,4 +13,5 @@ export default class LogoBannerView extends View {
 
 extend(LogoBannerView.prototype, {
     tagName: 'footer',
+    className: 'hero-foot',
 });

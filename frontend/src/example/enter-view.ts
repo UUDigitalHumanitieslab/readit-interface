@@ -1,3 +1,5 @@
+import { extend } from 'lodash';
+
 import View from '../core/view';
 import enterTemplate from './enter-template';
 
@@ -8,3 +10,8 @@ export default class EnterView extends View {
         return this;
     }
 }
+
+extend(EnterView.prototype, {
+    tagName: 'section',
+    className: 'hero-body',
+});
