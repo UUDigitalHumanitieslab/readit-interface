@@ -1,0 +1,41 @@
+<header class="hero-head">
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="">
+                <img src="{{static 'image/Logoproject.jpg'}}" alt="Read-It">
+            </a>
+            <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+        <div id="navbarMenu" class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item"> 
+                    Search    
+                </a>
+                <a class="navbar-item">
+                    Advanced Search
+                </a>
+                <a class="navbar-item">
+                    Explore
+                </a>
+            </div>
+            <div class="navbar-end">
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        {{#i18n 'greeting'}}Hello, {{name}}!{{/i18n}}
+                    </a>
+                    <div class="navbar-dropdown">
+                        <a href="leave" class="navbar-item">
+                            Log out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </nav>
+</header>
