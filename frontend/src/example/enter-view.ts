@@ -6,7 +6,7 @@ import enterTemplate from './enter-template';
 export default class EnterView extends View {
     template = enterTemplate;
     render() {
-        this.$el.html(this.template(this.model.toJSON()));
+        this.$el.html(this.template());
         return this;
     }
 }

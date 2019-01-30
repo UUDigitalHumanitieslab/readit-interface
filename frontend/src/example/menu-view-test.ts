@@ -1,12 +1,12 @@
 import { enableI18n } from '../test-util';
 
-import EnterView from './enter-view';
+import MenuView from './menu-view';
 import Person from './person-model';
 
-describe('EnterView', function() {
+describe('MenuView', function() {
     beforeAll(enableI18n);
     beforeEach(function() {
-        this.view = new EnterView({model: new Person()});
+        this.view = new MenuView({model: new Person()});
     });
     it('renders a simple greeting message', function() {
         expect(this.view.render().$el.html()).toContain('Alex');
