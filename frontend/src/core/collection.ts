@@ -10,7 +10,7 @@ import { syncWithCSRF } from './csrf';
  * you want to apply a customization to all collections in the
  * application, do it here.
  */
-export default class Collection extends BackboneCollection {};
+export default class Collection extends BackboneCollection<Model> {};
 
 extend(Collection.prototype, {
     model: Model,
