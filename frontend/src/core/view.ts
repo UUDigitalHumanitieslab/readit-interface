@@ -1,4 +1,5 @@
 import { View } from 'backbone';
+import { TemplateDelegate } from 'handlebars';
 
 import Model from './model';
 
@@ -8,4 +9,5 @@ import Model from './model';
  * apply a customization to all views in the application, do it here.
  */
 export default class BaseView extends View<Model> {
-};
+    template: TemplateDelegate;
+}
