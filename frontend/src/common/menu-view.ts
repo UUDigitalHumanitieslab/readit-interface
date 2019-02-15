@@ -5,8 +5,6 @@ import menuTemplate from './menu-template';
 import User from './../models/user';
 
 export default class MenuView extends View {    
-    template = menuTemplate;
-    
     render() {
         this.$el.html(this.template(this.model.attributes));
         return this;
@@ -33,7 +31,8 @@ export default class MenuView extends View {
 
 extend(MenuView.prototype, {
     tagName: 'header',
-    className: 'hero-head',
+    className: 'hero-head',        
+    template: menuTemplate,
     events: {
         "click .navbar-burger": "toggleHamburger",
         "click #login": "login",

@@ -4,7 +4,6 @@ import View from '../core/view';
 import footerTemplate from './footer-template';
 
 export default class FooterView extends View {
-    template = footerTemplate;
     render() {
         this.$el.html(this.template());
         return this;
@@ -14,4 +13,5 @@ export default class FooterView extends View {
 extend(FooterView.prototype, {
     tagName: 'div',
     className: 'container',
+    template: footerTemplate,
 });
