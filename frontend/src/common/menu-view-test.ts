@@ -1,7 +1,7 @@
 import { enableI18n } from '../test-util';
 
 import MenuView from './menu-view';
-import Person from './person-model';
+import Person from '../example/person-model';
 
 describe('MenuView', function() {
     beforeAll(enableI18n);

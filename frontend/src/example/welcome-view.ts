@@ -1,10 +1,10 @@
 import { extend } from 'lodash';
 
 import View from '../core/view';
-import enterTemplate from './enter-template';
+import welcomeTemplate from './welcome-template';
 
 export default class EnterView extends View {
-    template = enterTemplate;
+    template = welcomeTemplate;
     render() {
         this.$el.html(this.template());
         return this;
@@ -13,5 +13,4 @@ export default class EnterView extends View {
 
 extend(EnterView.prototype, {
     tagName: 'section',
-    className: 'hero-body',
 });

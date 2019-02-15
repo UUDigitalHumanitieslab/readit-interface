@@ -7,6 +7,5 @@ export default class DirectionRouter extends Router {}
 extend(DirectionRouter.prototype, {
     routes: {
         '(arrive)': 'arrive',
-        'leave': 'leave',
     },
 });
