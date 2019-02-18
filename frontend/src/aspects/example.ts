@@ -23,9 +23,7 @@ directionRouter.on('route:search', () => directionFsm.handle('search'));
 
 
 directionFsm.on('enter:arriving', () => {
-    welcomeView.render().$el.appendTo('#main')
-    let searchboxView = new SearchboxView();    
-    searchboxView.render().$el.insertAfter('.welcome-image')
+    welcomeView.render().$el.appendTo('#main')    
 });
 directionFsm.on('exit:arriving', () => { 
     welcomeView.$el.detach();    
