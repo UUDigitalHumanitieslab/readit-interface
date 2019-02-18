@@ -6,12 +6,17 @@ const DirectionFsm = Fsm.extend({
         travelling: {
             arrive: 'arriving',
             leave: 'leaving',
+            search: 'searching',
         },
         arriving: {
             leave: 'leaving',
+            search: 'searching'
         },
         leaving: {
             arrive: 'arriving',
+        },
+        searching: {
+            
         },
     },
 });
