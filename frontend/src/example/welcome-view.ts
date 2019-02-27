@@ -1,17 +1,21 @@
 import { extend } from 'lodash';
-
 import View from '../core/view';
+import DirectionRouter from '../global/ex_direction-router';
+
 import welcomeTemplate from './welcome-template';
-import SearchboxView from './../search/searchbox-view';
+import searchboxView from './../global/searchbox';
 
 export default class WelcomeView extends View {
-    searchboxView = undefined;
-
     render() {
-        this.$el.html(this.template());
-        this.searchboxView = new SearchboxView();
-        this.$('.welcome-image').append(this.searchboxView.render().$el)
+        this.$el.html(this.template(this));
+        this.$('.welcome-image').append(searchboxView.render().$el)
+        searchboxView.on("searchClicked", this.search)
         return this;
+    }
+
+    search(query: string) {
+        var url = encodeURI(`search/${query}`);
+        DirectionRouter.navigate(url, {trigger: true});
     }
 }
 

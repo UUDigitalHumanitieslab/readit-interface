@@ -121,6 +121,10 @@ const browserLibs: LibraryProps[] = [{
         browser: i18nModule,
         global: 'i18next',
         cdn: `${cdnjsPattern}/\${filenameMin}`,
+    }, {
+        module: 'select2',
+        global: 'select2',
+        cdn: 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js'
     }],
     browserLibsRootedPaths: string[] = [],
     cdnizerConfig = {files: browserLibs.map(lib => {

@@ -1,16 +1,28 @@
 @import defaults
 @import bulma-custom
 @import welcome
+@import search
+@import tags
+@import filters
 @import footer
 
-html
+html, body
     height: 100%
 
-body 
-    position: absolute
+.wrapper
     min-height: 100%
+    height: auto !important
+    height: 100%
+    margin: 0 auto -142px
+
+body
     width: 100%
+
+.push
+    height: 142px    
 
 main
     min-height: 450px
+    max-width: 1300px
+    margin: 0 auto
     padding: 1em 2em

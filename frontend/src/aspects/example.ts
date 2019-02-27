@@ -3,12 +3,12 @@ import { history } from 'backbone';
 import directionRouter from '../global/ex_direction-router';
 import directionFsm from '../global/ex_direction-fsm';
 import welcomeView from '../global/welcome-view';
-import SearchboxView from '../search/searchbox-view';
 import exitView from '../global/ex_exit-view';
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
 
 import SearchView from '../search/search-view';
+import SourceCollection from '../models/source-collection';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -30,7 +30,7 @@ directionFsm.on('exit:arriving', () => {
 });
 
 directionFsm.on('enter:searching', () => {
-    let searchView = new SearchView();
+    let searchView = new SearchView({collection: new SourceCollection()});
     searchView.render().$el.appendTo('#main')
 });
 

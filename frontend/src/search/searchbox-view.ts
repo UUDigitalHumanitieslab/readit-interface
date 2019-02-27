@@ -2,10 +2,20 @@ import { extend } from 'lodash';
 import View from '../core/view';
 import searchboxTemplate from './searchbox-template';
 
-export default class SearchboxView extends View {     
-    render() {
-        this.$el.html(this.template());
+export default class SearchboxView extends View {
+    render() {        
+        this.$el.html(this.template(this));
         return this;
+    }
+
+    onKeyUp(e) {
+        if (e.keyCode == 13) {
+            this.search(e);
+        }
+    }
+
+    initialize() {
+
     }
 
     search(event: any) {
@@ -20,6 +30,7 @@ extend(SearchboxView.prototype, {
     className: 'searchbox',
     template: searchboxTemplate,
     events: {
-        "submit #search-form": "search",
+        "click .button": "search",
+        "keyup input": "onKeyUp",
     }
 });
