@@ -1,3 +1,3 @@
-import SearchboxView from './../search/searchbox-view';
+import SearchboxView from '../search/search-box/searchbox-view';
 
 export default new SearchboxView()

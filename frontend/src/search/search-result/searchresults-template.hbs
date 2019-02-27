@@ -4,16 +4,16 @@
     <article class="media">
         <div class="media-content">
             <div class="searchresult-details">
-                <strong>{{this.attributes.text}}</strong>
-                <p>Source: {{this.attributes.source.name}}</p>
-                <p>Published: {{this.attributes.source.date}}</p>
+                <strong>{{this.fragment.text}}</strong>
+                <p>Source: {{this.source.attributes.name}}</p>
+                <p>Published: {{this.source.attributes.publicationDate}}</p>
             </div>
 
         </div>
         <div class="media-right">
             <p>
-                {{#each this.attributes.tags}}
-                <div class="tag is-medium tag-{{this.className}}">{{this.name}}</div>
+                {{#each this.tags}}
+                <div class="tag is-medium tag-{{this.attributes.className}}">{{this.attributes.name}}</div>
                 {{/each}}
             </p>
             <div class="searchresult-icons">

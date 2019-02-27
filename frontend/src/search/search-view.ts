@@ -6,29 +6,28 @@ import Collection from '../core/collection';
 import DirectionRouter from '../global/ex_direction-router';
 import searchboxView from '../global/searchbox';
 import searchTemplate from './search-template';
-import SnippetCollection from './../models/snippet-collection';
 import Select2FilterView from '../filters/select/select2-filter-view';
 import SelectFilterOption from '../filters/select/select-option';
-import SearchResultsView from './searchresults-view';
+import SearchResultsView from './search-result/searchresults-view';
+import SearchResultsCollection from './search-result/search-result-collection';
 
 export default class SearchView extends View {
     searchResultsView = undefined;
-    initialSnippets = undefined;
+    initialSearchResults = undefined;
     filterCollection: any;
 
     render(): View {
         this.$el.html(this.template({ results: this.collection.models }));
 
-        this.$('#searchbox').append(searchboxView.render().$el);
-        searchboxView.on("searchClicked", this.search, this)
+        this.$('#searchbox').append(searchboxView.render().$el);        
 
-        this.searchResultsView = new SearchResultsView();
+        this.searchResultsView = new SearchResultsView();        
         this.searchResultsView.collection = this.collection;
         this.$('#search-results-wrapper').append(this.searchResultsView.render().$el);
 
-        this.setInitialSnippets();
+        this.setInitialSources();
 
-        if (this.initialSnippets) {
+        if (this.initialSearchResults) {
             this.search(this.getQueryFromUrl());
         }
 
@@ -36,7 +35,7 @@ export default class SearchView extends View {
     }
 
     initialize(): void {
-        this.setInitialSnippets();
+        this.setInitialSources();
         this.listenTo(this.collection, 'reset', this.updateResults)
     }
 
@@ -51,22 +50,27 @@ export default class SearchView extends View {
         var url = encodeURI(`search/${query}`);
         DirectionRouter.navigate(url, { trigger: true });
 
-        this.collection.reset(_.filter(this.initialSnippets.models, function (model) {
-            if (model.attributes.source.name.includes(query)) {
-                return true;
-            }
-            // source author
-            if (model.attributes.source.author.name.includes(query)) {
-                return true;
-            }
-            // snippet text
-            if (model.attributes.text.includes(query)) {
-                return true;
-            }
-            // if (model.attributes.source.attributes.text.includes(query)) {
+        console.log(this.initialSearchResults)
+        
+        this.collection.reset(_.filter(this.initialSearchResults.models, function (result) {
+            console.log(result)
+            
+            // 1. source title
+            // if (result.attributes.name.includes(query)) {
             //     return true;
             // }
-            return false;
+            // 2. source author
+            // if (result.attributes.author.name.includes(query)) {
+            //     return true;
+            // }
+            
+            // for (let fragment of result.attributes.fragments) {
+            //     // 3. snippet text
+
+            //     // 4. fragment text
+            // }
+
+            return true;
         }));
 
         this.initFilters();
@@ -77,20 +81,20 @@ export default class SearchView extends View {
     }
 
     initFilters(): void {
-        if (this.filterCollection) {
-            for (let filter of this.filterCollection.models) {
-                filter.attributes.remove()
-            }
-        }
+        // if (this.filterCollection) {
+        //     for (let filter of this.filterCollection.models) {
+        //         filter.attributes.remove()
+        //     }
+        // }
 
-        let filters = [];
-        filters.push(this.initTypesFilter());
+        // let filters = [];
+        // filters.push(this.initTypesFilter());
 
-        for (let filter of filters) {
-            this.$('.search-filters').append(filter.render().$el);
-        }
+        // for (let filter of filters) {
+        //     this.$('.search-filters').append(filter.render().$el);
+        // }
 
-        this.filterCollection = new Collection(filters);
+        // this.filterCollection = new Collection(filters);
     }
 
     initTypesFilter(): Select2FilterView {
@@ -101,7 +105,7 @@ export default class SearchView extends View {
     }
 
     onTypesSelectedChanged(selectedTypeIds: string[]): void {
-        this.collection.reset(_.filter(this.initialSnippets.models, function (model) {
+        this.collection.reset(_.filter(this.initialSearchResults.models, function (model) {
             if (selectedTypeIds.length == 0) {
                 return true;
             }
@@ -132,14 +136,14 @@ export default class SearchView extends View {
         return allTypes;
     }
 
-    setInitialSnippets(): void {
+    setInitialSources(): void {
         var self = this;
-        var snippetCollection = new SnippetCollection();
+        var snippetCollection = new SearchResultsCollection();
 
         snippetCollection.fetch({
             data: { 'TODO': 'TODO' },
             success: function (collection, response, options) {
-                self.initialSnippets = new SnippetCollection(collection.models)
+                self.initialSearchResults = new SearchResultsCollection(collection.models)                
                 self.search(self.getQueryFromUrl());
                 self.initFilters();
             },
@@ -150,9 +154,6 @@ export default class SearchView extends View {
         })
     }
 }
-
-
-
 extend(SearchView.prototype, {
     tagName: 'div',
     className: 'search',
