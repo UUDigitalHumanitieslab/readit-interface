@@ -1,8 +1,8 @@
 <p class="search-resultcount">{{results.length}} hits:</p>
 {{#each results}}
 <div class="box">
-    <article class="media">
-        <div class="media-content">
+    <article class="columns">
+        <div class="column is-6">
             <div class="searchresult-details">
                 <strong>{{this.fragment.text}}</strong>
                 <p>Source: {{this.source.attributes.name}}</p>
@@ -10,7 +10,7 @@
             </div>
 
         </div>
-        <div class="media-right">
+        <div class="column is-6 searchresult-right">
             <p>
                 {{#each this.tags}}
                 <div class="tag is-medium tag-{{this.attributes.className}}">{{this.attributes.name}}</div>
