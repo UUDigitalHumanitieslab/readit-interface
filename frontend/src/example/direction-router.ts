@@ -2,11 +2,11 @@ import { extend } from 'lodash';
 
 import Router from '../core/router';
 
-export default class DirectionRouter extends Router {}
+export default class DirectionRouter extends Router { }
 
 extend(DirectionRouter.prototype, {
     routes: {
         '(arrive)': 'arrive',
-        'search/:query': 'search',
+        'search/?(queryfields=:queryfields)(&query:=query)': 'search',
     },
 });

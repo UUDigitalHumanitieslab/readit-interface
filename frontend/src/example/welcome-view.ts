@@ -13,9 +13,9 @@ export default class WelcomeView extends View {
         return this;
     }
 
-    search(query: string) {
-        var url = encodeURI(`search/${query}`);
-        DirectionRouter.navigate(url, {trigger: true});
+    search(query: string, queryfields: string = 'all') {
+        var url = encodeURI(`search/?queryfields=${queryfields}&query=${query}`);
+        DirectionRouter.navigate(url, { trigger: true });
     }
 }
 
