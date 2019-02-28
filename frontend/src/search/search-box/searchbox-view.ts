@@ -1,9 +1,26 @@
 import { extend } from 'lodash';
 import View from '../../core/view';
+
 import searchboxTemplate from './searchbox-template';
+import QueryField from './query-field'
 
 export default class SearchboxView extends View {
-    render() {        
+    placeholder: string;
+    queryFields: QueryField[] = undefined;
+    /**
+     * Ctor for SearchboxView
+     * @param queryFields Set of fields to include in the query
+     * @param placeholder Defaults to 'in fields..'
+     */
+    constructor(
+        queryFields: QueryField[],
+        placeholder: string = "in fields..") {
+        super()
+        this.queryFields = queryFields;
+        this.placeholder = placeholder;
+    }
+
+    render() {
         this.$el.html(this.template(this));
         return this;
     }
