@@ -50,10 +50,10 @@ export default class SearchView extends View {
         var url = encodeURI(`search/${query}`);
         DirectionRouter.navigate(url, { trigger: true });
 
-        console.log(this.initialSearchResults)
+        // console.log(this.initialSearchResults)
         
         this.collection.reset(_.filter(this.initialSearchResults.models, function (result) {
-            console.log(result)
+            // console.log(result)
             
             // 1. source title
             // if (result.attributes.name.includes(query)) {
@@ -81,20 +81,20 @@ export default class SearchView extends View {
     }
 
     initFilters(): void {
-        // if (this.filterCollection) {
-        //     for (let filter of this.filterCollection.models) {
-        //         filter.attributes.remove()
-        //     }
-        // }
+        if (this.filterCollection) {
+            for (let filter of this.filterCollection.models) {
+                filter.attributes.remove()
+            }
+        }
 
-        // let filters = [];
-        // filters.push(this.initTypesFilter());
+        let filters = [];
+        filters.push(this.initTypesFilter());        
 
-        // for (let filter of filters) {
-        //     this.$('.search-filters').append(filter.render().$el);
-        // }
+        for (let filter of filters) {
+            this.$('.search-filters').append(filter.render().$el);
+        }
 
-        // this.filterCollection = new Collection(filters);
+        this.filterCollection = new Collection(filters);
     }
 
     initTypesFilter(): Select2FilterView {
@@ -105,14 +105,12 @@ export default class SearchView extends View {
     }
 
     onTypesSelectedChanged(selectedTypeIds: string[]): void {
-        this.collection.reset(_.filter(this.initialSearchResults.models, function (model) {
+        this.collection.reset(_.filter(this.initialSearchResults.models, function (searchResult) {
             if (selectedTypeIds.length == 0) {
                 return true;
             }
 
-            let tags = model.get('tags')
-
-            for (let tag of tags) {
+            for (let tag of searchResult.tags) {
                 for (let id of selectedTypeIds) {
                     if (+id === tag.id) {
                         return true
@@ -126,10 +124,10 @@ export default class SearchView extends View {
 
     getTypeFilterOptions(): SelectFilterOption[] {
         var allTypes: SelectFilterOption[] = [];
-        for (let snippet of this.collection.models) {
-            for (let tag of snippet.attributes.tags) {
+        for (let searchResult of this.collection.models) {
+            for (let tag of searchResult.tags) {
                 if (!allTypes.find(option => option.value === tag.id)) {
-                    allTypes.push(new SelectFilterOption(tag.id, tag.name, `tag tag-${tag.className} is-medium`))
+                    allTypes.push(new SelectFilterOption(tag.id, tag.attributes.name, `tag tag-${tag.attributes.className} is-medium`))
                 }
             }
         }
