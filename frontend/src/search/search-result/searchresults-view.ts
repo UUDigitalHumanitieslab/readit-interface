@@ -15,8 +15,10 @@ export default class SearchResultsView extends View {
     }
 
     showDetails(event: any) {
-        var searchDetailModal = new SearchDetailView()
-        searchDetailModal.render().$el.appendTo($("#result-detail-container"))
+        var c_id = $(event.currentTarget).attr('c_id');
+        var results = this.collection.get(c_id);
+        var searchDetailModal = new SearchDetailView(results);
+        searchDetailModal.render().$el.appendTo($("#result-detail-container"));
     }
 
 }
