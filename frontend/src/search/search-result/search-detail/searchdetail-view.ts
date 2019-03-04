@@ -28,6 +28,12 @@ export default class SearchDetailView extends View {
     initialize() {
     }
 
+    closeModal() {
+        this.trigger('closeDetail');
+    }
+
+
+
 
 }
 
@@ -36,5 +42,6 @@ extend(SearchDetailView.prototype, {
     className: 'searchdetail',
     template: searchDetailTemplate,
     events: {
+        'click .delete': 'closeModal'
     }
 });
