@@ -9,5 +9,6 @@ extend(DirectionRouter.prototype, {
         '(arrive)': 'arrive',
         'search/': 'search',
         'search/:query': 'search',
+        'annotate': 'annotate',
     },
 });

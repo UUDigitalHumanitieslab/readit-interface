@@ -7,17 +7,22 @@ const DirectionFsm = Fsm.extend({
             arrive: 'arriving',
             leave: 'leaving',
             search: 'searching',
+            annotate: 'annotating',
         },
         arriving: {
             leave: 'leaving',
-            search: 'searching'
+            search: 'searching',
+            annotate: 'annotating',
         },
         leaving: {
             arrive: 'arriving',
         },
         searching: {
-            
+            annotate: 'annotating'
         },
+        annotating: {
+            search: 'searching'
+        }
     },
 });
 
