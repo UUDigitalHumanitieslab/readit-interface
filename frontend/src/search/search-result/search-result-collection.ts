@@ -6,7 +6,6 @@ import SearchResult from './search-result';
 import Source from './../../models/source';
 import SearchResultTag from './search-result-tag';
 import mockSources from './../../models/mock-sources';
-import Category from '../../models/category';
 
 export default class SearchResultCollection extends Collection {
     getMockData(): SearchResultCollection {
@@ -26,16 +25,23 @@ export default class SearchResultCollection extends Collection {
             for (let fragment of source.attributes.fragments) {
                 let result = new SearchResult();
                 result.fragment = fragment;
+                if (result.fragment.text.length > 250) {
+                    result.fragment.text_short = result.fragment.text.substr(0, 250) + "...";
+                } else {
+                    result.fragment.text_short = result.fragment.text;
+                }
                 result.source = source;
                 
                 let tags: SearchResultTag[] = []
                 for (let snippet of fragment.snippets) {
                     for (let item of snippet.items) {
-                        tags.push(new SearchResultTag({
-                            id: item.category.id,
-                            name: item.category.name,
-                            className: item.category.name.replace(/ /g, ""),
-                        }))
+                        if (!tags.find(t => t.id === item.category.id)) {
+                            tags.push(new SearchResultTag({
+                                id: item.category.id,
+                                name: item.category.name,
+                                className: item.category.name.replace(/ /g, ""),
+                            }))
+                        }
                     }
                 }
                 result.tags = tags;

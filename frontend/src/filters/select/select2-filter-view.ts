@@ -7,7 +7,7 @@ import SelectFilterOption from './select-option';
 
 
 export default class Select2FilterView extends View {
-    SELECT2ELEMENTID:string = 'select';
+    SELECT2ELEMENTCLASS:string = 'select';
     ONSELECTIONCHANGED: string = 'onSelectionChanged'
     
     label: string = '';
@@ -36,7 +36,7 @@ export default class Select2FilterView extends View {
 
     render() {
         this.$el.html(this.template({ label: this.label, options: this.options }));
-        this.$(`#${this.SELECT2ELEMENTID}`).select2(this.getSelect2Config())
+        this.$(`.${this.SELECT2ELEMENTCLASS}`).select2(this.getSelect2Config())
         
         // The code below fixes an issue with showing the placeholder on render.
         // On initial rendering the selected div has styling with a width of 0px. Remove it.
@@ -70,7 +70,7 @@ export default class Select2FilterView extends View {
     }
 
     onSelectionChanged() {
-        var items= $(`#${this.SELECT2ELEMENTID}`).val();
+        var items= $(`.${this.SELECT2ELEMENTCLASS}`).val();
         this.trigger(this.ONSELECTIONCHANGED, items);
     }
 }
@@ -80,6 +80,6 @@ extend(Select2FilterView.prototype, {
     className: 'box field',
     template: selectFilterTemplate,
     events: {
-        "change.select2 #select": "onSelectionChanged",
+        "change.select2 .select": "onSelectionChanged",
     }
 });

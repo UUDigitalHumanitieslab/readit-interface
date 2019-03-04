@@ -7,6 +7,7 @@ export default class DirectionRouter extends Router {}
 extend(DirectionRouter.prototype, {
     routes: {
         '(arrive)': 'arrive',
+        'search/': 'search',
         'search/:query': 'search',
     },
 });

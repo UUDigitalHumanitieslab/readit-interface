@@ -4,12 +4,13 @@ import View from '../core/view';
 import Collection from '../core/collection';
 
 import DirectionRouter from '../global/ex_direction-router';
-import searchboxView from '../global/searchbox';
+import SearchboxView from './search-box/searchbox-view';
 import searchTemplate from './search-template';
 import Select2FilterView from '../filters/select/select2-filter-view';
 import SelectFilterOption from '../filters/select/select-option';
 import SearchResultsView from './search-result/searchresults-view';
 import SearchResultsCollection from './search-result/search-result-collection';
+import SearchResult from './search-result/search-result';
 
 export default class SearchView extends View {
     searchResultsView = undefined;
@@ -19,7 +20,9 @@ export default class SearchView extends View {
     render(): View {
         this.$el.html(this.template({ results: this.collection.models }));
 
-        this.$('#searchbox').append(searchboxView.render().$el);        
+        let searchboxView = new SearchboxView();
+        this.$('#searchbox').append(searchboxView.render().$el);
+        searchboxView.on("searchClicked", this.search, this)
 
         this.searchResultsView = new SearchResultsView();        
         this.searchResultsView.collection = this.collection;
@@ -48,32 +51,36 @@ export default class SearchView extends View {
 
     search(query: string) {
         var url = encodeURI(`search/${query}`);
-        DirectionRouter.navigate(url, { trigger: true });
-
-        // console.log(this.initialSearchResults)
-        
-        this.collection.reset(_.filter(this.initialSearchResults.models, function (result) {
-            // console.log(result)
-            
-            // 1. source title
-            // if (result.attributes.name.includes(query)) {
-            //     return true;
-            // }
-            // 2. source author
-            // if (result.attributes.author.name.includes(query)) {
-            //     return true;
-            // }
-            
-            // for (let fragment of result.attributes.fragments) {
-            //     // 3. snippet text
-
-            //     // 4. fragment text
-            // }
-
-            return true;
-        }));
-
+        DirectionRouter.navigate(url, { trigger: true });        
+        this.collection.reset(this.getQueriedSelection(query));
         this.initFilters();
+    }
+
+    getQueriedSelection(query: string): SearchResult[] {
+        return _.filter(this.initialSearchResults.models, function (result: SearchResult) {            
+            // 1. source title
+            if (result.source.attributes.name.includes(query)) {
+                return true;
+            }
+            // 2. source author
+            if (result.source.attributes.author.name.includes(query)) {
+                return true;
+            }
+            
+            // 3. snippet text
+            for (let snippet of result.fragment.snippets) {
+                if (snippet.text.includes(query)) {
+                    return true;
+                }
+            }
+
+            // 4. fragment text
+            if (result.fragment.text.includes(query)) {
+                return true;
+            }
+
+            return false;
+        });
     }
 
     updateResults(): void {
@@ -88,7 +95,8 @@ export default class SearchView extends View {
         }
 
         let filters = [];
-        filters.push(this.initTypesFilter());        
+        filters.push(this.initTypesFilter()); 
+        filters.push(this.initSourcesFilter());       
 
         for (let filter of filters) {
             this.$('.search-filters').append(filter.render().$el);
@@ -104,13 +112,13 @@ export default class SearchView extends View {
         return typesFilter;
     }
 
-    onTypesSelectedChanged(selectedTypeIds: string[]): void {
-        this.collection.reset(_.filter(this.initialSearchResults.models, function (searchResult) {
+    onTypesSelectedChanged(selectedTypeIds: string[]): void {          
+        this.collection.reset(_.filter(this.getQueriedSelection(this.getQueryFromUrl()), function (searchResult) {
             if (selectedTypeIds.length == 0) {
                 return true;
             }
 
-            for (let tag of searchResult.tags) {
+            for (let tag of searchResult.tags) {                
                 for (let id of selectedTypeIds) {
                     if (+id === tag.id) {
                         return true
@@ -132,6 +140,21 @@ export default class SearchView extends View {
             }
         }
         return allTypes;
+    }
+
+    initSourcesFilter(): Select2FilterView {
+        let sources: SelectFilterOption[] = this.getSourceFilterOptions();
+        let sourcesFilter = new Select2FilterView('Appearing in', sources, 'Start typing to filter', false);
+        return sourcesFilter
+    }
+
+    getSourceFilterOptions(): SelectFilterOption[] {
+        var allSources: SelectFilterOption[] = [];
+        for (let searchResult of this.collection.models) {
+            allSources.push(
+                new SelectFilterOption(searchResult.source.attributes.id, searchResult.source.attributes.name))
+        }
+        return allSources;
     }
 
     setInitialSources(): void {
