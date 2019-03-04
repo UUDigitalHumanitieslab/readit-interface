@@ -3,16 +3,60 @@
     <div class="modal-card">
         <header class="modal-card-head">
             <div class="modal-card-head-text">
-                <p class="modal-card-title">{{source.attributes.name}}</p>
-                <p>{{source.attributes.author.name}}</p>
+                <p class="modal-card-title title is-4">{{source.attributes.name}}</p>
+                <p class="subtitle is-6">{{source.attributes.author.name}}, {{source.attributes.publicationDate}}</p>
             </div>
             <button class="delete is-medium" aria-label="close"></button>
         </header>
         <section class="modal-card-body">
-            {{fragment.text}}
+            <div class="tabs is-boxed">
+                <ul>
+                    <li class="tab is-active" value="fragment_text"><a>Fragment</a></li>
+                    <li class="tab" value="source_info"><a>Source</a></li>
+                    <li class="tab" value="snippets"><a>Snippets</a></li>
+                </ul>
+            </div>
+
+            <div class="tab-content" id="fragment_text">{{fragment.text}}</div>
+            <div class="tab-content" id="source_info" style="display: none">
+                <table class="table is-fullwidth is-hoverable">
+                    <tbody>
+                        <tr>
+                            <td>name:</td>
+                            <td>{{source.attributes.name}}</td>
+                        </tr>
+                        <tr>
+                            <td>author:</td>
+                            <td>{{source.attributes.author.name}}</td>
+                        </tr>
+                        <tr>
+                            <td>publication date:</td>
+                            <td>{{source.attributes.publicationDate}}</td>
+                        </tr>
+                        <tr>
+                            <td>link:</td>
+                            <td><a href="{{source.attributes.link}}">{{source.attributes.link}}</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-content" id="snippets" style="display: none">
+                <table class="table is-fullwidth is-hoverable">
+                    <tbody>
+                        {{#each fragment.snippets}}
+                        <tr>
+                            <td>{{this.text}}</td>
+                            <td>
+                                {{#each this.items}}
+                                <div class="tag is-medium tag-{{this.category.name}}">{{this.category.name}}</div>
+                                {{/each}}
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>  
         </section>
-        <footer class="modal-card-foot">
-            <img src="{{static 'image/dighum-logo.svg'}}"/>
-        </footer>
     </div>
 </div>

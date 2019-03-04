@@ -42,6 +42,7 @@ extend(SearchResultsView.prototype, {
     template: searchResultsTemplate,
     events: {
         'click .searchresult-resultbox': 'showDetails',
-        'keydown .searchresults': 'keydownHandler'
+        'click .modal-background': 'closeDetails',
+        'keydown': 'keydownHandler',
     }
 });
