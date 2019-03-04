@@ -48,9 +48,11 @@
                         <tr>
                             <td>{{this.text}}</td>
                             <td>
-                                {{#each this.items}}
-                                <div class="tag is-medium tag-{{this.category.name}}">{{this.category.name}}</div>
-                                {{/each}}
+                                <div class="tags">
+                                    {{#each this.items}}
+                                    <div class="tag is-medium tag-{{this.category.name}}">{{this.category.name}}</div>
+                                    {{/each}}
+                                </div>
                             </td>
                         </tr>
                         {{/each}}
