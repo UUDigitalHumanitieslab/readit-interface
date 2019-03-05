@@ -14,6 +14,7 @@ export default class WelcomeView extends View {
     }
 
     search(query: string, queryfields: string = 'all') {
+        event.preventDefault
         var url = encodeURI(`search/?queryfields=${queryfields}&query=${query}`);
         DirectionRouter.navigate(url, { trigger: true });
     }

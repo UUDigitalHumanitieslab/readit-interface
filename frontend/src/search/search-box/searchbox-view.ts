@@ -43,6 +43,7 @@ export default class SearchboxView extends View {
     }
 
     selectField(event: any) {
+        event.preventDefault();
         var target = $(event.target);
         $("#selected-option").html(target.html());
         $(".dropdown-item").removeClass("is-active");
