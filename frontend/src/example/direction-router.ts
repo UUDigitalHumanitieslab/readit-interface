@@ -8,5 +8,6 @@ extend(DirectionRouter.prototype, {
     routes: {
         '(arrive)': 'arrive',
         'search/?(queryfields=:queryfields)(&query:=query)': 'search',
+        'search/': 'search',
     },
 });

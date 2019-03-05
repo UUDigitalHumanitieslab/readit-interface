@@ -171,7 +171,7 @@ var mockSources = [{
                     items: [
                         {
                             category: {
-                                id: 3,
+                                id: 13,
                                 name: 'support',
                             }
                         },
@@ -223,7 +223,7 @@ var mockSources = [{
                     items: [
                         {
                             category: {
-                                id: 12,
+                                id: 3,
                                 name: 'state of mind',
                                 attributes: [
                                     {
@@ -270,7 +270,7 @@ var mockSources = [{
                     items: [
                         {
                             category: {
-                                id: 13,
+                                id: 3,
                                 name: 'state of mind',
                                 attributes: [
                                     {
