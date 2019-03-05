@@ -9,16 +9,15 @@
             <button class="delete is-medium" aria-label="close"></button>
         </header>
         <section class="modal-card-body">
-            <div class="tabs is-boxed">
+            <div class="fragment-text">{{fragment.text}}</div>
+            <hr/>
+            <div class="tabs switchable-tabs is-boxed">
                 <ul>
-                    <li class="tab is-active" value="fragment_text"><a>Fragment</a></li>
-                    <li class="tab" value="source_info"><a>Source</a></li>
+                    <li class="tab is-active" value="source_info"><a>Source</a></li>
                     <li class="tab" value="snippets"><a>Annotations</a></li>
                 </ul>
             </div>
-
-            <div class="tab-content" id="fragment_text">{{fragment.text}}</div>
-            <div class="tab-content" id="source_info" style="display: none">
+            <div class="tab-content" id="source_info">
                 <table class="table is-fullwidth is-hoverable">
                     <tbody>
                         <tr>
@@ -58,7 +57,7 @@
                         {{/each}}
                     </tbody>
                 </table>
-            </div>  
+            </div> 
         </section>
     </div>
 </div>

@@ -21,7 +21,6 @@ export default class SearchDetailView extends View {
             fragment: this.searchResult.fragment,
             tags: this.searchResult.tags
         }));
-        console.log(this.searchResult)
         return this;
     }
 
