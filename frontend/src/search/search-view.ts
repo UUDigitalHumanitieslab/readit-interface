@@ -3,8 +3,8 @@ import * as _ from 'underscore';
 import View from '../core/view';
 import Collection from '../core/collection';
 
-import DirectionRouter from '../global/ex_direction-router';
-import SearchboxView from './search-box/searchbox-view';
+import directionRouter from '../global/ex_direction-router';
+import searchboxView from './../global/searchbox';
 import searchTemplate from './search-template';
 import Select2FilterView from '../filters/select/select2-filter-view';
 import SelectFilterOption from '../filters/select/select-option';
@@ -20,19 +20,15 @@ export default class SearchView extends View {
     render(): View {
         this.$el.html(this.template({ results: this.collection.models }));
 
-        let searchboxView = new SearchboxView();
         this.$('#searchbox').append(searchboxView.render().$el);
-        searchboxView.on("searchClicked", this.search, this)
+        searchboxView.on("searchClicked", this.onSearchClicked, this)
 
-        this.searchResultsView = new SearchResultsView();        
+        this.searchResultsView = new SearchResultsView();
         this.searchResultsView.collection = this.collection;
         this.$('#search-results-wrapper').append(this.searchResultsView.render().$el);
 
         this.setInitialSources();
-
-        if (this.initialSearchResults) {
-            this.search(this.getQueryFromUrl());
-        }
+        this.collection.reset(this.getSearchResults());
 
         return this;
     }
@@ -42,40 +38,44 @@ export default class SearchView extends View {
         this.listenTo(this.collection, 'reset', this.updateResults)
     }
 
-    getQueryFromUrl(): string {
-        let index = window.location.href.lastIndexOf('/');
-        let query = decodeURI(window.location.href.substring(index + 1));
-        this.$('input').val(query)
-        return query;
+    onSearchClicked(query: string, queryfields: string = 'all') {
+        var url = encodeURI(`search/?query=${query}&queryfields=${queryfields}`);
+        directionRouter.navigate(url, { trigger: true });
+        this.collection.reset(this.getSearchResults());
     }
 
-    search(query: string) {
-        var url = encodeURI(`search/${query}`);
-        DirectionRouter.navigate(url, { trigger: true });        
-        this.collection.reset(this.getQueriedSelection(query));
-        this.initFilters();
+    getSearchResults(): SearchResult[] {
+        let query = directionRouter.queryParams['query']
+        let queryfields = directionRouter.queryParams['queryfields']
+        this.$('.searchbox input').val(query)
+        return this.getQueriedSelection(query, queryfields)
     }
 
-    getQueriedSelection(query: string): SearchResult[] {
-        return _.filter(this.initialSearchResults.models, function (result: SearchResult) {            
+    getQueriedSelection(query: string, queryfields: any): SearchResult[] {
+        return _.filter(this.initialSearchResults.models, function (result: SearchResult) {
             // 1. source title
-            if (result.source.attributes.name.includes(query)) {
+            if ((queryfields === 'all' || queryfields === 'source_title') &&
+                result.source.attributes.name.includes(query)) {
                 return true;
             }
             // 2. source author
-            if (result.source.attributes.author.name.includes(query)) {
+            if ((queryfields === 'all' || queryfields === 'source_author') &&
+                result.source.attributes.author.name.includes(query)) {
                 return true;
             }
-            
+
             // 3. snippet text
-            for (let snippet of result.fragment.snippets) {
-                if (snippet.text.includes(query)) {
-                    return true;
+            if (queryfields === 'all' || queryfields === 'snippet_text') {
+                for (let snippet of result.fragment.snippets) {
+                    if (snippet.text.includes(query)) {
+                        return true;
+                    }
                 }
             }
 
             // 4. fragment text
-            if (result.fragment.text.includes(query)) {
+            if ((queryfields === 'all' || queryfields === 'fragment_text') &&
+                result.fragment.text.includes(query)) {
                 return true;
             }
 
@@ -95,8 +95,8 @@ export default class SearchView extends View {
         }
 
         let filters = [];
-        filters.push(this.initTypesFilter()); 
-        filters.push(this.initSourcesFilter());       
+        filters.push(this.initTypesFilter());
+        filters.push(this.initSourcesFilter());
 
         for (let filter of filters) {
             this.$('.search-filters').append(filter.render().$el);
@@ -112,13 +112,15 @@ export default class SearchView extends View {
         return typesFilter;
     }
 
-    onTypesSelectedChanged(selectedTypeIds: string[]): void {          
+
+
+    onTypesSelectedChanged(selectedTypeIds: string[]): void {
         this.collection.reset(_.filter(this.getQueriedSelection(this.getQueryFromUrl()), function (searchResult) {
             if (selectedTypeIds.length == 0) {
                 return true;
             }
 
-            for (let tag of searchResult.tags) {                
+            for (let tag of searchResult.tags) {
                 for (let id of selectedTypeIds) {
                     if (+id === tag.id) {
                         return true
@@ -164,8 +166,8 @@ export default class SearchView extends View {
         snippetCollection.fetch({
             data: { 'TODO': 'TODO' },
             success: function (collection, response, options) {
-                self.initialSearchResults = new SearchResultsCollection(collection.models)                
-                self.search(self.getQueryFromUrl());
+                self.initialSearchResults = new SearchResultsCollection(collection.models)
+                // self.search(self.getQueryFromUrl());
                 self.initFilters();
             },
             error: function (collection, response, options) {
