@@ -3,16 +3,14 @@ import View from '../core/view';
 import DirectionRouter from '../global/ex_direction-router';
 
 import welcomeTemplate from './welcome-template';
-import SearchboxView from './../search/search-box/searchbox-view';
+import searchboxView from '../global/searchbox';
 
 export default class WelcomeView extends View {
     render() {
         this.$el.html(this.template(this));
-
-        let searchboxView = new SearchboxView();
         this.$('.welcome-image').append(searchboxView.render().$el)
         searchboxView.on("searchClicked", this.search)
-        
+
         return this;
     }
 

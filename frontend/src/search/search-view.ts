@@ -4,14 +4,13 @@ import View from '../core/view';
 import Collection from '../core/collection';
 
 import DirectionRouter from '../global/ex_direction-router';
-import SearchboxView from './search-box/searchbox-view';
 import searchTemplate from './search-template';
 import Select2FilterView from '../filters/select/select2-filter-view';
 import SelectFilterOption from '../filters/select/select-option';
 import SearchResultsView from './search-result/searchresults-view';
 import SearchResultsCollection from './search-result/search-result-collection';
 import SearchResult from './search-result/search-result';
-
+import searchboxView from '../global/searchbox'
 export default class SearchView extends View {
     searchResultsView = undefined;
     initialSearchResults = undefined;
@@ -19,12 +18,10 @@ export default class SearchView extends View {
 
     render(): View {
         this.$el.html(this.template({ results: this.collection.models }));
-
-        let searchboxView = new SearchboxView();
         this.$('#searchbox').append(searchboxView.render().$el);
         searchboxView.on("searchClicked", this.search, this)
 
-        this.searchResultsView = new SearchResultsView();        
+        this.searchResultsView = new SearchResultsView();
         this.searchResultsView.collection = this.collection;
         this.$('#search-results-wrapper').append(this.searchResultsView.render().$el);
 
@@ -51,13 +48,13 @@ export default class SearchView extends View {
 
     search(query: string) {
         var url = encodeURI(`search/${query}`);
-        DirectionRouter.navigate(url, { trigger: true });        
+        DirectionRouter.navigate(url, { trigger: true });
         this.collection.reset(this.getQueriedSelection(query));
         this.initFilters();
     }
 
     getQueriedSelection(query: string): SearchResult[] {
-        return _.filter(this.initialSearchResults.models, function (result: SearchResult) {            
+        return _.filter(this.initialSearchResults.models, function (result: SearchResult) {
             // 1. source title
             if (result.source.attributes.name.includes(query)) {
                 return true;
@@ -66,7 +63,7 @@ export default class SearchView extends View {
             if (result.source.attributes.author.name.includes(query)) {
                 return true;
             }
-            
+
             // 3. snippet text
             for (let snippet of result.fragment.snippets) {
                 if (snippet.text.includes(query)) {
@@ -95,8 +92,8 @@ export default class SearchView extends View {
         }
 
         let filters = [];
-        filters.push(this.initTypesFilter()); 
-        filters.push(this.initSourcesFilter());       
+        filters.push(this.initTypesFilter());
+        filters.push(this.initSourcesFilter());
 
         for (let filter of filters) {
             this.$('.search-filters').append(filter.render().$el);
@@ -112,13 +109,13 @@ export default class SearchView extends View {
         return typesFilter;
     }
 
-    onTypesSelectedChanged(selectedTypeIds: string[]): void {          
+    onTypesSelectedChanged(selectedTypeIds: string[]): void {
         this.collection.reset(_.filter(this.getQueriedSelection(this.getQueryFromUrl()), function (searchResult) {
             if (selectedTypeIds.length == 0) {
                 return true;
             }
 
-            for (let tag of searchResult.tags) {                
+            for (let tag of searchResult.tags) {
                 for (let id of selectedTypeIds) {
                     if (+id === tag.id) {
                         return true
@@ -164,7 +161,7 @@ export default class SearchView extends View {
         snippetCollection.fetch({
             data: { 'TODO': 'TODO' },
             success: function (collection, response, options) {
-                self.initialSearchResults = new SearchResultsCollection(collection.models)                
+                self.initialSearchResults = new SearchResultsCollection(collection.models)
                 self.search(self.getQueryFromUrl());
                 self.initFilters();
             },
