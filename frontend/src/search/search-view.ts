@@ -7,15 +7,40 @@ import directionRouter from '../global/ex_direction-router';
 import searchboxView from './../global/searchbox';
 import searchTemplate from './search-template';
 import Select2FilterView from '../filters/select/select2-filter-view';
-import SelectFilterOption from '../filters/select/select-option';
+import { SelectFilterOption } from '../filters/select/select-option';
 import SearchResultsView from './search-result/searchresults-view';
 import SearchResultsCollection from './search-result/search-result-collection';
 import SearchResult from './search-result/search-result';
 
+import { BaseFilterView } from '../filters/BaseFilterView';
+import { MultiSelectFilter } from '../filters/select/multiSelectFilter';
+
 export default class SearchView extends View {
     searchResultsView = undefined;
+
+    /**
+     * The initial collection of search results, for now loaded from json
+     */
     initialSearchResults = undefined;
-    filterCollection: any;
+
+    /**
+     * The current query
+     */
+    currentQuery: string = '';
+
+    /**
+     * The queried selection of search results, based on current query.
+     */
+    currentSearchResults: SearchResult[] = undefined;
+
+    /**
+     * Array of filter VIEWS
+     */
+    filterViewCollection: BaseFilterView[] = undefined;
+
+    TYPEFILTERNAME = 'types';
+    SOURCEFILTERNAME = 'sources';
+
 
     render(): View {
         this.$el.html(this.template({ results: this.collection.models }));
@@ -34,7 +59,6 @@ export default class SearchView extends View {
     }
 
     initialize(): void {
-        this.setInitialSources();
         this.listenTo(this.collection, 'reset', this.updateResults)
     }
 
@@ -45,29 +69,32 @@ export default class SearchView extends View {
     }
 
     getSearchResults(): SearchResult[] {
-        let query = directionRouter.queryParams['query']
+        this.currentQuery = directionRouter.queryParams['query']
         let queryfields = directionRouter.queryParams['queryfields']
-        this.$('.searchbox input').val(query)
-        return this.getQueriedSelection(query, queryfields)
+        this.$('.searchbox input').val(this.currentQuery)
+        this.currentSearchResults = this.getQueriedSelection(this.currentQuery, queryfields)
+        this.updateFilters();
+        return this.currentSearchResults;
+        // this.applyFilters()
     }
 
     getQueriedSelection(query: string, queryfields: any): SearchResult[] {
         return _.filter(this.initialSearchResults.models, function (result: SearchResult) {
             // 1. source title
             if ((queryfields === 'all' || queryfields === 'source_title') &&
-                result.source.attributes.name.includes(query)) {
+                result.source.attributes.name.toLowerCase().includes(query.toLowerCase())) {
                 return true;
             }
             // 2. source author
             if ((queryfields === 'all' || queryfields === 'source_author') &&
-                result.source.attributes.author.name.includes(query)) {
+                result.source.attributes.author.name.toLowerCase().includes(query.toLowerCase())) {
                 return true;
             }
 
             // 3. snippet text
             if (queryfields === 'all' || queryfields === 'snippet_text') {
                 for (let snippet of result.fragment.snippets) {
-                    if (snippet.text.includes(query)) {
+                    if (snippet.text.toLowerCase().includes(query.toLowerCase())) {
                         return true;
                     }
                 }
@@ -75,7 +102,7 @@ export default class SearchView extends View {
 
             // 4. fragment text
             if ((queryfields === 'all' || queryfields === 'fragment_text') &&
-                result.fragment.text.includes(query)) {
+                result.fragment.text.toLowerCase().includes(query.toLowerCase())) {
                 return true;
             }
 
@@ -87,72 +114,110 @@ export default class SearchView extends View {
         this.searchResultsView.render();
     }
 
-    initFilters(): void {
-        if (this.filterCollection) {
-            for (let filter of this.filterCollection.models) {
-                filter.attributes.remove()
+    updateFilters(): void {
+        if (!this.filterViewCollection) {
+            this.initFilters();
+        }
+
+        // for (let filterView of this.filterViewCollection) {
+        //     // filterView.attributes.remove()
+        //     console.log(filterView)
+        // }
+
+        // let filters = [];
+        // filters.push(this.setTypesFilter(queryResults));
+        // // filters.push(this.initSourcesFilter());
+
+
+
+        for (let filterView of this.filterViewCollection) {
+            this.$('.search-filters').append(filterView.render().$el);
+        }
+
+        // this.filterViewCollection = new Collection(filters);
+    }
+
+    initFilters() {
+        this.filterViewCollection = [];
+        this.filterViewCollection.push(this.setTypesFilter());
+        this.filterViewCollection.push(this.setSourcesFilter());
+
+        for (let filterView of this.filterViewCollection) {
+            filterView.on('changed', this.applyFilters, this)
+        }
+    }
+
+    setTypesFilter(): Select2FilterView {
+        let types: SelectFilterOption[] = this.getTypeFilterOptions(this.currentSearchResults);
+        let typesFilter = new MultiSelectFilter(this.TYPEFILTERNAME, types, 'Annotated as', 'Start typing to filter');
+
+        let typesFilterView = new Select2FilterView(typesFilter, true);
+        // typesFilterView.on(typesFilterView.ONSELECTIONCHANGED, this.applyFilters, this)
+        return typesFilterView;
+    }
+
+    setSourcesFilter(): Select2FilterView {
+        let sources: SelectFilterOption[] = this.getSourceFilterOptions(this.currentSearchResults);
+        let sourceFilter: MultiSelectFilter = new MultiSelectFilter(this.SOURCEFILTERNAME, sources, 'Appearing in', 'Start typing to filter');
+        let sourcesFilterView = new Select2FilterView(sourceFilter, false);
+        return sourcesFilterView
+    }
+
+    applyFilters() {
+        let selectedTypeIds, selectedSourceIds;
+
+        for (let filterView of this.filterViewCollection) {
+            if (filterView.filter.name === this.TYPEFILTERNAME) {
+                selectedTypeIds = filterView.filter.value;
+            }
+
+            if (filterView.filter.name === this.SOURCEFILTERNAME) {
+                selectedSourceIds = filterView.filter.value
             }
         }
 
-        let filters = [];
-        filters.push(this.initTypesFilter());
-        filters.push(this.initSourcesFilter());
-
-        for (let filter of filters) {
-            this.$('.search-filters').append(filter.render().$el);
-        }
-
-        this.filterCollection = new Collection(filters);
-    }
-
-    initTypesFilter(): Select2FilterView {
-        let types: SelectFilterOption[] = this.getTypeFilterOptions();
-        let typesFilter = new Select2FilterView('Tagged with', types, 'Start typing to filter', true);
-        typesFilter.on(typesFilter.ONSELECTIONCHANGED, this.onTypesSelectedChanged, this)
-        return typesFilter;
-    }
-
-
-
-    onTypesSelectedChanged(selectedTypeIds: string[]): void {
-        this.collection.reset(_.filter(this.getQueriedSelection(this.getQueryFromUrl()), function (searchResult) {
-            if (selectedTypeIds.length == 0) {
+        this.collection.reset(_.filter(this.currentSearchResults, function (searchResult) {
+            if ((selectedTypeIds && selectedTypeIds.length == 0) &&
+                (selectedSourceIds && selectedSourceIds.length == 0)) {
                 return true;
             }
 
-            for (let tag of searchResult.tags) {
-                for (let id of selectedTypeIds) {
-                    if (+id === tag.id) {
-                        return true
+            if (selectedTypeIds) {
+                for (let tag of searchResult.tags) {
+                    for (let id of selectedTypeIds) {
+                        if (+id === tag.id) {
+                            return true
+                        }
                     }
                 }
             }
 
+            if (selectedSourceIds) {
+                for (let id of selectedSourceIds) {
+                    if (searchResult.source.id == id) {
+                        return true;
+                    }
+                }
+            }
             return false;
         }));
     }
 
-    getTypeFilterOptions(): SelectFilterOption[] {
+    getTypeFilterOptions(queryResults: SearchResult[]): SelectFilterOption[] {
         var allTypes: SelectFilterOption[] = [];
-        for (let searchResult of this.collection.models) {
+        for (let searchResult of queryResults) {
             for (let tag of searchResult.tags) {
-                if (!allTypes.find(option => option.value === tag.id)) {
-                    allTypes.push(new SelectFilterOption(tag.id, tag.attributes.name, `tag tag-${tag.attributes.className} is-medium`))
+                if (!allTypes.find(option => +option.value === tag.id)) {
+                    allTypes.push(new SelectFilterOption(tag.id.toString(), tag.attributes.name, `tag tag-${tag.attributes.className} is-medium`))
                 }
             }
         }
         return allTypes;
     }
 
-    initSourcesFilter(): Select2FilterView {
-        let sources: SelectFilterOption[] = this.getSourceFilterOptions();
-        let sourcesFilter = new Select2FilterView('Appearing in', sources, 'Start typing to filter', false);
-        return sourcesFilter
-    }
-
-    getSourceFilterOptions(): SelectFilterOption[] {
+    getSourceFilterOptions(queryResults: SearchResult[]): SelectFilterOption[] {
         var allSources: SelectFilterOption[] = [];
-        for (let searchResult of this.collection.models) {
+        for (let searchResult of queryResults) {
             allSources.push(
                 new SelectFilterOption(searchResult.source.attributes.id, searchResult.source.attributes.name))
         }
@@ -167,8 +232,6 @@ export default class SearchView extends View {
             data: { 'TODO': 'TODO' },
             success: function (collection, response, options) {
                 self.initialSearchResults = new SearchResultsCollection(collection.models)
-                // self.search(self.getQueryFromUrl());
-                self.initFilters();
             },
             error: function (collection, response, options) {
                 console.error(response)
