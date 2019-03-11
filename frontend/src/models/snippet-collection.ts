@@ -71,7 +71,7 @@ export default class SnippetCollection extends Collection {
                             {
                                 category: {
                                     id: 3,
-                                    name: 'state of mind',
+                                    name: 'state_of_mind',
                                     attributes: [
                                         {
                                             id: 20002,
@@ -228,7 +228,7 @@ export default class SnippetCollection extends Collection {
                             {
                                 category: {
                                     id: 12,
-                                    name: 'state of mind',
+                                    name: 'state_of_mind',
                                     attributes: [
                                         {
                                             id: 20005,
@@ -275,7 +275,7 @@ export default class SnippetCollection extends Collection {
                             {
                                 category: {
                                     id: 13,
-                                    name: 'state of mind',
+                                    name: 'state_of_mind',
                                     attributes: [
                                         {
                                             id: 20006,

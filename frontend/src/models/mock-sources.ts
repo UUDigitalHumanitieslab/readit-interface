@@ -284,7 +284,7 @@ var mockSources = [{
                         {
                             category: {
                                 id: 3,
-                                name: 'state of mind',
+                                name: 'state_of_mind',
                                 class: 'rit-state_of_mind',
                                 attributes: [
                                     {
