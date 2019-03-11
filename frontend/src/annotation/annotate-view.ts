@@ -89,7 +89,8 @@ export default class AnnotateView extends View {
 
         // no text selected, no modal
         if (range.startOffset === range.endOffset) return;
-
+        
+        // save selected range for future reference (i.e. on modal close)
         this.range = range
         this.showModal();
     }
@@ -119,23 +120,9 @@ export default class AnnotateView extends View {
         this.modalIsVisible = false;
         this.$('#modalContainer').removeClass('is-active');
 
-        if (this.selectedCategory) {
-            let selectedSelectables: DocumentFragment = this.range.extractContents();
-            
-            let annoView = new AnnotationView(selectedSelectables, this.selectedCategory.attributes.class);
-            annoView.on('onDelete', this.onDeleteAnno, this)
-            
-
-            // for (let c of anno.childNodes) {
-            //     // TODO: deal with anno in selected anno
-            //     // if (c.nodeName == "ANNO") {
-
-            //     // }
-            //     //  TODO: somehow ensure we only have complete <able> tags (incl. inner spaces)?
-            //     // console.log(c.nodeName)
-            // }
-
-            this.range.insertNode(annoView.render().$el.get(0))
+        if (this.selectedCategory) {            
+            let annoView = new AnnotationView(this.range, this.selectedCategory.attributes.class);          
+            annoView.render();
 
             // remove selection
             this.selectedCategory = undefined;
