@@ -6,6 +6,8 @@ import annotateTemplate from './annotate-template';
 import AnnotationView from './annotation-view';
 import CategoryCollection from '../models/category-collection';
 import Snippet from './../models/snippet';
+import CategoryPickerView from './category-picker';
+import Category from '../models/category';
 
 export default class AnnotateView extends View {
     /**
@@ -14,22 +16,10 @@ export default class AnnotateView extends View {
     annotationCategoriesCollection: CategoryCollection;
 
     /**
-     * Category selected (on the modal). 
-     * This property helps control what part is visible on the modal
-     */
-    selectedCategory: any;
-
-    /**
      * Keep track of modal visibility
      */
     modalIsVisible: boolean = false;
    
-    /**
-     * The current selection
-     */
-    currentSelection: Selection;
-
-
     /**
      * The snippet currently being categorized
      */
@@ -41,13 +31,15 @@ export default class AnnotateView extends View {
 
     range: any;
 
-    render(): View {
+    render(): View {        
         this.$el.html(this.template({
-            annotatedText: this.annotatedText,
-            selectedCategory: this.selectedCategory,
-            categories: this.annotationCategoriesCollection.models
+            annotatedText: this.annotatedText
         }));
 
+        let categoryPickerView = new CategoryPickerView();
+        categoryPickerView.render().$el.appendTo(this.$('.modal-card-body'));
+        categoryPickerView.on('categorySelected', this.onCategorySelected, this);
+        
         // let fragmentView = new FragmentView({model: this.fragment});
         // fragmentView.render().$el.appendTo(this.$("#fragmentWrapper"));
 
@@ -60,27 +52,7 @@ export default class AnnotateView extends View {
 
     initialize(): void {
         this.originalText = this.getP1();
-
-        // let annotables = []
-        // for (let able of this.originalText.split(' ')) {
-        //     if (able) annotables.push(`<able>${able}</able>`)
-        // }
         this.annotatedText = this.getP1();
-
-
-        var self = this;
-        var acCollection = new CategoryCollection();
-
-        acCollection.fetch({
-            data: { 'TODO': 'TODO' },
-            success: function (collection, response, options) {
-                self.annotationCategoriesCollection = new CategoryCollection(collection.models)
-            },
-            error: function (collection, response, options) {
-                console.error(response)
-                return null;
-            }
-        })
     }
 
     onTextSelected(event: any): void {
@@ -95,22 +67,6 @@ export default class AnnotateView extends View {
         this.showModal();
     }
 
-    onCategorySelected(event: any) {
-        let categoryId = event.currentTarget.id;
-        this.selectedCategory = this.annotationCategoriesCollection.get(categoryId);
-        this.hideModal();
-
-        // if (!this.currentSnippet.items) this.currentSnippet.items = [];
-        // this.currentSnippet.items.push(new Item({ category: this.selectedCategory }));
-
-        // this.render()
-    }
-
-    onReturnToCategories(): void {
-        this.selectedCategory = undefined;
-        this.render();
-    }
-
     showModal() {
         this.modalIsVisible = true;
         this.$('#modalContainer').addClass('is-active');
@@ -119,19 +75,12 @@ export default class AnnotateView extends View {
     hideModal() {
         this.modalIsVisible = false;
         this.$('#modalContainer').removeClass('is-active');
-
-        if (this.selectedCategory) {            
-            let annoView = new AnnotationView(this.range, this.selectedCategory.attributes.class);          
-            annoView.render();
-
-            // remove selection
-            this.selectedCategory = undefined;
-        }
     }
 
-    onDeleteAnno(event: any) {
-        let text = this.range.extractContents().textContent.trim();
-        this.range.insertNode(document.createTextNode(text));
+    onCategorySelected(selectedCategory: Category): void {
+        let annoView = new AnnotationView(this.range, selectedCategory.attributes.class);         
+        annoView.render();
+        this.hideModal();
     }
 
     getP1(): string {
@@ -163,8 +112,6 @@ extend(AnnotateView.prototype, {
     events: {
         'mouseup .annotationWrapper': 'onTextSelected',
         'click .modal-close': 'hideModal',
-        'click .modal-background': 'hideModal',
-        'click .category': 'onCategorySelected',
-        'click #returnToCategories': 'onReturnToCategories',
+        'click .modal-background': 'hideModal',        
     }
 });

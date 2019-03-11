@@ -13,28 +13,7 @@
             </div>
         </header>
         <section class="modal-card-body">
-            {{#if selectedCategory}}
-            <div id="returnToCategories" class="button">
-                <span class="icon is-small has-text-black">
-                    <i class="fas fa-arrow-left" aria-hidden="true"></i>
-                </span>
-                <p> Return to categories</p>
-            </div>
-            <div class="tag-{{selectedCategory.attributes.name}}">{{selectedCategory.attributes.name}}</div>
-            <div class="attributes">
-                {{#each selectedCategory.attributes.attributes}}
-                <p>____ {{this.name}}</p>
-                {{/each}}
-            </div>
-            {{else}}
-            <div class="categories">
-                {{#each categories}}
-                <div id="{{this.attributes.id}}" class="box category {{this.attributes.class}}">
-                    <div>{{this.attributes.name}}</div>
-                </div>
-                {{/each}}
-            </div>
-            {{/if}}
+            
         </section>
     </div>
     <button class="modal-close is-medium" aria-label="close"></button>
