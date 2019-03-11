@@ -135,7 +135,7 @@ export default class AnnotateView extends View {
         if (this.selectedCategory) {
             let selectedSelectables = this.range.extractContents();
             let anno = document.createElement("anno");
-            anno.classList.add(`tag-${this.selectedCategory.attributes.name}`);
+            anno.classList.add(`${this.selectedCategory.attributes.class}`);
             anno.appendChild(selectedSelectables);
 
             for (let c of anno.childNodes) {
@@ -185,7 +185,6 @@ export default class AnnotateView extends View {
         ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia."
     }
 }
-
 extend(AnnotateView.prototype, {
     tagName: 'section',
     className: 'section',

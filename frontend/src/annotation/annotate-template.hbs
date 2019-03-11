@@ -32,7 +32,7 @@
             {{else}}
             <div class="categories">
                 {{#each categories}}
-                <div id="{{this.attributes.id}}" class="box category tag-{{this.attributes.name}}">
+                <div id="{{this.attributes.id}}" class="box category {{this.attributes.class}}">
                     <div>{{this.attributes.name}}</div>                    
                 </div>
                 {{/each}}
