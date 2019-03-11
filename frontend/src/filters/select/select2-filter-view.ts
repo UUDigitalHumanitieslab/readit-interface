@@ -3,39 +3,30 @@ import View from '../../core/view';
 import 'select2';
 
 import selectFilterTemplate from './select2-filter-template';
-import SelectFilterOption from './select-option';
+import { SelectFilterOption } from './select-option';
+import { BaseFilterView } from '../BaseFilterView';
+import { BaseFilter } from './../baseFilter';
+import { MultiSelectFilter } from './multiSelectFilter';
 
 
-export default class Select2FilterView extends View {
-    SELECT2ELEMENTCLASS:string = 'select';
-    ONSELECTIONCHANGED: string = 'onSelectionChanged'
-    
-    label: string = '';
-    options: SelectFilterOption[] = undefined
-    placeholder: string;
-    applyOptionMarkUp: boolean;
+export default class Select2FilterView extends BaseFilterView {
+    SELECT2ELEMENTCLASS:string = 'select';    
+    filter: MultiSelectFilter;    
+    applyOptionMarkUp: boolean;    
 
     /**
      * Ctor for SelectFilterView
-     * @param label Label for the filter
-     * @param options Options for the select filter
-     * @param placeholder Defaults to 'Select an option'
      * @param applyOptionMarkUp Specify whether to use each option's className property
      * to add it in the <option> tag. Defaults to false.
      */
-    constructor(label: string, 
-                options: SelectFilterOption[], 
-                placeholder: string = "Select an option", 
-                applyOptionMarkUp: boolean = false) {
+    constructor(filter: MultiSelectFilter, applyOptionMarkUp: boolean = false) {
         super()
-        this.options = options;
-        this.label = label;
-        this.placeholder = placeholder;
+        this.filter = filter;
         this.applyOptionMarkUp = applyOptionMarkUp;
     }
 
     render() {
-        this.$el.html(this.template({ label: this.label, options: this.options }));
+        this.$el.html(this.template({ filter: this.filter }));
         this.$(`.${this.SELECT2ELEMENTCLASS}`).select2(this.getSelect2Config())
         
         // The code below fixes an issue with showing the placeholder on render.
@@ -48,7 +39,7 @@ export default class Select2FilterView extends View {
         let config = {
             placeholder: {
                 id: '-1',
-                text: this.placeholder
+                text: this.filter.placeholder
             },
             width: '100%'
         }
@@ -70,8 +61,8 @@ export default class Select2FilterView extends View {
     }
 
     onSelectionChanged() {
-        var items= $(`.${this.SELECT2ELEMENTCLASS}`).val();
-        this.trigger(this.ONSELECTIONCHANGED, items);
+        this.filter.value = $(`.${this.SELECT2ELEMENTCLASS}`).val(); 
+        this.changed();
     }
 }
 

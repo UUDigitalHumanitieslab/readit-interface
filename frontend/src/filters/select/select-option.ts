@@ -1,4 +1,4 @@
-export default class SelectFilterOption {
+export class SelectFilterOption {
     value: string;
     label: string;
     className: string;

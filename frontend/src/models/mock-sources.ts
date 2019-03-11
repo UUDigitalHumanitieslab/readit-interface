@@ -21,12 +21,14 @@ var mockSources = [{
                             category: {
                                 id: 1,
                                 name: 'reader',
+                                class: 'rit-reader',
                             }
                         },
                         {
                             category: {
                                 id: 4,
                                 name: 'person',
+                                class: 'rit-person',
                                 attributes: [
                                     {
                                         id: 20003,
@@ -50,6 +52,7 @@ var mockSources = [{
                             category: {
                                 id: 2,
                                 name: 'content',
+                                class: 'rit-content',
                             }
                         },
                     ],
@@ -62,6 +65,7 @@ var mockSources = [{
                             category: {
                                 id: 3,
                                 name: 'state of mind',
+                                class: 'rit-state_of_mind',
                                 attributes: [
                                     {
                                         id: 20002,
@@ -81,6 +85,7 @@ var mockSources = [{
                             category: {
                                 id: 4,
                                 name: 'person',
+                                class: 'rit-person',
                                 attributes: [
                                     {
                                         id: 20003,
@@ -124,6 +129,7 @@ var mockSources = [{
                             category: {
                                 id: 1,
                                 name: 'reader',
+                                class: 'rit-reader',
                                 attributes: [
                                     {
                                         id: 20005,
@@ -137,6 +143,7 @@ var mockSources = [{
                             category: {
                                 id: 4,
                                 name: 'person',
+                                class: 'rit-person',
                                 attributes: [
                                     {
                                         id: 20003,
@@ -160,6 +167,7 @@ var mockSources = [{
                             category: {
                                 id: 2,
                                 name: 'content',
+                                class: 'rit-content',
                             }
                         }
                     ]
@@ -173,6 +181,7 @@ var mockSources = [{
                             category: {
                                 id: 13,
                                 name: 'support',
+                                class: 'rit-support',
                             }
                         },
                     ]
@@ -185,6 +194,7 @@ var mockSources = [{
                             category: {
                                 id: 10,
                                 name: 'alteration',
+                                class: 'rit-alteration',
                             }
                         },
                     ],
@@ -206,6 +216,7 @@ var mockSources = [{
                             category: {
                                 id: 11,
                                 name: 'event',
+                                class: 'rit-event',
                                 attributes: [
                                     {
                                         id: 20005,
@@ -219,12 +230,13 @@ var mockSources = [{
                 },
                 {
                     id: 10015,
-                    text: 'make me feel better about reading',
+                    text: 'make me feel better about reading',                    
                     items: [
                         {
                             category: {
                                 id: 3,
                                 name: 'state of mind',
+                                class: 'rit-state_of_mind',
                                 attributes: [
                                     {
                                         id: 20005,
@@ -244,6 +256,7 @@ var mockSources = [{
                             category: {
                                 id: 10,
                                 name: 'alteration',
+                                class: 'rit-alteration',
                                 attributes: [
                                     {
                                         id: 20006,
@@ -272,6 +285,7 @@ var mockSources = [{
                             category: {
                                 id: 3,
                                 name: 'state of mind',
+                                class: 'rit-state_of_mind',
                                 attributes: [
                                     {
                                         id: 20006,
