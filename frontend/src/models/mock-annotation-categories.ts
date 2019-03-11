@@ -2,6 +2,7 @@ var mockAnnotationCategories = [
     {
         id: 9001,
         name: 'reader',
+        class: 'rit-reader',
         attributes: [
             {
                 id: 20003,
@@ -55,15 +56,18 @@ var mockAnnotationCategories = [
     },
     {
         id: 9002,
-        name: 'support'        
+        name: 'support',
+        class: 'rit-support',       
     },
     {
         id: 9003,
         name: 'content',
+        class: 'rit-content',
     },
     {
         id: 9004,
-        name: 'state_of_mind',
+        name: 'state of mind',
+        class: 'rit-state_of_mind',
         attributes: [
             {
                 id: 21006,
