@@ -150,9 +150,7 @@ export default class SearchView extends View {
     setTypesFilter(): Select2FilterView {
         let types: SelectFilterOption[] = this.getTypeFilterOptions(this.currentSearchResults);
         let typesFilter = new MultiSelectFilter(this.TYPEFILTERNAME, types, 'Annotated as', 'Start typing to filter');
-
         let typesFilterView = new Select2FilterView(typesFilter, true);
-        // typesFilterView.on(typesFilterView.ONSELECTIONCHANGED, this.applyFilters, this)
         return typesFilterView;
     }
 
@@ -205,10 +203,13 @@ export default class SearchView extends View {
 
     getTypeFilterOptions(queryResults: SearchResult[]): SelectFilterOption[] {
         var allTypes: SelectFilterOption[] = [];
+
+        console.log(queryResults)
+
         for (let searchResult of queryResults) {
             for (let tag of searchResult.tags) {
                 if (!allTypes.find(option => +option.value === tag.id)) {
-                    allTypes.push(new SelectFilterOption(tag.id.toString(), tag.attributes.name, `tag tag-${tag.attributes.className} is-medium`))
+                    allTypes.push(new SelectFilterOption(tag.id.toString(), tag.attributes.name, `tag ${tag.attributes.className} is-medium`))
                 }
             }
         }
