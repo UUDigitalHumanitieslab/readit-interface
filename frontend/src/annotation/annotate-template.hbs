@@ -1,10 +1,7 @@
 <div class="title is-1">Annotation works!</div>
 
 <div class="annotationWrapper">
-    <div id="fragmentWrapper">
-        <p>{{{annotatedText}}}</p>
-        {{!-- <p>{{fragment.attributes.text}}</p> --}}
-    </div>
+    <p>{{{annotatedText}}}</p>
 </div>
 <div id="modalContainer" class="modal">
     <div class="modal-background"></div>
@@ -21,7 +18,7 @@
                 <span class="icon is-small has-text-black">
                     <i class="fas fa-arrow-left" aria-hidden="true"></i>
                 </span>
-                <p>  Return to categories</p>  
+                <p> Return to categories</p>
             </div>
             <div class="tag-{{selectedCategory.attributes.name}}">{{selectedCategory.attributes.name}}</div>
             <div class="attributes">
@@ -33,7 +30,7 @@
             <div class="categories">
                 {{#each categories}}
                 <div id="{{this.attributes.id}}" class="box category {{this.attributes.class}}">
-                    <div>{{this.attributes.name}}</div>                    
+                    <div>{{this.attributes.name}}</div>
                 </div>
                 {{/each}}
             </div>

@@ -1,16 +1,11 @@
 import { extend } from 'lodash';
 import * as _ from 'underscore';
 import View from '../core/view';
-import Collection from '../core/collection';
 
 import annotateTemplate from './annotate-template';
-import NewAnnotationView from './new-annotation-view';
-import FragmentView from './../fragment/fragment-view'
+import AnnotationView from './annotation-view';
 import CategoryCollection from '../models/category-collection';
-import Category from '../models/category';
 import Snippet from './../models/snippet';
-import Fragment from '../models/fragment';
-import Item from '../models/item';
 
 export default class AnnotateView extends View {
     /**
@@ -28,12 +23,7 @@ export default class AnnotateView extends View {
      * Keep track of modal visibility
      */
     modalIsVisible: boolean = false;
-
-    /**
-     * The fragment being annotated
-     */
-    fragment: Fragment;
-
+   
     /**
      * The current selection
      */
@@ -53,7 +43,6 @@ export default class AnnotateView extends View {
 
     render(): View {
         this.$el.html(this.template({
-            fragment: this.fragment,
             annotatedText: this.annotatedText,
             selectedCategory: this.selectedCategory,
             categories: this.annotationCategoriesCollection.models
@@ -70,8 +59,6 @@ export default class AnnotateView extends View {
     }
 
     initialize(): void {
-        this.fragment = new Fragment({ text: this.getP1(), snippets: [] });
-
         this.originalText = this.getP1();
 
         // let annotables = []
@@ -133,35 +120,32 @@ export default class AnnotateView extends View {
         this.$('#modalContainer').removeClass('is-active');
 
         if (this.selectedCategory) {
-            let selectedSelectables = this.range.extractContents();
-            let anno = document.createElement("anno");
-            anno.classList.add(`${this.selectedCategory.attributes.class}`);
-            anno.appendChild(selectedSelectables);
+            let selectedSelectables: DocumentFragment = this.range.extractContents();
+            
+            let annoView = new AnnotationView(selectedSelectables, this.selectedCategory.attributes.class);
+            annoView.on('onDelete', this.onDeleteAnno, this)
+            
 
-            for (let c of anno.childNodes) {
-                // TODO: deal with anno in selected anno
-                // if (c.nodeName == "ANNO") {
+            // for (let c of anno.childNodes) {
+            //     // TODO: deal with anno in selected anno
+            //     // if (c.nodeName == "ANNO") {
 
-                // }
-                //  TODO: somehow ensure we only have complete <able> tags (incl. inner spaces)?
-                // console.log(c.nodeName)
-            }
+            //     // }
+            //     //  TODO: somehow ensure we only have complete <able> tags (incl. inner spaces)?
+            //     // console.log(c.nodeName)
+            // }
 
-            this.range.insertNode(anno)
+            this.range.insertNode(annoView.render().$el.get(0))
 
             // remove selection
             this.selectedCategory = undefined;
         }
     }
 
-    insertClass(original: string, startIndex: number, endIndex, className): string {
-        let textToReplace = original.substring(startIndex, endIndex);
-        let replacement = `<span class="tag-${className}">${textToReplace}</span>`;
-        return original.substr(0, startIndex) + replacement + original.substr(startIndex + textToReplace.length);
+    onDeleteAnno(event: any) {
+        let text = this.range.extractContents().textContent.trim();
+        this.range.insertNode(document.createTextNode(text));
     }
-
-
-
 
     getP1(): string {
         return "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum \
@@ -194,6 +178,6 @@ extend(AnnotateView.prototype, {
         'click .modal-close': 'hideModal',
         'click .modal-background': 'hideModal',
         'click .category': 'onCategorySelected',
-        'click #returnToCategories': 'onReturnToCategories'
+        'click #returnToCategories': 'onReturnToCategories',
     }
 });
