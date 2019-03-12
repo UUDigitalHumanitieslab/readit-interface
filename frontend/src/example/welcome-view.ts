@@ -3,11 +3,12 @@ import View from '../core/view';
 import DirectionRouter from '../global/ex_direction-router';
 
 import welcomeTemplate from './welcome-template';
-import searchboxView from '../global/searchbox';
+import searchboxView from './../global/searchbox';
 
 export default class WelcomeView extends View {
     render() {
         this.$el.html(this.template(this));
+
         this.$('.welcome-image').append(searchboxView.render().$el)
         searchboxView.on("searchClicked", this.search)
 
@@ -15,8 +16,7 @@ export default class WelcomeView extends View {
     }
 
     search(query: string, queryfields: string = 'all') {
-        event.preventDefault
-        var url = encodeURI(`search/?queryfields=${queryfields}&query=${query}`);
+        var url = encodeURI(`search/?query=${query}&queryfields=${queryfields}`);
         DirectionRouter.navigate(url, { trigger: true });
     }
 }

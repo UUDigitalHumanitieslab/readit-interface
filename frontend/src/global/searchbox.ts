@@ -14,7 +14,7 @@ let exampleQueryFields = [
         'value': 'source_author'
     },
     {
-        'label': 'annotation',
+        'label': 'annotations',
         'value': 'snippet_text'
     },
     {

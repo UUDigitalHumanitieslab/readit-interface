@@ -37,13 +37,14 @@ export default class SearchboxView extends View {
 
     search(event: any) {
         event.preventDefault();
-        var query = this.$(".input").val();
+        var query = this.$('.input').val();
         var queryfields = this.$(".dropdown-item.is-active").attr("value")
         this.trigger("searchClicked", query, queryfields)
     }
 
     selectField(event: any) {
         event.preventDefault();
+        event.stopPropagation();
         var target = $(event.target);
         $("#selected-option").html(target.html());
         $(".dropdown-item").removeClass("is-active");
@@ -56,7 +57,7 @@ extend(SearchboxView.prototype, {
     className: 'searchbox',
     template: searchboxTemplate,
     events: {
-        "click .button": "search",
+        "click #searchbox-button": "search",
         "click .dropdown-item": "selectField",
         "keyup input": "onKeyUp",
     }
