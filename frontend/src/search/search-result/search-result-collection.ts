@@ -39,7 +39,7 @@ export default class SearchResultCollection extends Collection {
                             tags.push(new SearchResultTag({
                                 id: item.category.id,
                                 name: item.category.name,
-                                className: item.category.name.replace(/ /g, ""),
+                                className: item.category.class,
                             }))
                         }
                     }
