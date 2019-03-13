@@ -4,7 +4,7 @@ import Router from '../core/router';
 
 export default class DirectionRouter extends Router {
     queryParams: any = {};
-    
+
     search(queryParams) {
         this.queryParams = {};
 

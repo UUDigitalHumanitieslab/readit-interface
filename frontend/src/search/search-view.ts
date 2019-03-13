@@ -4,13 +4,13 @@ import View from '../core/view';
 import Collection from '../core/collection';
 
 import directionRouter from '../global/ex_direction-router';
-import searchboxView from './../global/searchbox';
 import searchTemplate from './search-template';
 import Select2FilterView from '../filters/select/select2-filter-view';
 import { SelectFilterOption } from '../filters/select/select-option';
 import SearchResultsView from './search-result/searchresults-view';
 import SearchResultsCollection from './search-result/search-result-collection';
 import SearchResult from './search-result/search-result';
+import searchboxView from '../global/searchbox'
 
 import { BaseFilterView } from '../filters/BaseFilterView';
 import { MultiSelectFilter } from '../filters/select/multiSelectFilter';
@@ -44,7 +44,6 @@ export default class SearchView extends View {
 
     render(): View {
         this.$el.html(this.template({ results: this.collection.models }));
-
         this.$('#searchbox').append(searchboxView.render().$el);
         searchboxView.on("searchClicked", this.onSearchClicked, this)
 

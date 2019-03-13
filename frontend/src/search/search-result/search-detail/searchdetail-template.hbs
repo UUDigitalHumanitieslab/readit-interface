@@ -1,0 +1,137 @@
+{{!-- <script type="text/javascript" src="/node_modules/bulma-extensions/bulma-accordion/dist/bulma-accordion.min.js"></script> --}}
+
+<div class="modal is-active is-primary">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <div class="modal-card-head-text">
+                <p class="modal-card-title title is-4">{{source.attributes.name}}</p>
+            </div>
+            <button class="delete is-medium" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <div class="fragment-text">{{fragment.text}}</div>
+            <hr/>
+            <div class="tabs switchable-tabs is-boxed">
+                <ul>
+                    <li class="tab is-active" value="source_info"><a>Source</a></li>
+                    <li class="tab" value="snippets"><a>Annotations</a></li>
+                    {{#each categoryTabs}}
+                    <li class="tab" value="{{this.class}}"><div class="tag is-medium {{this.class}}">{{this.name}}</div></li>
+                    {{/each}}
+                    <li class="tab" value="other"><a>Other</a></li>
+
+                </ul>
+            </div>
+
+            <div class="tab-content" id="source_info">
+                <table class="table is-fullwidth is-hoverable">
+                    <tbody>
+                        <tr>
+                            <td>name:</td>
+                            <td>{{source.attributes.name}}</td>
+                        </tr>
+                        <tr>
+                            <td>author:</td>
+                            <td>{{source.attributes.author.name}}</td>
+                        </tr>
+                        <tr>
+                            <td>publication date:</td>
+                            <td>{{source.attributes.publicationDate}}</td>
+                        </tr>
+                        <tr>
+                            <td>link:</td>
+                            <td><a href="{{source.attributes.link}}">{{source.attributes.link}}</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-content" id="snippets" style="display: none">
+                <table class="table is-fullwidth is-hoverable">
+                    <tbody>
+                        {{#each fragment.snippets}}
+                        <tr>
+                            <td>{{this.text}}</td>
+                            <td>
+                                <div class="tags">
+                                    {{#each this.items}}
+                                    <div class="tag is-medium {{this.category.class}}">{{this.category.name}}</div>
+                                    {{/each}}
+                                </div>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-content" id="content" style="display:none">
+                <table class="table is-fullwidth is-hoverable">
+                    <tbody>
+                        {{#each fragment.snippets}}
+                        <tr>
+                            <td>{{this.text}}</td>
+                            <td>
+                                <div class="tags">
+                                    {{#each this.items}}
+                                    <div class="tag is-medium {{this.category.class}}">{{this.category.name}}</div>
+                                    {{/each}}
+                                </div>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-content" id="other" style="display:none">
+                <table class="table is-fullwidth is-hoverable">
+                    <tbody>
+                        {{#each otherCategories}}
+                            {{#each values}}
+                        <tr>
+                            <td>
+                                <div class="tag is-medium {{../this.category.class}}">{{../this.category.name}}</div>
+                            </td>
+                            <td>
+                                {{this}}
+                            </td>
+                        </tr>
+                            {{/each}}
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+
+            {{#each categoryTabs}}
+            <div class="tab-content" id="{{this.class}}" style="display:none">
+                <section class="accordions">
+                    {{#each instances}}
+                    <article class="accordion">
+                        <div class="accordion-header toggle {{../this.class}}">
+                            <p>{{this.attributes.[0].value}}</p>
+                        </div>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <table class="table is-fullwidth is-hoverable">
+                                    {{#each attributes}}
+                                    <tr>
+                                        <td>
+                                            {{this.name}}
+                                        </td>
+                                        <td>
+                                            {{this.value}}
+                                        </td>
+                                    </tr>
+                                    {{/each}}
+                                </table>
+                            </div>
+                        </div>
+                    </article>
+                {{/each}}
+                </section>
+            </div>
+            {{/each}}
+    </div>
+</div>

@@ -8,10 +8,10 @@ import searchboxView from './../global/searchbox';
 export default class WelcomeView extends View {
     render() {
         this.$el.html(this.template(this));
-        
+
         this.$('.welcome-image').append(searchboxView.render().$el)
         searchboxView.on("searchClicked", this.search)
-        
+
         return this;
     }
 

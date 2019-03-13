@@ -1,5 +1,6 @@
 import { extend } from 'lodash';
 import View from '../../core/view';
+
 import searchboxTemplate from './searchbox-template';
 import QueryField from './query-field'
 
@@ -18,8 +19,8 @@ export default class SearchboxView extends View {
         this.queryFields = queryFields;
         this.defaultOption = defaultOption;
     }
-    
-    render() {        
+
+    render() {
         this.$el.html(this.template(this));
         return this;
     }
