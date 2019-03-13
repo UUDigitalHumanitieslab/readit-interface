@@ -1,6 +1,6 @@
 <nav class="panel">    
     <p class="panel-tabs">
-        <a id="0" value="quick" class="tab is-active">Other</a>
+        <a id="other" value="initial" class="tab is-active">Other</a>
         {{#each categories}}
         {{#if this.attributes.attributes}}
         <a id="{{this.attributes.id}}" value="{{this.attributes.class}}" class="tab {{this.attributes.class}}">
@@ -9,7 +9,7 @@
         {{/if}}
         {{/each}}
     </p>
-    <div class="panel-content" id="quick">
+    <div class="panel-content" id="initial">
         {{#each categories}}
         {{#unless this.attributes.attributes}}
         <a id="{{this.attributes.id}}" class="panel-block {{this.attributes.class}} category">
@@ -19,9 +19,9 @@
         {{/each}}
     </div>
     {{#each panelContents}}
-    <div class="panel-content" id="{{this.id}}" style="display:none;">
+    <div class="panel-content" id="{{this.id}}" style="display:none;" >
         {{#each this.attributes}}
-         <a id="{{this.id}}" class="panel-block attribute" catId="{{../catId}}"">
+         <a id="{{this.id}}" class="panel-block attribute" catId="{{../catId}}">
             {{this.name}}
         </a>
         {{/each}}

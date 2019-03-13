@@ -29,7 +29,6 @@ export default class CategoryPickerView extends View {
             data: { 'TODO': 'TODO' },
             success: function (collection, response, options) {
                 self.collection = new CategoryCollection(collection.models)
-                self.panelContents = self.getPanelContents();
             },
             error: function (collection, response, options) {
                 console.error(response)
@@ -39,7 +38,7 @@ export default class CategoryPickerView extends View {
     }
 
     /**
-     * reshape data for the view
+     * Reshape data for the view
      */
     getPanelContents(): any[] {
         let panelContents = []
@@ -75,7 +74,7 @@ export default class CategoryPickerView extends View {
     }
 
     resetTabs() {        
-        let initialTab = this.$('#0');
+        let initialTab = this.$('#other');        
         this.setActiveTab(initialTab);
     }
 
