@@ -4,7 +4,6 @@
         <header class="modal-card-head">
             <div class="modal-card-head-text">
                 <p class="modal-card-title title is-4">{{source.attributes.name}}</p>
-                <p class="subtitle is-6">{{source.attributes.author.name}}, {{source.attributes.publicationDate}}</p>
             </div>
             <button class="delete is-medium" aria-label="close"></button>
         </header>
@@ -15,8 +14,10 @@
                 <ul>
                     <li class="tab is-active" value="source_info"><a>Source</a></li>
                     <li class="tab" value="snippets"><a>Annotations</a></li>
+                    <li class="tab" value="reader"><a><div class="tag is-medium rit-reader">reader</div></a></li>
                 </ul>
             </div>
+
             <div class="tab-content" id="source_info">
                 <table class="table is-fullwidth is-hoverable">
                     <tbody>
@@ -30,7 +31,7 @@
                         </tr>
                         <tr>
                             <td>publication date:</td>
-                            <td>{{source.attributes.publicationDate0}}</td>
+                            <td>{{source.attributes.publicationDate}}</td>
                         </tr>
                         <tr>
                             <td>link:</td>
@@ -49,7 +50,26 @@
                             <td>
                                 <div class="tags">
                                     {{#each this.items}}
-                                    <div class="tag is-medium tag-{{this.category.name}}">{{this.category.name}}</div>
+                                    <div class="tag is-medium {{this.category.class}}">{{this.category.name}}</div>
+                                    {{/each}}
+                                </div>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-content" id="content" style="display: none">
+                <table class="table is-fullwidth is-hoverable">
+                    <tbody>
+                        {{#each fragment.snippets}}
+                        <tr>
+                            <td>{{this.text}}</td>
+                            <td>
+                                <div class="tags">
+                                    {{#each this.items}}
+                                    <div class="tag is-medium {{this.category.class}}">{{this.category.name}}</div>
                                     {{/each}}
                                 </div>
                             </td>
@@ -58,6 +78,7 @@
                     </tbody>
                 </table>
             </div> 
+
         </section>
     </div>
 </div>
