@@ -4,6 +4,8 @@ import SearchResult from '../search-result';
 import searchDetailTemplate from './searchdetail-template';
 import Model from '../../../core/model';
 import * as _ from 'underscore';
+import * as bulmaAccordion from 'bulma-accordion';
+import ItemLink from '../../../models/itemLink';
 
 export default class SearchDetailView extends View {
     searchResult: Model;
@@ -12,11 +14,16 @@ export default class SearchDetailView extends View {
         id: number;
         name: string;
         class: string;
-        attributes: {
-            id: number,
+        instances: any[][]
+    }[] = [];
+
+    otherCategories: {
+        category: {
+            id: number;
             name: string;
-            value: string;
-        }[]
+            class: string;
+        },
+        values: string[];
     }[] = [];
 
     /**
@@ -29,12 +36,15 @@ export default class SearchDetailView extends View {
     }
 
     render() {
+        this.buildCategoryTabs(this.searchResult);
         this.$el.html(this.template({
             source: this.searchResult.source,
             fragment: this.searchResult.fragment,
             tags: this.searchResult.tags,
             categoryTabs: this.categoryTabs,
+            otherCategories: this.otherCategories
         }));
+        var accordions = this.prepareAccordions();
         return this;
     }
 
@@ -63,14 +73,48 @@ export default class SearchDetailView extends View {
         }
     }
 
+    prepareAccordions() {
+        var accordions = [];
+        this.$('.accordions').each(function (i, element) {
+            $(element).children('.accordion').first().addClass("is-active");
+            accordions.push(new bulmaAccordion(element));
+        });
+        return accordions
+    }
+
     buildCategoryTabs(searchResult: SearchResult) {
         searchResult.fragment.snippets.forEach(snippet => {
             snippet.items.forEach(item => {
                 if (_.has(item.category, 'attributes')) {
-                    // console.log('with attributes', item.category);
-                    this.categoryTabs.push(item.category)
+                    if (_.some(this.categoryTabs, function (x) {
+                        return x.name === item.category.name;
+                    })) {
+                        var index = _.findIndex(this.categoryTabs, function (x) { return x.name === item.category.name; })
+                        this.categoryTabs[index].instances.push({ attributes: item.category.attributes })
+                    } else {
+                        var c = item.category;
+                        var new_cat = {
+                            id: c.id,
+                            name: c.name,
+                            class: c.class,
+                            instances: [{ attributes: c.attributes }]
+                        }
+                        this.categoryTabs.push(new_cat)
+                    }
                 } else {
-                    // console.log('without attributes', item.category);
+                    if (_.some(this.otherCategories, function (x) {
+                        return x.category.name === item.category.name;
+                    })) {
+                        var index = _.findIndex(this.otherCategories, function (x) { return x.category.name === item.category.name; })
+                        this.otherCategories[index].values.push(snippet.text)
+                    } else {
+                        var c = item.category;
+                        this.otherCategories.push({
+                            category: c,
+                            values: [snippet.text]
+                        })
+                    }
+
                 }
             })
         })

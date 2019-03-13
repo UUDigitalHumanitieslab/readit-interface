@@ -1,3 +1,5 @@
+{{!-- <script type="text/javascript" src="/node_modules/bulma-extensions/bulma-accordion/dist/bulma-accordion.min.js"></script> --}}
+
 <div class="modal is-active is-primary">
     <div class="modal-background"></div>
     <div class="modal-card">
@@ -14,7 +16,11 @@
                 <ul>
                     <li class="tab is-active" value="source_info"><a>Source</a></li>
                     <li class="tab" value="snippets"><a>Annotations</a></li>
-                    <li class="tab" value="reader"><a><div class="tag is-medium rit-reader">reader</div></a></li>
+                    {{#each categoryTabs}}
+                    <li class="tab" value="{{this.class}}"><div class="tag is-medium {{this.class}}">{{this.name}}</div></li>
+                    {{/each}}
+                    <li class="tab" value="other"><a>Other</a></li>
+
                 </ul>
             </div>
 
@@ -60,7 +66,7 @@
                 </table>
             </div>
 
-            <div class="tab-content" id="content" style="display: none">
+            <div class="tab-content" id="content" style="display:none">
                 <table class="table is-fullwidth is-hoverable">
                     <tbody>
                         {{#each fragment.snippets}}
@@ -77,8 +83,55 @@
                         {{/each}}
                     </tbody>
                 </table>
-            </div> 
+            </div>
 
-        </section>
+            <div class="tab-content" id="other" style="display:none">
+                <table class="table is-fullwidth is-hoverable">
+                    <tbody>
+                        {{#each otherCategories}}
+                            {{#each values}}
+                        <tr>
+                            <td>
+                                <div class="tag is-medium {{../this.category.class}}">{{../this.category.name}}</div>
+                            </td>
+                            <td>
+                                {{this}}
+                            </td>
+                        </tr>
+                            {{/each}}
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+
+            {{#each categoryTabs}}
+            <div class="tab-content" id="{{this.class}}" style="display:none">
+                <section class="accordions">
+                    {{#each instances}}
+                    <article class="accordion">
+                        <div class="accordion-header toggle {{../this.class}}">
+                            <p>{{this.attributes.[0].value}}</p>
+                        </div>
+                        <div class="accordion-body">
+                            <div class="accordion-content">
+                                <table class="table is-fullwidth is-hoverable">
+                                    {{#each attributes}}
+                                    <tr>
+                                        <td>
+                                            {{this.name}}
+                                        </td>
+                                        <td>
+                                            {{this.value}}
+                                        </td>
+                                    </tr>
+                                    {{/each}}
+                                </table>
+                            </div>
+                        </div>
+                    </article>
+                {{/each}}
+                </section>
+            </div>
+            {{/each}}
     </div>
 </div>
