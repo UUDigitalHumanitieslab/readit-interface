@@ -5,7 +5,7 @@ import Router from '../core/router';
 export default class DirectionRouter extends Router {
     queryParams: any = {};
     
-    search(queryParams: string) {        
+    search(queryParams) {
         this.queryParams = {};
 
         queryParams.split('&').forEach((param, index) => {
@@ -21,6 +21,6 @@ extend(DirectionRouter.prototype, {
     routes: {
         '(arrive)': 'arrive',
         'annotate': 'annotate',
-        'search/?query=:query&queryfields=:queryfields': 'search',
+        'search/': 'search',
     },
 });

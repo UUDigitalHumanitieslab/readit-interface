@@ -13,7 +13,7 @@ export default class AnnotateView extends View {
     /**
      * Keep track of modal visibility
      */
-    modalIsVisible: boolean = false;
+    categoryPickerIsVisible: boolean = false;
     
     /**
      * A string representing the text fragment, and 
@@ -33,15 +33,12 @@ export default class AnnotateView extends View {
 
     render(): View {        
         this.$el.html(this.template({
-            annotatedText: this.annotatedText
+            annotatedText: this.annotatedText,
         }));
-        
-        this.categoryPickerView = new CategoryPickerView();
-        this.categoryPickerView.render().$el.appendTo(this.$('.modal-card-body'));
-        this.categoryPickerView.on('categorySelected', this.onCategorySelected, this);
 
-        if (this.modalIsVisible) {
-            this.showModal();
+        
+        if (this.categoryPickerIsVisible) {
+            this.showCategoryPicker();
         }
 
         return this;
@@ -49,6 +46,7 @@ export default class AnnotateView extends View {
 
     initialize(): void {
         this.annotatedText = this.getP1();
+        this.categoryPickerView = new CategoryPickerView();
     }
 
     onTextSelected(event: any): void {
@@ -57,10 +55,12 @@ export default class AnnotateView extends View {
 
         // no text selected, no modal
         if (range.startOffset === range.endOffset) return;
+
+        let selectedText = range.cloneContents().textContent;
         
         // save selected range for future reference (i.e. on modal close)
         this.range = range
-        this.showModal();
+        this.showCategoryPicker();
     }
     
     onCategorySelected(selectedCategory: Category, selectedAttribute: any): void {
@@ -68,20 +68,20 @@ export default class AnnotateView extends View {
         console.log(selectedCategory, selectedAttribute)
         let annoView = new AnnotationView(this.range, selectedCategory.attributes.class);         
         annoView.render();
-        this.hideModal();
+        this.hideCategoryPicker();
     }
 
-    showModal() {
-        this.categoryPickerView.resetTabs()
-        this.modalIsVisible = true;
-        this.$('#modalContainer').addClass('is-active');
+    showCategoryPicker(): void {        
+        this.categoryPickerIsVisible = true;
+        this.categoryPickerView.setSelection(this.range.cloneContents().textContent);
+        this.categoryPickerView.render().$el.appendTo(this.$('.categoryPickerWrapper'));
+        this.categoryPickerView.on('categorySelected', this.onCategorySelected, this);
     }
 
-    hideModal() {
-        this.modalIsVisible = false;
-        this.$('#modalContainer').removeClass('is-active');
+    hideCategoryPicker(): void {
+        this.categoryPickerIsVisible = false;
+        this.categoryPickerView.hide();
     }
-
 
     getP1(): string {
         return "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum \
@@ -99,8 +99,6 @@ extend(AnnotateView.prototype, {
     className: 'section',
     template: annotateTemplate,
     events: {
-        'mouseup .annotationWrapper': 'onTextSelected',
-        'click .modal-close': 'hideModal',
-        'click .modal-background': 'hideModal',        
+        'mouseup .annotationWrapper': 'onTextSelected',        
     }
 });

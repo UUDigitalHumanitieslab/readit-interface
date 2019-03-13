@@ -60,8 +60,8 @@ export default class Select2FilterView extends BaseFilterView {
         this.listenTo(this.collection, 'change', this.render)
     }
 
-    onSelectionChanged() {
-        this.filter.value = $(`.${this.SELECT2ELEMENTCLASS}`).val(); 
+    onSelectionChanged() {        
+        this.filter.value = this.$(`.${this.SELECT2ELEMENTCLASS}`).val(); 
         this.changed();
     }
 }

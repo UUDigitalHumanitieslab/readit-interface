@@ -6,17 +6,14 @@ import welcomeView from '../global/welcome-view';
 import exitView from '../global/ex_exit-view';
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
+import searchView from '../global/search-view';
+import annotateView from '../global/annotate-view';
 
-import SearchView from '../search/search-view';
-import SourceCollection from '../models/source-collection';
-
-import AnnotateView from './../annotation/annotate-view';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
     footerView.render().$el.appendTo('.footer');
 });
-
 
 directionRouter.on('route:arrive', () => directionFsm.handle('arrive'));
 directionRouter.on('route:leave', () => directionFsm.handle('leave'));
@@ -33,13 +30,19 @@ directionFsm.on('exit:arriving', () => {
 });
 
 directionFsm.on('enter:searching', () => {
-    let searchView = new SearchView({collection: new SourceCollection()});
     searchView.render().$el.appendTo('#main')
 });
 
+directionFsm.on('exit:searching', () => {
+    searchView.$el.detach();
+});
+
 directionFsm.on('enter:annotating', () => {
-    let annotateView = new AnnotateView(this);
     annotateView.render().$el.appendTo('#main')
+});
+
+directionFsm.on('exit:annotating', () => {
+    annotateView.$el.detach();
 });
 
 directionFsm.on('enter:leaving', () => exitView.render().$el.insertAfter('.hero-head'));

@@ -6,7 +6,16 @@ import categoryViewTemplate from './category-picker-template';
 import CategoryCollection from './../models/category-collection';
 
 export default class CategoryPickerView extends View {
+    /**
+     * Contains the content of panels for tabs that represent categories WITH ATTRIBUTES
+     * Note that the 'Other' tab is based on categories without attributes
+     */
     panelContents: any[] = undefined;
+
+    /**
+     * The selection that is being categorised
+     */
+    selection: string;
             
     render(): View { 
         if (!this.panelContents) {
@@ -14,10 +23,12 @@ export default class CategoryPickerView extends View {
         }
 
         this.$el.html(this.template({
+            selection: this.selection,
             categories: this.collection.models,
             panelContents: this.panelContents,
         }));
 
+        this.show();
         return this;
     }
 
@@ -79,6 +90,24 @@ export default class CategoryPickerView extends View {
     }
 
     /**
+     * Modal control
+     */
+    setSelection(selection: string): void {
+        this.selection = selection;
+        this.render();
+    }
+
+    show() {
+        this.resetTabs();
+        this.$('#modalContainer').addClass('is-active');
+    }
+
+    hide() {
+        this.$('#modalContainer').removeClass('is-active');
+    }
+
+
+    /**
      * Event handling
      */
     onAttributeSelected(event: any) {
@@ -110,5 +139,7 @@ extend(CategoryPickerView.prototype, {
         'click .category': 'onCategorySelected',
         'click .tab': 'onTabSelected',
         'click .attribute': 'onAttributeSelected',
+        'click .modal-close': 'hide',
+        'click .modal-background': 'hide',
     }
 });
