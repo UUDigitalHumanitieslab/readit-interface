@@ -1,22 +1,30 @@
-{{#if selectedCategory}}
-<div id="returnToCategories" class="button">
-    <span class="icon is-small has-text-black">
-        <i class="fas fa-arrow-left" aria-hidden="true"></i>
-    </span>
-    <p> Return to categories</p>
-</div>
-<div class="tag-{{selectedCategory.attributes.name}}">{{selectedCategory.attributes.name}}</div>
-<div class="attributes">
-    {{#each selectedCategory.attributes.attributes}}
-    <p>____ {{this.name}}</p>
-    {{/each}}
-</div>
-{{else}}
-<div class="categories">
-    {{#each categories}}
-    <div id="{{this.attributes.id}}" class="box category {{this.attributes.class}}">
-        <div>{{this.attributes.name}}</div>
+<nav class="panel">    
+    <p class="panel-tabs">
+        <a id="0" value="quick" class="tab is-active">Other</a>
+        {{#each categories}}
+        {{#if this.attributes.attributes}}
+        <a id="{{this.attributes.id}}" value="{{this.attributes.class}}" class="tab {{this.attributes.class}}">
+            {{this.attributes.name}}
+        </a>
+        {{/if}}
+        {{/each}}
+    </p>
+    <div class="panel-content" id="quick">
+        {{#each categories}}
+        {{#unless this.attributes.attributes}}
+        <a id="{{this.attributes.id}}" class="panel-block {{this.attributes.class}} category">
+            {{this.attributes.name}}
+        </a>
+        {{/unless}}
+        {{/each}}
+    </div>
+    {{#each panelContents}}
+    <div class="panel-content" id="{{this.id}}" style="display:none;">
+        {{#each this.attributes}}
+         <a id="{{this.id}}" class="panel-block attribute" catId="{{../catId}}"">
+            {{this.name}}
+        </a>
+        {{/each}}
     </div>
     {{/each}}
-</div>
-{{/if}}
+</nav>

@@ -290,7 +290,7 @@ var mockSources = [{
                                     {
                                         id: 20006,
                                         name: 'remembrance',
-                                        value: '?',
+                                        value: 'I remember',
                                     }
                                 ],
                             }

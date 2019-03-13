@@ -11,37 +11,34 @@ import Category from '../models/category';
 
 export default class AnnotateView extends View {
     /**
-     * The available categories to annotate with
-     */
-    annotationCategoriesCollection: CategoryCollection;
-
-    /**
      * Keep track of modal visibility
      */
     modalIsVisible: boolean = false;
-   
+    
     /**
-     * The snippet currently being categorized
+     * A string representing the text fragment, and 
+     * which might contain the HTML tags to render an annotation
      */
-    currentSnippet: Snippet;
-
-    originalText: string;
     annotatedText: string;
-    selectedSelectables: DocumentFragment;
 
-    range: any;
+    /**
+     * Instance of the category picker view
+     */
+    categoryPickerView: CategoryPickerView;
+
+    /**
+     * Range object that holds the text selected by the user
+     */
+    range: Range;
 
     render(): View {        
         this.$el.html(this.template({
             annotatedText: this.annotatedText
         }));
-
-        let categoryPickerView = new CategoryPickerView();
-        categoryPickerView.render().$el.appendTo(this.$('.modal-card-body'));
-        categoryPickerView.on('categorySelected', this.onCategorySelected, this);
         
-        // let fragmentView = new FragmentView({model: this.fragment});
-        // fragmentView.render().$el.appendTo(this.$("#fragmentWrapper"));
+        this.categoryPickerView = new CategoryPickerView();
+        this.categoryPickerView.render().$el.appendTo(this.$('.modal-card-body'));
+        this.categoryPickerView.on('categorySelected', this.onCategorySelected, this);
 
         if (this.modalIsVisible) {
             this.showModal();
@@ -51,7 +48,6 @@ export default class AnnotateView extends View {
     }
 
     initialize(): void {
-        this.originalText = this.getP1();
         this.annotatedText = this.getP1();
     }
 
@@ -66,8 +62,17 @@ export default class AnnotateView extends View {
         this.range = range
         this.showModal();
     }
+    
+    onCategorySelected(selectedCategory: Category, selectedAttribute: any): void {
+        // TODO: do something with (i.e. save) the selected stuff
+        console.log(selectedCategory, selectedAttribute)
+        let annoView = new AnnotationView(this.range, selectedCategory.attributes.class);         
+        annoView.render();
+        this.hideModal();
+    }
 
     showModal() {
+        this.categoryPickerView.resetTabs()
         this.modalIsVisible = true;
         this.$('#modalContainer').addClass('is-active');
     }
@@ -77,11 +82,6 @@ export default class AnnotateView extends View {
         this.$('#modalContainer').removeClass('is-active');
     }
 
-    onCategorySelected(selectedCategory: Category): void {
-        let annoView = new AnnotationView(this.range, selectedCategory.attributes.class);         
-        annoView.render();
-        this.hideModal();
-    }
 
     getP1(): string {
         return "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum \
@@ -92,17 +92,6 @@ export default class AnnotateView extends View {
         eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, \
         dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. \
         Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui."
-    }
-
-    getP2(): string {
-        return "Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem \
-        neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante \
-        tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget \
-        eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed \
-        consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate \
-        eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in \
-        dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et \
-        ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia."
     }
 }
 extend(AnnotateView.prototype, {
