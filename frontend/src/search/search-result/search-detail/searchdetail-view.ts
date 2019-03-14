@@ -10,11 +10,18 @@ import ItemLink from '../../../models/itemLink';
 export default class SearchDetailView extends View {
     searchResult: Model;
 
+    // TODO: make proper types or Backbone.js models
     categoryTabs: {
         id: number;
         name: string;
         class: string;
-        instances: any[][]
+        instances: {
+            attributes: {
+                id: number;
+                name: string;
+                value: string;
+            }[]
+        }[]
     }[] = [];
 
     otherCategories: {
@@ -37,6 +44,8 @@ export default class SearchDetailView extends View {
 
     render() {
         this.buildCategoryTabs(this.searchResult);
+        this.sortCategoryTabs();
+        this.searchResult.fragment.snippets = this.sortSnippets(this.searchResult.fragment.snippets)
         this.$el.html(this.template({
             source: this.searchResult.source,
             fragment: this.searchResult.fragment,
@@ -49,6 +58,8 @@ export default class SearchDetailView extends View {
     }
 
     initialize() {
+        // bind keydown event
+        // once
     }
 
     closeModal() {
@@ -67,13 +78,20 @@ export default class SearchDetailView extends View {
     }
 
     keydownHandler(event: any) {
+        console.log(event);
         event.preventDefault();
         if (event.keyCode === 27) {
             this.closeModal()
         }
     }
 
+    /**
+     * Activate javascript for accordion control, and set first entry active for each one.
+     * Part of bulma-accordion package. 
+     * @return {bulmaAccordion[]} Array of accordions. 
+    */
     prepareAccordions() {
+
         var accordions = [];
         this.$('.accordions').each(function (i, element) {
             $(element).children('.accordion').first().addClass("is-active");
@@ -82,10 +100,28 @@ export default class SearchDetailView extends View {
         return accordions
     }
 
+    sortSnippets(snippets: any[]) {
+        // sort snippets.items on category.name
+        _.each(snippets, snippet => {
+            snippet.items = _.sortBy(snippet.items, 'category.name')
+        });
+        // sort snippets on items[0].category.name
+        return _.sortBy(snippets, 'items[0].category.name')
+    }
+
+    /**
+     * Gathers categories into tabs. 
+     * Categories with attributes get a tab each, with an entry for each snippet containing it.
+     * Categories without attributes are summed in the 'other' tab.
+     * @param {SearchResult} searchResult The current search result. 
+    */
     buildCategoryTabs(searchResult: SearchResult) {
         searchResult.fragment.snippets.forEach(snippet => {
             snippet.items.forEach(item => {
                 if (_.has(item.category, 'attributes')) {
+                    // Categories with attributes.
+                    // Checks if the category already has a tab, and add or create to/of tab depending on the outcome.
+                    // @reviewers, there is probably a simpler way to do this. 
                     if (_.some(this.categoryTabs, function (x) {
                         return x.name === item.category.name;
                     })) {
@@ -102,6 +138,7 @@ export default class SearchDetailView extends View {
                         this.categoryTabs.push(new_cat)
                     }
                 } else {
+                    // Categories without attributes
                     if (_.some(this.otherCategories, function (x) {
                         return x.category.name === item.category.name;
                     })) {
@@ -118,6 +155,12 @@ export default class SearchDetailView extends View {
                 }
             })
         })
+    }
+
+    sortCategoryTabs() {
+        this.otherCategories = _.sortBy(this.otherCategories, 'category.name')
+        this.categoryTabs = _.sortBy(this.categoryTabs, 'name')
+
     }
 
 }
