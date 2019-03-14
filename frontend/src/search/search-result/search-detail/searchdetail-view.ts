@@ -10,7 +10,7 @@ import ItemLink from '../../../models/itemLink';
 export default class SearchDetailView extends View {
     searchResult: Model;
 
-    // TODO: make proper types or Backbone.js models
+    // TODO (??): make proper types or Backbone.js models
     categoryTabs: {
         id: number;
         name: string;
@@ -58,8 +58,7 @@ export default class SearchDetailView extends View {
     }
 
     initialize() {
-        // bind keydown event
-        // once
+        $(window).one('keydown', event => this.keydownHandler(event))
     }
 
     closeModal() {
@@ -78,7 +77,6 @@ export default class SearchDetailView extends View {
     }
 
     keydownHandler(event: any) {
-        console.log(event);
         event.preventDefault();
         if (event.keyCode === 27) {
             this.closeModal()
@@ -171,7 +169,6 @@ extend(SearchDetailView.prototype, {
     template: searchDetailTemplate,
     events: {
         'click .delete': 'closeModal',
-        'click .tab': 'tabClickHandler',
-        'keydown': 'keydownHandler'
+        'click .tab': 'tabClickHandler'
     }
 });
