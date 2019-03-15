@@ -127,38 +127,31 @@ export default class SearchDetailView extends View {
                 if (_.has(item.category, 'attributes')) {
                     // Categories with attributes.
                     // Checks if the category already has a tab, and add or create to/of tab depending on the outcome.
-                    // @reviewers, there is probably a simpler way to do this. 
-                    if (_.some(this.categoryTabs, function (x) {
-                        return x.name === item.category.name;
-                    })) {
-                        var index = _.findIndex(this.categoryTabs, function (x) { return x.name === item.category.name; })
-                        this.categoryTabs[index].instances.push({ attributes: item.category.attributes })
-                    } else {
-                        var c = item.category;
-                        var new_cat = {
-                            id: c.id,
-                            name: c.name,
-                            class: c.class,
-                            instances: [{ attributes: c.attributes }]
-                        }
-                        this.categoryTabs.push(new_cat)
-                    }
+                    var catTabIndex = _.findIndex(this.categoryTabs, x => {
+                        return x.name == item.category.name;
+                    });
+                    catTabIndex != -1 ?
+                        this.categoryTabs[catTabIndex].instances.push({ attributes: item.category.attributes }) :
+                        this.categoryTabs.push({
+                            id: item.category.id,
+                            name: item.category.name,
+                            class: item.category.class,
+                            instances: [{ attributes: item.category.attributes }]
+                        });
                 } else {
                     // Categories without attributes
-                    if (_.some(this.otherCategories, function (x) {
-                        return x.category.name === item.category.name;
-                    })) {
-                        var index = _.findIndex(this.otherCategories, function (x) { return x.category.name === item.category.name; })
-                        this.otherCategories[index].values.push(snippet.text)
-                    } else {
+                    var catIndex = _.findIndex(this.otherCategories, x => {
+                        return x.category.name == item.category.name;
+                    });
+                    catIndex != -1 ?
+                        this.otherCategories[catIndex].values.push(snippet.text) :
                         this.otherCategories.push({
                             category: item.category,
                             values: [snippet.text]
-                        })
-                    }
+                        });
                 }
-            })
-        })
+            });
+        });
     }
 
     sortCategoryTabs() {
