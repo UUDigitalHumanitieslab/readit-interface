@@ -23,7 +23,6 @@ export default class SearchDetailView extends View {
             }[]
         }[]
     }[] = [];
-
     otherCategories: {
         category: {
             id: number;
@@ -45,7 +44,7 @@ export default class SearchDetailView extends View {
     render() {
         this.buildCategoryTabs(this.searchResult);
         this.sortCategoryTabs();
-        this.searchResult.fragment.snippets = this.sortSnippets(this.searchResult.fragment.snippets)
+        this.sortSnippets();
         this.$el.html(this.template({
             source: this.searchResult.source,
             fragment: this.searchResult.fragment,
@@ -98,13 +97,11 @@ export default class SearchDetailView extends View {
         return accordions
     }
 
-    sortSnippets(snippets: any[]) {
-        // sort snippets.items on category.name
-        _.each(snippets, snippet => {
+    sortSnippets() {
+        _.each(this.searchResult.fragment.snippets, snippet => {
             snippet.items = _.sortBy(snippet.items, 'category.name')
         });
-        // sort snippets on items[0].category.name
-        return _.sortBy(snippets, 'items[0].category.name')
+        this.searchResult.fragment.snippets = _.sortBy(this.searchResult.fragment.snippets, 'items[0].category.name')
     }
 
     /**
@@ -143,13 +140,11 @@ export default class SearchDetailView extends View {
                         var index = _.findIndex(this.otherCategories, function (x) { return x.category.name === item.category.name; })
                         this.otherCategories[index].values.push(snippet.text)
                     } else {
-                        var c = item.category;
                         this.otherCategories.push({
-                            category: c,
+                            category: item.category,
                             values: [snippet.text]
                         })
                     }
-
                 }
             })
         })
