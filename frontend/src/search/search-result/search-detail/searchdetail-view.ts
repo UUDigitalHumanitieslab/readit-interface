@@ -89,7 +89,6 @@ export default class SearchDetailView extends View {
      * @return {bulmaAccordion[]} Array of accordions. 
     */
     prepareAccordions() {
-
         var accordions = [];
         this.$('.accordions').each(function (i, element) {
             $(element).children('.accordion').first().addClass("is-active");
@@ -99,7 +98,6 @@ export default class SearchDetailView extends View {
     }
 
     sortSnippets() {
-        // console.log(mockAnnotationCategories)
         _.each(this.searchResult.fragment.snippets, snippet => {
             snippet.items = _.sortBy(snippet.items, item => {
                 return _.findIndex(mockAnnotationCategories, annotationCat => {
