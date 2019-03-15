@@ -230,7 +230,7 @@ var mockSources = [{
                 },
                 {
                     id: 10015,
-                    text: 'make me feel better about reading',                    
+                    text: 'make me feel better about reading',
                     items: [
                         {
                             category: {
@@ -284,7 +284,7 @@ var mockSources = [{
                         {
                             category: {
                                 id: 3,
-                                name: 'state_of_mind',
+                                name: 'state of mind',
                                 class: 'rit-state_of_mind',
                                 attributes: [
                                     {
