@@ -71,10 +71,10 @@ export default class SearchView extends View {
         this.currentQuery = directionRouter.queryParams['query']
         let queryfields = directionRouter.queryParams['queryfields']
         this.$('.searchbox input').val(this.currentQuery)
+
         this.currentSearchResults = this.getQueriedSelection(this.currentQuery, queryfields)
         this.updateFilters();
         return this.currentSearchResults;
-        // this.applyFilters()
     }
 
     getQueriedSelection(query: string, queryfields: any): SearchResult[] {
@@ -118,22 +118,9 @@ export default class SearchView extends View {
             this.initFilters();
         }
 
-        // for (let filterView of this.filterViewCollection) {
-        //     // filterView.attributes.remove()
-        //     console.log(filterView)
-        // }
-
-        // let filters = [];
-        // filters.push(this.setTypesFilter(queryResults));
-        // // filters.push(this.initSourcesFilter());
-
-
-
         for (let filterView of this.filterViewCollection) {
             this.$('.search-filters').append(filterView.render().$el);
         }
-
-        // this.filterViewCollection = new Collection(filters);
     }
 
     initFilters() {
@@ -174,8 +161,10 @@ export default class SearchView extends View {
         }
 
         this.collection.reset(_.filter(this.currentSearchResults, function (searchResult) {
-            if ((selectedTypeIds && selectedTypeIds.length == 0) &&
-                (selectedSourceIds && selectedSourceIds.length == 0)) {
+            console.log(selectedTypeIds, selectedSourceIds)
+            
+            if ((selectedTypeIds && selectedTypeIds.length == 0 || !selectedTypeIds) &&
+                (selectedSourceIds && selectedSourceIds.length == 0 || !selectedSourceIds)) {
                 return true;
             }
 
@@ -196,14 +185,13 @@ export default class SearchView extends View {
                     }
                 }
             }
+
             return false;
         }));
     }
 
     getTypeFilterOptions(queryResults: SearchResult[]): SelectFilterOption[] {
         var allTypes: SelectFilterOption[] = [];
-
-        console.log(queryResults)
 
         for (let searchResult of queryResults) {
             for (let tag of searchResult.tags) {

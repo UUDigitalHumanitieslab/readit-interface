@@ -2,7 +2,7 @@ import { extend } from 'lodash';
 
 import View from '../core/view';
 import menuTemplate from './menu-template';
-import User from './../models/user';
+import DirectionRouter from '../global/ex_direction-router';
 
 export default class MenuView extends View {    
     render() {
@@ -24,6 +24,11 @@ export default class MenuView extends View {
         return this;
     }
 
+    annotate(): void {
+        var url = encodeURI('annotate');
+        DirectionRouter.navigate(url, { trigger: true });
+    }
+
     toggleHamburger(){
         this.$('.navbar-burger, #navbarMenu').toggleClass('is-active');
     }
@@ -36,6 +41,7 @@ extend(MenuView.prototype, {
     events: {
         "click .navbar-burger": "toggleHamburger",
         "click #login": "login",
-        "click #logout": "logout"
+        "click #logout": "logout",
+        "click #annotate": "annotate",
     }
 });
