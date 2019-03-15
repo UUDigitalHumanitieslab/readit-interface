@@ -6,11 +6,12 @@ import Model from '../../../core/model';
 import * as _ from 'underscore';
 import * as bulmaAccordion from 'bulma-accordion';
 import ItemLink from '../../../models/itemLink';
+import mockAnnotationCategories from '../../../models/mock-annotation-categories';
+import Item from '../../../models/item';
 
 export default class SearchDetailView extends View {
     searchResult: Model;
 
-    // TODO (??): make proper types or Backbone.js models
     categoryTabs: {
         id: number;
         name: string;
@@ -94,14 +95,24 @@ export default class SearchDetailView extends View {
             $(element).children('.accordion').first().addClass("is-active");
             accordions.push(new bulmaAccordion(element));
         });
-        return accordions
+        return accordions;
     }
 
     sortSnippets() {
+        // console.log(mockAnnotationCategories)
         _.each(this.searchResult.fragment.snippets, snippet => {
-            snippet.items = _.sortBy(snippet.items, 'category.name')
+            snippet.items = _.sortBy(snippet.items, item => {
+                return _.findIndex(mockAnnotationCategories, annotationCat => {
+                    return annotationCat.name == item.category.name;
+                });
+            });
         });
-        this.searchResult.fragment.snippets = _.sortBy(this.searchResult.fragment.snippets, 'items[0].category.name')
+
+        this.searchResult.fragment.snippets = _.sortBy(this.searchResult.fragment.snippets, snippet => {
+            return _.findIndex(mockAnnotationCategories, annotationCat => {
+                return annotationCat.name == snippet.items[0].category.name;
+            });
+        });
     }
 
     /**
@@ -151,9 +162,16 @@ export default class SearchDetailView extends View {
     }
 
     sortCategoryTabs() {
-        this.otherCategories = _.sortBy(this.otherCategories, 'category.name')
-        this.categoryTabs = _.sortBy(this.categoryTabs, 'name')
-
+        this.otherCategories = _.sortBy(this.otherCategories, category => {
+            return _.findIndex(mockAnnotationCategories, annotationCat => {
+                return annotationCat.name == category.category.name;
+            });
+        });
+        this.categoryTabs = _.sortBy(this.categoryTabs, category => {
+            return _.findIndex(mockAnnotationCategories, annotationCat => {
+                return annotationCat.name == category.name;
+            });
+        });
     }
 
 }
