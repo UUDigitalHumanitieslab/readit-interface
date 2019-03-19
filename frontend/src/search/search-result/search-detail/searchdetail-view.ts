@@ -173,6 +173,7 @@ extend(SearchDetailView.prototype, {
     template: searchDetailTemplate,
     events: {
         'click .delete': 'closeModal',
-        'click .tab': 'tabClickHandler'
+        'click .tab': 'tabClickHandler',
+        'click .tag-link': 'tabClickHandler'
     }
 });
