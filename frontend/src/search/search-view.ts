@@ -1,4 +1,4 @@
-import { extend } from 'lodash';
+import { extend, overSome, map, partial, includes } from 'lodash';
 import * as _ from 'underscore';
 import View from '../core/view';
 import Collection from '../core/collection';
@@ -10,6 +10,7 @@ import { SelectFilterOption } from '../filters/select/select-option';
 import SearchResultsView from './search-result/searchresults-view';
 import SearchResultsCollection from './search-result/search-result-collection';
 import SearchResult from './search-result/search-result';
+import SearchResultLdItem from './search-result-ld-item-view';
 import searchboxView from '../global/searchbox'
 
 import { BaseFilterView } from '../filters/BaseFilterView';
@@ -53,6 +54,12 @@ export default class SearchView extends View {
 
         this.setInitialSources();
         this.collection.reset(this.getSearchResults());
+
+        // Insert the faux linked data result if the query permits it.
+        if (!this.currentQuery || overSome(map(['jane', 'eyre', 'charlotte', 'bront', 'currer', 'bell', '1847'], kw => partial(includes, _, kw)))(this.currentQuery.toLowerCase())) {
+            this.ldResultView = new SearchResultLdItem();
+            this.$('.search-resultcount').after(this.ldResultView.render().el);
+        }
 
         return this;
     }
@@ -162,7 +169,7 @@ export default class SearchView extends View {
 
         this.collection.reset(_.filter(this.currentSearchResults, function (searchResult) {
             console.log(selectedTypeIds, selectedSourceIds)
-            
+
             if ((selectedTypeIds && selectedTypeIds.length == 0 || !selectedTypeIds) &&
                 (selectedSourceIds && selectedSourceIds.length == 0 || !selectedSourceIds)) {
                 return true;
