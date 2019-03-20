@@ -2,21 +2,19 @@
 {{#each results}}
 <div class="box searchresult-resultbox" c_id="{{this.cid}}">
     <article class="columns">
-        <div class="column is-6">
-            <div class="searchresult-details">
-                <p>{{this.fragment.text_short}}</p>
-                <br />
-                <p><strong>Source: {{this.source.attributes.name}}</strong></p>
-                <p><strong>Published: {{this.source.attributes.publicationDate}}</strong></p>
-            </div>
-
+        <div class="column is-narrow">
+            <div class="tag is-medium is-dark">source</div>
         </div>
-        <div class="column is-6 searchresult-right">
-            <p>
-                {{#each this.tags}}
-                <div class="tag is-medium {{this.attributes.className}}">{{this.attributes.name}}</div>
-                {{/each}}
-            </p>
+        <div class="column searchresult-right">
+            <div class="searchresult-details">
+                <p><strong>{{this.source.attributes.name}} ({{this.source.attributes.publicationDate}})</strong></p>
+                <br />
+                <p>{{this.fragment.text_short}}</p>
+            </div>
+        </div>
+    </article>
+    <div class="columns">
+        <div class="column searchresult-right">
             <div class="searchresult-icons">
                 <nav class="level is-mobile">
                     <div class="level-right">
@@ -34,8 +32,7 @@
                 </nav>
             </div>
         </div>
-
-    </article>
+    </div>
 </div>
 {{/each}}
 <div id="result-detail-container"></div>
