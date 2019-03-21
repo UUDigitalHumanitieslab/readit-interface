@@ -111,10 +111,6 @@ var mockAnnotationCategories = [
                 name: 'achievement',
             },
             {
-                id: 22025,
-                name: 'involving...',
-            },
-            {
                 id: 21023,
                 name: 'time',
             },
@@ -125,6 +121,10 @@ var mockAnnotationCategories = [
             {
                 id: 21025,
                 name: 'date',
+            },
+            {
+                id: 22025,
+                name: 'involving...',
             },
             {
                 id: 22021,
@@ -162,14 +162,6 @@ var mockAnnotationCategories = [
                 name: 'skill',
             },
             {
-                id: 22006,
-                name: 'towards interacting with...',
-            },
-            {
-                id: 22007,
-                name: 'in approaching...',
-            },
-            {
                 id: 21006,
                 name: 'aim',
             },
@@ -190,10 +182,6 @@ var mockAnnotationCategories = [
                 name: 'achievement',
             },
             {
-                id: 22025,
-                name: 'involving...',
-            },
-            {
                 id: 21023,
                 name: 'time',
             },
@@ -204,6 +192,18 @@ var mockAnnotationCategories = [
             {
                 id: 21025,
                 name: 'date',
+            },
+            {
+                id: 22006,
+                name: 'towards interacting with...',
+            },
+            {
+                id: 22007,
+                name: 'in approaching...',
+            },
+            {
+                id: 22025,
+                name: 'involving...',
             },
             {
                 id: 22021,
@@ -233,6 +233,18 @@ var mockAnnotationCategories = [
                 name: 'conditions',
             },
             {
+                id: 21023,
+                name: 'time',
+            },
+            {
+                id: 21024,
+                name: 'time span',
+            },
+            {
+                id: 21025,
+                name: 'date',
+            },
+            {
                 id: 22008,
                 name: 'same as...',
             },
@@ -251,18 +263,6 @@ var mockAnnotationCategories = [
             {
                 id: 22012,
                 name: 'coocurring with...',
-            },
-            {
-                id: 21023,
-                name: 'time',
-            },
-            {
-                id: 21024,
-                name: 'time span',
-            },
-            {
-                id: 21025,
-                name: 'date',
             },
             {
                 id: 22021,
@@ -325,20 +325,32 @@ var mockAnnotationCategories = [
         class: 'rit-experience',
         attributes: [
             {
-                id: 22028,
-                name: 'involving...',
-            },
-            {
-                id: 22029,
-                name: 'part of...',
-            },
-            {
                 id: 21015,
                 name: 'place',
             },
             {
                 id: 21016,
                 name: 'conditions',
+            },
+            {
+                id: 21023,
+                name: 'time',
+            },
+            {
+                id: 21024,
+                name: 'time span',
+            },
+            {
+                id: 21025,
+                name: 'date',
+            },
+            {
+                id: 22028,
+                name: 'involving...',
+            },
+            {
+                id: 22029,
+                name: 'part of...',
             },
             {
                 id: 22008,
@@ -361,18 +373,6 @@ var mockAnnotationCategories = [
                 name: 'coocurring with...',
             },
             {
-                id: 21023,
-                name: 'time',
-            },
-            {
-                id: 21024,
-                name: 'time span',
-            },
-            {
-                id: 21025,
-                name: 'date',
-            },
-            {
                 id: 22021,
                 name: 'strictly follows...',
             },
@@ -391,22 +391,6 @@ var mockAnnotationCategories = [
         name: 'session',
         class: 'rit-session',
         attributes: [
-            {
-                id: 22030,
-                name: 'situation of...',
-            },
-            {
-                id: 22031,
-                name: 'part of...',
-            },
-            {
-                id: 22026,
-                name: 'motivated by...',
-            },
-            {
-                id: 22027,
-                name: 'results in...',
-            },
             {
                 id: 21017,
                 name: 'transportation',
@@ -438,6 +422,34 @@ var mockAnnotationCategories = [
             {
                 id: 21016,
                 name: 'conditions',
+            },
+            {
+                id: 21023,
+                name: 'time',
+            },
+            {
+                id: 21024,
+                name: 'time span',
+            },
+            {
+                id: 21025,
+                name: 'date',
+            },
+            {
+                id: 22030,
+                name: 'situation of...',
+            },
+            {
+                id: 22031,
+                name: 'part of...',
+            },
+            {
+                id: 22026,
+                name: 'motivated by...',
+            },
+            {
+                id: 22027,
+                name: 'results in...',
             },
             {
                 id: 22008,
@@ -474,18 +486,6 @@ var mockAnnotationCategories = [
             {
                 id: 22017,
                 name: 'involving...',
-            },
-            {
-                id: 21023,
-                name: 'time',
-            },
-            {
-                id: 21024,
-                name: 'time span',
-            },
-            {
-                id: 21025,
-                name: 'date',
             },
             {
                 id: 22021,
@@ -507,18 +507,6 @@ var mockAnnotationCategories = [
         class: 'rit-reading',
         attributes: [
             {
-                id: 22032,
-                name: 'situation of...',
-            },
-            {
-                id: 22026,
-                name: 'motivated by...',
-            },
-            {
-                id: 22027,
-                name: 'results in...',
-            },
-            {
                 id: 21017,
                 name: 'transportation',
             },
@@ -549,6 +537,30 @@ var mockAnnotationCategories = [
             {
                 id: 21016,
                 name: 'conditions',
+            },
+            {
+                id: 21023,
+                name: 'time',
+            },
+            {
+                id: 21024,
+                name: 'time span',
+            },
+            {
+                id: 21025,
+                name: 'date',
+            },
+            {
+                id: 22032,
+                name: 'situation of...',
+            },
+            {
+                id: 22026,
+                name: 'motivated by...',
+            },
+            {
+                id: 22027,
+                name: 'results in...',
             },
             {
                 id: 22008,
@@ -587,18 +599,6 @@ var mockAnnotationCategories = [
                 name: 'involving...',
             },
             {
-                id: 21023,
-                name: 'time',
-            },
-            {
-                id: 21024,
-                name: 'time span',
-            },
-            {
-                id: 21025,
-                name: 'date',
-            },
-            {
                 id: 22021,
                 name: 'strictly follows...',
             },
@@ -617,10 +617,6 @@ var mockAnnotationCategories = [
         name: 'premise',
         class: 'rit-premise',
         attributes: [
-            {
-                id: 22033,
-                name: 'strictly preceeds...',
-            },
             {
                 id: 21006,
                 name: 'aim',
@@ -642,10 +638,6 @@ var mockAnnotationCategories = [
                 name: 'achievement',
             },
             {
-                id: 22025,
-                name: 'involving...',
-            },
-            {
                 id: 21023,
                 name: 'time',
             },
@@ -656,6 +648,14 @@ var mockAnnotationCategories = [
             {
                 id: 21025,
                 name: 'date',
+            },
+            {
+                id: 22033,
+                name: 'strictly preceeds...',
+            },
+            {
+                id: 22025,
+                name: 'involving...',
             },
             {
                 id: 22021,
@@ -677,10 +677,6 @@ var mockAnnotationCategories = [
         class: 'rit-outcome',
         attributes: [
             {
-                id: 22033,
-                name: 'strictly follows...',
-            },
-            {
                 id: 21006,
                 name: 'aim',
             },
@@ -701,10 +697,6 @@ var mockAnnotationCategories = [
                 name: 'achievement',
             },
             {
-                id: 22025,
-                name: 'involving...',
-            },
-            {
                 id: 21023,
                 name: 'time',
             },
@@ -715,6 +707,14 @@ var mockAnnotationCategories = [
             {
                 id: 21025,
                 name: 'date',
+            },
+            {
+                id: 22033,
+                name: 'strictly follows...',
+            },
+            {
+                id: 22025,
+                name: 'involving...',
             },
             {
                 id: 22021,
