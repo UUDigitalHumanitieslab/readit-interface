@@ -11,6 +11,7 @@ import SearchResultsView from './search-result/searchresults-view';
 import SearchResultsCollection from './search-result/search-result-collection';
 import SearchResult from './search-result/search-result';
 import SearchResultLdItem from './search-result-ld-item-view';
+import SearchResultLdDetail from './search-result-ld-detail-view';
 import searchboxView from '../global/searchbox'
 
 import { BaseFilterView } from '../filters/BaseFilterView';
@@ -57,8 +58,13 @@ export default class SearchView extends View {
 
         // Insert the faux linked data result if the query permits it.
         if (!this.currentQuery || overSome(map(['jane', 'eyre', 'charlotte', 'bront', 'currer', 'bell', '1847'], kw => partial(includes, _, kw)))(this.currentQuery.toLowerCase())) {
-            this.ldResultView = new SearchResultLdItem();
-            this.$('.search-resultcount').after(this.ldResultView.render().el);
+            this.ldResultItem = new SearchResultLdItem();
+            this.$('.search-resultcount').after(this.ldResultItem.render().el);
+            this.ldResultItem.on('open', () => {
+                this.ldResultDetail = new SearchResultLdDetail();
+                this.ldResultDetail.render().$el.appendTo('#result-detail-container');
+                this.ldResultDetail.on('close', () => this.ldResultDetail.remove());
+            });
         }
 
         return this;
