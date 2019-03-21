@@ -9,7 +9,6 @@
         <section class="modal-card-body">
             <nav class="panel">
                 <p class="panel-tabs">
-                    <a id="other" value="initial" class="tab is-active">Other</a>
                     {{#each categories}}
                     {{#if this.attributes.attributes}}
                     <a id="{{this.attributes.id}}" value="{{this.attributes.class}}"
@@ -18,6 +17,7 @@
                     </a>
                     {{/if}}
                     {{/each}}
+                    <a id="other" value="initial" class="tab is-active">Other</a>
                 </p>
                 <div class="panel-content" id="initial">
                     {{#each categories}}

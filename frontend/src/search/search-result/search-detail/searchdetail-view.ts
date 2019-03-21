@@ -6,11 +6,12 @@ import Model from '../../../core/model';
 import * as _ from 'underscore';
 import * as bulmaAccordion from 'bulma-accordion';
 import ItemLink from '../../../models/itemLink';
+import mockAnnotationCategories from '../../../models/mock-annotation-categories';
+import Item from '../../../models/item';
 
 export default class SearchDetailView extends View {
     searchResult: Model;
 
-    // TODO: make proper types or Backbone.js models
     categoryTabs: {
         id: number;
         name: string;
@@ -23,7 +24,6 @@ export default class SearchDetailView extends View {
             }[]
         }[]
     }[] = [];
-
     otherCategories: {
         category: {
             id: number;
@@ -45,7 +45,7 @@ export default class SearchDetailView extends View {
     render() {
         this.buildCategoryTabs(this.searchResult);
         this.sortCategoryTabs();
-        this.searchResult.fragment.snippets = this.sortSnippets(this.searchResult.fragment.snippets)
+        this.sortSnippets();
         this.$el.html(this.template({
             source: this.searchResult.source,
             fragment: this.searchResult.fragment,
@@ -58,8 +58,7 @@ export default class SearchDetailView extends View {
     }
 
     initialize() {
-        // bind keydown event
-        // once
+        $(window).one('keydown', event => this.keydownHandler(event))
     }
 
     closeModal() {
@@ -78,7 +77,6 @@ export default class SearchDetailView extends View {
     }
 
     keydownHandler(event: any) {
-        console.log(event);
         event.preventDefault();
         if (event.keyCode === 27) {
             this.closeModal()
@@ -91,22 +89,28 @@ export default class SearchDetailView extends View {
      * @return {bulmaAccordion[]} Array of accordions. 
     */
     prepareAccordions() {
-
         var accordions = [];
         this.$('.accordions').each(function (i, element) {
             $(element).children('.accordion').first().addClass("is-active");
             accordions.push(new bulmaAccordion(element));
         });
-        return accordions
+        return accordions;
     }
 
-    sortSnippets(snippets: any[]) {
-        // sort snippets.items on category.name
-        _.each(snippets, snippet => {
-            snippet.items = _.sortBy(snippet.items, 'category.name')
+    sortSnippets() {
+        _.each(this.searchResult.fragment.snippets, snippet => {
+            snippet.items = _.sortBy(snippet.items, item => {
+                return _.findIndex(mockAnnotationCategories, annotationCat => {
+                    return annotationCat.name == item.category.name;
+                });
+            });
         });
-        // sort snippets on items[0].category.name
-        return _.sortBy(snippets, 'items[0].category.name')
+
+        this.searchResult.fragment.snippets = _.sortBy(this.searchResult.fragment.snippets, snippet => {
+            return _.findIndex(mockAnnotationCategories, annotationCat => {
+                return annotationCat.name == snippet.items[0].category.name;
+            });
+        });
     }
 
     /**
@@ -121,46 +125,44 @@ export default class SearchDetailView extends View {
                 if (_.has(item.category, 'attributes')) {
                     // Categories with attributes.
                     // Checks if the category already has a tab, and add or create to/of tab depending on the outcome.
-                    // @reviewers, there is probably a simpler way to do this. 
-                    if (_.some(this.categoryTabs, function (x) {
-                        return x.name === item.category.name;
-                    })) {
-                        var index = _.findIndex(this.categoryTabs, function (x) { return x.name === item.category.name; })
-                        this.categoryTabs[index].instances.push({ attributes: item.category.attributes })
-                    } else {
-                        var c = item.category;
-                        var new_cat = {
-                            id: c.id,
-                            name: c.name,
-                            class: c.class,
-                            instances: [{ attributes: c.attributes }]
-                        }
-                        this.categoryTabs.push(new_cat)
-                    }
+                    var catTabIndex = _.findIndex(this.categoryTabs, x => {
+                        return x.name == item.category.name;
+                    });
+                    catTabIndex != -1 ?
+                        this.categoryTabs[catTabIndex].instances.push({ attributes: item.category.attributes }) :
+                        this.categoryTabs.push({
+                            id: item.category.id,
+                            name: item.category.name,
+                            class: item.category.class,
+                            instances: [{ attributes: item.category.attributes }]
+                        });
                 } else {
                     // Categories without attributes
-                    if (_.some(this.otherCategories, function (x) {
-                        return x.category.name === item.category.name;
-                    })) {
-                        var index = _.findIndex(this.otherCategories, function (x) { return x.category.name === item.category.name; })
-                        this.otherCategories[index].values.push(snippet.text)
-                    } else {
-                        var c = item.category;
+                    var catIndex = _.findIndex(this.otherCategories, x => {
+                        return x.category.name == item.category.name;
+                    });
+                    catIndex != -1 ?
+                        this.otherCategories[catIndex].values.push(snippet.text) :
                         this.otherCategories.push({
-                            category: c,
+                            category: item.category,
                             values: [snippet.text]
-                        })
-                    }
-
+                        });
                 }
-            })
-        })
+            });
+        });
     }
 
     sortCategoryTabs() {
-        this.otherCategories = _.sortBy(this.otherCategories, 'category.name')
-        this.categoryTabs = _.sortBy(this.categoryTabs, 'name')
-
+        this.otherCategories = _.sortBy(this.otherCategories, category => {
+            return _.findIndex(mockAnnotationCategories, annotationCat => {
+                return annotationCat.name == category.category.name;
+            });
+        });
+        this.categoryTabs = _.sortBy(this.categoryTabs, category => {
+            return _.findIndex(mockAnnotationCategories, annotationCat => {
+                return annotationCat.name == category.name;
+            });
+        });
     }
 
 }
@@ -172,6 +174,6 @@ extend(SearchDetailView.prototype, {
     events: {
         'click .delete': 'closeModal',
         'click .tab': 'tabClickHandler',
-        'keydown': 'keydownHandler'
+        'click .tag-link': 'tabClickHandler'
     }
 });

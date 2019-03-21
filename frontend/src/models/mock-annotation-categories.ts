@@ -1,6 +1,6 @@
-var mockAnnotationCategories = [    
+var mockAnnotationCategories = [
     {
-        id: 9001,
+        id: 9000,
         name: 'reader',
         class: 'rit-reader',
         attributes: [
@@ -28,6 +28,13 @@ var mockAnnotationCategories = [
                 id: 21005,
                 name: 'political position',
             },
+        ]
+    },
+    {
+        id: 9001,
+        name: 'person',
+        class: 'rit-person',
+        attributes: [
             {
                 id: 20003,
                 name: 'birth name',
@@ -52,7 +59,7 @@ var mockAnnotationCategories = [
                 id: 20008,
                 name: 'date of death',
             },
-        ]
+        ],
     },
     {
         id: 9002,
@@ -153,7 +160,7 @@ var mockAnnotationCategories = [
     {
         id: 9006,
         name: 'support',
-        class: 'rit-support',       
+        class: 'rit-support',
     },
     {
         id: 9007,
@@ -165,7 +172,60 @@ var mockAnnotationCategories = [
         name: 'content',
         class: 'rit-content',
     },
-    
+    {
+        id: 9009,
+        name: 'temporal entity',
+        class: 'rit-temporal_entity',
+        attributes: [
+            {
+                id: 21023,
+                name: 'time',
+            },
+            {
+                id: 21024,
+                name: 'time span',
+            },
+            {
+                id: 21025,
+                name: 'date',
+            },
+        ],
+    },
+    {
+        id: 9010,
+        name: 'reading resource',
+        class: 'rit-reading_resource',
+    },
+    {
+        id: 9011,
+        name: 'reading frame',
+        class: 'rit-reading_frame',
+    },
+    {
+        id: 9012,
+        name: 'experience',
+        class: 'rit-experience',
+    },
+    {
+        id: 9013,
+        name: 'session',
+        class: 'rit-session',
+    },
+    {
+        id: 9014,
+        name: 'reading',
+        class: 'rit-reading',
+    },
+    {
+        id: 9015,
+        name: 'premise',
+        class: 'rit-premise',
+    },
+    {
+        id: 9016,
+        name: 'outcome',
+        class: 'rit-outcome',
+    },
 ]
 
 export default mockAnnotationCategories;
