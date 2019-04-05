@@ -5,23 +5,19 @@ const DirectionFsm = Fsm.extend({
     states: {
         travelling: {
             arrive: 'arriving',
-            leave: 'leaving',
-            search: 'searching',
             annotate: 'annotating',
+            leave: 'leaving',
         },
         arriving: {
             leave: 'leaving',
-            search: 'searching',
             annotate: 'annotating',
         },
         leaving: {
             arrive: 'arriving',
         },
-        searching: {
-            annotate: 'annotating'
-        },
         annotating: {
-            search: 'searching'
+            search: 'searching',
+            leave: 'leaving',
         }
     },
 });
