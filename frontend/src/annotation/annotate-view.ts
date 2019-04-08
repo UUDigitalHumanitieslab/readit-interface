@@ -4,17 +4,22 @@ import View from '../core/view';
 
 import annotateTemplate from './annotate-template';
 import AnnotationView from './annotation-view';
-import CategoryCollection from '../models/category-collection';
-import Snippet from './../models/snippet';
 import CategoryPickerView from './category-picker';
 import Category from '../models/category';
+import Collection from '../core/collection';
+
+import AnnotationCollection from '../models/annotation-collection';
+
 
 export default class AnnotateView extends View {
     /**
      * Keep track of modal visibility
      */
     categoryPickerIsVisible: boolean = false;
-    
+
+    annotationCollection: AnnotationCollection;
+    annotationViews: View[];
+
     /**
      * A string representing the text fragment, and 
      * which might contain the HTML tags to render an annotation
@@ -31,22 +36,49 @@ export default class AnnotateView extends View {
      */
     range: Range;
 
-    render(): View {        
+    render(): View {
         this.$el.html(this.template({
             annotatedText: this.annotatedText,
         }));
 
-        
         if (this.categoryPickerIsVisible) {
             this.showCategoryPicker();
         }
+
+        this.trigger('render:after')
 
         return this;
     }
 
     initialize(): void {
         this.annotatedText = this.getP1();
+        this.annotationViews = [];
+
+        // TODO: don't do this if it is a new annotation session
+        this.setAnnotations();
         this.categoryPickerView = new CategoryPickerView();
+        this.categoryPickerView.on('categorySelected', this.onCategorySelected, this);
+    }
+
+    renderInParent(parent:any) {
+        this.render().$el.appendTo(parent)
+        this.initAnnotationViews();
+    }
+
+    setAnnotations(): void {
+        var self = this;
+        var annoCollection = new AnnotationCollection();
+
+        annoCollection.fetch({
+            data: { 'TODO': 'TODO' },
+            success: function (collection, response, options) {
+                self.annotationCollection = new AnnotationCollection(collection.models)
+            },
+            error: function (collection, response, options) {
+                console.error(response)
+                return null;
+            }
+        })
     }
 
     onTextSelected(event: any): void {
@@ -57,25 +89,46 @@ export default class AnnotateView extends View {
         if (range.startOffset === range.endOffset) return;
 
         let selectedText = range.cloneContents().textContent;
-        
+
         // save selected range for future reference (i.e. on modal close)
         this.range = range
         this.showCategoryPicker();
     }
-    
-    onCategorySelected(selectedCategory: Category, selectedAttribute: any): void {
-        // TODO: do something with (i.e. save) the selected stuff
-        console.log(selectedCategory, selectedAttribute)
-        let annoView = new AnnotationView(this.range, selectedCategory.attributes.class);         
-        annoView.render();
-        this.hideCategoryPicker();
+
+    initAnnotationViews(): View {
+        for (let anno of this.annotationCollection.models) {
+            // create a 'virtual' range based on offsets to retrieve rects to draw
+            let r = document.createRange();
+            
+            let test = this.$('#test');            
+
+            r.setStart(test.get(0).firstChild, anno.attributes.startIndex)
+            r.setEnd(test.get(0).firstChild, anno.attributes.endIndex)
+            
+            this.initAnnotationView(r, test, anno.attributes.class)
+        }
+
+        return this;
     }
 
-    showCategoryPicker(): void {        
+    initAnnotationView(range: Range, parent: JQuery<HTMLElement>, cssClass: string) {
+        for (let rect of range.getClientRects()) {
+            let annoView = new AnnotationView(rect, cssClass);
+            annoView.render().$el.appendTo(parent);
+        }
+    }
+
+    onCategorySelected(selectedCategory: Category, selectedAttribute: any): void {
+        this.initAnnotationView(this.range, this.$('.test'), selectedCategory.attributes.class)
+        this.hideCategoryPicker();
+
+        // TODO: do something with (i.e. save) the selected stuff
+    }
+
+    showCategoryPicker(): void {
         this.categoryPickerIsVisible = true;
         this.categoryPickerView.setSelection(this.range.cloneContents().textContent);
         this.categoryPickerView.render().$el.appendTo(this.$('.categoryPickerWrapper'));
-        this.categoryPickerView.on('categorySelected', this.onCategorySelected, this);
     }
 
     hideCategoryPicker(): void {
@@ -99,6 +152,6 @@ extend(AnnotateView.prototype, {
     className: 'section',
     template: annotateTemplate,
     events: {
-        'mouseup .annotationWrapper': 'onTextSelected',        
+        'mouseup .annotationWrapper': 'onTextSelected',
     }
 });

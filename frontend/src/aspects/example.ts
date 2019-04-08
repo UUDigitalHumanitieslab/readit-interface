@@ -27,7 +27,7 @@ directionFsm.on('exit:arriving', () => {
 });
 
 directionFsm.on('enter:annotating', () => {
-    annotateView.render().$el.appendTo('#main')
+    annotateView.renderInParent($('#main'));
 });
 directionFsm.on('exit:annotating', () => {
     annotateView.$el.detach();

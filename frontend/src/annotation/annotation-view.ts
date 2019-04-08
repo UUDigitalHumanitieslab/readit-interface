@@ -3,11 +3,18 @@ import * as _ from 'underscore';
 import View from '../core/view';
 
 import annotationTemplate from './annotation-template';
+import Annotation from './../models/annotation';
 
 
 export default class AnnotationView extends View {
-    cssClass: string;
-    range: Range;
+    private range: Range;
+
+    private rect: ClientRect | DOMRect;
+
+    constructor(rect: ClientRect | DOMRect, private cssClass: string) {
+        super();
+        this.rect = rect;
+    }
 
     /**
      * Keep track of leading and trailing whitespace
@@ -16,31 +23,25 @@ export default class AnnotationView extends View {
     hasLeadingWhitespace: boolean = false;
     hasTrailingWhitespace: boolean = false;
 
-    constructor(range: Range, cssClass: string) {
-        super()
-        this.range = range;
-        this.cssClass = cssClass;
-        this.trackWhiteSpaces();
-    }
-
     render(): View {
         // check multiline before inserting stuff
-        let isMultiline: boolean = this.range.getClientRects().length > 1;
+        // let isMultiline: boolean = this.range.getClientRects().length > 1;
+        // 200 - 216 Donec quam felis
 
         this.$el.html(this.template({}));
-        this.$el.prepend(this.range.extractContents());
-        this.$el.addClass('anno');
         this.$el.addClass(this.cssClass);
-        this.range.insertNode(this.$el.get(0));
-        this.positionDeleteButton(isMultiline);
+        this.$el.addClass('anno');
+
+
+        this.$el.css("position", 'absolute');
+        this.$el.css("z-index", '-1');
+        this.$el.css("top", this.rect.top);
+        this.$el.css("left", this.rect.left);
+        this.$el.css("width", this.rect.width);
+        this.$el.css("height", this.rect.height);
+
+        this.positionDeleteButton(false);
         return this;
-
-        // for (let c of anno.childNodes) {
-        //     TODO: deal with anno in selected anno
-        //     if (c.nodeName == "ANNO") {
-
-        //     }
-        // }
     }
 
     initialize(): void {
@@ -94,7 +95,7 @@ export default class AnnotationView extends View {
     onDelete(event: any) {
         // Delete abundant whitespaces
         let text = this.range.extractContents().textContent.trim();
-        
+
         // Reinsert one whitespace where needed
         if (this.hasLeadingWhitespace) {
             text = ` ${text}`;
@@ -103,7 +104,7 @@ export default class AnnotationView extends View {
         if (this.hasTrailingWhitespace) {
             text = `${text} `;
         }
-        
+
         this.range.insertNode(document.createTextNode(text));
     }
 

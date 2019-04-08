@@ -123,7 +123,7 @@ export default class CategoryPickerView extends View {
 
     onCategorySelected(event: any) {
         let catId = event.currentTarget.id;
-        let selectedCategory = this.collection.get(catId);
+        let selectedCategory = this.collection.get(catId);        
         this.triggerCategorySelected(selectedCategory);
     }
 
@@ -138,7 +138,6 @@ extend(CategoryPickerView.prototype, {
     events: {
         'click .category': 'onCategorySelected',
         'click .tab': 'onTabSelected',
-        'click .attribute': 'onAttributeSelected',
         'click .modal-close': 'hide',
         'click .modal-background': 'hide',
     }

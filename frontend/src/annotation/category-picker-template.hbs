@@ -1,45 +1,19 @@
 <div id="modalContainer" class="modal">
     <div class="modal-background"></div>
     <div class="modal-card">
-        <header class="modal-card-head">
-            <div class="modal-card-head-text">
-                <p class="subtitle is-6">{{selection}}</p>
-            </div>
-        </header>
         <section class="modal-card-body">
+            <p class="subtitle is-6">{{selection}}</p>
             <nav class="panel">
                 <p class="panel-tabs">
                     {{#each categories}}
                     {{#if this.attributes.attributes}}
                     <a id="{{this.attributes.id}}" value="{{this.attributes.class}}"
-                        class="tab {{this.attributes.class}} tag is-medium">
+                        class="tab {{this.attributes.class}} tag is-medium category">
                         {{this.attributes.name}}
                     </a>
                     {{/if}}
                     {{/each}}
-                    <a id="other" value="initial" class="tab is-active">Other</a>
-                </p>
-                <div class="panel-content" id="initial">
-                    {{#each categories}}
-                    {{#unless this.attributes.attributes}}
-                    <div style="display:block;">
-                        <div id="{{this.attributes.id}}"
-                            class="panel-block {{this.attributes.class}} category tag is-large">
-                            {{this.attributes.name}}
-                        </div>
-                    </div>
-                    {{/unless}}
-                    {{/each}}
-                </div>
-                {{#each panelContents}}
-                <div class="panel-content" id="{{this.id}}" style="display:none;">
-                    {{#each this.attributes}}
-                    <a id="{{this.id}}" class="panel-block attribute" catId="{{../catId}}">
-                        {{this.name}}
-                    </a>
-                    {{/each}}
-                </div>
-                {{/each}}
+                </p>                
             </nav>
         </section>
     </div>
