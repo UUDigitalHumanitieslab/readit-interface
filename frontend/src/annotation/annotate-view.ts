@@ -100,12 +100,13 @@ export default class AnnotateView extends View {
             // create a 'virtual' range based on offsets to retrieve rects to draw
             let r = document.createRange();
             
-            let test = this.$('#test');            
+            let test = this.$('#test'); 
+                       
 
             r.setStart(test.get(0).firstChild, anno.attributes.startIndex)
             r.setEnd(test.get(0).firstChild, anno.attributes.endIndex)
             
-            this.initAnnotationView(r, test, anno.attributes.class)
+            this.initAnnotationView(r, this.$('#testWrapper'), anno.attributes.class)
         }
 
         return this;
@@ -114,7 +115,7 @@ export default class AnnotateView extends View {
     initAnnotationView(range: Range, parent: JQuery<HTMLElement>, cssClass: string) {
         for (let rect of range.getClientRects()) {
             let annoView = new AnnotationView(rect, cssClass);
-            annoView.render().$el.appendTo(parent);
+            annoView.render().$el.prependTo(parent);
         }
     }
 
