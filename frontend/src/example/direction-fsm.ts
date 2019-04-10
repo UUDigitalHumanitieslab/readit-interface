@@ -4,14 +4,9 @@ const DirectionFsm = Fsm.extend({
     initialState: 'travelling',
     states: {
         travelling: {
-            arrive: 'arriving',
-            leave: 'leaving',
-        },
-        arriving: {
             leave: 'leaving',
         },
         leaving: {
-            arrive: 'arriving',
         },
     },
 });
