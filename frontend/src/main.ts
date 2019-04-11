@@ -7,6 +7,9 @@ import { i18nPromise } from './global/i18n';
 import './global/internalLinks';
 import './global/hbsHelpers';
 import './aspects/example';
+import './aspects/authentication';
+
+window.addEventListener('popstate', event => console.log(event));
 
 when(ready, i18nPromise).done(function() {
     let success = history.start({

@@ -1,11 +1,12 @@
 import directionRouter from '../global/ex_direction-router';
-import directionFsm from '../global/ex_direction-fsm';
+import userFsm from '../global/user-fsm';
 import enterView from '../global/ex_enter-view';
 import exitView from '../global/ex_exit-view';
 
-directionRouter.on('route:arrive', () => directionFsm.handle('arrive'));
-directionRouter.on('route:leave', () => directionFsm.handle('leave'));
-directionFsm.on('enter:arriving', () => enterView.render().$el.appendTo('main'));
-directionFsm.on('exit:arriving', () => enterView.$el.detach());
-directionFsm.on('enter:leaving', () => exitView.render().$el.appendTo('main'));
-directionFsm.on('exit:leaving', () => exitView.$el.detach());
+directionRouter.on('route:arrive', () => userFsm.handle('arrive'));
+directionRouter.on('route:leave', () => userFsm.handle('leave'));
+directionRouter.on('all', (event, ...args) => console.log('direction', event, args));
+userFsm.on('enter:arriving', () => enterView.render().$el.appendTo('main'));
+userFsm.on('exit:arriving', () => enterView.$el.detach());
+userFsm.on('enter:leaving', () => exitView.render().$el.appendTo('main'));
+userFsm.on('exit:leaving', () => exitView.$el.detach());
