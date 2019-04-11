@@ -1,51 +1,35 @@
-<p class="title is-3">Welcome Annotators!</p>
+<div>
+    <p class="title is-3 is-centered">Welcome Annotators!</p>
+    <section id="list">
+        <div class="sources">
+            {{#each sources}}
+            <div class="card">
+                <div class="card-content">
+                    <div class="media">
+                        <div class="media-content">
+                            {{#if annotations}}
+                            <a data-source-id="{{id}}" class="existing-annotations">
+                                <p class="title is-5">{{name}} ({{author.name}})</p>
+                            </a>
+                            <p class="subtitle is-6">Annotations last updated: {{dateAnnotatedByCurrentUser}}</p>
+                            {{else}}
+                            <p class="title is-5">{{name}} ({{author.name}})</p>
+                            <p class="subtitle is-6">You haven't annotated this yet
+                                <span id="add-new-button" class="icon tooltip" data-tooltip="Add annotations now">
+                                    <i class="fas fa-plus-circle fa-sm"></i>
+                                </span>
+                            </p>
+                            {{/if}}
+                        </div>
+                        <div class="media-right">
+                            {{#unless annotations}}
 
-<table class="table">
-    <tbody>
-        <tr>
-            <td>
-                <div class="control">
-                    <a class="button">
-                        <span class="icon is-small">
-                            <i class="far fa-file-alt"></i>
-                        </span>
-                        <span>Source1</span>
-                    </a>
+                            {{/unless}}
+                        </div>
+                    </div>
                 </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div class="control">
-                    <a class="button">
-                        <span class="icon is-small">
-                            <i class="far fa-file-alt"></i>
-                        </span>
-                        <span>Source2</span>
-                    </a>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div class="control">
-                    <a class="button">
-                        <span class="icon is-small">
-                            <i class="far fa-file-alt"></i>
-                        </span>
-                        <span>Source3</span>
-                    </a>
-                </div>
-            </td>
-        </tr>
-    </tbody>
-</table>
-
-<div class="control">
-    <a class="button is-info" id="add-new-button">
-        <span class="icon is-small">
-            <i class="fas fa-plus-circle"></i>
-        </span>
-        <span>Add a new text</span>
-    </a>
+            </div>
+            {{/each}}
+        </div>
+    </section>
 </div>

@@ -6,12 +6,10 @@
             <nav class="panel">
                 <p class="panel-tabs">
                     {{#each categories}}
-                    {{#if this.attributes.attributes}}
-                    <a id="{{this.attributes.id}}" value="{{this.attributes.class}}"
-                        class="tab {{this.attributes.class}} tag is-medium category">
-                        {{this.attributes.name}}
+                    <a id="{{id}}" value="{{machineName}}"
+                        class="tab rit-{{machineName}} tag is-medium category">
+                        {{name}}
                     </a>
-                    {{/if}}
                     {{/each}}
                 </p>                
             </nav>

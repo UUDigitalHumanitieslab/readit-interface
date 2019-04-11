@@ -2,7 +2,7 @@ var mockAnnotationCategories = [
     {
         id: 9000,
         name: 'reader',
-        class: 'rit-reader',
+        machineName: 'reader',
         attributes: [
             {
                 id: 21000,
@@ -57,7 +57,7 @@ var mockAnnotationCategories = [
     {
         id: 9001,
         name: 'person',
-        class: 'rit-person',
+        machineName: 'person',
         attributes: [
             {
                 id: 20003,
@@ -88,7 +88,7 @@ var mockAnnotationCategories = [
     {
         id: 9002,
         name: 'state of mind',
-        class: 'rit-state_of_mind',
+        machineName: 'state_of_mind',
         attributes: [
             {
                 id: 21006,
@@ -143,7 +143,7 @@ var mockAnnotationCategories = [
     {
         id: 9003,
         name: 'disposition',
-        class: 'rit-disposition',
+        machineName: 'disposition',
         attributes: [
             {
                 id: 21011,
@@ -222,7 +222,7 @@ var mockAnnotationCategories = [
     {
         id: 9004,
         name: 'event',
-        class: 'rit-event',
+        machineName: 'event',
         attributes: [
             {
                 id: 21015,
@@ -281,7 +281,7 @@ var mockAnnotationCategories = [
     {
         id: 9006,
         name: 'support',
-        class: 'rit-support',
+        machineName: 'support',
         attributes: [
             {
                 id: 22018,
@@ -296,7 +296,7 @@ var mockAnnotationCategories = [
     {
         id: 9007,
         name: 'alteration',
-        class: 'rit-alteration',
+        machineName: 'alteration',
         attributes: [
             {
                 id: 22019,
@@ -311,7 +311,7 @@ var mockAnnotationCategories = [
     {
         id: 9008,
         name: 'content',
-        class: 'rit-content',
+        machineName: 'content',
         attributes: [
         {
             id: 22024,
@@ -322,7 +322,7 @@ var mockAnnotationCategories = [
     {
         id: 9012,
         name: 'experience',
-        class: 'rit-experience',
+        machineName: 'experience',
         attributes: [
             {
                 id: 21015,
@@ -389,7 +389,7 @@ var mockAnnotationCategories = [
     {
         id: 9013,
         name: 'session',
-        class: 'rit-session',
+        machineName: 'session',
         attributes: [
             {
                 id: 21017,
@@ -504,7 +504,7 @@ var mockAnnotationCategories = [
     {
         id: 9014,
         name: 'reading',
-        class: 'rit-reading',
+        machineName: 'reading',
         attributes: [
             {
                 id: 21017,
@@ -615,7 +615,7 @@ var mockAnnotationCategories = [
     {
         id: 9015,
         name: 'premise',
-        class: 'rit-premise',
+        machineName: 'premise',
         attributes: [
             {
                 id: 21006,
@@ -674,7 +674,7 @@ var mockAnnotationCategories = [
     {
         id: 9016,
         name: 'outcome',
-        class: 'rit-outcome',
+        machineName: 'outcome',
         attributes: [
             {
                 id: 21006,

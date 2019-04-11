@@ -1,4 +1,4 @@
-import { Collection as BackboneCollection } from 'backbone';
+import { Collection as BackboneCollection, Model as BackboneModel } from 'backbone';
 import { extend } from 'lodash';
 
 import Model from './model';
@@ -10,7 +10,7 @@ import { syncWithCSRF } from './csrf';
  * you want to apply a customization to all collections in the
  * application, do it here.
  */
-export default class Collection extends BackboneCollection<Model> {};
+export default class Collection<TModel extends BackboneModel = Model> extends BackboneCollection<TModel> {};
 
 extend(Collection.prototype, {
     model: Model,

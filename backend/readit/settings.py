@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'livereload',
     'django.contrib.staticfiles',
     'rest_framework',
+    'annotation.apps.AnnotationConfig',
 ]
 
 MIDDLEWARE = [
@@ -126,3 +127,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = []
+

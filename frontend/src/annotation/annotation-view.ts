@@ -11,7 +11,7 @@ export default class AnnotationView extends View {
 
     private rect: ClientRect | DOMRect;
 
-    constructor(rect: ClientRect | DOMRect, private cssClass: string) {
+    constructor(rect: ClientRect | DOMRect, private cssClass: string, private correctionTop: number, private correctionLeft: number) {
         super();
         this.rect = rect;
     }
@@ -35,7 +35,7 @@ export default class AnnotationView extends View {
 
         this.$el.css("position", 'absolute');
         this.$el.css("z-index", '-1');
-        this.$el.css("top", this.rect.top);
+        this.$el.css("top", this.rect.top + $(document).scrollTop().valueOf());
         this.$el.css("left", this.rect.left);
         this.$el.css("width", this.rect.width);
         this.$el.css("height", this.rect.height);
@@ -85,6 +85,7 @@ export default class AnnotationView extends View {
     }
 
     onAnnoHover(event: any) {
+        console.log('hover')
         this.$('.deleteAnno').css('display', 'block');
     }
 
@@ -93,19 +94,7 @@ export default class AnnotationView extends View {
     }
 
     onDelete(event: any) {
-        // Delete abundant whitespaces
-        let text = this.range.extractContents().textContent.trim();
-
-        // Reinsert one whitespace where needed
-        if (this.hasLeadingWhitespace) {
-            text = ` ${text}`;
-        }
-
-        if (this.hasTrailingWhitespace) {
-            text = `${text} `;
-        }
-
-        this.range.insertNode(document.createTextNode(text));
+        console.log('delete')
     }
 
 }

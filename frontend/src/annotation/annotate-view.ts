@@ -1,14 +1,15 @@
 import { extend } from 'lodash';
 import * as _ from 'underscore';
 import View from '../core/view';
+import Model from '../core/model';
 
 import annotateTemplate from './annotate-template';
 import AnnotationView from './annotation-view';
 import CategoryPickerView from './category-picker';
 import Category from '../models/category';
-import Collection from '../core/collection';
 
-import AnnotationCollection from '../models/annotation-collection';
+import Annotation from '../models/annotation';
+import Source from '../models/source';
 
 
 export default class AnnotateView extends View {
@@ -16,9 +17,6 @@ export default class AnnotateView extends View {
      * Keep track of modal visibility
      */
     categoryPickerIsVisible: boolean = false;
-
-    annotationCollection: AnnotationCollection;
-    annotationViews: View[];
 
     /**
      * A string representing the text fragment, and 
@@ -35,6 +33,11 @@ export default class AnnotateView extends View {
      * Range object that holds the text selected by the user
      */
     range: Range;
+    
+    constructor(private source: Source) {
+        super();
+        this.annotatedText = source.get('text');
+    }
 
     render(): View {
         this.$el.html(this.template({
@@ -45,40 +48,17 @@ export default class AnnotateView extends View {
             this.showCategoryPicker();
         }
 
-        this.trigger('render:after')
-
         return this;
     }
 
     initialize(): void {
-        this.annotatedText = this.getP1();
-        this.annotationViews = [];
-
-        // TODO: don't do this if it is a new annotation session
-        this.setAnnotations();
         this.categoryPickerView = new CategoryPickerView();
         this.categoryPickerView.on('categorySelected', this.onCategorySelected, this);
     }
 
-    renderInParent(parent:any) {
-        this.render().$el.appendTo(parent)
+    renderInParent(parent: any) {
+        this.render().$el.appendTo(parent);
         this.initAnnotationViews();
-    }
-
-    setAnnotations(): void {
-        var self = this;
-        var annoCollection = new AnnotationCollection();
-
-        annoCollection.fetch({
-            data: { 'TODO': 'TODO' },
-            success: function (collection, response, options) {
-                self.annotationCollection = new AnnotationCollection(collection.models)
-            },
-            error: function (collection, response, options) {
-                console.error(response)
-                return null;
-            }
-        })
     }
 
     onTextSelected(event: any): void {
@@ -88,25 +68,21 @@ export default class AnnotateView extends View {
         // no text selected, no modal
         if (range.startOffset === range.endOffset) return;
 
-        let selectedText = range.cloneContents().textContent;
-
         // save selected range for future reference (i.e. on modal close)
-        this.range = range
+        this.range = range;
         this.showCategoryPicker();
     }
 
     initAnnotationViews(): View {
-        for (let anno of this.annotationCollection.models) {
-            // create a 'virtual' range based on offsets to retrieve rects to draw
-            let r = document.createRange();
-            
-            let test = this.$('#test'); 
-                       
+        let test = this.$('#test');
+        let textNode = test.get(0).firstChild;
 
-            r.setStart(test.get(0).firstChild, anno.attributes.startIndex)
-            r.setEnd(test.get(0).firstChild, anno.attributes.endIndex)
-            
-            this.initAnnotationView(r, this.$('#testWrapper'), anno.attributes.class)
+        for (let anno of this.source.annotations.models) {
+            // create a 'virtual' range based on offsets to retrieve rects to draw
+            let range = document.createRange();
+            range.setStart(textNode, anno.get('startIndex'));
+            range.setEnd(textNode, anno.get('endIndex'));
+            this.initAnnotationView(range, this.$("#testWrapper"), `rit-${anno.get('category')}`);
         }
 
         return this;
@@ -114,16 +90,23 @@ export default class AnnotateView extends View {
 
     initAnnotationView(range: Range, parent: JQuery<HTMLElement>, cssClass: string) {
         for (let rect of range.getClientRects()) {
-            let annoView = new AnnotationView(rect, cssClass);
+            let annoView = new AnnotationView(rect, cssClass, parent.get(0).getBoundingClientRect().top, parent.get(0).getBoundingClientRect().left);
             annoView.render().$el.prependTo(parent);
         }
     }
 
     onCategorySelected(selectedCategory: Category, selectedAttribute: any): void {
-        this.initAnnotationView(this.range, this.$('.test'), selectedCategory.attributes.class)
+        this.initAnnotationView(this.range, this.$('.test'), `rit-${selectedCategory.get('machineName')}`)
         this.hideCategoryPicker();
 
-        // TODO: do something with (i.e. save) the selected stuff
+        let newAnno = new Annotation({
+            startIndex: this.range.startOffset, 
+            endIndex: this.range.endOffset, 
+            category: selectedCategory.get('machineName'), 
+            source: this.source.get('id')
+        })
+        this.source.annotations.add(newAnno);
+        newAnno.save();
     }
 
     showCategoryPicker(): void {
@@ -137,22 +120,15 @@ export default class AnnotateView extends View {
         this.categoryPickerView.hide();
     }
 
-    getP1(): string {
-        return "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum \
-        sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies \
-        nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, \
-        aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum \
-        felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate \
-        eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, \
-        dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. \
-        Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui."
+    backToList(): void {
+        this.trigger('return');
     }
 }
 extend(AnnotateView.prototype, {
-    tagName: 'section',
-    className: 'section',
+    tagName: 'div',
     template: annotateTemplate,
     events: {
         'mouseup .annotationWrapper': 'onTextSelected',
+        'click #btn-back-to-list': 'backToList',
     }
 });

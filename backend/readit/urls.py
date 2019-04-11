@@ -20,7 +20,11 @@ from rest_framework import routers
 
 from .index import index
 
+from annotation import views as annotation_views
+
 api_router = routers.DefaultRouter()  # register viewsets with this router
+api_router.register(r'source', annotation_views.SourceViewSet, base_name='source')
+api_router.register(r'annotation', annotation_views.AnnotationViewSet, base_name='annotation')
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),

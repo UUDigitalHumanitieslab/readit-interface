@@ -24,7 +24,7 @@ export default class CategoryPickerView extends View {
 
         this.$el.html(this.template({
             selection: this.selection,
-            categories: this.collection.models,
+            categories: this.collection.toJSON(),
             panelContents: this.panelContents,
         }));
 
