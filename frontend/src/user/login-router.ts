@@ -6,6 +6,6 @@ export default class LoginRouter extends Router {}
 
 extend(LoginRouter.prototype, {
     routes: {
-        'login': login,
+        'login': 'login',
     },
 });
