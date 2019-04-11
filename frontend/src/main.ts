@@ -9,8 +9,6 @@ import './global/hbsHelpers';
 import './aspects/example';
 import './aspects/authentication';
 
-window.addEventListener('popstate', event => console.log(event));
-
 when(ready, i18nPromise).done(function() {
     let success = history.start({
         root: baseUrl,

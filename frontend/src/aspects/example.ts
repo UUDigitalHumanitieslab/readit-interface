@@ -5,7 +5,6 @@ import exitView from '../global/ex_exit-view';
 
 directionRouter.on('route:arrive', () => userFsm.handle('arrive'));
 directionRouter.on('route:leave', () => userFsm.handle('leave'));
-directionRouter.on('all', (event, ...args) => console.log('direction', event, args));
 userFsm.on('enter:arriving', () => enterView.render().$el.appendTo('main'));
 userFsm.on('exit:arriving', () => enterView.$el.detach());
 userFsm.on('enter:leaving', () => exitView.render().$el.appendTo('main'));
