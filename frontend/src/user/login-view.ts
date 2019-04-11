@@ -18,7 +18,7 @@ export default class LoginForm extends View {
         return this.trigger('cancel');
     }
     reset() {
-        this.$('form').get(0).reset();
+        (this.$('form').get(0) as HTMLFormElement).reset();
         return this;
     }
 }

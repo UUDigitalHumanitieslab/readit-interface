@@ -1,4 +1,5 @@
 import { extend } from 'lodash';
+import { ModelSaveOptions } from 'backbone';
 
 import { authRoot } from 'config.json';
 import Model from '../core/model';
@@ -9,6 +10,9 @@ export interface UserCredentials {
 }
 
 export default class User extends Model {
+    loginUrl: string;
+    logoutUrl: string;
+
     login(credentials: UserCredentials): JQuery.jqXHR {
         return this.save(null, {
             url: this.loginUrl,
@@ -16,7 +20,7 @@ export default class User extends Model {
             attrs: credentials,
             success: () => this.trigger('login:success', this).fetch(),
             error: () => this.trigger('login:error', this),
-        });
+        } as ModelSaveOptions);
     }
 
     logout(): JQuery.jqXHR {
@@ -25,7 +29,7 @@ export default class User extends Model {
             method: 'POST',
             success: () => this.clear().trigger('logout:success', this),
             error: () => this.trigger('logout:error', this),
-        });
+        } as ModelSaveOptions);
     }
 
     parse(response, options) {

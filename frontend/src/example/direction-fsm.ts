@@ -1,3 +1,5 @@
+import { noop } from 'lodash';
+
 import Fsm from '../core/fsm';
 
 const DirectionFsm = Fsm.extend({
@@ -7,6 +9,7 @@ const DirectionFsm = Fsm.extend({
             leave: 'leaving',
         },
         leaving: {
+            leave: noop,
         },
     },
 });
