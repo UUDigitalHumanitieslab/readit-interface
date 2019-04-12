@@ -1,15 +1,14 @@
 import { extend, defaults } from 'lodash';
 import * as _ from 'underscore';
-import View from '../../core/view';
+import View from '../core/view';
 
-import annoWelcomeTemplate from './anno-welcome-template';
-import SourceCollection from './../../models/source-collection';
-import AnnotateView from '../annotate-view';
+import annoWelcomeTemplate from './annotation-welcome-template';
+import SourceCollection from '../models/source-collection';
+import AnnotateView from './annotate-view';
 
-import Model from './../../core/model';
-import User from './../../models/user';
+import User from '../models/user';
 
-export default class AnnoWelcomeView extends View {
+export default class AnnotationWelcomeView extends View {
     /**
      * Store list of sources and annotate view in order to switch between them
      */
@@ -40,7 +39,6 @@ export default class AnnoWelcomeView extends View {
         var annoCollection = new SourceCollection();
 
         annoCollection.fetch({
-            data: { 'TODO': 'TODO' },
             success: function (collection, response, options) {
                 self.collection.set(collection.sortBy('name'));
                 self.render();
@@ -49,9 +47,12 @@ export default class AnnoWelcomeView extends View {
                 console.error(response);
                 return null;
             }
-        })
+        });
     }
 
+    /**
+     * Initialize an AnnotateView, passing it the selected Source
+     */
     initAnnotateView(event: any): void {        
         if (this.currentAnnotateView) this.currentAnnotateView.$el.detach();
 
@@ -70,7 +71,7 @@ export default class AnnoWelcomeView extends View {
         });
     }
 }
-extend(AnnoWelcomeView.prototype, {
+extend(AnnotationWelcomeView.prototype, {
     tagName: 'div',
     className: 'section',
     template: annoWelcomeTemplate,

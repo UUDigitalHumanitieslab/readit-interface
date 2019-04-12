@@ -1,3 +1,3 @@
-import AnnotateWelcomeView from '../annotation/welcome/anno-welcome-view';
+import AnnotationWelcomeView from '../annotation/annotation-welcome-view';
 
-export default new AnnotateWelcomeView();
+export default new AnnotationWelcomeView();

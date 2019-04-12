@@ -1,9 +1,9 @@
 import { extend } from 'lodash';
 import * as _ from 'underscore';
-import View from '../core/view';
+import View from '../../core/view';
 
 import categoryViewTemplate from './category-picker-template';
-import CategoryCollection from './../models/category-collection';
+import CategoryCollection from '../../models/category-collection';
 
 export default class CategoryPickerView extends View {
     /**

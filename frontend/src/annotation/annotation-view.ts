@@ -36,7 +36,7 @@ export default class AnnotationView extends View {
     }
 
     /**
-     * Position the delete icon dynamically for a multiline selection
+     * Position the delete icon dynamically for a multiline selection / annotation
      */
     positionDeleteButton(isMultiline: boolean) {
         let topCorrection = 14;

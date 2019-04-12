@@ -3,7 +3,6 @@ import * as _ from 'underscore';
 import View from '../core/view';
 
 import annotationRectTemplate from './annotation-rect-template';
-import Annotation from './../models/annotation';
 
 
 export default class AnnotationRectView extends View {
@@ -19,6 +18,7 @@ export default class AnnotationRectView extends View {
         this.$el.addClass(this.cssClass);
         this.$el.addClass('anno-rect');
 
+        // compensate for scroll position (very crudely, yes...)
         this.$el.css("top", this.rect.top + $(document).scrollTop().valueOf());
         this.$el.css("left", this.rect.left);
         this.$el.css("width", this.rect.width);

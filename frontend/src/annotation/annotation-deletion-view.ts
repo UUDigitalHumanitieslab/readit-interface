@@ -2,7 +2,7 @@ import { extend } from 'lodash';
 import * as _ from 'underscore';
 import View from '../core/view';
 
-import AnnotationDeleteTemplate from './anno-deletion-template';
+import AnnotationDeleteTemplate from './annotation-deletion-template';
 import Annotation from '../models/annotation';
 
 

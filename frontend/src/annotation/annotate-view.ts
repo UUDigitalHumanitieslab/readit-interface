@@ -1,13 +1,12 @@
 import { extend } from 'lodash';
 import * as _ from 'underscore';
 import View from '../core/view';
-import Model from '../core/model';
 
 import annotateTemplate from './annotate-template';
 import AnnotationView from './annotation-view';
-import CategoryPickerView from './category-picker';
+import CategoryPickerView from './category-picker/category-picker';
 import Category from '../models/category';
-import AnnotationDeleteView from './anno-deletion-view';
+import AnnotationDeleteView from './annotation-deletion-view';
 
 import Annotation from '../models/annotation';
 import Source from '../models/source';
@@ -50,11 +49,6 @@ export default class AnnotateView extends View {
         this.categoryPickerView.on('categorySelected', this.onCategorySelected, this);
     }
 
-    renderInParent(parent: any) {
-        this.render().$el.appendTo(parent);
-        this.initAnnotationViews();
-    }
-
     onTextSelected(event: any): void {
         let selection = window.getSelection();
         let range = selection.getRangeAt(0).cloneRange();
@@ -67,6 +61,9 @@ export default class AnnotateView extends View {
         this.showCategoryPicker();
     }
 
+    /**
+     * Initializes a view for each Annotation
+     */
     initAnnotationViews(): View {
         let text = this.$('#text');
         let textNode = text.get(0).firstChild;
@@ -92,22 +89,25 @@ export default class AnnotateView extends View {
         });
     }
 
+    /**
+     * Handle deletion of an Annotation 
+     */
     onAnnotationDeleted(self: AnnotateView, annoView: AnnotationView, annoId: number): void {
         let deletedAnno = <Annotation>self.source.annotations.get(annoId);
 
-            let annoDeleteView = new AnnotationDeleteView(deletedAnno);
-            annoDeleteView.render().$el.appendTo(this.$('.deletionConfirmationWrapper'));
-            annoDeleteView.on('confirmed', () => {
-                annoView.$el.detach();
+        let annoDeleteView = new AnnotationDeleteView(deletedAnno);
+        annoDeleteView.render().$el.appendTo(this.$('.deletionConfirmationWrapper'));
+        annoDeleteView.on('confirmed', () => {
+            annoView.$el.detach();
 
-                deletedAnno.destroy({
-                    error: (model, response, options) => {
-                        console.error(response)
-                    }, success: (model, response, options) => {
-                        self.source.annotations.remove(deletedAnno);
-                    }
-                });
+            deletedAnno.destroy({
+                error: (model, response, options) => {
+                    console.error(response)
+                }, success: (model, response, options) => {
+                    self.source.annotations.remove(deletedAnno);
+                }
             });
+        });
     }
 
     onCategorySelected(selectedCategory: Category, selectedAttribute: any): void {
@@ -117,6 +117,7 @@ export default class AnnotateView extends View {
         this.source.annotations.create({
             startIndex: this.range.startOffset,
             endIndex: this.range.endOffset,
+            text: this.range.cloneContents().textContent,
             category: selectedCategory.get('machineName'),
             source: this.source.get('id')
         },
@@ -127,7 +128,6 @@ export default class AnnotateView extends View {
                         self.$("#textWrapper"),
                         model.get('id'),
                         `rit-${selectedCategory.get('machineName')}`);
-
                 },
                 error: (model, response, options) => {
                     console.error(response)

@@ -14,6 +14,7 @@ class Source(models.Model):
 class Annotation(models.Model):
     startIndex = models.IntegerField()
     endIndex = models.IntegerField()
+    text = models.CharField(max_length=1500)
     creationDate = models.DateTimeField(auto_now=True)
     category = models.CharField(max_length=150)
     source = models.ForeignKey(Source, on_delete=models.DO_NOTHING, related_name='annotations')
