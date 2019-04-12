@@ -7,15 +7,14 @@
                 <div class="card-content">
                     <div class="media">
                         <div class="media-content">
-                            {{#if annotations}}
-                            <a data-source-id="{{id}}" class="existing-annotations">
+                            <a data-source-id="{{id}}" class="initAnnotations">
                                 <p class="title is-5">{{name}} ({{author.name}})</p>
                             </a>
+                            {{#if annotations}}                            
                             <p class="subtitle is-6">Annotations last updated: {{dateAnnotatedByCurrentUser}}</p>
-                            {{else}}
-                            <p class="title is-5">{{name}} ({{author.name}})</p>
+                            {{else}}                            
                             <p class="subtitle is-6">You haven't annotated this yet
-                                <span id="add-new-button" class="icon tooltip" data-tooltip="Add annotations now">
+                                <span id="add-new-button" class="icon tooltip initAnnotations" data-tooltip="Add annotations now">
                                     <i class="fas fa-plus-circle fa-sm"></i>
                                 </span>
                             </p>

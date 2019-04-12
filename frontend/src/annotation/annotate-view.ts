@@ -33,7 +33,7 @@ export default class AnnotateView extends View {
      * Range object that holds the text selected by the user
      */
     range: Range;
-    
+
     constructor(private source: Source) {
         super();
         this.annotatedText = source.get('text');
@@ -82,31 +82,56 @@ export default class AnnotateView extends View {
             let range = document.createRange();
             range.setStart(textNode, anno.get('startIndex'));
             range.setEnd(textNode, anno.get('endIndex'));
-            this.initAnnotationView(range, this.$("#testWrapper"), `rit-${anno.get('category')}`);
+            this.initAnnotationView(range, this.$("#testWrapper"), anno.get('id'), `rit-${anno.get('category')}`);
         }
 
         return this;
     }
 
-    initAnnotationView(range: Range, parent: JQuery<HTMLElement>, cssClass: string) {
-        for (let rect of range.getClientRects()) {
-            let annoView = new AnnotationView(rect, cssClass, parent.get(0).getBoundingClientRect().top, parent.get(0).getBoundingClientRect().left);
-            annoView.render().$el.prependTo(parent);
-        }
+    initAnnotationView(range: Range, parent: JQuery<HTMLElement>, annotationId: number, cssClass: string) {
+        let annoView = new AnnotationView(range, annotationId, cssClass);
+        annoView.render().$el.prependTo(parent);
+
+        let self = this;
+        annoView.on('annotationDeleted', (annoId) => {
+            let deletedAnno = <Annotation>self.source.annotations.get(annoId)
+
+            deletedAnno.destroy({
+                error: (model, response, options) => {
+                    console.error(response)
+                }, success: (model, response, options) => {
+                    self.source.annotations.remove(deletedAnno);
+                }
+            });
+        });
     }
 
     onCategorySelected(selectedCategory: Category, selectedAttribute: any): void {
-        this.initAnnotationView(this.range, this.$('.test'), `rit-${selectedCategory.get('machineName')}`)
         this.hideCategoryPicker();
 
-        let newAnno = new Annotation({
-            startIndex: this.range.startOffset, 
-            endIndex: this.range.endOffset, 
-            category: selectedCategory.get('machineName'), 
+        let newAnno = this.source.annotations.create({
+            startIndex: this.range.startOffset,
+            endIndex: this.range.endOffset,
+            category: selectedCategory.get('machineName'),
             source: this.source.get('id')
         })
-        this.source.annotations.add(newAnno);
-        newAnno.save();
+
+        let self = this;
+        newAnno.save(null,
+            {
+                success: function (model, response, options) {
+                    self.initAnnotationView(
+                        self.range,
+                        self.$("#testWrapper"),
+                        model.get('id'),
+                        `rit-${selectedCategory.get('machineName')}`);
+
+                },
+                error: (model, response, options) => {
+                    console.error(response)
+                }
+            }
+        );
     }
 
     showCategoryPicker(): void {

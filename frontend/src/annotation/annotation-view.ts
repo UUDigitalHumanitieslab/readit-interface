@@ -5,40 +5,27 @@ import View from '../core/view';
 import annotationTemplate from './annotation-template';
 import Annotation from './../models/annotation';
 
+import AnnotationRectView from './annotation-rect-view';
 
 export default class AnnotationView extends View {
-    private range: Range;
-
-    private rect: ClientRect | DOMRect;
-
-    constructor(rect: ClientRect | DOMRect, private cssClass: string, private correctionTop: number, private correctionLeft: number) {
+    constructor(private range: Range, private annotationId: number, private cssClass: string) {
         super();
-        this.rect = rect;
     }
 
-    /**
-     * Keep track of leading and trailing whitespace
-     * (required for correct reinsertion if annotation is deleted)
-     */
-    hasLeadingWhitespace: boolean = false;
-    hasTrailingWhitespace: boolean = false;
-
     render(): View {
-        // check multiline before inserting stuff
-        // let isMultiline: boolean = this.range.getClientRects().length > 1;
-        // 200 - 216 Donec quam felis
-
         this.$el.html(this.template({}));
-        this.$el.addClass(this.cssClass);
         this.$el.addClass('anno');
+        
+        let index = 0;
+        let rects = this.range.getClientRects()
+        for (let rect of rects) {
+            let isLast = index == rects.length - 1;
+            
+            let annoRect = new AnnotationRectView(rect, this.cssClass, isLast);
+            annoRect.render().$el.appendTo(this.$el);
 
-
-        this.$el.css("position", 'absolute');
-        this.$el.css("z-index", '-1');
-        this.$el.css("top", this.rect.top + $(document).scrollTop().valueOf());
-        this.$el.css("left", this.rect.left);
-        this.$el.css("width", this.rect.width);
-        this.$el.css("height", this.rect.height);
+            index++;
+        }
 
         this.positionDeleteButton(false);
         return this;
@@ -46,14 +33,6 @@ export default class AnnotationView extends View {
 
     initialize(): void {
 
-    }
-
-    trackWhiteSpaces() {
-        var div = document.createElement('div');        
-        div.appendChild(this.range.cloneContents());
-        var inputText = div.innerText;
-        this.hasLeadingWhitespace = inputText.startsWith(' ');
-        this.hasTrailingWhitespace = inputText.endsWith(' ');
     }
 
     /**
@@ -68,24 +47,23 @@ export default class AnnotationView extends View {
 
             for (let rect of this.range.getClientRects()) {
                 if (rect.top > upperLineTop) {
-                    upperLineTop = rect.top
+                    upperLineTop = rect.top;
                 }
 
                 if (!bottomLineTop) {
-                    bottomLineTop = rect.top
+                    bottomLineTop = rect.top;
                 } else if (rect.top < bottomLineTop) {
-                    bottomLineTop = rect.top
+                    bottomLineTop = rect.top;
                 }
             }
 
             top = upperLineTop - bottomLineTop - topCorrection;
         }
 
-        this.$('.deleteAnno').css('top', `${top}px`)
+        this.$('.deleteAnno').css('top', `${top}px`);
     }
 
     onAnnoHover(event: any) {
-        console.log('hover')
         this.$('.deleteAnno').css('display', 'block');
     }
 
@@ -94,9 +72,10 @@ export default class AnnotationView extends View {
     }
 
     onDelete(event: any) {
-        console.log('delete')
+        this.$('.anno-rect').detach();
+        this.$el.detach();
+        this.trigger('annotationDeleted', this.annotationId)
     }
-
 }
 extend(AnnotationView.prototype, {
     tagName: 'anno',
@@ -104,6 +83,6 @@ extend(AnnotationView.prototype, {
     events: {
         'click .deleteAnno': 'onDelete',
         'mouseenter': 'onAnnoHover',
-        'mouseleave': 'onAnnoHoverEnd'
+        'mouseleave': 'onAnnoHoverEnd',
     }
 });

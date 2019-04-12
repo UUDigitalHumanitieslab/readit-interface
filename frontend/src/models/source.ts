@@ -2,14 +2,15 @@ import { omit, defaults } from 'lodash';
 import FancyModel from '../core/fancy-model';
 
 import Annotation from './annotation';
-import Collection from '../core/collection';
+import AnnotationCollection from './annotation-collection';
+import Collection from './../core/collection';
 
 export default class Source extends FancyModel {
-    annotations: Collection<Annotation>;
+    annotations: AnnotationCollection;
 
     parse(json, options): any {
         let { annotations } = json;
-        this.annotations = new Collection<Annotation>(annotations);
+        this.annotations = new AnnotationCollection(annotations);
         return omit(json, 'annotations');
     }
 

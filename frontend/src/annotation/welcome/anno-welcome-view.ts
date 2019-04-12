@@ -24,7 +24,6 @@ export default class AnnoWelcomeView extends View {
     });
 
     render(): View {
-        console.log(this.collection.toJSON())
         this.$el.html(this.template({ sources: this.collection.toJSON() }));
         this.list = this.$("#list");
         return this;
@@ -46,7 +45,7 @@ export default class AnnoWelcomeView extends View {
                 self.render();
             },
             error: function (collection, response, options) {
-                console.error(response)
+                console.error(response);
                 return null;
             }
         })
@@ -56,11 +55,7 @@ export default class AnnoWelcomeView extends View {
         return 'a Date!'
     }
 
-    newAnnotations(event: any): void {
-        console.log(event)
-    }
-
-    openAnnotations(event: any): void {        
+    initAnnotateView(event: any): void {        
         if (this.currentAnnotateView) this.currentAnnotateView.$el.detach();
 
         let sourceId = $(event.currentTarget).data('source-id');
@@ -83,7 +78,6 @@ extend(AnnoWelcomeView.prototype, {
     className: 'section',
     template: annoWelcomeTemplate,
     events: {
-        'click #add-new-button' : 'newAnnotations',
-        'click .existing-annotations': 'openAnnotations',
+        'click .initAnnotations': 'initAnnotateView',
     }
 });

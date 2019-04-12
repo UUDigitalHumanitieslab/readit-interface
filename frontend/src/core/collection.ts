@@ -14,5 +14,5 @@ export default class Collection<TModel extends BackboneModel = Model> extends Ba
 
 extend(Collection.prototype, {
     model: Model,
-    sync: syncWithCSRF,
+    sync: syncWithCSRF,    
 });
