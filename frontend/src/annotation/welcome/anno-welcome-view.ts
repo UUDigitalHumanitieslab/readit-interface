@@ -18,6 +18,7 @@ export default class AnnoWelcomeView extends View {
 
     collection: SourceCollection;
 
+    // TODO: remove after user implementation
     currentUser: User = new User({
         id: 1001,
         name: 'Alex Hebing'
@@ -51,10 +52,6 @@ export default class AnnoWelcomeView extends View {
         })
     }
 
-    getDateUpdated(source: Model): string {
-        return 'a Date!'
-    }
-
     initAnnotateView(event: any): void {        
         if (this.currentAnnotateView) this.currentAnnotateView.$el.detach();
 
@@ -69,7 +66,7 @@ export default class AnnoWelcomeView extends View {
         let self = this;
         this.currentAnnotateView.on('return', () => {
             self.currentAnnotateView.$el.detach();
-            self.list.show();
+            self.render();
         });
     }
 }

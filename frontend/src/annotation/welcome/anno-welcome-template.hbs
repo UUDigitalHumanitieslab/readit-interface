@@ -1,6 +1,10 @@
 <div>
-    <p class="title is-3 is-centered">Welcome Annotators!</p>
+    <p class="title is-3 is-centered">Welcome</p>
+
     <section id="list">
+        <p class="title is-5">Sources</p>
+        <p class="subtitle is-6">Here you find the sources available.
+            Click on one to start annotating or see and edit the annotations you made earlier.</p>
         <div class="sources">
             {{#each sources}}
             <div class="card">
@@ -8,22 +12,18 @@
                     <div class="media">
                         <div class="media-content">
                             <a data-source-id="{{id}}" class="initAnnotations">
-                                <p class="title is-5">{{name}} ({{author.name}})</p>
+                                <p class="title is-5">{{name}} ({{author}})</p>
                             </a>
-                            {{#if annotations}}                            
-                            <p class="subtitle is-6">Annotations last updated: {{dateAnnotatedByCurrentUser}}</p>
-                            {{else}}                            
+                            {{#if annotations}}
+                            <p class="subtitle is-6">Number of annotations: {{annotations.length}}</p>
+                            {{else}}
                             <p class="subtitle is-6">You haven't annotated this yet
-                                <span id="add-new-button" class="icon tooltip initAnnotations" data-tooltip="Add annotations now">
+                                <span id="add-new-button" class="icon tooltip initAnnotations"
+                                    data-tooltip="Add annotations now">
                                     <i class="fas fa-plus-circle fa-sm"></i>
                                 </span>
                             </p>
                             {{/if}}
-                        </div>
-                        <div class="media-right">
-                            {{#unless annotations}}
-
-                            {{/unless}}
                         </div>
                     </div>
                 </div>

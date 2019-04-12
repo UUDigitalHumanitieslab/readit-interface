@@ -19,12 +19,6 @@ export default class AnnotateView extends View {
     categoryPickerIsVisible: boolean = false;
 
     /**
-     * A string representing the text fragment, and 
-     * which might contain the HTML tags to render an annotation
-     */
-    annotatedText: string;
-
-    /**
      * Instance of the category picker view
      */
     categoryPickerView: CategoryPickerView;
@@ -36,12 +30,11 @@ export default class AnnotateView extends View {
 
     constructor(private source: Source) {
         super();
-        this.annotatedText = source.get('text');
     }
 
     render(): View {
         this.$el.html(this.template({
-            annotatedText: this.annotatedText,
+            source: this.source.toJSON()
         }));
 
         if (this.categoryPickerIsVisible) {
@@ -74,15 +67,15 @@ export default class AnnotateView extends View {
     }
 
     initAnnotationViews(): View {
-        let test = this.$('#test');
-        let textNode = test.get(0).firstChild;
+        let text = this.$('#text');
+        let textNode = text.get(0).firstChild;
 
         for (let anno of this.source.annotations.models) {
             // create a 'virtual' range based on offsets to retrieve rects to draw
             let range = document.createRange();
             range.setStart(textNode, anno.get('startIndex'));
             range.setEnd(textNode, anno.get('endIndex'));
-            this.initAnnotationView(range, this.$("#testWrapper"), anno.get('id'), `rit-${anno.get('category')}`);
+            this.initAnnotationView(range, this.$("#textWrapper"), anno.get('id'), `rit-${anno.get('category')}`);
         }
 
         return this;
@@ -108,21 +101,19 @@ export default class AnnotateView extends View {
 
     onCategorySelected(selectedCategory: Category, selectedAttribute: any): void {
         this.hideCategoryPicker();
+        let self = this;
 
-        let newAnno = this.source.annotations.create({
+        this.source.annotations.create({
             startIndex: this.range.startOffset,
             endIndex: this.range.endOffset,
             category: selectedCategory.get('machineName'),
             source: this.source.get('id')
-        })
-
-        let self = this;
-        newAnno.save(null,
+        },
             {
                 success: function (model, response, options) {
                     self.initAnnotationView(
                         self.range,
-                        self.$("#testWrapper"),
+                        self.$("#textWrapper"),
                         model.get('id'),
                         `rit-${selectedCategory.get('machineName')}`);
 

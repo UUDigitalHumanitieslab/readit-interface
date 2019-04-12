@@ -1,9 +1,7 @@
 import { omit, defaults } from 'lodash';
 import FancyModel from '../core/fancy-model';
 
-import Annotation from './annotation';
 import AnnotationCollection from './annotation-collection';
-import Collection from './../core/collection';
 
 export default class Source extends FancyModel {
     annotations: AnnotationCollection;
