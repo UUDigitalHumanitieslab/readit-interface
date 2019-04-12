@@ -72,8 +72,6 @@ export default class AnnotationView extends View {
     }
 
     onDelete(event: any) {
-        this.$('.anno-rect').detach();
-        this.$el.detach();
         this.trigger('annotationDeleted', this.annotationId)
     }
 }

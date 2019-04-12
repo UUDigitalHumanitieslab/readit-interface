@@ -7,6 +7,7 @@ import annotateTemplate from './annotate-template';
 import AnnotationView from './annotation-view';
 import CategoryPickerView from './category-picker';
 import Category from '../models/category';
+import AnnotationDeleteView from './anno-deletion-view';
 
 import Annotation from '../models/annotation';
 import Source from '../models/source';
@@ -87,16 +88,26 @@ export default class AnnotateView extends View {
 
         let self = this;
         annoView.on('annotationDeleted', (annoId) => {
-            let deletedAnno = <Annotation>self.source.annotations.get(annoId)
-
-            deletedAnno.destroy({
-                error: (model, response, options) => {
-                    console.error(response)
-                }, success: (model, response, options) => {
-                    self.source.annotations.remove(deletedAnno);
-                }
-            });
+            self.onAnnotationDeleted(self, annoView, annoId);
         });
+    }
+
+    onAnnotationDeleted(self: AnnotateView, annoView: AnnotationView, annoId: number): void {
+        let deletedAnno = <Annotation>self.source.annotations.get(annoId);
+
+            let annoDeleteView = new AnnotationDeleteView(deletedAnno);
+            annoDeleteView.render().$el.appendTo(this.$('.deletionConfirmationWrapper'));
+            annoDeleteView.on('confirmed', () => {
+                annoView.$el.detach();
+
+                deletedAnno.destroy({
+                    error: (model, response, options) => {
+                        console.error(response)
+                    }, success: (model, response, options) => {
+                        self.source.annotations.remove(deletedAnno);
+                    }
+                });
+            });
     }
 
     onCategorySelected(selectedCategory: Category, selectedAttribute: any): void {
