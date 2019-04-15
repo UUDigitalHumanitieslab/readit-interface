@@ -66,19 +66,6 @@
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.1.tgz#48fd98c1561fe718b61733daed46ff115b496e18"
   integrity sha512-eqz8c/0kwNi/OEHQfvIuJVLTst3in0e7uTKeuY+WL/zfKn0xVujOTp42bS/vUUokhK5P2BppLd9JXMOMHcgbjA==
 
-"@types/requirejs@*":
-  version "2.1.31"
-  resolved "https://registry.yarnpkg.com/@types/requirejs/-/requirejs-2.1.31.tgz#a24eaa0ee4f6b84feb8f521ca6550d48490b2bc6"
-  integrity sha512-b2soeyuU76rMbcRJ4e0hEl0tbMhFwZeTC0VZnfuWlfGlk6BwWNsev6kFu/twKABPX29wkX84wU2o+cEJoXsiTw==
-
-"@types/select2@^4.0.48":
-  version "4.0.48"
-  resolved "https://registry.yarnpkg.com/@types/select2/-/select2-4.0.48.tgz#068af9ed46e6455e74eaaafa78f85d201b3e72d7"
-  integrity sha512-C1cUbfwKBqlO+/3OWQKMajA4D/d5SvI9rSGoXCa7FQI9B1p1iRqZzetkfpGPY44BP1Y8emHL17rdUJYZEyzN+Q==
-  dependencies:
-    "@types/jquery" "*"
-    "@types/requirejs" "*"
-
 "@types/sizzle@*":
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.2.tgz#a811b8c18e2babab7d542b3365887ae2e4d9de47"
@@ -165,11 +152,6 @@ aliasify@^2.1.0:
   integrity sha1-fDCCW5RQueYYW6J1M+r24gZ9S0I=
   dependencies:
     browserify-transform-tools "~1.7.0"
-
-almond@~0.3.1:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/almond/-/almond-0.3.3.tgz#a0e7c95ac7624d6417b4494b1e68bff693168a20"
-  integrity sha1-oOfJWsdiTWQXtElLHmi/9pMWiiA=
 
 alphanum-sort@^1.0.0:
   version "1.0.2"
@@ -3788,11 +3770,6 @@ jasmine-terminal-reporter@^1.0.2:
     indent-string "^2.1.0"
     pluralize "^1.2.1"
 
-jquery-mousewheel@~3.1.13:
-  version "3.1.13"
-  resolved "https://registry.yarnpkg.com/jquery-mousewheel/-/jquery-mousewheel-3.1.13.tgz#06f0335f16e353a695e7206bf50503cb523a6ee5"
-  integrity sha1-BvAzXxbjU6aV5yBr9QUDy1I6buU=
-
 jquery@^3.3.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
@@ -6085,14 +6062,6 @@ scss-tokenizer@^0.2.3:
   dependencies:
     js-base64 "^2.1.8"
     source-map "^0.4.2"
-
-select2@^4.0.6-rc.1:
-  version "4.0.6-rc.1"
-  resolved "https://registry.yarnpkg.com/select2/-/select2-4.0.6-rc.1.tgz#aa6c3038a7f0f2e91ffade38f0a21c15e1813276"
-  integrity sha1-qmwwOKfw8ukf+t448KIcFeGBMnY=
-  dependencies:
-    almond "~0.3.1"
-    jquery-mousewheel "~3.1.13"
 
 semver-greatest-satisfied-range@^1.1.0:
   version "1.1.0"
