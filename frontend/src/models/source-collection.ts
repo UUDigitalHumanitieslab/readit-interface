@@ -19,9 +19,9 @@ export default class SourceCollection extends Collection<Source> {
 extend (SourceCollection.prototype, {
     model: Source,
     url: 'api/source/',
-    // fetch: function (options: any) {
-    //     let sources = this.getMockData();
-    //     this.set(sources.models)
-    //     options.success(this, {}, {});
-    // }
+    fetch: function (options: any) {
+        let sources = this.getMockData();
+        this.set(sources.models)
+        options.success(this, {}, {});
+    }
 })

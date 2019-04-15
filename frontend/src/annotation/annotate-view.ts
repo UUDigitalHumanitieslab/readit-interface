@@ -100,40 +100,46 @@ export default class AnnotateView extends View {
         annoDeleteView.on('confirmed', () => {
             annoView.$el.detach();
 
-            deletedAnno.destroy({
-                error: (model, response, options) => {
-                    console.error(response)
-                }, success: (model, response, options) => {
-                    self.source.annotations.remove(deletedAnno);
-                }
-            });
+            // deletedAnno.destroy({
+            //     error: (model, response, options) => {
+            //         console.error(response)
+            //     }, success: (model, response, options) => {
+            //         self.source.annotations.remove(deletedAnno);
+            //     }
+            // });
         });
     }
 
     onCategorySelected(selectedCategory: Category, selectedAttribute: any): void {
         this.hideCategoryPicker();
         let self = this;
+        
+        self.initAnnotationView(
+            self.range,
+            self.$("#textWrapper"),
+            123,
+            `rit-${selectedCategory.get('machineName')}`);
 
-        this.source.annotations.create({
-            startIndex: this.range.startOffset,
-            endIndex: this.range.endOffset,
-            text: this.range.cloneContents().textContent,
-            category: selectedCategory.get('machineName'),
-            source: this.source.get('id')
-        },
-            {
-                success: function (model, response, options) {
-                    self.initAnnotationView(
-                        self.range,
-                        self.$("#textWrapper"),
-                        model.get('id'),
-                        `rit-${selectedCategory.get('machineName')}`);
-                },
-                error: (model, response, options) => {
-                    console.error(response)
-                }
-            }
-        );
+        // this.source.annotations.create({
+        //     startIndex: this.range.startOffset,
+        //     endIndex: this.range.endOffset,
+        //     text: this.range.cloneContents().textContent,
+        //     category: selectedCategory.get('machineName'),
+        //     source: this.source.get('id')
+        // },
+        //     {
+        //         success: function (model, response, options) {
+        //             self.initAnnotationView(
+        //                 self.range,
+        //                 self.$("#textWrapper"),
+        //                 model.get('id'),
+        //                 `rit-${selectedCategory.get('machineName')}`);
+        //         },
+        //         error: (model, response, options) => {
+        //             console.error(response)
+        //         }
+        //     }
+        // );
     }
 
     showCategoryPicker(): void {

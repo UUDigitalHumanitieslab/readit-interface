@@ -8,23 +8,6 @@ import menuView from '../global/menu-view';
 
 import annotateWelcomeView from '../global/annotate-welcome-view';
 
-
-history.once('route', () => {
-    menuView.render().$el.appendTo('#header');
-    footerView.render().$el.appendTo('.footer');
-});
-
-directionRouter.on('route:arrive', () => directionFsm.handle('arrive'));
-directionRouter.on('route:leave', () => directionFsm.handle('leave'));
-directionRouter.on('route:annotate', () => directionFsm.handle('annotate'));
-
-
-directionFsm.on('enter:arriving', () => {
-    annotateWelcomeView.render().$el.appendTo('#main')
-});
-directionFsm.on('exit:arriving', () => { 
-    annotateWelcomeView.$el.detach();    
-});
-
-directionFsm.on('enter:leaving', () => exitView.render().$el.insertAfter('.hero-head'));
-directionFsm.on('exit:leaving', () => exitView.$el.detach());
+menuView.render().$el.appendTo('#header');
+footerView.render().$el.appendTo('.footer');
+annotateWelcomeView.render().$el.appendTo('#main');

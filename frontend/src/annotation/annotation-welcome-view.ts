@@ -23,15 +23,15 @@ export default class AnnotationWelcomeView extends View {
         name: 'Alex Hebing'
     });
 
-    render(): View {
+    render(): View {        
         this.$el.html(this.template({ sources: this.collection.toJSON() }));
         this.list = this.$("#list");
         return this;
     }
 
     initialize(): void {
-        this.collectSources();
         this.collection = new SourceCollection();
+        this.collectSources();
     }
 
     collectSources(): void {

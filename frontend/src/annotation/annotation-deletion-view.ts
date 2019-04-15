@@ -13,7 +13,7 @@ export default class AnnotationDeleteView extends View {
 
     render(): View {
         this.$el.html(this.template({
-            annotation: this.annotation.toJSON()
+            // annotation: this.annotation.toJSON()
         }));
 
         this.show();
