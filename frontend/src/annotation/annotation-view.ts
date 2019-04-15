@@ -16,16 +16,15 @@ export default class AnnotationView extends View {
         this.$el.html(this.template({}));
         this.$el.addClass('anno');
         
-        let index = 0;
-        let rects = this.range.getClientRects()
+        
+        let rects = this.range.getClientRects();
                 
-        for (let rect of rects) {
+        for (var index = 0; index != rects.length; index++) {
+            let rect = rects[index];
             let isLast = index == rects.length - 1;
             
             let annoRect = new AnnotationRectView(rect, this.cssClass, isLast);
             annoRect.render().$el.appendTo(this.$el);
-
-            index++;
         }
         
         return this;

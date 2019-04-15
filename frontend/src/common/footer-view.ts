@@ -5,7 +5,7 @@ import footerTemplate from './footer-template';
 
 export default class FooterView extends View {
     render() {
-        this.$el.html(this.template());
+        this.$el.html(this.template({}));
         return this;
     }
 }
