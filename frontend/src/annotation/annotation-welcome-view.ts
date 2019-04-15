@@ -30,8 +30,8 @@ export default class AnnotationWelcomeView extends View {
     }
 
     initialize(): void {
-        this.collectSources();
         this.collection = new SourceCollection();
+        this.collectSources();
     }
 
     collectSources(): void {
