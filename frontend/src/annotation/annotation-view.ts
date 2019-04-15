@@ -18,6 +18,7 @@ export default class AnnotationView extends View {
         
         let index = 0;
         let rects = this.range.getClientRects()
+                
         for (let rect of rects) {
             let isLast = index == rects.length - 1;
             
@@ -26,41 +27,12 @@ export default class AnnotationView extends View {
 
             index++;
         }
-
-        this.positionDeleteButton(false);
+        
         return this;
     }
 
     initialize(): void {
 
-    }
-
-    /**
-     * Position the delete icon dynamically for a multiline selection / annotation
-     */
-    positionDeleteButton(isMultiline: boolean) {
-        let topCorrection = 14;
-        let top = -Math.abs(topCorrection);
-
-        if (isMultiline) {
-            let upperLineTop = 0, bottomLineTop = undefined;
-
-            for (let rect of this.range.getClientRects()) {
-                if (rect.top > upperLineTop) {
-                    upperLineTop = rect.top;
-                }
-
-                if (!bottomLineTop) {
-                    bottomLineTop = rect.top;
-                } else if (rect.top < bottomLineTop) {
-                    bottomLineTop = rect.top;
-                }
-            }
-
-            top = upperLineTop - bottomLineTop - topCorrection;
-        }
-
-        this.$('.deleteAnno').css('top', `${top}px`);
     }
 
     onAnnoHover(event: any) {
