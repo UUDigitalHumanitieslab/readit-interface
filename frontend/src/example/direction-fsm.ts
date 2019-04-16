@@ -1,15 +1,17 @@
-import { noop } from 'lodash';
-
 import Fsm from '../core/fsm';
 
 const DirectionFsm = Fsm.extend({
     initialState: 'travelling',
     states: {
         travelling: {
+            arrive: 'arriving',
+            leave: 'leaving',
+        },
+        arriving: {
             leave: 'leaving',
         },
         leaving: {
-            leave: noop,
+            arrive: 'arriving',
         },
     },
 });
