@@ -1,5 +1,3 @@
-import { history } from 'backbone';
-
 import user from '../global/user';
 import userFsm from '../global/user-fsm';
 import authFsm from '../global/authentication-fsm';
