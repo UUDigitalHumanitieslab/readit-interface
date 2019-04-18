@@ -33,5 +33,6 @@ urlpatterns = [
         'rest_framework.urls',
         namespace='rest_framework',
     )),
+    url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'', index),  # catch-all; unknown paths to be handled by a SPA
 ]

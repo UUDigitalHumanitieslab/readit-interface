@@ -1,7 +1,7 @@
 import { history } from 'backbone';
 
 import directionRouter from '../global/ex_direction-router';
-import directionFsm from '../global/ex_direction-fsm';
+import userFsm from '../global/user-fsm';
 import exitView from '../global/ex_exit-view';
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
@@ -14,17 +14,9 @@ history.once('route', () => {
     footerView.render().$el.appendTo('.footer');
 });
 
-directionRouter.on('route:arrive', () => directionFsm.handle('arrive'));
-directionRouter.on('route:leave', () => directionFsm.handle('leave'));
-directionRouter.on('route:annotate', () => directionFsm.handle('annotate'));
-
-
-directionFsm.on('enter:arriving', () => {
-    annotateWelcomeView.render().$el.appendTo('#main')
-});
-directionFsm.on('exit:arriving', () => { 
-    annotateWelcomeView.$el.detach();    
-});
-
-directionFsm.on('enter:leaving', () => exitView.render().$el.insertAfter('.hero-head'));
-directionFsm.on('exit:leaving', () => exitView.$el.detach());
+directionRouter.on('route:arrive', () => userFsm.handle('arrive'));
+directionRouter.on('route:leave', () => userFsm.handle('leave'));
+userFsm.on('enter:arriving', () => annotateWelcomeView.render().$el.appendTo('main'));
+userFsm.on('exit:arriving', () => annotateWelcomeView.$el.detach());
+userFsm.on('enter:leaving', () => exitView.render().$el.appendTo('main'));
+userFsm.on('exit:leaving', () => exitView.$el.detach());

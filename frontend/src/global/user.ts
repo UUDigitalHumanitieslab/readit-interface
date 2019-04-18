@@ -1,3 +1,3 @@
-import User from '../models/user';
+import User from '../user/user-model';
 
 export default new User();

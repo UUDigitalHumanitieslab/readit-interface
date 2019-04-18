@@ -33,3 +33,6 @@ venv.bak/
 
 # Node
 node_modules/
+
+# VS code
+.vscode/
