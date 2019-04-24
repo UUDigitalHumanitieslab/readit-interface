@@ -4,23 +4,27 @@ import View from '../core/view';
 import menuTemplate from './menu-template';
 import DirectionRouter from '../global/ex_direction-router';
 
-export default class MenuView extends View {    
+import User from './../user/user-model';
+
+export default class MenuView extends View {
+
     render() {
         this.$el.html(this.template(this.model.attributes));
         return this;
     }
 
     initialize() {
-        this.listenTo(this.model, 'change', this.render)
+        this.listenTo(this.model, 'change', this.render);
     }
 
     login() {
-        this.model.set('name', 'Alex')
+        
         return this;
     }
 
     logout() {
-        this.model.set('name', undefined)
+        console.log('logout');
+        (<User>this.model).logout();
         return this;
     }
 
@@ -40,8 +44,6 @@ extend(MenuView.prototype, {
     template: menuTemplate,
     events: {
         "click .navbar-burger": "toggleHamburger",
-        "click #login": "login",
         "click #logout": "logout",
-        "click #annotate": "annotate",
     }
 });

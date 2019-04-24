@@ -4,7 +4,7 @@ import exitTemplate from './exit-template';
 export default class ExitView extends View {
     template = exitTemplate;
     render() {
-        this.$el.html(this.template(this.model.toJSON()));
+        this.$el.html(this.template({}));
         return this;
     }
 }

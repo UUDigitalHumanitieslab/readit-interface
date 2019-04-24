@@ -5,8 +5,8 @@ import View from '../core/view';
 import annoWelcomeTemplate from './annotation-welcome-template';
 import SourceCollection from '../models/source-collection';
 import AnnotateView from './annotate-view';
+import User from '../user/user-model';
 
-import User from '../models/user';
 
 export default class AnnotationWelcomeView extends View {
     /**
@@ -16,13 +16,7 @@ export default class AnnotationWelcomeView extends View {
     list: JQuery<Element>;
 
     collection: SourceCollection;
-
-    // TODO: remove after user implementation
-    currentUser: User = new User({
-        id: 1001,
-        name: 'Alex Hebing'
-    });
-
+    
     render(): View {
         this.$el.html(this.template({ sources: this.collection.toJSON() }));
         this.list = this.$("#list");
@@ -35,6 +29,8 @@ export default class AnnotationWelcomeView extends View {
     }
 
     collectSources(): void {
+        if (this.collection.length > 0) return;
+        
         var self = this;
         var annoCollection = new SourceCollection();
 

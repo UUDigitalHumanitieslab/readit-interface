@@ -1,4 +1,6 @@
 import MenuView from '../common/menu-view';
-import user from '../global/user';
+import currentUser from '../global/user';
 
-export default new MenuView({model: user});
+
+
+export default new MenuView({model: currentUser});
