@@ -25,7 +25,7 @@ export default class AnnotationWelcomeView extends View {
 
     initialize(): void {
         this.collection = new SourceCollection();
-        this.collectSources();
+        this.listenTo(this.model, 'change', this.collectSources);
     }
 
     collectSources(): void {
