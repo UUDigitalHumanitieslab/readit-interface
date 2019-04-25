@@ -10,6 +10,7 @@ import AnnotationDeleteView from './annotation-deletion-view';
 
 import Annotation from '../models/annotation';
 import Source from '../models/source';
+import User from '../user/user-model';
 
 
 export default class AnnotateView extends View {
@@ -28,7 +29,7 @@ export default class AnnotateView extends View {
      */
     range: Range;
 
-    constructor(private source: Source) {
+    constructor(private source: Source, private user: User) {
         super();
     }
 
@@ -119,7 +120,8 @@ export default class AnnotateView extends View {
             endIndex: this.range.endOffset,
             text: this.range.cloneContents().textContent,
             category: selectedCategory.get('machineName'),
-            source: this.source.get('id')
+            source: this.source.get('id'),
+            user: this.user.get('pk')
         },
             {
                 success: function (model, response, options) {

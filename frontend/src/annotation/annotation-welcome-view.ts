@@ -56,7 +56,7 @@ export default class AnnotationWelcomeView extends View {
         let source = this.collection.get(sourceId);
         
         this.list.hide();
-        this.currentAnnotateView = new AnnotateView(source);
+        this.currentAnnotateView = new AnnotateView(source, <User>this.model);
         this.currentAnnotateView.render().$el.insertAfter(this.list);
         this.currentAnnotateView.initAnnotationViews();
 
