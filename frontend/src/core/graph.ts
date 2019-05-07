@@ -57,7 +57,9 @@ export class Node extends Model {
     async processContext(): Promise<JsonLdContextOpt> {
         let globalContext = this.collection && this.collection.whenContext;
         let localContext: JsonLdContextOpt = this.get('@context');
-        let contextPromise = processContext(await globalContext, localContext);
+        let contextPromise = Promise.resolve(globalContext).then(
+            resolvedGlobal => processContext(resolvedGlobal, localContext)
+        );
         this.whenContext = contextPromise;
         this.applyNewContext(await contextPromise);
         return contextPromise;
