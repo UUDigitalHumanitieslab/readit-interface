@@ -61,19 +61,22 @@ export class Node extends Model {
             resolvedGlobal => processContext(resolvedGlobal, localContext)
         );
         this.whenContext = contextPromise;
-        await this.applyNewContext(await contextPromise);
+        await this.applyNewContext(await contextPromise, localContext);
         return contextPromise;
     }
 
-    private async applyNewContext(context?: JsonLdContext): Promise<this> {
+    private async applyNewContext(
+        context: JsonLdContextOpt,
+        localContext: JsonLdContextOpt,
+    ): Promise<this> {
         this.trigger('jsonld:context', this, context);
         let oldJson = this.toJSON();
-        let localContext = this.get('@context');
         delete oldJson['@context'];  // let's not pass the context twice
         newJson = await compact(oldJson, context);
+        newJson['@context'] = localContext;
         // We pass silent: true because conceptually, the data didn't change;
         // they were just formatted differently.
-        this.set(newJson, { silent: true });
-        return this.trigger('jsonld:compact', this);
+        this.clear({ silent: true }).set(newJson, { silent: true });
+        return this.trigger('jsonld:compact', this, newJson);
     }
 }
