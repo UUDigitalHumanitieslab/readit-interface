@@ -60,7 +60,9 @@ export class Node extends Model {
     }
 
     /**
-     * Compute and process the Graph-aware context for future use. See
+     * Compute and process the Graph-aware context for future use.
+     * You shouldn't normally need to call this manually; wait for
+     * this.whenContext to resolve instead. See
      * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
      */
     processContext(): Promise<JsonLdContext> {
