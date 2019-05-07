@@ -31,7 +31,8 @@ export class Node extends Model {
     attributes: JsonObject;
 
     /**
-     * A promise of the computed active context.
+     * A promise of the computed active context. Only resolves when
+     * the attributes are consistent with the @context.
      */
     whenContext: Promise<JsonLdContextOpt>;
 
