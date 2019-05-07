@@ -42,25 +42,32 @@ export class Node extends Model {
      */
     constructor(attributes, options) {
         super(attributes, options);
+        this.whenContext = this.computeContext(this.get('@context'));
+        this.on('change:@context', this.processContext, this);
         let newContext: JsonLdContextOpt = options.context;
         if (isDefined(newContext)) {
             this.set('@context', newContext);
         }
-        this.on('change:@context', this.processContext, this);
-        this.processContext();
     }
 
     /**
-     * Compute the Graph-aware context for future use. See
+     * Compute the Graph-aware context without modifying this. See
+     * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
+     */
+    async computeContext(localContext: JsonLdContextOpt): Promise<JsonLdContextOpt> {
+        let globalContext = this.collection && this.collection.whenContext;
+        return processContext(await globalContext, localContext);
+    }
+
+    /**
+     * Compute and process the Graph-aware context for future use. See
      * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
      */
     processContext(): Promise<JsonLdContextOpt> {
-        let globalContext = this.collection && this.collection.whenContext;
         let localContext: JsonLdContextOpt = this.get('@context');
         let oldContext = this.whenContext;
-        let contextPromise = Promise.resolve(globalContext).then(
-            resolvedGlobal => processContext(resolvedGlobal, localContext)
-        ).then(async newContext => {
+        let contextPromise = this.computeContext(localContext);
+        let consistentPromise = contextPromise.then(async newContext => {
             await this.applyNewContext(
                 newContext,
                 await oldContext,
@@ -68,7 +75,7 @@ export class Node extends Model {
             );
             return newContext;
         });
-        return this.whenContext = contextPromise;
+        return this.whenContext = consistentPromise;
     }
 
     private async applyNewContext(
@@ -87,4 +94,6 @@ export class Node extends Model {
         this.clear({ silent: true }).set(newJson, { silent: true });
         return this.trigger('jsonld:compact', this, newJson);
     }
+
+    // TODO: non-modifying compact and flatten methods
 }
