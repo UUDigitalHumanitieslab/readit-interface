@@ -18,7 +18,6 @@ function isDefined(arg: any): boolean {
 }
 
 export type JsonLdContext = null | string | JsonObject | JsonLdContext[];
-export type JsonLdContextOpt = JsonLdContext | undefined;
 
 /**
  * Representation of a single JSON-LD object with an @id.
@@ -34,7 +33,7 @@ export class Node extends Model {
      * A promise of the computed active context. Only resolves when
      * the attributes are consistent with the @context.
      */
-    whenContext: Promise<JsonLdContextOpt>;
+    whenContext: Promise<JsonLdContext>;
 
     /**
      * The ctor allows you to set/override the context on creation.
@@ -45,7 +44,7 @@ export class Node extends Model {
         super(attributes, options);
         this.whenContext = this.computeContext(this.get('@context'));
         this.on('change:@context', this.processContext, this);
-        let newContext: JsonLdContextOpt = options.context;
+        let newContext: JsonLdContext = options.context;
         if (isDefined(newContext)) {
             this.set('@context', newContext);
         }
@@ -55,7 +54,7 @@ export class Node extends Model {
      * Compute the Graph-aware context without modifying this. See
      * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
      */
-    async computeContext(localContext: JsonLdContextOpt): Promise<JsonLdContextOpt> {
+    async computeContext(localContext: JsonLdContext): Promise<JsonLdContext> {
         let globalContext = this.collection && this.collection.whenContext;
         return processContext(await globalContext, localContext);
     }
@@ -64,8 +63,8 @@ export class Node extends Model {
      * Compute and process the Graph-aware context for future use. See
      * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
      */
-    processContext(): Promise<JsonLdContextOpt> {
-        let localContext: JsonLdContextOpt = this.get('@context');
+    processContext(): Promise<JsonLdContext> {
+        let localContext: JsonLdContext = this.get('@context');
         let oldContext = this.whenContext;
         let contextPromise = this.computeContext(localContext);
         let consistentPromise = contextPromise.then(async newContext => {
@@ -80,9 +79,9 @@ export class Node extends Model {
     }
 
     private async applyNewContext(
-        newContext: JsonLdContextOpt,
-        expandContext: JsonLdContextOpt,
-        localContext: JsonLdContextOpt,
+        newContext: JsonLdContext,
+        expandContext: JsonLdContext,
+        localContext: JsonLdContext,
     ): Promise<this> {
         if (isEqual(newContext, expandContext)) return this;
         this.trigger('jsonld:context', this, newContext, localContext);
