@@ -54,18 +54,13 @@ export class Node extends Model {
      * Compute the Graph-aware context for future use. See
      * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
      */
-    processContext(): Promise<JsonLdContextOpt> {
+    async processContext(): Promise<JsonLdContextOpt> {
         let globalContext = this.collection && this.collection.whenContext;
         let localContext: JsonLdContextOpt = this.get('@context');
-        let contextPromise: Promise<JsonLdContextOpt>;
-        let setPromise = gC => processContext(gC, localContext);
-        if (globalContext) {
-            contextPromise = globalContext.then(setPromise);
-        } else {
-            contextPromise = setPromise(globalContext);
-        }
-        contextPromise.then(this.applyNewContext.bind(this));
-        return this.whenContext = contextPromise;
+        let contextPromise = processContext(await globalContext, localContext);
+        this.whenContext = contextPromise;
+        this.applyNewContext(await contextPromise);
+        return contextPromise;
     }
 
     private async applyNewContext(context?: JsonLdContext): Promise<this> {
