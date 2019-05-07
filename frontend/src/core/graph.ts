@@ -61,7 +61,7 @@ export class Node extends Model {
             resolvedGlobal => processContext(resolvedGlobal, localContext)
         );
         this.whenContext = contextPromise;
-        this.applyNewContext(await contextPromise);
+        await this.applyNewContext(await contextPromise);
         return contextPromise;
     }
 
