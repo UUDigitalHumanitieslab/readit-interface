@@ -77,7 +77,7 @@ export class Node extends Model {
         localContext: JsonLdContextOpt,
     ): Promise<this> {
         if (isEqual(newContext, expandContext)) return this;
-        this.trigger('jsonld:context', this, newContext);
+        this.trigger('jsonld:context', this, newContext, localContext);
         let oldJson = this.toJSON();
         delete oldJson['@context'];  // let's not pass the context twice
         newJson = await compact(oldJson, newContext, { expandContext });
