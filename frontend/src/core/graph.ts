@@ -1,4 +1,4 @@
-import { extend, isUndefined, isArray } from 'lodash';
+import { extend, isUndefined, isArray, isEqual } from 'lodash';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
     expand,   // (jsonld, options?, callback?) => Promise<jsonld>
@@ -60,19 +60,26 @@ export class Node extends Model {
         let contextPromise = Promise.resolve(globalContext).then(
             resolvedGlobal => processContext(resolvedGlobal, localContext)
         );
+        let oldContext = this.whenContext;
         this.whenContext = contextPromise;
-        await this.applyNewContext(await contextPromise, localContext);
+        await this.applyNewContext(
+            await contextPromise,
+            await oldContext,
+            localContext,
+        );
         return contextPromise;
     }
 
     private async applyNewContext(
-        context: JsonLdContextOpt,
+        newContext: JsonLdContextOpt,
+        expandContext: JsonLdContextOpt,
         localContext: JsonLdContextOpt,
     ): Promise<this> {
-        this.trigger('jsonld:context', this, context);
+        if (isEqual(newContext, expandContext)) return this;
+        this.trigger('jsonld:context', this, newContext);
         let oldJson = this.toJSON();
         delete oldJson['@context'];  // let's not pass the context twice
-        newJson = await compact(oldJson, context);
+        newJson = await compact(oldJson, newContext, { expandContext });
         newJson['@context'] = localContext;
         // We pass silent: true because conceptually, the data didn't change;
         // they were just formatted differently.
