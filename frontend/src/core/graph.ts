@@ -55,14 +55,28 @@ export class Node extends Model {
      * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
      */
     processContext(): Promise<JsonLdContextOpt> {
-        let globalContext = this.collection && this.collection.context;
+        let globalContext = this.collection && this.collection.whenContext;
         let localContext: JsonLdContextOpt = this.get('@context');
-        let contextPromise = processContext(globalContext, localContext);
+        let contextPromise: Promise<JsonLdContextOpt>;
+        let setPromise = gC => processContext(gC, localContext);
+        if (globalContext) {
+            contextPromise = globalContext.then(setPromise);
+        } else {
+            contextPromise = setPromise(globalContext);
+        }
         contextPromise.then(this.applyNewContext.bind(this));
         return this.whenContext = contextPromise;
     }
 
-    private applyNewContext(context?: JsonLdContext): void {
-
+    private async applyNewContext(context?: JsonLdContext): Promise<this> {
+        this.trigger('jsonld:context', this, context);
+        let oldJson = this.toJSON();
+        let localContext = this.get('@context');
+        delete oldJson['@context'];  // let's not pass the context twice
+        newJson = await compact(oldJson, context);
+        // We pass silent: true because conceptually, the data didn't change;
+        // they were just formatted differently.
+        this.set(newJson, { silent: true });
+        return this.trigger('jsonld:compact', this);
     }
 }
