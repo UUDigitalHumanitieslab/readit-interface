@@ -9,15 +9,20 @@ import {
     registerRDFParser,  // (contentType, parser) => void
 } from 'jsonld';
 
-import { JsonValue, JsonObject, JsonArray, JsonCollection, JsonDocument } from './json';
-import Model from './model';
-import Collection from './collection';
+import Model from '../core/model';
+import Collection from '../core/collection';
+import {
+    JsonValue,
+    JsonObject,
+    JsonArray,
+    JsonCollection,
+    JsonDocument,
+    JsonLdContext,
+} from './json';
 
 function isDefined(arg: any): boolean {
     return !isUndefined(arg);
 }
-
-export type JsonLdContext = null | string | JsonObject | JsonLdContext[];
 
 /**
  * Representation of a single JSON-LD object with an @id.
@@ -87,6 +92,7 @@ export class Node extends Model {
     ): Promise<this> {
         if (isEqual(newContext, expandContext)) return this;
         this.trigger('jsonld:context', this, newContext, localContext);
+        // TODO: recompute the idAttribute
         let oldJson = this.toJSON();
         delete oldJson['@context'];  // let's not pass the context twice
         newJson = await compact(oldJson, newContext, { expandContext });
