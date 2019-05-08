@@ -18,6 +18,7 @@ import {
     JsonCollection,
     JsonDocument,
     JsonLdContext,
+    ResolvedContext,
 } from './json';
 
 function isDefined(arg: any): boolean {
@@ -38,7 +39,7 @@ export class Node extends Model {
      * A promise of the computed active context. Only resolves when
      * the attributes are consistent with the @context.
      */
-    whenContext: Promise<JsonLdContext>;
+    whenContext: Promise<ResolvedContext>;
 
     /**
      * The ctor allows you to set/override the context on creation.
@@ -59,7 +60,7 @@ export class Node extends Model {
      * Compute the Graph-aware context without modifying this. See
      * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
      */
-    async computeContext(localContext: JsonLdContext): Promise<JsonLdContext> {
+    async computeContext(localContext: JsonLdContext):Promise<ResolvedContext> {
         let globalContext = this.collection && this.collection.whenContext;
         return processContext(await globalContext, localContext);
     }
@@ -70,7 +71,7 @@ export class Node extends Model {
      * this.whenContext to resolve instead. See
      * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
      */
-    processContext(): Promise<JsonLdContext> {
+    processContext(): Promise<ResolvedContext> {
         let localContext: JsonLdContext = this.get('@context');
         let oldContext = this.whenContext;
         let contextPromise = this.computeContext(localContext);
@@ -86,8 +87,8 @@ export class Node extends Model {
     }
 
     private async applyNewContext(
-        newContext: JsonLdContext,
-        expandContext: JsonLdContext,
+        newContext: ResolvedContext,
+        expandContext: ResolvedContext,
         localContext: JsonLdContext,
     ): Promise<this> {
         if (isEqual(newContext, expandContext)) return this;

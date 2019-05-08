@@ -7,3 +7,4 @@ export interface JsonObject {
 export type JsonCollection = JsonObject[];
 export type JsonDocument = JsonObject | JsonCollection;
 export type JsonLdContext = null | string | JsonObject | JsonLdContext[];
+export type ResolvedContext = null | JsonObject | JsonLdContext[];
