@@ -4,6 +4,8 @@ import Collection from '../core/collection';
 import Source from './source';
 import mockSources from './mock-sources';
 
+import { apiRoot } from 'config.json';
+
 export default class SourceCollection extends Collection<Source> {
     getMockData() {
         var sources: Source[] = [];
@@ -18,7 +20,7 @@ export default class SourceCollection extends Collection<Source> {
 
 extend (SourceCollection.prototype, {
     model: Source,
-    url: 'api/source/',
+    url: `${apiRoot}source/`,
     // fetch: function (options: any) {
     //     let sources = this.getMockData();
     //     this.set(sources.models)
