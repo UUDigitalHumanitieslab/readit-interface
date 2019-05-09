@@ -14,7 +14,7 @@ export const standardIdAttribute = '@id';
 export default function computeIdAlias(context: ResolvedContext): string {
     if (isNull(context)) return;
     if (isString(context)) throw new TypeError('Context is not fully resolved.');
-    if (isArray(context)) return reduceRight(context, reduceArray, null);
+    if (isArray(context)) return reduceRight(context, reduceArray, undefined);
     let nested = context['@context'];
     if (nested) return computeIdAlias(nested);
     return findKey(context, isIdAttribute);
@@ -29,5 +29,6 @@ function reduceArray(accumulator: string, context: ResolvedContext): string {
 }
 
 function isIdAttribute(value: JsonValue): boolean {
-    return value === standardIdAttribute;
+    if (value === standardIdAttribute) return true;
+    return value[standardIdAttribute] === standardIdAttribute;
 }
