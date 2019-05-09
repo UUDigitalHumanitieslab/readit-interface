@@ -4,10 +4,12 @@ import * as _ from 'underscore';
 
 import Annotation from './annotation';
 
+import { apiRoot } from 'config.json';
+
 export default class AnnotationCollection extends Collection {
     
 }
 extend(AnnotationCollection.prototype, {
     model: Annotation,
-    url: 'api/annotation',
+    url: `${apiRoot}/annotation`,
 })
