@@ -12,6 +12,10 @@ export default class Model extends BackboneModel {}
 
 extend(Model.prototype, {
     sync: syncWithCSRF,
+    url: function() {
+        // Django requires the trailing slash, so add it.
+        return BackboneModel.prototype.url.apply(this) + '/';
+    },
 });
 
 // Example: suppose we want to type-check the attributes of every
