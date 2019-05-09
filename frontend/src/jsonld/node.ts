@@ -18,6 +18,7 @@ import {
     JsonCollection,
     JsonDocument,
     JsonLdContext,
+    JsonLdObject,
     ResolvedContext,
 } from './json';
 import computeIdAlias from './idAlias';
@@ -32,9 +33,9 @@ function isDefined(arg: any): boolean {
  */
 export class Node extends Model {
     /**
-     * attributes must be pure JSON; this is a restriction from Model.
+     * attributes must be JSON-LD; this is a restriction from Model.
      */
-    attributes: JsonObject;
+    attributes: JsonLdObject;
 
     /**
      * A promise of the computed active context. Only resolves when
