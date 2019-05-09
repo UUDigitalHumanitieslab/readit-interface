@@ -78,7 +78,7 @@ function expectAlias(context, alias) {
 }
 
 function buggy() {
-    return computeIdAlias(faultyContext as ResolvedContext);
+    return computeIdAlias(faultyContext as unknown as ResolvedContext);
 }
 
 describe('computeIdAlias', function() {
