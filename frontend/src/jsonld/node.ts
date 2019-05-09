@@ -20,6 +20,7 @@ import {
     JsonLdContext,
     ResolvedContext,
 } from './json';
+import computeIdAlias from './idAlias';
 
 function isDefined(arg: any): boolean {
     return !isUndefined(arg);
@@ -48,7 +49,10 @@ export class Node extends Model {
      */
     constructor(attributes, options) {
         super(attributes, options);
-        this.whenContext = this.computeContext(this.get('@context'));
+        let id = this.id;
+        this.whenContext = this.computeContext(this.get('@context')).then(
+            context => this.updateIdAlias(context, id)
+        );
         this.on('change:@context', this.processContext, this);
         let newContext: JsonLdContext = options.context;
         if (isDefined(newContext)) {
@@ -93,16 +97,38 @@ export class Node extends Model {
     ): Promise<this> {
         if (isEqual(newContext, expandContext)) return this;
         this.trigger('jsonld:context', this, newContext, localContext);
-        // TODO: recompute the idAttribute
         let oldJson = this.toJSON();
+        let id = this.id;
         delete oldJson['@context'];  // let's not pass the context twice
         newJson = await compact(oldJson, newContext, { expandContext });
         newJson['@context'] = localContext;
         // We pass silent: true because conceptually, the data didn't change;
         // they were just formatted differently.
         this.clear({ silent: true }).set(newJson, { silent: true });
+        this.updateIdAlias(newContext, id);
         return this.trigger('jsonld:compact', this, newJson);
+    }
+
+    /**
+     * Implementation detail.
+     * @param context
+     * @param id       A previously existing @id attribute, if set.
+     * @return         The same `context` for promise chaining convenience.
+     */
+    private updateIdAlias(context: ResolvedContext, id: string):ResolvedContext{
+        let alias = computeIdAlias(context);
+        let eitherId = id || alias && this.get(alias);
+        // if we already had an @id, then the following line is not a
+        // change conceptually, so we don't emit a change event.
+        if (eitherId) this.set(this.idAttribute, eitherId, { silent: !!id })
+        // delete the alias to keep things consistent
+        if (alias) this.unset(alias);
+        return context;
     }
 
     // TODO: non-modifying compact and flatten methods
 }
+
+extend(Node.prototype, {
+    idAttribute: '@id',
+});
