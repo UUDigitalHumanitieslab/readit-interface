@@ -11,16 +11,7 @@ import {
 
 import Model from '../core/model';
 import Collection from '../core/collection';
-import {
-    JsonValue,
-    JsonObject,
-    JsonArray,
-    JsonCollection,
-    JsonDocument,
-    JsonLdContext,
-    JsonLdObject,
-    ResolvedContext,
-} from './json';
+import { JsonLdContext, JsonLdObject, ResolvedContext } from './json';
 import computeIdAlias from './idAlias';
 
 function isDefined(arg: any): boolean {

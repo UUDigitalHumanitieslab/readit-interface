@@ -11,17 +11,7 @@ import {
 } from 'jsonld';
 
 import Collection from '../core/collection';
-import {
-    JsonValue,
-    JsonObject,
-    JsonArray,
-    JsonCollection,
-    JsonDocument,
-    JsonLdContext,
-    JsonLdDocument,
-    JsonLdGraph,
-    ResolvedContext,
-} from './json';
+import { JsonLdDocument, JsonLdGraph, ResolvedContext } from './json';
 import Node from './node';
 
 export default class Graph extends Collection<Node> {
