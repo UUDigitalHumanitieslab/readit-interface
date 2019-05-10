@@ -11,7 +11,7 @@ class SourceAdmin(admin.ModelAdmin):
 
 class AnnoAdmin(admin.ModelAdmin):
     model = Annotation
-    list_display = ('source', 'user', 'text')
+    list_display = ('user', 'source', 'text', 'category')
     list_filter = ('source', 'user', 'text',)
     
 
