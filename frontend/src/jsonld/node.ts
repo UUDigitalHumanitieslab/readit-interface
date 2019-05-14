@@ -11,8 +11,9 @@ import {
 
 import Model from '../core/model';
 import Collection from '../core/collection';
-import { JsonLdContext, JsonLdObject, ResolvedContext } from './json';
+import { JsonLdContext, JsonLdObject, ResolvedContext, JsonLdGraph } from './json';
 import computeIdAlias from './idAlias';
+import Graph from './graph';
 
 function isDefined(arg: any): boolean {
     return !isUndefined(arg);
@@ -22,7 +23,7 @@ function isDefined(arg: any): boolean {
  * Representation of a single JSON-LD object with an @id.
  * Mostly for internal use, as the model type for Graph.
  */
-export class Node extends Model {
+export default class Node extends Model {
     /**
      * attributes must be JSON-LD; this is a restriction from Model.
      */
@@ -34,12 +35,14 @@ export class Node extends Model {
      */
     whenContext: Promise<ResolvedContext>;
 
+    collection: Graph;
+
     /**
      * The ctor allows you to set/override the context on creation.
      * Please note that the context management logic runs only AFTER
      * your initialize method, if you define one.
      */
-    constructor(attributes, options) {
+    constructor(attributes?, options?) {
         super(attributes, options);
         let id = this.id;
         this.whenContext = this.computeContext(this.get('@context')).then(
@@ -92,7 +95,7 @@ export class Node extends Model {
         let oldJson = this.toJSON();
         let id = this.id;
         delete oldJson['@context'];  // let's not pass the context twice
-        newJson = await compact(oldJson, newContext, { expandContext });
+        let newJson = await compact(oldJson, newContext, { expandContext });
         newJson['@context'] = localContext;
         // We pass silent: true because conceptually, the data didn't change;
         // they were just formatted differently.
