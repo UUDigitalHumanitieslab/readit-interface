@@ -166,6 +166,7 @@ const tsModules = decoratedBrowserify({
 });
 
 const tsTestModules = decoratedBrowserify({
+    debug: true,
     entries: unittestEntries,
     cache: {},
     packageCache: {},
@@ -218,6 +219,8 @@ function jsUnittest() {
     headless.on('error', e => headless.end());
     return streamqueue({objectMode: true}, libs, bundle)
         .pipe(plugins.jasmineBrowser.specRunner({console: true}))
+        .pipe(gulp.dest(buildDir))
+        .pipe(plugins.connect.reload())
         .pipe(headless);
 }
 
