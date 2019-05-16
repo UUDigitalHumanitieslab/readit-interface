@@ -42,7 +42,7 @@ export default class Node extends Model {
      * Please note that the context management logic runs only AFTER
      * your initialize method, if you define one.
      */
-    constructor(attributes?, options?) {
+    constructor(attributes?: JsonLdObject, options?) {
         super(attributes, options);
         let id = this.id;
         this.whenContext = this.computeContext(this.get('@context')).then(
@@ -61,7 +61,7 @@ export default class Node extends Model {
      */
     async computeContext(localContext: JsonLdContext):Promise<ResolvedContext> {
         let globalContext = this.collection && this.collection.whenContext;
-        return processContext(await globalContext, localContext);
+        return processContext(await globalContext, localContext || null);
     }
 
     /**
