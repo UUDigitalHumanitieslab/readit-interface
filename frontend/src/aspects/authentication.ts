@@ -58,6 +58,7 @@ userFsm.on('enter:requestAuthorization', (fsm, action) => {
     let [formerState, input] = action.split('.');
     formerUserState = formerState;
     // If already authenticated, transition directly to authorized.
+    // (This relies on our addition in ../global/user-fsm).
     userFsm.handle(authFsm.state);
     // Try to authenticate if not already trying (or successful).
     authFsm.handle('login');

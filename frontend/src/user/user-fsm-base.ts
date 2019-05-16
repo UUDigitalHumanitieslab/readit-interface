@@ -79,7 +79,6 @@ export default Fsm.extend({
         requestAuthorization: {
             denied: 'authorizationDenied',
             granted: 'authorizationGranted',
-            authenticated: 'authorizationGranted',
         },
         // Temporary state after successful authorization. Extend as
         // if this is a regular privileged state. Will receive queued
