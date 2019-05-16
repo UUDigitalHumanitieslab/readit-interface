@@ -1,5 +1,4 @@
 import { extend } from 'lodash';
-import * as _ from 'underscore';
 import View from './../../core/view';
 
 import categoryColoursTemplate from './category-colours-template';
