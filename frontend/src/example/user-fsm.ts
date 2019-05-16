@@ -22,8 +22,8 @@ const privilegedState = {
 };
 
 /**
- * The main states that the user can occupy.
- * Authorization-aware, privilege levels could be more fine-grained.
+ * The main states that the human in the chair can occupy.
+ * Authorization-aware thanks to AuthorizationFsm base class.
  * @class
  */
 export default AuthorizationFsm.extend({
