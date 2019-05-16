@@ -11,7 +11,7 @@ import {
 
 import Model from '../core/model';
 import Collection from '../core/collection';
-import { JsonLdContext, JsonLdObject, ResolvedContext, JsonLdGraph } from './json';
+import { JsonLdContext, JsonLdObject, ResolvedContext } from './json';
 import computeIdAlias from './idAlias';
 import Graph from './graph';
 
@@ -49,7 +49,7 @@ export default class Node extends Model {
             context => this.updateIdAlias(context, id)
         );
         this.on('change:@context', this.processContext, this);
-        let newContext: JsonLdContext = options.context;
+        let newContext: JsonLdContext = options && options.context;
         if (isDefined(newContext)) {
             this.set('@context', newContext);
         }
@@ -61,7 +61,7 @@ export default class Node extends Model {
      */
     async computeContext(localContext: JsonLdContext):Promise<ResolvedContext> {
         let globalContext = this.collection && this.collection.whenContext;
-        return processContext(await globalContext, localContext || null);
+        return processContext(await globalContext, localContext || {});
     }
 
     /**
