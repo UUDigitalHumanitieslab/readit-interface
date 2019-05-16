@@ -2,14 +2,13 @@ import { extend } from 'lodash';
 
 import View from '../core/view';
 import menuTemplate from './menu-template';
-import DirectionRouter from '../global/ex_direction-router';
+import DirectionRouter from '../global/direction-router';
 
-import User from './../user/user-model';
 
 export default class MenuView extends View {
 
     render() {
-        this.$el.html(this.template(this.model.attributes));
+        this.$el.html(this.template({}));
         return this;
     }
 
@@ -18,19 +17,15 @@ export default class MenuView extends View {
     }
 
     login() {
-        
         return this;
     }
 
     logout() {
-        console.log('logout');
-        (<User>this.model).logout();
         return this;
     }
 
     annotate(): void {
-        var url = encodeURI('annotate');
-        DirectionRouter.navigate(url, { trigger: true });
+        console.log('annotate clicked! (not implemented yet)');
     }
 
     toggleHamburger(){
@@ -39,8 +34,7 @@ export default class MenuView extends View {
 }
 
 extend(MenuView.prototype, {
-    tagName: 'header',
-    className: 'hero-head',        
+    tagName: 'header',    
     template: menuTemplate,
     events: {
         "click .navbar-burger": "toggleHamburger",

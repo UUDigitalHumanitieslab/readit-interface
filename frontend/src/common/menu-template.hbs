@@ -12,33 +12,23 @@
             </a>
         </div>
         <div id="navbarMenu" class="navbar-menu">
-            {{#if false}}
             <div class="navbar-start">
                 <a class="navbar-item">
-                    Search
-                </a>
-                <a class="navbar-item">
-                    Advanced Search
-                </a>
-                <a class="navbar-item">
-                    Explore
+                    Go somewhere
                 </a>
             </div>
-            {{/if}}
-            {{#if username}}
             <div class="navbar-end">
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">
-                        {{#i18n 'greeting'}}Hello, {{username}}!{{/i18n}}
+                        {{#i18n 'greeting'}}Hello, Julian!{{/i18n}}
                     </a>
                     <div class="navbar-dropdown">
                         <a class="navbar-item" id="logout">
-                            Log out
+                            Log out (fake)
                         </a>
                     </div>
                 </div>
-            </div>
-            {{/if}}
+            </div>            
         </div>
     </div>
 </nav>
