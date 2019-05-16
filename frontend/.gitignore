@@ -13,3 +13,6 @@ node_modules/
 
 # Project-specific
 *-template.ts
+
+# VSCode 
+tsconfig.json
