@@ -7,18 +7,6 @@ import Fsm from '../core/fsm';
  * your FSM gains the power to be aware of the need to authorize for
  * certain activities.
  *
- * When transitioning from an unprivileged state to a state that
- * requires authorization, your FSM remembers the input, but
- * temporarily enters the requestAuthorization state, first. In this
- * state, it waits for a confirmation of access permission. As soon
- * as this confirmation arrives (in the form of the "granted" input
- * signal), the authorizationGranted state is entered, where your
- * derived FSM will be able to handle the original input. If access
- * is denied, the authorizationDenied state is entered instead and
- * the original input is deleted. Still, it is up to your derived FSM
- * to decide what should happen next. In both cases, your derived FSM
- * can do so by deep-extending the respective states.
- *
  * To indicate that a transition requires authorization, use the
  * auxiliary function requireAuthorization. See below.
  *
