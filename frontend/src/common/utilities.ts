@@ -15,13 +15,13 @@ export function getLabel(node: Node): string {
 }
 
 export function getCssClassName(node: Node): string {
-    if (node.get('@type') !== 'rdfs:Class') return;
+    if (node.get('@type') !== 'rdfs:Class') return null;
 
     let label = getLabel(node);
 
     if (label) {
-        label = label.replace(new RegExp(' ', 'g'), '');
-        return `is_readit-${label}`;
+        label = label.replace(new RegExp(' ', 'g'), '').toLowerCase();
+        return `is-readit-${label}`;
     }
 
     return null;
