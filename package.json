@@ -19,6 +19,7 @@
     "django": "yarn back python manage.py",
     "startapp": "yarn back django-admin startapp --settings itf_manager.settings --pythonpath .",
     "test-front": "yarn gulp unittest",
+    "test-front-browser": "yarn gulp --root dist",
     "test-back": "yarn back pytest",
     "test-func": "yarn func pytest",
     "test": "yarn test-back && yarn test-front && yarn test-func",
