@@ -29,6 +29,7 @@ function reduceArray(accumulator: string, context: ResolvedContext): string {
 }
 
 function isIdAttribute(value: JsonValue): boolean {
+    if (!value) return false;
     if (value === standardIdAttribute) return true;
     return value[standardIdAttribute] === standardIdAttribute;
 }
