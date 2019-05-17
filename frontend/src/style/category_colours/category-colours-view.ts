@@ -9,7 +9,7 @@ import { getCssClassName } from './../../common/utilities';
 
 export default class CategoryColoursView extends View {
     categoryColours = []
-    
+
     constructor(public graph: Graph) {
         super();
         this.collectColours();
@@ -23,8 +23,7 @@ export default class CategoryColoursView extends View {
     collectColours() {
         this.graph.models.forEach(node => {
             let cssClass = getCssClassName(node);
-            // TODO: what would property holding colour be?
-            this.categoryColours.push({ 'class': cssClass, 'colour': node.get('colour') });
+            this.categoryColours.push({ 'class': cssClass, 'colour': node.get('schema:color') });
         });
     }
 }
