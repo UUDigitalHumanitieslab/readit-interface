@@ -8,16 +8,13 @@ export default class LabelView extends View {
     label: string;
     cssClassName: string;
 
-    constructor(node: Node) {
-        super();
-        this.label = getLabel(node);
-        this.cssClassName = getCssClassName(node);
-    }
-    
     render(): View {
+        let label = getLabel(<Node>this.model);
+        let className = getCssClassName(<Node>this.model);
+
         this.$el.html();
-        this.$el.text(this.label);
-        this.$el.addClass(this.cssClassName);
+        this.$el.text(label);
+        this.$el.addClass(className);
         return this;
     }
 }
