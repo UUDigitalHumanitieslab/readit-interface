@@ -15,6 +15,10 @@ export default class LabelView extends View {
         this.$el.html();
         this.$el.text(label);
         this.$el.addClass(className);
+        this.$el.addClass("tooltip");
+        this.$el.addClass("is-tooltip-right");
+        this.$el.addClass("is-tooltip-multiline");
+        this.$el.attr("data-tooltip", this.model.get('classDefinition'));
         return this;
     }
 }
