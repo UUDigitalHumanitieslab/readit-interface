@@ -21,7 +21,7 @@ export default class MenuView extends View {
     }
 
     logout() {
-        return this;
+        return this.trigger('logout');
     }
 
     annotate(): void {

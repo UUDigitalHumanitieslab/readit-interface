@@ -5,19 +5,15 @@ import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
 
 import directionRouter from '../global/direction-router';
-import directionFsm from '../global/direction-fsm';
+import userFsm from '../global/user-fsm';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
     footerView.render().$el.appendTo('.footer');
 });
 
-directionRouter.on('route:arrive', () => directionFsm.handle('arrive'));
-directionRouter.on('route:leave', () => directionFsm.handle('leave'));
+directionRouter.on('route:arrive', () => userFsm.handle('arrive'));
+directionRouter.on('route:leave', () => userFsm.handle('leave'));
 
-directionFsm.on('enter:arriving', () => {
-    welcomeView.render().$el.appendTo('#main');
-});
-directionFsm.on('exit:arriving', () => {
-    welcomeView.$el.detach();
-});
+userFsm.on('enter:arriving', () => welcomeView.render().$el.appendTo('#main'));
+userFsm.on('exit:arriving', () => welcomeView.$el.detach());
