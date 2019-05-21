@@ -2,11 +2,8 @@ import { extend } from 'lodash';
 
 import View from '../core/view';
 import menuTemplate from './menu-template';
-import DirectionRouter from '../global/direction-router';
-
 
 export default class MenuView extends View {
-
     render() {
         this.$el.html(this.template({}));
         return this;
