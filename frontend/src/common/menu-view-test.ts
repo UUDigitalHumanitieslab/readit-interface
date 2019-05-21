@@ -9,6 +9,6 @@ describe('MenuView', function() {
         this.view = new MenuView({model: new Model()});
     });
     it('renders a simple greeting message', function() {
-        expect(this.view.render().$el.html()).toContain('Alex');
+        expect(this.view.render().$el.html()).toContain('Hello');
     });
 });
