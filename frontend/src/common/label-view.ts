@@ -4,13 +4,13 @@ import View from './../core/view';
 import Node from './../jsonld/node';
 import { getCssClassName, getLabel } from './utilities';
 
-export default class LabelView extends View {
+export default class LabelView extends View<Node> {
     label: string;
     cssClassName: string;
 
-    render(): View {
-        let label = getLabel(<Node>this.model);
-        let className = getCssClassName(<Node>this.model);
+    render(): this {
+        let label = getLabel(this.model);
+        let className = getCssClassName(this.model);
 
         this.$el.html();
         this.$el.text(label);
