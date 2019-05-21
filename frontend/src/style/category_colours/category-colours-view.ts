@@ -2,17 +2,15 @@ import { extend } from 'lodash';
 import View from './../../core/view';
 
 import categoryColoursTemplate from './category-colours-template';
-import Graph from '../../jsonld/graph';
 import { getCssClassName } from './../../common/utilities';
 
-
-
 export default class CategoryColoursView extends View {
-    categoryColours = []
+    private categoryColours;
 
-    constructor(public graph: Graph) {
-        super();
+    initialize(): void {
+        this.categoryColours = [];
         this.collectColours();
+
     }
 
     render(): View {
@@ -20,8 +18,8 @@ export default class CategoryColoursView extends View {
         return this;
     }
 
-    collectColours() {
-        this.graph.models.forEach(node => {
+    collectColours(): void {
+        this.collection.each(node => {
             let cssClass = getCssClassName(node);
             this.categoryColours.push({ 'class': cssClass, 'colour': node.get('schema:color') });
         });

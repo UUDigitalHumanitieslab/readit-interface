@@ -18,7 +18,7 @@ describe('CategoryColoursView', function() {
         let node = new Node(attributes);
         let graph = new Graph();
         graph.push(node);
-        this.view = new CategoryColoursView(graph);
+        this.view = new CategoryColoursView({ collection: graph });
     });
 
     it('parses graphs into cssClass and colour', function() {
@@ -60,7 +60,7 @@ describe('CategoryColoursView', function() {
         let graph = new Graph();
         graph.push(node1);
         graph.push(node2);
-        let view = new CategoryColoursView(graph);
+        let view = new CategoryColoursView({collection: graph});
 
         expect(view.render().$el.prop("tagName")).toEqual('STYLE');
         expect(view.render().$el.html()).toContain('.is-readit-test {');
