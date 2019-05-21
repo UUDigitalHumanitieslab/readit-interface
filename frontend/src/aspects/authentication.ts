@@ -18,12 +18,12 @@ import loginForm from '../global/login-view';
  *    the human in the chair operating the web browser. She might
  *    claim to be the owner of a particular account.
  *  - _Authorization_ is the process of determining whether an agent
- *    has the right to perform a particular action. Generally, this
- *    requires authentication, unless the action is available to the
- *    general public. Additional rights might be needed on top of
- *    this, although this is not presently the case in our
- *    application. The imported `userFsm` keeps track of the action
- *    our human is currently trying to perform and takes
+ *    has the right to perform a particular action ("privilege").
+ *    Generally, this requires authentication, unless the action is
+ *    available to the general public. Additional rights might be
+ *    needed on top of this, although this is not presently the case
+ *    in our application. The imported `userFsm` keeps track of the
+ *    action our human is currently trying to perform and takes
  *    authorization into account.
  *  - Aspect modules such as this one are programmed entirely by
  *    binding events to handlers. These handlers may in turn cause
