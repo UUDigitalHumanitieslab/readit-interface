@@ -1,5 +1,6 @@
 import { extend } from 'lodash';
 import View from './../../core/view';
+import Node from './../../jsonld/node';
 
 import categoryColoursTemplate from './category-colours-template';
 import { getCssClassName } from './../../common/utilities';
@@ -20,7 +21,7 @@ export default class CategoryColoursView extends View {
 
     collectColours(): void {
         this.collection.each(node => {
-            let cssClass = getCssClassName(node);
+            let cssClass = getCssClassName(node as Node);
             this.categoryColours.push({ 'class': cssClass, 'colour': node.get('schema:color') });
         });
     }
