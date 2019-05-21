@@ -9,7 +9,7 @@
 	<clipPath id="SVGID_2_">
 		<use xlink:href="#SVGID_1_"  style="overflow:visible;"/>
 	</clipPath>
-	<rect style="clip-path:url(#SVGID_2_);fill:#094D8E;" width="400" height="80"/>
+	<rect style="clip-path:url(#SVGID_2_);" fill-opacity='0' width="400" height="80"/>
 	<g style="clip-path:url(#SVGID_2_);">
 		<path style="fill:#CDE5FC;" d="M0.001,0.077h12.893c4.378,0,7.772,1.578,10.185,4.734c2.152,2.848,3.229,6.495,3.229,10.942
 			c0,3.435-0.636,6.539-1.907,9.313c-2.239,4.902-6.089,7.353-11.55,7.353H0.001V0.077z M12.037,28.676
