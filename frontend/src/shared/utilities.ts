@@ -1,10 +1,10 @@
 import Node from '../jsonld/node';
 
-export const getLabel = function(node: Node): string {
-    let keys = ['skos:prefLabel', 'rdfs:label', 'skos:altLabel'];
+export const labelKeys = ['skos:prefLabel', 'rdfs:label', 'skos:altLabel'];
 
-    for (let i = 0; i < keys.length - 1; i++) {
-        let label = node.get(keys[i]);
+export function getLabel(node: Node): string {
+    for (let i = 0; i < labelKeys.length; i++) {
+        let label = node.get(labelKeys[i]);
 
         if (label) {
             return label;
@@ -14,7 +14,7 @@ export const getLabel = function(node: Node): string {
     return null;
 }
 
-export const getCssClassName = function(node: Node): string {
+export function getCssClassName(node: Node): string {
     if (node.get('@type') !== 'rdfs:Class') return null;
 
     let label = getLabel(node);
