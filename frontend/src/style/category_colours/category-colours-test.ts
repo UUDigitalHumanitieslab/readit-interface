@@ -40,7 +40,7 @@ describe('CategoryColoursView', function() {
         expect(html).toContain('}');
     });
 
-    it('renders a script tag with multiple CSS classes in it', function() {
+    it('renders a style tag with multiple CSS classes in it', function() {
         let attributes1: JsonLdObject = {
             '@id': 'uniqueID',
             '@type': 'rdfs:Class',
