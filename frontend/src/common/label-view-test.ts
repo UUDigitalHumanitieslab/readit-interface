@@ -30,7 +30,7 @@ describe('LabelView', function () {
             '@id': 'uniqueID',
             '@type': 'rdfs:Class',
             'skos:prefLabel': 'test',
-            'classDefinition': 'This is a test definition',
+            'skos:definition': 'This is a test definition',
         }
 
         let node = new Node(attributes);
