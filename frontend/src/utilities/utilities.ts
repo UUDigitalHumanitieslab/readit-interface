@@ -9,7 +9,7 @@ export function getLabel(node: Node): string {
         return label;
     });
 
-    return node.get(labelKey as string);
+    return node.get(labelKey as string)[0]['@value'];
 }
 
 export function getCssClassName(node: Node): string {

@@ -10,7 +10,7 @@ import Graph from './../jsonld/graph';
 import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
 
-import CategoryColourView from './../style/category_colours/category-colours-view';
+import CategoryColorView from './../utilities/category-colors/category-colors-view';
 
 import directionRouter from '../global/direction-router';
 import directionFsm from '../global/direction-fsm';
@@ -35,7 +35,7 @@ history.once('route', () => {
     let node = new Node(attributes);
     let graph = new Graph();
     graph.push(node);
-    let ccView = new CategoryColourView({ collection: graph });
+    let ccView = new CategoryColorView({ collection: graph });
     ccView.render().$el.appendTo('.footer');
 
 });

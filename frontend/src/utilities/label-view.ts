@@ -5,7 +5,7 @@ import View from '../core/view';
 import Node from '../jsonld/node';
 import { getCssClassName, getLabel } from './utilities';
 
-export default class LabelView extends View {
+export default class LabelView extends View<Node> {
     label: string;
     cssClassName: string;
     hasTooltip: boolean;
