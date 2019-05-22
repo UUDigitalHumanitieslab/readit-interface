@@ -1,7 +1,7 @@
 import { enableI18n } from '../test-util';
 
-import { JsonLdObject } from './../jsonld/json';
-import Node from './../jsonld/node';
+import { JsonLdObject } from '../jsonld/json';
+import Node from '../jsonld/node';
 import LabelView from './label-view';
 
 describe('LabelView', function () {
@@ -17,11 +17,7 @@ describe('LabelView', function () {
         let node = new Node(attributes);
         let view = new LabelView({ model: node });
 
-        let classList = view.render().$el[0].classList;
-
-        expect(classList).toContain('tag');
-        expect(classList).toContain('is-readit-test');
-
+        expect(view.render().el.className).toContain('tag');
         expect(view.render().$el.prop("tagName")).toEqual('SPAN');
     });
 
@@ -30,17 +26,14 @@ describe('LabelView', function () {
             '@id': 'uniqueID',
             '@type': 'rdfs:Class',
             'skos:prefLabel': 'test',
-            'classDefinition': 'This is a test definition',
+            'skos:definition': 'This is a test definition',
         }
 
         let node = new Node(attributes);
         let view = new LabelView({ model: node });
 
-        let classList = view.render().$el[0].classList;
-
-        expect(classList).toContain('tooltip');
-        expect(classList).toContain('is-tooltip-right');
-        expect(classList).toContain('is-tooltip-multiline');
+        expect(view.render().$el.prop("tagName")).toEqual('SPAN');
+        expect(view.render().el.className).toEqual('tag tooltip is-tooltip-right is-tooltip-multiline is-readit-test');
         expect(view.render().$el.attr('data-tooltip')).toEqual('This is a test definition');
     });
 })

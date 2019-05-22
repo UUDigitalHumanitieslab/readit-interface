@@ -1,7 +1,7 @@
 import { extend } from 'lodash';
 import View from '../core/view';
 import DirectionRouter from '../global/direction-router';
-import searchboxView from './../global/searchbox';
+import searchboxView from '../global/searchbox';
 
 import welcomeTemplate from './welcome-template';
 

@@ -1,16 +1,14 @@
 import { extend } from 'lodash';
-import View from './../core/view';
+import View from '../core/view';
 
-import Node from './../jsonld/node';
+import Node from '../jsonld/node';
 import { getCssClassName, getLabel } from './utilities';
 
-export default class LabelView extends View {
-    label: string;
-    cssClassName: string;
+export default class LabelView extends View<Node> {
 
-    render(): View {
-        let label = getLabel(<Node>this.model);
-        let className = getCssClassName(<Node>this.model);
+    render(): this {
+        let label = getLabel(this.model);
+        let className = getCssClassName(this.model);
 
         this.$el.html();
         this.$el.text(label);
@@ -18,11 +16,11 @@ export default class LabelView extends View {
         this.$el.addClass("tooltip");
         this.$el.addClass("is-tooltip-right");
         this.$el.addClass("is-tooltip-multiline");
-        this.$el.attr("data-tooltip", this.model.get('classDefinition'));
+        this.$el.attr("data-tooltip", this.model.get('skos:definition'));
         return this;
     }
 }
 extend(LabelView.prototype, {
     tagName: 'span',
-    className: 'tag'
+    className: 'tag tooltip is-tooltip-right is-tooltip-multiline',
 });
