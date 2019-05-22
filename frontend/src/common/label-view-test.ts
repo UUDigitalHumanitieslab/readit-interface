@@ -17,7 +17,7 @@ describe('LabelView', function () {
         let node = new Node(attributes);
         let view = new LabelView({ model: node });
 
-        let classList = view.render().$el[0].classList;
+        let classList = view.render().el.className;
 
         expect(classList).toContain('tag');
         expect(classList).toContain('is-readit-test');
