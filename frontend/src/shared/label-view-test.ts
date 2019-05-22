@@ -1,7 +1,7 @@
 import { enableI18n } from '../test-util';
 
-import { JsonLdObject } from './../jsonld/json';
-import Node from './../jsonld/node';
+import { JsonLdObject } from '../jsonld/json';
+import Node from '../jsonld/node';
 import LabelView from './label-view';
 
 describe('LabelView', function () {

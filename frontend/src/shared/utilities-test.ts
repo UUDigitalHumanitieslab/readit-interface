@@ -1,6 +1,6 @@
 import { getLabel, getCssClassName } from './utilities';
-import { JsonLdObject } from './../jsonld/json';
-import Node from './../jsonld/node';
+import { JsonLdObject } from '../jsonld/json';
+import Node from '../jsonld/node';
 
 describe('getLabel', function() {
 

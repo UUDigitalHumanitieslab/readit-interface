@@ -1,7 +1,7 @@
 import { extend } from 'lodash';
-import View from './../core/view';
+import View from '../core/view';
 
-import Node from './../jsonld/node';
+import Node from '../jsonld/node';
 import { getCssClassName, getLabel } from './utilities';
 
 export default class LabelView extends View<Node> {

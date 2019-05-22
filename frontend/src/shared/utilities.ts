@@ -1,4 +1,4 @@
-import Node from './../jsonld/node';
+import Node from '../jsonld/node';
 
 export function getLabel(node: Node): string {
     let keys = ['skos:prefLabel', 'rdfs:label', 'skos:altLabel'];

@@ -1,3 +1,3 @@
-import FooterView from './../common/footer-view';
+import FooterView from '../shared/footer-view';
 
 export default new FooterView();
