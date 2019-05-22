@@ -1,3 +1,3 @@
-import MenuView from '../shared/menu-view';
+import MenuView from '../layout/menu-view';
 
 export default new MenuView();
