@@ -4,10 +4,8 @@ export const labelKeys = ['skos:prefLabel', 'rdfs:label', 'skos:altLabel'];
 
 export function getLabel(node: Node): string {
     for (let i = 0; i < labelKeys.length; i++) {
-        let label = node.get(labelKeys[i]);
-
-        if (label) {
-            return label;
+        if (node.attributes[labelKeys[i]]) {
+            return node.attributes[labelKeys[i]][0]['@value'];
         }
     }
 
@@ -15,7 +13,8 @@ export function getLabel(node: Node): string {
 }
 
 export function getCssClassName(node: Node): string {
-    if (node.get('@type') !== 'rdfs:Class') return null;
+    let type = node.attributes['@type'][0]['@id'];
+    if (type !== 'rdfs:Class') return null;
 
     let label = getLabel(node);
 
