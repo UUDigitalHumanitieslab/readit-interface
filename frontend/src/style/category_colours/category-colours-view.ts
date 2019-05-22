@@ -21,7 +21,6 @@ export default class CategoryColoursView extends View {
     }
 
     initialize(): void {
-        this.categoryColours = [];
         this.collectColours();
 
     }
