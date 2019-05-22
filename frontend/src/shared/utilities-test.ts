@@ -2,7 +2,7 @@ import { getLabel, getCssClassName } from './utilities';
 import { JsonLdObject } from '../jsonld/json';
 import Node from '../jsonld/node';
 
-describe('getLabel', function() {
+describe('utilities:getLabel', function() {
 
     it('returns a label', function() {
         let attributes: JsonLdObject = { '@id': 'uniqueID', 'skos:prefLabel': 'prefLabel', '@context': {} }
@@ -22,7 +22,7 @@ describe('getLabel', function() {
     });
 });
 
-describe('getCssClassName', function() {
+describe('utilities:getCssClassName', function() {
 
     it('returns a css class', function() {
         let attributes: JsonLdObject = {

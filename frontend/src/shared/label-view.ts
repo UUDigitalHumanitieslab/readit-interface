@@ -5,8 +5,6 @@ import Node from '../jsonld/node';
 import { getCssClassName, getLabel } from './utilities';
 
 export default class LabelView extends View<Node> {
-    label: string;
-    cssClassName: string;
 
     render(): this {
         let label = getLabel(this.model);
@@ -18,7 +16,7 @@ export default class LabelView extends View<Node> {
         this.$el.addClass("tooltip");
         this.$el.addClass("is-tooltip-right");
         this.$el.addClass("is-tooltip-multiline");
-        this.$el.attr("data-tooltip", this.model.get('classDefinition'));
+        this.$el.attr("data-tooltip", this.model.get('skos:definition'));
         return this;
     }
 }

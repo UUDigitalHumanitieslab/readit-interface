@@ -1,11 +1,11 @@
-import { enableI18n } from './../../test-util';
+import { enableI18n } from '../../test-util';
 
-import Graph from './../../jsonld/graph';
-import Node from './../../jsonld/node';
-import { JsonLdObject } from './../../jsonld/json';
-import CategoryColoursView from './category-colours-view';
+import Graph from '../../jsonld/graph';
+import Node from '../../jsonld/node';
+import { JsonLdObject } from '../../jsonld/json';
+import CategoryColorsView from './category-colors-view';
 
-describe('CategoryColoursView', function() {
+describe('CategoryColorsView', function() {
     beforeAll(enableI18n);
 
     beforeEach(function() {
@@ -16,28 +16,26 @@ describe('CategoryColoursView', function() {
             'schema:color': 'hotpink'
         }
         let node = new Node(attributes);
-        let graph = new Graph();
-        graph.push(node);
-        this.view = new CategoryColoursView({ collection: graph });
+        let graph = new Graph([node]);
+        this.view = new CategoryColorsView({ collection: graph });
     });
 
-    it('parses graphs into cssClass and colour', function() {
+    it('parses graphs into cssClass and color', function() {
         let expected = {
             class: 'is-readit-test',
-            colour: 'hotpink'
+            color: 'hotpink'
         };
 
-        let actual = this.view.categoryColours[0];
-        expect(this.view.categoryColours[0]).toEqual(expected);
+        expect(this.view.categoryColors[0]).toEqual(expected);
     });
 
     it('renders a style tag with some CSS in it', function() {
         expect(this.view.render().$el.prop("tagName")).toEqual('STYLE');
 
         let html = this.view.render().$el.html();
-        expect(html).toContain('.is-readit-test {');
-        expect(html).toContain('background-color: hotpink !important');
-        expect(html).toContain('}');
+        let actual = replaceNewLinesAndWhitespace(html);
+
+        expect(actual).toEqual('.is-readit-test{background-color:hotpink!important}');
     });
 
     it('renders a style tag with multiple CSS classes in it', function() {
@@ -57,15 +55,21 @@ describe('CategoryColoursView', function() {
         }
         let node2 = new Node(attributes2);
 
-        let graph = new Graph();
-        graph.push(node1);
-        graph.push(node2);
-        let view = new CategoryColoursView({collection: graph});
+        let graph = new Graph([node1, node2]);
+        let view = new CategoryColorsView({collection: graph});
 
         expect(view.render().$el.prop("tagName")).toEqual('STYLE');
-        expect(view.render().$el.html()).toContain('.is-readit-test {');
-        expect(view.render().$el.html()).toContain('.is-readit-test2 {');
+
+        let html = view.render().$el.html();
+        let actual = replaceNewLinesAndWhitespace(html);
+
+        expect(actual).toEqual('.is-readit-test{background-color:hotpink!important}.is-readit-test2{background-color:aliceblue!important}');
     });
+
+    function replaceNewLinesAndWhitespace(text: string) {
+        return text.replace(/(?:\r\n|\r|\n| )/g, "");
+    }
 });
+
 
 
