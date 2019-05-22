@@ -24,5 +24,5 @@ export default class LabelView extends View<Node> {
 }
 extend(LabelView.prototype, {
     tagName: 'span',
-    className: 'tag'
+    className: 'tag tooltip is-tooltip-right is-tooltip-multiline',
 });
