@@ -19,7 +19,7 @@ describe('LabelView', function () {
 
         let classList = view.render().el.className;
 
-        expect(classList).toContain('tag');
+        expect(view.el).toHaveClass('tag');
         expect(classList).toContain('is-readit-test');
 
         expect(view.render().$el.prop("tagName")).toEqual('SPAN');
