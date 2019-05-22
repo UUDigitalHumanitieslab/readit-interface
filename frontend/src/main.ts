@@ -6,7 +6,8 @@ import { baseUrl } from 'config.json';
 import { i18nPromise } from './global/i18n';
 import './global/internalLinks';
 import './global/hbsHelpers';
-import './aspects/example';
+import './aspects/readit';
+import './aspects/authentication';
 
 when(ready, i18nPromise).done(function() {
     let success = history.start({
