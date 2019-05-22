@@ -28,7 +28,7 @@ describe('CategoryColoursView', function() {
         };
 
         let actual = this.view.categoryColours[0];
-        expect(actual).toEqual(expected);
+        expect(this.view.categoryColours[0]).toEqual(expected);
     });
 
     it('renders a style tag with some CSS in it', function() {
