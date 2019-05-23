@@ -4,11 +4,7 @@ import Node from '../jsonld/node';
 export const labelKeys = ['skos:prefLabel', 'rdfs:label', 'skos:altLabel'];
 
 export function getLabel(node: Node): string {
-    let labelKey = find(labelKeys, (labelKey) => {
-        let label = node.get(labelKey);
-        return label;
-    });
-
+    let labelKey = find(labelKeys, key => node.has(key));
     return node.get(labelKey as string)[0]['@value'];
 }
 

@@ -13,7 +13,7 @@ import { JsonLdObject } from './../jsonld/json';
 import CategoryColorView from './../utilities/category-colors/category-colors-view';
 
 import directionRouter from '../global/direction-router';
-import directionFsm from '../global/direction-fsm';
+import userFsm from '../global/user-fsm';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -40,14 +40,11 @@ history.once('route', () => {
 
 });
 
-directionRouter.on('route:arrive', () => directionFsm.handle('arrive'));
-directionRouter.on('route:leave', () => directionFsm.handle('leave'));
-
-directionFsm.on('enter:arriving', () => {
+directionRouter.on('route:arrive', () => {
     let exView = new ExplorerView();
     exView.render().$el.appendTo('#main');
     // welcomeView.render().$el.appendTo('#main');
 });
-directionFsm.on('exit:arriving', () => {
+directionRouter.on('route:leave', () => {
     // welcomeView.$el.detach();
 });

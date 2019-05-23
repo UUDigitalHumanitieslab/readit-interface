@@ -33,7 +33,7 @@ describe('LabelView', function () {
         let view = new LabelView({ model: node });
 
         expect(view.render().$el.prop("tagName")).toEqual('SPAN');
-        expect(view.render().el.className).toEqual('tag tooltip is-tooltip-right is-tooltip-multiline is-readit-test');
+        expect(view.render().el.className).toContain('is-readit-test');
         expect(view.render().$el.attr('data-tooltip')).toEqual('This is a test definition');
     });
 })

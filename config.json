@@ -2,5 +2,6 @@
   "baseUrl": "/",
   "staticRoot": "/static/",
   "nodeRoot": "/static/",
-  "apiRoot": "/api/"
+  "apiRoot": "/api/",
+  "authRoot": "/rest-auth/"
 }
