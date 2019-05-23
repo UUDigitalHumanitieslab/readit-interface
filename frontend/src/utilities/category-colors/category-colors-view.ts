@@ -4,6 +4,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import View from '../../core/view';
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
+import {schema } from './../../jsonld/ns';
 
 import categoryColorsTemplate from './category-colors-template';
 import { getCssClassName } from '../utilities';
@@ -32,7 +33,7 @@ export default class CategoryColorsView extends View {
     collectColours(): void {
         this.categoryColors = this.collection.map(node => {
             let cssClass = getCssClassName(node);
-            return { class: cssClass, color: node.get('schema:color') };
+            return { class: cssClass, color: node.get(schema.color)[0]['@value'] };
         });
     }
 }
