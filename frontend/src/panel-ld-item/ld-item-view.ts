@@ -8,6 +8,7 @@ import Node from '../jsonld/node';
 import LabelView from '../utilities/label-view';
 
 import { JsonLdObject } from '../jsonld/json';
+import { triggerAsyncId } from 'async_hooks';
 
 export default class LdItemView extends View<Node> {
 
@@ -88,11 +89,16 @@ export default class LdItemView extends View<Node> {
             }
         }
     }
+
+    onFakeBtnClicked(): void {
+        this.trigger('fakeBtnClicked');
+    }
 }
 extend(LdItemView.prototype, {
     tagName: 'div',
     className: 'ld-item explorer-panel',
     template: ldItemTemplate,
     events: {
+        'click #fakeButton': 'onFakeBtnClicked',
     }
 });
