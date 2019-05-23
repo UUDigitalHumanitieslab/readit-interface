@@ -1,63 +1,72 @@
+
 import { getLabel, getCssClassName } from './utilities';
 import { JsonLdObject } from '../jsonld/json';
 import Node from '../jsonld/node';
 
+function getDefaultNode(): Node {
+    return new Node(getDefaultAttributes());
+}
+
+function getDefaultAttributes(): JsonLdObject {
+    return {
+        '@id': 'uniqueID',
+        "@type": [
+            { '@id': "rdfs:Class" }
+        ],
+        'http://www.w3.org/2004/02/skos/core#prefLabel': [
+            { '@value': 'Content' },
+        ],
+        'http://www.w3.org/2004/02/skos/core#altLabel': [
+            { '@value': 'alternativeLabel'}
+        ],
+    }
+}
+
 describe('utilities:getLabel', function() {
 
     it('returns a label', function() {
-        let attributes: JsonLdObject = { '@id': 'uniqueID', 'skos:prefLabel': 'prefLabel', '@context': {} }
-        let node = new Node(attributes);
-        expect(getLabel(node)).toBe('prefLabel');
+        let node = getDefaultNode();
+        expect(getLabel(node)).toBe('Content');
     });
 
     it('returns a preferred label before others', function() {
-        let attributes: JsonLdObject = {
-            '@id': 'uniqueID',
-            'skos:prefLabel': 'prefLabel',
-            'skos:altLabel': 'altLabel',
-            'test:yetAnotherLabel': 'yetAnotherLabel'
-        }
+        let node = getDefaultNode();
+        expect(getLabel(node)).toBe('Content');
+    });
+
+    it('returns alternative label if the preferred label is not present', function() {
+        let attributes = getDefaultAttributes();
+        delete attributes["http://www.w3.org/2004/02/skos/core#prefLabel"];
         let node = new Node(attributes);
-        expect(getLabel(node)).toBe('prefLabel');
+        expect(getLabel(node)).toBe('alternativeLabel');
     });
 });
 
 describe('utilities:getCssClassName', function() {
 
     it('returns a css class', function() {
-        let attributes: JsonLdObject = {
-            '@id': 'uniqueID',
-            '@type': 'rdfs:Class',
-            'skos:prefLabel': 'prefLabel',
-        }
-        let node = new Node(attributes);
-        expect(getCssClassName(node)).toBe('is-readit-preflabel');
+        let node = getDefaultNode();
+        expect(getCssClassName(node)).toBe('is-readit-content');
     });
 
     it('returns a lowercased css class stripped of spaces', function() {
-        let attributes: JsonLdObject = {
-            '@id': 'uniqueID',
-            '@type': 'rdfs:Class',
-            'skos:prefLabel': 'A Capitalized Label With Spaces',
-        }
+        let attributes = getDefaultAttributes();
+        attributes["http://www.w3.org/2004/02/skos/core#prefLabel"] = [{ "@value": "A Capitalized Label With Spaces" }];
         let node = new Node(attributes);
         expect(getCssClassName(node)).toBe('is-readit-acapitalizedlabelwithspaces');
     });
 
     it('ignores nodes without a label', function() {
-        let attributes: JsonLdObject = {
-            '@id': 'uniqueID',
-            '@type': 'rdfs:Class',
-        }
+        let attributes = getDefaultAttributes();
+        delete attributes['http://www.w3.org/2004/02/skos/core#prefLabel'];
+        delete attributes['http://www.w3.org/2004/02/skos/core#altLabel'];
         let node = new Node(attributes);
         expect(getCssClassName(node)).toBeNull();
     });
 
     it('ignores node with type other that rdfs:Class', function() {
-        let attributes: JsonLdObject = {
-            '@id': 'uniqueID',
-            '@type': 'rdfs:SomethingElse',
-        }
+        let attributes = getDefaultAttributes();
+        attributes['@type'] = [{ '@id': 'rdfs:SomethingElse' }];
         let node = new Node(attributes);
         expect(getCssClassName(node)).toBeNull();
     });

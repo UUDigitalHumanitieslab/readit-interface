@@ -1,15 +1,18 @@
 import { find } from 'lodash'
 import Node from '../jsonld/node';
 
-export const labelKeys = ['skos:prefLabel', 'rdfs:label', 'skos:altLabel'];
+import { skos, rdfs } from './../jsonld/ns';
+
+export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel];
 
 export function getLabel(node: Node): string {
     let labelKey = find(labelKeys, key => node.has(key));
-    return node.get(labelKey as string)[0]['@value'];
+    if (labelKey) return node.get(labelKey)[0]['@value'];
 }
 
 export function getCssClassName(node: Node): string {
-    let type = node.attributes['@type'][0]['@id'];
+    let type = node.get('@type')[0]['@id'];
+
     if (type !== 'rdfs:Class') return null;
 
     let label = getLabel(node);
