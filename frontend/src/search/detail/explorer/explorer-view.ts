@@ -11,8 +11,8 @@ export default class ExplorerView extends View {
 
     render(): View {
         this.setHeight();
-        // let sourceView = new SourceView();
-        // sourceView.render().$el.appendTo(this.$el);
+        let sourceView = new SourceView();
+        sourceView.render().$el.appendTo(this.$el);
 
         let attributes: JsonLdObject = {
             '@id': 'uniqueID',
