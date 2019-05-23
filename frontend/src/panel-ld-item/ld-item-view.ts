@@ -1,13 +1,13 @@
 import { extend, each } from 'lodash';
-import View from './../core/view';
+import View from '../core/view';
 
 import ldItemTemplate from './ld-item-template';
 import { getLabel } from '../utilities/utilities';
-import Node from './../jsonld/node';
+import Node from '../jsonld/node';
 
-import LabelView from './../utilities/label-view';
+import LabelView from '../utilities/label-view';
 
-import { JsonLdObject } from './../jsonld/json';
+import { JsonLdObject } from '../jsonld/json';
 
 export default class LdItemView extends View<Node> {
 

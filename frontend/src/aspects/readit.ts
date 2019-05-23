@@ -3,7 +3,7 @@ import { history } from 'backbone';
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
-import ExplorerView from '../search/detail/explorer/explorer-view';
+import ExplorerView from '../panel-explorer/explorer-view';
 
 import Graph from './../jsonld/graph';
 import Node from './../jsonld/node';
@@ -64,8 +64,8 @@ directionFsm.on('enter:exploring', () => {
     exView.render().$el.appendTo('#main');
 });
 
-directionFsm.on('exit:arriving', () => {
-    exView.$el.detach();
+directionFsm.on('exit:exploring', () => {
+    // exView.$el.detach();
 });
 
 
