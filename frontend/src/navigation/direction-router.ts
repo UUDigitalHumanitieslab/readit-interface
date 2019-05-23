@@ -8,5 +8,6 @@ extend(DirectionRouter.prototype, {
     routes: {
         '(arrive)': 'arrive',
         'leave': 'leave',
+        'explore': 'explore'
     },
 });

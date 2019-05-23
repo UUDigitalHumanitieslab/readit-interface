@@ -3,7 +3,6 @@ import { history } from 'backbone';
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
-import SourceView from './../source/source-view';
 import ExplorerView from '../search/detail/explorer/explorer-view';
 
 import Graph from './../jsonld/graph';
@@ -14,11 +13,13 @@ import CategoryColorView from './../utilities/category-colors/category-colors-vi
 
 import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
+import directionFsm from '../global/direction-fsm';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
     footerView.render().$el.appendTo('.footer');
 
+    // Create some css. This is jst a quick and dirty solution, will have to be moved in the future
     let attributes: JsonLdObject = {
         '@id': '3',
         "@type": [
@@ -33,18 +34,41 @@ history.once('route', () => {
         ],
     }
     let node = new Node(attributes);
-    let graph = new Graph();
-    graph.push(node);
+    let graph = new Graph([node]);
+
     let ccView = new CategoryColorView({ collection: graph });
     ccView.render().$el.appendTo('.footer');
 
 });
 
 directionRouter.on('route:arrive', () => {
-    let exView = new ExplorerView();
-    exView.render().$el.appendTo('#main');
-    // welcomeView.render().$el.appendTo('#main');
+    directionFsm.handle('arrive');
 });
+
+directionFsm.on('enter:arriving', () => {
+    welcomeView.render().$el.appendTo('#main');
+});
+
+directionFsm.on('exit:arriving', () => {
+    welcomeView.$el.detach();
+});
+
+directionRouter.on('route:explore', () => {
+    directionFsm.handle('explore');
+});
+
+// This is jst a quick and dirty solution, will have to be moved in the future
+let exView = new ExplorerView();
+
+directionFsm.on('enter:exploring', () => {
+    exView.render().$el.appendTo('#main');
+});
+
+directionFsm.on('exit:arriving', () => {
+    exView.$el.detach();
+});
+
+
 directionRouter.on('route:leave', () => {
-    // welcomeView.$el.detach();
+    console.log('not implemented!');
 });

@@ -9,10 +9,15 @@ const DirectionFsm = Fsm.extend({
         },
         arriving: {
             leave: 'leaving',
+            explore: 'exploring',
         },
         leaving: {
             arrive: 'arriving',
         },
+        exploring: {
+            leave: 'leaving',
+            arrive: 'arriving',
+        }
     },
 });
 
