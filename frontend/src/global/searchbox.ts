@@ -1,6 +1,6 @@
 import SearchboxView from '../search/search-box/searchbox-view';
 
-let exampleQueryFields = [
+const exampleQueryFields = [
     {
         'label': 'all fields',
         'value': 'all'
@@ -21,8 +21,6 @@ let exampleQueryFields = [
         'label': 'full text',
         'value': 'fragment_text'
     },
-]
+];
 
-export default new SearchboxView(
-    exampleQueryFields
-)
+export default new SearchboxView(exampleQueryFields);
