@@ -1,8 +1,7 @@
 import { extend } from 'lodash';
-import { ViewOptions as BaseOpt } from 'backbone';
-
 import Model from '../core/model';
 import View from '../core/view';
+import { ViewOptions as BaseOpt } from 'backbone';
 import welcomeTemplate from './welcome-template';
 
 export interface ViewOptions extends BaseOpt<Model> {
@@ -34,5 +33,5 @@ export default class WelcomeView extends View {
 
 extend(WelcomeView.prototype, {
     tagName: 'section',
-    template: welcomeTemplate,
+    template: welcomeTemplate
 });

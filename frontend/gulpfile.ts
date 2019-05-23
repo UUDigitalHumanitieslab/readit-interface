@@ -121,6 +121,11 @@ const browserLibs: LibraryProps[] = [{
         browser: i18nModule,
         global: 'i18next',
         cdn: `${cdnjsPattern}/\${filenameMin}`,
+    }, {
+        module: 'jsonld',
+        browser: 'jsonld/dist/jsonld.min',
+        global: 'jsonld',
+        cdn: `${jsdelivrPattern}/dist/\${filenameMin}`,
     }],
     browserLibsRootedPaths: string[] = [],
     cdnizerConfig = {files: browserLibs.map(lib => {

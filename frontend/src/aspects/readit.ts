@@ -12,8 +12,12 @@ history.once('route', () => {
     footerView.render().$el.appendTo('.footer');
 });
 
-directionRouter.on('route:arrive', () => userFsm.handle('arrive'));
-directionRouter.on('route:leave', () => userFsm.handle('leave'));
+directionRouter.on('route:arrive', () => welcomeView.render().$el.appendTo('#main'));
+directionRouter.on('route:leave', () => welcomeView.$el.detach());
 
-userFsm.on('enter:arriving', () => welcomeView.render().$el.appendTo('#main'));
-userFsm.on('exit:arriving', () => welcomeView.$el.detach());
+// Uncomment the below to activate login (and comment out the above)
+// directionRouter.on('route:arrive', () => userFsm.handle('arrive'));
+// directionRouter.on('route:leave', () => userFsm.handle('leave'));
+
+// userFsm.on('enter:arriving', () => welcomeView.render().$el.appendTo('#main'));
+// userFsm.on('exit:arriving', () => welcomeView.$el.detach());
