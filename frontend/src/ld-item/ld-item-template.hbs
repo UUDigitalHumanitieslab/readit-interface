@@ -1,0 +1,49 @@
+<div class="explorer-content">
+    <div id="lblViewWrapper"></div>
+    <h3 class="title is-3">{{label}}</h3>
+
+
+    <h4 class="title is-4">Properties:</h4>
+    {{#each properties}}
+    <b>{{@key}}</b>: {{this}}</p>
+    {{/each}}
+
+    <br />
+
+    <h4 class="title is-4">Item metadata:</h4>
+    {{#each itemMetadata}}
+    <b>{{@key}}</b>: {{this}}</p>
+    {{/each}}
+
+    <br />
+
+    {{#if annotationMetadata}}
+    <h4 class="title is-4">Annotation metadata:</h4>
+    {{#each annotationMetadata}}
+    <b>{{@key}}</b>: {{this}}</p>
+    {{/each}}
+
+    <br />
+    {{/if}}
+
+    <h4 class="title is-4">Related items:</h4>
+    {{#each relatedItems}}
+    <b>{{@key}}</b>: {{this}}</p>
+    {{/each}}
+
+    <br />
+
+    {{#if annotations}}
+    <h4 class="title is-4">Annotations:</h4>
+    {{#each annotations}}
+    <b>{{@key}}</b>: {{this}}</p>
+    {{/each}}
+
+    <br />
+    {{/if}}
+
+    <h4 class="title is-4">External resources:</h4>
+    {{#each externalResources}}
+    <b>{{@key}}</b>: {{this}}</p>
+    {{/each}}
+</div>
