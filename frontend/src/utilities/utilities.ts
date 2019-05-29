@@ -42,16 +42,16 @@ export function isRdfsClass(node: Node): boolean {
 }
 
 /**
- * Check if a node has a property defined by a certain term.
+ * Check if a node has a certain property (i.e. namespace#term).
  * If the property's value is an empty array, it will be considered non-existent (i.e. ignored),
  * unless otherwise specified.
  * @param node The node to evaluate.
- * @param term The term (i.e. namespace#term) we're looking for.
+ * @param property The property (i.e. namespace#term) we're looking for.
  * @param ignoreEmpty Specify if properties that are found but that do not contain a value
  * should be ignored (i.e. are considered non-existent). Defaults to true.
  */
-export function hasTerm(node: Node, term: string, ignoreEmpty: boolean = true): boolean {
-    if (!node.get(term)) return false;
-    if (ignoreEmpty && node.get(term).length == 0) return false;
+export function hasProperty(node: Node, property: string, ignoreEmpty: boolean = true): boolean {
+    if (!node.get(property)) return false;
+    if (ignoreEmpty && node.get(property).length == 0) return false;
     return true;
 }

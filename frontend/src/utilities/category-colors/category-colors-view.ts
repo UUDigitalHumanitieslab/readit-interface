@@ -7,7 +7,7 @@ import Graph from '../../jsonld/graph';
 import { schema } from './../../jsonld/ns';
 
 import categoryColorsTemplate from './category-colors-template';
-import { getCssClassName, isRdfsClass, hasTerm } from '../utilities';
+import { getCssClassName, isRdfsClass, hasProperty } from '../utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     collection: Graph;
@@ -32,7 +32,7 @@ export default class CategoryColorsView extends View {
 
     collectColours(): void {
         this.categoryColors = this.collection.map(node => {
-            if (isRdfsClass(node) && hasTerm(node, schema.color)) {
+            if (isRdfsClass(node) && hasProperty(node, schema.color)) {
                 let cssClass = getCssClassName(node);
                 return { class: cssClass, color: node.get(schema.color)[0]['@value'] };
             }
