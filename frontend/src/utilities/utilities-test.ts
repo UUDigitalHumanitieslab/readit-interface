@@ -1,5 +1,5 @@
 
-import { getLabel, getCssClassName } from './utilities';
+import { getLabel, getCssClassName, isRdfsClass } from './utilities';
 import { JsonLdObject } from '../jsonld/json';
 import Node from '../jsonld/node';
 
@@ -69,5 +69,29 @@ describe('utilities:getCssClassName', function() {
         attributes['@type'] = [{ '@id': 'rdfs:SomethingElse' }];
         let node = new Node(attributes);
         expect(getCssClassName(node)).toBeNull();
+    });
+});
+
+describe('utilities:isRdfsClass', function() {
+    it('recognizes type rdfs:Class', function() {
+        let node = getDefaultNode();
+        expect(isRdfsClass(node)).toBe(true);
+    });
+
+    it('recognizes type rdfs:subClassOf', function() {
+        let attributes = getDefaultAttributes();
+        delete attributes['@type'];
+        attributes['http://www.w3.org/2000/01/rdf-schema#subClassOf'] = [{ '@id': 'anything'}]
+        let node = new Node(attributes);
+
+        expect(isRdfsClass(node)).toBe(true);
+    });
+
+    it('ignores other types', function() {
+        let attributes = getDefaultAttributes();
+        attributes['@type'] = [{ '@id': 'rdfs:Property' }];
+        let node = new Node(attributes);
+
+        expect(isRdfsClass(node)).toBe(false);
     });
 });

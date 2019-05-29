@@ -11,9 +11,7 @@ export function getLabel(node: Node): string {
 }
 
 export function getCssClassName(node: Node): string {
-    let type = node.get('@type')[0]['@id'];
-
-    if (type !== 'rdfs:Class') return null;
+    if (!isRdfsClass(node)) return null;
 
     let label = getLabel(node);
 
@@ -23,4 +21,22 @@ export function getCssClassName(node: Node): string {
     }
 
     return null;
+}
+
+/**
+ * Check if a node is a rdfs:Class, i.e. has rdfs:Class as (one of its) type(s) or
+ * has a non-empty rdfs:subClassOf property.
+ * @param node The node to evaluate
+ */
+export function isRdfsClass(node: Node): boolean {
+    if (node.get(rdfs.subClassOf) && node.get(rdfs.subClassOf).length > 0) {
+        return true;
+    }
+
+    if (node.get('@type') && node.get('@type').length > 0) {
+        let rdfsClass = find(node.get('@type'), type => type['@id'] == 'rdfs:Class');
+        if (rdfsClass) return true;
+    }
+
+    return false;
 }
