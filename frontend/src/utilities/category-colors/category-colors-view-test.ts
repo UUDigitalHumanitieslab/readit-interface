@@ -10,8 +10,6 @@ function getDefaultNode(): Node {
 }
 
 function getDefaultAttributes(): JsonLdObject {
-
-
     return {
         '@id': '1',
         "@type": [
