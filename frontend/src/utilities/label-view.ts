@@ -4,7 +4,7 @@ import View from '../core/view';
 
 import { skos } from './../jsonld/ns';
 import Node from '../jsonld/node';
-import { getCssClassName, getLabel } from './utilities';
+import { getCssClassName, getLabel, hasTerm } from './utilities';
 
 export default class LabelView extends View<Node> {
     label: string;
@@ -29,7 +29,7 @@ export default class LabelView extends View<Node> {
     }
 
     addDefinition(): void {
-        if (this.hasTooltip && this.model.get(skos.definition)) {
+        if (this.hasTooltip && hasTerm(this.model, skos.definition)) {
             this.$el.addClass("tooltip");
             this.$el.addClass("is-tooltip");
 
