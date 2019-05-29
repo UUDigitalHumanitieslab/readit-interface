@@ -1,5 +1,5 @@
 
-import { getLabel, getCssClassName, isRdfsClass } from './utilities';
+import { getLabel, getCssClassName, isRdfsClass, hasTerm } from './utilities';
 import { JsonLdObject } from '../jsonld/json';
 import Node from '../jsonld/node';
 
@@ -93,5 +93,29 @@ describe('utilities:isRdfsClass', function() {
         let node = new Node(attributes);
 
         expect(isRdfsClass(node)).toBe(false);
+    });
+});
+
+describe('utilities:hasTerm', function() {
+    it('finds a term', function() {
+        let node = getDefaultNode();
+        expect(hasTerm(node, 'http://www.w3.org/2004/02/skos/core#prefLabel')).toBe(true);
+    });
+
+    it('ignores empty values unless told otherwise', function() {
+        let term = 'http://www.w3.org/2004/02/skos/core#prefLabel';
+        let attributes = getDefaultAttributes();
+        attributes[term] = [];
+        let node = new Node(attributes);
+        expect(hasTerm(node, term)).toBe(false);
+        // expect(hasTerm(node, term, false)).toBe(true);
+    });
+
+    it('doesnt ignore empty values if told so', function() {
+        let term = 'http://www.w3.org/2004/02/skos/core#prefLabel';
+        let attributes = getDefaultAttributes();
+        attributes[term] = [];
+        let node = new Node(attributes);
+        expect(hasTerm(node, term, false)).toBe(true);
     });
 });
