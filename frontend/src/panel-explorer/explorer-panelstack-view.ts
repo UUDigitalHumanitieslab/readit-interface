@@ -28,7 +28,9 @@ export default class PanelStackView extends View {
     }
 
     push(panel: View): void {
+        this.getTopPanel().$el.detach();
         this.panels.push(panel);
+        panel.render().$el.appendTo(this.$el);
     }
 
     getTopPanel(): View {
