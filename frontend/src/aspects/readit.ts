@@ -10,6 +10,7 @@ import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
 
 import CategoryColorView from './../utilities/category-colors/category-colors-view';
+import SourceView from './../panel-source/source-view';
 
 import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
@@ -57,10 +58,13 @@ directionRouter.on('route:explore', () => {
     directionFsm.handle('explore');
 });
 
-// This is jst a quick and dirty solution, will have to be moved in the future
-let exView = new ExplorerView();
+
 
 directionFsm.on('enter:exploring', () => {
+    // This is just a quick and dirty solution, will have to be moved in the future
+    let sourceView = new SourceView();
+
+    let exView = new ExplorerView({ first: sourceView });
     exView.render().$el.appendTo('#main');
 });
 
