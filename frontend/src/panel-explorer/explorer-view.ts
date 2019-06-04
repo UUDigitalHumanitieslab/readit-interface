@@ -62,6 +62,8 @@ export default class ExplorerView extends View {
     /**
      * Add a panel at the rightmost end of the explorer (i.e. as first of a new stack).
      * @param panel The panel to add.
+     * @event push (panel,fromLeft) where 'panel' is the added panel, and 'fromLeft' the zero-indexed position
+     * of the new panel's stack from the left.
      */
     push(panel: View): void {
         let position = this.panelStacks.length;
@@ -74,25 +76,14 @@ export default class ExplorerView extends View {
     }
 
     /**
-     * Remove the rightmost panel
-     */
-    pop(): View {
-        if (this.panelStacks.length == 0) return;
-
-        let position = this.panelStacks.length;
-        let stack = this.panelStacks[position];
-        let poppedPanel = stack.getTopPanel();
-        poppedPanel.off();
-        stack.pop();
-        this.trigger('pop', poppedPanel, position);
-        return poppedPanel;
-    }
-
-    /**
      * Add a panel onto either the rightmost stack (i.e. this will not be a new stack),
-     * or the panel provided.
+     * or the panel provided. Will throw a RangeError if the ontoPanel is not a topmost panel.
      * @param panel The panel to add.
-     * @param ontopanel Optional. The panel to add the provided panel on top of.
+     * @param ontopanel Optional. The panel to add the provided panel on top of. Must be a topmost panel.
+     * @event overlay (panel, ontoPanel, fromLeft, fromRight) where 'panel' is the added panel, 'ontoPanel'
+     * is the panel where the added panel was added on top of, 'fromLeft' is the zero-indexed position
+     * of the stack the panel was overlayed onto from the left, and 'fromRight' equals fromLeft minus the
+     * total number of stacks (i.e. always negative and -1 for the rightmost panel).
      */
     overlay(panel: View, ontoPanel?: View) {
         let position = this.panelStacks.length - 1;
@@ -103,20 +94,86 @@ export default class ExplorerView extends View {
             // validate that the ontoPanel is on top of its stack
             let stackTop = this.panelStacks[position].getTopPanel();
             if (ontoPanel.cid !== stackTop.cid) {
-                return; // TODO: do something instead of nothing? throw exception?
+                throw new RangeError(`ontoPanel with cid '${ontoPanel.cid}' is not a topmost panel`);
             }
+        } else {
+            ontoPanel = this.getRightMostStack();
         }
 
         let stack = this.panelStacks[position];
         stack.push(panel);
         this.rltPanelStack.set(panel.cid, position);
         this.subscribeToPanelEvents(panel);
-        // this.trigger('overlay', panel, position);
+        this.trigger('overlay', panel, ontoPanel, position, (position - this.panelStacks.length));
         this.scroll();
     }
 
     /**
-     * Dynamically set the height for the explorer, based on the window's height.
+     * Remove the rightmost stack.
+     * @event pop (panel, fromLeft) where 'panel' is the removed panel and 'fromLeft' the zero-indexed position
+     * of the stack panel used to be on.
+     */
+    pop(): View {
+        if (this.panelStacks.length == 0) return;
+        let position = this.panelStacks.length - 1;
+        let poppedPanel = this.deletePanel(position);
+        this.trigger('pop', poppedPanel, position);
+        return poppedPanel;
+    }
+
+    /**
+     * Remove a panel from any stack.
+     * @param panel The panel to remove. Must be a topmost panel.
+     * @event removeOverlay (panel, fromLeft, fromRight) where 'panel' is the removed panel, 'fromLeft' is
+     * the zero-indexed position of the stack the panel was removed from the left, and 'fromRight'
+     * equals fromLeft minus the total number of stacks (i.e. always negative and -1 for the rightmost panel).
+     */
+    removeOverlay(panel: View): View {
+        // validate that the panel is on top of its stack
+        let position = this.rltPanelStack.get(panel.cid);
+        let stackTop = this.panelStacks[position].getTopPanel();
+        if (panel.cid !== stackTop.cid) {
+            throw new RangeError(`panel with cid '${panel.cid}' is not a topmost panel`);
+        }
+
+        let removedPanel = this.deletePanel(position);
+        this.trigger('removeOverlay', removedPanel, position, (position - this.panelStacks.length));
+        return removedPanel;
+    }
+
+    /**
+     * Remove all panels and stacks until the desired panel is the rightmost panel in the explorer.
+     * @param panel The panel that needs to become rightmost.
+     */
+    popUntil(panel: View): View {
+        while (this.getRightMostStack().getTopPanel().cid !== panel.cid) {
+            this.pop();
+        }
+
+        return this;
+    }
+
+    getRightMostStack(): PanelStackView {
+        return this.panelStacks[this.panelStacks.length - 1];
+    }
+
+    deletePanel(position: number): View {
+        let stack = this.panelStacks[position];
+        let panel = stack.getTopPanel();
+        panel.off();
+        stack.pop();
+
+        if (stack.panels.length == 0) {
+            this.panelStacks.splice(position, 1);
+        }
+
+        this.rltPanelStack.delete(panel.cid);
+
+        return panel;
+    }
+
+    /**
+     * Dynamically set the height for the explorer, based on the viewport height.
      */
     setHeight(): void {
         let vh = $(window).height();
