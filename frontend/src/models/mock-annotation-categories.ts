@@ -3,6 +3,47 @@ var mockAnnotationCategories = [
         id: 9000,
         name: 'reader',
         machineName: 'reader',
+    },
+    {
+        id: 9001,
+        name: 'reader properties',
+        machineName: 'reader_properties',
+    },
+    {
+        id: 9002,
+        name: 'medium',
+        machineName: 'medium',
+    },
+    {
+        id: 9003,
+        name: 'content',
+        machineName: 'content',
+    },
+    {
+        id: 9004,
+        name: 'resource properties',
+        machineName: 'resource_properties',
+    },
+    {
+        id: 9005,
+        name: 'reading session',
+        machineName: 'reading_session',
+    },
+    {
+        id: 9006,
+        name: 'state of mind',
+        machineName: 'state_of_mind',
+    },
+]
+
+
+export default mockAnnotationCategories;
+
+var mockAnnotationCategoriesOLD = [
+    {
+        id: 9000,
+        name: 'reader',
+        machineName: 'reader',
         attributes: [
             {
                 id: 21000,
@@ -731,5 +772,3 @@ var mockAnnotationCategories = [
         ],
     },
 ]
-
-export default mockAnnotationCategories;
