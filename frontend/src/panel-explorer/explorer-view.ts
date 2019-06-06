@@ -177,8 +177,9 @@ export default class ExplorerView extends View {
      */
     setHeight(): void {
         let vh = $(window).height();
-        // where 242 compensates for menu and footer and 555 is min-height
-        let height = vh - 242 > 555 ? vh - 242 : 555;
+
+        // compensates for menu and footer (555 is min-height)
+        let height = vh - 194 > 555 ? vh - 194 : 555;
         this.$el.css('height', height);
     }
 
