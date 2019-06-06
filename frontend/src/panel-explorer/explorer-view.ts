@@ -4,14 +4,7 @@ import Model from '../core/model';
 import View from '../core/view';
 
 import PanelStackView from './explorer-panelstack-view';
-
-import SourceView from '../panel-source/source-view';
-import LdItemView from '../panel-ld-item/ld-item-view';
-
-import Node from '../jsonld/node';
-import { JsonLdObject } from '../jsonld/json';
-
-import mockLdItem from './../mock-data/mock-lditem';
+import EventController from './explorer-event-controller';
 
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?
@@ -19,7 +12,9 @@ export interface ViewOptions extends BaseOpt<Model> {
 }
 
 export default class ExplorerView extends View {
-    panelStacks: PanelStackView[];
+    stacks: PanelStackView[];
+
+    eventController: EventController;
 
     /**
      * A reverse lookuptable containing each panel's cid as key,
@@ -30,7 +25,8 @@ export default class ExplorerView extends View {
 
     constructor(options?: ViewOptions) {
         super(options);
-        this.panelStacks = [];
+        this.stacks = [];
+        this.eventController = new EventController(this);
         this.rltPanelStack = new Map();
         this.push(options.first);
     }
@@ -38,7 +34,7 @@ export default class ExplorerView extends View {
     render(): View {
         this.setHeight();
 
-        for (let panelStack of this.panelStacks) {
+        for (let panelStack of this.stacks) {
             panelStack.render().$el.appendTo(this.$el);
         }
 
@@ -53,7 +49,7 @@ export default class ExplorerView extends View {
     scroll(): void {
         let totalWidth = 0;
 
-        for (let stack of this.panelStacks) {
+        for (let stack of this.stacks) {
             totalWidth += stack.getWidth();
         }
 
@@ -67,11 +63,11 @@ export default class ExplorerView extends View {
      * of the new panel's stack from the left.
      */
     push(panel: View): void {
-        let position = this.panelStacks.length;
-        this.panelStacks[position] = new PanelStackView({ first: panel });
+        let position = this.stacks.length;
+        this.stacks[position] = new PanelStackView({ first: panel });
         this.rltPanelStack.set(panel.cid, position);
-        this.subscribeToPanelEvents(panel);
-        this.panelStacks[position].render().$el.appendTo(this.$el);
+        this.eventController.subscribeToPanelEvents(panel);
+        this.stacks[position].render().$el.appendTo(this.$el);
         this.trigger('push', panel, position);
         this.scroll();
     }
@@ -87,13 +83,13 @@ export default class ExplorerView extends View {
      * total number of stacks (i.e. always negative and -1 for the rightmost panel).
      */
     overlay(panel: View, ontoPanel?: View) {
-        let position = this.panelStacks.length - 1;
+        let position = this.stacks.length - 1;
 
         if (ontoPanel) {
             position = this.rltPanelStack.get(ontoPanel.cid);
 
             // validate that the ontoPanel is on top of its stack
-            let stackTop = this.panelStacks[position].getTopPanel();
+            let stackTop = this.stacks[position].getTopPanel();
             if (ontoPanel.cid !== stackTop.cid) {
                 throw new RangeError(`ontoPanel with cid '${ontoPanel.cid}' is not a topmost panel`);
             }
@@ -101,11 +97,11 @@ export default class ExplorerView extends View {
             ontoPanel = this.getRightMostStack();
         }
 
-        let stack = this.panelStacks[position];
+        let stack = this.stacks[position];
         stack.push(panel);
         this.rltPanelStack.set(panel.cid, position);
-        this.subscribeToPanelEvents(panel);
-        this.trigger('overlay', panel, ontoPanel, position, (position - this.panelStacks.length));
+        this.eventController.subscribeToPanelEvents(panel);
+        this.trigger('overlay', panel, ontoPanel, position, (position - this.stacks.length));
         this.scroll();
     }
 
@@ -115,8 +111,8 @@ export default class ExplorerView extends View {
      * of the stack panel used to be on.
      */
     pop(): View {
-        if (this.panelStacks.length == 0) return;
-        let position = this.panelStacks.length - 1;
+        if (this.stacks.length == 0) return;
+        let position = this.stacks.length - 1;
         let poppedPanel = this.deletePanel(position);
         this.trigger('pop', poppedPanel, position);
         return poppedPanel;
@@ -132,13 +128,13 @@ export default class ExplorerView extends View {
     removeOverlay(panel: View): View {
         // validate that the panel is on top of its stack
         let position = this.rltPanelStack.get(panel.cid);
-        let stackTop = this.panelStacks[position].getTopPanel();
+        let stackTop = this.stacks[position].getTopPanel();
         if (panel.cid !== stackTop.cid) {
             throw new RangeError(`panel with cid '${panel.cid}' is not a topmost panel`);
         }
 
         let removedPanel = this.deletePanel(position);
-        this.trigger('removeOverlay', removedPanel, position, (position - this.panelStacks.length));
+        this.trigger('removeOverlay', removedPanel, position, (position - this.stacks.length));
         return removedPanel;
     }
 
@@ -154,23 +150,30 @@ export default class ExplorerView extends View {
         return this;
     }
 
-    getRightMostStack(): PanelStackView {
-        return this.panelStacks[this.panelStacks.length - 1];
-    }
-
+    /**
+     * Remove the topmost panel from ths stack at position
+     * @param position The indes of the stack to remove the panel from
+     */
     deletePanel(position: number): View {
-        let stack = this.panelStacks[position];
+        let stack = this.stacks[position];
         let panel = stack.getTopPanel();
         panel.off();
         stack.pop();
 
         if (stack.panels.length == 0) {
-            this.panelStacks.splice(position, 1);
+            this.stacks.splice(position, 1);
         }
 
         this.rltPanelStack.delete(panel.cid);
 
         return panel;
+    }
+
+    /**
+     * Get the rightmost stack.
+     */
+    getRightMostStack(): PanelStackView {
+        return this.stacks[this.stacks.length - 1];
     }
 
     /**
@@ -182,32 +185,6 @@ export default class ExplorerView extends View {
         // compensates for menu and footer (555 is min-height)
         let height = vh - 194 > 555 ? vh - 194 : 555;
         this.$el.css('height', height);
-    }
-
-    subscribeToPanelEvents(panel: View): void {
-        panel.on({
-            'fakeBtnClicked': this.ldItemViewFakeButtonClicked,
-            'toolbarClicked': this.sourceViewToolbarClicked,
-        }, this);
-    }
-
-    sourceViewToolbarClicked(buttonClicked: string): void {
-        let ldiView = new LdItemView({ model: mockLdItem });
-
-        if (buttonClicked == 'metadata') {
-            this.overlay(ldiView);
-        } else if (buttonClicked == 'annotations') {
-            let panel = this.panelStacks[1].getTopPanel();
-            let sView = new SourceView();
-            this.overlay(sView, panel);
-        } else {
-            this.push(ldiView);
-        }
-    }
-
-    ldItemViewFakeButtonClicked() {
-        let sourceView = new SourceView();
-        this.push(sourceView);
     }
 }
 extend(ExplorerView.prototype, {
