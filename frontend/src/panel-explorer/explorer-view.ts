@@ -10,7 +10,8 @@ import LdItemView from '../panel-ld-item/ld-item-view';
 
 import Node from '../jsonld/node';
 import { JsonLdObject } from '../jsonld/json';
-import internalLinkEnabler from '../core/internalLinks';
+
+import mockLdItem from './../mock-data/mock-lditem';
 
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?
@@ -191,7 +192,7 @@ export default class ExplorerView extends View {
     }
 
     sourceViewToolbarClicked(buttonClicked: string): void {
-        let ldiView = new LdItemView({ model: this.getMockNode() });
+        let ldiView = new LdItemView({ model: mockLdItem });
 
         if (buttonClicked == 'metadata') {
             this.overlay(ldiView);
@@ -207,34 +208,6 @@ export default class ExplorerView extends View {
     ldItemViewFakeButtonClicked() {
         let sourceView = new SourceView();
         this.push(sourceView);
-    }
-
-    getMockNode(): Node {
-        let attributes: JsonLdObject = {
-            '@id': 'uniqueID',
-            'skos:prefLabel': [
-                { '@value': 'Content' },
-            ],
-            "@type": [
-                { '@id': "rdfs:Class" }
-            ],
-            "owl:sameAs": [
-                { '@id': "http://www.wikidata.org/entity/Q331656" }
-            ],
-            "creator": [
-                { '@id': "staff:JdeKruif" },
-            ],
-            "created": [
-                { '@value': "2085-12-31T04:33:16+0100" }
-            ],
-            "readit:Title": [
-                { '@value': 'Pretty Little Title' }
-            ],
-            'skos:definition': [
-                { '@value': 'Dit is de definitie van content' },
-            ]
-        }
-        return new Node(attributes);
     }
 }
 extend(ExplorerView.prototype, {
