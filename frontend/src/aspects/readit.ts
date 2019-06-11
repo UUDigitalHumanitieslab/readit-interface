@@ -17,13 +17,14 @@ import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
 
 import mockLdItem from './../mock-data/mock-lditem';
+import mockGraph from './../mock-data/mock-graph';
+import * as mockGraphSeparated from './../mock-data/mock-graph';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
     footerView.render().$el.appendTo('.footer');
 
-    let graph = new Graph([mockLdItem]);
-    let ccView = new CategoryColorView({ collection: graph });
+    let ccView = new CategoryColorView({ collection: mockGraph });
     ccView.render().$el.appendTo('.footer');
 
 });
@@ -44,11 +45,12 @@ directionRouter.on('route:explore', () => {
     directionFsm.handle('explore');
 });
 
-
-
 directionFsm.on('enter:exploring', () => {
+    let mockSource = mockGraphSeparated.getSpecificResource();
+    let mockAnno = mockGraphSeparated.getTextPositionSelector();
+
     // This is just a quick and dirty solution, will have to be moved in the future
-    let sourceView = new SourceView();
+    let sourceView = new SourceView({ model: mockSource, highlight: mockAnno});
 
     let exView = new ExplorerView({ first: sourceView });
     exView.render().$el.appendTo('#main');
