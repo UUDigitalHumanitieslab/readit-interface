@@ -5,6 +5,11 @@ import Node from '../../jsonld/node';
 import { JsonLdObject } from '../../jsonld/json';
 import CategoryColorsView from './category-colors-view';
 
+
+
+
+
+
 function getDefaultNode(): Node {
     return new Node(getDefaultAttributes());
 }
@@ -54,6 +59,24 @@ describe('CategoryColorsView', function() {
     });
 
     it('renders a style tag with multiple CSS classes in it', function() {
+        let node1 = getDefaultNode();
+
+        let attributes2 = getDefaultAttributes();
+        attributes2['@id'] = 'anotherUniqueId';
+        attributes2['@type'] = [{'@id': 'rdfs:Class'}];
+        delete attributes2['http://schema.org/color']
+        let node2 = new Node(attributes2);
+
+        let graph = new Graph([node1, node2]);
+        let view = new CategoryColorsView({collection: graph});
+
+        let html = view.render().$el.html();
+        let actual = replaceNewLinesAndWhitespace(html);
+
+        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important}');
+    });
+
+    it('excludes linked data items that are irrelevant', function() {
         let node1 = getDefaultNode();
 
         let attributes2 = getDefaultAttributes();

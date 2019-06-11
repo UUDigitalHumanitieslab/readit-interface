@@ -31,10 +31,12 @@ export default class CategoryColorsView extends View {
     }
 
     collectColours(): void {
-        this.categoryColors = this.collection.map(node => {
+        this.categoryColors = [];
+
+        this.collection.each(node => {
             if (isRdfsClass(node) && hasProperty(node, schema.color)) {
                 let cssClass = getCssClassName(node);
-                return { class: cssClass, color: node.get(schema.color)[0]['@value'] };
+                this.categoryColors.push({ class: cssClass, color: node.get(schema.color)[0]['@value'] });
             }
         });
     }
