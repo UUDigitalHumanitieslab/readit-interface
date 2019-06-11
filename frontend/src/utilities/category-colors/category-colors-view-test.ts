@@ -94,6 +94,26 @@ describe('CategoryColorsView', function() {
         expect(actual).toEqual('.is-readit-content{background-color:hotpink!important}.is-readit-test2{background-color:aliceblue!important}');
     });
 
+    // This test proves items that have type as a string and not dict, e.g.
+    // 'whatevertype' instead of {@id:'whatevertype'}) are excluded
+    it("excludes linked data items that have type defined as string", function() {
+        let node1 = getDefaultNode();
+
+        let attributes2 = getDefaultAttributes();
+        attributes2['@id'] = 'anotherUniqueId';
+        attributes2['@type'] = ['Content'];
+        attributes2['http://schema.org/color'] = [{'@value':'aliceblue'}];
+        let node2 = new Node(attributes2);
+
+        let graph = new Graph([node1, node2]);
+        let view = new CategoryColorsView({collection: graph});
+
+        let html = view.render().$el.html();
+        let actual = replaceNewLinesAndWhitespace(html);
+
+        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important}');
+    });
+
     function replaceNewLinesAndWhitespace(text: string) {
         return text.replace(/(?:\r\n|\r|\n| )/g, "");
     }
