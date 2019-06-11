@@ -1,9 +1,12 @@
 .explorer
     display: flex
     flex-direction: row
-    overflow-x: scroll
-    overflow-y: hidden
     padding: 1em 2em
+    overflow-x: auto
+
+    .source
+        overflow-x: auto
+        overflow-y: hidden
 
     .panel-stack
         position: relative
@@ -18,4 +21,7 @@
         flex-direction: column
         border: 1px solid black
         border-radius: 10px
+
+    .explorer-content
+        overflow-y: auto
 
