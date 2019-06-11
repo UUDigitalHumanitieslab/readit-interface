@@ -126,6 +126,12 @@ const browserLibs: LibraryProps[] = [{
         browser: 'jsonld/dist/jsonld.min',
         global: 'jsonld',
         cdn: `${jsdelivrPattern}/dist/\${filenameMin}`,
+    },
+    {
+        module: 'bulma-accordion',
+        browser: 'bulma-accordion/dist/js/bulma-accordion.min.js',
+        global: 'bulmaAccordion',
+        cdn: `${jsdelivrPattern}/dist/js/\${filenameMin}`,
     }],
     browserLibsRootedPaths: string[] = [],
     cdnizerConfig = {files: browserLibs.map(lib => {
