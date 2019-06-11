@@ -24,7 +24,9 @@ export default class ExplorerEventController {
      */
     subscribeToPanelEvents(panel: View): void {
         panel.on({
-            'fakeBtnClicked': this.ldItemViewFakeButtonClicked,
+            'show:related': this.ldItemViewFakeButtonClicked,
+            'show:annotations': this.ldItemViewFakeButtonClicked,
+            'show:external': this.ldItemViewFakeButtonClicked,
             'toolbarClicked': this.sourceViewToolbarClicked,
         }, this);
     }

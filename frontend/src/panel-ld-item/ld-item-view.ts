@@ -107,8 +107,16 @@ export default class LdItemView extends View<Node> {
         }
     }
 
-    onFakeBtnClicked(): void {
-        this.trigger('fakeBtnClicked');
+    onRelItemsClicked(): void {
+        this.trigger('show:related', this.model);
+    }
+
+    onAnnotationsClicked(): void {
+        this.trigger('show:annotations', this.model);
+    }
+
+    onExtResourcesClicked(): void {
+        this.trigger('show:external', this.model);
     }
 }
 extend(LdItemView.prototype, {
@@ -116,6 +124,8 @@ extend(LdItemView.prototype, {
     className: 'ld-item explorer-panel',
     template: ldItemTemplate,
     events: {
-        'click #fakeButton': 'onFakeBtnClicked',
+        'click #btnRelItems': 'onRelItemsClicked',
+        'click #btnAnnotations': 'onAnnotationsClicked',
+        'click #btnExtResources': 'onExtResourcesClicked',
     }
 });
