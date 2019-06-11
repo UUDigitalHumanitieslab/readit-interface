@@ -1,2 +1,22 @@
-.tag
-    float:right !important
+.ld-item
+    .tag
+        float:right !important
+
+    .item-sections
+        @extend .accordions
+
+    .item-section
+        @extend .accordion
+
+        &.has-mt-10
+            margin-top: 10px !important
+
+    .item-section-header
+        @extend .accordion-header
+
+    .accordion
+        &.has-mt-10
+            margin-top: 10px
+
+    .toggleProxy
+        @extend .toggle
