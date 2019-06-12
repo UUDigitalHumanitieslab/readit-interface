@@ -80,7 +80,7 @@ describe('utilities:isRdfsClass', function() {
 
     it('recognizes type rdfs:subClassOf', function() {
         let attributes = getDefaultAttributes();
-        delete attributes['@type'];
+        attributes['@type'] = [{ '@id': rdfs('notClass') }];
         attributes[rdfs.subClassOf] = [{ '@id': 'anything'}]
         let node = new Node(attributes);
 
@@ -108,13 +108,5 @@ describe('utilities:hasProperty', function() {
         attributes[property] = [];
         let node = new Node(attributes);
         expect(hasProperty(node, property)).toBe(false);
-    });
-
-    it('doesnt ignore empty values if told so', function() {
-        let property = skos.prefLabel;
-        let attributes = getDefaultAttributes();
-        attributes[property] = [];
-        let node = new Node(attributes);
-        expect(hasProperty(node, property, false)).toBe(true);
     });
 });
