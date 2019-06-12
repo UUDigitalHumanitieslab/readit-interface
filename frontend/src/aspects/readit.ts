@@ -44,13 +44,16 @@ directionRouter.on('route:explore', () => {
     directionFsm.handle('explore');
 });
 
-
-
 directionFsm.on('enter:exploring', () => {
     // This is just a quick and dirty solution, will have to be moved in the future
     let sourceView = new SourceView();
 
     let exView = new ExplorerView({ first: sourceView });
+    let vh = $(window).height();
+    // compensates for menu and footer (555 is min-height)
+    let height = vh - 194 > 555 ? vh - 194 : 555;
+
+    exView.setHeight(height);
     exView.render().$el.appendTo('#main');
 });
 

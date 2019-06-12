@@ -1,17 +1,16 @@
-import { extend, each } from 'lodash';
+import { extend } from 'lodash';
 import View from '../core/view';
 
 import ldItemTemplate from './ld-item-template';
-import { getLabel } from '../utilities/utilities';
 import Node from '../jsonld/node';
+import { owl } from './../jsonld/ns';
 
 import LabelView from '../utilities/label-view';
 
-import { JsonLdObject } from '../jsonld/json';
-import { triggerAsyncId } from 'async_hooks';
 
 export default class LdItemView extends View<Node> {
 
+    label: string;
     properties: any = new Object();
     itemMetadata: any = new Object();
     annoMetadata: any = new Object();
@@ -19,25 +18,19 @@ export default class LdItemView extends View<Node> {
     annotations: any;
     externalResources: any = new Object();
 
+    lblView: LabelView;
+
     render(): this {
         this.setItemProperties();
-
-        this.$el.html(this.template(
-            {
-                label: getLabel(this.model),
-                properties: this.properties,
-                itemMetadata: this.itemMetadata,
-                annoMetadata: this.annoMetadata,
-                relatedItems: this.relatedItems,
-                annotations: this.annotations,
-                externalResources: this.externalResources
-            }));
-
-
-        let lblView = new LabelView({model: this.model}, false);
-        lblView.render().$el.appendTo(this.$('#lblViewWrapper'));
-
+        this.lblView.$el.detach();
+        this.$el.html(this.template(this));
+        this.$('header aside').append(this.lblView.el)
         return this;
+    }
+
+    initialize(): void {
+        this.lblView = new LabelView({model: this.model}, false);
+        this.lblView.render();
     }
 
     setItemProperties(): void {
@@ -71,7 +64,7 @@ export default class LdItemView extends View<Node> {
                     continue;
                 }
 
-                if (attribute == 'owl:sameAs') {
+                if (attribute == owl.sameAs) {
                     this.externalResources[attribute] = obj['@id'];
                     continue;
                 }
