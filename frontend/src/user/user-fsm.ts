@@ -1,6 +1,6 @@
 import { defaults } from 'lodash';
 
-import AuthorizationFsm, { requireAuthorization } from '../user/user-fsm-base';
+import AuthorizationFsm, { requireAuthorization } from './user-fsm-base';
 
 /**
  * Default transitions for states that don't require authorization.
