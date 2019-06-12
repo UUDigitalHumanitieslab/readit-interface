@@ -3,6 +3,7 @@ import { enableI18n } from '../../test-util';
 import Graph from '../../jsonld/graph';
 import Node from '../../jsonld/node';
 import { JsonLdObject } from '../../jsonld/json';
+import { rdfs, skos, schema } from '../../jsonld/ns';
 import CategoryColorsView from './category-colors-view';
 
 function getDefaultNode(): Node {
@@ -12,16 +13,16 @@ function getDefaultNode(): Node {
 function getDefaultAttributes(): JsonLdObject {
     return {
         '@id': '1',
-        "@type": [
-            { '@id': "rdfs:Class" }
+        '@type': [
+            { '@id': rdfs.Class },
         ],
-        'http://www.w3.org/2004/02/skos/core#prefLabel': [
+        [skos.prefLabel]: [
             { '@value': 'Content' },
         ],
-        'http://www.w3.org/2004/02/skos/core#definition': [
+        [skos.definition]: [
             { '@value': 'This is a test definition'}
         ],
-        'http://schema.org/color': [
+        [schema.color]: [
             { '@value': 'hotpink'}
         ]
     }
@@ -58,8 +59,8 @@ describe('CategoryColorsView', function() {
 
         let attributes2 = getDefaultAttributes();
         attributes2['@id'] = 'anotherUniqueId';
-        attributes2['http://www.w3.org/2004/02/skos/core#prefLabel'] = [{'@value': 'Test2'}];
-        attributes2['http://schema.org/color'] = [{'@value':'aliceblue'}];
+        attributes2[skos.prefLabel] = [{'@value': 'Test2'}];
+        attributes2[schema.color] = [{'@value':'aliceblue'}];
         let node2 = new Node(attributes2);
 
         let graph = new Graph([node1, node2]);
