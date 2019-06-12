@@ -1,5 +1,6 @@
 import { enableI18n } from '../test-util';
 
+import { rdfs, skos, schema } from './../jsonld/ns';
 import { JsonLdObject } from '../jsonld/json';
 import Node from '../jsonld/node';
 import LabelView from './label-view';
@@ -50,7 +51,7 @@ describe('LabelView', function () {
 
     it('excludes a tooltip if told so', function () {
         let node = getDefaultNode();
-        let view = new LabelView({ model: node }, false);
+        let view = new LabelView({ model: node, hasTooltip: false });
 
         expect(view.render().el.className).toContain('is-readit-content');
         expect(view.render().$el.attr('data-tooltip')).toBeUndefined();
