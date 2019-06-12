@@ -18,19 +18,27 @@ export default class PanelStackView extends View {
         this.panels = [options.first];
     }
 
-    render(): View {
+    render(): this {
         this.getTopPanel().render().$el.appendTo(this.$el);
         return this;
     }
 
-    pop(): void {
+    pop(): View {
+        let poppedPanel = this.getTopPanel();
+        poppedPanel.remove();
         this.panels.pop();
+        return poppedPanel;
     }
 
-    push(panel: View): void {
+    push(panel: View): this {
         this.getTopPanel().$el.detach();
         this.panels.push(panel);
         panel.render().$el.appendTo(this.$el);
+        return this;
+    }
+
+    hasOnlyOnePanel(): boolean {
+        return this.panels.length == 1;
     }
 
     getTopPanel(): View {

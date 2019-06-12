@@ -14,7 +14,7 @@ export default class SourceView extends View {
         return this;
     }
 
-    onToolbarItemClicked(event: any) {
+    onToolbarItemClicked(event: JQuery.TriggeredEvent) {
         let clickedItem = $(event.currentTarget).data('toolbar');
         this.trigger('toolbarClicked', clickedItem);
     }
