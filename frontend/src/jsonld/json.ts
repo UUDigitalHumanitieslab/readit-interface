@@ -1,3 +1,5 @@
+import { FirstTypeIntendedSecondTypeWorkaround } from '../utilities/types';
+
 // Core JSON types
 export type JsonAtomic = null | boolean | number | string;
 export type JsonValue = JsonAtomic | JsonObject | JsonArray;
@@ -51,11 +53,9 @@ export interface FlatList {
 }
 export interface FlatValue extends Array<Identifier | FlatLiteral | FlatList> {}
 
-export interface FlatLdObject {
-    // I would extend Identifier, but the TS compiler won't let me.
-    ['@id']: string;
+export interface FlatLdObject extends Identifier {
     ['@type']?: Array<Identifier>;
-    [iri: string]: FlatValue;
+    [iri: string]: FirstTypeIntendedSecondTypeWorkaround<FlatValue, string>;
 }
 export interface FlatLdGraph extends Array<FlatLdObject> { }
 export interface FlatGraphContainer extends FlatLdObject {
