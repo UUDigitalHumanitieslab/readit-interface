@@ -1,4 +1,5 @@
 import { extend, isArray, omit, isEmpty } from 'lodash';
+import { sync } from 'backbone';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
     expand,   // (jsonld, options?, callback?) => Promise<jsonld>
@@ -7,7 +8,6 @@ import {
     fromRDF,  // (string, options?, callback?) => Promise<jsonld>
     toRDF,    // (jsonld, options?, callback?) => Promise<dataset>
     registerRDFParser,  // (contentType, parser) => void
-    get,      // (url, options?, callback?) => Promise<
 } from 'jsonld';
 
 import Collection from '../core/collection';
@@ -38,9 +38,26 @@ export default class Graph extends Collection<Node> {
     }
 
     /**
-     * TODO: Override the sync method to flatten the JSON-LD response
-     * before passing it to other methods.
+     * Compact data before sending a request, flatten before
+     * returning the response.
      */
+    async sync(
+        method: string, graph: Graph, options: JQuery.AjaxSettings
+    ): Promise<FlatLdDocument> {
+        let { success, attrs } = options;
+        let options = omit(options, 'success');
+        let context = graph && graph.whenContext;
+        if (method !== 'read' && context) {
+            attrs = attrs || graph.toJSON(options);
+            options.attrs = await compact(attrs, await context);
+        }
+        let jqXHR = sync(method, this, options);
+        let response = await jqXHR as JsonLdDocument;
+        // TODO: detect context presence and trigger event on graph(.meta)
+        let flattened = await flatten(response);
+        if (success) success(flattened, jqXHR.statusText, jqXHR);
+        return flattened;
+    }
 
     /**
      * Separate the graph proper from global attributes. Set the
@@ -55,6 +72,10 @@ export default class Graph extends Collection<Node> {
         }
         return response['@graph'];
     }
+
+    /**
+     * TODO: override toJSON to include the data from this.meta
+     */
 }
 
 extend(Graph.prototype, {
