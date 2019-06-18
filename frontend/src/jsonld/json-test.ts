@@ -121,7 +121,7 @@ describe('JSON typings', function() {
                     '@value': 'platte text',
                     '@language': 'nl',
                 }, {
-                    '@value': '+++++[>+++++<-]++[>++<-]>++++.+.',
+                    '@value': '++++[>+++++[>+++++<-]<-]>>++++.+.',
                     '@type': 'http://www.muppetlabs.com/~breadbox/bf/',
                 }, {
                     '@list': [{
