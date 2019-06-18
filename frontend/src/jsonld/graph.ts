@@ -11,12 +11,18 @@ import {
 } from 'jsonld';
 
 import Collection from '../core/collection';
-import { JsonLdDocument, JsonLdGraph, ResolvedContext } from './json';
+import {
+    JsonLdDocument,
+    JsonLdGraph,
+    FlatLdDocument,
+    FlatLdGraph,
+    ResolvedContext,
+} from './json';
 import Node from './node';
 
 export default class Graph extends Collection<Node> {
     /**
-     * Information outside of the @graph, such as the global @context.
+     * Information outside of the @graph, such as the global context.
      */
     meta: Node;
 
@@ -40,7 +46,7 @@ export default class Graph extends Collection<Node> {
      * Separate the graph proper from global attributes. Set the
      * latter on the .meta node immediately.
      */
-    parse(response: JsonLdDocument, options): JsonLdGraph {
+    parse(response: FlatLdDocument, options): FlatLdGraph {
         if (isArray(response)) return response;
         let meta = omit(response, '@graph');
         if (!isEmpty(meta)) {
