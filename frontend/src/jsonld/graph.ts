@@ -9,6 +9,9 @@ import {
     toRDF,    // (jsonld, options?, callback?) => Promise<dataset>
     registerRDFParser,  // (contentType, parser) => void
 } from 'jsonld';
+import { parseLinkHeader } from 'jsonld/lib/util';
+import { LINK_HEADER_REL } from 'jsonld/lib/constants';
+import JsonLdError from '.jsonld/lib/JsonLdError';
 
 import Collection from '../core/collection';
 import {
@@ -16,9 +19,38 @@ import {
     JsonLdGraph,
     FlatLdDocument,
     FlatLdGraph,
+    JsonLdContext,
     ResolvedContext,
 } from './json';
 import Node from './node';
+
+function getLinkHeader(jqXHR) {
+    // Logic roughly imitated from jsonld/lib/documentLoaders/xhr
+    if (jqXHR.getResponseHeader('Content-Type') !== 'application/ld+json') {
+        let linkHeader = jqXHR.getResponseHeader('Link');
+        if (linkHeader) {
+            linkHeader = parseLinkHeader(linkHeader)[LINK_HEADER_REL];
+            if (isArray(linkHeader)) throw new JsonLdError(
+                'More than one associated HTTP Link header.',
+                'jsonld.InvalidUrl',
+                {code: 'multiple context link headers', url: jqXHR.url},
+            );
+        }
+        return linkHeader;
+    }
+}
+
+function emitContext(linkHeader, inlineContext, model) {
+    let newContext = inlineContext;
+    if (linkHeader) {
+        if (inlineContext) {
+            newContext = [linkHeader.target, inlineContext];
+        } else {
+            newContext = linkHeader.target;
+        }
+    }
+    model.trigger('sync:context', newContext);
+}
 
 export default class Graph extends Collection<Node> {
     /**
@@ -27,10 +59,14 @@ export default class Graph extends Collection<Node> {
     meta: Node;
 
     /**
-     * Forward meta.whenContext.
+     * Forward the meta context.
      */
     get whenContext(): Promise<ResolvedContext> {
         return this.meta.whenContext;
+    }
+    setContext(context: JsonLdContext): this {
+        this.meta.setContext(context);
+        return this;
     }
 
     preinitialize(models, options) {
@@ -42,20 +78,28 @@ export default class Graph extends Collection<Node> {
      * returning the response.
      */
     async sync(
-        method: string, graph: Graph, options: JQuery.AjaxSettings
+        method: string, model: Node | Graph, options: JQuery.AjaxSettings
     ): Promise<FlatLdDocument> {
         let { success, attrs } = options;
         let options = omit(options, 'success');
-        let context = graph && graph.whenContext;
+        let context = model && model.whenContext;
         if (method !== 'read' && context) {
-            attrs = attrs || graph.toJSON(options);
+            attrs = attrs || model.toJSON(options);
             options.attrs = await compact(attrs, await context);
         }
         let jqXHR = sync(method, this, options);
         let response = await jqXHR as JsonLdDocument;
-        // TODO: detect context presence and trigger event on graph(.meta)
-        let flattened = await flatten(response);
-        if (success) success(flattened, jqXHR.statusText, jqXHR);
+        let flattenOptions = { base: response['@base'] || options.url };
+        let linkHeader = getLinkHeader(jqXHR);
+        if (linkHeader) flattenOptions.expandContext = linkHeader.target;
+        let flattened = await flatten(response, null, flattenOptions);
+        if (method !== 'delete') {
+            emitContext(linkHeader, response['@context'], model);
+            // TODO: clear context if undefined
+        }
+        if (success) {
+            success(flattened, jqXHR.statusText, jqXHR);
+        }
         return flattened;
     }
 
