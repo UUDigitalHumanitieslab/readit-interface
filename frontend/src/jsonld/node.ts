@@ -17,6 +17,7 @@ import {
     FlatLdObject,
 } from './json';
 import Graph from './graph';
+import sync from './sync';
 
 /**
  * Representation of a single JSON-LD object with an @id.
@@ -79,4 +80,5 @@ export default class Node extends Model {
 
 extend(Node.prototype, {
     idAttribute: '@id',
+    sync,
 });
