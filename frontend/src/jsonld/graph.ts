@@ -80,26 +80,30 @@ export default class Graph extends Collection<Node> {
     async sync(
         method: string, model: Node | Graph, options: JQuery.AjaxSettings
     ): Promise<FlatLdDocument> {
-        let { success, attrs } = options;
-        let options = omit(options, 'success');
+        let { success, error, attrs } = options;
+        let options = omit(options, 'success', 'error');
         let context = model && model.whenContext;
-        if (method !== 'read' && context) {
-            attrs = attrs || model.toJSON(options);
-            options.attrs = await compact(attrs, await context);
+        let jqXHR;
+        try {
+            if (method !== 'read' && context) {
+                attrs = attrs || model.toJSON(options);
+                options.attrs = await compact(attrs, await context);
+            }
+            jqXHR = sync(method, this, options);
+            let response = await jqXHR as JsonLdDocument;
+            let flattenOptions = { base: response['@base'] || options.url };
+            let linkHeader = getLinkHeader(jqXHR);
+            if (linkHeader) flattenOptions.expandContext = linkHeader.target;
+            let flattened = await flatten(response, null, flattenOptions);
+            if (method !== 'delete') {
+                emitContext(linkHeader, response['@context'], model);
+            }
+            if (success) success(flattened, jqXHR.statusText, jqXHR);
+            return flattened;
+        } catch (e) {
+            if (error) error(jqXHR, jqXHR ? jqXHR.statusText : 'No request', e);
+            throw e;
         }
-        let jqXHR = sync(method, this, options);
-        let response = await jqXHR as JsonLdDocument;
-        let flattenOptions = { base: response['@base'] || options.url };
-        let linkHeader = getLinkHeader(jqXHR);
-        if (linkHeader) flattenOptions.expandContext = linkHeader.target;
-        let flattened = await flatten(response, null, flattenOptions);
-        if (method !== 'delete') {
-            emitContext(linkHeader, response['@context'], model);
-        }
-        if (success) {
-            success(flattened, jqXHR.statusText, jqXHR);
-        }
-        return flattened;
     }
 
     /**
