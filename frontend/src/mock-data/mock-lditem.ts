@@ -1,7 +1,7 @@
 import Node from './../jsonld/node';
-import { JsonLdObject } from './../jsonld/json';
+import { FlatLdObject } from './../jsonld/json';
 
-let attributes: JsonLdObject = {
+let attributes: FlatLdObject = {
     '@id': 'uniqueID',
     'http://www.w3.org/2004/02/skos/core#prefLabel': [
         { '@value': 'Content' },

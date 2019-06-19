@@ -3,9 +3,9 @@ import { sync as syncBase } from 'backbone';
 import { compact, flatten } from 'jsonld';
 import { parseLinkHeader } from 'jsonld/lib/util';
 import { LINK_HEADER_REL } from 'jsonld/lib/constants';
-import JsonLdError from '.jsonld/lib/JsonLdError';
+import JsonLdError from 'jsonld/lib/JsonLdError';
 
-import { JsonLdDocument } from './json';
+import { JsonLdDocument, FlatLdDocument } from './json';
 import Node from './node';
 import Graph from './graph';
 
@@ -14,10 +14,10 @@ import Graph from './graph';
  * returning the response.
  */
 export default async function syncLD(
-    method: string, model: Node | Graph, options: JQuery.AjaxSettings
+    method: string, model: Node | Graph, options: any
 ): Promise<FlatLdDocument> {
     let { success, error, attrs } = options;
-    let options = omit(options, 'success', 'error');
+    options = omit(options, 'success', 'error');
     let context = model && model.whenContext;
     let jqXHR;
     try {
@@ -27,7 +27,7 @@ export default async function syncLD(
         }
         jqXHR = syncBase(method, this, options);
         let response = await jqXHR as JsonLdDocument;
-        let flattenOptions = { base: response['@base'] || options.url };
+        let flattenOptions: any = { base: response['@base'] || options.url };
         let linkHeader = getLinkHeader(jqXHR);
         if (linkHeader) flattenOptions.expandContext = linkHeader.target;
         let flattened = await flatten(response, null, flattenOptions);

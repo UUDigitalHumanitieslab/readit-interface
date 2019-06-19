@@ -15,7 +15,7 @@ export function getSpecificResource(): Node {
     return new Node({
         "@id": "https://read-it.hum.uu.nl/item/2",
         "@type": [
-            "http://www.w3.org/ns/oa#SpecificResource"
+            { "@id": "http://www.w3.org/ns/oa#SpecificResource" },
         ],
         "http://purl.org/dc/terms/created": [
             {
