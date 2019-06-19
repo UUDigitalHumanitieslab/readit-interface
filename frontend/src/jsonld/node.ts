@@ -64,8 +64,13 @@ export default class Node extends Model {
      */
     setContext(context: JsonLdContext): this {
         if (isEqual(context, this.localContext)) return this;
-        this.localContext = context;
-        this.whenContext = this.computeContext(context);
+        if (isUndefined(context)) {
+            delete this.localContext;
+            delete this.whenContext;
+        } else {
+            this.localContext = context;
+            this.whenContext = this.computeContext(context);
+        }
         return this;
     }
 

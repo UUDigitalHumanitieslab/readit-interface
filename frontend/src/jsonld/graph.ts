@@ -95,7 +95,6 @@ export default class Graph extends Collection<Node> {
         let flattened = await flatten(response, null, flattenOptions);
         if (method !== 'delete') {
             emitContext(linkHeader, response['@context'], model);
-            // TODO: clear context if undefined
         }
         if (success) {
             success(flattened, jqXHR.statusText, jqXHR);
