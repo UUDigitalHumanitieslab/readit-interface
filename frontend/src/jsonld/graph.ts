@@ -85,7 +85,7 @@ export default class Graph extends Collection<Node> {
         let context = model && model.whenContext;
         let jqXHR;
         try {
-            if (method !== 'read' && context) {
+            if (context && (attrs || method !== 'read')) {
                 attrs = attrs || model.toJSON(options);
                 options.attrs = await compact(attrs, await context);
             }
