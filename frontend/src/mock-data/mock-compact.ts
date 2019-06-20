@@ -13,25 +13,21 @@ import {
 import context from './mock-context';
 
 export const contentInstance = {
-    'id': 'uniqueID',
-    'type': 'rdfs:Class',
-    'prefLabel': 'Content',
+    'id': '3',
+    'type': 'readit:Content',
     'sameAs': 'http://www.wikidata.org/entity/Q331656',
     'creator': 'staff:JdeKruif',
     'created': '2085-12-31T04:33:16+0100',
     'title': 'Pretty Little Title',
-    'definition': 'Dit is de definitie van content',
-    'color': 'hotpink',
 };
 
 export const contentClass = {
-    'id': '3',
+    'id': 'readit:Content',
     'type': 'rdfs:Class',
     'prefLabel': 'Content',
     'definition': 'Dit is de definitie van content',
     'created': '2085-12-31T04:33:16+0100',
     'creator': 'staff:JdeKruif',
-    'sameAs': 'http://www.wikidata.org/entity/Q331656',
     'color': 'hotpink',
 };
 
@@ -76,7 +72,7 @@ export const annotationInstance = {
 export default {
     '@context': context,
     '@graph': [
-        contentClass,
+        contentInstance,
         specificResource,
         textPositionSelector,
         annotationInstance,

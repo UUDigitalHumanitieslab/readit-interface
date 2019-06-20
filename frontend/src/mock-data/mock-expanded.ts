@@ -12,12 +12,9 @@ import {
 } from '../jsonld/ns';
 
 export const contentInstance = {
-    '@id': 'uniqueID',
-    [skos.prefLabel]: [
-        { '@value': 'Content' },
-    ],
+    '@id': item('3'),
     "@type": [
-        { '@id': rdfs.Class }
+        { '@id': readit('Content') }
     ],
     [owl.sameAs]: [
         { '@id': "http://www.wikidata.org/entity/Q331656" }
@@ -31,19 +28,13 @@ export const contentInstance = {
             '@value': "2085-12-31T04:33:16+0100"
         }
     ],
-    [readit('Title')]: [
+    [dcterms.title]: [
         { '@value': 'Pretty Little Title' }
-    ],
-    [skos.definition]: [
-        { '@value': 'Dit is de definitie van content' },
-    ],
-    [schema.color]: [
-        { '@value': 'hotpink'}
     ],
 };
 
 export const contentClass = {
-    "@id": item('3'),
+    "@id": readit('Content'),
     "@type": [
         { '@id': rdfs.Class }
     ],
@@ -62,11 +53,6 @@ export const contentClass = {
     [dcterms.creator]: [
         {
             "@id": staff('JdeKruif')
-        }
-    ],
-    [owl.sameAs]: [
-        {
-            "@id": "http://www.wikidata.org/entity/Q331656"
         }
     ],
     [schema.color]: [
@@ -203,7 +189,7 @@ export const annotationInstance = {
 };
 
 export default [
-    contentClass,
+    contentInstance,
     specificResource,
     textPositionSelector,
     annotationInstance,
