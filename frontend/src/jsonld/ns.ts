@@ -97,6 +97,7 @@ export const xsdTerms = [
     'ID',
     'IDREF',
     'integer',
+    'nonNegativeInteger',
     'NOTATION',
     'QName',
     'string',

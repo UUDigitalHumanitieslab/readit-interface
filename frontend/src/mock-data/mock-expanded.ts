@@ -13,9 +13,7 @@ import {
 
 export const contentInstance = {
     '@id': item('3'),
-    "@type": [
-        { '@id': readit('Content') }
-    ],
+    "@type": [readit('Content')],
     [owl.sameAs]: [
         { '@id': "http://www.wikidata.org/entity/Q331656" }
     ],
@@ -35,9 +33,7 @@ export const contentInstance = {
 
 export const contentClass = {
     "@id": readit('Content'),
-    "@type": [
-        { '@id': rdfs.Class }
-    ],
+    "@type": [rdfs.Class],
     [skos.prefLabel]: [
         { '@value': 'Content' },
     ],
@@ -62,9 +58,7 @@ export const contentClass = {
 
 export const specificResource = {
     "@id": item('2'),
-    "@type": [
-        { "@id": oa.SpecificResource },
-    ],
+    "@type": [oa.SpecificResource],
     [dcterms.created]: [
         {
             "@type": xsd.dateTime,
@@ -90,9 +84,7 @@ export const specificResource = {
 
 export const textQuoteSelector = {
     "@id": item('4'),
-    "@type": [
-        { '@id': oa.TextQuoteSelector }
-    ],
+    "@type": [oa.TextQuoteSelector],
     [dcterms.created]: [
         {
             "@type": xsd.dateTime,
@@ -123,9 +115,7 @@ export const textQuoteSelector = {
 
 export const textPositionSelector = {
     "@id": item('5'),
-    "@type": [
-        { '@id': oa.TextQuoteSelector }
-    ],
+    "@type": [oa.TextQuoteSelector],
     [dcterms.created]: [
         {
             "@type": xsd.dateTime,
@@ -139,21 +129,21 @@ export const textPositionSelector = {
     ],
     [oa.start]: [
         {
-            "@value": 932
+            "@value": 932,
+            "@type": xsd.nonNegativeInteger
         }
     ],
     [oa.end]: [
         {
-            "@value": 962
+            "@value": 962,
+            "@type": xsd.nonNegativeInteger
         }
     ]
 };
 
 export const annotationInstance = {
     "@id": item('1'),
-    "@type": [
-        { '@id': oa.Annotation }
-    ],
+    "@type": [oa.Annotation],
     [oa.hasBody]: [
         {
             "@id": readit('Content')
