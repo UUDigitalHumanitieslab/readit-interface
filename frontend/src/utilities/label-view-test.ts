@@ -1,6 +1,6 @@
 import { enableI18n } from '../test-util';
 
-import { JsonLdObject } from '../jsonld/json';
+import { FlatLdObject } from '../jsonld/json';
 import Node from '../jsonld/node';
 import LabelView from './label-view';
 
@@ -8,7 +8,7 @@ function getDefaultNode(): Node {
     return new Node(getDefaultAttributes());
 }
 
-function getDefaultAttributes(): JsonLdObject {
+function getDefaultAttributes(): FlatLdObject {
     return {
         '@id': 'uniqueID',
         "@type": [
