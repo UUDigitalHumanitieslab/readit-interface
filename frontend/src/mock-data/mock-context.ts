@@ -1,3 +1,12 @@
+import { vocab, staff, readit, item } from '../jsonld/ns';
+
+export const readitContext = {
+    '@base': item(),
+    vocab: vocab(),
+    staff: staff(),
+    readit: readit(),
+};
+
 // This was extracted from the W3C web annotation context.
 export const webAnnoExerpt = {
     "oa":      "http://www.w3.org/ns/oa#",
@@ -24,6 +33,8 @@ export const webAnnoExerpt = {
     "Audio":                "dctypes:Sound",
     "Text":                 "dctypes:Text",
 };
+
+export default [webAnnoExerpt, readitContext];
 
 export const contextIRI = 'http://example.org/context.jsonld';
 

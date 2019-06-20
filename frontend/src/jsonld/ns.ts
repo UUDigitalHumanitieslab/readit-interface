@@ -452,3 +452,54 @@ export const schemaTerms = [
 ] as const;
 
 export const schema = Vocabulary(schemaPrefix, schemaTerms);
+
+/**
+ * READ-IT global prefix
+ */
+
+export const READIT = 'https://read-it.hum.uu.nl/';
+
+/**
+ * READ-IT special vocabulary
+ * (to be properly defined)
+ */
+
+export const vocabPrefix = READIT + 'vocab/';
+
+export const vocabTerms = [
+] as const;
+
+export const vocab = Vocabulary(vocabPrefix, vocabTerms);
+
+/**
+ * READ-IT team
+ * (not really a vocabulary but still associated with a prefix)
+ */
+
+export const staffPrefix = READIT + 'staff/';
+
+const staffNotHardcoded = [] as const;
+
+export const staff = Vocabulary(staffPrefix, staffNotHardcoded);
+
+/**
+ * READ-IT ontology
+ * (subject to change, so not hardcoding any terms)
+ */
+
+export const readitPrefix = READIT + 'ontology/';
+
+const ontologyNotHardcoded = [] as const;
+
+export const readit = Vocabulary(readitPrefix, ontologyNotHardcoded);
+
+/**
+ * READ-IT items
+ * (not a vocabulary at all, but associated with a prefix nonetheless)
+ */
+
+export const itemPrefix = READIT + 'item/';
+
+const itemsNotHardcoded = [] as const;
+
+export const item = Vocabulary(itemPrefix, itemsNotHardcoded);
