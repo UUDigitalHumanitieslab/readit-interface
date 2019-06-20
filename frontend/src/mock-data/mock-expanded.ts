@@ -1,85 +1,101 @@
+import {
+    rdfs,
+    owl,
+    dcterms,
+    staff,
+    readit,
+    item,
+    skos,
+    schema,
+    xsd,
+    oa,
+} from '../jsonld/ns';
+
 export const contentInstance = {
     '@id': 'uniqueID',
-    'http://www.w3.org/2004/02/skos/core#prefLabel': [
+    [skos.prefLabel]: [
         { '@value': 'Content' },
     ],
     "@type": [
-        { '@id': "rdfs:Class" }
+        { '@id': rdfs.Class }
     ],
-    "http://www.w3.org/2002/07/owl#sameAs": [
+    [owl.sameAs]: [
         { '@id': "http://www.wikidata.org/entity/Q331656" }
     ],
-    "creator": [
-        { '@id': "staff:JdeKruif" },
+    [dcterms.creator]: [
+        { '@id': staff('JdeKruif') },
     ],
-    "created": [
-        { '@value': "2085-12-31T04:33:16+0100" }
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            '@value': "2085-12-31T04:33:16+0100"
+        }
     ],
-    "readit:Title": [
+    [readit('Title')]: [
         { '@value': 'Pretty Little Title' }
     ],
-    'http://www.w3.org/2004/02/skos/core#definition': [
+    [skos.definition]: [
         { '@value': 'Dit is de definitie van content' },
     ],
-    'http://schema.org/color': [
+    [schema.color]: [
         { '@value': 'hotpink'}
     ],
 };
 
 export const contentClass = {
-    "@id": "https://read-it.hum.uu.nl/item/3",
+    "@id": item('3'),
     "@type": [
-        { '@id': "rdfs:Class" }
+        { '@id': rdfs.Class }
     ],
-    'http://www.w3.org/2004/02/skos/core#prefLabel': [
+    [skos.prefLabel]: [
         { '@value': 'Content' },
     ],
-    'http://www.w3.org/2004/02/skos/core#definition': [
+    [skos.definition]: [
         { '@value': 'Dit is de definitie van content' },
     ],
-    "http://purl.org/dc/terms/created": [
+    [dcterms.created]: [
         {
-            "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+            "@type": xsd.dateTime,
             "@value": "2085-12-31T04:33:16+0100"
         }
     ],
-    "http://purl.org/dc/terms/creator": [
+    [dcterms.creator]: [
         {
-            "@id": "https://read-it.hum.uu.nl/staff/JdeKruif"
+            "@id": staff('JdeKruif')
         }
     ],
-    "http://www.w3.org/2002/07/owl#sameAs": [
+    [owl.sameAs]: [
         {
             "@id": "http://www.wikidata.org/entity/Q331656"
         }
     ],
-    'http://schema.org/color': [
+    [schema.color]: [
         { '@value': 'hotpink' }
     ],
 };
 
 export const specificResource = {
-    "@id": "https://read-it.hum.uu.nl/item/2",
+    "@id": item('2'),
     "@type": [
-        { "@id": "http://www.w3.org/ns/oa#SpecificResource" },
+        { "@id": oa.SpecificResource },
     ],
-    "http://purl.org/dc/terms/created": [
+    [dcterms.created]: [
         {
-            "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+            "@type": xsd.dateTime,
             "@value": "2085-12-31T04:33:15+0100"
         }
     ],
-    "http://purl.org/dc/terms/creator": [
+    [dcterms.creator]: [
         {
-            "@id": "https://read-it.hum.uu.nl/staff/JdeKruif"
+            "@id": staff('JdeKruif')
         }
     ],
-    "http://www.w3.org/ns/oa#hasSelector": [
+    [oa.hasSelector]: [
         {
-            "@id": "https://read-it.hum.uu.nl/item/5"
+            "@id": item('5')
         }
     ],
-    "http://www.w3.org/ns/oa#hasSource": [
+    [oa.hasSource]: [
         {
             "@id": "https://drive.google.com/drive/folders/1jJWerBVv5AMjI0SLjSDwHXH0QV9iVZpf"
         }
@@ -87,32 +103,32 @@ export const specificResource = {
 };
 
 export const textQuoteSelector = {
-    "@id": "https://read-it.hum.uu.nl/item/4",
+    "@id": item('4'),
     "@type": [
-        { '@id': "http://www.w3.org/ns/oa#TextQuoteSelector" }
+        { '@id': oa.TextQuoteSelector }
     ],
-    "http://purl.org/dc/terms/created": [
+    [dcterms.created]: [
         {
-            "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+            "@type": xsd.dateTime,
             "@value": "2085-12-31T04:33:15+0100"
         }
     ],
-    "http://purl.org/dc/terms/creator": [
+    [dcterms.creator]: [
         {
-            "@id": "https://read-it.hum.uu.nl/staff/JdeKruif"
+            "@id": staff('JdeKruif')
         }
     ],
-    "http://www.w3.org/ns/oa#exact": [
+    [oa.exact]: [
         {
             "@value": "The Voyage of the Dawn Treader"
         }
     ],
-    "http://www.w3.org/ns/oa#prefix": [
+    [oa.prefix]: [
         {
             "@value": "feel, ooh, there are more things to explore, and I think one found that throughout the whole of that sequence, "
         }
     ],
-    "http://www.w3.org/ns/oa#suffix": [
+    [oa.suffix]: [
         {
             "@value": ", to discover that John Mandeville had written that this was the, the, later, to discover that these were stories that people in the Middle Ages, he was playing around with stories that already existed."
         }
@@ -120,27 +136,27 @@ export const textQuoteSelector = {
 };
 
 export const textPositionSelector = {
-    "@id": "https://read-it.hum.uu.nl/item/5",
+    "@id": item('5'),
     "@type": [
-        { '@id': "http://www.w3.org/ns/oa#TextQuoteSelector" }
+        { '@id': oa.TextQuoteSelector }
     ],
-    "http://purl.org/dc/terms/created": [
+    [dcterms.created]: [
         {
-            "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+            "@type": xsd.dateTime,
             "@value": "2085-12-31T04:33:15+0100"
         }
     ],
-    "http://purl.org/dc/terms/creator": [
+    [dcterms.creator]: [
         {
-            "@id": "https://read-it.hum.uu.nl/staff/JdeKruif"
+            "@id": staff('JdeKruif')
         }
     ],
-    "http://www.w3.org/ns/oa#start": [
+    [oa.start]: [
         {
             "@value": 932
         }
     ],
-    "http://www.w3.org/ns/oa#end": [
+    [oa.end]: [
         {
             "@value": 962
         }
@@ -148,40 +164,40 @@ export const textPositionSelector = {
 };
 
 export const annotationInstance = {
-    "@id": "https://read-it.hum.uu.nl/item/1",
+    "@id": item('1'),
     "@type": [
-        { '@id': "http://www.w3.org/ns/oa#Annotation" }
+        { '@id': oa.Annotation }
     ],
-    "http://www.w3.org/ns/oa#hasBody": [
+    [oa.hasBody]: [
         {
-            "@id": "https://read-it.hum.uu.nl/ontology/Content"
+            "@id": readit('Content')
         },
         {
-            "@id": "https://read-it.hum.uu.nl/item/3"
+            "@id": item('3')
         }
     ],
-    "http://purl.org/dc/terms/created": [
+    [dcterms.created]: [
         {
-            "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+            "@type": xsd.dateTime,
             "@value": "2085-12-31T04:33:16+0100"
         }
     ],
-    "http://purl.org/dc/terms/creator": [
+    [dcterms.creator]: [
         {
-            "@id": "https://read-it.hum.uu.nl/staff/JdeKruif"
+            "@id": staff('JdeKruif')
         }
     ],
-    "http://www.w3.org/ns/oa#motivatedBy": [
+    [oa.motivatedBy]: [
         {
-            "@id": "http://www.w3.org/ns/oa#tagging"
+            "@id": oa.tagging
         },
         {
-            "@id": "http://www.w3.org/ns/oa#identifying"
+            "@id": oa.identifying
         }
     ],
-    "http://www.w3.org/ns/oa#hasTarget": [
+    [oa.hasTarget]: [
         {
-            "@id": "https://read-it.hum.uu.nl/item/2"
+            "@id": item('2')
         }
     ]
 };
