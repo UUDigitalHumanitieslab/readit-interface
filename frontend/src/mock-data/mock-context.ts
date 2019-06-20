@@ -1,12 +1,5 @@
 import { vocab, staff, readit, item } from '../jsonld/ns';
 
-export const readitContext = {
-    '@base': item(),
-    vocab: vocab(),
-    staff: staff(),
-    readit: readit(),
-};
-
 // This was extracted from the W3C web annotation context.
 export const webAnnoExerpt = {
     "oa":      "http://www.w3.org/ns/oa#",
@@ -27,11 +20,41 @@ export const webAnnoExerpt = {
     "type":    {"@type": "@id", "@id": "@type"},
 
     "Annotation":           "oa:Annotation",
-    "Dataset":              "dctypes:Dataset",
-    "Image":                "dctypes:StillImage",
-    "Video":                "dctypes:MovingImage",
-    "Audio":                "dctypes:Sound",
-    "Text":                 "dctypes:Text",
+    "SpecificResource":     "oa:SpecificResource",
+    "TextQuoteSelector":    "oa:TextQuoteSelector",
+
+    "identifying":   "oa:identifying",
+    "tagging":       "oa:tagging",
+
+    "body":          {"@type": "@id", "@id": "oa:hasBody"},
+    "target":        {"@type": "@id", "@id": "oa:hasTarget"},
+    "source":        {"@type": "@id", "@id": "oa:hasSource"},
+    "selector":      {"@type": "@id", "@id": "oa:hasSelector"},
+    "creator":       {"@type": "@id", "@id": "dcterms:creator"},
+    "motivation":    {"@type": "@vocab", "@id": "oa:motivatedBy"},
+
+    "exact":         "oa:exact",
+    "prefix":        "oa:prefix",
+    "suffix":        "oa:suffix",
+
+    "created":       {"@id": "dcterms:created", "@type": "xsd:dateTime"},
+
+    "start":         {"@id": "oa:start", "@type": "xsd:nonNegativeInteger"},
+    "end":           {"@id": "oa:end", "@type": "xsd:nonNegativeInteger"},
+};
+
+// This builds on top of the webAnnoExerpt above.
+export const readitContext = {
+    '@base': item(),
+    vocab: vocab(),
+    staff: staff(),
+    readit: readit(),
+
+    sameAs:          {'@id': 'owl:sameAs', '@type': '@id'},
+    prefLabel:       'skos:prefLabel',
+    definition:      'skos:definition',
+    title:           'dcterms:title',
+    color:           'schema:color',
 };
 
 export default [webAnnoExerpt, readitContext];
