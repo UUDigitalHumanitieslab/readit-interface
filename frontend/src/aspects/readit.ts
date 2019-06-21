@@ -51,7 +51,7 @@ directionFsm.on('enter:exploring', () => {
     let exView = new ExplorerView({ first: sourceView });
     let vh = $(window).height();
     // compensates for menu and footer (555 is min-height)
-    let height = vh - 194 > 555 ? vh - 194 : 555;
+    let height = Math.max(vh - 194, 555);
 
     exView.setHeight(height);
     exView.render().$el.appendTo('#main');
