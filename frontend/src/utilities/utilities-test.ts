@@ -1,4 +1,4 @@
-
+import { rdfs, skos } from './../jsonld/ns';
 import { getLabel, getCssClassName, isRdfsClass, hasProperty } from './utilities';
 import { FlatLdObject } from '../jsonld/json';
 import Node from '../jsonld/node';
@@ -11,12 +11,12 @@ function getDefaultAttributes(): FlatLdObject {
     return {
         '@id': 'uniqueID',
         "@type": [
-            { '@id': "rdfs:Class" }
+            rdfs.Class
         ],
-        'http://www.w3.org/2004/02/skos/core#prefLabel': [
+        [skos.prefLabel]: [
             { '@value': 'Content' },
         ],
-        'http://www.w3.org/2004/02/skos/core#altLabel': [
+        [skos.altLabel]: [
             { '@value': 'alternativeLabel'}
         ],
     }
@@ -36,7 +36,7 @@ describe('utilities:getLabel', function() {
 
     it('returns alternative label if the preferred label is not present', function() {
         let attributes = getDefaultAttributes();
-        delete attributes["http://www.w3.org/2004/02/skos/core#prefLabel"];
+        delete attributes[skos.prefLabel];
         let node = new Node(attributes);
         expect(getLabel(node)).toBe('alternativeLabel');
     });
@@ -51,22 +51,15 @@ describe('utilities:getCssClassName', function() {
 
     it('returns a lowercased css class stripped of spaces', function() {
         let attributes = getDefaultAttributes();
-        attributes["http://www.w3.org/2004/02/skos/core#prefLabel"] = [{ "@value": "A Capitalized Label With Spaces" }];
+        attributes[skos.prefLabel] = [{ "@value": "A Capitalized Label With Spaces" }];
         let node = new Node(attributes);
         expect(getCssClassName(node)).toBe('is-readit-acapitalizedlabelwithspaces');
     });
 
     it('ignores nodes without a label', function() {
         let attributes = getDefaultAttributes();
-        delete attributes['http://www.w3.org/2004/02/skos/core#prefLabel'];
-        delete attributes['http://www.w3.org/2004/02/skos/core#altLabel'];
-        let node = new Node(attributes);
-        expect(getCssClassName(node)).toBeNull();
-    });
-
-    it('ignores node with type other that rdfs:Class', function() {
-        let attributes = getDefaultAttributes();
-        attributes['@type'] = [{ '@id': 'rdfs:SomethingElse' }];
+        delete attributes[skos.prefLabel];
+        delete attributes[skos.altLabel];
         let node = new Node(attributes);
         expect(getCssClassName(node)).toBeNull();
     });
@@ -80,8 +73,8 @@ describe('utilities:isRdfsClass', function() {
 
     it('recognizes type rdfs:subClassOf', function() {
         let attributes = getDefaultAttributes();
-        delete attributes['@type'];
-        attributes['http://www.w3.org/2000/01/rdf-schema#subClassOf'] = [{ '@id': 'anything'}]
+        attributes['@type'] = [ rdfs('notClass') ];
+        attributes[rdfs.subClassOf] = [{ '@id': 'anything'}]
         let node = new Node(attributes);
 
         expect(isRdfsClass(node)).toBe(true);
@@ -89,7 +82,7 @@ describe('utilities:isRdfsClass', function() {
 
     it('ignores other types', function() {
         let attributes = getDefaultAttributes();
-        attributes['@type'] = [{ '@id': 'rdfs:Property' }];
+        attributes['@type'] = [ rdfs.Resource ];
         let node = new Node(attributes);
 
         expect(isRdfsClass(node)).toBe(false);
@@ -99,23 +92,14 @@ describe('utilities:isRdfsClass', function() {
 describe('utilities:hasProperty', function() {
     it('finds a property', function() {
         let node = getDefaultNode();
-        expect(hasProperty(node, 'http://www.w3.org/2004/02/skos/core#prefLabel')).toBe(true);
+        expect(hasProperty(node, skos.prefLabel)).toBe(true);
     });
 
     it('ignores empty values unless told otherwise', function() {
-        let term = 'http://www.w3.org/2004/02/skos/core#prefLabel';
+        let property = skos.prefLabel;
         let attributes = getDefaultAttributes();
-        attributes[term] = [];
+        attributes[property] = [];
         let node = new Node(attributes);
-        expect(hasProperty(node, term)).toBe(false);
-        // expect(hasTerm(node, term, false)).toBe(true);
-    });
-
-    it('doesnt ignore empty values if told so', function() {
-        let term = 'http://www.w3.org/2004/02/skos/core#prefLabel';
-        let attributes = getDefaultAttributes();
-        attributes[term] = [];
-        let node = new Node(attributes);
-        expect(hasProperty(node, term, false)).toBe(true);
+        expect(hasProperty(node, property)).toBe(false);
     });
 });

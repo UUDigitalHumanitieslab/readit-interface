@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend } from 'lodash';
+import { extend, sumBy, method } from 'lodash';
 import Model from '../core/model';
 import View from '../core/view';
 
@@ -47,12 +47,7 @@ export default class ExplorerView extends View {
      * Animated scroll to the outer right of the explorer.
      */
     scroll(): this {
-        let totalWidth = 0;
-
-        for (let stack of this.stacks) {
-            totalWidth += stack.getWidth();
-        }
-
+        let totalWidth = sumBy(this.stacks, method('getWidth'));
         this.$el.animate({ scrollLeft: totalWidth }, 800);
         return this;
     }

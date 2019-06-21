@@ -11,8 +11,6 @@ export function getLabel(node: Node): string {
 }
 
 export function getCssClassName(node: Node): string {
-    if (!isRdfsClass(node)) return null;
-
     let label = getLabel(node);
 
     if (label) {
@@ -29,13 +27,14 @@ export function getCssClassName(node: Node): string {
  * @param node The node to evaluate
  */
 export function isRdfsClass(node: Node): boolean {
-    if (node.get(rdfs.subClassOf) && node.get(rdfs.subClassOf).length > 0) {
+    const subclass = node.get(rdfs.subClassOf);
+    if (subclass && subclass.length > 0) {
         return true;
     }
 
-    if (node.get('@type') && node.get('@type').length > 0) {
-        let rdfsClass = find(node.get('@type'), type => type['@id'] == 'rdfs:Class');
-        if (rdfsClass) return true;
+    const nodeType = node.get('@type');
+    if (nodeType && nodeType.length > 0) {
+        return nodeType.includes(rdfs.Class);
     }
 
     return false;
@@ -47,11 +46,9 @@ export function isRdfsClass(node: Node): boolean {
  * unless otherwise specified.
  * @param node The node to evaluate.
  * @param property The property (i.e. namespace#term) we're looking for.
- * @param ignoreEmpty Specify if properties that are found but that do not contain a value
- * should be ignored (i.e. are considered non-existent). Defaults to true.
  */
-export function hasProperty(node: Node, property: string, ignoreEmpty: boolean = true): boolean {
+export function hasProperty(node: Node, property: string): boolean {
     if (!node.get(property)) return false;
-    if (ignoreEmpty && node.get(property).length == 0) return false;
+    if (node.get(property).length == 0) return false;
     return true;
 }
