@@ -1,47 +1,47 @@
-import { oa, rdf, rdfs, skos } from './../jsonld/ns';
+import { oa, rdf, item } from './../jsonld/ns';
 
-import Graph from './../jsonld/graph';
-import Node from './../jsonld/node';
-
-export default function getMockAnnotationsGraph() {
-    return new Graph([
-        getAnnotation(100, 200, 300),
-        getOntologyNode(200, 'Content'),
-        getRangeSelector(300, 301, 302),
-        getStartSelector(301, 0, 5),
-        getEndSelector(302, 3, 15),
-        getAnnotation(101, 201, 303),
-        getOntologyNode(201, 'Reader'),
-        getRangeSelector(303, 304, 305),
-        getStartSelector(304, 6, 80),
-        getEndSelector(305, 6, 97),
-    ]);
+export const annotation = {
+    "@id": item('100'),
+    "@type": [oa.Annotation],
+    [oa.hasTarget]: [
+        {
+            "@id": item('200')
+        }
+    ]
 }
 
-export function getAnnotation(itemId, bodyId, selectorId): Node {
-    return new Node({
-        "@id": `https://read-it.hum.uu.nl/item/${itemId}`,
-        "@type": [oa.Annotation],
-        [oa.hasBody]: [
-            {
-                "@id": `https://read-it.hum.uu.nl/item/${bodyId}`
-            }
-        ],
-        [oa.hasTarget]: [
-            {
-                "@id": `https://read-it.hum.uu.nl/item/${selectorId}`
-            }
-        ]
-    });
+export const rangeSelector = {
+    "@id": item('200'),
+    "@type": [
+        oa.RangeSelector
+    ],
+    [oa.hasStartSelector]: [
+        {
+            "@id": item('201')
+        }
+    ],
+    [oa.hasEndSelector]: [
+        {
+            "@id": item('202')
+        }
+    ]
 }
 
-export function getOntologyNode(itemId, itemType): Node {
-    return new Node({
-        "@id": `https://read-it.hum.uu.nl/item/${itemId}`,
-        "@type": [
-            `https://read-it.hum.uu.nl/ontology/${itemType}`,
-            rdfs.Class
-        ],
+export const startSelector = {
+    "@id": item('201'),
+    "@type": [
+        oa.XPathSelector
+    ],
+    [rdf.value]: `substring(.//*[0]/text(), 2)`
+}
+
+export const endSelector = {
+    "@id": item('202'),
+    "@type": [
+        oa.XPathSelector
+    ],
+    [rdf.value]: `substring(.//*[0]/text(), 8)`
+}
         [skos.prefLabel]: [
             { '@value': `${itemType}` },
         ],
