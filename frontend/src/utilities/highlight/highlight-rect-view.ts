@@ -36,39 +36,17 @@ export interface ViewOptions extends BaseOpt {
 }
 
 export default class HighlightRectView extends View {
-    /**
-     * The rectangle in the DOM that to model the HighligtRect after.
-     */
     rect: ClientRect | DOMRect;
-
-    /**
-     * The offset to use for the current view. Typically based on the first positioned parent's offset
-     * (where 'positioned' means: has position relative, absolute, or fixed).
-     */
     offset: JQuery.Coordinates;
-
-    /**
-     * The scrollOffset to use for positoning the current view.
-     * Typically this shall be the offset of the document (i.e. '$(document).scrollTop().valueOf()').
-     */
     scrollOffsetTop: number;
-
-    /**
-     * The READ-IT specific cssClass to add to this rect.
-     */
     cssClass: string;
-
-    /**
-     * Specifies whether this is the last rectangle in a Range.
-     * Note that only the last rect in the range will have the delete button.
-     */
     isLast: boolean;
 
     constructor(options?: ViewOptions) {
         if (!options.rect) throw TypeError("rect cannot be null or undefined");
         if (!options.offset) throw TypeError("relativeParent cannot be null or undefined");
         if (!options.cssClass) throw TypeError("cssClass cannot be null or undefined");
-        if (!options.isLast) throw TypeError("isLast cannot be null or undefined");
+        if (typeof(options.isLast) == 'undefined') throw TypeError("isLast cannot be undefined");
 
         super(options);
         this.rect = options.rect;
@@ -98,9 +76,47 @@ export default class HighlightRectView extends View {
     getLeft(): number {
         return this.rect.left - this.offset.left;
     }
+
+    showDeleteButton(): this {
+        this.$('.delete-highlight').css('display', 'block');
+        return this;
+    }
+
+    hideDeleteButton(): this {
+        this.$('.delete-highlight').css('display', 'none');
+        return this;
+    }
+
+    onHover(): this {
+        this.trigger('hover', this.rect);
+        return this;
+    }
+
+    onHoverEnd(): this {
+        this.trigger('hoverEnd', this.rect);
+        return this;
+    }
+
+    onDelete(event: JQuery.TriggeredEvent): this {
+        event.stopPropagation();
+        this.trigger('delete', this.rect);
+        return this;
+    }
+
+    onClick(): this {
+        console.log('click');
+        this.trigger('clicked', this.rect);
+        return this;
+    }
 }
 extend(HighlightRectView.prototype, {
     tagName: 'highlight-rect',
     className: 'highlight-rect',
     template: highlightRectTemplate,
+    events: {
+        'click .delete-highlight': 'onDelete',
+        'click': 'onClick',
+        'mouseenter': 'onHover',
+        'mouseleave': 'onHoverEnd',
+    }
 });
