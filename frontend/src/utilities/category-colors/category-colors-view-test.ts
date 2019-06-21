@@ -19,7 +19,7 @@ function getDefaultAttributes(): JsonLdObject {
     return {
         '@id': '1',
         '@type': [
-            { '@id': rdfs.Class },
+            rdfs.Class,
         ],
         [skos.prefLabel]: [
             { '@value': 'Content' },

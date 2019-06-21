@@ -7,7 +7,7 @@ let attributes: JsonLdObject = {
         { '@value': 'Content' },
     ],
     "@type": [
-        { '@id': "rdfs:Class" }
+        "http://www.w3.org/2000/01/rdf-schema#rdfs:Class"
     ],
     "http://www.w3.org/2002/07/owl#sameAs": [
         { '@id': "http://www.wikidata.org/entity/Q331656" }
@@ -25,7 +25,7 @@ let attributes: JsonLdObject = {
         { '@value': 'Dit is de definitie van content' },
     ],
     'http://schema.org/color': [
-        { '@value': 'hotpink'}
+        { '@value': 'hotpink' }
     ],
 }
 

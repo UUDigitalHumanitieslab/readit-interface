@@ -28,14 +28,13 @@ export function getCssClassName(node: Node): string {
  */
 export function isRdfsClass(node: Node): boolean {
     const subclass = node.get(rdfs.subClassOf);
-    if (subclass && subclass.length) {
+    if (subclass && subclass.length > 0) {
         return true;
     }
 
-    const nodeType = node.get('@type')
+    const nodeType = node.get('@type');
     if (nodeType && nodeType.length > 0) {
-        let rdfsClass = find(nodeType, type => type['@id'] === rdfs.Class);
-        if (rdfsClass) return true;
+        return nodeType.includes(rdfs.Class);
     }
 
     return false;

@@ -11,7 +11,7 @@ function getDefaultAttributes(): JsonLdObject {
     return {
         '@id': 'uniqueID',
         "@type": [
-            { '@id': rdfs.Class }
+            rdfs.Class
         ],
         [skos.prefLabel]: [
             { '@value': 'Content' },
@@ -73,7 +73,7 @@ describe('utilities:isRdfsClass', function() {
 
     it('recognizes type rdfs:subClassOf', function() {
         let attributes = getDefaultAttributes();
-        attributes['@type'] = [{ '@id': rdfs('notClass') }];
+        attributes['@type'] = [ rdfs('notClass') ];
         attributes[rdfs.subClassOf] = [{ '@id': 'anything'}]
         let node = new Node(attributes);
 
@@ -82,7 +82,7 @@ describe('utilities:isRdfsClass', function() {
 
     it('ignores other types', function() {
         let attributes = getDefaultAttributes();
-        attributes['@type'] = [{ '@id': [rdfs.Resource] }];
+        attributes['@type'] = [ rdfs.Resource ];
         let node = new Node(attributes);
 
         expect(isRdfsClass(node)).toBe(false);

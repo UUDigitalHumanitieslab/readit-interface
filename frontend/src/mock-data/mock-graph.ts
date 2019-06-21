@@ -45,7 +45,7 @@ export function getContent(): Node {
     return new Node({
         "@id": "https://read-it.hum.uu.nl/item/3",
         "@type": [
-            { '@id': "rdfs:Class" }
+            "http://www.w3.org/2000/01/rdf-schema#rdfs:Class"
         ],
         'http://www.w3.org/2004/02/skos/core#prefLabel': [
             { '@value': 'Content' },
@@ -79,7 +79,7 @@ export function getTextQuoteSelector(): Node {
     return new Node({
         "@id": "https://read-it.hum.uu.nl/item/4",
         "@type": [
-            { '@id': "http://www.w3.org/ns/oa#TextQuoteSelector" }
+            "http://www.w3.org/ns/oa#TextQuoteSelector"
         ],
         "http://purl.org/dc/terms/created": [
             {
@@ -114,7 +114,7 @@ export function getTextPositionSelector(): Node {
     return new Node({
         "@id": "https://read-it.hum.uu.nl/item/5",
         "@type": [
-            { '@id': "http://www.w3.org/ns/oa#TextQuoteSelector" }
+            "http://www.w3.org/ns/oa#TextQuoteSelector"
         ],
         "http://purl.org/dc/terms/created": [
             {
@@ -144,7 +144,7 @@ export function getAnnotation(): Node {
     return new Node({
         "@id": "https://read-it.hum.uu.nl/item/1",
         "@type": [
-            { '@id': "http://www.w3.org/ns/oa#Annotation" }
+             "http://www.w3.org/ns/oa#Annotation"
         ],
         "http://www.w3.org/ns/oa#hasBody": [
             {

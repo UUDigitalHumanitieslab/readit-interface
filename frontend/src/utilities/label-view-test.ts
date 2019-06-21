@@ -12,9 +12,7 @@ function getDefaultNode(): Node {
 function getDefaultAttributes(): JsonLdObject {
     return {
         '@id': 'uniqueID',
-        "@type": [
-            { '@id': rdfs.Class }
-        ],
+        "@type": [rdfs.Class],
         [skos.prefLabel]: [
             { '@value': 'Content' },
         ],
