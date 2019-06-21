@@ -1,5 +1,6 @@
 import { enableI18n } from '../test-util';
 
+import { rdfs, skos } from './../jsonld/ns';
 import { JsonLdObject } from '../jsonld/json';
 import Node from '../jsonld/node';
 import LabelView from './label-view';
@@ -12,15 +13,15 @@ function getDefaultAttributes(): JsonLdObject {
     return {
         '@id': 'uniqueID',
         "@type": [
-            { '@id': "rdfs:Class" }
+            { '@id': rdfs.Class }
         ],
-        'http://www.w3.org/2004/02/skos/core#prefLabel': [
+        [skos.prefLabel]: [
             { '@value': 'Content' },
         ],
-        'http://www.w3.org/2004/02/skos/core#altLabel': [
+        [skos.altLabel]: [
             { '@value': 'alternativeLabel'}
         ],
-        'http://www.w3.org/2004/02/skos/core#definition': [
+        [skos.definition]: [
             { '@value': 'This is a test definition'}
         ]
     }
@@ -39,7 +40,7 @@ describe('LabelView', function () {
 
     it('does not include a tooltip if a definition does not exists', function () {
         let attributes = getDefaultAttributes();
-        delete attributes['http://www.w3.org/2004/02/skos/core#definition'];
+        delete attributes[skos.definition];
         let node = new Node(attributes);
 
         let view = new LabelView({ model: node });
@@ -50,7 +51,7 @@ describe('LabelView', function () {
 
     it('excludes a tooltip if told so', function () {
         let node = getDefaultNode();
-        let view = new LabelView({ model: node }, false);
+        let view = new LabelView({ model: node, hasTooltip: false });
 
         expect(view.render().el.className).toContain('is-readit-content');
         expect(view.render().$el.attr('data-tooltip')).toBeUndefined();
