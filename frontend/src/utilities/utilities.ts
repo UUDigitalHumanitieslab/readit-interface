@@ -11,8 +11,6 @@ export function getLabel(node: Node): string {
 }
 
 export function getCssClassName(node: Node): string {
-    if (!isRdfsClass(node)) return null;
-
     let label = getLabel(node);
 
     if (label) {
