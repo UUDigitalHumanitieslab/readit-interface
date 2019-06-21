@@ -2,12 +2,14 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
 import View from '../../core/view';
-
+import { oa, rdf } from '../../jsonld/ns';
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
 
+import { getCssClassName } from './../utilities';
 import HighlightableTextTample from './highlightable-text-template';
 import HighlightView from './highlight-view';
+
 
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
@@ -65,7 +67,9 @@ export default class HighlightableTextView extends View {
     initHighlights(): this {
         if (this.text) {
             this.collection.each(( node ) => {
-                this.addHighlight(node);
+                if (node.get('@type') == oa.Annotation) {
+                    this.addHighlight(node);
+                }
             });
         }
 
@@ -73,11 +77,24 @@ export default class HighlightableTextView extends View {
     }
 
     addHighlight(node: Node): this {
-        let cssClass = 'is-readit-content';
         let textWrapper = this.$('.textWrapper');
 
-        // TODO: get indices and CSS class from node
-        let range = this.getRange(textWrapper, 0, 5, 3, 15);
+        // annotation styling details
+        let body = this.getNode(node.get(oa.hasBody)[0]['@id']);
+        let cssClass = getCssClassName(body);
+
+        // annotation position details
+        let selector = this.getNode(node.get(oa.hasTarget)[0]['@id']);
+        let startSelector = this.getNode(selector.get(oa.hasStartSelector)[0]['@id']);
+        let endSelector = this.getNode(selector.get(oa.hasEndSelector)[0]['@id']);
+
+        let range = this.getRange(
+            textWrapper,
+            this.getNodeIndex(startSelector),
+            this.getCharacterIndex(startSelector),
+            this.getNodeIndex(endSelector),
+            this.getCharacterIndex(endSelector)
+        );
         let annoView = new HighlightView({
             model: node,
             range: range,
@@ -89,6 +106,22 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
+    getNode(id: string): Node {
+        return this.collection.find(n => n.get('@id') === id);
+    }
+
+    getNodeIndex(selector: Node): number {
+        let xpath = selector.get(rdf.value);
+        let index = xpath.indexOf('[') + 1;
+        return +xpath.substring(index, index + 1);
+    }
+
+    getCharacterIndex(selector: Node): any {
+        let xpath = selector.get(rdf.value);
+        let startIndex = xpath.indexOf(',') + 1
+        let endIndex = xpath.length - 1;
+        return xpath.substring(startIndex, endIndex);
+    }
 
     getRange(
         textWrapper: JQuery<HTMLElement>,

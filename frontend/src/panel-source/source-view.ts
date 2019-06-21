@@ -11,6 +11,8 @@ import mockSourceText from './../mock-data/mock-source-text';
 import HighlightableTextView from '../utilities/highlight/highlightable-text-view';
 import Graph from '../jsonld/graph';
 
+import getMockAnnotationsGraph from './../mock-data/mock-annotations';
+
 export interface ViewOptions extends BaseOpt<Model> {
     highlight: Node;
 }
@@ -34,14 +36,13 @@ export default class SourceView extends View {
         // TODO: if panel mode
         this.$el.addClass('explorer-panel');
 
-        let graph = new Graph([this.highlight]);
+        let graph = getMockAnnotationsGraph(); // new Graph([this.highlight]);
 
         let htv = new HighlightableTextView({
             text: mockSourceText,
             collection: graph,
             isEditable: true
         });
-
 
         this.$('highlightable-text-view').replaceWith(htv.render().$el);
 

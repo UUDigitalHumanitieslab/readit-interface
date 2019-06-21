@@ -23,7 +23,6 @@ import * as mockGraphSeparated from './../mock-data/mock-graph';
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
     footerView.render().$el.appendTo('.footer');
-
     let ccView = new CategoryColorView({ collection: mockGraph });
     ccView.render().$el.appendTo('.footer');
 
