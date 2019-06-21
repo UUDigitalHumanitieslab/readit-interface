@@ -63,13 +63,6 @@ describe('utilities:getCssClassName', function() {
         let node = new Node(attributes);
         expect(getCssClassName(node)).toBeNull();
     });
-
-    it('ignores node with type other that rdfs:Class', function() {
-        let attributes = getDefaultAttributes();
-        attributes['@type'] = [{ '@id': 'rdfs:SomethingElse' }];
-        let node = new Node(attributes);
-        expect(getCssClassName(node)).toBeNull();
-    });
 });
 
 describe('utilities:isRdfsClass', function() {

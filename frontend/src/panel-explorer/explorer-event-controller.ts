@@ -36,9 +36,9 @@ export default class ExplorerEventController {
     sourceViewToolbarClicked(buttonClicked: string): void {
         let ldiView = new LdItemView({ model: mockLdItem });
 
-        if (buttonClicked == 'metadata') {
+        if (buttonClicked === 'metadata') {
             this.explorerView.overlay(ldiView);
-        } else if (buttonClicked == 'annotations') {
+        } else if (buttonClicked === 'annotations') {
             let panel = this.explorerView.stacks[1].getTopPanel();
             let sView = new SourceView();
             this.explorerView.overlay(sView, panel);

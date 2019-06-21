@@ -53,6 +53,11 @@ directionFsm.on('enter:exploring', () => {
     let sourceView = new SourceView({ model: mockSource, highlight: mockAnno});
 
     let exView = new ExplorerView({ first: sourceView });
+    let vh = $(window).height();
+    // compensates for menu and footer (555 is min-height)
+    let height = Math.max(vh - 194, 555);
+
+    exView.setHeight(height);
     exView.render().$el.appendTo('#main');
 });
 
