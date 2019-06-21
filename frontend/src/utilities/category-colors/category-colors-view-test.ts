@@ -2,7 +2,7 @@ import { enableI18n } from '../../test-util';
 
 import Graph from '../../jsonld/graph';
 import Node from '../../jsonld/node';
-import { JsonLdObject } from '../../jsonld/json';
+import { FlatLdObject } from '../../jsonld/json';
 import CategoryColorsView from './category-colors-view';
 
 
@@ -14,7 +14,7 @@ function getDefaultNode(): Node {
     return new Node(getDefaultAttributes());
 }
 
-function getDefaultAttributes(): JsonLdObject {
+function getDefaultAttributes(): FlatLdObject {
     return {
         '@id': '1',
         "@type": [

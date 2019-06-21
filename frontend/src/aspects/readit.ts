@@ -50,7 +50,7 @@ directionFsm.on('enter:exploring', () => {
     let mockAnno = mockGraphSeparated.getTextPositionSelector();
 
     // This is just a quick and dirty solution, will have to be moved in the future
-    let sourceView = new SourceView({ model: mockSource, highlight: mockAnno});
+    let sourceView = new SourceView({ model: mockSource/*, highlight: mockAnno*/});
 
     let exView = new ExplorerView({ first: sourceView });
     let vh = $(window).height();

@@ -1,13 +1,13 @@
 
 import { getLabel, getCssClassName, isRdfsClass, hasProperty } from './utilities';
-import { JsonLdObject } from '../jsonld/json';
+import { FlatLdObject } from '../jsonld/json';
 import Node from '../jsonld/node';
 
 function getDefaultNode(): Node {
     return new Node(getDefaultAttributes());
 }
 
-function getDefaultAttributes(): JsonLdObject {
+function getDefaultAttributes(): FlatLdObject {
     return {
         '@id': 'uniqueID',
         "@type": [
