@@ -55,7 +55,6 @@ export default class HighlightableTextView extends View {
 
     render(): this {
         this.$el.html(this.template({ text: this.text }));
-
         return this;
     }
 
@@ -103,6 +102,34 @@ export default class HighlightableTextView extends View {
             isDeletable: this.isEditable
         });
         annoView.render().$el.prependTo(this.$el);
+        return this;
+    }
+
+    bindHvEvents(hV: HighlightView): this {
+        hV.on('hover', this.onHover, this);
+        hV.on('hoverEnd', this.onHoverEnd, this);
+        hV.on('delete', this.onDelete, this);
+        hV.on('clicked', this.onClicked, this);
+        return this;
+    }
+
+    onHover(node: Node): this {
+        this.trigger('hover', node);
+        return this;
+    }
+
+    onHoverEnd(node: Node): this {
+        this.trigger('hoverEnd', node);
+        return this;
+    }
+
+    onDelete(node: Node): this {
+        this.trigger('delete', node);
+        return this;
+    }
+
+    onClicked(node: Node): this {
+        this.trigger('clicked', node);
         return this;
     }
 

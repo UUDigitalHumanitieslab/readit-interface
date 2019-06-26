@@ -110,9 +110,9 @@ export default class HighlightView extends View<Node> {
     }
 
     onDelete() {
+        // TODO: add proper screen for this
         var really = confirm("Really?");
         if (really) {
-            // TODO: add proper screen for this
             this.$el.detach();
         }
         this.trigger('delete', this.model);
