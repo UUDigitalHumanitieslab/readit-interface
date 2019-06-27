@@ -54,8 +54,8 @@ export interface FlatList {
 export interface FlatValue extends Array<Identifier | FlatLiteral | FlatList> {}
 
 export interface FlatLdObject extends Identifier {
-    ['@type']?: Array<Identifier>;
-    [iri: string]: FirstTypeIntendedSecondTypeWorkaround<FlatValue, string>;
+    ['@type']?: Array<string>;
+    [iri: string]: FirstTypeIntendedSecondTypeWorkaround<FlatValue, string | Array<string>>;
 }
 export interface FlatLdGraph extends Array<FlatLdObject> { }
 export interface FlatGraphContainer extends FlatLdObject {
