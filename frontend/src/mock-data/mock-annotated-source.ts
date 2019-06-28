@@ -131,7 +131,7 @@ export const anno1SpecificResource = {
     ],
     [oa.hasSource]: [
         {
-            "@id": "https://drive.google.com/drive/folders/1jJWerBVv5AMjI0SLjSDwHXH0QV9iVZpf"
+            "@id": item('1')
         }
     ]
 };
@@ -284,7 +284,7 @@ export const anno2SpecificResource = {
     ],
     [oa.hasSource]: [
         {
-            "@id": "https://drive.google.com/drive/folders/1jJWerBVv5AMjI0SLjSDwHXH0QV9iVZpf"
+            "@id": item('1')
         }
     ]
 };
@@ -436,7 +436,7 @@ export const anno3SpecificResource = {
     ],
     [oa.hasSource]: [
         {
-            "@id": "https://drive.google.com/drive/folders/1jJWerBVv5AMjI0SLjSDwHXH0QV9iVZpf"
+            "@id": item('1')
         }
     ]
 };
