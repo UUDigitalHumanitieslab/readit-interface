@@ -3,7 +3,7 @@ import Node from './../jsonld/node';
 import flatData, {
     specificResource,
     contentClass,
-    anotherContentClass,
+    readerClass,
     textQuoteSelector,
     textPositionSelector,
     annotationInstance,

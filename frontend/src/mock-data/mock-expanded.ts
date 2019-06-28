@@ -56,7 +56,7 @@ export const contentClass = {
     ],
 };
 
-export const anotherContentClass = {
+export const readerClass = {
     "@id": readit('Reader'),
     "@type": [rdfs.Class],
     [skos.prefLabel]: [
@@ -206,7 +206,7 @@ export const annotationInstance = {
 export default [
     contentInstance,
     contentClass,
-    anotherContentClass,
+    readerClass,
     specificResource,
     textPositionSelector,
     annotationInstance,
