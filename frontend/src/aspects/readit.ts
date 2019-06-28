@@ -16,6 +16,8 @@ import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
 
+import mockOntology from './../mock-data/mock-ontology';
+
 import mockLdItem from './../mock-data/mock-lditem';
 import mockGraph from './../mock-data/mock-graph';
 import * as mockGraphSeparated from './../mock-data/mock-graph';
@@ -23,9 +25,8 @@ import * as mockGraphSeparated from './../mock-data/mock-graph';
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
     footerView.render().$el.appendTo('.footer');
-    let ccView = new CategoryColorView({ collection: mockGraph });
-    ccView.render().$el.appendTo('.footer');
-
+    let ccView = new CategoryColorView({ collection: new Graph(mockOntology) });
+    ccView.render().$el.appendTo('body');
 });
 
 directionRouter.on('route:arrive', () => {
