@@ -2,7 +2,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
 import View from '../../core/view';
-import { oa, rdf } from '../../jsonld/ns';
+import { oa, rdf, item } from '../../jsonld/ns';
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
 
@@ -14,10 +14,19 @@ import HighlightView from './highlight-view';
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
 
-    /**
-     * Collection of 'oa:Annotation' instances to be used as initial highlights
-     */
     collection: Graph;
+
+    /**
+     * Optional. The oa:Annotation instance, present in the collection / Graph that
+     * you want to scroll to after the annotation's highlight is added to the DOM.
+     * Note that the HighlightableTextView will not scroll itself:
+     * it will throw an event ('scrollToReady') with the details that you
+     * need to perform the desired scroll, i.e. top and height of the highlight.
+     * Note that these are coordinates relative to the documents' (!) 0,0 coordinates,
+     * so you wil have to calculate how much to scroll from there (e.g. most likely
+     * subtract the offset().top of the scrollable element).
+     */
+    scrollTo: Node;
 
     /**
      * Specify whether the text should be editable.
@@ -34,23 +43,19 @@ export interface ViewOptions extends BaseOpt<Node> {
  */
 export default class HighlightableTextView extends View {
     text: string;
-
-    /**
-     * Collection of 'oa:Annotation' instances to be used as initial highlights
-     */
     collection: Graph;
-
-    /**
-     * Specify whether the text should be editable.
-     */
+    scrollToNode: Node;
     isEditable: boolean;
-
-    // TODO: add scrollTo?
 
     constructor(options?: ViewOptions) {
         super(options);
         this.text = options.text;
         this.isEditable = options.isEditable;
+
+        // TODO: validate scrollTo type
+        // TODO: validate scroll to presence(s) in Graph
+
+        this.scrollToNode = options.scrollTo;
     }
 
     render(): this {
@@ -59,23 +64,32 @@ export default class HighlightableTextView extends View {
     }
 
     insertedIntoDOM(): this {
-        this.initHighlights();
+        if (this.text) {
+            this.initHighlights();
+        }
         return this;
     }
 
     initHighlights(): this {
-        if (this.text) {
-            this.collection.each(( node ) => {
-                if (node.get('@type') == oa.Annotation) {
-                    this.addHighlight(node);
-                }
-            });
-        }
+        let scrollToHv = null;
 
+        this.collection.each((node) => {
+            if (node.get('@type') == oa.Annotation) {
+                let hV = this.addHighlight(node);
+
+                if (this.scrollToNode == node) {
+                    scrollToHv = hV;
+                }
+            }
+        });
+
+        this.scroll(scrollToHv);
         return this;
     }
 
-    addHighlight(node: Node): this {
+    addHighlight(node: Node): HighlightView {
+        // TODO: check if Node has properties we need (and everything is present in Graph)
+
         let textWrapper = this.$('.textWrapper');
 
         // annotation styling details
@@ -94,15 +108,72 @@ export default class HighlightableTextView extends View {
             this.getNodeIndex(endSelector),
             this.getCharacterIndex(endSelector)
         );
-        let annoView = new HighlightView({
+        let hV = new HighlightView({
             model: node,
             range: range,
             cssClass: cssClass,
             relativeParent: this.$el,
             isDeletable: this.isEditable
         });
-        annoView.render().$el.prependTo(this.$el);
+        hV.render().$el.prependTo(this.$el);
+        return hV;
+    }
+
+    /**
+     * Trigger 'scrollToReady' event, passing highlightView's
+     * top position and height to subscribers.
+     * Note that these are coordinates relative to the documents' (!) 0,0 coordinates,
+     * so you wil have to calculate how much to scroll from there (e.g. most likely
+     * subtract the offset().top of the scrollable element).
+     * @param scrollToHV The highlightView to scroll to.
+     */
+    scroll(scrollToHV: HighlightView): this {
+        if (scrollToHV) {
+            this.trigger('scrollToReady', scrollToHV.getTop(), scrollToHV.getHeight());
+        }
         return this;
+    }
+
+    getNodeIndex(selector: Node): number {
+        let xpath = selector.get(rdf.value);
+        let index = xpath.indexOf('[') + 1;
+        let endIndex = xpath.indexOf(']');
+        return +xpath.substring(index, endIndex);
+    }
+
+    getCharacterIndex(selector: Node): any {
+        let xpath = selector.get(rdf.value);
+        let startIndex = xpath.indexOf(',') + 1;
+        let endIndex = xpath.length - 1;
+        return xpath.substring(startIndex, endIndex);
+    }
+
+    getRange(
+        textWrapper: JQuery<HTMLElement>,
+        startContainerIndex: number,
+        startIndex: number,
+        endContainerIndex: number,
+        endIndex: number
+    ): Range {
+        let range = document.createRange();
+        let startContainer = textWrapper.contents().eq(startContainerIndex).get(0);
+        let endContainer = textWrapper.contents().eq(endContainerIndex).get(0);
+        range.setStart(startContainer, startIndex);
+        range.setEnd(endContainer, endIndex);
+        return range;
+    }
+
+    onTextSelected(event: any): void {
+        if (!this.isEditable) return;
+
+        let selection = window.getSelection();
+        let range = selection.getRangeAt(0).cloneRange();
+
+        // Ignore empty selections
+        if (range.startOffset === range.endOffset) return;
+
+        // TODO: throw event with selection (perhaps in annotation format)
+        alert('Did you just select text???');
     }
 
     bindHvEvents(hV: HighlightView): this {
@@ -135,47 +206,6 @@ export default class HighlightableTextView extends View {
 
     getNode(id: string): Node {
         return this.collection.find(n => n.get('@id') === id);
-    }
-
-    getNodeIndex(selector: Node): number {
-        let xpath = selector.get(rdf.value);
-        let index = xpath.indexOf('[') + 1;
-        return +xpath.substring(index, index + 1);
-    }
-
-    getCharacterIndex(selector: Node): any {
-        let xpath = selector.get(rdf.value);
-        let startIndex = xpath.indexOf(',') + 1
-        let endIndex = xpath.length - 1;
-        return xpath.substring(startIndex, endIndex);
-    }
-
-    getRange(
-        textWrapper: JQuery<HTMLElement>,
-        startContainerIndex: number,
-        startIndex: number,
-        endContainerIndex: number,
-        endIndex: number
-    ): Range {
-        let range = document.createRange();
-        let startContainer = textWrapper.contents().eq(startContainerIndex).get(0);
-        let endContainer = textWrapper.contents().eq(endContainerIndex).get(0);
-        range.setStart(startContainer, startIndex);
-        range.setEnd(endContainer, endIndex);
-        return range;
-    }
-
-    onTextSelected(event: any): void {
-        if (!this.isEditable) return;
-
-        let selection = window.getSelection();
-        let range = selection.getRangeAt(0).cloneRange();
-
-        // Ignore empty selections
-        if (range.startOffset === range.endOffset) return;
-
-        // TODO: throw event with selection (perhaps in annotation format)
-        alert('Did you just select text???');
     }
 }
 extend(HighlightableTextView.prototype, {

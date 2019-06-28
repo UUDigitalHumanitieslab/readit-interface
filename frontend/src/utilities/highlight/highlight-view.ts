@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, last } from 'lodash';
+import { extend, last, minBy, sumBy } from 'lodash';
 
 import View from '../../core/view';
 import Model from './../../core/model';
@@ -91,6 +91,14 @@ export default class HighlightView extends View<Node> {
         }
 
         return this;
+    }
+
+    getTop(): number {
+        return minBy(this.rectViews, (hrv) => { return hrv.$el.offset().top }).$el.offset().top;
+    }
+
+    getHeight(): number {
+        return sumBy(this.rectViews, (hrv) => { return hrv.$el.outerHeight() });
     }
 
     onHover() {
