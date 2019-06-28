@@ -87,6 +87,8 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
+    // TODO: add method to add a new annotation (which would take a Graph with all details)
+
     addHighlight(node: Node): HighlightView {
         // TODO: check if Node has properties we need (and everything is present in Graph)
 
