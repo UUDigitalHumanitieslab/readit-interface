@@ -72,8 +72,10 @@ export const annotationInstance = {
 export default {
     '@context': context,
     '@graph': [
+        contentClass,
         contentInstance,
         specificResource,
+        textQuoteSelector,
         textPositionSelector,
         annotationInstance,
     ],
