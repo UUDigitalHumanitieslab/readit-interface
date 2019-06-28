@@ -15,6 +15,11 @@ export default function getMockAnnotationsGraph() {
         getRangeSelector(303, 304, 305),
         getStartSelector(304, 6, 80),
         getEndSelector(305, 6, 97),
+        getAnnotation(102, 202, 306),
+        getOntologyNode(202, 'Reader'),
+        getRangeSelector(306, 307, 308),
+        getStartSelector(307, 18, 1),
+        getEndSelector(308, 18, 250),
     ]);
 }
 
