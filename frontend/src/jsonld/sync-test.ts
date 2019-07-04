@@ -17,6 +17,12 @@ describe("sync", async function () {
         error = jasmine.createSpy('error');
 
         expandedGraph = new Graph(expandedData);
+
+        // needed to evade error on graph.whenContext (i.e. this.meta is undefined)
+        // Uncaught (in promise) TypeError: Cannot read property 'whenContext' of undefined
+        // at Graph.get [as whenContext] (graph.ts:34)
+        // at Object.<anonymous> (sync.ts:21)
+        expandedGraph.meta = new Node(webAnnoExerpt);
     });
 
 
