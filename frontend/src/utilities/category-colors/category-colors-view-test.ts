@@ -18,7 +18,7 @@ function getDefaultAttributes(): FlatLdObject {
     return {
         '@id': '1',
         "@type": [
-            { '@id': "rdfs:Class" }
+            "rdfs:Class"
         ],
         'http://www.w3.org/2004/02/skos/core#prefLabel': [
             { '@value': 'Content' },
@@ -63,7 +63,7 @@ describe('CategoryColorsView', function() {
 
         let attributes2 = getDefaultAttributes();
         attributes2['@id'] = 'anotherUniqueId';
-        attributes2['@type'] = [{'@id': 'rdfs:Class'}];
+        attributes2['@type'] = ['rdfs:Class'];
         delete attributes2['http://schema.org/color']
         let node2 = new Node(attributes2);
 

@@ -11,7 +11,7 @@ function getDefaultAttributes(): FlatLdObject {
     return {
         '@id': 'uniqueID',
         "@type": [
-            { '@id': "rdfs:Class" }
+            "rdfs:Class" 
         ],
         'http://www.w3.org/2004/02/skos/core#prefLabel': [
             { '@value': 'Content' },
@@ -66,7 +66,7 @@ describe('utilities:getCssClassName', function() {
 
     it('ignores node with type other that rdfs:Class', function() {
         let attributes = getDefaultAttributes();
-        attributes['@type'] = [{ '@id': 'rdfs:SomethingElse' }];
+        attributes['@type'] = ['rdfs:SomethingElse'];
         let node = new Node(attributes);
         expect(getCssClassName(node)).toBeNull();
     });
@@ -89,7 +89,7 @@ describe('utilities:isRdfsClass', function() {
 
     it('ignores other types', function() {
         let attributes = getDefaultAttributes();
-        attributes['@type'] = [{ '@id': 'rdfs:Property' }];
+        attributes['@type'] = ['rdfs:Property'];
         let node = new Node(attributes);
 
         expect(isRdfsClass(node)).toBe(false);
