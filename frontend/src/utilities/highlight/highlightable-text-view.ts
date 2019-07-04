@@ -2,7 +2,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
 import View from '../../core/view';
-import { oa, rdf, item, vocab } from '../../jsonld/ns';
+import { oa, rdf, vocab } from '../../jsonld/ns';
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
 
@@ -45,18 +45,17 @@ export default class HighlightableTextView extends View {
     text: string;
     textWrapper: JQuery<HTMLElement>;
     collection: Graph;
-    scrollToNode: Node;
+    scrollTo: Node;
     isEditable: boolean;
 
     constructor(options?: ViewOptions) {
         super(options);
+        if (options.scrollTo && !this.isType(options.scrollTo, oa.Annotation)) {
+            throw TypeError('scrollTo should be of type oa:Annotation');
+        }
+        this.scrollTo = options.scrollTo;
         this.text = options.text;
         this.isEditable = options.isEditable;
-
-        // TODO: validate scrollTo type
-        // TODO: validate scrollTo presence(s) in Graph
-
-        this.scrollToNode = options.scrollTo;
 
         this.collection.on('add', this.addHighlight, this);
     }
@@ -83,7 +82,7 @@ export default class HighlightableTextView extends View {
                 if (this.isCompleteAnnotation(node, this.collection)) {
                     let hV = this.addHighlight(node);
 
-                    if (this.scrollToNode == node) {
+                    if (this.scrollTo == node) {
                         scrollToHv = hV;
                     }
                 }
@@ -190,7 +189,7 @@ export default class HighlightableTextView extends View {
 
     /**
      * Validate if all related items required by a oa:Annotation instance are in a Graph.
-     * Throws TypeError with proper message if they are not.
+     * Throws TypeError with appropriate message if they are not.
      * @param annotation The oa:Annotation instance to validate.
      * @param graph The Graph instance that should contain all related items
      */
@@ -231,18 +230,29 @@ export default class HighlightableTextView extends View {
         return node.get('@type').includes(type);
     }
 
+    /**
+     * Initialize a 'virtual' Range object based on position details.
+     * A Range, in this sense, is a highlighted area that, for example shows up when a user
+     * selects a piece of text. Note that a Range may consist of multiple rectangles (i.e. when
+     * the selection spans multiple lines).
+     * @param textWrapper The element that has the full text (incl potential HTML) as its content
+     * @param startNodeIndex The index of the element in which the Range should start. This element should be a textNode.
+     * @param startCharacterIndex The index of the chararacter (in the startNode) at which the highligth should start.
+     * @param endNodeIndex The index of the element in which the Range should end. This element should be a textNode.
+     * @param endCharacterIndex The index of the chararacter (in the endNode) at which the highligth should start.
+     */
     getRange(
         textWrapper: JQuery<HTMLElement>,
-        startContainerIndex: number,
-        startIndex: number,
-        endContainerIndex: number,
-        endIndex: number
+        startNodeIndex: number,
+        startCharacterIndex: number,
+        endNodeIndex: number,
+        endCharacterIndex: number
     ): Range {
         let range = document.createRange();
-        let startContainer = textWrapper.contents().eq(startContainerIndex).get(0);
-        let endContainer = textWrapper.contents().eq(endContainerIndex).get(0);
-        range.setStart(startContainer, startIndex);
-        range.setEnd(endContainer, endIndex);
+        let startContainer = textWrapper.contents().eq(startNodeIndex).get(0);
+        let endContainer = textWrapper.contents().eq(endNodeIndex).get(0);
+        range.setStart(startContainer, startCharacterIndex);
+        range.setEnd(endContainer, endCharacterIndex);
         return range;
     }
 
