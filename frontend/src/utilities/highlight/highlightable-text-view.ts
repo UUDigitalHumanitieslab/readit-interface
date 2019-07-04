@@ -14,7 +14,7 @@ import HighlightView from './highlight-view';
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
 
-    collection: Graph;
+    collection?: Graph;
 
     /**
      * Optional. The oa:Annotation instance, present in the collection / Graph that
@@ -26,7 +26,7 @@ export interface ViewOptions extends BaseOpt<Node> {
      * so you wil have to calculate how much to scroll from there (e.g. most likely
      * subtract the offset().top of the scrollable element).
      */
-    scrollTo: Node;
+    scrollTo?: Node;
 
     /**
      * Specify whether the text should be editable.
@@ -57,6 +57,7 @@ export default class HighlightableTextView extends View {
         this.text = options.text;
         this.isEditable = options.isEditable;
 
+        if (!options.collection) this.collection = new Graph();
         this.collection.on('add', this.addHighlight, this);
     }
 
@@ -120,13 +121,36 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    private deleteFromCollection(annotation: Node) {
+    /**
+     * Remove all highlights from the text.
+     */
+    removeAll(): this {
+        this.collection.each((node) => {
+            if (node.get('@type') == oa.Annotation) {
+                this.delete(node);
+            }
+        });
+        return this;
+    }
+
+    /**
+     * Remove a single highlight.
+     * @param annotation The instance of oa:Annotation to remove.
+     */
+    removeHighlight(annotation: Node) {
+        this.delete(annotation);
+    }
+
+    private deleteFromCollection(annotation: Node): boolean {
+        if (!this.isType(annotation, oa.Annotation)) return false;
+
         // TODO: update this when new Node functionality is available
         let body = this.getNode(annotation.get(oa.hasBody)[0]['@id'], this.collection);
         let selector = this.getNode(annotation.get(oa.hasTarget)[0]['@id'], this.collection);
         let startSelector = this.getNode(selector.get(oa.hasStartSelector)[0]['@id'], this.collection);
         let endSelector = this.getNode(selector.get(oa.hasEndSelector)[0]['@id'], this.collection);
         this.collection.remove([annotation, body, selector, startSelector, endSelector]);
+        return true;
     }
 
     /**
@@ -185,6 +209,11 @@ export default class HighlightableTextView extends View {
         let startIndex = xpath.indexOf(',') + 1;
         let endIndex = xpath.length - 1;
         return xpath.substring(startIndex, endIndex);
+    }
+
+    // TODO: update this when new Node functionality is available
+    getNode(id: string, graph: Graph): Node {
+        return graph.find(n => n.get('@id') === id);
     }
 
     /**
@@ -286,36 +315,33 @@ export default class HighlightableTextView extends View {
     }
 
     bindEvents(hV: HighlightView): this {
-        hV.on('hover', this.onHover, this);
-        hV.on('hoverEnd', this.onHoverEnd, this);
-        hV.on('delete', this.onDelete, this);
-        hV.on('clicked', this.onClicked, this);
+        hV.on('hover', this.hover, this);
+        hV.on('hoverEnd', this.hoverEnd, this);
+        hV.on('delete', this.delete, this);
+        hV.on('clicked', this.clicked, this);
         return this;
     }
 
-    onHover(node: Node): this {
+    hover(node: Node): this {
         this.trigger('hover', node);
         return this;
     }
 
-    onHoverEnd(node: Node): this {
+    hoverEnd(node: Node): this {
         this.trigger('hoverEnd', node);
         return this;
     }
 
-    onDelete(node: Node): this {
-        this.deleteFromCollection(node);
-        this.trigger('delete', node);
+    delete(node: Node): this {
+        if (this.deleteFromCollection(node)) {
+            this.trigger('delete', node);
+        }
         return this;
     }
 
-    onClicked(node: Node): this {
+    clicked(node: Node): this {
         this.trigger('clicked', node);
         return this;
-    }
-
-    getNode(id: string, graph: Graph): Node {
-        return graph.find(n => n.get('@id') === id);
     }
 }
 extend(HighlightableTextView.prototype, {
