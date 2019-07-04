@@ -1,9 +1,9 @@
-require('jasmine-ajax')
+import 'jasmine-ajax';
 
 import syncLD from './sync';
 import expandedData from './../mock-data/mock-expanded';
 import compactData from './../mock-data/mock-compact';
-import { webAnnoExerpt, contextIRI } from '../mock-data/mock-context';
+import context from '../mock-data/mock-context';
 import Graph from './graph';
 import Node from './node';
 
@@ -17,12 +17,7 @@ describe("sync", async function () {
         error = jasmine.createSpy('error');
 
         expandedGraph = new Graph(expandedData);
-
-        // needed to evade error on graph.whenContext (i.e. this.meta is undefined)
-        // Uncaught (in promise) TypeError: Cannot read property 'whenContext' of undefined
-        // at Graph.get [as whenContext] (graph.ts:34)
-        // at Object.<anonymous> (sync.ts:21)
-        expandedGraph.meta = new Node(webAnnoExerpt);
+        expandedGraph.setContext(context);
     });
 
 
