@@ -2,7 +2,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
 import View from '../../core/view';
-import { oa, rdf, item } from '../../jsonld/ns';
+import { oa, rdf, item, vocab } from '../../jsonld/ns';
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
 
@@ -43,6 +43,7 @@ export interface ViewOptions extends BaseOpt<Node> {
  */
 export default class HighlightableTextView extends View {
     text: string;
+    textWrapper: JQuery<HTMLElement>;
     collection: Graph;
     scrollToNode: Node;
     isEditable: boolean;
@@ -53,9 +54,11 @@ export default class HighlightableTextView extends View {
         this.isEditable = options.isEditable;
 
         // TODO: validate scrollTo type
-        // TODO: validate scroll to presence(s) in Graph
+        // TODO: validate scrollTo presence(s) in Graph
 
         this.scrollToNode = options.scrollTo;
+
+        this.collection.on('add', this.addHighlight, this);
     }
 
     render(): this {
@@ -64,6 +67,8 @@ export default class HighlightableTextView extends View {
     }
 
     insertedIntoDOM(): this {
+        this.textWrapper = this.$('.textWrapper');
+
         if (this.text) {
             this.initHighlights();
         }
@@ -75,10 +80,12 @@ export default class HighlightableTextView extends View {
 
         this.collection.each((node) => {
             if (node.get('@type') == oa.Annotation) {
-                let hV = this.addHighlight(node);
+                if (this.isCompleteAnnotation(node, this.collection)) {
+                    let hV = this.addHighlight(node);
 
-                if (this.scrollToNode == node) {
-                    scrollToHv = hV;
+                    if (this.scrollToNode == node) {
+                        scrollToHv = hV;
+                    }
                 }
             }
         });
@@ -87,24 +94,61 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    // TODO: add method to add a new annotation (which would take a Graph with all details)
+    /**
+     * Add a new highlight to the text based on an annotation.
+     * @param graph A Graph containing an instance of oa:Annotation including all required related items:
+     *      - an instance of the category (e.g. Content, Reader, ect)
+     *      - an instance of oa:SpecificResource (i.e. the annnotation's hasTarget)
+     *      - an instance of vocab('RangeSelector')
+     *      - a StartSelector of type oa.XPathSelector
+     *      - an EndSelector of type oa.XPathSelector
+     */
+    add(graph: Graph): this {
+        graph.each((node) => {
+            if (node.get('@type') == oa.Annotation) {
+                if (this.isCompleteAnnotation(node, graph)) {
+                    // TODO: update this when new Node functionality is available
+                    let body = this.getNode(node.get(oa.hasBody)[0]['@id'], graph);
+                    let selector = this.getNode(node.get(oa.hasTarget)[0]['@id'], graph);
+                    let startSelector = this.getNode(selector.get(oa.hasStartSelector)[0]['@id'], graph);
+                    let endSelector = this.getNode(selector.get(oa.hasEndSelector)[0]['@id'], graph);
 
-    addHighlight(node: Node): HighlightView {
-        // TODO: check if Node has properties we need (and everything is present in Graph)
+                    this.collection.add([node, body, selector, startSelector, endSelector]);
+                }
+            }
+        });
 
-        let textWrapper = this.$('.textWrapper');
+        return this;
+    }
 
+    private deleteFromCollection(annotation: Node) {
+        // TODO: update this when new Node functionality is available
+        let body = this.getNode(annotation.get(oa.hasBody)[0]['@id'], this.collection);
+        let selector = this.getNode(annotation.get(oa.hasTarget)[0]['@id'], this.collection);
+        let startSelector = this.getNode(selector.get(oa.hasStartSelector)[0]['@id'], this.collection);
+        let endSelector = this.getNode(selector.get(oa.hasEndSelector)[0]['@id'], this.collection);
+        this.collection.remove([annotation, body, selector, startSelector, endSelector]);
+    }
+
+    /**
+     * Add a HighlightView to the current text.
+     * @param node The Node to base the highlight on. Note that all required related items should already be in the Graph.
+     */
+    private addHighlight(node: Node): HighlightView {
+        if (!this.isType(node, oa.Annotation)) return;
+
+        // TODO: update this when new Node functionality is available
         // annotation styling details
-        let body = this.getNode(node.get(oa.hasBody)[0]['@id']);
+        let body = this.getNode(node.get(oa.hasBody)[0]['@id'], this.collection);
         let cssClass = getCssClassName(body);
 
         // annotation position details
-        let selector = this.getNode(node.get(oa.hasTarget)[0]['@id']);
-        let startSelector = this.getNode(selector.get(oa.hasStartSelector)[0]['@id']);
-        let endSelector = this.getNode(selector.get(oa.hasEndSelector)[0]['@id']);
+        let selector = this.getNode(node.get(oa.hasTarget)[0]['@id'], this.collection);
+        let startSelector = this.getNode(selector.get(oa.hasStartSelector)[0]['@id'], this.collection);
+        let endSelector = this.getNode(selector.get(oa.hasEndSelector)[0]['@id'], this.collection);
 
         let range = this.getRange(
-            textWrapper,
+            this.textWrapper,
             this.getNodeIndex(startSelector),
             this.getCharacterIndex(startSelector),
             this.getNodeIndex(endSelector),
@@ -117,25 +161,15 @@ export default class HighlightableTextView extends View {
             relativeParent: this.$el,
             isDeletable: this.isEditable
         });
+        this.bindEvents(hV);
         hV.render().$el.prependTo(this.$el);
         return hV;
     }
 
     /**
-     * Trigger 'scrollToReady' event, passing highlightView's
-     * top position and height to subscribers.
-     * Note that these are coordinates relative to the documents' (!) 0,0 coordinates,
-     * so you wil have to calculate how much to scroll from there (e.g. most likely
-     * subtract the offset().top of the scrollable element).
-     * @param scrollToHV The highlightView to scroll to.
+     * Get the node index from an XPathSelector
+     * @param selector XPathSelector with a rdf:Value like 'substring(.//*[${nodeIndex}]/text(),${characterIndex})'
      */
-    scroll(scrollToHV: HighlightView): this {
-        if (scrollToHV) {
-            this.trigger('scrollToReady', scrollToHV.getTop(), scrollToHV.getHeight());
-        }
-        return this;
-    }
-
     getNodeIndex(selector: Node): number {
         let xpath = selector.get(rdf.value);
         let index = xpath.indexOf('[') + 1;
@@ -143,11 +177,58 @@ export default class HighlightableTextView extends View {
         return +xpath.substring(index, endIndex);
     }
 
+    /**
+     * Get the character index from an XPathSelector
+     * @param selector XPathSelector with a rdf:Value like 'substring(.//*[${nodeIndex}]/text(),${characterIndex})'
+     */
     getCharacterIndex(selector: Node): any {
         let xpath = selector.get(rdf.value);
         let startIndex = xpath.indexOf(',') + 1;
         let endIndex = xpath.length - 1;
         return xpath.substring(startIndex, endIndex);
+    }
+
+    /**
+     * Validate if all related items required by a oa:Annotation instance are in a Graph.
+     * Throws TypeError with proper message if they are not.
+     * @param annotation The oa:Annotation instance to validate.
+     * @param graph The Graph instance that should contain all related items
+     */
+    isCompleteAnnotation(annotation: Node, graph: Graph): boolean {
+        if (!this.isType(annotation, oa.Annotation)) {
+            throw new TypeError(
+                `Node ${annotation.get('@id')} is not an instance of oa:Annotation`);
+        }
+
+        //TODO: rewrite when new Node functionality is available
+        if (!this.getNode(annotation.get(oa.hasBody)[0]['@id'], graph)) {
+            throw new TypeError(
+                `The oa:hasBody property of annotation ${annotation.get('@id')} is empty or the related item cannot be found`);
+        }
+
+        let selector = this.getNode(annotation.get(oa.hasTarget)[0]['@id'], graph);
+        if (!selector || this.isType(selector, vocab('RangeSelector'))) {
+            throw new TypeError(
+                `Selector ${selector.get('@id')} cannot be empty and should be of type vocab('RangeSelector')`);
+        }
+
+        let startSelector = this.getNode(selector.get(oa.hasStartSelector)[0]['@id'], graph);
+        if (!startSelector || !this.isType(startSelector, oa.XPathSelector)) {
+            throw new TypeError(
+                `StartSelector ${startSelector.get('@id')} cannot be empty and should be of type oa:XPathSelector`);
+        }
+
+        let endSelector = this.getNode(selector.get(oa.hasEndSelector)[0]['@id'], graph);
+        if (!endSelector || !this.isType(endSelector, oa.XPathSelector)) {
+            throw new TypeError(
+                `EndSelector ${endSelector.get('@id')} cannot be empty and should be of type oa:XPathSelector`);
+        }
+
+        return true;
+    }
+
+    isType(node: Node, type: string) {
+        return node.get('@type').includes(type);
     }
 
     getRange(
@@ -165,7 +246,7 @@ export default class HighlightableTextView extends View {
         return range;
     }
 
-    onTextSelected(event: any): void {
+    onTextSelected(): void {
         if (!this.isEditable) return;
 
         let selection = window.getSelection();
@@ -173,12 +254,28 @@ export default class HighlightableTextView extends View {
 
         // Ignore empty selections
         if (range.startOffset === range.endOffset) return;
-
-        // TODO: throw event with selection (perhaps in annotation format)
-        alert('Did you just select text???');
+        // Pass selected text to listeners
+        // TODO: update what is passed: at least add nodeIndex and CharacterIndex,
+        // but preferably a Graph that contains a complete oa:Annotation (i.e. with all related nodes)
+        this.trigger('selected', range.cloneContents().textContent);
     }
 
-    bindHvEvents(hV: HighlightView): this {
+    /**
+     * Trigger 'scrollToReady' event, passing highlightView's
+     * top position and height to subscribers.
+     * Note that these are coordinates relative to the documents' (!) 0,0 coordinates,
+     * so you wil have to calculate how much to scroll from there (e.g. most likely
+     * subtract the offset().top of the scrollable element).
+     * @param scrollToHV The highlightView to scroll to.
+     */
+    scroll(scrollToHV: HighlightView): this {
+        if (scrollToHV) {
+            this.trigger('scrollToReady', scrollToHV.getTop(), scrollToHV.getHeight());
+        }
+        return this;
+    }
+
+    bindEvents(hV: HighlightView): this {
         hV.on('hover', this.onHover, this);
         hV.on('hoverEnd', this.onHoverEnd, this);
         hV.on('delete', this.onDelete, this);
@@ -197,6 +294,7 @@ export default class HighlightableTextView extends View {
     }
 
     onDelete(node: Node): this {
+        this.deleteFromCollection(node);
         this.trigger('delete', node);
         return this;
     }
@@ -206,8 +304,8 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    getNode(id: string): Node {
-        return this.collection.find(n => n.get('@id') === id);
+    getNode(id: string, graph: Graph): Node {
+        return graph.find(n => n.get('@id') === id);
     }
 }
 extend(HighlightableTextView.prototype, {
