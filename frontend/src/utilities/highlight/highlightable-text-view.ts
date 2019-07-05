@@ -26,7 +26,7 @@ export interface ViewOptions extends BaseOpt<Node> {
      * so you wil have to calculate how much to scroll from there (e.g. most likely
      * subtract the offset().top of the scrollable element).
      */
-    scrollTo?: Node;
+    initialScrollTo?: Node;
 
     /**
      * Specify whether the text should be editable.
@@ -45,15 +45,24 @@ export default class HighlightableTextView extends View {
     text: string;
     textWrapper: JQuery<HTMLElement>;
     collection: Graph;
-    scrollTo: Node;
+
+    /**
+     * Store the oa:Annotation that needs to be scrolled to
+     */
+    scrollToNode: Node;
+
+    hVs: HighlightView[] = [];
+
     isEditable: boolean;
+
+    isInDOM: boolean;
 
     constructor(options?: ViewOptions) {
         super(options);
-        if (options.scrollTo && !this.isType(options.scrollTo, oa.Annotation)) {
+        if (options.initialScrollTo && !this.isType(options.initialScrollTo, oa.Annotation)) {
             throw TypeError('scrollTo should be of type oa:Annotation');
         }
-        this.scrollTo = options.scrollTo;
+        this.scrollToNode = options.initialScrollTo;
         this.text = options.text;
         this.isEditable = options.isEditable;
 
@@ -67,30 +76,34 @@ export default class HighlightableTextView extends View {
     }
 
     insertedIntoDOM(): this {
+        this.isInDOM = true;
         this.textWrapper = this.$('.textWrapper');
 
         if (this.text) {
             this.initHighlights();
+
+            if (this.scrollToNode) {
+                this.scroll(this.scrollToNode);
+            }
         }
+
+        return this;
+    }
+
+    removedFromDOM(): this {
+        this.isInDOM = false;
         return this;
     }
 
     initHighlights(): this {
-        let scrollToHv = null;
-
         this.collection.each((node) => {
             if (node.get('@type') == oa.Annotation) {
                 if (this.isCompleteAnnotation(node, this.collection)) {
-                    let hV = this.addHighlight(node);
-
-                    if (this.scrollTo == node) {
-                        scrollToHv = hV;
-                    }
+                    this.addHighlight(node);
                 }
             }
         });
 
-        this.scroll(scrollToHv);
         return this;
     }
 
@@ -103,20 +116,20 @@ export default class HighlightableTextView extends View {
      *      - a StartSelector of type oa.XPathSelector
      *      - an EndSelector of type oa.XPathSelector
      */
-    add(graph: Graph): this {
-        graph.each((node) => {
-            if (node.get('@type') == oa.Annotation) {
-                if (this.isCompleteAnnotation(node, graph)) {
-                    // TODO: update this when new Node functionality is available
-                    let body = this.getNode(node.get(oa.hasBody)[0]['@id'], graph);
-                    let selector = this.getNode(node.get(oa.hasTarget)[0]['@id'], graph);
-                    let startSelector = this.getNode(selector.get(oa.hasStartSelector)[0]['@id'], graph);
-                    let endSelector = this.getNode(selector.get(oa.hasEndSelector)[0]['@id'], graph);
+    add(node: Node): this {
+        if (!this.isType(node, oa.Annotation)) {
+            throw TypeError('scrollTo should be of type oa:Annotation');
+        }
 
-                    this.collection.add([node, body, selector, startSelector, endSelector]);
-                }
-            }
-        });
+        if (this.isCompleteAnnotation(node, node.collection)) {
+            // TODO: update this when new Node functionality is available
+            let body = this.getNode(node.get(oa.hasBody)[0]['@id'], node.collection);
+            let selector = this.getNode(node.get(oa.hasTarget)[0]['@id'], node.collection);
+            let startSelector = this.getNode(selector.get(oa.hasStartSelector)[0]['@id'], node.collection);
+            let endSelector = this.getNode(selector.get(oa.hasEndSelector)[0]['@id'], node.collection);
+
+            this.collection.add([node, body, selector, startSelector, endSelector]);
+        }
 
         return this;
     }
@@ -186,6 +199,7 @@ export default class HighlightableTextView extends View {
         });
         this.bindEvents(hV);
         hV.render().$el.prependTo(this.$el);
+        this.hVs.push(hV);
         return hV;
     }
 
@@ -305,12 +319,21 @@ export default class HighlightableTextView extends View {
      * Note that these are coordinates relative to the documents' (!) 0,0 coordinates,
      * so you wil have to calculate how much to scroll from there (e.g. most likely
      * subtract the offset().top of the scrollable element).
-     * @param scrollToHV The highlightView to scroll to.
      */
-    scroll(scrollToHV: HighlightView): this {
-        if (scrollToHV) {
-            this.trigger('scrollToReady', scrollToHV.getTop(), scrollToHV.getHeight());
+    scroll(scrollToNode: Node): this {
+        let scrollToHv = this.hVs.find(hV => hV.model === scrollToNode);
+        if (scrollToHv) {
+            this.trigger('scrollToReady', scrollToHv.getTop(), scrollToHv.getHeight());
         }
+        return this;
+    }
+
+    scrollTo(node: Node): this {
+        if (!this.isType(node, oa.Annotation)) {
+            throw TypeError('scrollTo should be of type oa:Annotation');
+        }
+        this.scrollToNode = node;
+        if (this.isInDOM) this.scroll(node);
         return this;
     }
 
@@ -334,6 +357,8 @@ export default class HighlightableTextView extends View {
 
     delete(node: Node): this {
         if (this.deleteFromCollection(node)) {
+            // TODO: test this!
+            this.hVs.find(hV => hV.model === node).$el.detach();
             this.trigger('delete', node);
         }
         return this;
@@ -350,6 +375,7 @@ extend(HighlightableTextView.prototype, {
     template: HighlightableTextTample,
     events: {
         'DOMNodeInsertedIntoDocument': 'insertedIntoDOM',
+        'DOMNodeRemoved': 'removedFromDOM',
         'mouseup': 'onTextSelected',
     }
 });
