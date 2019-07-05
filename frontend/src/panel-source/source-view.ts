@@ -3,26 +3,32 @@ import { extend } from 'lodash';
 import View from './../core/view';
 import Model from './../core/model';
 
+import Node from './../jsonld/node';
 import Graph from './../jsonld/graph';
 import sourceTemplate from './source-template';
 import HighlightableTextView from '../utilities/highlight/highlightable-text-view';
 
 import mockSourceText from './../mock-data/mock-source-text';
+import { oa } from '../jsonld/ns';
 
 export interface ViewOptions extends BaseOpt<Model> {
-    annotations: Graph;
+    // TODO: receive Node instance of type Source
+    annotations: Graph
 
     /**
      * Specify whether to display the View in Full Viewport Mode.
-     * Defaults to false.
+     * Defaults to false, i.e. PanelMode
      */
-    inFullViewPortMode: boolean;
+    inFullViewportMode: boolean;
 }
 
 export default class SourceView extends View {
-    annotations: Graph;
+    nodes: Graph;
     htv: HighlightableTextView;
-    inFullViewPortMode: boolean;
+    inFullViewportMode: boolean;
+
+    isShowingAnnotations: boolean;
+    tooltipAnnotations: string;
 
     constructor(options?: ViewOptions) {
         super(options);
@@ -30,10 +36,18 @@ export default class SourceView extends View {
         // TODO: validate ? (highlightableTV does it as well)
 
         if (options.annotations) {
-            this.annotations = options.annotations;
+            this.nodes = options.annotations;
         }
 
-        this.inFullViewPortMode = options.inFullViewPortMode;
+        this.htv = new HighlightableTextView({
+            text: mockSourceText,
+            isEditable: true,
+            collection: this.nodes,
+            // initialScrollTo: scrollTo
+        });
+        this.bindToEvents(this.htv);
+
+        this.inFullViewportMode = options.inFullViewportMode;
 
         // TODO: if panel mode
         this.$el.addClass('explorer-panel');
@@ -42,16 +56,11 @@ export default class SourceView extends View {
     render(): this {
         this.$el.html(this.template(this));
 
+
         // TODO: where does this come from?
-        // let scrollTo = this.annotations.models.find(n => n.get('@id') === 'https://read-it.hum.uu.nl/item/102')
+        // let scrollTo = this.nodes.models.find(n => n.get('@id') === 'https://read-it.hum.uu.nl/item/102');
 
-        // TODO: when this is initialized earlier, the DOMInsertedIntoDocument event is not fired
-        this.htv = new HighlightableTextView({
-            text: mockSourceText,
-            isEditable: true,
-        });
 
-        this.bindToEvents(this.htv);
         this.$('highlightable-text-view').replaceWith(this.htv.render().$el);
         return this;
     }
@@ -76,14 +85,26 @@ export default class SourceView extends View {
         this.trigger('click', node);
     }
 
-    showAnnotations(): this {
-        this.htv.add(this.annotations);
-        this.trigger('showAnnotations', this.annotations);
+    toggleAnnotations(): this {
+        if (this.isShowingAnnotations) {
+            this.hideAnnotations();
+        }
+        else {
+            this.showAnnotations();
+        }
+        this.$(".toolbar-annotations").toggleClass("is-active");
+        this.isShowingAnnotations = !this.isShowingAnnotations;
         return this;
     }
 
-    hideAnnotation(): this {
-        this.htv.removeAll();
+    showAnnotations(): this {
+        this.htv.showAll();
+        this.trigger('showAnnotations', this.nodes);
+        return this;
+    }
+
+    hideAnnotations(): this {
+        this.htv.hideAll();
         return this;
     }
 
@@ -93,14 +114,13 @@ export default class SourceView extends View {
     }
 
     toggleViewMode(): this {
-        if (this.inFullViewPortMode) this.trigger('shrink', this);
+        if (this.inFullViewportMode) this.trigger('shrink', this);
         else this.trigger('enlarge', this);
         return this;
     }
 
-    // TODO: implement this one and the scroll() mentioned in specs
     scrollTo(annotation: Node) {
-
+        this.htv.scrollTo(annotation);
     }
 
     scroll(highlightTop: number, highlightHeight: number): this {
@@ -127,7 +147,7 @@ extend(SourceView.prototype, {
     template: sourceTemplate,
     events: {
         'click .toolbar-metadata': 'showMetadata',
-        'click .toolbar-annotations': 'showAnnotations',
+        'click .toolbar-annotations': 'toggleAnnotations',
         'click .toolbar-fullscreen': 'toggleViewMode',
     }
 });

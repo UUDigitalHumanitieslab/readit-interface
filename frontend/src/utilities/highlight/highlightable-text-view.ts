@@ -14,6 +14,14 @@ import HighlightView from './highlight-view';
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
 
+    /**
+     * Optional. The oa:Annotation instance(s) that you want to highlight in the text immediately.
+     */
+    initialHighlights?: Graph;
+
+    /**
+     * Optional. A collection of oa:Annotation instances.
+     */
     collection?: Graph;
 
     /**
@@ -45,6 +53,7 @@ export default class HighlightableTextView extends View {
     text: string;
     textWrapper: JQuery<HTMLElement>;
     collection: Graph;
+    initialHighlights?: Graph;
 
     /**
      * Store the oa:Annotation that needs to be scrolled to
@@ -60,11 +69,12 @@ export default class HighlightableTextView extends View {
     constructor(options?: ViewOptions) {
         super(options);
         if (options.initialScrollTo && !this.isType(options.initialScrollTo, oa.Annotation)) {
-            throw TypeError('scrollTo should be of type oa:Annotation');
+            throw TypeError('initialScrollTo should be of type oa:Annotation');
         }
         this.scrollToNode = options.initialScrollTo;
         this.text = options.text;
         this.isEditable = options.isEditable;
+        this.initialHighlights = options.initialHighlights;
 
         if (!options.collection) this.collection = new Graph();
         this.collection.on('add', this.addHighlight, this);
@@ -81,6 +91,10 @@ export default class HighlightableTextView extends View {
 
         if (this.text) {
             this.initHighlights();
+
+            if (this.initialHighlights) {
+
+            }
 
             if (this.scrollToNode) {
                 this.scroll(this.scrollToNode);
@@ -118,7 +132,7 @@ export default class HighlightableTextView extends View {
      */
     add(node: Node): this {
         if (!this.isType(node, oa.Annotation)) {
-            throw TypeError('scrollTo should be of type oa:Annotation');
+            throw TypeError('node should be of type oa:Annotation');
         }
 
         if (this.isCompleteAnnotation(node, node.collection)) {
@@ -139,10 +153,25 @@ export default class HighlightableTextView extends View {
      */
     removeAll(): this {
         this.collection.each((node) => {
-            if (node.get('@type') == oa.Annotation) {
+            if (node && node.get('@type') == oa.Annotation) {
                 this.delete(node);
             }
         });
+        return this;
+    }
+
+    showAll(): this {
+        this.hVs.forEach( (hV) => {
+            hV.render().$el.prependTo(this.$el);
+        });
+        return this;
+    }
+
+    hideAll(): this {
+        this.hVs.forEach( (hV) => {
+            hV.$el.detach();
+        });
+
         return this;
     }
 
@@ -197,8 +226,8 @@ export default class HighlightableTextView extends View {
             relativeParent: this.$el,
             isDeletable: this.isEditable
         });
+
         this.bindEvents(hV);
-        hV.render().$el.prependTo(this.$el);
         this.hVs.push(hV);
         return hV;
     }
@@ -357,7 +386,6 @@ export default class HighlightableTextView extends View {
 
     delete(node: Node): this {
         if (this.deleteFromCollection(node)) {
-            // TODO: test this!
             this.hVs.find(hV => hV.model === node).$el.detach();
             this.trigger('delete', node);
         }
