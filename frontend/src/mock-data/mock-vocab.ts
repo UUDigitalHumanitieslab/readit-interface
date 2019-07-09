@@ -13,6 +13,28 @@ import {
     oa,
 } from '../jsonld/ns';
 
+// class definition for a Source
+export const sourceClass = {
+    "@id": vocab('Source'),
+    "@type": [rdfs.Class],
+    [rdfs.subClassOf]: [
+        {
+            '@id': schema.CreativeWork
+        }
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:15+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('AHebing')
+        }
+    ],
+}
+
 // This is the class definition of our RangeSelector
 export const readitRangeSelectorClass = {
     "@id": vocab('RangeSelector'),
@@ -40,8 +62,8 @@ export const readitRangeSelectorClass = {
 export const hasStartSelectorProperty = {
     "@id": oa.hasStartSelector,
     "@type": [rdf.Property],
-    "range": oa.XPathSelector,
-    "domain": vocab('RangeSelector'),
+    [rdfs.range]: oa.XPathSelector,
+    [rdfs.domain]: vocab('RangeSelector'),
     [dcterms.created]: [
         {
             "@type": xsd.dateTime,
@@ -60,12 +82,12 @@ export const hasStartSelectorProperty = {
 export const hasEndSelectorProperty = {
     "@id": oa.hasEndSelector,
     "@type": [rdf.Property],
-    "range": [
+    [rdfs.range]: [
         {
             '@id': oa.XPathSelector,
         }
     ],
-    "domain": [
+    [rdfs.domain]: [
         {
             '@id': vocab('RangeSelector'),
         }

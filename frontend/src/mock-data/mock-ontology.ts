@@ -13,15 +13,12 @@ import {
     oa,
 } from '../jsonld/ns';
 
-
-/**
- * Some read-it specific classes and properties, e.g. the categories used to annotate
- * and the RangeSelector (incl properties).
- */
-
 export const contentClass = {
     "@id": readit('Content'),
     "@type": [rdfs.Class],
+    [rdfs.subClassOf]: [
+        { '@id': readit('ReadingResource')}
+    ],
     [skos.prefLabel]: [
         { '@value': 'Content' },
     ],
@@ -47,6 +44,9 @@ export const contentClass = {
 export const readerClass = {
     "@id": readit('Reader'),
     "@type": [rdfs.Class],
+    [rdfs.subClassOf]: [
+        { '@id': readit('Person')}
+    ],
     [skos.prefLabel]: [
         { '@value': 'Reader' },
     ],
@@ -91,6 +91,34 @@ export const mediumClass = {
     ],
     [schema.color]: [
         { '@value': 'lightcoral' }
+    ],
+};
+
+export const descriptionOfProperty = {
+    '@id': readit('descriptionOf'),
+    '@type': [rdf.Property],
+    [skos.prefLabel]: [{
+        '@value': 'description of',
+    }],
+    [rdfs.domain]: [{
+        '@id': readit('Reader'),
+    }],
+    [rdfs.range]: [{
+        '@id': readit('Person'),
+    }],
+    [skos.definition]: [
+        { '@value': 'Dit is de definitie van descriptionOf' },
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:16+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('JdeKruif')
+        }
     ],
 };
 
