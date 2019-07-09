@@ -15,17 +15,24 @@ export interface ViewOptions extends BaseOpt<Node> {
     text: string;
 
     /**
-     * Optional. The oa:Annotation instance(s) that you want to highlight in the text immediately.
-     */
-    initialHighlights?: Graph;
-
-    /**
      * Optional. A collection of oa:Annotation instances.
      */
     collection?: Graph;
 
     /**
-     * Optional. The oa:Annotation instance, present in the collection / Graph that
+     * Specify whether the View should only display oa:Annotations, or if it allows editing
+     * them. Defaults to false.
+     */
+    isEditable: boolean;
+
+    /**
+     * Optional. Specify whether the oa:Annotations in collection should be
+     * displayed when the View becomes visible. Defaults to false.
+     */
+    showHighlightsInitially: boolean;
+
+    /**
+     * Optional. The oa:Annotation instance, present in the collection / Graph, that
      * you want to scroll to after the annotation's highlight is added to the DOM.
      * Note that the HighlightableTextView will not scroll itself:
      * it will throw an event ('scrollToReady') with the details that you
@@ -33,13 +40,9 @@ export interface ViewOptions extends BaseOpt<Node> {
      * Note that these are coordinates relative to the documents' (!) 0,0 coordinates,
      * so you wil have to calculate how much to scroll from there (e.g. most likely
      * subtract the offset().top of the scrollable element).
+     * Will not work if showHighlightsInitially is false.
      */
     initialScrollTo?: Node;
-
-    /**
-     * Specify whether the text should be editable.
-     */
-    isEditable: boolean;
 }
 
 /**
@@ -53,7 +56,7 @@ export default class HighlightableTextView extends View {
     text: string;
     textWrapper: JQuery<HTMLElement>;
     collection: Graph;
-    initialHighlights?: Graph;
+    showHighlightsInitially: boolean;
 
     /**
      * Store the oa:Annotation that needs to be scrolled to
@@ -74,7 +77,7 @@ export default class HighlightableTextView extends View {
         this.scrollToNode = options.initialScrollTo;
         this.text = options.text;
         this.isEditable = options.isEditable;
-        this.initialHighlights = options.initialHighlights;
+        this.showHighlightsInitially = options.showHighlightsInitially;
 
         if (!options.collection) this.collection = new Graph();
         this.collection.on('add', this.addHighlight, this);
@@ -92,11 +95,8 @@ export default class HighlightableTextView extends View {
         if (this.text) {
             this.initHighlights();
 
-            if (this.initialHighlights) {
-
-            }
-
-            if (this.scrollToNode) {
+            if (this.showHighlightsInitially) {
+                this.showAll();
                 this.scroll(this.scrollToNode);
             }
         }
@@ -160,6 +160,9 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
+    /**
+     * Show all annotations in the text.
+     */
     showAll(): this {
         this.hVs.forEach( (hV) => {
             hV.render().$el.prependTo(this.$el);
@@ -167,6 +170,9 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
+    /**
+     * Hide all annotations.
+     */
     hideAll(): this {
         this.hVs.forEach( (hV) => {
             hV.$el.detach();
@@ -197,7 +203,7 @@ export default class HighlightableTextView extends View {
 
     /**
      * Add a HighlightView to the current text.
-     * @param node The Node to base the highlight on. Note that all required related items should already be in the Graph.
+     * @param node The Node to base the highlight on.
      */
     private addHighlight(node: Node): HighlightView {
         if (!this.isType(node, oa.Annotation)) return;
@@ -350,6 +356,7 @@ export default class HighlightableTextView extends View {
      * subtract the offset().top of the scrollable element).
      */
     scroll(scrollToNode: Node): this {
+        if (!scrollToNode) return this;
         let scrollToHv = this.hVs.find(hV => hV.model === scrollToNode);
         if (scrollToHv) {
             this.trigger('scrollToReady', scrollToHv.getTop(), scrollToHv.getHeight());
