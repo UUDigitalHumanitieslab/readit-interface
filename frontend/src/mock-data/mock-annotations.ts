@@ -3,7 +3,7 @@ import { oa, rdf, rdfs, skos } from './../jsonld/ns';
 import Graph from './../jsonld/graph';
 import Node from './../jsonld/node';
 
-export default function getMockAnnotationsGraph() {
+export function getMockAnnotationsGraph() {
     return new Graph([
         getAnnotation(100, 200, 300),
         getOntologyNode(200, 'Content'),
@@ -21,6 +21,16 @@ export default function getMockAnnotationsGraph() {
         getStartSelector(307, 18, 1),
         getEndSelector(308, 18, 250),
     ]);
+}
+
+export function getFourthAnno(): Graph {
+    return new Graph([
+        getAnnotation(103, 203, 309),
+        getOntologyNode(203, 'Content'),
+        getRangeSelector(309, 310, 311),
+        getStartSelector(310, 15, 1),
+        getEndSelector(311, 15, 5)
+    ])
 }
 
 export function getAnnotation(itemId, bodyId, selectorId): Node {
