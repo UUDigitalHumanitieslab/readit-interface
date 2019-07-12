@@ -10,7 +10,7 @@
     </p>
     <p class="subtitle is-6">
         A more complete implementation of the annotation tool will be available in Read-IT's actual interface. This latter version will
-        be based on input and feedback from the team, so if you have remarks or questions contact us via Slack or digitalhumanities@uu.nl
+        be based on input and feedback from the team, so if you have remarks, suggestions or questions contact us via Slack or digitalhumanities@uu.nl.
     </p>
     <p class="subtitle is-6">
         Below you find the source texts currently available, separated by language (i.e. please scroll down for French).
@@ -51,6 +51,32 @@
             <br>
             <p class="title is-6">French</p>
             {{#each frSources}}
+            <div class="card">
+                <div class="card-content">
+                    <div class="media">
+                        <div class="media-content">
+                            <a data-source-id="{{id}}" class="initAnnotations">
+                                <p class="title is-5">{{name}} ({{author}})</p>
+                            </a>
+                            {{#if annotations}}
+                            <p class="subtitle is-6">Number of annotations: {{annotations.length}}</p>
+                            {{else}}
+                            <p class="subtitle is-6">You haven't annotated this yet
+                                <span id="add-new-button" class="icon tooltip initAnnotations"
+                                    data-tooltip="Add annotations now" data-source-id="{{id}}">
+                                    <i class="fas fa-plus-circle fa-sm"></i>
+                                </span>
+                            </p>
+                            {{/if}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+            <br>
+            <br>
+            <p class="title is-6">German</p>
+            {{#each deSources}}
             <div class="card">
                 <div class="card-content">
                     <div class="media">

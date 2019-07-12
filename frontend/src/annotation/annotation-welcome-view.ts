@@ -21,8 +21,9 @@ export default class AnnotationWelcomeView extends View {
         let json = this.collection.toJSON();
         let enSources = filter(json, s => s.language === "en");
         let frSources = filter(json, s => s.language === "fr");
+        let deSources = filter(json, s => s.language === "de");
 
-        this.$el.html(this.template({ enSources: enSources, frSources: frSources }));
+        this.$el.html(this.template({ enSources: enSources, frSources: frSources, deSources: deSources }));
         this.list = this.$("#list");
         return this;
     }
