@@ -7,6 +7,7 @@ class Source(models.Model):
     author = models.CharField(max_length=250)
     publicationDate = models.DateField()
     text = models.TextField()
+    language = models.CharField(max_length=2, default='en')
 
     def __str__(self):
         return self.name
