@@ -1,4 +1,4 @@
-import { extend, defaults } from 'lodash';
+import { extend, filter } from 'lodash';
 import * as _ from 'underscore';
 import View from '../core/view';
 
@@ -16,9 +16,13 @@ export default class AnnotationWelcomeView extends View {
     list: JQuery<Element>;
 
     collection: SourceCollection;
-    
+
     render(): View {
-        this.$el.html(this.template({ sources: this.collection.toJSON() }));
+        let json = this.collection.toJSON();
+        let enSources = filter(json, s => s.language === "en");
+        let frSources = filter(json, s => s.language === "fr");
+
+        this.$el.html(this.template({ enSources: enSources, frSources: frSources }));
         this.list = this.$("#list");
         return this;
     }
@@ -30,7 +34,7 @@ export default class AnnotationWelcomeView extends View {
 
     collectSources(): void {
         if (this.collection.length > 0) return;
-        
+
         var self = this;
         var annoCollection = new SourceCollection();
 
@@ -49,12 +53,12 @@ export default class AnnotationWelcomeView extends View {
     /**
      * Initialize an AnnotateView, passing it the selected Source
      */
-    initAnnotateView(event: any): void {        
+    initAnnotateView(event: any): void {
         if (this.currentAnnotateView) this.currentAnnotateView.$el.detach();
 
         let sourceId = $(event.currentTarget).data('source-id');
         let source = this.collection.get(sourceId);
-        
+
         this.list.hide();
         this.currentAnnotateView = new AnnotateView(source, <User>this.model);
         this.currentAnnotateView.render().$el.insertAfter(this.list);
