@@ -14,6 +14,7 @@ export default class AnnotationWelcomeView extends View {
      */
     currentAnnotateView: AnnotateView;
     list: JQuery<Element>;
+    introtext: JQuery<Element>;
 
     collection: SourceCollection;
 
@@ -22,9 +23,11 @@ export default class AnnotationWelcomeView extends View {
         let enSources = filter(json, s => s.language === "en");
         let frSources = filter(json, s => s.language === "fr");
         let deSources = filter(json, s => s.language === "de");
-
         this.$el.html(this.template({ enSources: enSources, frSources: frSources, deSources: deSources }));
+
         this.list = this.$("#list");
+        this.introtext = this.$(".intro-text");
+
         return this;
     }
 
@@ -61,6 +64,8 @@ export default class AnnotationWelcomeView extends View {
         let source = this.collection.get(sourceId);
 
         this.list.hide();
+        this.introtext.hide();
+
         this.currentAnnotateView = new AnnotateView(source, <User>this.model);
         this.currentAnnotateView.render().$el.insertAfter(this.list);
         this.currentAnnotateView.initAnnotationViews();
