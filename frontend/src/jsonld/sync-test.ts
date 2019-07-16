@@ -8,13 +8,22 @@ import Graph from './graph';
 import Node from './node';
 
 describe('the jsonld/sync module', function() {
-    beforeEach(function() {
+    let request, expandedGraph;
+    let success, error;
+
+    beforeEach(function () {
         jasmine.Ajax.install();
+        success = jasmine.createSpy('success');
+        error = jasmine.createSpy('error');
     });
 
     afterEach(function() {
         jasmine.Ajax.uninstall();
     });
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
     describe('syncLD', function() {
         // Please merge this with whatever you want to keep from
@@ -23,6 +32,8 @@ describe('the jsonld/sync module', function() {
         it('compacts the request data if a context is set', async function() {
             // Use 'create' or 'update' as the method.
             // The 'read' method doesn't send any data by default.
+
+            expandedGraph = new Graph(expandedData, { context: context });
         });
 
         it('sends the request through Backbone.sync', async function() {
@@ -73,6 +84,15 @@ describe('the jsonld/sync module', function() {
         // Use application/json for all specs except for the second.
 
         it('returns the context if the link header refers to one context', function() {
+            // Content-Type: application/json
+            // Link: <http://json-ld.org/contexts/person.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"
+
+            // {
+            // "name": "Markus Lanthaler",
+            // "homepage": "http://www.markus-lanthaler.com/",
+            // "image": "http://twitter.com/account/profile_image/markuslanthaler"
+            // }
+
         });
 
         it('returns undefined if the content-type is application/ld+json', function() {
@@ -109,57 +129,3 @@ describe('the jsonld/sync module', function() {
         });
     });
 });
-
-describe("sync", async function () {
-    let request, expandedGraph;
-    let success, error;
-
-    beforeEach(function () {
-        jasmine.Ajax.install();
-        success = jasmine.createSpy('success');
-        error = jasmine.createSpy('error');
-
-        expandedGraph = new Graph(expandedData);
-        expandedGraph.setContext(context);
-    });
-
-
-    afterEach(async function () {
-        jasmine.Ajax.uninstall();
-    });
-
-    it("does something", async function () {
-        let result = syncLD('POST', expandedGraph, { success, error, url: 'https://bogus.blah.foo', });
-
-        // wachten
-        await sleep(10);
-
-        request = jasmine.Ajax.requests.mostRecent();
-
-        console.log(request);
-
-
-        let response = {
-            "status": 200,
-            "contentType": "application/ld+json",
-            "responseText": JSON.stringify(compactData)
-        }
-        request.respondWith(response);
-
-        // assert something about request
-
-        await sleep(10);
-
-        expect(success).toHaveBeenCalled();
-
-        // response
-        let actual = await result;
-        console.log(actual);
-    });
-
-
-
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-})
