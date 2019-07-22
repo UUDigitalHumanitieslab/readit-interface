@@ -51,7 +51,8 @@ export type FlatLiteral = ValueContainer & ValueModifier;
 export interface FlatList {
     ['@list']: FlatValue;
 }
-export interface FlatValue extends Array<Identifier | FlatLiteral | FlatList> {}
+export type FlatSingleValue = Identifier | FlatLiteral | FlatList;
+export interface FlatValue extends Array<FlatSingleValue> {}
 
 export interface FlatLdObject extends Identifier {
     ['@type']?: Array<string>;
