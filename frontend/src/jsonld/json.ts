@@ -47,6 +47,8 @@ export interface ValueLocalization {
     ['@language']?: string;
 }
 export type ValueModifier = ValueTyping | ValueLocalization;
+export type FlatTypedLiteral = ValueContainer & ValueTyping;
+export type FlatLocalizedLiteral = ValueContainer & ValueLocalization;
 export type FlatLiteral = ValueContainer & ValueModifier;
 export interface FlatList {
     ['@list']: FlatValue;
