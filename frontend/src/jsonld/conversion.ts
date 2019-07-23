@@ -99,7 +99,7 @@ const knownConversions: ConversionTable = {
  * unmodified if already native.
  */
 export function asNative(obj: any): Native {
-    if (isString(obj['@id'])) return obj;
+    if (obj && isString(obj['@id'])) return obj;
     if (has(obj, '@value')) {
         const value = obj['@value'];
         if (has(obj, '@type')) {
