@@ -87,5 +87,31 @@ describe('the conversion module', function() {
                 expect(asNative(native)).toEqual(native);
             });
         });
+
+        it('converts Nodes to Identifiers for efficiency', function() {
+            const identifier = { '@id': '1' };
+            const node = new Node(identifier);
+            expect(asNative(node)).toEqual(identifier);
+            expect(asNative(identifier)).toEqual(identifier);
+        });
+    });
+
+    describe('asLD', function() {
+        it('converts native datatypes to expanded JSON-LD values', function() {
+            bijectivePairs.forEach(({native, ld}) => {
+                expect(asLD(native)).toEqual(ld);
+            });
+        });
+
+        it('leaves expanded JSON-LD values unchanged', function() {
+            bijectivePairs.forEach(({ld}) => {
+                expect(asLD(ld)).toEqual(ld);
+            });
+        });
+
+        it('throws a ConversionError if you feed it garbage', function() {
+            const buggy = () => asLD({ a: 1, b: 2 });
+            expect(buggy).toThrowError(ConversionError);
+        });
     });
 });
