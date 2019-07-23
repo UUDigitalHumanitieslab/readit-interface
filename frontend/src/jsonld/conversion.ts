@@ -21,7 +21,21 @@ import {
 import { xsd } from './ns';
 import Node from './node';
 
-const knownConversions = {
+// Native includes Identifier as an optimization.
+export type Native = number | boolean | null | string |
+                     Number | Boolean | Object | String |
+                     Date | Identifier | NativeArray;
+export interface NativeArray extends Array<Native> { };
+
+interface Conversion {
+    toLD(arg: any): FlatLiteral;
+    fromLD(arg: any): Native;
+}
+interface ConversionTable {
+    [iri: string]: Conversion;
+}
+
+const knownConversions: ConversionTable = {
     [xsd.integer]: {
         toLD(int: number): FlatTypedLiteral {
             return { '@value': int };
@@ -37,8 +51,8 @@ const knownConversions = {
                 '@type': xsd.nonNegativeInteger,
             };
         },
-        fromLD(value: FlatTypedLiteral): number {
-            let obj = new Object(+value['@value']);
+        fromLD(value: FlatTypedLiteral): Number {
+            let obj = new Number(value['@value']);
             obj['@type'] = xsd.nonNegativeInteger;
             return obj;
         },
@@ -75,14 +89,10 @@ const knownConversions = {
             };
         },
         fromLD(value: FlatTypedLiteral): Date {
-            return new Date(value['@value']);
+            return new Date(value['@value'] as string);
         },
     },
 };
-
-// Native includes Identifier as an optimization.
-export type Native = number | boolean | null | string | Date | Identifier | NativeArray;
-export interface NativeArray extends Array<Native> { };
 
 /**
  * Unwrap a single expanded JSON-LD value to native or return
