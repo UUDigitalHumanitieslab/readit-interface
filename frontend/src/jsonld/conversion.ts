@@ -1,12 +1,15 @@
 import {
     has,
     map,
+    keys,
+    overSome,
     isArray,
     isString,
     isNumber,
     isInteger,
     isBoolean,
     isNull,
+    isObject,
 } from 'lodash';
 
 import {
@@ -108,4 +111,47 @@ export function asNative(obj: any): Native {
     if (isArray(obj)) return map(obj, asNative);
     if (obj instanceof Node) return { '@id': obj.id };
     return obj;
+}
+
+export class ConversionError extends TypeError {
+    offendingValue: any;
+    constructor(message, value) {
+        super(message);
+        this.offendingValue = value;
+    }
+}
+
+ConversionError.prototype.name = 'ConversionError';
+
+/**
+ * Encode a single native value as JSON-LD or return unmodified if it
+ * is already JSON-LD.
+ */
+export function asLD(obj: any): FlatSingleValue {
+    if (has(obj, '@id') || has(obj, '@value') || has(obj, '@list')) return obj;
+    if (has(obj, '@type')) {
+        const type = obj['@type'];
+        const conversion = knownConversions[type];
+        if (conversion) return conversion.toLD(obj);
+        if (isObject(obj)) {
+            const objKeys = keys(obj);
+            if (objKeys.length === 1 && objKeys[0] === '@type') return {
+                '@value': null,
+                '@type': type,
+            };
+        }
+        return {
+            '@value': obj,
+            '@type': type,
+        };
+    }
+    if (has(obj, '@language')) return {
+        '@value': obj,
+        '@language': obj['@language'],
+    };
+    if (isArray(obj)) return { '@list': map(obj, asLD) };
+    if (overSome(isNumber, isBoolean, isNull, isString)(obj)) return {
+        '@value': obj,
+    };
+    throw new ConversionError('No available conversion to JSON-LD', obj);
 }
