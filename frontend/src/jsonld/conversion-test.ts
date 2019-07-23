@@ -81,5 +81,11 @@ describe('the conversion module', function() {
                 expect(asNative(ld)).toEqual(native);
             });
         });
+
+        it('leaves native datatypes unchanged', function() {
+            bijectivePairs.forEach(({native}) => {
+                expect(asNative(native)).toEqual(native);
+            });
+        });
     });
 });
