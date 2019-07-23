@@ -1,4 +1,5 @@
 import {
+    has,
     map,
     isArray,
     isString,
@@ -8,8 +9,14 @@ import {
     isNull,
 } from 'lodash';
 
-import { FlatSingleValue, FlatTypedLiteral, FlatLiteral } from './json';
+import {
+    FlatSingleValue,
+    FlatTypedLiteral,
+    FlatLiteral,
+    Identifier,
+} from './json';
 import { xsd } from './ns';
+import Node from './node';
 
 const knownConversions = {
     [xsd.integer]: {
@@ -69,3 +76,36 @@ const knownConversions = {
         }
     },
 };
+
+// Native includes Identifier as an optimization.
+export type Native = number | boolean | null | string | Date | Identifier | NativeArray;
+export interface NativeArray extends Array<Native> { };
+
+/**
+ * Unwrap a single expanded JSON-LD value to native or return
+ * unmodified if already native.
+ */
+export function asNative(obj: any): Native {
+    if (isString(obj['@id'])) return obj;
+    if (has(obj, '@value')) {
+        const value = obj['@value'];
+        if (has(obj, '@type')) {
+            const type = obj['@type'];
+            const conversion = knownConversions[type];
+            if (conversion) return conversion.fromLD(obj);
+            let native = new Object(value);
+            native['@type'] = type;
+            return native;
+        }
+        if (has(obj, '@language')) {
+            let native = new String(value);
+            native['@language'] = obj['@language'];
+            return native;
+        }
+        return value;
+    }
+    if (has(obj, '@list')) obj = obj['@list'];
+    if (isArray(obj)) return map(obj, asNative);
+    if (obj instanceof Node) return { '@id': obj.id };
+    return obj;
+}
