@@ -89,7 +89,9 @@ const knownConversions: ConversionTable = {
             };
         },
         fromLD(value: FlatTypedLiteral): Date {
-            return new Date(value['@value'] as string);
+            let obj = new Date(value['@value'] as string);
+            obj['@type'] = xsd.dateTime;
+            return obj;
         },
     },
 };

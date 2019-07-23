@@ -32,7 +32,11 @@ const bijectivePairs = [{
         '@language': 'en',
     },
 }, {
-    native: new Date('2000-01-01T23:45:06.000Z'),
+    native: (function() {
+        let d = new Date('2000-01-01T23:45:06.000Z');
+        d['@type'] = xsd.dateTime;
+        return d;
+    }()),
     ld: {
         '@value': '2000-01-01T23:45:06.000Z',
         '@type': xsd.dateTime,
