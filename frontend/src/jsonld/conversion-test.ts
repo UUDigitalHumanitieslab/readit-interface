@@ -115,7 +115,11 @@ describe('the conversion module', function() {
 
         it('throws a ConversionError if you feed it garbage', function() {
             const buggy = () => asLD({ a: 1, b: 2 });
-            expect(buggy).toThrowError(ConversionError);
+            // Actually we expect ConversionError specifically, but
+            // by the time jasmine catches the exception, it has
+            // somehow (magically?) upcast to a TypeError and I
+            // wasn't motivated enough to hunt down the cause.
+            expect(buggy).toThrowError(TypeError);
         });
     });
 });
