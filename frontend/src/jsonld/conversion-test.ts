@@ -71,12 +71,7 @@ const bijectivePairs = [{
         '@value': 'encoded',
         '@type': 'unknown',
     },
-}, /*
-{
-    native: ,
-    ld: {},
-}, */
-]
+}];
 
 describe('the conversion module', function() {
     describe('asNative', function() {
