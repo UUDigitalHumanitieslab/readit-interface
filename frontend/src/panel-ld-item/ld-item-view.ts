@@ -67,7 +67,7 @@ export default class LdItemView extends View<Node> {
                 }
 
                 if (attribute == 'created') {
-                    this.itemMetadata[attribute] = obj['@value'];
+                    this.itemMetadata[attribute] = obj;
                     continue;
                 }
 
@@ -77,14 +77,10 @@ export default class LdItemView extends View<Node> {
                 }
 
                 // then process what is left
-                if (obj['@value']) {
-                    this.properties[attribute] = obj['@value'];
-                    continue;
-                }
-
                 if (obj['@id']) {
                     this.relatedItems[attribute] = obj['@id'];
-                    continue;
+                } else {
+                    this.properties[attribute] = obj;
                 }
             }
         }

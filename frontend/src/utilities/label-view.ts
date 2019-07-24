@@ -33,7 +33,7 @@ export default class LabelView extends View<Node> {
             this.$el.addClass("tooltip");
             this.$el.addClass("is-tooltip");
 
-            let definition = this.model.get(skos.definition)[0]['@value'];
+            let definition = this.model.get(skos.definition)[0];
             this.$el.attr("data-tooltip", definition);
 
             if (definition.length > 65) {
