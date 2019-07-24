@@ -1,4 +1,4 @@
-import { extend, isUndefined, isArray, isEqual } from 'lodash';
+import { extend, map, mapValues, isUndefined, isArray, isEqual } from 'lodash';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
     expand,   // (jsonld, options?, callback?) => Promise<jsonld>
@@ -8,6 +8,7 @@ import {
     toRDF,    // (jsonld, options?, callback?) => Promise<dataset>
     registerRDFParser,  // (contentType, parser) => void
 } from 'jsonld';
+import { ModelSetOptions } from 'backbone';
 
 import Model from '../core/model';
 import {
@@ -18,18 +19,13 @@ import {
 } from './json';
 import Graph from './graph';
 import sync from './sync';
+import { Native, asNative } from './conversion';
 
 /**
  * Representation of a single JSON-LD object with an @id.
  * Mostly for internal use, as the model type for Graph.
  */
 export default class Node extends Model {
-    /**
-     * attributes must be flat, expanded JSON-LD; this is a
-     * restriction from Model.
-     */
-    attributes: FlatLdObject;
-
     /**
      * Original local context, if set.
      */
@@ -75,6 +71,23 @@ export default class Node extends Model {
         return this;
     }
 
+    /**
+     * Override the set method to convert JSON-LD to native.
+     */
+    set(key: string, value: any, options?: ModelSetOptions): this;
+    set(hash: any, options?: ModelSetOptions): this;
+    set(key, value?, options?) {
+        let hash: any;
+        if (typeof key === 'string') {
+            hash = { [key]: value };
+        } else {
+            hash = key;
+            options = value;
+        }
+        let normalizedHash = mapValues(hash, asNativeArray);
+        return super.set(normalizedHash, options);
+    }
+
     // TODO: non-modifying compact and flatten methods
 }
 
@@ -82,3 +95,12 @@ extend(Node.prototype, {
     idAttribute: '@id',
     sync,
 });
+
+/**
+ * Implementation detail of the Node class.
+ */
+function asNativeArray(value: any, key: string): Native {
+    if (key === '@id') return value;
+    let array = isArray(value) ? value : [value];
+    return map(array, asNative);
+}
