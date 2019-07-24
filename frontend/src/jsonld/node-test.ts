@@ -49,7 +49,7 @@ const expectedConversions = [{
         [owl.sameAs]: [{ '@id': 'http://www.wikidata.org/entity/Q331656' }],
         [dcterms.creator]: [{ '@id': staff('JdeKruif') },],
         [dcterms.created]: [(function() {
-            let d = new Date('2085-12-31T04:33:16+0100');
+            let d = new Date('2085-12-31T04:33:16+01:00');
             d['@type'] = xsd.dateTime;
             return d;
         }())],

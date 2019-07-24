@@ -50,7 +50,7 @@ export default class LdItemView extends View<Node> {
             // that either contain a value (i.e. string or date or whatever) and look like
             //'{
             //    "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
-            //    "@value": "2085-12-31T04:33:15+0100"
+            //    "@value": "2085-12-31T04:33:15+01:00"
             // }'
             // or that represents a link to another item, which looks like
             // '{
