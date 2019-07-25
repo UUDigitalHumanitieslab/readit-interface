@@ -8,6 +8,7 @@ import {
     toRDF,    // (jsonld, options?, callback?) => Promise<dataset>
     registerRDFParser,  // (contentType, parser) => void
 } from 'jsonld';
+import { getInitialContext } from 'jsonld/lib/context';
 
 import Model from '../core/model';
 import {
@@ -56,7 +57,7 @@ export default class Node extends Model {
      * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
      */
     async computeContext(localContext: JsonLdContext):Promise<ResolvedContext> {
-        let globalContext = this.collection && this.collection.whenContext;
+        let globalContext = this.collection && this.collection.whenContext || getInitialContext({});
         return processContext(await globalContext, localContext || {});
     }
 
