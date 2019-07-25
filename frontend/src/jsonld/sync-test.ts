@@ -33,7 +33,8 @@ describe('the jsonld/sync module', function() {
             // Use 'create' or 'update' as the method.
             // The 'read' method doesn't send any data by default.
 
-            expandedGraph = new Graph(expandedData, { context: context });
+            expandedGraph = new Graph(expandedData);
+            expandedGraph.setContext(context);
         });
 
         it('sends the request through Backbone.sync', async function() {
