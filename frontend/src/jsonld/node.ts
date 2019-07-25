@@ -32,6 +32,7 @@ import {
     Native as OptimizedNative,
     NativeArray as OptimizedNativeArray,
     asNative,
+    asLD,
 } from './conversion';
 
 type UnoptimizedNative = Exclude<OptimizedNative, Identifier | OptimizedNativeArray>;
@@ -116,6 +117,13 @@ export default class Node extends Model {
         return value;
     }
 
+    /**
+     * Override the toJSON method to convert native to JSON-LD.
+     */
+    toJSON(options?: any): FlatLdObject {
+        return mapValues(this.attributes, asLDArray) as FlatLdObject;
+    }
+
     // TODO: non-modifying compact and flatten methods
 }
 
@@ -139,4 +147,10 @@ function id2node(value: OptimizedNative): Native {
     }
     if (isArray(value)) return map(value, id2node.bind(this));
     return value;
+}
+
+function asLDArray<K extends keyof FlatLdObject>(value: OptimizedNative, key: K): FlatLdObject[K] {
+    if (key === '@id') return value as string;
+    if (key === '@type') return value as string[];
+    return map(value as OptimizedNativeArray, asLD);
 }
