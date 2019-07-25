@@ -41,7 +41,7 @@ export default class Node extends Model {
     /**
      * The ctor allows you to set/override the context on creation.
      */
-    constructor(attributes?: FlatLdObject, options?) {
+    constructor(attributes?: any, options?) {
         super(attributes, options);
         let context: JsonLdContext = options && options.context;
         if (!isUndefined(context)) this.setContext(context);
