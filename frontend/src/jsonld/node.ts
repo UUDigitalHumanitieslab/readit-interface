@@ -1,4 +1,12 @@
-import { extend, map, mapValues, isUndefined, isArray, isEqual } from 'lodash';
+import {
+    extend,
+    map,
+    mapValues,
+    has,
+    isUndefined,
+    isArray,
+    isEqual,
+} from 'lodash';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
     expand,   // (jsonld, options?, callback?) => Promise<jsonld>
@@ -16,10 +24,19 @@ import {
     ResolvedContext,
     JsonLdObject,
     FlatLdObject,
+    Identifier
 } from './json';
 import Graph from './graph';
 import sync from './sync';
-import { Native, asNative } from './conversion';
+import {
+    Native as OptimizedNative,
+    NativeArray as OptimizedNativeArray,
+    asNative,
+} from './conversion';
+
+type UnoptimizedNative = Exclude<OptimizedNative, Identifier | OptimizedNativeArray>;
+export type Native = UnoptimizedNative | Node | NativeArray;
+export interface NativeArray extends Array<Native> { }
 
 /**
  * Representation of a single JSON-LD object with an @id.
@@ -88,6 +105,17 @@ export default class Node extends Model {
         return super.set(normalizedHash, options);
     }
 
+    /**
+     * Override the get method to convert identifiers to Nodes.
+     */
+    get<T extends string>(key: T): T extends '@id' ? string : NativeArray {
+        const value = super.get(key);
+        if (isArray(value) && key !== '@type') {
+            return map(value, id2node.bind(this)) as T extends '@id' ? string : NativeArray;
+        }
+        return value;
+    }
+
     // TODO: non-modifying compact and flatten methods
 }
 
@@ -97,10 +125,18 @@ extend(Node.prototype, {
 });
 
 /**
- * Implementation detail of the Node class.
+ * Implementation details of the Node class.
  */
-function asNativeArray(value: any, key: string): Native {
+function asNativeArray(value: any, key: string): OptimizedNative {
     if (key === '@id') return value;
     let array = isArray(value) ? value : [value];
     return map(array, asNative);
+}
+
+function id2node(value: OptimizedNative): Native {
+    if (has(value, '@id')) {
+        return this.collection && this.collection.get(value) || new Node(value);
+    }
+    if (isArray(value)) return map(value, id2node.bind(this));
+    return value;
 }
