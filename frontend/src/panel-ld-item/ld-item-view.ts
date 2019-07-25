@@ -62,7 +62,7 @@ export default class LdItemView extends View<Node> {
 
                 // first extract everything specific that we need
                 if (attribute == 'creator') {
-                    this.itemMetadata[attribute] = obj['@id'];
+                    this.itemMetadata[attribute] = obj.id;
                     continue;
                 }
 
@@ -72,13 +72,13 @@ export default class LdItemView extends View<Node> {
                 }
 
                 if (attribute == 'owl:sameAs') {
-                    this.externalResources[attribute] = obj['@id'];
+                    this.externalResources[attribute] = obj.id;
                     continue;
                 }
 
                 // then process what is left
-                if (obj['@id']) {
-                    this.relatedItems[attribute] = obj['@id'];
+                if (obj instanceof Node) {
+                    this.relatedItems[attribute] = obj.id;
                 } else {
                     this.properties[attribute] = obj;
                 }
