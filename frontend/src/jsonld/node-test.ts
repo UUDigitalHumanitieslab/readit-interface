@@ -5,6 +5,19 @@ import { item, readit, staff, owl, dcterms, xsd } from './ns';
 import * as conversionModule from './conversion';
 import Node from './node';
 
+const contentInstanceNative = {
+    '@id': item('3'),
+    '@type': [readit('Content')],
+    [owl.sameAs]: [{ '@id': 'http://www.wikidata.org/entity/Q331656' }],
+    [dcterms.creator]: [{ '@id': staff('JdeKruif') },],
+    [dcterms.created]: [(function() {
+        let d = new Date('2085-12-31T04:33:16+01:00');
+        d['@type'] = xsd.dateTime;
+        return d;
+    }())],
+    [dcterms.title]: ['Pretty Little Title'],
+};
+
 const expectedConversions = [{
     args: ['a', 1],
     attrs: { 'a': [1] },
@@ -43,18 +56,7 @@ const expectedConversions = [{
     attrs: { 'a': [[1, 2, 3]] },
 }, {
     args: [contentInstance],
-    attrs: {
-        '@id': item('3'),
-        '@type': [readit('Content')],
-        [owl.sameAs]: [{ '@id': 'http://www.wikidata.org/entity/Q331656' }],
-        [dcterms.creator]: [{ '@id': staff('JdeKruif') },],
-        [dcterms.created]: [(function() {
-            let d = new Date('2085-12-31T04:33:16+01:00');
-            d['@type'] = xsd.dateTime;
-            return d;
-        }())],
-        [dcterms.title]: ['Pretty Little Title'],
-    },
+    attrs: contentInstanceNative,
 }];
 
 describe('Node', function() {
@@ -98,6 +100,28 @@ describe('Node', function() {
                     expect(this.node.id).toBe(attrs['@id']);
                 }
                 this.node.clear();
+            });
+        });
+    });
+
+    describe('get', function() {
+        beforeEach(function() {
+            this.node.set(contentInstance);
+        });
+
+        it('converts Identifiers to Nodes', function() {
+            [owl.sameAs, dcterms.creator].forEach(key => {
+                const value = this.node.get(key)[0];
+                expect(value).toEqual(jasmine.any(Node));
+                expect(value).toEqual(jasmine.objectContaining({
+                    id: contentInstanceNative[key][0]['@id'],
+                }));
+            });
+        });
+
+        it('leaves other attributes unmodified', function() {
+            ['@id', '@type', dcterms.created, dcterms.title].forEach(key => {
+                expect(this.node.get(key)).toEqual(contentInstanceNative[key]);
             });
         });
     });
