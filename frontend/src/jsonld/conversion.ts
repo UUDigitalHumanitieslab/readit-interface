@@ -21,15 +21,17 @@ import {
 import { xsd } from './ns';
 import Node from './node';
 
+export type AtomicNative = number | boolean | null | string;
 // Native includes Identifier as an optimization.
-export type Native = number | boolean | null | string |
-                     Number | Boolean | Object | String |
+export type Native = AtomicNative | Number | Boolean | Object | String |
                      Date | Identifier | NativeArray;
 export interface NativeArray extends Array<Native> { };
 
+export type Either = Native | FlatSingleValue;
+
 interface Conversion {
-    toLD(arg: any): FlatLiteral;
-    fromLD(arg: any): Native;
+    toLD(arg: Native): FlatLiteral;
+    fromLD(arg: FlatLiteral): Native;
 }
 interface ConversionTable {
     [iri: string]: Conversion;
@@ -100,14 +102,14 @@ const knownConversions: ConversionTable = {
  * Unwrap a single expanded JSON-LD value to native or return
  * unmodified if already native.
  */
-export function asNative(obj: any): Native {
+export function asNative(obj: Either | Node): Native {
     if (obj && isString(obj['@id'])) return obj;
     if (has(obj, '@value')) {
         const value = obj['@value'];
         if (has(obj, '@type')) {
             const type = obj['@type'];
             const conversion = knownConversions[type];
-            if (conversion) return conversion.fromLD(obj);
+            if (conversion) return conversion.fromLD(obj as FlatLiteral);
             let native = new Object(value);
             native['@type'] = type;
             return native;
@@ -126,7 +128,7 @@ export function asNative(obj: any): Native {
 }
 
 export class ConversionError extends TypeError {
-    offendingValue: any;
+    offendingValue: Either;
     constructor(message, value) {
         super(message);
         this.offendingValue = value;
@@ -139,12 +141,14 @@ ConversionError.prototype.name = 'ConversionError';
  * Encode a single native value as JSON-LD or return unmodified if it
  * is already JSON-LD.
  */
-export function asLD(obj: any): FlatSingleValue {
-    if (has(obj, '@id') || has(obj, '@value') || has(obj, '@list')) return obj;
+export function asLD(obj: Either): FlatSingleValue {
+    if (has(obj, '@id') || has(obj, '@value') || has(obj, '@list')) {
+        return obj as FlatSingleValue;
+    }
     if (has(obj, '@type')) {
-        const type = obj['@type'];
+        const type = obj['@type'] as string;
         const conversion = knownConversions[type];
-        if (conversion) return conversion.toLD(obj);
+        if (conversion) return conversion.toLD(obj as Native);
         if (isObject(obj)) {
             const objKeys = keys(obj);
             if (objKeys.length === 1 && objKeys[0] === '@type') return {
@@ -153,17 +157,17 @@ export function asLD(obj: any): FlatSingleValue {
             };
         }
         return {
-            '@value': obj,
+            '@value': obj as AtomicNative,
             '@type': type,
         };
     }
     if (has(obj, '@language')) return {
-        '@value': obj,
-        '@language': obj['@language'],
+        '@value': obj.toString(),
+        '@language': obj['@language'] as string,
     };
     if (isArray(obj)) return { '@list': map(obj, asLD) };
     if (overSome(isNumber, isBoolean, isNull, isString)(obj)) return {
-        '@value': obj,
+        '@value': obj as AtomicNative,
     };
     throw new ConversionError('No available conversion to JSON-LD', obj);
 }

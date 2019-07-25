@@ -18,6 +18,7 @@ import {
 } from 'jsonld';
 import { ModelSetOptions } from 'backbone';
 
+import { FirstTypeIntendedSecondTypeWorkaround } from '../utilities/types';
 import Model from '../core/model';
 import {
     JsonLdContext,
@@ -31,6 +32,7 @@ import sync from './sync';
 import {
     Native as OptimizedNative,
     NativeArray as OptimizedNativeArray,
+    Either,
     asNative,
     asLD,
 } from './conversion';
@@ -39,11 +41,25 @@ type UnoptimizedNative = Exclude<OptimizedNative, Identifier | OptimizedNativeAr
 export type Native = UnoptimizedNative | Node | NativeArray;
 export interface NativeArray extends Array<Native> { }
 
+export interface Attributes extends Partial<Identifier> {
+    ['@type']?: Array<string>;
+    [iri: string]: FirstTypeIntendedSecondTypeWorkaround<OptimizedNativeArray, string>;
+}
+
+export type Mixed = Either | Node;
+export interface MixedArray extends Array<Mixed> { }
+export interface MixedHash extends Partial<Identifier> {
+    ['@type']?: Array<string>;
+    [iri: string]: FirstTypeIntendedSecondTypeWorkaround<MixedArray, string>;
+}
+
 /**
  * Representation of a single JSON-LD object with an @id.
  * Mostly for internal use, as the model type for Graph.
  */
 export default class Node extends Model {
+    attributes: Attributes;
+
     /**
      * Original local context, if set.
      */
@@ -59,7 +75,7 @@ export default class Node extends Model {
     /**
      * The ctor allows you to set/override the context on creation.
      */
-    constructor(attributes?: any, options?) {
+    constructor(attributes?: MixedHash, options?) {
         super(attributes, options);
         let context: JsonLdContext = options && options.context;
         if (!isUndefined(context)) this.setContext(context);
@@ -92,10 +108,10 @@ export default class Node extends Model {
     /**
      * Override the set method to convert JSON-LD to native.
      */
-    set(key: string, value: any, options?: ModelSetOptions): this;
-    set(hash: any, options?: ModelSetOptions): this;
+    set(key: string, value: Mixed, options?: ModelSetOptions): this;
+    set(hash: MixedHash, options?: ModelSetOptions): this;
     set(key, value?, options?) {
-        let hash: any;
+        let hash: MixedHash;
         if (typeof key === 'string') {
             hash = { [key]: value };
         } else {
@@ -135,7 +151,7 @@ extend(Node.prototype, {
 /**
  * Implementation details of the Node class.
  */
-function asNativeArray(value: any, key: string): OptimizedNative {
+function asNativeArray(value: Mixed, key: string): OptimizedNative {
     if (key === '@id') return value;
     let array = isArray(value) ? value : [value];
     return map(array, asNative);
@@ -143,13 +159,13 @@ function asNativeArray(value: any, key: string): OptimizedNative {
 
 function id2node(value: OptimizedNative): Native {
     if (has(value, '@id')) {
-        return this.collection && this.collection.get(value) || new Node(value);
+        return this.collection && this.collection.get(value) || new Node(value as MixedHash);
     }
     if (isArray(value)) return map(value, id2node.bind(this));
     return value;
 }
 
-function asLDArray<K extends keyof FlatLdObject>(value: OptimizedNative, key: K): FlatLdObject[K] {
+function asLDArray<K extends keyof FlatLdObject>(value: Attributes[K], key: K): FlatLdObject[K] {
     if (key === '@id') return value as string;
     if (key === '@type') return value as string[];
     return map(value as OptimizedNativeArray, asLD);
