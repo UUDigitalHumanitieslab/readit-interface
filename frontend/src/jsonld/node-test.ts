@@ -1,3 +1,4 @@
+import { cloneDeep, get, set, initial } from 'lodash';
 import { Model } from 'backbone';
 
 import { contentInstance } from '../mock-data/mock-expanded';
@@ -17,6 +18,13 @@ const contentInstanceNative = {
     }())],
     [dcterms.title]: ['Pretty Little Title'],
 };
+
+const contentInstanceJSON = (function() {
+    let copy = cloneDeep(contentInstance);
+    const path = [dcterms.created, 0, '@value'];
+    set(copy, path, get(contentInstanceNative, initial(path)).toJSON());
+    return copy;
+}());
 
 const expectedConversions = [{
     args: ['a', 1],
@@ -123,6 +131,22 @@ describe('Node', function() {
             ['@id', '@type', dcterms.created, dcterms.title].forEach(key => {
                 expect(this.node.get(key)).toEqual(contentInstanceNative[key]);
             });
+        });
+    });
+
+    describe('toJSON', function() {
+        it('calls the asLD conversion function internally', function() {
+            spyOn(conversionModule, 'asLD').and.callThrough();
+            this.node.set('a', 1);
+            expect(conversionModule.asLD).not.toHaveBeenCalled();
+            const result = this.node.toJSON();
+            expect(conversionModule.asLD).toHaveBeenCalled();
+            expect(result).toEqual({ 'a': [{ '@value': 1 }] });
+        });
+
+        it('returns the Node\'s attributes in expanded JSON-LD', function() {
+            this.node.set(contentInstance);
+            expect(this.node.toJSON()).toEqual(contentInstanceJSON);
         });
     });
 });
