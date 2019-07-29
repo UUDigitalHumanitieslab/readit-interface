@@ -26,7 +26,7 @@ export interface ViewOptions extends BaseOpt<Node> {
     isEditable: boolean;
 
     /**
-     * Optional. Specify whether the oa:Annotations in collection should be
+     * Specify whether the oa:Annotations in collection should be
      * displayed when the View becomes visible. Defaults to false.
      */
     showHighlightsInitially: boolean;
@@ -131,6 +131,8 @@ export default class HighlightableTextView extends View {
      *      - an EndSelector of type oa.XPathSelector
      */
     add(node: Node): this {
+        if (!this.isEditable) return;
+
         if (!this.isType(node, oa.Annotation)) {
             throw TypeError('node should be of type oa:Annotation');
         }
@@ -152,6 +154,8 @@ export default class HighlightableTextView extends View {
      * Remove all highlights from the text.
      */
     removeAll(): this {
+        if (!this.isEditable) return;
+
         this.collection.each((node) => {
             if (node && node.get('@type') == oa.Annotation) {
                 this.delete(node);
@@ -344,7 +348,7 @@ export default class HighlightableTextView extends View {
         if (range.startOffset === range.endOffset) return;
         // Pass selected text to listeners
         // TODO: update what is passed: at least add nodeIndex and CharacterIndex,
-        // but preferably a Graph that contains a complete oa:Annotation (i.e. with all related nodes)
+        // but perhaps a Graph that contains a complete oa:Annotation (i.e. with all related nodes)
         this.trigger('selected', range.cloneContents().textContent);
     }
 

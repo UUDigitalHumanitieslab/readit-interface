@@ -7,23 +7,6 @@ import highlightRectTemplate from './highlight-rect-template';
 
 export interface ViewOptions extends BaseOpt {
     /**
-     * The rectangle in the DOM that to model the HighligtRect after.
-     */
-    rect: ClientRect | DOMRect;
-
-    /**
-     * The parent element that has 'position:relative' set.
-     * Note that the current element will be positioned relative to this parent.
-     */
-    offset: JQuery.Coordinates;
-
-    /**
-     * If applicable, the horizontal (!) scrollOffset.
-     * Can be undefined, in which case it defaults to 0.
-     */
-    scrollOffsetTop: number;
-
-    /**
      * The READ-IT specific cssClass to add to this rect.
      */
     cssClass: string;
@@ -36,45 +19,42 @@ export interface ViewOptions extends BaseOpt {
 }
 
 export default class HighlightRectView extends View {
-    rect: ClientRect | DOMRect;
-    offset: JQuery.Coordinates;
-    scrollOffsetTop: number;
     cssClass: string;
     isLast: boolean;
 
-    constructor(options?: ViewOptions) {
-        if (!options.rect) throw TypeError("rect cannot be null or undefined");
-        if (!options.offset) throw TypeError("relativeParent cannot be null or undefined");
-        if (!options.cssClass) throw TypeError("cssClass cannot be null or undefined");
+    constructor(options: ViewOptions) {
+        if (!options) throw new TypeError("options cannot be null or undefined");
         if (typeof(options.isLast) == 'undefined') throw TypeError("isLast cannot be undefined");
-
+        if (!options.cssClass) throw TypeError("cssClass cannot be null or undefined");
         super(options);
-        this.rect = options.rect;
-        this.offset = options.offset;
         this.cssClass = options.cssClass;
         this.isLast = options.isLast;
-        this.scrollOffsetTop = options.scrollOffsetTop ? options.scrollOffsetTop : 0;
     }
 
     render(): this {
         this.$el.html(this.template({ isLast: this.isLast }));
-
-        this.$el.css("top", this.getTop());
-        this.$el.css("left", this.getLeft());
-        this.$el.css("width", this.rect.width);
-        this.$el.css("height", this.rect.height);
-
         this.$el.addClass(this.cssClass);
-
         return this;
     }
 
-    getTop(): number {
-        return this.rect.top - this.offset.top + this.scrollOffsetTop;
-    }
+    /**
+     * Set the relevant css attributes to position this rect.
+     * @param rect The rectangle in the DOM to model the HighlightRect after.
+     * @param offset The parent element that has 'position:relative' set.
+     * Note that the current element will be positioned relative to this parent.
+     * @param scrollOffsetTop If applicable, the horizontal (!) scrollOffset.
+     * Can be undefined, in which case it defaults to 0.
+     */
+    position(rect: ClientRect | DOMRect, offset: JQuery.Coordinates, scrollOffsetTop: number): this {
+        if (!rect) throw TypeError("rect cannot be null or undefined");
+        if (!offset) throw TypeError("relativeParent cannot be null or undefined");
+        scrollOffsetTop = scrollOffsetTop || 0;
 
-    getLeft(): number {
-        return this.rect.left - this.offset.left;
+        this.$el.css("top", rect.top - offset.top + scrollOffsetTop);
+        this.$el.css("left", rect.left - offset.left);
+        this.$el.css("width", rect.width);
+        this.$el.css("height", rect.height);
+        return this;
     }
 
     showDeleteButton(): this {
@@ -88,24 +68,24 @@ export default class HighlightRectView extends View {
     }
 
     onHover(): this {
-        this.trigger('hover', this.rect);
+        this.trigger('hover');
         return this;
     }
 
     onHoverEnd(): this {
-        this.trigger('hoverEnd', this.rect);
+        this.trigger('hoverEnd');
         return this;
     }
 
     onDelete(event: JQuery.TriggeredEvent): this {
         event.stopPropagation();
-        this.trigger('delete', this.rect);
+        this.trigger('delete');
         return this;
     }
 
     onClick(): this {
         console.log('click');
-        this.trigger('clicked', this.rect);
+        this.trigger('clicked');
         return this;
     }
 }

@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, last, minBy, sumBy } from 'lodash';
+import { extend, minBy, sumBy, initial, last } from 'lodash';
 
 import View from '../../core/view';
 import Model from './../../core/model';
@@ -7,7 +7,7 @@ import Model from './../../core/model';
 import Node from '../../jsonld/node';
 import HighlightRectView from './highlight-rect-view';
 
-export interface ViewOptions extends BaseOpt<Model> {
+export interface ViewOptions extends BaseOpt<Node> {
     /**
      * The oa:Annotation instance to create the highlight for.
      */
@@ -31,7 +31,7 @@ export interface ViewOptions extends BaseOpt<Model> {
     relativeParent: JQuery<HTMLElement>;
 
     /**
-     * Specifies whether the highlight can be deleted.
+     * Specifies whether the highlight can be deleted. Defaults to false.
      */
     isDeletable: boolean;
 }
@@ -52,7 +52,7 @@ export default class HighlightView extends View<Node> {
         this.rects = options.range.getClientRects();
         this.cssClass = options.cssClass;
         this.relativeParent = options.relativeParent;
-        this.isDeletable = options.isDeletable ? options.isDeletable : false;
+        this.isDeletable = options.isDeletable || false;
         this.initRectViews();
     }
 
@@ -61,35 +61,29 @@ export default class HighlightView extends View<Node> {
         return this;
     }
 
-    initRectViews() {
-        this.rectViews = [];
-        let scrollTop = $(document).scrollTop().valueOf();
-
-        for (var index = 0; index != this.rects.length; index++) {
-            let rect = this.rects.item(index);
-            let isLast = index == this.rects.length - 1;
-
-            let hrv = new HighlightRectView({
-                rect: rect,
-                offset: $(this.relativeParent).offset(),
-                scrollOffsetTop: scrollTop,
-                cssClass: this.cssClass,
-                isLast: isLast
-            });
-            this.rectViews.push(hrv.render());
-            this.bindHrvEvents(hrv, isLast);
-        }
+    createRectView(rect: ClientRect | DOMRect, scrollTop: number, isLast: boolean): HighlightRectView {
+        if (isLast && !this.isDeletable) { isLast = false; }
+        let hrv = new HighlightRectView({
+            cssClass: this.cssClass,
+            isLast: isLast
+        });
+        this.bindHrvEvents(hrv);
+        return hrv.render().position(rect, $(this.relativeParent).offset(), scrollTop);
     }
 
-    bindHrvEvents(hrv: HighlightRectView, isLast: boolean): this {
+    initRectViews() {
+        const scrollTop = $(document).scrollTop().valueOf();
+        this.rectViews = initial(this.rects).map(
+            rect => this.createRectView(rect, scrollTop, false)
+        );
+        this.rectViews.push(this.createRectView(last(this.rects), scrollTop, true));
+    }
+
+    bindHrvEvents(hrv: HighlightRectView): this {
         hrv.on('clicked', this.onClick, this);
         hrv.on('hover', this.onHover, this);
         hrv.on('hoverEnd', this.onHoverEnd, this);
-
-        if (isLast) {
-            hrv.on('delete', this.onDelete, this);
-        }
-
+        hrv.on('delete', this.onDelete, this);
         return this;
     }
 
@@ -110,10 +104,7 @@ export default class HighlightView extends View<Node> {
     }
 
     onHoverEnd() {
-        if (this.isDeletable) {
-            last(this.rectViews).hideDeleteButton();
-        }
-
+        last(this.rectViews).hideDeleteButton();
         this.trigger('hoverEnd', this.model);
     }
 
