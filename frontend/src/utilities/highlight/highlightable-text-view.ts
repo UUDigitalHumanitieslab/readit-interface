@@ -71,9 +71,13 @@ export default class HighlightableTextView extends View {
 
     constructor(options?: ViewOptions) {
         super(options);
-        if (options.initialScrollTo && !this.isType(options.initialScrollTo, oa.Annotation)) {
-            throw TypeError('initialScrollTo should be of type oa:Annotation');
+        if (options.initialScrollTo) {
+            if (!this.isType(options.initialScrollTo, oa.Annotation)) {
+                throw TypeError('initialScrollTo should be of type oa:Annotation');
+            }
+            options.showHighlightsInitially = true;
         }
+
         this.scrollToNode = options.initialScrollTo;
         this.text = options.text;
         this.isEditable = options.isEditable;
@@ -88,7 +92,7 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    insertedIntoDOM(): this {
+    onInsertedIntoDOM(): this {
         this.isInDOM = true;
         this.textWrapper = this.$('.textWrapper');
 
@@ -104,14 +108,14 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    removedFromDOM(): this {
+    onRemovedFromDOM(): this {
         this.isInDOM = false;
         return this;
     }
 
     initHighlights(): this {
         this.collection.each((node) => {
-            if (node.get('@type') == oa.Annotation) {
+            if (this.isType(node, oa.Annotation)) {
                 if (this.isCompleteAnnotation(node, this.collection)) {
                     this.addHighlight(node);
                 }
@@ -122,13 +126,7 @@ export default class HighlightableTextView extends View {
     }
 
     /**
-     * Add a new highlight to the text based on an annotation.
-     * @param graph A Graph containing an instance of oa:Annotation including all required related items:
-     *      - an instance of the category (e.g. Content, Reader, ect)
-     *      - an instance of oa:SpecificResource (i.e. the annnotation's hasTarget)
-     *      - an instance of vocab('RangeSelector')
-     *      - a StartSelector of type oa.XPathSelector
-     *      - an EndSelector of type oa.XPathSelector
+     * Add a new highlight to the text based on an instance of oa:Annotation.
      */
     add(node: Node): this {
         if (!this.isEditable) return;
@@ -139,11 +137,10 @@ export default class HighlightableTextView extends View {
 
         if (this.isCompleteAnnotation(node, node.collection)) {
             // TODO: update this when new Node functionality is available
-            let body = this.getNode(node.get(oa.hasBody)[0]['@id'], node.collection);
-            let selector = this.getNode(node.get(oa.hasTarget)[0]['@id'], node.collection);
-            let startSelector = this.getNode(selector.get(oa.hasStartSelector)[0]['@id'], node.collection);
-            let endSelector = this.getNode(selector.get(oa.hasEndSelector)[0]['@id'], node.collection);
-
+            let body = node.collection.get(node.get(oa.hasBody)[0]['@id']);
+            let selector = node.collection.get(node.get(oa.hasTarget)[0]['@id']);
+            let startSelector = node.collection.get(selector.get(oa.hasStartSelector)[0]['@id']);
+            let endSelector = node.collection.get(selector.get(oa.hasEndSelector)[0]['@id']);
             this.collection.add([node, body, selector, startSelector, endSelector]);
         }
 
@@ -157,7 +154,7 @@ export default class HighlightableTextView extends View {
         if (!this.isEditable) return;
 
         this.collection.each((node) => {
-            if (node && node.get('@type') == oa.Annotation) {
+            if (this.isType(node, oa.Annotation)) {
                 this.delete(node);
             }
         });
@@ -197,10 +194,10 @@ export default class HighlightableTextView extends View {
         if (!this.isType(annotation, oa.Annotation)) return false;
 
         // TODO: update this when new Node functionality is available
-        let body = this.getNode(annotation.get(oa.hasBody)[0]['@id'], this.collection);
-        let selector = this.getNode(annotation.get(oa.hasTarget)[0]['@id'], this.collection);
-        let startSelector = this.getNode(selector.get(oa.hasStartSelector)[0]['@id'], this.collection);
-        let endSelector = this.getNode(selector.get(oa.hasEndSelector)[0]['@id'], this.collection);
+        let body = this.collection.get(annotation.get(oa.hasBody)[0]['@id']);
+        let selector = this.collection.get(annotation.get(oa.hasTarget)[0]['@id']);
+        let startSelector = this.collection.get(selector.get(oa.hasStartSelector)[0]['@id']);
+        let endSelector = this.collection.get(selector.get(oa.hasEndSelector)[0]['@id']);
         this.collection.remove([annotation, body, selector, startSelector, endSelector]);
         return true;
     }
@@ -214,13 +211,13 @@ export default class HighlightableTextView extends View {
 
         // TODO: update this when new Node functionality is available
         // annotation styling details
-        let body = this.getNode(node.get(oa.hasBody)[0]['@id'], this.collection);
+        let body = this.collection.get(node.get(oa.hasBody)[0]['@id']);
         let cssClass = getCssClassName(body);
 
         // annotation position details
-        let selector = this.getNode(node.get(oa.hasTarget)[0]['@id'], this.collection);
-        let startSelector = this.getNode(selector.get(oa.hasStartSelector)[0]['@id'], this.collection);
-        let endSelector = this.getNode(selector.get(oa.hasEndSelector)[0]['@id'], this.collection);
+        let selector = this.collection.get(node.get(oa.hasTarget)[0]['@id']);
+        let startSelector = this.collection.get(selector.get(oa.hasStartSelector)[0]['@id']);
+        let endSelector = this.collection.get(selector.get(oa.hasEndSelector)[0]['@id']);
 
         let range = this.getRange(
             this.textWrapper,
@@ -264,11 +261,6 @@ export default class HighlightableTextView extends View {
         return xpath.substring(startIndex, endIndex);
     }
 
-    // TODO: update this when new Node functionality is available
-    getNode(id: string, graph: Graph): Node {
-        return graph.find(n => n.get('@id') === id);
-    }
-
     /**
      * Validate if all related items required by a oa:Annotation instance are in a Graph.
      * Throws TypeError with appropriate message if they are not.
@@ -282,24 +274,24 @@ export default class HighlightableTextView extends View {
         }
 
         //TODO: rewrite when new Node functionality is available
-        if (!this.getNode(annotation.get(oa.hasBody)[0]['@id'], graph)) {
+        if (!graph.get(annotation.get(oa.hasBody)[0]['@id'])) {
             throw new TypeError(
                 `The oa:hasBody property of annotation ${annotation.get('@id')} is empty or the related item cannot be found`);
         }
 
-        let selector = this.getNode(annotation.get(oa.hasTarget)[0]['@id'], graph);
+        let selector = graph.get(annotation.get(oa.hasTarget)[0]['@id']);
         if (!selector || this.isType(selector, vocab('RangeSelector'))) {
             throw new TypeError(
                 `Selector ${selector.get('@id')} cannot be empty and should be of type vocab('RangeSelector')`);
         }
 
-        let startSelector = this.getNode(selector.get(oa.hasStartSelector)[0]['@id'], graph);
+        let startSelector = graph.get(selector.get(oa.hasStartSelector)[0]['@id']);
         if (!startSelector || !this.isType(startSelector, oa.XPathSelector)) {
             throw new TypeError(
                 `StartSelector ${startSelector.get('@id')} cannot be empty and should be of type oa:XPathSelector`);
         }
 
-        let endSelector = this.getNode(selector.get(oa.hasEndSelector)[0]['@id'], graph);
+        let endSelector = graph.get(selector.get(oa.hasEndSelector)[0]['@id']);
         if (!endSelector || !this.isType(endSelector, oa.XPathSelector)) {
             throw new TypeError(
                 `EndSelector ${endSelector.get('@id')} cannot be empty and should be of type oa:XPathSelector`);
