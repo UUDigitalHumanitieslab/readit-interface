@@ -42,6 +42,7 @@ export default class SourceView extends View {
         this.htv = new HighlightableTextView({
             text: mockSourceText,
             isEditable: true,
+            showHighlightsInitially: true,
             collection: this.nodes,
             // initialScrollTo: scrollTo
         });

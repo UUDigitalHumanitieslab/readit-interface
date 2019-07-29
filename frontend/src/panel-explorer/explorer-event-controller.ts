@@ -7,6 +7,7 @@ import SourceView from '../panel-source/source-view';
 import LdItemView from '../panel-ld-item/ld-item-view';
 
 import mockLdItem from './../mock-data/mock-lditem';
+import { getMockAnnotationsGraph } from '../mock-data/mock-annotations';
 
 export default class ExplorerEventController {
     /**
@@ -43,7 +44,7 @@ export default class ExplorerEventController {
 
     sourceViewEnlarge(node: Node): void {
         let ldiView = new LdItemView({ model: mockLdItem });
-        this.explorerView.overlay(ldiView);
+        this.explorerView.push(ldiView);
     }
 
     /**
@@ -51,8 +52,10 @@ export default class ExplorerEventController {
      * @param buttonClicked
      */
     ldItemViewFakeButtonClicked() {
-        let sourceView = new SourceView();
-        this.explorerView.push(sourceView);
+        let ldiView = new LdItemView({ model: mockLdItem });
+        this.explorerView.push(ldiView);
+        // let sourceView = new SourceView({ annotations: getMockAnnotationsGraph(), inFullViewportMode: false });
+        // this.explorerView.push(sourceView);
     }
 
 }

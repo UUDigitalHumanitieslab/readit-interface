@@ -19,6 +19,7 @@ import directionFsm from '../global/direction-fsm';
 import mockLdItem from './../mock-data/mock-lditem';
 import mockGraph from './../mock-data/mock-graph';
 import * as mockGraphSeparated from './../mock-data/mock-graph';
+import { getMockAnnotationsGraph } from '../mock-data/mock-annotations';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -45,11 +46,8 @@ directionRouter.on('route:explore', () => {
 });
 
 directionFsm.on('enter:exploring', () => {
-    let mockSource = mockGraphSeparated.getSpecificResource();
-    let mockAnno = mockGraphSeparated.getTextPositionSelector();
-
     // This is just a quick and dirty solution, will have to be moved in the future
-    let sourceView = new SourceView({ model: mockSource/*, highlight: mockAnno*/});
+    let sourceView = new SourceView({ annotations: getMockAnnotationsGraph(), inFullViewportMode: false });
 
     let exView = new ExplorerView({ first: sourceView });
     let vh = $(window).height();

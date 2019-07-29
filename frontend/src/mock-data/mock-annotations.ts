@@ -13,13 +13,13 @@ export function getMockAnnotationsGraph() {
         getAnnotation(101, 201, 303),
         getOntologyNode(201, 'Reader'),
         getRangeSelector(303, 304, 305),
-        getStartSelector(304, 6, 80),
-        getEndSelector(305, 6, 97),
+        getStartSelector(304, 3, 15),
+        getEndSelector(305, 3, 25),
         getAnnotation(102, 202, 306),
         getOntologyNode(202, 'Reader'),
         getRangeSelector(306, 307, 308),
-        getStartSelector(307, 18, 1),
-        getEndSelector(308, 18, 250),
+        getStartSelector(307, 3, 25),
+        getEndSelector(308, 3, 80),
     ]);
 }
 
