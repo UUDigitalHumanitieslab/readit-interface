@@ -1,5 +1,10 @@
 .highlightable-text
-    position: relative // required for positioning of highlights
+    overflow-x: hidden
+    overflow-y: scroll
+    flex: 1 1 auto
+
+    .positionWrapper
+        position: relative // required for positioning of highlights
 
     .textWrapper
         position: relative // required for z-index to work

@@ -50,6 +50,8 @@ export default class HighlightRectView extends View {
         if (!offset) throw TypeError("relativeParent cannot be null or undefined");
         scrollOffsetTop = scrollOffsetTop || 0;
 
+        console.log(rect);
+
         this.$el.css("top", rect.top - offset.top + scrollOffsetTop);
         this.$el.css("left", rect.left - offset.left);
         this.$el.css("width", rect.width);

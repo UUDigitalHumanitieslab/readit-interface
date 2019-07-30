@@ -69,7 +69,6 @@ export default class SourceView extends View {
     }
 
     bindToEvents(htv: HighlightableTextView): HighlightableTextView {
-        this.htv.on('scrollToReady', this.scroll, this);
         this.htv.on('hover', this.hover, this);
         this.htv.on('hoverEnd', this.hoverEnd, this);
         this.htv.on('click', this.click, this);

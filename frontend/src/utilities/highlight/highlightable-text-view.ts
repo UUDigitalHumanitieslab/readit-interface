@@ -34,13 +34,6 @@ export interface ViewOptions extends BaseOpt<Node> {
     /**
      * Optional. The oa:Annotation instance, present in the collection / Graph, that
      * you want to scroll to after the annotation's highlight is added to the DOM.
-     * Note that the HighlightableTextView will not scroll itself:
-     * it will throw an event ('scrollToReady') with the details that you
-     * need to perform the desired scroll, i.e. top and height of the highlight.
-     * Note that these are coordinates relative to the documents' (!) 0,0 coordinates,
-     * so you wil have to calculate how much to scroll from there (e.g. most likely
-     * subtract the offset().top of the scrollable element).
-     * Will not work if showHighlightsInitially is false.
      */
     initialScrollTo?: Node;
 }
@@ -168,8 +161,8 @@ export default class HighlightableTextView extends View {
      * Show all annotations in the text.
      */
     showAll(): this {
-        this.hVs.forEach( (hV) => {
-            hV.render().$el.prependTo(this.$el);
+        this.hVs.forEach((hV) => {
+            hV.render().$el.prependTo(this.$('.positionWrapper'));
         });
         return this;
     }
@@ -178,7 +171,7 @@ export default class HighlightableTextView extends View {
      * Hide all annotations.
      */
     hideAll(): this {
-        this.hVs.forEach( (hV) => {
+        this.hVs.forEach((hV) => {
             hV.$el.detach();
         });
 
@@ -229,11 +222,14 @@ export default class HighlightableTextView extends View {
             this.getNodeIndex(endSelector),
             this.getCharacterIndex(endSelector)
         );
+
+        // console.log(this.$('.positionWrapper'));
+
         let hV = new HighlightView({
             model: node,
             range: range,
             cssClass: cssClass,
-            relativeParent: this.$el,
+            relativeParent: this.$('.positionWrapper'),
             isDeletable: this.isEditable
         });
 
@@ -353,21 +349,36 @@ export default class HighlightableTextView extends View {
     }
 
     /**
-     * Trigger 'scrollToReady' event, passing highlightView's
-     * top position and height to subscribers.
-     * Note that these are coordinates relative to the documents' (!) 0,0 coordinates,
-     * so you wil have to calculate how much to scroll from there (e.g. most likely
-     * subtract the offset().top of the scrollable element).
+     * Find highlightView associated with instance of oa:Annotation,
+     * and decide where to center the view (i.e. long highlight at top,
+     * vertically centered otherwise).
      */
-    scroll(scrollToNode: Node): this {
+    private scroll(scrollToNode: Node): this {
         if (!scrollToNode) return this;
         let scrollToHv = this.hVs.find(hV => hV.model === scrollToNode);
         if (scrollToHv) {
-            this.trigger('scrollToReady', scrollToHv.getTop(), scrollToHv.getHeight());
+            let scrollableEl = this.$el;
+            let highlightHeight = scrollToHv.getHeight();
+            let highlightTop = scrollToHv.getTop();
+
+            if (highlightHeight >= scrollableEl.height()) {
+                // show start at the top
+                let top = highlightTop - scrollableEl.offset().top;
+                scrollableEl.animate({ scrollTop: top }, 800);
+            }
+            else {
+                // center it
+                let centerOffset = (scrollableEl.height() - highlightHeight) / 2
+                let top = highlightTop - scrollableEl.offset().top - centerOffset;
+                scrollableEl.animate({ scrollTop: top }, 800);
+            }
         }
         return this;
     }
 
+    /**
+     * Scroll to a particular highlight associated with an instance of oa:Annotation.
+     */
     scrollTo(node: Node): this {
         if (!this.isType(node, oa.Annotation)) {
             throw TypeError('scrollTo should be of type oa:Annotation');
@@ -409,7 +420,7 @@ export default class HighlightableTextView extends View {
     }
 }
 extend(HighlightableTextView.prototype, {
-    tagName: 'highlightable-text',
+    tagName: 'div',
     className: 'highlightable-text',
     template: HighlightableTextTample,
     events: {
