@@ -18,8 +18,13 @@ export function getMockAnnotationsGraph() {
         getAnnotation(102, 202, 306),
         getOntologyNode(202, 'Reader'),
         getRangeSelector(306, 307, 308),
+<<<<<<< Updated upstream
         getStartSelector(307, 3, 25),
         getEndSelector(308, 3, 80),
+=======
+        getStartSelector(307, 30, 25),
+        getEndSelector(308, 30, 80),
+>>>>>>> Stashed changes
     ]);
 }
 
