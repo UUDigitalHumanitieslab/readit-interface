@@ -187,11 +187,10 @@ export default class HighlightableTextView extends View {
         if (!this.isType(annotation, oa.Annotation)) return false;
 
         // TODO: update this when new Node functionality is available
-        let body = this.collection.get(annotation.get(oa.hasBody)[0]['@id']);
         let selector = this.collection.get(annotation.get(oa.hasTarget)[0]['@id']);
         let startSelector = this.collection.get(selector.get(oa.hasStartSelector)[0]['@id']);
         let endSelector = this.collection.get(selector.get(oa.hasEndSelector)[0]['@id']);
-        this.collection.remove([annotation, body, selector, startSelector, endSelector]);
+        this.collection.remove([annotation, selector, startSelector, endSelector]);
         return true;
     }
 
@@ -324,20 +323,6 @@ export default class HighlightableTextView extends View {
         return range;
     }
 
-    onTextSelected(): void {
-        if (!this.isEditable) return;
-
-        let selection = window.getSelection();
-        let range = selection.getRangeAt(0).cloneRange();
-
-        // Ignore empty selections
-        if (range.startOffset === range.endOffset) return;
-        // Pass selected text to listeners
-        // TODO: update what is passed: at least add nodeIndex and CharacterIndex,
-        // but perhaps a Graph that contains a complete oa:Annotation (i.e. with all related nodes)
-        this.trigger('selected', range.cloneContents().textContent);
-    }
-
     /**
      * Find highlightView associated with instance of oa:Annotation,
      * and decide where to center the view (i.e. long highlight at top,
@@ -407,6 +392,17 @@ export default class HighlightableTextView extends View {
     clicked(node: Node): this {
         this.trigger('clicked', node);
         return this;
+    }
+
+    onTextSelected(): void {
+        if (!this.isEditable) return;
+
+        let selection = window.getSelection();
+        let range = selection.getRangeAt(0).cloneRange();
+
+        // Ignore empty selections
+        if (range.startOffset === range.endOffset) return;
+        this.trigger('selected', range);
     }
 }
 extend(HighlightableTextView.prototype, {
