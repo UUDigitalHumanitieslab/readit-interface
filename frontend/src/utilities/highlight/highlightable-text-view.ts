@@ -159,7 +159,7 @@ export default class HighlightableTextView extends View {
      */
     showAll(): this {
         this.hVs.forEach( (hV) => {
-            hV.render().$el.prependTo(this.$('.positionWrapper'));
+            hV.render().$el.prependTo(this.$('.position-container'));
         });
         return this;
     }
@@ -219,8 +219,6 @@ export default class HighlightableTextView extends View {
             this.getNodeIndex(endSelector),
             this.getCharacterIndex(endSelector)
         );
-
-        // console.log(this.$('.positionWrapper'));
 
         let hV = new HighlightView({
             model: node,
