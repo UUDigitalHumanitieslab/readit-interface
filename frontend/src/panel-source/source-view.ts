@@ -39,12 +39,14 @@ export default class SourceView extends View {
             this.nodes = options.annotations;
         }
 
+        let scrollTo = this.nodes.find(n => n.get("@id") == "https://read-it.hum.uu.nl/item/102");
+
         this.htv = new HighlightableTextView({
             text: mockSourceText,
             isEditable: true,
             showHighlightsInitially: true,
             collection: this.nodes,
-            // initialScrollTo: scrollTo
+            initialScrollTo: scrollTo
         });
         this.bindToEvents(this.htv);
 
