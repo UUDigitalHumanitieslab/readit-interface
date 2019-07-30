@@ -84,7 +84,6 @@ export default class HighlightRectView extends View {
     }
 
     onClick(): this {
-        console.log('click');
         this.trigger('clicked');
         return this;
     }

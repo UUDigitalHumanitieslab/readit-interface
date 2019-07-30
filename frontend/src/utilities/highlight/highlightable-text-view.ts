@@ -166,7 +166,7 @@ export default class HighlightableTextView extends View {
      */
     showAll(): this {
         this.hVs.forEach( (hV) => {
-            hV.render().$el.prependTo(this.$el);
+            hV.render().$el.prependTo(this.$('.positionWrapper'));
         });
         return this;
     }
@@ -226,11 +226,14 @@ export default class HighlightableTextView extends View {
             this.getNodeIndex(endSelector),
             this.getCharacterIndex(endSelector)
         );
+
+        // console.log(this.$('.positionWrapper'));
+
         let hV = new HighlightView({
             model: node,
             range: range,
             cssClass: cssClass,
-            relativeParent: this.$el,
+            relativeParent: this.$('.positionWrapper'),
             isDeletable: this.isEditable
         });
 
@@ -401,7 +404,7 @@ export default class HighlightableTextView extends View {
     }
 }
 extend(HighlightableTextView.prototype, {
-    tagName: 'highlightable-text',
+    tagName: 'div',
     className: 'highlightable-text',
     template: HighlightableTextTample,
     events: {
