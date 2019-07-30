@@ -15,11 +15,11 @@ export default class PanelStackView extends View {
 
     constructor(options?: ViewOptions) {
         super(options);
-        this.panels = [options.first];
+        this.panels = [];
+        this.push(options.first);
     }
 
     render(): this {
-        this.getTopPanel().render().$el.appendTo(this.$el);
         return this;
     }
 
@@ -28,7 +28,9 @@ export default class PanelStackView extends View {
     }
 
     push(panel: View): this {
-        this.getTopPanel().$el.detach();
+        if (this.panels.length > 0) {
+            this.getTopPanel().$el.detach();
+        }
         this.panels.push(panel);
         panel.render().$el.appendTo(this.$el);
         return this;

@@ -10,14 +10,14 @@ import {
 } from 'jsonld';
 
 import Model from '../core/model';
-import Collection from '../core/collection';
-import { JsonLdContext, JsonLdObject, ResolvedContext } from './json';
-import computeIdAlias from './idAlias';
+import {
+    JsonLdContext,
+    ResolvedContext,
+    JsonLdObject,
+    FlatLdObject,
+} from './json';
 import Graph from './graph';
-
-function isDefined(arg: any): boolean {
-    return !isUndefined(arg);
-}
+import sync from './sync';
 
 /**
  * Representation of a single JSON-LD object with an @id.
@@ -25,13 +25,18 @@ function isDefined(arg: any): boolean {
  */
 export default class Node extends Model {
     /**
-     * attributes must be JSON-LD; this is a restriction from Model.
+     * attributes must be flat, expanded JSON-LD; this is a
+     * restriction from Model.
      */
-    attributes: JsonLdObject;
+    attributes: FlatLdObject;
 
     /**
-     * A promise of the computed active context. Only resolves when
-     * the attributes are consistent with the @context.
+     * Original local context, if set.
+     */
+    localContext: JsonLdContext;
+
+    /**
+     * A promise of the computed active context.
      */
     whenContext: Promise<ResolvedContext>;
 
@@ -39,20 +44,11 @@ export default class Node extends Model {
 
     /**
      * The ctor allows you to set/override the context on creation.
-     * Please note that the context management logic runs only AFTER
-     * your initialize method, if you define one.
      */
-    constructor(attributes?: JsonLdObject, options?) {
+    constructor(attributes?: FlatLdObject, options?) {
         super(attributes, options);
-        let id = this.id;
-        this.whenContext = this.computeContext(this.get('@context')).then(
-            context => this.updateIdAlias(context, id)
-        );
-        this.on('change:@context', this.processContext, this);
-        let newContext: JsonLdContext = options && options.context;
-        if (isDefined(newContext)) {
-            this.set('@context', newContext);
-        }
+        let context: JsonLdContext = options && options.context;
+        if (!isUndefined(context)) this.setContext(context);
     }
 
     /**
@@ -65,60 +61,18 @@ export default class Node extends Model {
     }
 
     /**
-     * Compute and process the Graph-aware context for future use.
-     * You shouldn't normally need to call this manually; wait for
-     * this.whenContext to resolve instead. See
-     * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
+     * Set a local context for future compaction.
      */
-    processContext(): Promise<ResolvedContext> {
-        let localContext: JsonLdContext = this.get('@context');
-        let oldContext = this.whenContext;
-        let contextPromise = this.computeContext(localContext);
-        let consistentPromise = contextPromise.then(async newContext => {
-            await this.applyNewContext(
-                newContext,
-                await oldContext,
-                localContext,
-            );
-            return newContext;
-        });
-        return this.whenContext = consistentPromise;
-    }
-
-    private async applyNewContext(
-        newContext: ResolvedContext,
-        expandContext: ResolvedContext,
-        localContext: JsonLdContext,
-    ): Promise<this> {
-        if (isEqual(newContext, expandContext)) return this;
-        this.trigger('jsonld:context', this, newContext, localContext);
-        let oldJson = this.toJSON();
-        let id = this.id;
-        delete oldJson['@context'];  // let's not pass the context twice
-        let newJson = await compact(oldJson, newContext, { expandContext });
-        newJson['@context'] = localContext;
-        // We pass silent: true because conceptually, the data didn't change;
-        // they were just formatted differently.
-        this.clear({ silent: true }).set(newJson, { silent: true });
-        this.updateIdAlias(newContext, id);
-        return this.trigger('jsonld:compact', this, newJson);
-    }
-
-    /**
-     * Implementation detail.
-     * @param context
-     * @param id       A previously existing @id attribute, if set.
-     * @return         The same `context` for promise chaining convenience.
-     */
-    private updateIdAlias(context: ResolvedContext, id: string):ResolvedContext{
-        let alias = computeIdAlias(context);
-        let eitherId = id || alias && this.get(alias);
-        // if we already had an @id, then the following line is not a
-        // change conceptually, so we don't emit a change event.
-        if (eitherId) this.set(this.idAttribute, eitherId, { silent: !!id })
-        // delete the alias to keep things consistent
-        if (alias) this.unset(alias);
-        return context;
+    setContext(context: JsonLdContext): this {
+        if (isEqual(context, this.localContext)) return this;
+        if (isUndefined(context)) {
+            delete this.localContext;
+            delete this.whenContext;
+        } else {
+            this.localContext = context;
+            this.whenContext = this.computeContext(context);
+        }
+        return this;
     }
 
     // TODO: non-modifying compact and flatten methods
@@ -126,4 +80,5 @@ export default class Node extends Model {
 
 extend(Node.prototype, {
     idAttribute: '@id',
+    sync,
 });

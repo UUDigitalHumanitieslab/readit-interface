@@ -1,5 +1,6 @@
 import { enableI18n } from '../test-util';
 
+import { FlatLdObject } from '../jsonld/json';
 import { rdfs, skos } from './../jsonld/ns';
 import { JsonLdObject } from '../jsonld/json';
 import Node from '../jsonld/node';
@@ -9,7 +10,7 @@ function getDefaultNode(): Node {
     return new Node(getDefaultAttributes());
 }
 
-function getDefaultAttributes(): JsonLdObject {
+function getDefaultAttributes(): FlatLdObject {
     return {
         '@id': 'uniqueID',
         "@type": [rdfs.Class],

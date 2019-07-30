@@ -1,3 +1,5 @@
+import { FirstTypeIntendedSecondTypeWorkaround } from '../utilities/types';
+
 // Core JSON types
 export type JsonAtomic = null | boolean | number | string;
 export type JsonValue = JsonAtomic | JsonObject | JsonArray;
@@ -11,6 +13,11 @@ export type JsonCollection = JsonObject[];
 export type JsonDocument = JsonObject | JsonCollection;
 
 // JSON-LD specialized types
+export interface Identifier {
+    ['@id']: string;
+}
+
+// Compacted JSON-LD
 export type JsonLdContext = null | string | ContextContainer | ContextArray;
 export interface ContextArray extends Array<JsonLdContext> { }
 export interface ContextContainer extends JsonObject {
@@ -25,7 +32,33 @@ export interface ResolvedContainer extends JsonObject {
 
 export type JsonLdDocument = JsonLdObject | JsonLdGraph;
 export interface JsonLdGraph extends Array<JsonLdObject> { };
-export interface JsonLdObject extends ContextContainer {
-    ['@id']?: string;
+export interface JsonLdObject extends ContextContainer, Partial<Identifier> {
     ['@graph']?: JsonLdGraph;
 }
+
+// Flattened and expanded JSON-LD
+export interface ValueContainer {
+    ['@value']: JsonAtomic;
+}
+export interface ValueTyping {
+    ['@type']?: string;
+}
+export interface ValueLocalization {
+    ['@language']?: string;
+}
+export type ValueModifier = ValueTyping | ValueLocalization;
+export type FlatLiteral = ValueContainer & ValueModifier;
+export interface FlatList {
+    ['@list']: FlatValue;
+}
+export interface FlatValue extends Array<Identifier | FlatLiteral | FlatList> {}
+
+export interface FlatLdObject extends Identifier {
+    ['@type']?: Array<Identifier>;
+    [iri: string]: FirstTypeIntendedSecondTypeWorkaround<FlatValue, string>;
+}
+export interface FlatLdGraph extends Array<FlatLdObject> { }
+export interface FlatGraphContainer extends FlatLdObject {
+    ['@graph']?: FlatLdGraph;
+}
+export type FlatLdDocument = FlatLdGraph | FlatGraphContainer;
