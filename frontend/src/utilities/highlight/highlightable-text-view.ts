@@ -223,7 +223,7 @@ export default class HighlightableTextView extends View {
             model: node,
             range: range,
             cssClass: cssClass,
-            relativeParent: this.$('.positionWrapper'),
+            relativeParent: this.$('.position-container'),
             isDeletable: this.isEditable
         });
 
@@ -410,8 +410,8 @@ extend(HighlightableTextView.prototype, {
     className: 'highlightable-text',
     template: HighlightableTextTample,
     events: {
-        'DOMNodeInsertedIntoDocument': 'insertedIntoDOM',
-        'DOMNodeRemoved': 'removedFromDOM',
+        'DOMNodeInsertedIntoDocument': 'onInsertedIntoDOM',
+        'DOMNodeRemoved': 'onRemovedFromDOM',
         'mouseup': 'onTextSelected',
     }
 });

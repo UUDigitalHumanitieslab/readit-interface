@@ -46,7 +46,7 @@ export default class HighlightView extends View<Node> {
 
     constructor(options?: ViewOptions) {
         if (!options.range) throw TypeError("range cannot be null or undefined");
-        if (!options.relativeParent) throw TypeError("relativeParent cannot be null or empty")
+        if (!options.relativeParent) throw TypeError("relativeParent cannot be null or empty");
 
         super(options);
         this.rects = options.range.getClientRects();
@@ -68,7 +68,7 @@ export default class HighlightView extends View<Node> {
             isLast: isLast
         });
         this.bindHrvEvents(hrv);
-        return hrv.render().position(rect, $(this.relativeParent).offset(), scrollTop);
+        return hrv.render().position(rect, this.relativeParent.offset(), scrollTop);
     }
 
     initRectViews() {
@@ -122,6 +122,6 @@ export default class HighlightView extends View<Node> {
     }
 }
 extend(HighlightView.prototype, {
-    tagName: 'highlight',
+    tagName: 'div',
     className: 'highlight',
 });

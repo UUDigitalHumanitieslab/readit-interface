@@ -47,7 +47,7 @@ export default class HighlightRectView extends View {
      */
     position(rect: ClientRect | DOMRect, offset: JQuery.Coordinates, scrollOffsetTop: number): this {
         if (!rect) throw TypeError("rect cannot be null or undefined");
-        if (!offset) throw TypeError("relativeParent cannot be null or undefined");
+        if (!offset) throw TypeError("offset cannot be null or undefined");
         scrollOffsetTop = scrollOffsetTop || 0;
 
         this.$el.css("top", rect.top - offset.top + scrollOffsetTop);
@@ -89,7 +89,7 @@ export default class HighlightRectView extends View {
     }
 }
 extend(HighlightRectView.prototype, {
-    tagName: 'highlight-rect',
+    tagName: 'div',
     className: 'highlight-rect',
     template: highlightRectTemplate,
     events: {
