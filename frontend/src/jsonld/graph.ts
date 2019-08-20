@@ -1,4 +1,4 @@
-import { extend, isArray, omit, isEmpty } from 'lodash';
+import { extend, isArray, isUndefined, omit, isEmpty } from 'lodash';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
     expand,   // (jsonld, options?, callback?) => Promise<jsonld>
@@ -11,12 +11,9 @@ import {
 
 import Collection from '../core/collection';
 import {
-    JsonLdDocument,
-    JsonLdGraph,
     FlatLdDocument,
     FlatLdGraph,
     JsonLdContext,
-    ResolvedContext,
 } from './json';
 import Node from './node';
 import sync from './sync';
@@ -30,16 +27,24 @@ export default class Graph extends Collection<Node> {
     /**
      * Forward the meta context.
      */
-    get whenContext(): Promise<ResolvedContext> {
-        return this.meta.whenContext;
+    get context(): JsonLdContext {
+        return this.meta.context;
     }
-    setContext(context: JsonLdContext): this {
-        this.meta.setContext(context);
-        return this;
+    set context(newGlobal: JsonLdContext) {
+        this.meta.context = newGlobal;
     }
 
     preinitialize(models, options) {
         this.meta = new Node();
+    }
+
+    /**
+     * The ctor allows you to set/override the context on creation.
+     */
+    constructor(models?, options?) {
+        super(models, options);
+        let context: JsonLdContext = options && options.context;
+        if (!isUndefined(context)) this.context = context;
     }
 
     /**
