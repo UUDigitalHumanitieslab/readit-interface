@@ -36,6 +36,9 @@ export default class Graph extends Collection<Node> {
 
     preinitialize(models, options) {
         this.meta = new Node();
+        this.meta.on('change:@context', (model, newGlobal, oldGlobal) => {
+            this.trigger('change:@context', this, newGlobal, oldGlobal);
+        });
     }
 
     /**
