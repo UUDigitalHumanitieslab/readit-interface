@@ -61,7 +61,10 @@ export default class Node extends Model {
     localContext: JsonLdContext;
 
     /**
+     * Previous graph-aware context.
+     * Only available inside change:@context handlers.
      */
+    previousContext: JsonLdContext;
 
     collection: Graph;
 
@@ -94,11 +97,15 @@ export default class Node extends Model {
      */
     set context(newLocal: JsonLdContext) {
         if (isEqual(newLocal, this.localContext)) return;
+        let oldLocal = this.localContext;
+        this.previousContext = this.context;
         if (isUndefined(newLocal)) {
             delete this.localContext;
         } else {
             this.localContext = newLocal;
         }
+        this.trigger('change:@context', this, newLocal, oldLocal);
+        delete this.previousContext;
     }
 
     /**
