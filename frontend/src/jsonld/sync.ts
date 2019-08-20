@@ -18,12 +18,12 @@ export default async function syncLD(
 ): Promise<FlatLdDocument> {
     let { success, error, attrs } = options;
     options = omit(options, 'success', 'error');
-    let context = model && model.whenContext;
+    let context = model && model.context;
     let jqXHR;
     try {
         if (context && (attrs || method !== 'read')) {
             attrs = attrs || model.toJSON(options);
-            options.attrs = await compact(attrs, await context);
+            options.attrs = await compact(attrs, context);
         }
         jqXHR = syncBase(method, model, options);
         let response = await jqXHR as JsonLdDocument;

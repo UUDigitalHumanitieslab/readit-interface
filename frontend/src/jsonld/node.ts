@@ -16,14 +16,11 @@ import {
     toRDF,    // (jsonld, options?, callback?) => Promise<dataset>
     registerRDFParser,  // (contentType, parser) => void
 } from 'jsonld';
-import { getInitialContext } from 'jsonld/lib/context';
 import { ModelSetOptions } from 'backbone';
 
 import Model from '../core/model';
 import {
     JsonLdContext,
-    ResolvedContext,
-    JsonLdObject,
     FlatLdObject,
     Identifier
 } from './json';
@@ -46,14 +43,12 @@ export interface NativeArray extends Array<Native> { }
  */
 export default class Node extends Model {
     /**
-     * Original local context, if set.
+     * Original local context, if set. Access through this.context.
      */
     localContext: JsonLdContext;
 
     /**
-     * A promise of the computed active context.
      */
-    whenContext: Promise<ResolvedContext>;
 
     collection: Graph;
 
@@ -63,31 +58,34 @@ export default class Node extends Model {
     constructor(attributes?: any, options?) {
         super(attributes, options);
         let context: JsonLdContext = options && options.context;
-        if (!isUndefined(context)) this.setContext(context);
+        if (!isUndefined(context)) this.context = context;
     }
 
     /**
      * Compute the Graph-aware context without modifying this. See
      * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
      */
-    async computeContext(localContext: JsonLdContext):Promise<ResolvedContext> {
-        let globalContext = this.collection && this.collection.whenContext || getInitialContext({});
-        return processContext(await globalContext, localContext || {});
+    get context(): JsonLdContext {
+        let globalContext = this.collection && this.collection.context || [];
+        if (!isArray(globalContext)) globalContext = [globalContext];
+        let localContext = this.localContext;
+        if (isUndefined(localContext)) localContext = [];
+        let totalContext = globalContext.concat(localContext);
+        if (totalContext.length === 0) return undefined;
+        if (totalContext.length === 1) return totalContext[0];
+        return totalContext;
     }
 
     /**
      * Set a local context for future compaction.
      */
-    setContext(context: JsonLdContext): this {
-        if (isEqual(context, this.localContext)) return this;
-        if (isUndefined(context)) {
+    set context(newLocal: JsonLdContext) {
+        if (isEqual(newLocal, this.localContext)) return;
+        if (isUndefined(newLocal)) {
             delete this.localContext;
-            delete this.whenContext;
         } else {
-            this.localContext = context;
-            this.whenContext = this.computeContext(context);
+            this.localContext = newLocal;
         }
-        return this;
     }
 
     /**
