@@ -23,7 +23,7 @@ export const contentInstance = {
     [dcterms.created]: [
         {
             "@type": xsd.dateTime,
-            '@value': "2085-12-31T04:33:16+0100"
+            '@value': "2085-12-31T04:33:16+01:00"
         }
     ],
     [dcterms.title]: [
@@ -43,7 +43,7 @@ export const contentClass = {
     [dcterms.created]: [
         {
             "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:16+0100"
+            "@value": "2085-12-31T04:33:16+01:00"
         }
     ],
     [dcterms.creator]: [
@@ -62,7 +62,7 @@ export const specificResource = {
     [dcterms.created]: [
         {
             "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:15+0100"
+            "@value": "2085-12-31T04:33:15+01:00"
         }
     ],
     [dcterms.creator]: [
@@ -88,7 +88,7 @@ export const textQuoteSelector = {
     [dcterms.created]: [
         {
             "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:15+0100"
+            "@value": "2085-12-31T04:33:15+01:00"
         }
     ],
     [dcterms.creator]: [
@@ -119,7 +119,7 @@ export const textPositionSelector = {
     [dcterms.created]: [
         {
             "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:15+0100"
+            "@value": "2085-12-31T04:33:15+01:00"
         }
     ],
     [dcterms.creator]: [
@@ -155,7 +155,7 @@ export const annotationInstance = {
     [dcterms.created]: [
         {
             "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:16+0100"
+            "@value": "2085-12-31T04:33:16+01:00"
         }
     ],
     [dcterms.creator]: [
