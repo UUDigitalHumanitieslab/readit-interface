@@ -17,7 +17,7 @@ export const contentInstance = {
     'type': 'readit:Content',
     'sameAs': 'http://www.wikidata.org/entity/Q331656',
     'creator': 'staff:JdeKruif',
-    'created': '2085-12-31T04:33:16+01:00',
+    'created': '2085-12-31T03:33:16.000Z',
     'title': 'Pretty Little Title',
 };
 
@@ -26,7 +26,7 @@ export const contentClass = {
     'type': 'rdfs:Class',
     'prefLabel': 'Content',
     'definition': 'Dit is de definitie van content',
-    'created': '2085-12-31T04:33:16+01:00',
+    'created': '2085-12-31T03:33:16.000Z',
     'creator': 'staff:JdeKruif',
     'color': 'hotpink',
 };
@@ -34,7 +34,7 @@ export const contentClass = {
 export const specificResource = {
     'id': '2',
     'type': 'SpecificResource',
-    'created': '2085-12-31T04:33:15+01:00',
+    'created': '2085-12-31T03:33:15.000Z',
     'creator': 'staff:JdeKruif',
     'selector': '5',
     'source': 'https://drive.google.com/drive/folders/1jJWerBVv5AMjI0SLjSDwHXH0QV9iVZpf'
@@ -43,7 +43,7 @@ export const specificResource = {
 export const textQuoteSelector = {
     'id': '4',
     'type': 'TextQuoteSelector',
-    'created': '2085-12-31T04:33:15+01:00',
+    'created': '2085-12-31T03:33:15.000Z',
     'creator': 'staff:JdeKruif',
     'exact': 'The Voyage of the Dawn Treader',
     'prefix': 'feel, ooh, there are more things to explore, and I think one found that throughout the whole of that sequence, ',
@@ -53,7 +53,7 @@ export const textQuoteSelector = {
 export const textPositionSelector = {
     'id': '5',
     'type': 'TextQuoteSelector',
-    'created': '2085-12-31T04:33:15+01:00',
+    'created': '2085-12-31T03:33:15.000Z',
     'creator': 'staff:JdeKruif',
     'start': 932,
     'end': 962
@@ -63,7 +63,7 @@ export const annotationInstance = {
     'id': '1',
     'type': 'Annotation',
     'body': ['readit:Content', '3'],
-    'created': '2085-12-31T04:33:16+01:00',
+    'created': '2085-12-31T03:33:16.000Z',
     'creator': 'staff:JdeKruif',
     'motivation': ['tagging', 'identifying'],
     'target': '2'
