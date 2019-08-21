@@ -38,7 +38,7 @@ interface ConversionTable {
 const knownConversions: ConversionTable = {
     [xsd.integer]: {
         toLD(int: number): FlatTypedLiteral {
-            return { '@value': int };
+            return { '@value': int.valueOf() };
         },
         fromLD(value: FlatTypedLiteral): number {
             return +value['@value'];
@@ -47,7 +47,7 @@ const knownConversions: ConversionTable = {
     [xsd.nonNegativeInteger]: {
         toLD(int: number): FlatTypedLiteral {
             return {
-                '@value': int,
+                '@value': int.valueOf(),
                 '@type': xsd.nonNegativeInteger,
             };
         },
@@ -59,7 +59,7 @@ const knownConversions: ConversionTable = {
     },
     [xsd.double]: {
         toLD(double: number): FlatTypedLiteral {
-            return { '@value': double };
+            return { '@value': double.valueOf() };
         },
         fromLD(value: FlatTypedLiteral): number {
             return +value['@value'];
@@ -67,7 +67,7 @@ const knownConversions: ConversionTable = {
     },
     [xsd.boolean]: {
         toLD(bool: boolean): FlatTypedLiteral {
-            return { '@value': bool };
+            return { '@value': bool.valueOf() };
         },
         fromLD(value: FlatTypedLiteral): boolean {
             return !!value['@value'];
@@ -75,7 +75,7 @@ const knownConversions: ConversionTable = {
     },
     [xsd.string]: {
         toLD(str: string): FlatLiteral {
-            return { '@value': str };
+            return { '@value': str.valueOf() };
         },
         fromLD(value: FlatLiteral): string {
             return value['@value'].toString();
@@ -153,12 +153,12 @@ export function asLD(obj: any): FlatSingleValue {
             };
         }
         return {
-            '@value': obj,
+            '@value': obj.valueOf(),
             '@type': type,
         };
     }
     if (has(obj, '@language')) return {
-        '@value': obj,
+        '@value': obj.valueOf(),
         '@language': obj['@language'],
     };
     if (isArray(obj)) return { '@list': map(obj, asLD) };
