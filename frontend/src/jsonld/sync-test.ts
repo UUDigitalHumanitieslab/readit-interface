@@ -1,4 +1,11 @@
 import 'jasmine-ajax';
+// Request stubs have an undocumented .andCallFunction method:
+// https://github.com/jasmine/jasmine-ajax/pull/152
+// It appears, however, that the signature changed since the above
+// pull request. The passed function does not receive the stub
+// instance as an argument; the only argument is the
+// FakeXmlHttpRequest.
+// https://github.com/jasmine/jasmine-ajax/blob/efc1961b131aec836a9bcf14285f8c4f9f2eefb3/src/requestStub.js#L51
 
 import syncLD, { getLinkHeader, emitContext } from './sync';
 import expandedData from './../mock-data/mock-expanded';
@@ -29,11 +36,16 @@ describe('the jsonld/sync module', function() {
         // Please merge this with whatever you want to keep from
         // your original "sync" suite.
 
-        it('compacts the request data if a context is set', async function() {
+        it('compacts the request data if a context is set', function(done) {
             // Use 'create' or 'update' as the method.
             // The 'read' method doesn't send any data by default.
 
             expandedGraph = new Graph(expandedData, {context});
+            jasmine.Ajax.stubRequest('/api/test').andCallFunction(xhr => {
+                expect(xhr.data()).toEqual(compactData);
+                done();
+            });
+            syncLD('create', expandedGraph, {url: '/api/test'});
         });
 
         it('sends the request through Backbone.sync', async function() {
