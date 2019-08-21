@@ -1,7 +1,15 @@
-import { cloneDeep, get, set, initial } from 'lodash';
+import { cloneDeep, get, set, initial, omit } from 'lodash';
 import { Model } from 'backbone';
+import { compact } from 'jsonld';
 
-import { contentInstance } from '../mock-data/mock-expanded';
+import {
+    contentInstance,
+    textPositionSelector as flatTextPositionSelector,
+} from '../mock-data/mock-expanded';
+import {
+    textPositionSelector as compactTextPositionSelector,
+} from '../mock-data/mock-compact';
+import context from '../mock-data/mock-context';
 import { item, readit, staff, owl, dcterms, xsd } from './ns';
 import * as conversionModule from './conversion';
 import Node from './node';
@@ -170,6 +178,14 @@ describe('Node', function() {
         it('returns the Node\'s attributes in expanded JSON-LD', function() {
             this.node.set(contentInstance);
             expect(this.node.toJSON()).toEqual(contentInstanceJSON);
+        });
+
+        it('makes a perfect round trip after compaction', async function() {
+            this.node.set(flatTextPositionSelector);
+            let json = this.node.toJSON();
+            expect(json).toEqual(flatTextPositionSelector);
+            let compacted = omit(await compact(json, context), '@context');
+            expect(compacted).toEqual(compactTextPositionSelector);
         });
     });
 });
