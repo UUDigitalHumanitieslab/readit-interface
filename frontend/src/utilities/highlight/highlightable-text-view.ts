@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend } from 'lodash';
+import { extend, bind, debounce } from 'lodash';
 
 import View from '../../core/view';
 import { oa, rdf, vocab } from '../../jsonld/ns';
@@ -78,6 +78,8 @@ export default class HighlightableTextView extends View {
 
         if (!options.collection) this.collection = new Graph();
         this.collection.on('add', this.addHighlight, this);
+
+        this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
     }
 
     render(): this {
@@ -158,7 +160,7 @@ export default class HighlightableTextView extends View {
      * Show all annotations in the text.
      */
     showAll(): this {
-        this.hVs.forEach( (hV) => {
+        this.hVs.forEach((hV) => {
             hV.render().$el.prependTo(this.$('.position-container'));
         });
         return this;
@@ -403,6 +405,10 @@ export default class HighlightableTextView extends View {
         // Ignore empty selections
         if (range.startOffset === range.endOffset) return;
         this.trigger('selected', range);
+    }
+
+    onScroll(): void {
+        this.trigger('scroll', this, this.$el.scrollTop());
     }
 }
 extend(HighlightableTextView.prototype, {
