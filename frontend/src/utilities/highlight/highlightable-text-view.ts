@@ -7,7 +7,7 @@ import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
 
 import { getCssClassName } from './../utilities';
-import HighlightableTextTample from './highlightable-text-template';
+import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
 
 
@@ -414,7 +414,7 @@ export default class HighlightableTextView extends View {
 extend(HighlightableTextView.prototype, {
     tagName: 'div',
     className: 'highlightable-text',
-    template: HighlightableTextTample,
+    template: HighlightableTextTemplate,
     events: {
         'DOMNodeInsertedIntoDocument': 'onInsertedIntoDOM',
         'DOMNodeRemoved': 'onRemovedFromDOM',

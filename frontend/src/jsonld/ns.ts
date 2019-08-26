@@ -447,9 +447,18 @@ export const schemaPrefix = 'http://schema.org/';
 
 export const schemaTerms = [
     'accessibilityFeature',
+    'affiliation',
+    'alternativeHeadline',
     'Audience',
     'audience',
+    'birthPlace',
     'color',
+    'CreativeWork',
+    'headline',
+    'location',
+    'Organization',
+    'Person',
+    'text',
 ] as const;
 
 export const schema = Vocabulary(schemaPrefix, schemaTerms);
@@ -504,3 +513,14 @@ export const itemPrefix = READIT + 'item/';
 const itemsNotHardcoded = [] as const;
 
 export const item = Vocabulary(itemPrefix, itemsNotHardcoded);
+
+/**
+ * READ-IT source(s)
+ * (not a vocabulary at all, but associated with a prefix nonetheless)
+ */
+
+export const sourcePrefix = READIT + 'source/';
+
+const sourcesNotHardcoded = [] as const;
+
+export const source = Vocabulary(sourcePrefix, sourcesNotHardcoded);
