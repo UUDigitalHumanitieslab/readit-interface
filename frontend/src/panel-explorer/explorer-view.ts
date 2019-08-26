@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, sumBy, method } from 'lodash';
+import { extend, sumBy, method, bind, debounce, findLast } from 'lodash';
 import Model from '../core/model';
 import View from '../core/view';
 
@@ -23,12 +23,19 @@ export default class ExplorerView extends View {
      */
     rltPanelStack: Map<string, number>;
 
+    /**
+     * Keep track of currently fully visible stack (for scroll event purposes)
+     */
+    mostRightFullyVisibleStack: PanelStackView;
+
     constructor(options?: ViewOptions) {
         super(options);
         this.stacks = [];
         this.eventController = new EventController(this);
         this.rltPanelStack = new Map();
         this.push(options.first);
+
+        this.$el.on('scroll', debounce(bind(this.onScroll, this), 1000));
     }
 
     render(): View {
@@ -179,6 +186,22 @@ export default class ExplorerView extends View {
      */
     setHeight(height: number): void {
         this.$el.css('height', height);
+    }
+
+    onScroll(): void {
+        let mostRightFullyVisibleStack = this.getMostRightFullyVisibleStack();
+
+        if (mostRightFullyVisibleStack !== this.mostRightFullyVisibleStack) {
+            this.mostRightFullyVisibleStack = mostRightFullyVisibleStack;
+            let topPanel = mostRightFullyVisibleStack.getTopPanel();
+            let position = this.rltPanelStack.get(topPanel.cid);
+            this.trigger('scrollTo', topPanel, position, (position - this.stacks.length));
+        }
+    }
+
+    getMostRightFullyVisibleStack(): PanelStackView {
+        let explorerMostRight = this.$el.outerWidth();
+        return findLast(this.stacks, s => s.getRightBorderOffset() <= explorerMostRight);
     }
 }
 extend(ExplorerView.prototype, {
