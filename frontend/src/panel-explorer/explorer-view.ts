@@ -124,9 +124,10 @@ export default class ExplorerView extends View {
     /**
      * Remove a panel from any stack.
      * @param panel The panel to remove. Must be a topmost panel.
-     * @event removeOverlay (panel, fromLeft, fromRight) where 'panel' is the removed panel, 'fromLeft' is
-     * the zero-indexed position of the stack the panel was removed from the left, and 'fromRight'
-     * equals fromLeft minus the total number of stacks (i.e. always negative and -1 for the rightmost panel).
+     * @event removeOverlay (panel, ontoPanel, fromLeft, fromRight) where 'panel' is the removed panel,
+     * 'ontoPanel' is the new topmost panel in the stack, 'fromLeft' is the zero-indexed position of the stack
+     * the panel was removed from the left, and 'fromRight' equals fromLeft minus the total number of stacks
+     * (i.e. always negative and -1 for the rightmost panel).
      */
     removeOverlay(panel: View): View {
         // validate that the panel is on top of its stack
@@ -140,7 +141,7 @@ export default class ExplorerView extends View {
         }
 
         let removedPanel = this.deletePanel(position);
-        this.trigger('removeOverlay', removedPanel, position, (position - this.stacks.length));
+        this.trigger('removeOverlay', removedPanel, this.stacks[position].getTopPanel(), position, (position - this.stacks.length));
         return removedPanel;
     }
 
@@ -157,7 +158,7 @@ export default class ExplorerView extends View {
     }
 
     /**
-     * Remove the topmost panel from ths stack at position
+     * Remove the topmost panel from the stack at position
      * @param position The indes of the stack to remove the panel from
      */
     deletePanel(position: number): View {
