@@ -47,15 +47,18 @@ export interface ValueLocalization {
     ['@language']?: string;
 }
 export type ValueModifier = ValueTyping | ValueLocalization;
+export type FlatTypedLiteral = ValueContainer & ValueTyping;
+export type FlatLocalizedLiteral = ValueContainer & ValueLocalization;
 export type FlatLiteral = ValueContainer & ValueModifier;
 export interface FlatList {
     ['@list']: FlatValue;
 }
-export interface FlatValue extends Array<Identifier | FlatLiteral | FlatList> {}
+export type FlatSingleValue = Identifier | FlatLiteral | FlatList;
+export interface FlatValue extends Array<FlatSingleValue> {}
 
 export interface FlatLdObject extends Identifier {
-    ['@type']?: Array<Identifier>;
-    [iri: string]: FirstTypeIntendedSecondTypeWorkaround<FlatValue, string>;
+    ['@type']?: Array<string>;
+    [iri: string]: FirstTypeIntendedSecondTypeWorkaround<FlatValue, string | Array<string>>;
 }
 export interface FlatLdGraph extends Array<FlatLdObject> { }
 export interface FlatGraphContainer extends FlatLdObject {

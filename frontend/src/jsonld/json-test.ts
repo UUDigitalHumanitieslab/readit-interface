@@ -108,11 +108,7 @@ describe('JSON typings', function() {
         it('typechecks with elaborate cases', function() {
             const test: FlatLdObject = {
                 '@id': 'http://example.org/1',
-                '@type': [{
-                    '@id': 'http://example.org/2',
-                }, {
-                    '@id': 'http://example.org/3',
-                }],
+                '@type': ['http://example.org/2', 'http://example.org/3'],
                 'http://example.org/4': [{
                     '@id': 'http://example.org/5',
                 }, {
