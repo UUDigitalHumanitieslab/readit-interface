@@ -17,8 +17,8 @@ import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
 
 import mockOntology from './../mock-data/mock-ontology';
-
-import annotations from './../mock-data/mock-items';
+import mockItems from './../mock-data/mock-items';
+import mockSourceText from './../mock-data/mock-source-text';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -46,8 +46,18 @@ directionRouter.on('route:explore', () => {
 directionFsm.on('enter:exploring', () => {
     // This is just a quick and dirty solution, will have to be moved in the future
 
-    let annos = new Graph(annotations);
-    let sourceView = new SourceView({ annotations: annos, inFullViewportMode: false });
+    let items = new Graph(mockItems);
+
+    let scrollTo = items.find(n => n.get("@id") == "https://read-it.hum.uu.nl/item/102");
+
+    let sourceView = new SourceView({
+        items: items,
+        sourceHTML: mockSourceText,
+        inFullViewportMode: false,
+        showHighlightsInitially: true,
+        isEditable: true,
+        initialScrollTo: scrollTo,
+    });
 
     let exView = new ExplorerView({ first: sourceView });
 
