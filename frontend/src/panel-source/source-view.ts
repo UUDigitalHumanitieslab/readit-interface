@@ -8,45 +8,79 @@ import Graph from './../jsonld/graph';
 import sourceTemplate from './source-template';
 import HighlightableTextView from '../utilities/highlight/highlightable-text-view';
 
-import mockSourceText from './../mock-data/mock-source-text';
-import { oa } from '../jsonld/ns';
 
 export interface ViewOptions extends BaseOpt<Model> {
-    // TODO: receive Node instance of type Source
-    annotations: Graph
+    /**
+     * The HTML string that represents the source.
+     * TODO: update when we know what Source will look like
+     */
+    sourceHTML: string;
+
+    /**
+     * At least a Source, and potentially its associated oa:Annotations (and their details).
+     */
+    items: Graph
 
     /**
      * Specify whether to display the View in Full Viewport Mode.
      * Defaults to false, i.e. PanelMode
      */
     inFullViewportMode: boolean;
+
+    /**
+     * Specify whether the View should only display oa:Annotations, or if it allows editing
+     * them. Defaults to false.
+     */
+    isEditable: boolean;
+
+    /**
+     * Specify whether highlights should be displayed when the view becomes visible.
+     * Defaults to false.
+     */
+    showHighlightsInitially: boolean;
+
+    /**
+     * Optional. An oa:Annotation instance, present in the 'items' Graph, that
+     * you want to scroll to once the view is visible.
+     */
+    initialScrollTo?: Node;
 }
 
 export default class SourceView extends View {
-    nodes: Graph;
-    htv: HighlightableTextView;
+    items: Graph;
+    sourceHTML: string;
     inFullViewportMode: boolean;
+    isEditable: boolean;
+    showHighlightsInitially: boolean;
+    initialScrollTo?: Node;
 
-    isShowingAnnotations: boolean;
-    tooltipAnnotations: string;
+    /**
+     * Store reference to the instance of HighlightableTextView utilized by this view.
+     */
+    htv: HighlightableTextView;
+
+    /**
+     * Keep track of visiblility of the highlights;
+     */
+    isShowingHighlights: boolean;
 
     constructor(options?: ViewOptions) {
         super(options);
 
-        // TODO: validate ? (highlightableTV does it as well)
+        // TODO: validate if a source is in the Graph
+        // (once we know what sources will look like)
 
-        if (options.annotations) {
-            this.nodes = options.annotations;
-        }
-
-        let scrollTo = this.nodes.find(n => n.get("@id") == "https://read-it.hum.uu.nl/item/102");
+        this.items = options.items;
+        this.initialScrollTo = options.initialScrollTo;
+        this.sourceHTML = options.sourceHTML;
+        this.isEditable = options.isEditable;
+        this.showHighlightsInitially = options.showHighlightsInitially;
 
         this.htv = new HighlightableTextView({
-            text: mockSourceText,
-            isEditable: true,
+            text: this.sourceHTML,
             showHighlightsInitially: true,
-            collection: this.nodes,
-            initialScrollTo: scrollTo
+            collection: this.items,
+            initialScrollTo: this.initialScrollTo
         });
         this.bindToEvents(this.htv);
 
@@ -58,59 +92,68 @@ export default class SourceView extends View {
 
     render(): this {
         this.$el.html(this.template(this));
-
-
-        // TODO: where does this come from?
-        // let scrollTo = this.nodes.models.find(n => n.get('@id') === 'https://read-it.hum.uu.nl/item/102');
-
-
         this.$('highlightable-text-view').replaceWith(this.htv.render().$el);
         return this;
     }
 
     bindToEvents(htv: HighlightableTextView): HighlightableTextView {
-        this.htv.on('hover', this.hover, this);
-        this.htv.on('hoverEnd', this.hoverEnd, this);
-        this.htv.on('click', this.click, this);
-        this.htv.on('scroll', this.scroll, this);
+        this.htv.on('hover', this.onHover, this);
+        this.htv.on('hoverEnd', this.onHoverEnd, this);
+        this.htv.on('click', this.onClick, this);
+        this.htv.on('scroll', this.onScroll, this);
         return htv;
     }
 
-    hover(node: Node) {
+    /**
+     * Pass events from HighlightableTextView
+     */
+    onHover(node: Node): void {
         this.trigger('hover', node);
     }
 
-    hoverEnd(node: Node) {
+    /**
+     * Pass events from HighlightableTextView
+     */
+    onHoverEnd(node: Node): void {
         this.trigger('hoverEnd', node);
     }
 
-    click(node: Node) {
+    /**
+     * Pass events from HighlightableTextView
+     */
+    onClick(node: Node): void {
         this.trigger('click', node);
     }
 
-    scroll(selector?: Node): void {
+    /**
+     * Pass events from HighlightableTextView
+     */
+    onScroll(selector?: Node): void {
         this.trigger('scroll', selector);
     }
 
-    toggleAnnotations(): this {
-        if (this.isShowingAnnotations) {
-            this.hideAnnotations();
+    /**
+     * Toggle highlights on and off.
+     */
+    toggleHighlights(): this {
+        if (this.isShowingHighlights) {
+            this.hideHighlights();
         }
         else {
-            this.showAnnotations();
+            this.showHighlights();
         }
         this.$(".toolbar-annotations").toggleClass("is-active");
-        this.isShowingAnnotations = !this.isShowingAnnotations;
+        this.isShowingHighlights = !this.isShowingHighlights;
         return this;
     }
 
-    showAnnotations(): this {
+    showHighlights(): this {
         this.htv.showAll();
-        this.trigger('showAnnotations', this.nodes);
+        this.trigger('showAnnotations', this.items);
         return this;
     }
 
-    hideAnnotations(): this {
+    hideHighlights(): this {
         this.htv.hideAll();
         return this;
     }

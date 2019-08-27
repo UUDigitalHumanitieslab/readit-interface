@@ -25,13 +25,13 @@ export interface ViewOptions extends BaseOpt<Node> {
      * Specify whether the View should only display oa:Annotations, or if it allows editing
      * them. Defaults to false.
      */
-    isEditable: boolean;
+    isEditable?: boolean;
 
     /**
      * Specify whether the oa:Annotations in collection should be
      * displayed when the View becomes visible. Defaults to false.
      */
-    showHighlightsInitially: boolean;
+    showHighlightsInitially?: boolean;
 
     /**
      * Optional. The oa:Annotation instance, present in the collection / Graph, that
