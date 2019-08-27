@@ -32,8 +32,6 @@ export default class ExplorerView extends View {
     }
 
     render(): View {
-        this.setHeight();
-
         for (let panelStack of this.stacks) {
             panelStack.render().$el.appendTo(this.$el);
         }

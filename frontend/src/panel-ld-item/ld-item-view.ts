@@ -29,7 +29,7 @@ export default class LdItemView extends View<Node> {
     }
 
     initialize(): void {
-        this.lblView = new LabelView({model: this.model}, false);
+        this.lblView = new LabelView({model: this.model, hasTooltip: false});
         this.lblView.render();
     }
 
@@ -43,7 +43,7 @@ export default class LdItemView extends View<Node> {
             // that either contain a value (i.e. string or date or whatever) and look like
             //'{
             //    "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
-            //    "@value": "2085-12-31T04:33:15+0100"
+            //    "@value": "2085-12-31T04:33:15+01:00"
             // }'
             // or that represents a link to another item, which looks like
             // '{
@@ -55,29 +55,25 @@ export default class LdItemView extends View<Node> {
 
                 // first extract everything specific that we need
                 if (attribute == 'creator') {
-                    this.itemMetadata[attribute] = obj['@id'];
+                    this.itemMetadata[attribute] = obj.id;
                     continue;
                 }
 
                 if (attribute == 'created') {
-                    this.itemMetadata[attribute] = obj['@value'];
+                    this.itemMetadata[attribute] = obj;
                     continue;
                 }
 
                 if (attribute == owl.sameAs) {
-                    this.externalResources[attribute] = obj['@id'];
+                    this.externalResources[attribute] = obj.id;
                     continue;
                 }
 
                 // then process what is left
-                if (obj['@value']) {
-                    this.properties[attribute] = obj['@value'];
-                    continue;
-                }
-
-                if (obj['@id']) {
-                    this.relatedItems[attribute] = obj['@id'];
-                    continue;
+                if (obj instanceof Node) {
+                    this.relatedItems[attribute] = obj.id;
+                } else {
+                    this.properties[attribute] = obj;
                 }
             }
         }

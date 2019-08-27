@@ -1,4 +1,17 @@
-import { extend, isUndefined, isArray, isEqual } from 'lodash';
+import {
+    extend,
+    map,
+    mapValues,
+    filter,
+    has,
+    isUndefined,
+    isArray,
+    isEqual,
+    isNull,
+    isBoolean,
+    isNumber,
+    isString,
+} from 'lodash';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
     expand,   // (jsonld, options?, callback?) => Promise<jsonld>
@@ -8,15 +21,35 @@ import {
     toRDF,    // (jsonld, options?, callback?) => Promise<dataset>
     registerRDFParser,  // (contentType, parser) => void
 } from 'jsonld';
+import { ModelSetOptions } from 'backbone';
 
 import Model from '../core/model';
-import Collection from '../core/collection';
-import { JsonLdContext, JsonLdObject, ResolvedContext } from './json';
-import computeIdAlias from './idAlias';
+import {
+    JsonLdContext,
+    ResolvedContext,
+    JsonLdObject,
+    FlatLdObject,
+    Identifier
+} from './json';
 import Graph from './graph';
+import sync from './sync';
+import {
+    Native as OptimizedNative,
+    NativeArray as OptimizedNativeArray,
+    asNative,
+    asLD,
+} from './conversion';
+import { xsd } from './ns';
 
-function isDefined(arg: any): boolean {
-    return !isUndefined(arg);
+type UnoptimizedNative = Exclude<OptimizedNative, Identifier | OptimizedNativeArray>;
+export type Native = UnoptimizedNative | Node | NativeArray;
+export interface NativeArray extends Array<Native> { }
+
+export interface NodeGetOptions {
+    '@type'?: string;
+}
+export interface TypeFilter {
+    (value: OptimizedNative): boolean;
 }
 
 /**
@@ -25,13 +58,12 @@ function isDefined(arg: any): boolean {
  */
 export default class Node extends Model {
     /**
-     * attributes must be JSON-LD; this is a restriction from Model.
+     * Original local context, if set.
      */
-    attributes: JsonLdObject;
+    localContext: JsonLdContext;
 
     /**
-     * A promise of the computed active context. Only resolves when
-     * the attributes are consistent with the @context.
+     * A promise of the computed active context.
      */
     whenContext: Promise<ResolvedContext>;
 
@@ -39,20 +71,11 @@ export default class Node extends Model {
 
     /**
      * The ctor allows you to set/override the context on creation.
-     * Please note that the context management logic runs only AFTER
-     * your initialize method, if you define one.
      */
-    constructor(attributes?: JsonLdObject, options?) {
+    constructor(attributes?: any, options?) {
         super(attributes, options);
-        let id = this.id;
-        this.whenContext = this.computeContext(this.get('@context')).then(
-            context => this.updateIdAlias(context, id)
-        );
-        this.on('change:@context', this.processContext, this);
-        let newContext: JsonLdContext = options && options.context;
-        if (isDefined(newContext)) {
-            this.set('@context', newContext);
-        }
+        let context: JsonLdContext = options && options.context;
+        if (!isUndefined(context)) this.setContext(context);
     }
 
     /**
@@ -65,60 +88,58 @@ export default class Node extends Model {
     }
 
     /**
-     * Compute and process the Graph-aware context for future use.
-     * You shouldn't normally need to call this manually; wait for
-     * this.whenContext to resolve instead. See
-     * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
+     * Set a local context for future compaction.
      */
-    processContext(): Promise<ResolvedContext> {
-        let localContext: JsonLdContext = this.get('@context');
-        let oldContext = this.whenContext;
-        let contextPromise = this.computeContext(localContext);
-        let consistentPromise = contextPromise.then(async newContext => {
-            await this.applyNewContext(
-                newContext,
-                await oldContext,
-                localContext,
-            );
-            return newContext;
-        });
-        return this.whenContext = consistentPromise;
-    }
-
-    private async applyNewContext(
-        newContext: ResolvedContext,
-        expandContext: ResolvedContext,
-        localContext: JsonLdContext,
-    ): Promise<this> {
-        if (isEqual(newContext, expandContext)) return this;
-        this.trigger('jsonld:context', this, newContext, localContext);
-        let oldJson = this.toJSON();
-        let id = this.id;
-        delete oldJson['@context'];  // let's not pass the context twice
-        let newJson = await compact(oldJson, newContext, { expandContext });
-        newJson['@context'] = localContext;
-        // We pass silent: true because conceptually, the data didn't change;
-        // they were just formatted differently.
-        this.clear({ silent: true }).set(newJson, { silent: true });
-        this.updateIdAlias(newContext, id);
-        return this.trigger('jsonld:compact', this, newJson);
+    setContext(context: JsonLdContext): this {
+        if (isEqual(context, this.localContext)) return this;
+        if (isUndefined(context)) {
+            delete this.localContext;
+            delete this.whenContext;
+        } else {
+            this.localContext = context;
+            this.whenContext = this.computeContext(context);
+        }
+        return this;
     }
 
     /**
-     * Implementation detail.
-     * @param context
-     * @param id       A previously existing @id attribute, if set.
-     * @return         The same `context` for promise chaining convenience.
+     * Override the set method to convert JSON-LD to native.
      */
-    private updateIdAlias(context: ResolvedContext, id: string):ResolvedContext{
-        let alias = computeIdAlias(context);
-        let eitherId = id || alias && this.get(alias);
-        // if we already had an @id, then the following line is not a
-        // change conceptually, so we don't emit a change event.
-        if (eitherId) this.set(this.idAttribute, eitherId, { silent: !!id })
-        // delete the alias to keep things consistent
-        if (alias) this.unset(alias);
-        return context;
+    set(key: string, value: any, options?: ModelSetOptions): this;
+    set(hash: any, options?: ModelSetOptions): this;
+    set(key, value?, options?) {
+        let hash: any;
+        if (typeof key === 'string') {
+            hash = { [key]: value };
+        } else {
+            hash = key;
+            options = value;
+        }
+        let normalizedHash = mapValues(hash, asNativeArray);
+        return super.set(normalizedHash, options);
+    }
+
+    /**
+     * Override the get method to convert identifiers to Nodes.
+     */
+    get<T extends string>(
+        key: T,
+        options?: NodeGetOptions,
+    ): T extends '@id' ? string : NativeArray {
+        let value = super.get(key);
+        if (isArray(value) && key !== '@type') {
+            let type = options && options['@type'];
+            if (!isUndefined(type)) value = filter(value, typeFilter(type));
+            return map(value, id2node.bind(this)) as T extends '@id' ? string : NativeArray;
+        }
+        return value;
+    }
+
+    /**
+     * Override the toJSON method to convert native to JSON-LD.
+     */
+    toJSON(options?: any): FlatLdObject {
+        return mapValues(this.attributes, asLDArray) as FlatLdObject;
     }
 
     // TODO: non-modifying compact and flatten methods
@@ -126,4 +147,37 @@ export default class Node extends Model {
 
 extend(Node.prototype, {
     idAttribute: '@id',
+    sync,
 });
+
+/**
+ * Implementation details of the Node class.
+ */
+function asNativeArray(value: any, key: string): OptimizedNative {
+    if (key === '@id') return value;
+    let array = isArray(value) ? value : [value];
+    return map(array, asNative);
+}
+
+function id2node(value: OptimizedNative): Native {
+    if (has(value, '@id')) {
+        return this.collection && this.collection.get(value) || new Node(value);
+    }
+    if (isArray(value)) return map(value, id2node.bind(this));
+    return value;
+}
+
+function asLDArray<K extends keyof FlatLdObject>(value: OptimizedNative, key: K): FlatLdObject[K] {
+    if (key === '@id') return value as string;
+    if (key === '@type') return value as string[];
+    return map(value as OptimizedNativeArray, asLD);
+}
+
+function typeFilter(typeName: string): TypeFilter {
+    if (typeName === '@id') return value => has(value, '@id');
+    if (typeName === null) return isNull;
+    if (typeName === xsd.boolean) return isBoolean;
+    if (typeName === xsd.integer || typeName === xsd.double) return isNumber;
+    if (typeName === xsd.string) return isString;
+    return value => value['@type'] === typeName;
+}

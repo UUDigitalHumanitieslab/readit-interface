@@ -1,4 +1,4 @@
-import { find } from 'lodash'
+import { find, includes } from 'lodash'
 import Node from '../jsonld/node';
 
 import { skos, rdfs } from './../jsonld/ns';
@@ -7,7 +7,7 @@ export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel];
 
 export function getLabel(node: Node): string {
     let labelKey = find(labelKeys, key => node.has(key));
-    if (labelKey) return node.get(labelKey)[0]['@value'];
+    if (labelKey) return node.get(labelKey)[0] as string;
 }
 
 export function getCssClassName(node: Node): string {
@@ -34,7 +34,7 @@ export function isRdfsClass(node: Node): boolean {
 
     const nodeType = node.get('@type');
     if (nodeType && nodeType.length > 0) {
-        return nodeType.includes(rdfs.Class);
+        return includes(nodeType, rdfs.Class);
     }
 
     return false;

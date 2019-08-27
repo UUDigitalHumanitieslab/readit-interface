@@ -1,13 +1,13 @@
-import { rdfs, skos } from './../jsonld/ns';
+import { rdf, rdfs, skos } from './../jsonld/ns';
 import { getLabel, getCssClassName, isRdfsClass, hasProperty } from './utilities';
-import { JsonLdObject } from '../jsonld/json';
+import { FlatLdObject } from '../jsonld/json';
 import Node from '../jsonld/node';
 
 function getDefaultNode(): Node {
     return new Node(getDefaultAttributes());
 }
 
-function getDefaultAttributes(): JsonLdObject {
+function getDefaultAttributes(): FlatLdObject {
     return {
         '@id': 'uniqueID',
         "@type": [
@@ -82,7 +82,7 @@ describe('utilities:isRdfsClass', function() {
 
     it('ignores other types', function() {
         let attributes = getDefaultAttributes();
-        attributes['@type'] = [ rdfs.Resource ];
+        attributes['@type'] = [ rdf.Property ];
         let node = new Node(attributes);
 
         expect(isRdfsClass(node)).toBe(false);
