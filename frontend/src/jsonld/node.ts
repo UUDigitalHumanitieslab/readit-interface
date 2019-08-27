@@ -6,6 +6,10 @@ import {
     isUndefined,
     isArray,
     isEqual,
+    isNull,
+    isBoolean,
+    isNumber,
+    isString,
 } from 'lodash';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
@@ -34,6 +38,7 @@ import {
     asNative,
     asLD,
 } from './conversion';
+import { xsd } from './ns';
 
 type UnoptimizedNative = Exclude<OptimizedNative, Identifier | OptimizedNativeArray>;
 export type Native = UnoptimizedNative | Node | NativeArray;
@@ -41,6 +46,9 @@ export interface NativeArray extends Array<Native> { }
 
 export interface NodeGetOptions {
     '@type'?: string;
+}
+export interface TypeFilter {
+    (value: OptimizedNative): boolean;
 }
 
 /**
@@ -157,4 +165,13 @@ function asLDArray<K extends keyof FlatLdObject>(value: OptimizedNative, key: K)
     if (key === '@id') return value as string;
     if (key === '@type') return value as string[];
     return map(value as OptimizedNativeArray, asLD);
+}
+
+function typeFilter(typeName: string): TypeFilter {
+    if (typeName === '@id') return value => has(value, '@id');
+    if (typeName === null) return isNull;
+    if (typeName === xsd.boolean) return isBoolean;
+    if (typeName === xsd.integer || typeName === xsd.double) return isNumber;
+    if (typeName === xsd.string) return isString;
+    return value => value['@type'] === typeName;
 }
