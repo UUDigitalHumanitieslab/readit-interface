@@ -2,6 +2,7 @@ import {
     extend,
     map,
     mapValues,
+    filter,
     has,
     isUndefined,
     isArray,
@@ -121,9 +122,14 @@ export default class Node extends Model {
     /**
      * Override the get method to convert identifiers to Nodes.
      */
-    get<T extends string>(key: T): T extends '@id' ? string : NativeArray {
-        const value = super.get(key);
+    get<T extends string>(
+        key: T,
+        options?: NodeGetOptions,
+    ): T extends '@id' ? string : NativeArray {
+        let value = super.get(key);
         if (isArray(value) && key !== '@type') {
+            let type = options && options['@type'];
+            if (!isUndefined(type)) value = filter(value, typeFilter(type));
             return map(value, id2node.bind(this)) as T extends '@id' ? string : NativeArray;
         }
         return value;
