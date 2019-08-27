@@ -2,10 +2,15 @@ import {
     extend,
     map,
     mapValues,
+    filter,
     has,
     isUndefined,
     isArray,
     isEqual,
+    isNull,
+    isBoolean,
+    isNumber,
+    isString,
 } from 'lodash';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
@@ -34,10 +39,18 @@ import {
     asNative,
     asLD,
 } from './conversion';
+import { xsd } from './ns';
 
 type UnoptimizedNative = Exclude<OptimizedNative, Identifier | OptimizedNativeArray>;
 export type Native = UnoptimizedNative | Node | NativeArray;
 export interface NativeArray extends Array<Native> { }
+
+export interface NodeGetOptions {
+    '@type'?: string;
+}
+export interface TypeFilter {
+    (value: OptimizedNative): boolean;
+}
 
 /**
  * Representation of a single JSON-LD object with an @id.
@@ -109,9 +122,14 @@ export default class Node extends Model {
     /**
      * Override the get method to convert identifiers to Nodes.
      */
-    get<T extends string>(key: T): T extends '@id' ? string : NativeArray {
-        const value = super.get(key);
+    get<T extends string>(
+        key: T,
+        options?: NodeGetOptions,
+    ): T extends '@id' ? string : NativeArray {
+        let value = super.get(key);
         if (isArray(value) && key !== '@type') {
+            let type = options && options['@type'];
+            if (!isUndefined(type)) value = filter(value, typeFilter(type));
             return map(value, id2node.bind(this)) as T extends '@id' ? string : NativeArray;
         }
         return value;
@@ -153,4 +171,13 @@ function asLDArray<K extends keyof FlatLdObject>(value: OptimizedNative, key: K)
     if (key === '@id') return value as string;
     if (key === '@type') return value as string[];
     return map(value as OptimizedNativeArray, asLD);
+}
+
+function typeFilter(typeName: string): TypeFilter {
+    if (typeName === '@id') return value => has(value, '@id');
+    if (typeName === null) return isNull;
+    if (typeName === xsd.boolean) return isBoolean;
+    if (typeName === xsd.integer || typeName === xsd.double) return isNumber;
+    if (typeName === xsd.string) return isString;
+    return value => value['@type'] === typeName;
 }

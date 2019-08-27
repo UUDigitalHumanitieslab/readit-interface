@@ -132,6 +132,29 @@ describe('Node', function() {
                 expect(this.node.get(key)).toEqual(contentInstanceNative[key]);
             });
         });
+
+        it('can optionally filter by type', function() {
+            let expectFilteredMatch = (attribute, type, length) => {
+                const value = this.node.get(attribute, { '@type': type });
+                expect(value.length).toBe(length);
+                // The following works as a special case because the mock item
+                // happens to contain only arrays of length 1.
+                if (length === 1) {
+                    if (type === '@id') {
+                        expect(value[0].id)
+                            .toBe(this.node.get(attribute)[0].id);
+                    } else{
+                        expect(value).toEqual(this.node.get(attribute));
+                    }
+                }
+            };
+            expectFilteredMatch(owl.sameAs, '@id', 1);
+            expectFilteredMatch(owl.sameAs, xsd.integer, 0);
+            expectFilteredMatch(dcterms.created, xsd.dateTime, 1);
+            expectFilteredMatch(dcterms.created, null, 0);
+            expectFilteredMatch(dcterms.title, xsd.string, 1);
+            expectFilteredMatch(dcterms.title, '@id', 0);
+        });
     });
 
     describe('toJSON', function() {
