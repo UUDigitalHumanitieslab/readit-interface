@@ -39,6 +39,10 @@ type UnoptimizedNative = Exclude<OptimizedNative, Identifier | OptimizedNativeAr
 export type Native = UnoptimizedNative | Node | NativeArray;
 export interface NativeArray extends Array<Native> { }
 
+export interface NodeGetOptions {
+    '@type'?: string;
+}
+
 /**
  * Representation of a single JSON-LD object with an @id.
  * Mostly for internal use, as the model type for Graph.
