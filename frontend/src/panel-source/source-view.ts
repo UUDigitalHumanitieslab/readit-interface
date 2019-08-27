@@ -64,6 +64,11 @@ export default class SourceView extends View {
      */
     isShowingHighlights: boolean;
 
+    /**
+     * Keep track of visiblility of the metadata;
+     */
+    isShowingMetadata: boolean;
+
     constructor(options?: ViewOptions) {
         super(options);
 
@@ -93,6 +98,11 @@ export default class SourceView extends View {
     render(): this {
         this.$el.html(this.template(this));
         this.$('highlightable-text-view').replaceWith(this.htv.render().$el);
+
+        if (this.showHighlightsInitially) {
+            this.toggleHighlights();
+        }
+
         return this;
     }
 
@@ -142,8 +152,13 @@ export default class SourceView extends View {
         else {
             this.showHighlights();
         }
-        this.$(".toolbar-annotations").toggleClass("is-active");
+        this.toggleToolbarItemSelected('annotations');
         this.isShowingHighlights = !this.isShowingHighlights;
+        return this;
+    }
+
+    toggleToolbarItemSelected(name: string): this {
+        this.$(`.toolbar-${name}`).toggleClass("is-active");
         return this;
     }
 
@@ -158,14 +173,21 @@ export default class SourceView extends View {
         return this;
     }
 
-    showMetadata(): this {
-        this.trigger('showMetadata', this.model);
+    toggleMetadata(): this {
+        // TODO: add Source to event payload when we know what it looks like
+        if (this.isShowingMetadata) {
+            this.trigger('hideMetadata');
+        } else {
+            this.trigger('showMetadata');
+        }
+        this.toggleToolbarItemSelected('metadata');
         return this;
     }
 
     toggleViewMode(): this {
         if (this.inFullViewportMode) this.trigger('shrink', this);
         else this.trigger('enlarge', this);
+        this.toggleToolbarItemSelected('viewmode');
         return this;
     }
 
@@ -178,8 +200,8 @@ extend(SourceView.prototype, {
     className: 'source',
     template: sourceTemplate,
     events: {
-        'click .toolbar-metadata': 'showMetadata',
-        'click .toolbar-annotations': 'toggleAnnotations',
-        'click .toolbar-fullscreen': 'toggleViewMode',
+        'click .toolbar-metadata': 'toggleMetadata',
+        'click .toolbar-annotations': 'toggleHighlights',
+        'click .toolbar-viewmode': 'toggleViewMode',
     }
 });
