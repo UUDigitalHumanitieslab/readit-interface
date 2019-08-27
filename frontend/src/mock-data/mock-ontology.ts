@@ -37,7 +37,7 @@ export const contentClass = {
         }
     ],
     [schema.color]: [
-        { '@value': 'orange' }
+        { '@value': '#F5CAC3' }
     ],
 };
 
@@ -65,7 +65,7 @@ export const readerClass = {
         }
     ],
     [schema.color]: [
-        { '@value': 'green' }
+        { '@value': '#F18F01' }
     ],
 };
 
@@ -90,7 +90,7 @@ export const mediumClass = {
         }
     ],
     [schema.color]: [
-        { '@value': 'lightcoral' }
+        { '@value': '#60D394' }
     ],
 };
 
