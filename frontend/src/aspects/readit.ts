@@ -49,8 +49,6 @@ directionFsm.on('enter:exploring', () => {
     let annos = new Graph(annotations);
     let sourceView = new SourceView({ annotations: annos, inFullViewportMode: false });
 
-    sourceView.render().$el.appendTo('#main');
-
     let exView = new ExplorerView({ first: sourceView });
 
     let vh = $(window).height();
@@ -59,8 +57,6 @@ directionFsm.on('enter:exploring', () => {
 
     exView.setHeight(height);
     exView.render().$el.appendTo('#main');
-
-    // console.log(exView);
 });
 
 directionFsm.on('exit:exploring', () => {

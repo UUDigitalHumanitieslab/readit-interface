@@ -10,6 +10,8 @@ import { getCssClassName } from './../utilities';
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
 
+import ontology from './../../global/readit-ontology';
+
 
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
@@ -131,11 +133,10 @@ export default class HighlightableTextView extends View {
         }
 
         if (this.isCompleteAnnotation(node, node.collection)) {
-            // TODO: update this when new Node functionality is available
-            let body = node.collection.get(node.get(oa.hasBody)[0]['@id']);
-            let selector = node.collection.get(node.get(oa.hasTarget)[0]['@id']);
-            let startSelector = node.collection.get(selector.get(oa.hasStartSelector)[0]['@id']);
-            let endSelector = node.collection.get(selector.get(oa.hasEndSelector)[0]['@id']);
+            let body = node.collection.get(node.get(oa.hasBody)[0]);
+            let selector = node.collection.get(node.get(oa.hasTarget)[0]);
+            let startSelector = node.collection.get(selector.get(oa.hasStartSelector)[0]);
+            let endSelector = node.collection.get(selector.get(oa.hasEndSelector)[0]);
             this.collection.add([node, body, selector, startSelector, endSelector]);
         }
 
@@ -188,10 +189,9 @@ export default class HighlightableTextView extends View {
     private deleteFromCollection(annotation: Node): boolean {
         if (!this.isType(annotation, oa.Annotation)) return false;
 
-        // TODO: update this when new Node functionality is available
-        let selector = this.collection.get(annotation.get(oa.hasTarget)[0]['@id']);
-        let startSelector = this.collection.get(selector.get(oa.hasStartSelector)[0]['@id']);
-        let endSelector = this.collection.get(selector.get(oa.hasEndSelector)[0]['@id']);
+        let selector = this.collection.get(annotation.get(oa.hasTarget)[0]);
+        let startSelector = this.collection.get(selector.get(oa.hasStartSelector)[0]);
+        let endSelector = this.collection.get(selector.get(oa.hasEndSelector)[0]);
         this.collection.remove([annotation, selector, startSelector, endSelector]);
         return true;
     }
@@ -203,15 +203,15 @@ export default class HighlightableTextView extends View {
     private addHighlight(node: Node): HighlightView {
         if (!this.isType(node, oa.Annotation)) return;
 
-        // TODO: update this when new Node functionality is available
         // annotation styling details
-        let body = this.collection.get(node.get(oa.hasBody)[0]['@id']);
+        let body = ontology.get(node.get(oa.hasBody)[0]);
         let cssClass = getCssClassName(body);
 
         // annotation position details
-        let selector = this.collection.get(node.get(oa.hasTarget)[0]['@id']);
-        let startSelector = this.collection.get(selector.get(oa.hasStartSelector)[0]['@id']);
-        let endSelector = this.collection.get(selector.get(oa.hasEndSelector)[0]['@id']);
+        let specificResource = this.collection.get(node.get(oa.hasTarget)[0]);
+        let selector = this.collection.get(specificResource.get(oa.hasSelector)[0]);
+        let startSelector = this.collection.get(selector.get(oa.hasStartSelector)[0]);
+        let endSelector = this.collection.get(selector.get(oa.hasEndSelector)[0]);
 
         let range = this.getRange(
             this.textWrapper,
@@ -239,7 +239,7 @@ export default class HighlightableTextView extends View {
      * @param selector XPathSelector with a rdf:Value like 'substring(.//*[${nodeIndex}]/text(),${characterIndex})'
      */
     getNodeIndex(selector: Node): number {
-        let xpath = selector.get(rdf.value);
+        let xpath = selector.get(rdf.value)[0];
         let index = xpath.indexOf('[') + 1;
         let endIndex = xpath.indexOf(']');
         return +xpath.substring(index, endIndex);
@@ -250,7 +250,7 @@ export default class HighlightableTextView extends View {
      * @param selector XPathSelector with a rdf:Value like 'substring(.//*[${nodeIndex}]/text(),${characterIndex})'
      */
     getCharacterIndex(selector: Node): any {
-        let xpath = selector.get(rdf.value);
+        let xpath = selector.get(rdf.value)[0];
         let startIndex = xpath.indexOf(',') + 1;
         let endIndex = xpath.length - 1;
         return xpath.substring(startIndex, endIndex);
@@ -268,25 +268,26 @@ export default class HighlightableTextView extends View {
                 `Node ${annotation.get('@id')} is not an instance of oa:Annotation`);
         }
 
-        //TODO: rewrite when new Node functionality is available
-        if (!graph.get(annotation.get(oa.hasBody)[0]['@id'])) {
+        if (annotation.get(oa.hasBody).filter(n => ontology.get(n)).length < 1) {
             throw new TypeError(
-                `The oa:hasBody property of annotation ${annotation.get('@id')} is empty or the related item cannot be found`);
+                `The oa:hasBody property of annotation ${annotation.get('@id')} is empty or the related ontology item cannot be found`);
         }
 
-        let selector = graph.get(annotation.get(oa.hasTarget)[0]['@id']);
-        if (!selector || this.isType(selector, vocab('RangeSelector'))) {
+        let specificResource = graph.get(annotation.get(oa.hasTarget)[0]);
+        let selector = graph.get(specificResource.get(oa.hasSelector)[0]);
+
+        if (!selector || !this.isType(selector, vocab('RangeSelector'))) {
             throw new TypeError(
                 `Selector ${selector.get('@id')} cannot be empty and should be of type vocab('RangeSelector')`);
         }
 
-        let startSelector = graph.get(selector.get(oa.hasStartSelector)[0]['@id']);
+        let startSelector = graph.get(selector.get(oa.hasStartSelector)[0]);
         if (!startSelector || !this.isType(startSelector, oa.XPathSelector)) {
             throw new TypeError(
                 `StartSelector ${startSelector.get('@id')} cannot be empty and should be of type oa:XPathSelector`);
         }
 
-        let endSelector = graph.get(selector.get(oa.hasEndSelector)[0]['@id']);
+        let endSelector = graph.get(selector.get(oa.hasEndSelector)[0]);
         if (!endSelector || !this.isType(endSelector, oa.XPathSelector)) {
             throw new TypeError(
                 `EndSelector ${endSelector.get('@id')} cannot be empty and should be of type oa:XPathSelector`);

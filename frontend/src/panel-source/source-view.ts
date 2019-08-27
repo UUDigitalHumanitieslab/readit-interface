@@ -135,7 +135,7 @@ export default class SourceView extends View {
         }
         else {
             // center it
-            let centerOffset = (scrollableEl.height() - highlightHeight) / 2
+            let centerOffset = (scrollableEl.height() - highlightHeight) / 2;
             let top = highlightTop - scrollableEl.offset().top - centerOffset;
             scrollableEl.animate({ scrollTop: top }, 800);
         }
