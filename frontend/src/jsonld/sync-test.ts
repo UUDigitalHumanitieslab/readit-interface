@@ -36,11 +36,8 @@ describe('the jsonld/sync module', function() {
     }
 
     describe('syncLD', function() {
-        // Please merge this with whatever you want to keep from
-        // your original "sync" suite.
 
         it('compacts the request data if a context is set', function(done) {
-            // Use 'create' or 'update' as the method.
             // The 'read' method doesn't send any data by default.
 
             expandedGraph.set(expandedData);
