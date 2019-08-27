@@ -419,7 +419,7 @@ export default class HighlightableTextView extends View {
         let visibleHighlights = this.getVisibleHighlightViews();
 
         if (!this.hVs || this.hVs.length === 0) {
-            this.trigger('scroll', this);
+            this.trigger('scroll');
         }
 
         if (!visibleHighlights || visibleHighlights.length === 0) {
@@ -435,7 +435,7 @@ export default class HighlightableTextView extends View {
         let specificResource = resultAnnotation.collection.get(resultAnnotation.get(oa.hasTarget)[0]);
         let selector = specificResource.get(oa.hasSelector);
 
-        this.trigger('scroll', this, selector);
+        this.trigger('scroll', selector);
     }
 
     getVisibleHighlightViews(): HighlightView[] {

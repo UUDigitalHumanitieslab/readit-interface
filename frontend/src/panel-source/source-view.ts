@@ -72,6 +72,7 @@ export default class SourceView extends View {
         this.htv.on('hover', this.hover, this);
         this.htv.on('hoverEnd', this.hoverEnd, this);
         this.htv.on('click', this.click, this);
+        this.htv.on('scroll', this.scroll, this);
         return htv;
     }
 
@@ -85,6 +86,10 @@ export default class SourceView extends View {
 
     click(node: Node) {
         this.trigger('click', node);
+    }
+
+    scroll(selector?: Node): void {
+        this.trigger('scroll', selector);
     }
 
     toggleAnnotations(): this {
@@ -121,26 +126,8 @@ export default class SourceView extends View {
         return this;
     }
 
-    scrollTo(annotation: Node) {
+    scrollTo(annotation: Node): void {
         this.htv.scrollTo(annotation);
-    }
-
-    scroll(highlightTop: number, highlightHeight: number): this {
-        let scrollableEl = this.$('.source-content');
-
-        if (highlightHeight >= scrollableEl.height()) {
-            // show start at the top
-            let top = highlightTop - scrollableEl.offset().top;
-            scrollableEl.animate({ scrollTop: top }, 800);
-        }
-        else {
-            // center it
-            let centerOffset = (scrollableEl.height() - highlightHeight) / 2;
-            let top = highlightTop - scrollableEl.offset().top - centerOffset;
-            scrollableEl.animate({ scrollTop: top }, 800);
-        }
-
-        return this;
     }
 }
 extend(SourceView.prototype, {
