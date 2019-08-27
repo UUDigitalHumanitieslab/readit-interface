@@ -408,8 +408,54 @@ export default class HighlightableTextView extends View {
         this.trigger('selected', range);
     }
 
+    /**
+     * Trigger scroll event.
+     * If applicable, this will include the 'oa:Selector` currently visible.
+     */
     onScroll(): void {
-        this.trigger('scroll', this, this.$el.scrollTop());
+        let scrollableEl = this.$el;
+        let scrollableVisibleMiddle = scrollableEl.offset().top + (scrollableEl.height() / 2 );
+        let resultAnnotation = undefined;
+        let visibleHighlights = this.getVisibleHighlightViews();
+
+        if (!this.hVs || this.hVs.length === 0) {
+            this.trigger('scroll', this);
+        }
+
+        if (!visibleHighlights || visibleHighlights.length === 0) {
+            resultAnnotation = this.getHighlightClosestTo(scrollableVisibleMiddle, this.hVs).model;
+        }
+        else if (visibleHighlights.length === 1) {
+            resultAnnotation = visibleHighlights[0].model;
+        }
+        else {
+            resultAnnotation = this.getHighlightClosestTo(scrollableVisibleMiddle, visibleHighlights).model;
+        }
+
+        let specificResource = resultAnnotation.collection.get(resultAnnotation.get(oa.hasTarget)[0]);
+        let selector = specificResource.get(oa.hasSelector);
+
+        this.trigger('scroll', this, selector);
+    }
+
+    getVisibleHighlightViews(): HighlightView[] {
+        let scrollableEl = this.$el;
+        let scrollableTop = scrollableEl.offset().top;
+        let scrollableBottom = scrollableTop + scrollableEl.height();
+
+        let visibleHighlights = this.hVs.filter( (hV) => {
+            let top = hV.getTop();
+            let bottom = top + hV.getHeight();
+            return bottom > scrollableTop && top < scrollableBottom;
+        });
+
+        return visibleHighlights;
+    }
+
+    getHighlightClosestTo(referenceValue: number, highlightViews: HighlightView[]): HighlightView {
+        return highlightViews.sort( (a, b) => {
+            return Math.abs(referenceValue - a.$el.offset().top) - Math.abs(referenceValue - b.$el.offset().top);
+        })[0];
     }
 }
 extend(HighlightableTextView.prototype, {
