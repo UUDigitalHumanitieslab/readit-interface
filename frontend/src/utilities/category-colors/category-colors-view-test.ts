@@ -19,13 +19,8 @@ function getDefaultNode(): Node {
 function getDefaultAttributes(): FlatLdObject {
     return {
         '@id': '1',
-<<<<<<< HEAD
         '@type': [
             rdfs.Class,
-=======
-        "@type": [
-            "rdfs:Class"
->>>>>>> feature/datamodel
         ],
         [skos.prefLabel]: [
             { '@value': 'Content' },
@@ -70,31 +65,8 @@ describe('CategoryColorsView', function() {
 
         let attributes2 = getDefaultAttributes();
         attributes2['@id'] = 'anotherUniqueId';
-<<<<<<< HEAD
         attributes2[skos.prefLabel] = [{'@value': 'Test2'}];
         attributes2[schema.color] = [{'@value':'aliceblue'}];
-=======
-        attributes2['@type'] = ['rdfs:Class'];
-        delete attributes2['http://schema.org/color']
-        let node2 = new Node(attributes2);
-
-        let graph = new Graph([node1, node2]);
-        let view = new CategoryColorsView({collection: graph});
-
-        let html = view.render().$el.html();
-        let actual = replaceNewLinesAndWhitespace(html);
-
-        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important}');
-    });
-
-    it('excludes linked data items that are irrelevant', function() {
-        let node1 = getDefaultNode();
-
-        let attributes2 = getDefaultAttributes();
-        attributes2['@id'] = 'anotherUniqueId';
-        attributes2['http://www.w3.org/2004/02/skos/core#prefLabel'] = [{'@value': 'Test2'}];
-        attributes2['http://schema.org/color'] = [{'@value':'aliceblue'}];
->>>>>>> feature/datamodel
         let node2 = new Node(attributes2);
 
         let graph = new Graph([node1, node2]);

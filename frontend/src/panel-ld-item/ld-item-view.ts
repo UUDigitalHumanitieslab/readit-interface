@@ -29,7 +29,7 @@ export default class LdItemView extends View<Node> {
     }
 
     initialize(): void {
-        this.lblView = new LabelView({model: this.model}, false);
+        this.lblView = new LabelView({model: this.model, hasTooltip: false});
         this.lblView.render();
     }
 

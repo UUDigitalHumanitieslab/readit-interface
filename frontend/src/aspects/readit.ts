@@ -18,10 +18,7 @@ import directionFsm from '../global/direction-fsm';
 
 import mockOntology from './../mock-data/mock-ontology';
 
-import mockLdItem from './../mock-data/mock-lditem';
-import mockGraph from './../mock-data/mock-graph';
-import * as mockGraphSeparated from './../mock-data/mock-graph';
-import { getMockAnnotationsGraph } from '../mock-data/mock-annotations';
+import annotations from './../mock-data/mock-items';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -48,15 +45,22 @@ directionRouter.on('route:explore', () => {
 
 directionFsm.on('enter:exploring', () => {
     // This is just a quick and dirty solution, will have to be moved in the future
-    let sourceView = new SourceView({ annotations: getMockAnnotationsGraph(), inFullViewportMode: false });
+
+    let annos = new Graph(annotations);
+    let sourceView = new SourceView({ annotations: annos, inFullViewportMode: false });
+
+    sourceView.render().$el.appendTo('#main');
 
     let exView = new ExplorerView({ first: sourceView });
+
     let vh = $(window).height();
     // compensates for menu and footer (555 is min-height)
     let height = Math.max(vh - 194, 555);
 
     exView.setHeight(height);
     exView.render().$el.appendTo('#main');
+
+    // console.log(exView);
 });
 
 directionFsm.on('exit:exploring', () => {
