@@ -6,12 +6,11 @@ import { oa, rdf, vocab } from '../../jsonld/ns';
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
 
-import { getCssClassName } from './../utilities';
+import { getCssClassName, isType } from './../utilities';
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
 
 import ontology from './../../global/readit-ontology';
-
 
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
@@ -67,7 +66,7 @@ export default class HighlightableTextView extends View {
     constructor(options?: ViewOptions) {
         super(options);
         if (options.initialScrollTo) {
-            if (!this.isType(options.initialScrollTo, oa.Annotation)) {
+            if (!isType(options.initialScrollTo, oa.Annotation)) {
                 throw TypeError('initialScrollTo should be of type oa:Annotation');
             }
             options.showHighlightsInitially = true;
@@ -112,7 +111,7 @@ export default class HighlightableTextView extends View {
 
     initHighlights(): this {
         this.collection.each((node) => {
-            if (this.isType(node, oa.Annotation)) {
+            if (isType(node, oa.Annotation)) {
                 if (this.isCompleteAnnotation(node, this.collection)) {
                     this.addHighlight(node);
                 }
@@ -128,7 +127,7 @@ export default class HighlightableTextView extends View {
     add(node: Node): this {
         if (!this.isEditable) return;
 
-        if (!this.isType(node, oa.Annotation)) {
+        if (!isType(node, oa.Annotation)) {
             throw TypeError('node should be of type oa:Annotation');
         }
 
@@ -150,7 +149,7 @@ export default class HighlightableTextView extends View {
         if (!this.isEditable) return;
 
         this.collection.each((node) => {
-            if (this.isType(node, oa.Annotation)) {
+            if (isType(node, oa.Annotation)) {
                 this.delete(node);
             }
         });
@@ -187,7 +186,7 @@ export default class HighlightableTextView extends View {
     }
 
     private deleteFromCollection(annotation: Node): boolean {
-        if (!this.isType(annotation, oa.Annotation)) return false;
+        if (!isType(annotation, oa.Annotation)) return false;
 
         let selector = this.collection.get(annotation.get(oa.hasTarget)[0]);
         let startSelector = this.collection.get(selector.get(oa.hasStartSelector)[0]);
@@ -201,7 +200,7 @@ export default class HighlightableTextView extends View {
      * @param node The Node to base the highlight on.
      */
     private addHighlight(node: Node): HighlightView {
-        if (!this.isType(node, oa.Annotation)) return;
+        if (!isType(node, oa.Annotation)) return;
 
         // annotation styling details
         let body = ontology.get(node.get(oa.hasBody)[0]);
@@ -263,7 +262,7 @@ export default class HighlightableTextView extends View {
      * @param graph The Graph instance that should contain all related items
      */
     isCompleteAnnotation(annotation: Node, graph: Graph): boolean {
-        if (!this.isType(annotation, oa.Annotation)) {
+        if (!isType(annotation, oa.Annotation)) {
             throw new TypeError(
                 `Node ${annotation.get('@id')} is not an instance of oa:Annotation`);
         }
@@ -276,28 +275,24 @@ export default class HighlightableTextView extends View {
         let specificResource = graph.get(annotation.get(oa.hasTarget)[0]);
         let selector = graph.get(specificResource.get(oa.hasSelector)[0]);
 
-        if (!selector || !this.isType(selector, vocab('RangeSelector'))) {
+        if (!selector || !isType(selector, vocab('RangeSelector'))) {
             throw new TypeError(
                 `Selector ${selector.get('@id')} cannot be empty and should be of type vocab('RangeSelector')`);
         }
 
         let startSelector = graph.get(selector.get(oa.hasStartSelector)[0]);
-        if (!startSelector || !this.isType(startSelector, oa.XPathSelector)) {
+        if (!startSelector || !isType(startSelector, oa.XPathSelector)) {
             throw new TypeError(
                 `StartSelector ${startSelector.get('@id')} cannot be empty and should be of type oa:XPathSelector`);
         }
 
         let endSelector = graph.get(selector.get(oa.hasEndSelector)[0]);
-        if (!endSelector || !this.isType(endSelector, oa.XPathSelector)) {
+        if (!endSelector || !isType(endSelector, oa.XPathSelector)) {
             throw new TypeError(
                 `EndSelector ${endSelector.get('@id')} cannot be empty and should be of type oa:XPathSelector`);
         }
 
         return true;
-    }
-
-    isType(node: Node, type: string) {
-        return node.get('@type').includes(type);
     }
 
     /**
@@ -358,7 +353,7 @@ export default class HighlightableTextView extends View {
      * Scroll to a particular highlight associated with an instance of oa:Annotation.
      */
     scrollTo(node: Node): this {
-        if (!this.isType(node, oa.Annotation)) {
+        if (!isType(node, oa.Annotation)) {
             throw TypeError('scrollTo should be of type oa:Annotation');
         }
         this.scrollToNode = node;
