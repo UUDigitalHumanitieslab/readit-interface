@@ -18,7 +18,7 @@ import directionFsm from '../global/direction-fsm';
 
 import mockOntology from './../mock-data/mock-ontology';
 import mockItems from './../mock-data/mock-items';
-import mockSourceText from './../mock-data/mock-source-text';
+import mockSources from './../mock-data/mock-sources';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -45,16 +45,16 @@ directionRouter.on('route:explore', () => {
 
 directionFsm.on('enter:exploring', () => {
     // This is just a quick and dirty solution, will have to be moved in the future
-
+    let source = new Graph(mockSources).models[0];
     let items = new Graph(mockItems);
 
     let scrollTo = items.find(n => n.get("@id") == "https://read-it.hum.uu.nl/item/102");
 
     let sourceView = new SourceView({
         items: items,
-        sourceHTML: mockSourceText,
+        source: source,
         inFullViewportMode: false,
-        showHighlightsInitially: true,
+        // showHighlightsInitially: true,
         isEditable: true,
         initialScrollTo: scrollTo,
     });
