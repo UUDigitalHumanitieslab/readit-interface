@@ -35,7 +35,7 @@ export default class ExplorerView extends View {
         this.rltPanelStack = new Map();
         this.push(options.first);
 
-        this.$el.on('scroll', debounce(bind(this.onScroll, this), 1000));
+        this.$el.on('scroll', debounce(bind(this.onScroll, this), 500));
     }
 
     render(): View {
