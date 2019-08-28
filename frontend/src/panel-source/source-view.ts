@@ -19,13 +19,7 @@ export interface ViewOptions extends BaseOpt<Model> {
     /**
      * The collection of oa:Annotations (and the items representing their details) associated with the source.
      */
-    items: Graph
-
-    /**
-     * Specify whether to display the View in Full Viewport Mode.
-     * Defaults to false, i.e. PanelMode
-     */
-    inFullViewportMode?: boolean;
+    items: Graph;
 
     /**
      * Specify whether the View should only display oa:Annotations, or if it allows editing
@@ -49,7 +43,6 @@ export interface ViewOptions extends BaseOpt<Model> {
 export default class SourceView extends View {
     items: Graph;
     source: Node;
-    inFullViewportMode: boolean;
     isEditable: boolean;
     showHighlightsInitially: boolean;
     initialScrollTo?: Node;
@@ -69,6 +62,11 @@ export default class SourceView extends View {
      */
     isShowingMetadata: boolean;
 
+    /**
+     * Keep track of visiblility of the view mode.
+     */
+    isInFullScreenViewMode: boolean;
+
     constructor(options?: ViewOptions) {
         super(options);
         this.validate(options);
@@ -87,11 +85,6 @@ export default class SourceView extends View {
             isEditable: this.isEditable
         });
         this.bindToEvents(this.htv);
-
-        this.inFullViewportMode = options.inFullViewportMode || false;
-
-        // TODO: if panel mode
-        this.$el.addClass('explorer-panel');
     }
 
     validate(options: ViewOptions) {
@@ -189,7 +182,8 @@ export default class SourceView extends View {
     }
 
     toggleViewMode(): this {
-        if (this.inFullViewportMode) this.trigger('shrink', this);
+        // TODO: update when full screen modal is implemented
+        if (this.isInFullScreenViewMode) this.trigger('shrink', this);
         else this.trigger('enlarge', this);
         this.toggleToolbarItemSelected('viewmode');
         return this;
@@ -201,7 +195,7 @@ export default class SourceView extends View {
 }
 extend(SourceView.prototype, {
     tagName: 'div',
-    className: 'source',
+    className: 'source explorer-panel',
     template: sourceTemplate,
     events: {
         'click .toolbar-metadata': 'toggleMetadata',
