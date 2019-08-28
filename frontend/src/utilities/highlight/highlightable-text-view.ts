@@ -28,7 +28,8 @@ export interface ViewOptions extends BaseOpt<Node> {
 
     /**
      * Specify whether the oa:Annotations in collection should be
-     * displayed when the View becomes visible. Defaults to false.
+     * displayed when the View becomes visible.
+     * Defaults to false but will be true if initialScrollTo is set.
      */
     showHighlightsInitially?: boolean;
 
@@ -74,8 +75,8 @@ export default class HighlightableTextView extends View {
 
         this.scrollToNode = options.initialScrollTo;
         this.text = options.text;
-        this.isEditable = options.isEditable;
-        this.showHighlightsInitially = options.showHighlightsInitially;
+        this.isEditable = options.isEditable || false;
+        this.showHighlightsInitially = options.showHighlightsInitially || false;
 
         if (!options.collection) this.collection = new Graph();
         this.collection.on('add', this.addHighlight, this);
