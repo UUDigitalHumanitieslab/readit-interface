@@ -8,16 +8,16 @@ import Graph from './../jsonld/graph';
 import sourceTemplate from './source-template';
 import HighlightableTextView from '../utilities/highlight/highlightable-text-view';
 
+import { schema } from './../jsonld/ns';
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
-     * The HTML string that represents the source.
-     * TODO: update when we know what Source will look like
+     * An instance of vocab('Source).
      */
-    sourceHTML: string;
+    source: Node;
 
     /**
-     * At least a Source, and potentially its associated oa:Annotations (and their details).
+     * The collection of oa:Annotations (and the items representing their details) associated with the source.
      */
     items: Graph
 
@@ -25,30 +25,30 @@ export interface ViewOptions extends BaseOpt<Model> {
      * Specify whether to display the View in Full Viewport Mode.
      * Defaults to false, i.e. PanelMode
      */
-    inFullViewportMode: boolean;
+    inFullViewportMode?: boolean;
 
     /**
      * Specify whether the View should only display oa:Annotations, or if it allows editing
      * them. Defaults to false.
      */
-    isEditable: boolean;
+    isEditable?: boolean;
 
     /**
      * Specify whether highlights should be displayed when the view becomes visible.
      * Defaults to false.
      */
-    showHighlightsInitially: boolean;
+    showHighlightsInitially?: boolean;
 
     /**
-     * Optional. An oa:Annotation instance, present in the 'items' Graph, that
-     * you want to scroll to once the view is visible.
+     * Optional. An oa:Annotation instance, present in the items Graph, that
+     * will be scrolled to once the view is visible.
      */
     initialScrollTo?: Node;
 }
 
 export default class SourceView extends View {
     items: Graph;
-    sourceHTML: string;
+    source: Node;
     inFullViewportMode: boolean;
     isEditable: boolean;
     showHighlightsInitially: boolean;
@@ -71,32 +71,37 @@ export default class SourceView extends View {
 
     constructor(options?: ViewOptions) {
         super(options);
+        this.validate(options);
 
-        // TODO: validate if a source is in the Graph
-        // (once we know what sources will look like)
-
+        this.source = options.source;
         this.items = options.items;
         this.initialScrollTo = options.initialScrollTo;
-        this.sourceHTML = options.sourceHTML;
-        this.isEditable = options.isEditable;
-        this.showHighlightsInitially = options.showHighlightsInitially;
+        this.isEditable = options.isEditable || false;
+        this.showHighlightsInitially = options.showHighlightsInitially || false;
 
         this.htv = new HighlightableTextView({
-            text: this.sourceHTML,
-            showHighlightsInitially: true,
+            text: <string>this.source.get(schema.text)[0],
+            showHighlightsInitially: this.showHighlightsInitially,
             collection: this.items,
-            initialScrollTo: this.initialScrollTo
+            initialScrollTo: this.initialScrollTo,
+            isEditable: this.isEditable
         });
         this.bindToEvents(this.htv);
 
-        this.inFullViewportMode = options.inFullViewportMode;
+        this.inFullViewportMode = options.inFullViewportMode || false;
 
         // TODO: if panel mode
         this.$el.addClass('explorer-panel');
     }
 
+    validate(options: ViewOptions) {
+        if (options.source == undefined) {
+            throw RangeError("source cannot be undefined");
+        }
+    }
+
     render(): this {
-        this.$el.html(this.template(this));
+        this.$el.html(this.template({ title: this.source.get(schema.name)[0] }));
         this.$('highlightable-text-view').replaceWith(this.htv.render().$el);
 
         if (this.showHighlightsInitially) {
@@ -174,11 +179,10 @@ export default class SourceView extends View {
     }
 
     toggleMetadata(): this {
-        // TODO: add Source to event payload when we know what it looks like
         if (this.isShowingMetadata) {
-            this.trigger('hideMetadata');
+            this.trigger('hideMetadata', this.source);
         } else {
-            this.trigger('showMetadata');
+            this.trigger('showMetadata', this.source);
         }
         this.toggleToolbarItemSelected('metadata');
         return this;
