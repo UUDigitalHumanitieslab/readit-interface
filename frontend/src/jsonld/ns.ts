@@ -454,6 +454,8 @@ export const schemaTerms = [
     'birthPlace',
     'color',
     'CreativeWork',
+    'creator',
+    'datePublished',
     'headline',
     'location',
     'Organization',

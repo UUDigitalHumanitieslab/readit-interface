@@ -18,20 +18,28 @@ import mockSourceText from './mock-source-text';
 export const source1instance = {
     "@id": source('1'),
     "@type": vocab('Source'),
-    [schema.headline]: [
+    [schema.name]: [
         {
-            "@value": "Title of this source"
+            "@type": xsd.string,
+            "@value": "Corpus_50_exp_lectures_interligne1.5 (1).pdf"
         }
     ],
-    [schema.alternativeHeadline]: [
+    [schema.creator]: [
         {
-            "@value": "Subtitle of the source"
+            "@type": xsd.string,
+            "@value": "Tess T. Author"
         }
     ],
     [schema.text]: [
         {
             "@value": mockSourceText
         },
+    ],
+    [schema.datePublished]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "1900-01-01T00:00:00+0100"
+        }
     ],
     [dcterms.created]: [
         {
@@ -41,8 +49,12 @@ export const source1instance = {
     ],
     [dcterms.creator]: [
         {
-            "@id": staff('JdeKruif')
+            "@id": staff('AHebing')
         }
     ],
-    // More metadata
+    // More metadata, for instance: schema.partOf, schema.publisher, schema.translator, schema.version, schema.copyrightHolder, schema.keywords
 }
+
+export default [
+    source1instance
+]
