@@ -53,7 +53,6 @@ directionFsm.on('enter:exploring', () => {
     let sourceView = new SourceView({
         items: items,
         source: source,
-        inFullViewportMode: false,
         // showHighlightsInitially: true,
         isEditable: true,
         initialScrollTo: scrollTo,
