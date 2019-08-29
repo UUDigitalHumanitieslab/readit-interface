@@ -7,6 +7,7 @@ import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
 
 import { getCssClassName, isType } from './../utilities';
+import { isCompleteAnnotation, getPositionDetails } from './../annotation-utilities';
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
 
@@ -113,7 +114,7 @@ export default class HighlightableTextView extends View {
     initHighlights(): this {
         this.collection.each((node) => {
             if (isType(node, oa.Annotation)) {
-                if (this.isCompleteAnnotation(node, this.collection)) {
+                if (isCompleteAnnotation(node)) {
                     this.addHighlight(node);
                 }
             }
@@ -132,7 +133,7 @@ export default class HighlightableTextView extends View {
             throw TypeError('node should be of type oa:Annotation');
         }
 
-        if (this.isCompleteAnnotation(node, node.collection)) {
+        if (isCompleteAnnotation(node)) {
             let body = node.collection.get(node.get(oa.hasBody)[0]);
             let selector = node.collection.get(node.get(oa.hasTarget)[0]);
             let startSelector = node.collection.get(selector.get(oa.hasStartSelector)[0]);
@@ -208,17 +209,14 @@ export default class HighlightableTextView extends View {
         let cssClass = getCssClassName(body);
 
         // annotation position details
-        let specificResource = this.collection.get(node.get(oa.hasTarget)[0]);
-        let selector = this.collection.get(specificResource.get(oa.hasSelector)[0]);
-        let startSelector = this.collection.get(selector.get(oa.hasStartSelector)[0]);
-        let endSelector = this.collection.get(selector.get(oa.hasEndSelector)[0]);
+        let posDetails = getPositionDetails(node);
 
         let range = this.getRange(
             this.textWrapper,
-            this.getNodeIndex(startSelector),
-            this.getCharacterIndex(startSelector),
-            this.getNodeIndex(endSelector),
-            this.getCharacterIndex(endSelector)
+            posDetails.startNodeIndex,
+            posDetails.startCharacterIndex,
+            posDetails.endNodeIndex,
+            posDetails.endCharacterIndex
         );
 
         let hV = new HighlightView({
@@ -234,67 +232,6 @@ export default class HighlightableTextView extends View {
         return hV;
     }
 
-    /**
-     * Get the node index from an XPathSelector
-     * @param selector XPathSelector with a rdf:Value like 'substring(.//*[${nodeIndex}]/text(),${characterIndex})'
-     */
-    getNodeIndex(selector: Node): number {
-        let xpath = selector.get(rdf.value)[0];
-        let index = xpath.indexOf('[') + 1;
-        let endIndex = xpath.indexOf(']');
-        return +xpath.substring(index, endIndex);
-    }
-
-    /**
-     * Get the character index from an XPathSelector
-     * @param selector XPathSelector with a rdf:Value like 'substring(.//*[${nodeIndex}]/text(),${characterIndex})'
-     */
-    getCharacterIndex(selector: Node): any {
-        let xpath = selector.get(rdf.value)[0];
-        let startIndex = xpath.indexOf(',') + 1;
-        let endIndex = xpath.length - 1;
-        return xpath.substring(startIndex, endIndex);
-    }
-
-    /**
-     * Validate if all related items required by a oa:Annotation instance are in a Graph.
-     * Throws TypeError with appropriate message if they are not.
-     * @param annotation The oa:Annotation instance to validate.
-     * @param graph The Graph instance that should contain all related items
-     */
-    isCompleteAnnotation(annotation: Node, graph: Graph): boolean {
-        if (!isType(annotation, oa.Annotation)) {
-            throw new TypeError(
-                `Node ${annotation.get('@id')} is not an instance of oa:Annotation`);
-        }
-
-        if (annotation.get(oa.hasBody).filter(n => ontology.get(n)).length < 1) {
-            throw new TypeError(
-                `The oa:hasBody property of annotation ${annotation.get('@id')} is empty or the related ontology item cannot be found`);
-        }
-
-        let specificResource = graph.get(annotation.get(oa.hasTarget)[0]);
-        let selector = graph.get(specificResource.get(oa.hasSelector)[0]);
-
-        if (!selector || !isType(selector, vocab('RangeSelector'))) {
-            throw new TypeError(
-                `Selector ${selector.get('@id')} cannot be empty and should be of type vocab('RangeSelector')`);
-        }
-
-        let startSelector = graph.get(selector.get(oa.hasStartSelector)[0]);
-        if (!startSelector || !isType(startSelector, oa.XPathSelector)) {
-            throw new TypeError(
-                `StartSelector ${startSelector.get('@id')} cannot be empty and should be of type oa:XPathSelector`);
-        }
-
-        let endSelector = graph.get(selector.get(oa.hasEndSelector)[0]);
-        if (!endSelector || !isType(endSelector, oa.XPathSelector)) {
-            throw new TypeError(
-                `EndSelector ${endSelector.get('@id')} cannot be empty and should be of type oa:XPathSelector`);
-        }
-
-        return true;
-    }
 
     /**
      * Initialize a 'virtual' Range object based on position details.

@@ -6,6 +6,27 @@ import { oa, vocab, } from './../jsonld/ns';
 import { isType } from './utilities';
 import ontology from './../global/readit-ontology';
 
+export type AnnotationPositionDetails = {
+    startNodeIndex: number;
+    startCharacterIndex: number;
+    endNodeIndex: number;
+    endCharacterIndex: number;
+}
+
+/**
+ * Get the annotation's position details (i.e. node and character indices).
+ * @param annotation The node to extract the details from.
+ */
+export function getPositionDetails(annotation: Node) {
+    let startSelector = getStartSelector(annotation);
+    let endSelector = getEndSelector(annotation);
+    return {
+        startNodeIndex: getNodeIndex(startSelector),
+        startCharacterIndex: getCharacterIndex(startSelector),
+        endNodeIndex: getNodeIndex(endSelector),
+        endCharacterIndex: getCharacterIndex(endSelector)
+    }
+}
 
 /**
  * Get the SpecificResource associated with this annotation.
@@ -90,4 +111,26 @@ function getErrorMessage(itemName: string, item?: Node, expectedType?: string) {
     else {
         return `${itemName} cannot be empty or undefined.`
     }
+}
+
+/**
+ * Get the node index from an XPathSelector
+ * @param selector XPathSelector with a rdf:Value like 'substring(.//*[${nodeIndex}]/text(),${characterIndex})'
+ */
+function getNodeIndex(selector: Node): number {
+    let xpath = selector.get(rdf.value)[0];
+    let index = xpath.indexOf('[') + 1;
+    let endIndex = xpath.indexOf(']');
+    return +xpath.substring(index, endIndex);
+}
+
+/**
+ * Get the character index from an XPathSelector
+ * @param selector XPathSelector with a rdf:Value like 'substring(.//*[${nodeIndex}]/text(),${characterIndex})'
+ */
+function getCharacterIndex(selector: Node): any {
+    let xpath = selector.get(rdf.value)[0];
+    let startIndex = xpath.indexOf(',') + 1;
+    let endIndex = xpath.length - 1;
+    return xpath.substring(startIndex, endIndex);
 }
