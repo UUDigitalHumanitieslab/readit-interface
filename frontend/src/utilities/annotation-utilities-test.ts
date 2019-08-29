@@ -1,7 +1,7 @@
 import Node from './../jsonld/node';
 import { item } from './../jsonld/ns';
 import mockItems from './../mock-data/mock-items';
-import { getSpecificResource, isCompleteAnnotation, getEndSelector } from './annotation-utilities';
+import { isCompleteAnnotation, getEndSelector } from './annotation-utilities';
 import Graph from '../jsonld/graph';
 
 describe('annotation-utilities', function () {

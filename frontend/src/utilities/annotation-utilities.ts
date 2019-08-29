@@ -2,8 +2,8 @@
 import Node from './../jsonld/node';
 import Graph from './../jsonld/graph';
 
-import { oa, vocab, } from './../jsonld/ns';
-import { isType } from './utilities';
+import { oa, vocab, rdf } from './../jsonld/ns';
+import { isType, getCssClassName as getCssClass } from './utilities';
 import ontology from './../global/readit-ontology';
 
 export type AnnotationPositionDetails = {
@@ -26,6 +26,53 @@ export function getPositionDetails(annotation: Node) {
         endNodeIndex: getNodeIndex(endSelector),
         endCharacterIndex: getCharacterIndex(endSelector)
     }
+}
+
+/**
+ * Get an array of items linked to the annotation. Will not include the annotation.
+ * These items should all be deleted when an oa:Annotation is removed from a Graph.
+ */
+export function getLinkedItemsForDeletion(annotation: Node) {
+    return [
+        getSpecificResource(annotation),
+        getSelector(annotation),
+        getStartSelector(annotation),
+        getEndSelector(annotation)
+    ]
+}
+
+/**
+ * Get an array of items linked to the annotation. Will not include the annotation.
+ * These items should all be added when an oa:Annotation is added to a Graph.
+ */
+export function getLinkedItemsForAddition(annotation: Node) {
+    return [
+        getSpecificResource(annotation),
+        getSelector(annotation),
+        getStartSelector(annotation),
+        getEndSelector(annotation)
+    ]
+}
+
+/**
+ * Get the cssclass associated with annotation (i.e. via ontology item / category).
+ * Returns be null if a value cannot be found.
+ */
+export function getCssClassName(annotation: Node): string {
+    let ontologyReferences = getOntologyReferencesFromBody(annotation);
+    if (ontologyReferences.length > 1) {
+        throw RangeError('An oa:Annotation cannot be associated with more than one ontology item');
+    }
+    if (ontologyReferences.length === 1) {
+        return getCssClass(ontology.get(ontologyReferences[0]));
+    }
+}
+
+/**
+ * Get Body associated with this annotation
+ */
+export function getBody(annotation: Node): Node[] {
+    return <Node[]>annotation.get(oa.hasBody);
 }
 
 /**
@@ -67,18 +114,15 @@ export function isAnnotationInstance(annotation: Node) {
 }
 
 /**
- * Validate if all related items required by a oa:Annotation instance are in a Graph.
+ * Validate if all related items required by a oa:Annotation instance are in its collection.
  * Throws TypeError with appropriate message if they are not.
  * @param annotation The oa:Annotation instance to validate.
  * @param graph The Graph instance that should contain all related items
  */
 export function isCompleteAnnotation(annotation: Node): boolean {
-    if (!isAnnotationInstance(annotation)) {
-        throw new TypeError(
-            `Node ${annotation.get('@id')} is not an instance of oa:Annotation`);
-    }
+    validateType(annotation);
 
-    if (annotation.get(oa.hasBody).filter(n => ontology.get(n)).length < 1) {
+    if (getOntologyReferencesFromBody(annotation).length < 1) {
         throw new TypeError(
             `The oa:hasBody property of annotation ${annotation.get('@id')} is empty or the related ontology item cannot be found`);
     }
@@ -99,6 +143,13 @@ export function isCompleteAnnotation(annotation: Node): boolean {
     }
 
     return true;
+}
+
+/**
+ * Get the ontology items associated with the annotation (via oa:hasBody).
+ */
+function getOntologyReferencesFromBody(annotation: Node): Node[] {
+    return <Node[]> annotation.get(oa.hasBody).filter(n => ontology.get(n));
 }
 
 /**

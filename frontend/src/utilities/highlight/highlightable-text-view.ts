@@ -6,8 +6,8 @@ import { oa, rdf, vocab } from '../../jsonld/ns';
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
 
-import { getCssClassName, isType } from './../utilities';
-import { isCompleteAnnotation, getPositionDetails } from './../annotation-utilities';
+import { isType } from './../utilities';
+import { isCompleteAnnotation, getPositionDetails, getLinkedItems, getCssClassName, getSelector } from './../annotation-utilities';
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
 
@@ -134,11 +134,7 @@ export default class HighlightableTextView extends View {
         }
 
         if (isCompleteAnnotation(node)) {
-            let body = node.collection.get(node.get(oa.hasBody)[0]);
-            let selector = node.collection.get(node.get(oa.hasTarget)[0]);
-            let startSelector = node.collection.get(selector.get(oa.hasStartSelector)[0]);
-            let endSelector = node.collection.get(selector.get(oa.hasEndSelector)[0]);
-            this.collection.add([node, body, selector, startSelector, endSelector]);
+            this.collection.add([node].concat(getLinkedItems(node)));
         }
 
         return this;
@@ -189,11 +185,7 @@ export default class HighlightableTextView extends View {
 
     private deleteFromCollection(annotation: Node): boolean {
         if (!isType(annotation, oa.Annotation)) return false;
-
-        let selector = this.collection.get(annotation.get(oa.hasTarget)[0]);
-        let startSelector = this.collection.get(selector.get(oa.hasStartSelector)[0]);
-        let endSelector = this.collection.get(selector.get(oa.hasEndSelector)[0]);
-        this.collection.remove([annotation, selector, startSelector, endSelector]);
+        this.collection.remove([annotation].concat(getLinkedItems(annotation)));
         return true;
     }
 
@@ -205,8 +197,7 @@ export default class HighlightableTextView extends View {
         if (!isType(node, oa.Annotation)) return;
 
         // annotation styling details
-        let body = ontology.get(node.get(oa.hasBody)[0]);
-        let cssClass = getCssClassName(body);
+        let cssClass = getCssClassName(node);
 
         // annotation position details
         let posDetails = getPositionDetails(node);
