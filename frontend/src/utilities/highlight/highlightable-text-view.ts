@@ -356,9 +356,7 @@ export default class HighlightableTextView extends View {
             resultAnnotation = this.getHighlightClosestTo(scrollableVisibleMiddle, visibleHighlights).model;
         }
 
-        let specificResource = resultAnnotation.collection.get(resultAnnotation.get(oa.hasTarget)[0]);
-        let selector = specificResource.get(oa.hasSelector);
-
+        let selector = getSelector(resultAnnotation);
         this.trigger('scroll', selector);
     }
 
