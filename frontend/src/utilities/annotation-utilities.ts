@@ -1,6 +1,5 @@
 
 import Node from './../jsonld/node';
-import Graph from './../jsonld/graph';
 
 import { oa, vocab, rdf } from './../jsonld/ns';
 import { isType, getCssClassName as getCssClass } from './utilities';

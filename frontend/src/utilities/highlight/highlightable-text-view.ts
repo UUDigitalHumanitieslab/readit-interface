@@ -2,7 +2,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, bind, debounce } from 'lodash';
 
 import View from '../../core/view';
-import { oa, rdf, vocab } from '../../jsonld/ns';
+import { oa } from '../../jsonld/ns';
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
 
@@ -10,8 +10,6 @@ import { isType } from './../utilities';
 import { isCompleteAnnotation, getPositionDetails, getLinkedItems, getCssClassName, getSelector } from './../annotation-utilities';
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
-
-import ontology from './../../global/readit-ontology';
 
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
