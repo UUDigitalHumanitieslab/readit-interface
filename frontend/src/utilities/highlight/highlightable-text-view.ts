@@ -405,7 +405,7 @@ export default class HighlightableTextView extends View {
     }
 
     /**
-     * Handle scroll events and trigger custom scroll event.
+     * Handles scroll events and re-emits them
      * If applicable, this will include the 'oa:Selector` currently visible.
      */
     onScroll(): void {

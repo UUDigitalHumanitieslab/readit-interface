@@ -10,6 +10,7 @@ import HighlightableTextView from '../utilities/highlight/highlightable-text-vie
 
 import { schema, vocab } from './../jsonld/ns';
 import { isType } from './../utilities/utilities';
+import { isNullOrUndefined } from 'util';
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
@@ -73,8 +74,7 @@ export default class SourceView extends View<Node> {
 
         this.initialScrollTo = options.initialScrollTo;
         this.isEditable = options.isEditable || false;
-        this.showHighlightsInitially =
-            options.showHighlightsInitially || !isUndefined(options.initialScrollTo) || isNull(options.initialScrollTo) || false;
+        this.showHighlightsInitially = options.showHighlightsInitially || this.initialScrollTo != null || false;
 
         this.htv = new HighlightableTextView({
             text: <string>this.model.get(schema.text)[0],
