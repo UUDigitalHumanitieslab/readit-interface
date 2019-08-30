@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend } from 'lodash';
+import { extend, isUndefined, isNull } from 'lodash';
 import View from './../core/view';
 import Model from './../core/model';
 
@@ -9,7 +9,6 @@ import sourceTemplate from './source-template';
 import HighlightableTextView from '../utilities/highlight/highlightable-text-view';
 
 import { schema } from './../jsonld/ns';
-import { isNullOrUndefined } from 'util';
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
@@ -76,7 +75,8 @@ export default class SourceView extends View {
         this.items = options.items;
         this.initialScrollTo = options.initialScrollTo;
         this.isEditable = options.isEditable || false;
-        this.showHighlightsInitially = options.showHighlightsInitially || !isNullOrUndefined(options.initialScrollTo) || false;
+        this.showHighlightsInitially =
+            options.showHighlightsInitially || !isUndefined(options.initialScrollTo) || isNull(options.initialScrollTo) || false;
 
         this.htv = new HighlightableTextView({
             text: <string>this.source.get(schema.text)[0],
@@ -95,6 +95,7 @@ export default class SourceView extends View {
     }
 
     render(): this {
+        this.htv.$el.detach();
         this.$el.html(this.template({ title: this.source.get(schema.name)[0] }));
         this.$('highlightable-text-view').replaceWith(this.htv.render().$el);
 
