@@ -65,7 +65,7 @@ export default class LdItemView extends View<Node> {
                 }
 
                 if (attribute == owl.sameAs) {
-                    this.externalResources[attribute] = obj['@id'];
+                    this.externalResources[attribute] = obj.id;
                     continue;
                 }
 
