@@ -3,7 +3,9 @@ import {
     map,
     mapValues,
     filter,
+    forEach,
     some,
+    unionWith,
     has,
     isUndefined,
     isArray,
@@ -117,6 +119,11 @@ export default class Node extends Model {
             options = value;
         }
         let normalizedHash = mapValues(hash, asNativeArray);
+        forEach(normalizedHash, (additions: OptimizedNativeArray, predicate) => {
+            if (predicate === '@id') return;
+            let existing = super.get(predicate);
+            normalizedHash[predicate] = unionWith(existing, additions, isEqual);
+        });
         return super.set(normalizedHash, options);
     }
 
