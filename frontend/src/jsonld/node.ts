@@ -136,6 +136,14 @@ export default class Node extends Model {
     }
 
     /**
+     * Adapt the has method to JSON-LD array semantics.
+     */
+    has(predicate: string): boolean {
+        const result = super.get(predicate);
+        return result && result.length;
+    }
+
+    /**
      * Override the toJSON method to convert native to JSON-LD.
      */
     toJSON(options?: any): FlatLdObject {
