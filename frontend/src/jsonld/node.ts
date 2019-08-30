@@ -3,6 +3,7 @@ import {
     map,
     mapValues,
     filter,
+    includes,
     has,
     isUndefined,
     isArray,
@@ -138,9 +139,18 @@ export default class Node extends Model {
     /**
      * Adapt the has method to JSON-LD array semantics.
      */
-    has(predicate: string): boolean {
-        const result = super.get(predicate);
-        return result && result.length;
+    has(predicate: string, object?: any): boolean {
+        let candidates = super.get(predicate);
+        if (!candidates) return false;
+        if (isUndefined(object)) return candidates.length;
+        if (candidates.length === 1 && isArray(candidates[0])) {
+            // Special case. We consider the list of objects
+            // associated with this subject-predicate pair to be
+            // sorted, rather than considering one of the objects to
+            // be a sorted list.
+            candidates = candidates[0];
+        }
+        return includes(candidates, asNative(object));
     }
 
     /**
