@@ -1,0 +1,24 @@
+.highlightable-text
+    word-wrap: break-word
+    overflow-y: scroll
+    flex: 1 1 auto
+
+    .position-container
+        position: relative // required for positioning of highlights
+
+    .textWrapper
+        position: relative // required for z-index to work
+        pointer-events: none // required to correctly receive .highlight events
+        z-index: 2
+
+    .highlight
+        .highlight-rect
+            z-index: 1
+            position: absolute
+
+        .delete-highlight
+            display: none
+            position: absolute
+            right: -8px
+            top: -14px
+            cursor: pointer

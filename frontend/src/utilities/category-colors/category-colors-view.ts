@@ -40,8 +40,6 @@ export default class CategoryColorsView extends View {
             }
         });
     }
-
-
 }
 extend(CategoryColorsView.prototype, {
     tagName: 'style',

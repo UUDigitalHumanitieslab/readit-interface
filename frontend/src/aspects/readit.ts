@@ -16,17 +16,15 @@ import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
 
-import mockLdItem from './../mock-data/mock-lditem';
-import mockGraph from './../mock-data/mock-graph';
-import * as mockGraphSeparated from './../mock-data/mock-graph';
+import mockOntology from './../mock-data/mock-ontology';
+import mockItems from './../mock-data/mock-items';
+import mockSources from './../mock-data/mock-sources';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
     footerView.render().$el.appendTo('.footer');
-
-    let ccView = new CategoryColorView({ collection: mockGraph });
-    ccView.render().$el.appendTo('.footer');
-
+    let ccView = new CategoryColorView({ collection: new Graph(mockOntology) });
+    ccView.render().$el.appendTo('body');
 });
 
 directionRouter.on('route:arrive', () => {
@@ -46,13 +44,22 @@ directionRouter.on('route:explore', () => {
 });
 
 directionFsm.on('enter:exploring', () => {
-    let mockSource = mockGraphSeparated.getSpecificResource();
-    let mockAnno = mockGraphSeparated.getTextPositionSelector();
-
     // This is just a quick and dirty solution, will have to be moved in the future
-    let sourceView = new SourceView({ model: mockSource/*, highlight: mockAnno*/});
+    let source = new Graph(mockSources).models[0];
+    let items = new Graph(mockItems);
+
+    let scrollTo = items.find(n => n.get("@id") == "https://read-it.hum.uu.nl/item/102");
+
+    let sourceView = new SourceView({
+        collection: items,
+        model: source,
+        // showHighlightsInitially: true,
+        isEditable: true,
+        initialScrollTo: scrollTo,
+    });
 
     let exView = new ExplorerView({ first: sourceView });
+
     let vh = $(window).height();
     // compensates for menu and footer (555 is min-height)
     let height = Math.max(vh - 194, 555);

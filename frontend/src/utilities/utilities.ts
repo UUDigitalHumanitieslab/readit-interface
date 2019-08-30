@@ -52,3 +52,14 @@ export function hasProperty(node: Node, property: string): boolean {
     if (node.get(property).length == 0) return false;
     return true;
 }
+
+/**
+ * Check if a Node is of a specific type.
+ * TODO: strictly speaking, the type of a Node could be a subtype of the provided type,
+ * making the Node an instance of that type as well. Implement a way to deal with this.
+ * @param node The node to inspect.
+ * @param type The expected type, e.g. (schema.CreativeWork).
+ */
+export function isType(node: Node, type: string) {
+    return includes(node.get('@type'), type);
+}

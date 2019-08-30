@@ -6,11 +6,6 @@ import { FlatLdObject } from '../../jsonld/json';
 import { rdfs, skos, schema } from '../../jsonld/ns';
 import CategoryColorsView from './category-colors-view';
 
-
-
-
-
-
 function getDefaultNode(): Node {
     return new Node(getDefaultAttributes());
 }

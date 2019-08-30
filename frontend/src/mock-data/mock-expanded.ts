@@ -179,8 +179,10 @@ export const annotationInstance = {
 };
 
 export default [
+    contentClass,
     contentInstance,
     specificResource,
+    textQuoteSelector,
     textPositionSelector,
     annotationInstance,
 ];
