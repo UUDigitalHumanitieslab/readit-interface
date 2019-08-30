@@ -124,6 +124,20 @@ describe('Node', function() {
         });
     });
 
+    describe('unset', function() {
+        it('can clear out an attribute', function() {
+            this.node.set('a', 1);
+            this.node.unset('a');
+            expect(this.node.has('a')).toBeFalsy();
+        });
+
+        it('can remove just select triples', function() {
+            this.node.set('a', [1, 2, 3, 4, 5]);
+            this.node.unset('a', [2, 5, 7]);
+            expect(this.node.get('a')).toEqual([1, 3, 4]);
+        });
+    });
+
     describe('get', function() {
         beforeEach(function() {
             this.node.set(contentInstance);
