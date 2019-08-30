@@ -110,6 +110,18 @@ describe('Node', function() {
                 this.node.clear();
             });
         });
+
+        it('appends rather than replaces', function() {
+            this.node.set('a', 1);
+            this.node.set('a', 2);
+            expect(this.node.get('a')).toEqual([1, 2]);
+        });
+
+        it('merges array arguments into the existing value(s)', function() {
+            this.node.set('a', [1, 2, 3]);
+            this.node.set('a', [2, 4, 5]);
+            expect(this.node.get('a')).toEqual([1, 2, 3, 4, 5]);
+        });
     });
 
     describe('get', function() {
