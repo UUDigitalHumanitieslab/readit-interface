@@ -180,6 +180,20 @@ describe('Node', function() {
             expect(node.has('@type')).toBeFalsy();
             expect(node.has(dcterms.title)).toBeFalsy();
         });
+
+        it('can check for specific predicate-object pairs', function() {
+            expect(node.has(dcterms.creator, {
+                '@id': staff('AHebing'),
+            })).toBeTruthy();
+            expect(node.has(dcterms.creator, {
+                '@id': staff('JGonggrijp'),
+            })).toBeFalsy();
+            let aDate = new Date('2085-12-31T03:33:16.000Z');
+            aDate['@type'] = xsd.dateTime;
+            expect(node.has(dcterms.created, aDate)).toBeTruthy();
+            expect(node.has('@type', 'x')).toBeFalsy();
+            expect(node.has(dcterms.title, {'@value': 'x'})).toBeFalsy();
+        });
     });
 
     describe('toJSON', function() {
