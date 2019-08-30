@@ -3,7 +3,7 @@ import {
     map,
     mapValues,
     filter,
-    includes,
+    some,
     has,
     isUndefined,
     isArray,
@@ -150,7 +150,8 @@ export default class Node extends Model {
             // be a sorted list.
             candidates = candidates[0];
         }
-        return includes(candidates, asNative(object));
+        object = asNative(object);
+        return some(candidates, c => isEqual(c, object));
     }
 
     /**
