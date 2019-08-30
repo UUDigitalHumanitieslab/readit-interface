@@ -157,6 +157,31 @@ describe('Node', function() {
         });
     });
 
+    describe('has', function() {
+        const node = new Node({
+            '@type': [],
+            [dcterms.creator]: [{
+                '@id': staff('JdeKruif'),
+            }, {
+                '@id': staff('AHebing'),
+            }],
+            [dcterms.created]: [{
+                '@value': '2085-12-31T03:33:16.000Z',
+                '@type': xsd.dateTime,
+            }],
+        });
+
+        it('finds a property', function() {
+            expect(node.has(dcterms.creator)).toBeTruthy();
+            expect(node.has(dcterms.created)).toBeTruthy();
+        });
+
+        it('ignores empty values', function() {
+            expect(node.has('@type')).toBeFalsy();
+            expect(node.has(dcterms.title)).toBeFalsy();
+        });
+    });
+
     describe('toJSON', function() {
         it('calls the asLD conversion function internally', function() {
             spyOn(conversionModule, 'asLD').and.callThrough();
