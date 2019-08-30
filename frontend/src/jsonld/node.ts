@@ -6,6 +6,7 @@ import {
     forEach,
     some,
     unionWith,
+    differenceWith,
     has,
     isUndefined,
     isArray,
@@ -125,6 +126,22 @@ export default class Node extends Model {
             normalizedHash[predicate] = unionWith(existing, additions, isEqual);
         });
         return super.set(normalizedHash, options);
+    }
+
+    /**
+     * Adapt the unset method to JSON-LD array semantics.
+     */
+    unset(key: string, value?: any, options?: ModelSetOptions): this {
+        if (isUndefined(value)) return super.unset(key, options) as this;
+        let existing = super.get(key);
+        if (key === '@id') {
+            if (value === existing) return super.unset(key, options) as this;
+            return this;
+        }
+        let toRemove = asNativeArray(value, key) as OptimizedNativeArray;
+        let remaining = differenceWith(existing, toRemove, isEqual);
+        if (!remaining.length) return super.unset(key, options) as this;
+        return super.set(key, remaining, options) as this;
     }
 
     /**
