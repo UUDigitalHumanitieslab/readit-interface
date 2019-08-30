@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, isUndefined, isNull } from 'lodash';
+import { extend } from 'lodash';
 import View from './../core/view';
 import Model from './../core/model';
 
@@ -10,7 +10,6 @@ import HighlightableTextView from '../utilities/highlight/highlightable-text-vie
 
 import { schema, vocab } from './../jsonld/ns';
 import { isType } from './../utilities/utilities';
-import { isNullOrUndefined } from 'util';
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
