@@ -8,18 +8,19 @@ import Graph from './../jsonld/graph';
 import sourceTemplate from './source-template';
 import HighlightableTextView from '../utilities/highlight/highlightable-text-view';
 
-import { schema } from './../jsonld/ns';
+import { schema, vocab } from './../jsonld/ns';
+import { isType } from './../utilities/utilities';
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
      * An instance of vocab('Source).
      */
-    source: Node;
+    model: Node;
 
     /**
      * The collection of oa:Annotations (and the items representing their details) associated with the source.
      */
-    items: Graph;
+    collection: Graph;
 
     /**
      * Specify whether the View should only display oa:Annotations, or if it allows editing
@@ -40,9 +41,8 @@ export interface ViewOptions extends BaseOpt<Model> {
     initialScrollTo?: Node;
 }
 
-export default class SourceView extends View {
-    items: Graph;
-    source: Node;
+export default class SourceView extends View<Node> {
+    collection: Graph;
     isEditable: boolean;
     showHighlightsInitially: boolean;
     initialScrollTo?: Node;
@@ -69,34 +69,35 @@ export default class SourceView extends View {
 
     constructor(options?: ViewOptions) {
         super(options);
-        this.validate(options);
+        this.validate();
 
-        this.source = options.source;
-        this.items = options.items;
         this.initialScrollTo = options.initialScrollTo;
         this.isEditable = options.isEditable || false;
         this.showHighlightsInitially =
             options.showHighlightsInitially || !isUndefined(options.initialScrollTo) || isNull(options.initialScrollTo) || false;
 
         this.htv = new HighlightableTextView({
-            text: <string>this.source.get(schema.text)[0],
+            text: <string>this.model.get(schema.text)[0],
             showHighlightsInitially: this.showHighlightsInitially,
-            collection: this.items,
+            collection: this.collection,
             initialScrollTo: this.initialScrollTo,
             isEditable: this.isEditable
         });
         this.bindToEvents(this.htv);
     }
 
-    validate(options: ViewOptions) {
-        if (options.source == undefined) {
-            throw RangeError("source cannot be undefined");
+    validate() {
+        if (this.model == undefined) {
+            throw RangeError("model cannot be undefined");
+        }
+        if (!isType(this.model, vocab('Source'))) {
+            throw new TypeError("model should be of type vocab('Source')");
         }
     }
 
     render(): this {
         this.htv.$el.detach();
-        this.$el.html(this.template({ title: this.source.get(schema.name)[0] }));
+        this.$el.html(this.template({ title: this.model.get(schema.name)[0] }));
         this.$('highlightable-text-view').replaceWith(this.htv.render().$el);
 
         if (this.showHighlightsInitially) {
@@ -164,7 +165,7 @@ export default class SourceView extends View {
 
     showHighlights(): this {
         this.htv.showAll();
-        this.trigger('showAnnotations', this.items);
+        this.trigger('showAnnotations', this.collection);
         return this;
     }
 
@@ -175,9 +176,9 @@ export default class SourceView extends View {
 
     toggleMetadata(): this {
         if (this.isShowingMetadata) {
-            this.trigger('hideMetadata', this.source);
+            this.trigger('hideMetadata', this.model);
         } else {
-            this.trigger('showMetadata', this.source);
+            this.trigger('showMetadata', this.model);
         }
         this.toggleToolbarItemSelected('metadata');
         return this;
