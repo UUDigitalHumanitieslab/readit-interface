@@ -80,16 +80,18 @@ export function getSelector(annotation: Node): Node {
 export function getStartSelector(annotation: Node): Node {
     validateType(annotation);
     let selector = getSelector(annotation);
-    return <Node>selector.get(oa.hasStartSelector)[0];
+    return selector.get(oa.hasStartSelector)[0] as Node;
 }
 
 /**
- * Get the EndSelector associated with this annotation.
+ * Get the EndSelector associated with oa:Annotation or its associated oa:Selector.
  */
-export function getEndSelector(annotation: Node): Node {
-    validateType(annotation);
-    let selector = getSelector(annotation);
-    return <Node>selector.get(oa.hasEndSelector)[0];
+export function getEndSelector(node: Node): Node {
+    let selector: Node;
+    let endSelector = node.get(oa.hasEndSelector);
+    if (!endSelector || !endSelector.length) selector = getSelector(node);
+    if (selector) endSelector = selector.get(oa.hasEndSelector);
+    return endSelector && endSelector[0] as Node;
 }
 
 /**
