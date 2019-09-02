@@ -20,6 +20,11 @@ export interface ViewOptions extends BaseOpt<Node> {
     collection?: Graph;
 
     /**
+     * The Read IT ontology.
+     */
+    ontology: Graph;
+
+    /**
      * Specify whether the View should only display oa:Annotations, or if it allows editing
      * them. Defaults to false.
      */
@@ -50,6 +55,7 @@ export default class HighlightableTextView extends View {
     text: string;
     textWrapper: JQuery<HTMLElement>;
     collection: Graph;
+    ontology: Graph;
     showHighlightsInitially: boolean;
 
     /**
@@ -74,6 +80,7 @@ export default class HighlightableTextView extends View {
 
         this.scrollToNode = options.initialScrollTo;
         this.text = options.text;
+        this.ontology = options.ontology;
         this.isEditable = options.isEditable || false;
         this.showHighlightsInitially = options.showHighlightsInitially || false;
 
@@ -193,7 +200,7 @@ export default class HighlightableTextView extends View {
         if (!isType(node, oa.Annotation)) return;
 
         // annotation styling details
-        let cssClass = getCssClassName(node);
+        let cssClass = getCssClassName(node, this.ontology);
 
         // annotation position details
         let posDetails = getPositionDetails(node);

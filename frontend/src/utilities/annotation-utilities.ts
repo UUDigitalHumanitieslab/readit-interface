@@ -1,9 +1,9 @@
 
 import Node from './../jsonld/node';
+import Graph from './../jsonld/graph';
 
 import { oa, vocab, rdf } from './../jsonld/ns';
 import { isType, getCssClassName as getCssClass } from './utilities';
-import ontology from './../global/readit-ontology';
 
 export type AnnotationPositionDetails = {
     startNodeIndex: number;
@@ -48,9 +48,9 @@ export function getLinkedItems(annotation: Node): Node[] {
  * Get the cssclass associated with annotation (i.e. via ontology item / category).
  * Returns be null if a value cannot be found.
  */
-export function getCssClassName(annotation: Node): string {
+export function getCssClassName(annotation: Node, ontology: Graph): string {
     validateType(annotation);
-    let ontologyReferences = getOntologyReferencesFromBody(annotation);
+    let ontologyReferences = getOntologyReferencesFromBody(annotation, ontology);
     if (ontologyReferences.length > 1) {
         throw RangeError('An oa:Annotation cannot be associated with more than one ontology item');
     }
@@ -112,11 +112,6 @@ export function getEndSelector(node: Node): Node {
 export function validateCompleteness(annotation: Node): void {
     validateType(annotation);
 
-    if (getOntologyReferencesFromBody(annotation).length < 1) {
-        throw new TypeError(
-            `The oa:hasBody property of annotation ${annotation.get('@id')} is empty or the related ontology item cannot be found`);
-    }
-
     let selector = getSelector(annotation);
     if (!selector || !isType(selector, vocab('RangeSelector'))) {
         throw new TypeError(getErrorMessage("Selector", selector, "vocab('RangeSelector')"));
@@ -146,7 +141,7 @@ function validateType(annotation: Node): void {
 /**
  * Get the ontology items associated with the annotation (via oa:hasBody).
  */
-function getOntologyReferencesFromBody(annotation: Node): Node[] {
+function getOntologyReferencesFromBody(annotation: Node, ontology: Graph): Node[] {
     return annotation.get(oa.hasBody).filter(n => ontology.get(n)) as Node[];
 }
 

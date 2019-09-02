@@ -53,6 +53,7 @@ directionFsm.on('enter:exploring', () => {
     let sourceView = new SourceView({
         items: items,
         source: source,
+        ontology: new Graph(mockOntology),
         // showHighlightsInitially: true,
         isEditable: true,
         initialScrollTo: scrollTo,
