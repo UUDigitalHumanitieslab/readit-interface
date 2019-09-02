@@ -62,29 +62,35 @@ export function getCssClassName(annotation: Node): string {
  */
 export function getSpecificResource(annotation: Node): Node {
     validateType(annotation);
-    return <Node>annotation.get(oa.hasTarget)[0];
+    return annotation.get(oa.hasTarget)[0] as Node;
 }
 
 /**
-* Get the Selector associated with this annotation.
+* Get the Selector associated with the oa:Annotation annotation or its associated oa:SpecificResource.
  */
-export function getSelector(annotation: Node): Node {
-    validateType(annotation);
-    let specificResource = getSpecificResource(annotation);
-    return <Node>specificResource.get(oa.hasSelector)[0];
+export function getSelector(node: Node): Node {
+    let specificResource: Node;
+    let selector = node.get(oa.hasSelector);
+    if (!selector || !selector.length) {
+        specificResource = getSpecificResource(node);
+        selector = specificResource.get(oa.hasSelector);
+    }
+    return selector && selector[0] as Node;
 }
 
 /**
- * Get the StartSelector associated with this annotation.
+ * Get the StartSelector associated with an oa:Annotation or its associated oa:Selector.
  */
-export function getStartSelector(annotation: Node): Node {
-    validateType(annotation);
-    let selector = getSelector(annotation);
-    return selector.get(oa.hasStartSelector)[0] as Node;
+export function getStartSelector(node: Node): Node {
+    let selector: Node;
+    let startSelector = node.get(oa.hasStartSelector);
+    if (!startSelector || !startSelector.length) selector = getSelector(node);
+    if (selector) startSelector = selector.get(oa.hasStartSelector);
+    return startSelector && startSelector[0] as Node;
 }
 
 /**
- * Get the EndSelector associated with oa:Annotation or its associated oa:Selector.
+ * Get the EndSelector associated with an oa:Annotation or its associated oa:Selector.
  */
 export function getEndSelector(node: Node): Node {
     let selector: Node;
@@ -138,7 +144,7 @@ function validateType(annotation: Node): void {
  * Get the ontology items associated with the annotation (via oa:hasBody).
  */
 function getOntologyReferencesFromBody(annotation: Node): Node[] {
-    return <Node[]> annotation.get(oa.hasBody).filter(n => ontology.get(n));
+    return annotation.get(oa.hasBody).filter(n => ontology.get(n)) as Node[];
 }
 
 /**
