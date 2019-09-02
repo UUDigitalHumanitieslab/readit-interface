@@ -103,7 +103,8 @@ export function getEndSelector(node: Node): Node {
 }
 
 /**
- * Validate if all related items required by a oa:Annotation instance are in its collection.
+ * Validate if all items associated to meaningfully display an oa:Annotation
+ * are present in its collection.
  * Throws TypeError with appropriate message if they are not.
  * @param annotation The oa:Annotation instance to validate.
  * @param graph The Graph instance that should contain all related items
