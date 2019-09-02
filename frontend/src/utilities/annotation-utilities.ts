@@ -52,7 +52,7 @@ export function getCssClassName(annotation: Node, ontology: Graph): string {
     validateType(annotation);
     let ontologyReferences = getOntologyReferencesFromBody(annotation, ontology);
     if (ontologyReferences.length > 1) {
-        throw RangeError('An oa:Annotation cannot be associated with more than one ontology item');
+        throw RangeError('This oa:Annotation is associated with multiple ontology items, henceforth a cssClassName cannot be established reliably');
     }
     if (ontologyReferences.length === 1) {
         return getCssClass(ontology.get(ontologyReferences[0]));
