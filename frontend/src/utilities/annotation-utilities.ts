@@ -30,13 +30,12 @@ export function getPositionDetails(annotation: Node): AnnotationPositionDetails 
 }
 
 /**
- * Get an array of items linked to the annotation. Will not include the annotation itself.
- * These items should all included when deleting or adding the annotation from or to a Graph.
+ * Get an array of the items linked to the annotation that should be included when deleting or adding
+ * the annotation from/to a Graph. Will not include the annotation itself.
  */
 export function getLinkedItems(annotation: Node): Node[] {
     validateType(annotation);
     return [
-        getSpecificResource(annotation),
         getSelector(annotation),
         getStartSelector(annotation),
         getEndSelector(annotation)
