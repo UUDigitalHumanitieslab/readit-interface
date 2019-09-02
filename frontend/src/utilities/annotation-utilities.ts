@@ -19,8 +19,9 @@ export type AnnotationPositionDetails = {
 export function getPositionDetails(annotation: Node): AnnotationPositionDetails {
     validateType(annotation);
 
-    let startSelector = getStartSelector(annotation);
-    let endSelector = getEndSelector(annotation);
+    let selector = getSelector(annotation);
+    let startSelector = getStartSelector(selector);
+    let endSelector = getEndSelector(selector);
     return {
         startNodeIndex: getNodeIndex(startSelector),
         startCharacterIndex: getCharacterIndex(startSelector),
@@ -35,10 +36,11 @@ export function getPositionDetails(annotation: Node): AnnotationPositionDetails 
  */
 export function getLinkedItems(annotation: Node): Node[] {
     validateType(annotation);
+    let selector = getSelector(annotation);
     return [
-        getSelector(annotation),
-        getStartSelector(annotation),
-        getEndSelector(annotation)
+        selector,
+        getStartSelector(selector),
+        getEndSelector(selector)
     ]
 }
 
