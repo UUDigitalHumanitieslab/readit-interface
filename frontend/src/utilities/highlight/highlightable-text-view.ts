@@ -7,7 +7,7 @@ import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
 
 import { isType } from './../utilities';
-import { isCompleteAnnotation, getPositionDetails, getLinkedItems, getCssClassName, getSelector } from './../annotation-utilities';
+import { validateCompleteness, getPositionDetails, getLinkedItems, getCssClassName, getSelector } from './../annotation-utilities';
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
 
@@ -112,9 +112,8 @@ export default class HighlightableTextView extends View {
     initHighlights(): this {
         this.collection.each((node) => {
             if (isType(node, oa.Annotation)) {
-                if (isCompleteAnnotation(node)) {
-                    this.addHighlight(node);
-                }
+                validateCompleteness(node);
+                this.addHighlight(node);
             }
         });
 
@@ -131,9 +130,8 @@ export default class HighlightableTextView extends View {
             throw TypeError('node should be of type oa:Annotation');
         }
 
-        if (isCompleteAnnotation(node)) {
-            this.collection.add([node].concat(getLinkedItems(node)));
-        }
+        validateCompleteness(node);
+        this.collection.add([node].concat(getLinkedItems(node)));
 
         return this;
     }

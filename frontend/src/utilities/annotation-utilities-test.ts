@@ -1,7 +1,7 @@
 import Node from './../jsonld/node';
 import { item } from './../jsonld/ns';
 import mockItems from './../mock-data/mock-items';
-import { isCompleteAnnotation, getEndSelector } from './annotation-utilities';
+import { validateCompleteness, getEndSelector } from './annotation-utilities';
 import Graph from '../jsonld/graph';
 
 describe('annotation-utilities', function () {
@@ -14,13 +14,13 @@ describe('annotation-utilities', function () {
 
     describe('isCompleteAnnotation', function () {
         it('identifies complete annotations', function()  {
-            expect(isCompleteAnnotation(getAnno1instance())).toEqual(true);
+            expect(validateCompleteness(getAnno1instance())).toEqual(undefined);
         });
 
         it('throws TypeError if parts are missing', function()  {
             let anno = getAnno1instance();
             items.remove(getEndSelector(anno));
-            expect(function() { isCompleteAnnotation(anno) }).toThrowError(TypeError);
+            expect(function() { validateCompleteness(anno) }).toThrowError(TypeError);
         });
     });
 });

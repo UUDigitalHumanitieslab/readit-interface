@@ -99,7 +99,7 @@ export function getEndSelector(annotation: Node): Node {
  * @param annotation The oa:Annotation instance to validate.
  * @param graph The Graph instance that should contain all related items
  */
-export function isCompleteAnnotation(annotation: Node): boolean {
+export function validateCompleteness(annotation: Node): void {
     validateType(annotation);
 
     if (getOntologyReferencesFromBody(annotation).length < 1) {
@@ -121,8 +121,6 @@ export function isCompleteAnnotation(annotation: Node): boolean {
     if (!endSelector || !isType(endSelector, oa.XPathSelector)) {
         throw new TypeError(getErrorMessage('Endselector', endSelector, 'oa:XPathSelector'));
     }
-
-    return true;
 }
 
 /**
