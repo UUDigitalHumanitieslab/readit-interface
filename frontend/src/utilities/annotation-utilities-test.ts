@@ -12,7 +12,7 @@ describe('annotation-utilities', function () {
         return items.get(anno1InstanceId);
     }
 
-    describe('isCompleteAnnotation', function () {
+    describe('validateCompleteness', function () {
         it('identifies complete annotations', function()  {
             expect(validateCompleteness(getAnno1instance())).toEqual(undefined);
         });
