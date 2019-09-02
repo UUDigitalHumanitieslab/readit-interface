@@ -1,4 +1,4 @@
-import { find } from 'lodash'
+import { find, includes } from 'lodash'
 import Node from '../jsonld/node';
 
 import { skos, rdfs } from './../jsonld/ns';
@@ -41,7 +41,7 @@ export function isRdfsClass(node: Node): boolean {
 
     const nodeType = node.get('@type');
     if (nodeType && nodeType.length > 0) {
-        return nodeType.includes(rdfs.Class);
+        return includes(nodeType, rdfs.Class);
     }
 
     return false;
@@ -68,5 +68,5 @@ export function hasProperty(node: Node, property: string): boolean {
  * @param type The expected type, e.g. (schema.CreativeWork).
  */
 export function isType(node: Node, type: string) {
-    return node.get('@type').includes(type);
+    return includes(node.get('@type'), type);
 }

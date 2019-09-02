@@ -30,6 +30,7 @@ export const source1instance = {
             "@value": "Tess T. Author"
         }
     ],
+    // TODO: move text to a file and link to it (in an appropriate property!)
     [schema.text]: [
         {
             "@value": mockSourceText

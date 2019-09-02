@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, bind, debounce } from 'lodash';
+import { extend, bind, debounce, sortBy } from 'lodash';
 
 import View from '../../core/view';
 import { oa } from '../../jsonld/ns';
@@ -336,7 +336,7 @@ export default class HighlightableTextView extends View {
     }
 
     /**
-     * Trigger scroll event.
+     * Handles scroll events and re-emits them
      * If applicable, this will include the 'oa:Selector` currently visible.
      */
     onScroll(): void {
@@ -378,9 +378,7 @@ export default class HighlightableTextView extends View {
     }
 
     getHighlightClosestTo(referenceValue: number, highlightViews: HighlightView[]): HighlightView {
-        return highlightViews.sort( (a, b) => {
-            return Math.abs(referenceValue - a.$el.offset().top) - Math.abs(referenceValue - b.$el.offset().top);
-        })[0];
+        return sortBy(highlightViews, (h) => Math.abs(referenceValue - h.$el.offset().top))[0];
     }
 }
 extend(HighlightableTextView.prototype, {

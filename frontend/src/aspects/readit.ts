@@ -51,8 +51,8 @@ directionFsm.on('enter:exploring', () => {
     let scrollTo = items.find(n => n.get("@id") == "https://read-it.hum.uu.nl/item/102");
 
     let sourceView = new SourceView({
-        items: items,
-        source: source,
+        collection: items,
+        model: source,
         ontology: new Graph(mockOntology),
         // showHighlightsInitially: true,
         isEditable: true,
