@@ -122,6 +122,7 @@ export default class LdItemView extends View<Node> {
 
     onRelItemsClicked(): void {
         this.trigger('show:related', this.model);
+        console.log('blah');
     }
 
     onAnnotationsClicked(): void {

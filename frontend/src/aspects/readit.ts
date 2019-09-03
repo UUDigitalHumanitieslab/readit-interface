@@ -19,6 +19,7 @@ import directionFsm from '../global/direction-fsm';
 import mockOntology from './../mock-data/mock-ontology';
 import mockItems from './../mock-data/mock-items';
 import mockSources from './../mock-data/mock-sources';
+import mockStaff from '../mock-data/mock-staff';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -48,8 +49,9 @@ directionFsm.on('enter:exploring', () => {
     let source = new Graph(mockSources).models[0];
     let items = new Graph(mockItems);
     let ontology = new Graph(mockOntology);
+    let staff = new Graph(mockStaff);
 
-    let scrollTo = items.find(n => n.get("@id") == "https://read-it.hum.uu.nl/item/201");
+    let scrollTo = items.find(n => n.get("@id") == "https://read-it.hum.uu.nl/item/100"); // "https://read-it.hum.uu.nl/item/201");
 
     let sourceView = new SourceView({
         collection: items,
