@@ -1,4 +1,12 @@
-import { extend, isArray, isUndefined, omit, isEmpty, every } from 'lodash';
+import {
+    extend,
+    omit,
+    every,
+    isArray,
+    isUndefined,
+    isEmpty,
+    isObject,
+} from 'lodash';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
     expand,   // (jsonld, options?, callback?) => Promise<jsonld>
@@ -75,12 +83,35 @@ extend(Graph.prototype, {
 });
 
 /**
- * Replace Backbone's modelMatcher (implementation detail) which in
- * turn replaces the default _.matches shorthand.
+ * The next few functions and function call are implementation
+ * details that enable JSON-LD array-aware model matching.
  */
+
 function augmentedModelMatcher(attrs) {
     return model => every(attrs, (values, key) => {
         if (!isArray(values)) values = [values];
         return every(values, val => model.has(key, val));
     });
+}
+
+function rewrapIteratee(iteratee, instance) {
+    if (isObject(iteratee) && !instance._isModel(iteratee)) {
+        return augmentedModelMatcher(iteratee);
+    }
+    return iteratee;
+}
+
+function rewrapMethod(length, method) {
+    switch (length) {
+    case 2: return function(iteratee, context?) {
+        iteratee = rewrapIteratee(iteratee, this);
+        return this[method](iteratee, context);
+    };
+    case 3: return function(iteratee, defaultVal?, context?) {
+        iteratee = rewrapIteratee(iteratee, this);
+        return this[method](iteratee, defaultVal, context);
+    };
+    default:
+        throw new Error('This function is only meant for rewrapping methods that take an iteratee.');
+    }
 }
