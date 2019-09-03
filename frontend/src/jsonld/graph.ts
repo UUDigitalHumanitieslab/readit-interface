@@ -1,4 +1,4 @@
-import { extend, isArray, isUndefined, omit, isEmpty } from 'lodash';
+import { extend, isArray, isUndefined, omit, isEmpty, every } from 'lodash';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
     expand,   // (jsonld, options?, callback?) => Promise<jsonld>
@@ -73,3 +73,14 @@ extend(Graph.prototype, {
     model: Node,
     sync,
 });
+
+/**
+ * Replace Backbone's modelMatcher (implementation detail) which in
+ * turn replaces the default _.matches shorthand.
+ */
+function augmentedModelMatcher(attrs) {
+    return model => every(attrs, (values, key) => {
+        if (!isArray(values)) values = [values];
+        return every(values, val => model.has(key, val));
+    });
+}
