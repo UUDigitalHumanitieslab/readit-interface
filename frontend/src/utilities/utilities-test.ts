@@ -1,5 +1,5 @@
 import { rdf, rdfs, skos } from './../jsonld/ns';
-import { getLabel, getCssClassName, isRdfsClass, hasProperty } from './utilities';
+import { getLabel, getCssClassName, isRdfsClass } from './utilities';
 import { FlatLdObject } from '../jsonld/json';
 import Node from '../jsonld/node';
 
@@ -86,20 +86,5 @@ describe('utilities:isRdfsClass', function() {
         let node = new Node(attributes);
 
         expect(isRdfsClass(node)).toBe(false);
-    });
-});
-
-describe('utilities:hasProperty', function() {
-    it('finds a property', function() {
-        let node = getDefaultNode();
-        expect(hasProperty(node, skos.prefLabel)).toBe(true);
-    });
-
-    it('ignores empty values unless told otherwise', function() {
-        let property = skos.prefLabel;
-        let attributes = getDefaultAttributes();
-        attributes[property] = [];
-        let node = new Node(attributes);
-        expect(hasProperty(node, property)).toBe(false);
     });
 });

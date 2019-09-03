@@ -3,6 +3,10 @@ import {
     map,
     mapValues,
     filter,
+    forEach,
+    some,
+    unionWith,
+    differenceWith,
     has,
     isUndefined,
     isArray,
@@ -26,8 +30,6 @@ import { ModelSetOptions } from 'backbone';
 import Model from '../core/model';
 import {
     JsonLdContext,
-    ResolvedContext,
-    JsonLdObject,
     FlatLdObject,
     Identifier
 } from './json';
@@ -58,14 +60,15 @@ export interface TypeFilter {
  */
 export default class Node extends Model {
     /**
-     * Original local context, if set.
+     * Original local context, if set. Access through this.context.
      */
     localContext: JsonLdContext;
 
     /**
-     * A promise of the computed active context.
+     * Previous graph-aware context.
+     * Only available inside change:@context handlers.
      */
-    whenContext: Promise<ResolvedContext>;
+    previousContext: JsonLdContext;
 
     collection: Graph;
 
@@ -75,31 +78,38 @@ export default class Node extends Model {
     constructor(attributes?: any, options?) {
         super(attributes, options);
         let context: JsonLdContext = options && options.context;
-        if (!isUndefined(context)) this.setContext(context);
+        if (!isUndefined(context)) this.context = context;
     }
 
     /**
      * Compute the Graph-aware context without modifying this. See
      * https://w3c.github.io/json-ld-syntax/#advanced-context-usage
      */
-    async computeContext(localContext: JsonLdContext):Promise<ResolvedContext> {
-        let globalContext = this.collection && this.collection.whenContext;
-        return processContext(await globalContext, localContext || {});
+    get context(): JsonLdContext {
+        let globalContext = this.collection && this.collection.context || [];
+        if (!isArray(globalContext)) globalContext = [globalContext];
+        let localContext = this.localContext;
+        if (isUndefined(localContext)) localContext = [];
+        let totalContext = globalContext.concat(localContext);
+        if (totalContext.length === 0) return undefined;
+        if (totalContext.length === 1) return totalContext[0];
+        return totalContext;
     }
 
     /**
      * Set a local context for future compaction.
      */
-    setContext(context: JsonLdContext): this {
-        if (isEqual(context, this.localContext)) return this;
-        if (isUndefined(context)) {
+    set context(newLocal: JsonLdContext) {
+        if (isEqual(newLocal, this.localContext)) return;
+        let oldLocal = this.localContext;
+        this.previousContext = this.context;
+        if (isUndefined(newLocal)) {
             delete this.localContext;
-            delete this.whenContext;
         } else {
-            this.localContext = context;
-            this.whenContext = this.computeContext(context);
+            this.localContext = newLocal;
         }
-        return this;
+        this.trigger('change:@context', this, newLocal, oldLocal);
+        delete this.previousContext;
     }
 
     /**
@@ -116,7 +126,28 @@ export default class Node extends Model {
             options = value;
         }
         let normalizedHash = mapValues(hash, asNativeArray);
+        forEach(normalizedHash, (additions: OptimizedNativeArray, predicate) => {
+            if (predicate === '@id') return;
+            let existing = super.get(predicate);
+            normalizedHash[predicate] = unionWith(existing, additions, isEqual);
+        });
         return super.set(normalizedHash, options);
+    }
+
+    /**
+     * Adapt the unset method to JSON-LD array semantics.
+     */
+    unset(key: string, value?: any, options?: ModelSetOptions): this {
+        if (isUndefined(value)) return super.unset(key, options) as this;
+        let existing = super.get(key);
+        if (key === '@id') {
+            if (value === existing) return super.unset(key, options) as this;
+            return this;
+        }
+        let toRemove = asNativeArray(value, key) as OptimizedNativeArray;
+        let remaining = differenceWith(existing, toRemove, isEqual);
+        if (!remaining.length) return super.unset(key, options) as this;
+        return super.set(key, remaining, options) as this;
     }
 
     /**
@@ -133,6 +164,24 @@ export default class Node extends Model {
             return map(value, id2node.bind(this)) as T extends '@id' ? string : NativeArray;
         }
         return value;
+    }
+
+    /**
+     * Adapt the has method to JSON-LD array semantics.
+     */
+    has(predicate: string, object?: any): boolean {
+        let candidates = super.get(predicate);
+        if (!candidates) return false;
+        if (isUndefined(object)) return candidates.length;
+        if (candidates.length === 1 && isArray(candidates[0])) {
+            // Special case. We consider the list of objects
+            // associated with this subject-predicate pair to be
+            // sorted, rather than considering one of the objects to
+            // be a sorted list.
+            candidates = candidates[0];
+        }
+        object = asNative(object);
+        return some(candidates, c => isEqual(c, object));
     }
 
     /**
