@@ -47,8 +47,9 @@ directionFsm.on('enter:exploring', () => {
     // This is just a quick and dirty solution, will have to be moved in the future
     let source = new Graph(mockSources).models[0];
     let items = new Graph(mockItems);
+    let ontology = new Graph(mockOntology);
 
-    let scrollTo = items.find(n => n.get("@id") == "https://read-it.hum.uu.nl/item/102");
+    let scrollTo = items.find(n => n.get("@id") == "https://read-it.hum.uu.nl/item/201");
 
     let sourceView = new SourceView({
         collection: items,

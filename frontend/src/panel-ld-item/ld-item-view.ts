@@ -1,16 +1,25 @@
+import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 import View from '../core/view';
 
-import ldItemTemplate from './ld-item-template';
+import Graph from './../jsonld/graph';
 import Node from '../jsonld/node';
+
+import ldItemTemplate from './ld-item-template';
+
 import { owl } from './../jsonld/ns';
 
 import LabelView from '../utilities/label-view';
 
-
 import * as bulmaAccordion from 'bulma-accordion';
 
+export interface ViewOptions extends BaseOpt<Node> {
+    ontology: Graph;
+}
+
 export default class LdItemView extends View<Node> {
+    lblView: LabelView;
+    ontology: Graph;
 
     label: string;
     properties: any = new Object();
@@ -20,8 +29,6 @@ export default class LdItemView extends View<Node> {
     annotations: any;
     externalResources: any = new Object();
 
-    lblView: LabelView;
-
     render(): this {
         this.setItemProperties();
         this.lblView.$el.detach();
@@ -30,8 +37,12 @@ export default class LdItemView extends View<Node> {
         return this;
     }
 
-    initialize(): void {
-        this.lblView = new LabelView({model: this.model, hasTooltip: false});
+    constructor(options?: ViewOptions) {
+        super(options);
+
+        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
+        let ontologyItem = options.ontology.get(this.model.get('@type')[0] as string);
+        this.lblView = new LabelView({model: ontologyItem, hasTooltip: false});
         this.lblView.render();
     }
 
