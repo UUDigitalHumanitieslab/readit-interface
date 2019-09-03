@@ -60,6 +60,13 @@ export function getCssClassName(annotation: Node, ontology: Graph): string {
 }
 
 /**
+ * Get the ontology instances from an annotation (i.e. the item in 'oa.hasBody' that are not ontology items)
+ */
+export function getOntologyInstances(annotation:Node, ontology: Graph): Node[] {
+    return annotation.get(oa.hasBody).filter(n => !ontology.get(n)) as Node[];
+}
+
+/**
  * Get the SpecificResource associated with this annotation.
  */
 export function getSpecificResource(annotation: Node): Node {

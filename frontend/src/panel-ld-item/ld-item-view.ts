@@ -7,7 +7,9 @@ import Node from '../jsonld/node';
 
 import ldItemTemplate from './ld-item-template';
 
-import { owl } from './../jsonld/ns';
+import { owl, oa } from './../jsonld/ns';
+import { isType } from './../utilities/utilities';
+import { getOntologyInstances } from './../utilities/annotation-utilities';
 
 import LabelView from '../utilities/label-view';
 
@@ -15,11 +17,18 @@ import * as bulmaAccordion from 'bulma-accordion';
 
 export interface ViewOptions extends BaseOpt<Node> {
     ontology: Graph;
+    staff: Graph;
 }
 
 export default class LdItemView extends View<Node> {
     lblView: LabelView;
     ontology: Graph;
+
+    /**
+     * The item displayed by the current view.
+     * Is either the model or the ontology instance associated with the model if its type is oa:Annotation.
+     */
+    currentItem: Node;
 
     label: string;
     properties: any = new Object();
@@ -41,9 +50,28 @@ export default class LdItemView extends View<Node> {
         super(options);
 
         if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
-        let ontologyItem = options.ontology.get(this.model.get('@type')[0] as string);
-        this.lblView = new LabelView({model: ontologyItem, hasTooltip: false});
+        let ontologyInstance = this.getOntologyInstance(options.ontology);
+        this.currentItem = this.model;
+        if (isType(this.model, oa.Annotation)) this.currentItem = ontologyInstance;
+
+        this.lblView = new LabelView({model: ontologyInstance, hasTooltip: false});
         this.lblView.render();
+    }
+
+    getOntologyInstance(ontology: Graph): Node {
+        let ontologyReference: string = this.model.get('@type')[0] as string;
+
+        if (isType(this.model, oa.Annotation)) {
+            let ontologyInstances = getOntologyInstances(this.model, ontology);
+
+            if (ontologyInstances.length !== 1) {
+                throw new RangeError(
+                    `None or multiple ontology instances found for oa:Annotation with cid '${this.model.cid}',
+                    don't know which one to display`);
+            }
+            ontologyReference = ontologyInstances[0].get('@type')[0] as string;
+        }
+        return ontology.get(ontologyReference);
     }
 
     setItemProperties(): void {
