@@ -118,6 +118,32 @@ describe('Node', function() {
                 this.node.clear();
             });
         });
+
+        it('appends rather than replaces', function() {
+            this.node.set('a', 1);
+            this.node.set('a', 2);
+            expect(this.node.get('a')).toEqual([1, 2]);
+        });
+
+        it('merges array arguments into the existing value(s)', function() {
+            this.node.set('a', [1, 2, 3]);
+            this.node.set('a', [2, 4, 5]);
+            expect(this.node.get('a')).toEqual([1, 2, 3, 4, 5]);
+        });
+    });
+
+    describe('unset', function() {
+        it('can clear out an attribute', function() {
+            this.node.set('a', 1);
+            this.node.unset('a');
+            expect(this.node.has('a')).toBeFalsy();
+        });
+
+        it('can remove just select triples', function() {
+            this.node.set('a', [1, 2, 3, 4, 5]);
+            this.node.unset('a', [2, 5, 7]);
+            expect(this.node.get('a')).toEqual([1, 3, 4]);
+        });
     });
 
     describe('get', function() {
@@ -162,6 +188,45 @@ describe('Node', function() {
             expectFilteredMatch(dcterms.created, null, 0);
             expectFilteredMatch(dcterms.title, xsd.string, 1);
             expectFilteredMatch(dcterms.title, '@id', 0);
+        });
+    });
+
+    describe('has', function() {
+        const node = new Node({
+            '@type': [],
+            [dcterms.creator]: [{
+                '@id': staff('JdeKruif'),
+            }, {
+                '@id': staff('AHebing'),
+            }],
+            [dcterms.created]: [{
+                '@value': '2085-12-31T03:33:16.000Z',
+                '@type': xsd.dateTime,
+            }],
+        });
+
+        it('finds a property', function() {
+            expect(node.has(dcterms.creator)).toBeTruthy();
+            expect(node.has(dcterms.created)).toBeTruthy();
+        });
+
+        it('ignores empty values', function() {
+            expect(node.has('@type')).toBeFalsy();
+            expect(node.has(dcterms.title)).toBeFalsy();
+        });
+
+        it('can check for specific predicate-object pairs', function() {
+            expect(node.has(dcterms.creator, {
+                '@id': staff('AHebing'),
+            })).toBeTruthy();
+            expect(node.has(dcterms.creator, {
+                '@id': staff('JGonggrijp'),
+            })).toBeFalsy();
+            let aDate = new Date('2085-12-31T03:33:16.000Z');
+            aDate['@type'] = xsd.dateTime;
+            expect(node.has(dcterms.created, aDate)).toBeTruthy();
+            expect(node.has('@type', 'x')).toBeFalsy();
+            expect(node.has(dcterms.title, {'@value': 'x'})).toBeFalsy();
         });
     });
 

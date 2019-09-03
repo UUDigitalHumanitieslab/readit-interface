@@ -3,6 +3,10 @@ import {
     map,
     mapValues,
     filter,
+    forEach,
+    some,
+    unionWith,
+    differenceWith,
     has,
     isUndefined,
     isArray,
@@ -122,7 +126,28 @@ export default class Node extends Model {
             options = value;
         }
         let normalizedHash = mapValues(hash, asNativeArray);
+        forEach(normalizedHash, (additions: OptimizedNativeArray, predicate) => {
+            if (predicate === '@id') return;
+            let existing = super.get(predicate);
+            normalizedHash[predicate] = unionWith(existing, additions, isEqual);
+        });
         return super.set(normalizedHash, options);
+    }
+
+    /**
+     * Adapt the unset method to JSON-LD array semantics.
+     */
+    unset(key: string, value?: any, options?: ModelSetOptions): this {
+        if (isUndefined(value)) return super.unset(key, options) as this;
+        let existing = super.get(key);
+        if (key === '@id') {
+            if (value === existing) return super.unset(key, options) as this;
+            return this;
+        }
+        let toRemove = asNativeArray(value, key) as OptimizedNativeArray;
+        let remaining = differenceWith(existing, toRemove, isEqual);
+        if (!remaining.length) return super.unset(key, options) as this;
+        return super.set(key, remaining, options) as this;
     }
 
     /**
@@ -139,6 +164,24 @@ export default class Node extends Model {
             return map(value, id2node.bind(this)) as T extends '@id' ? string : NativeArray;
         }
         return value;
+    }
+
+    /**
+     * Adapt the has method to JSON-LD array semantics.
+     */
+    has(predicate: string, object?: any): boolean {
+        let candidates = super.get(predicate);
+        if (!candidates) return false;
+        if (isUndefined(object)) return candidates.length;
+        if (candidates.length === 1 && isArray(candidates[0])) {
+            // Special case. We consider the list of objects
+            // associated with this subject-predicate pair to be
+            // sorted, rather than considering one of the objects to
+            // be a sorted list.
+            candidates = candidates[0];
+        }
+        object = asNative(object);
+        return some(candidates, c => isEqual(c, object));
     }
 
     /**
