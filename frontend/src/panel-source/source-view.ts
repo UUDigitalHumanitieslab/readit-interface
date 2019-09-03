@@ -84,12 +84,8 @@ export default class SourceView extends View<Node> {
         this.htv = new HighlightableTextView({
             text: <string>this.model.get(schema.text)[0],
             showHighlightsInitially: this.showHighlightsInitially,
-<<<<<<< HEAD
-            collection: this.items,
-            ontology: options.ontology,
-=======
             collection: this.collection,
->>>>>>> develop
+            ontology: options.ontology,
             initialScrollTo: this.initialScrollTo,
             isEditable: this.isEditable
         });
