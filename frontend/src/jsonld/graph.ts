@@ -115,3 +115,12 @@ function rewrapMethod(length, method) {
         throw new Error('This function is only meant for rewrapping methods that take an iteratee.');
     }
 }
+
+const methodsToRewrap = {
+    forEach: 2, each: 2, map: 2, collect: 2, find: 2, detect: 2, filter: 2,
+    select: 2, reject: 2, every: 2, all: 2, some: 2, any: 2, include: 2,
+    includes: 2, contains: 2, max: 2, min: 2, first: 2, head: 2, take: 2,
+    initial: 2, rest: 2, tail: 2, drop: 2, last: 2, indexOf: 2, lastIndexOf: 2,
+    sample: 2, partition: 2, groupBy: 2, countBy: 2, sortBy: 2, indexBy: 2,
+    findIndex: 2, findLastIndex: 2,
+};
