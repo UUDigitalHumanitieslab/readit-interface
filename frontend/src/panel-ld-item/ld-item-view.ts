@@ -1,19 +1,18 @@
-import { extend, each } from 'lodash';
+import { extend } from 'lodash';
 import View from '../core/view';
 
 import ldItemTemplate from './ld-item-template';
-import { getLabel } from '../utilities/utilities';
 import Node from '../jsonld/node';
+import { owl } from './../jsonld/ns';
 
 import LabelView from '../utilities/label-view';
 
-import { JsonLdObject } from '../jsonld/json';
-import { triggerAsyncId } from 'async_hooks';
 
 import * as bulmaAccordion from 'bulma-accordion';
 
 export default class LdItemView extends View<Node> {
 
+    label: string;
     properties: any = new Object();
     itemMetadata: any = new Object();
     annoMetadata: any = new Object();
@@ -21,40 +20,19 @@ export default class LdItemView extends View<Node> {
     annotations: any;
     externalResources: any = new Object();
 
+    lblView: LabelView;
+
     render(): this {
         this.setItemProperties();
-
-        this.$el.html(this.template(
-            {
-                label: getLabel(this.model),
-                properties: this.properties,
-                itemMetadata: this.itemMetadata,
-                annoMetadata: this.annoMetadata,
-                relatedItems: this.relatedItems,
-                annotations: this.annotations,
-                externalResources: this.externalResources
-            }));
-
-
-        let lblView = new LabelView({model: this.model}, false);
-        lblView.render().$el.appendTo(this.$('#lblViewWrapper'));
-
-        this.prepareAccordions();
-
+        this.lblView.$el.detach();
+        this.$el.html(this.template(this));
+        this.$('header aside').append(this.lblView.el)
         return this;
     }
 
-    /**
-     * Activate javascript for accordion control. Part of bulma-accordion package.
-     * @return {bulmaAccordion[]} Array of accordions.
-    */
-    prepareAccordions(): bulmaAccordion[] {
-        var accordions = [];
-        this.$('.accordions').each(function (i, element) {
-            accordions.push(new bulmaAccordion(element));
-        });
-
-        return accordions;
+    initialize(): void {
+        this.lblView = new LabelView({model: this.model, hasTooltip: false});
+        this.lblView.render();
     }
 
     setItemProperties(): void {
@@ -67,7 +45,7 @@ export default class LdItemView extends View<Node> {
             // that either contain a value (i.e. string or date or whatever) and looks like
             //'{
             //    "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
-            //    "@value": "2085-12-31T04:33:15+0100"
+            //    "@value": "2085-12-31T04:33:15+01:00"
             // }'
             // or that represents a link to another item, which looks like
             //'{
@@ -79,29 +57,25 @@ export default class LdItemView extends View<Node> {
 
                 // first extract everything specific that we need
                 if (attribute == 'creator') {
-                    this.itemMetadata[attribute] = obj['@id'];
+                    this.itemMetadata[attribute] = obj.id;
                     continue;
                 }
 
                 if (attribute == 'created') {
-                    this.itemMetadata[attribute] = obj['@value'];
+                    this.itemMetadata[attribute] = obj;
                     continue;
                 }
 
-                if (attribute == 'owl:sameAs') {
-                    this.externalResources[attribute] = obj['@id'];
+                if (attribute == owl.sameAs) {
+                    this.externalResources[attribute] = obj.id;
                     continue;
                 }
 
                 // then process what is left
-                if (obj['@value']) {
-                    this.properties[attribute] = obj['@value'];
-                    continue;
-                }
-
-                if (obj['@id']) {
-                    this.relatedItems[attribute] = obj['@id'];
-                    continue;
+                if (obj instanceof Node) {
+                    this.relatedItems[attribute] = obj.id;
+                } else {
+                    this.properties[attribute] = obj;
                 }
             }
         }

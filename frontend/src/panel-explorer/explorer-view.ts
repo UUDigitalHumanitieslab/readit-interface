@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend } from 'lodash';
+import { extend, sumBy, method, bind, debounce, findLast } from 'lodash';
 import Model from '../core/model';
 import View from '../core/view';
 
@@ -23,17 +23,22 @@ export default class ExplorerView extends View {
      */
     rltPanelStack: Map<string, number>;
 
+    /**
+     * Keep track of currently fully visible stack (for scroll event purposes)
+     */
+    mostRightFullyVisibleStack: PanelStackView;
+
     constructor(options?: ViewOptions) {
         super(options);
         this.stacks = [];
         this.eventController = new EventController(this);
         this.rltPanelStack = new Map();
         this.push(options.first);
+
+        this.$el.on('scroll', debounce(bind(this.onScroll, this), 500));
     }
 
     render(): View {
-        this.setHeight();
-
         for (let panelStack of this.stacks) {
             panelStack.render().$el.appendTo(this.$el);
         }
@@ -46,14 +51,10 @@ export default class ExplorerView extends View {
     /**
      * Animated scroll to the outer right of the explorer.
      */
-    scroll(): void {
-        let totalWidth = 0;
-
-        for (let stack of this.stacks) {
-            totalWidth += stack.getWidth();
-        }
-
+    scroll(): this {
+        let totalWidth = sumBy(this.stacks, method('getWidth'));
         this.$el.animate({ scrollLeft: totalWidth }, 800);
+        return this;
     }
 
     /**
@@ -62,14 +63,15 @@ export default class ExplorerView extends View {
      * @event push (panel,fromLeft) where 'panel' is the added panel, and 'fromLeft' the zero-indexed position
      * of the new panel's stack from the left.
      */
-    push(panel: View): void {
+    push(panel: View): this {
         let position = this.stacks.length;
-        this.stacks[position] = new PanelStackView({ first: panel });
+        this.stacks.push(new PanelStackView({ first: panel }));
         this.rltPanelStack.set(panel.cid, position);
         this.eventController.subscribeToPanelEvents(panel);
         this.stacks[position].render().$el.appendTo(this.$el);
         this.trigger('push', panel, position);
         this.scroll();
+        return this;
     }
 
     /**
@@ -82,7 +84,7 @@ export default class ExplorerView extends View {
      * of the stack the panel was overlayed onto from the left, and 'fromRight' equals fromLeft minus the
      * total number of stacks (i.e. always negative and -1 for the rightmost panel).
      */
-    overlay(panel: View, ontoPanel?: View) {
+    overlay(panel: View, ontoPanel?: View): this {
         let position = this.stacks.length - 1;
 
         if (ontoPanel) {
@@ -90,11 +92,11 @@ export default class ExplorerView extends View {
 
             // validate that the ontoPanel is on top of its stack
             let stackTop = this.stacks[position].getTopPanel();
-            if (ontoPanel.cid !== stackTop.cid) {
+            if (ontoPanel !== stackTop) {
                 throw new RangeError(`ontoPanel with cid '${ontoPanel.cid}' is not a topmost panel`);
             }
         } else {
-            ontoPanel = this.getRightMostStack();
+            ontoPanel = this.getRightMostStack().getTopPanel();
         }
 
         let stack = this.stacks[position];
@@ -103,10 +105,11 @@ export default class ExplorerView extends View {
         this.eventController.subscribeToPanelEvents(panel);
         this.trigger('overlay', panel, ontoPanel, position, (position - this.stacks.length));
         this.scroll();
+        return this;
     }
 
     /**
-     * Remove the rightmost stack.
+     * Remove the rightmost panel.
      * @event pop (panel, fromLeft) where 'panel' is the removed panel and 'fromLeft' the zero-indexed position
      * of the stack panel used to be on.
      */
@@ -121,9 +124,10 @@ export default class ExplorerView extends View {
     /**
      * Remove a panel from any stack.
      * @param panel The panel to remove. Must be a topmost panel.
-     * @event removeOverlay (panel, fromLeft, fromRight) where 'panel' is the removed panel, 'fromLeft' is
-     * the zero-indexed position of the stack the panel was removed from the left, and 'fromRight'
-     * equals fromLeft minus the total number of stacks (i.e. always negative and -1 for the rightmost panel).
+     * @event removeOverlay (panel, ontoPanel, fromLeft, fromRight) where 'panel' is the removed panel,
+     * 'ontoPanel' is the new topmost panel in the stack, 'fromLeft' is the zero-indexed position of the stack
+     * the panel was removed from the left, and 'fromRight' equals fromLeft minus the total number of stacks
+     * (i.e. always negative and -1 for the rightmost panel).
      */
     removeOverlay(panel: View): View {
         // validate that the panel is on top of its stack
@@ -132,9 +136,12 @@ export default class ExplorerView extends View {
         if (panel.cid !== stackTop.cid) {
             throw new RangeError(`panel with cid '${panel.cid}' is not a topmost panel`);
         }
+        if (this.stacks[position].hasOnlyOnePanel()) {
+            throw new RangeError(`cannot remove panel with cid '${panel.cid}' because it is a bottom panel (not an overlay)`);
+        }
 
         let removedPanel = this.deletePanel(position);
-        this.trigger('removeOverlay', removedPanel, position, (position - this.stacks.length));
+        this.trigger('removeOverlay', removedPanel, this.stacks[position].getTopPanel(), position, (position - this.stacks.length));
         return removedPanel;
     }
 
@@ -151,13 +158,12 @@ export default class ExplorerView extends View {
     }
 
     /**
-     * Remove the topmost panel from ths stack at position
+     * Remove the topmost panel from the stack at position
      * @param position The indes of the stack to remove the panel from
      */
     deletePanel(position: number): View {
         let stack = this.stacks[position];
         let panel = stack.getTopPanel();
-        panel.off();
         stack.pop();
 
         if (stack.panels.length == 0) {
@@ -179,12 +185,24 @@ export default class ExplorerView extends View {
     /**
      * Dynamically set the height for the explorer, based on the viewport height.
      */
-    setHeight(): void {
-        let vh = $(window).height();
-
-        // compensates for menu and footer (555 is min-height)
-        let height = vh - 194 > 555 ? vh - 194 : 555;
+    setHeight(height: number): void {
         this.$el.css('height', height);
+    }
+
+    onScroll(): void {
+        let mostRightFullyVisibleStack = this.getMostRightFullyVisibleStack();
+
+        if (mostRightFullyVisibleStack !== this.mostRightFullyVisibleStack) {
+            this.mostRightFullyVisibleStack = mostRightFullyVisibleStack;
+            let topPanel = mostRightFullyVisibleStack.getTopPanel();
+            let position = this.rltPanelStack.get(topPanel.cid);
+            this.trigger('scrollTo', topPanel, position, (position - this.stacks.length));
+        }
+    }
+
+    getMostRightFullyVisibleStack(): PanelStackView {
+        let explorerMostRight = this.$el.outerWidth();
+        return findLast(this.stacks, s => s.getRightBorderOffset() <= explorerMostRight);
     }
 }
 extend(ExplorerView.prototype, {

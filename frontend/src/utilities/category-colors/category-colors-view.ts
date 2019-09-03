@@ -36,12 +36,10 @@ export default class CategoryColorsView extends View {
         this.collection.each(node => {
             if (isRdfsClass(node) && hasProperty(node, schema.color)) {
                 let cssClass = getCssClassName(node);
-                this.categoryColors.push({ class: cssClass, color: node.get(schema.color)[0]['@value'] });
+                this.categoryColors.push({ class: cssClass, color: node.get(schema.color)[0] });
             }
         });
     }
-
-
 }
 extend(CategoryColorsView.prototype, {
     tagName: 'style',

@@ -7,24 +7,35 @@ import {
     fromRDF,  // (string, options?, callback?) => Promise<jsonld>
     toRDF,    // (jsonld, options?, callback?) => Promise<dataset>
     registerRDFParser,  // (contentType, parser) => void
-    get,      // (url, options?, callback?) => Promise<
 } from 'jsonld';
 
 import Collection from '../core/collection';
-import { JsonLdDocument, JsonLdGraph, ResolvedContext } from './json';
+import {
+    JsonLdDocument,
+    JsonLdGraph,
+    FlatLdDocument,
+    FlatLdGraph,
+    JsonLdContext,
+    ResolvedContext,
+} from './json';
 import Node from './node';
+import sync from './sync';
 
 export default class Graph extends Collection<Node> {
     /**
-     * Information outside of the @graph, such as the global @context.
+     * Information outside of the @graph, such as the global context.
      */
     meta: Node;
 
     /**
-     * Forward meta.whenContext.
+     * Forward the meta context.
      */
     get whenContext(): Promise<ResolvedContext> {
         return this.meta.whenContext;
+    }
+    setContext(context: JsonLdContext): this {
+        this.meta.setContext(context);
+        return this;
     }
 
     preinitialize(models, options) {
@@ -32,15 +43,10 @@ export default class Graph extends Collection<Node> {
     }
 
     /**
-     * TODO: Override the sync method to flatten the JSON-LD response
-     * before passing it to other methods.
-     */
-
-    /**
      * Separate the graph proper from global attributes. Set the
      * latter on the .meta node immediately.
      */
-    parse(response: JsonLdDocument, options): JsonLdGraph {
+    parse(response: FlatLdDocument, options): FlatLdGraph {
         if (isArray(response)) return response;
         let meta = omit(response, '@graph');
         if (!isEmpty(meta)) {
@@ -49,8 +55,13 @@ export default class Graph extends Collection<Node> {
         }
         return response['@graph'];
     }
+
+    /**
+     * TODO: override toJSON to include the data from this.meta
+     */
 }
 
 extend(Graph.prototype, {
     model: Node,
+    sync,
 });

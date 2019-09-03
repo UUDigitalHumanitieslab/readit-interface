@@ -1,4 +1,4 @@
-import { ViewOptions } from 'backbone';
+import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 import View from '../core/view';
 
@@ -6,14 +6,23 @@ import { skos } from './../jsonld/ns';
 import Node from '../jsonld/node';
 import { getCssClassName, getLabel, hasProperty } from './utilities';
 
+export interface ViewOptions extends BaseOpt<Node> {
+    hasTooltip?: boolean;
+}
+
 export default class LabelView extends View<Node> {
     label: string;
     cssClassName: string;
     hasTooltip: boolean;
 
-    constructor(options: ViewOptions<Node>, hasTooltip: boolean = true) {
+    constructor(options?: ViewOptions) {
         super(options);
-        this.hasTooltip = hasTooltip;
+
+        if (options && options.hasTooltip !== undefined) {
+            this.hasTooltip = options.hasTooltip;
+        } else {
+            this.hasTooltip = true;
+        }
     }
 
     render(): this {
@@ -33,7 +42,7 @@ export default class LabelView extends View<Node> {
             this.$el.addClass("tooltip");
             this.$el.addClass("is-tooltip");
 
-            let definition = this.model.get(skos.definition)[0]['@value'];
+            let definition = this.model.get(skos.definition)[0] as string;
             this.$el.attr("data-tooltip", definition);
 
             if (definition.length > 65) {
