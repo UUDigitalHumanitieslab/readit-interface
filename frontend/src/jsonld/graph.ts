@@ -1,6 +1,7 @@
 import {
     extend,
     omit,
+    forEach,
     every,
     isArray,
     isUndefined,
@@ -77,7 +78,9 @@ export default class Graph extends Collection<Node> {
      */
 }
 
-extend(Graph.prototype, {
+const proto = Graph.prototype;
+
+extend(proto, {
     model: Node,
     sync,
 });
@@ -124,3 +127,7 @@ const methodsToRewrap = {
     sample: 2, partition: 2, groupBy: 2, countBy: 2, sortBy: 2, indexBy: 2,
     findIndex: 2, findLastIndex: 2,
 };
+
+forEach(methodsToRewrap, function(length, method) {
+    if (proto[method]) proto[method] = rewrapMethod(length, method);
+});
