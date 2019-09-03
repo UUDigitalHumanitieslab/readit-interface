@@ -108,11 +108,11 @@ function rewrapMethod(length, method) {
     switch (length) {
     case 2: return function(iteratee, context?) {
         iteratee = rewrapIteratee(iteratee, this);
-        return this[method](iteratee, context);
+        return method.call(this, iteratee, context);
     };
     case 3: return function(iteratee, defaultVal?, context?) {
         iteratee = rewrapIteratee(iteratee, this);
-        return this[method](iteratee, defaultVal, context);
+        return method.call(this, iteratee, defaultVal, context);
     };
     default:
         throw new Error('This function is only meant for rewrapping methods that take an iteratee.');
@@ -129,5 +129,6 @@ const methodsToRewrap = {
 };
 
 forEach(methodsToRewrap, function(length, method) {
-    if (proto[method]) proto[method] = rewrapMethod(length, method);
+    const original = proto[method];
+    if (original) proto[method] = rewrapMethod(length, original);
 });
