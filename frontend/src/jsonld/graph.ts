@@ -7,7 +7,9 @@ import {
     isUndefined,
     isEmpty,
     isObjectLike,
+    isString,
 } from 'lodash';
+import * as _ from 'lodash';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
     expand,   // (jsonld, options?, callback?) => Promise<jsonld>
@@ -97,22 +99,28 @@ function augmentedModelMatcher(attrs) {
     });
 }
 
-function rewrapIteratee(iteratee, instance) {
+function augmentedPropertyMatcher(attrs) {
+    return model => every(attrs, key => model.has(key));
+}
+
+function wrapIteratee(iteratee, instance) {
+    if (isArray(iteratee)) return augmentedPropertyMatcher(iteratee);
     if (isObjectLike(iteratee) && !instance._isModel(iteratee)) {
         return augmentedModelMatcher(iteratee);
     }
+    if (isString(iteratee)) return augmentedPropertyMatcher([iteratee]);
     return iteratee;
 }
 
 function rewrapMethod(length, method) {
     switch (length) {
     case 2: return function(iteratee, context?) {
-        iteratee = rewrapIteratee(iteratee, this);
-        return method.call(this, iteratee, context);
+        iteratee = wrapIteratee(iteratee, this);
+        return _[method](this.models, iteratee, context);
     };
     case 3: return function(iteratee, defaultVal?, context?) {
-        iteratee = rewrapIteratee(iteratee, this);
-        return method.call(this, iteratee, defaultVal, context);
+        iteratee = wrapIteratee(iteratee, this);
+        return _[method](this.models, iteratee, defaultVal, context);
     };
     default:
         throw new Error('This function is only meant for rewrapping methods that take an iteratee.');
@@ -129,6 +137,5 @@ const methodsToRewrap = {
 };
 
 forEach(methodsToRewrap, function(length, method) {
-    const original = proto[method];
-    if (original) proto[method] = rewrapMethod(length, original);
+    if (proto[method]) proto[method] = rewrapMethod(length, method);
 });

@@ -18,7 +18,7 @@ describe('Graph', function() {
             expect(graph.filter(model => model.has(oa.hasBody)).length).toBe(3);
         });
 
-        it('pass string iteratees to Backbone\'s wrapper', function() {
+        it('pass string iteratees to our JSON-LD aware wrapper', function() {
             expect(graph.filter(oa.hasBody).length).toBe(3);
         });
 
@@ -31,7 +31,7 @@ describe('Graph', function() {
             }).length).toBe(3);
         });
 
-        it('pass array iteratees to the _.matchesProperty wrapper', function() {
+        it('pass array iteratees to our JSON-LD aware wrapper', function() {
             expect(graph.filter([oa.hasBody, oa.motivatedBy]).length).toBe(3);
         });
     });
