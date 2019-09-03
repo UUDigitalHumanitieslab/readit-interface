@@ -1,4 +1,4 @@
-import mockItems from '../mock-data/mock-items';
+import mockItems, { anno1Instance } from '../mock-data/mock-items';
 import { oa } from './ns';
 import Graph from './graph';
 
@@ -33,6 +33,11 @@ describe('Graph', function() {
 
         it('pass array iteratees to our JSON-LD aware wrapper', function() {
             expect(graph.filter([oa.hasBody, oa.motivatedBy]).length).toBe(3);
+        });
+
+        it('pass node instances to the underlying algorithm', function() {
+            const node = graph.get(anno1Instance);
+            expect(graph.includes(node)).toBeTruthy();
         });
     });
 });
