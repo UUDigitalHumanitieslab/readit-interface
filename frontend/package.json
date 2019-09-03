@@ -28,7 +28,7 @@
     "@types/backbone": "^1.4.0",
     "@types/handlebars": "^4.0.39",
     "@types/jasmine": "^2.8.8",
-    "@types/jasmine-ajax": "^3.1.40",
+    "@types/jasmine-ajax": "^3.3.0",
     "@types/jquery": "^3.3.5",
     "@types/lodash": "^4.14.113",
     "@types/node": "^10.5.7",
