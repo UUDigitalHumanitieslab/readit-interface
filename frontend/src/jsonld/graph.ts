@@ -6,7 +6,7 @@ import {
     isArray,
     isUndefined,
     isEmpty,
-    isObject,
+    isObjectLike,
 } from 'lodash';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
@@ -98,7 +98,7 @@ function augmentedModelMatcher(attrs) {
 }
 
 function rewrapIteratee(iteratee, instance) {
-    if (isObject(iteratee) && !instance._isModel(iteratee)) {
+    if (isObjectLike(iteratee) && !instance._isModel(iteratee)) {
         return augmentedModelMatcher(iteratee);
     }
     return iteratee;
