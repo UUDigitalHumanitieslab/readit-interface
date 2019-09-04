@@ -114,11 +114,11 @@ function wrapIteratee(iteratee, instance) {
 
 function rewrapMethod(length, method) {
     switch (length) {
-    case 2: return function(iteratee, context?) {
+    case 3: return function(iteratee, context?) {
         iteratee = wrapIteratee(iteratee, this);
         return _[method](this.models, iteratee, context);
     };
-    case 3: return function(iteratee, defaultVal?, context?) {
+    case 4: return function(iteratee, defaultVal?, context?) {
         iteratee = wrapIteratee(iteratee, this);
         return _[method](this.models, iteratee, defaultVal, context);
     };
@@ -128,12 +128,12 @@ function rewrapMethod(length, method) {
 }
 
 const methodsToRewrap = {
-    forEach: 2, each: 2, map: 2, collect: 2, find: 2, detect: 2, filter: 2,
-    select: 2, reject: 2, every: 2, all: 2, some: 2, any: 2, include: 2,
-    includes: 2, contains: 2, max: 2, min: 2, first: 2, head: 2, take: 2,
-    initial: 2, rest: 2, tail: 2, drop: 2, last: 2, indexOf: 2, lastIndexOf: 2,
-    sample: 2, partition: 2, groupBy: 2, countBy: 2, sortBy: 2, indexBy: 2,
-    findIndex: 2, findLastIndex: 2,
+    forEach: 3, each: 3, map: 3, collect: 3, find: 3, detect: 3, filter: 3,
+    select: 3, reject: 3, every: 3, all: 3, some: 3, any: 3, include: 3,
+    includes: 3, contains: 3, max: 3, min: 3, first: 3, head: 3, take: 3,
+    initial: 3, rest: 3, tail: 3, drop: 3, last: 3, indexOf: 3, lastIndexOf: 3,
+    sample: 3, partition: 3, groupBy: 3, countBy: 3, sortBy: 3, indexBy: 3,
+    findIndex: 3, findLastIndex: 3,
 };
 
 forEach(methodsToRewrap, function(length, method) {
