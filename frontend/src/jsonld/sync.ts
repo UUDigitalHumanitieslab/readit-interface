@@ -25,7 +25,7 @@ export default async function syncLD(
             attrs = attrs || model.toJSON(options);
             options.attrs = await compact(attrs, context);
         }
-        jqXHR = syncBase(method, this, options);
+        jqXHR = syncBase(method, model, options);
         let response = await jqXHR as JsonLdDocument;
         let flattenOptions: any = { base: response['@base'] || options.url };
         let linkHeader = getLinkHeader(jqXHR);
