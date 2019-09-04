@@ -12,7 +12,10 @@ const defaultGraphs = [
 ]
 
 export default class GraphStore {
-    collectedGraphs: string[];
+    /**
+     * Store the urls of the Graphs already present in the store.
+     */
+    private collectedGraphs: string[];
 
     store: Graph;
 
