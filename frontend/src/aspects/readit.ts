@@ -8,6 +8,7 @@ import ExplorerView from '../panel-explorer/explorer-view';
 import Graph from './../jsonld/graph';
 import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
+import { item } from '../jsonld/ns';
 
 import CategoryColorView from './../utilities/category-colors/category-colors-view';
 import SourceView from './../panel-source/source-view';
@@ -48,7 +49,7 @@ directionFsm.on('enter:exploring', () => {
     let source = new Graph(mockSources).models[0];
     let items = new Graph(mockItems);
 
-    let scrollTo = items.find(n => n.get("@id") == "https://read-it.hum.uu.nl/item/102");
+    let scrollTo = items.find(n => n.get("@id") == item('102'));
 
     let sourceView = new SourceView({
         collection: items,

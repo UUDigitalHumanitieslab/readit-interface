@@ -3,5 +3,6 @@
   "staticRoot": "/dist/",
   "nodeRoot": "/node_modules/",
   "apiRoot": "/api/",
-  "authRoot": "/rest-auth/"
+  "authRoot": "/rest-auth/",
+  "nsRoot": "http://readit.example/"
 }
