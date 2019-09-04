@@ -7,7 +7,7 @@ import Node from '../jsonld/node';
 
 import ldItemTemplate from './ld-item-template';
 
-import { owl, oa } from './../jsonld/ns';
+import { owl, oa, dcterms } from './../jsonld/ns';
 import { isType } from './../utilities/utilities';
 import { getOntologyInstances } from './../utilities/annotation-utilities';
 
@@ -91,30 +91,29 @@ export default class LdItemView extends View<Node> {
             //    '@id': "http://www.wikidata.org/entity/Q331656"
             // }'
             for (let index in this.model.get(attribute)) {
-
-                let obj = this.model.attributes[attribute][index];
+                let currentValue = this.model.attributes[attribute][index];
 
                 // first extract everything specific that we need
-                if (attribute == 'creator') {
-                    this.itemMetadata[attribute] = obj.id;
+                if (attribute == dcterms.creator) {
+                    this.itemMetadata[attribute] = currentValue['@id'];
                     continue;
                 }
 
-                if (attribute == 'created') {
-                    this.itemMetadata[attribute] = obj;
+                if (attribute == dcterms.created) {
+                    this.itemMetadata[attribute] = currentValue;
                     continue;
                 }
 
                 if (attribute == owl.sameAs) {
-                    this.externalResources[attribute] = obj.id;
+                    this.externalResources[attribute] = currentValue['@id'];
                     continue;
                 }
 
                 // then process what is left
-                if (obj instanceof Node) {
-                    this.relatedItems[attribute] = obj.id;
+                if (currentValue instanceof Node) {
+                    this.relatedItems[attribute] = currentValue['@id'];
                 } else {
-                    this.properties[attribute] = obj;
+                    this.properties[attribute] = currentValue['@id'];
                 }
             }
         }
