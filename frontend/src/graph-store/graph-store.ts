@@ -1,6 +1,7 @@
 import Graph from "../jsonld/graph";
 import Node from "../jsonld/node";
 
+
 const defaultGraphs = [
     'http://www.w3.org/1999/02/22-rdf-syntax-ns.jsonld',
     'http://www.w3.org/2000/01/rdf-schema.jsonld',
@@ -10,28 +11,30 @@ const defaultGraphs = [
     'http://schema.org/version/latest/schema.jsonld',
 ]
 
-export class GraphStore {
+export default class GraphStore {
     collectedGraphs: string[];
 
-
-
     store: Graph;
-
-
 
     /**
      *
      */
     constructor() {
-
-
+        this.collectedGraphs = [];
+        this.store = new Graph();
     }
 
     get(id: string): Node {
 
     }
 
-    extractUrl(id: string): string {
+    getUrl(id: string): string {
+        let index = id.indexOf("#");
 
+        if (index <= 0) {
+            index = id.lastIndexOf('/');
+        }
+
+        return `${id.substr(0, index)}.jsonld`;
     }
 }
