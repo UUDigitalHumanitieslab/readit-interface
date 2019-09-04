@@ -31,6 +31,9 @@ export default class GraphStore {
 
     }
 
+    /**
+     * Extract the base url from the node's id and supplement it with '.jsonld'.
+     */
     getUrl(id: string): string {
         let index = id.indexOf("#");
 
