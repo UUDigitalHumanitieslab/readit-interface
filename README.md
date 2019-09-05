@@ -57,6 +57,8 @@ $ yarn start
 
 This will run the backend and frontend applications, as well as their unittests, and watch all source files for changes. You can visit the frontend on http://localhost:8000/, the browsable backend API on http://localhost:8000/api/ and the backend admin on http://localhost:8000/admin/. On every change, unittests rerun, frontend code rebuilds and open browser tabs refresh automatically (livereload).
 
+For live debugging of the frontend unittests, visit http://localhost:8080/specRunner.html. For live debugging of the backend unittests, run `yarn test-back` and either manually set a breakpoint using your editor, pass `--pdb` to automatically break into the debugger when a test fails or pass `--trace` to automatically break into the debugger at the start of each test. In the latter case, you probably want to pass additional arguments to restrict which tests will be run. You can also combine these options.
+
 [8]: #development-mode-vs-production-mode
 
 
