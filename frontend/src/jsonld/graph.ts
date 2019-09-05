@@ -55,7 +55,11 @@ export default class Graph extends Collection<Node> {
      * latter on the .meta node immediately.
      */
     parse(response: FlatLdDocument, options): FlatLdGraph {
-        if (isArray(response)) return response;
+        if (isArray(response)) {
+            if (response.length !== 1) return response;
+            response = response[0];
+            if (!response['@graph']) return [response];
+        }
         let meta = omit(response, '@graph');
         if (!isEmpty(meta)) {
             // TODO: clear properties on this.meta not in meta
