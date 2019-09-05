@@ -2,6 +2,8 @@ django>=2,<3
 djangorestframework
 django-rest-auth
 django-livereload-server
+rdflib-django3
+rdflib-jsonld
 psycopg2 --no-binary psycopg2
 pytest
 pytest-django

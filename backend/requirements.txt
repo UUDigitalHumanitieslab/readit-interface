@@ -16,18 +16,22 @@ django==2.2.5
 djangorestframework==3.10.2
 execnet==1.7.1            # via pytest-xdist
 importlib-metadata==0.20  # via pluggy, pytest
+isodate==0.6.0            # via rdflib
 more-itertools==7.2.0     # via pytest, zipp
 packaging==19.1           # via pytest
 pluggy==0.12.0            # via pytest
 psycopg2==2.8.3
 py==1.8.0                 # via pytest
-pyparsing==2.4.2          # via packaging
+pyparsing==2.4.2          # via packaging, rdflib
 pytest-django==3.5.1
 pytest-forked==1.0.2      # via pytest-xdist
 pytest-xdist==1.29.0
 pytest==5.1.2
 pytz==2019.2              # via django
-six==1.12.0               # via django-livereload-server, django-rest-auth, packaging, pytest-xdist
+rdflib-django3==0.2.4
+rdflib-jsonld==0.4.0
+rdflib==4.2.2             # via rdflib-django3, rdflib-jsonld
+six==1.12.0               # via django-livereload-server, django-rest-auth, isodate, packaging, pytest-xdist
 soupsieve==1.9.3          # via beautifulsoup4
 sqlparse==0.3.0           # via django
 tornado==6.0.3            # via django-livereload-server
