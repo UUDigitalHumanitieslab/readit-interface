@@ -6,11 +6,11 @@ import { Exception } from 'handlebars';
 // http://purl.org/dc/terms/created
 
 const defaultGraphs = [
-    // 'https://www.w3.org/1999/02/22-rdf-syntax-ns.jsonld',
-    // 'https://www.w3.org/2000/01/rdf-schema.jsonld',
-    // 'https://www.w3.org/2002/07/owl.jsonld',
-    // 'https://www.w3.org/ns/oa.jsonld',
-    // 'https://www.w3.org/ns/activitystreams.jsonld',
+    'https://www.w3.org/1999/02/22-rdf-syntax-ns',
+    // 'https://www.w3.org/2000/01/rdf-schema',
+    // 'https://www.w3.org/2002/07/owl',
+    // 'https://www.w3.org/ns/oa',
+    // 'https://www.w3.org/ns/activitystreams',
     // 'https://schema.org/version/latest/schema.jsonld',
 ]
 
@@ -93,7 +93,7 @@ export default class GraphStore {
 
         return g.fetch({
             url: url,
-            headers: { 'Accept': 'application/ld+json' },
+            headers: { 'Accept': 'application/ld+json' }, // 'Content-Type': 'application/json'
             error: error,
             success: success
         });
