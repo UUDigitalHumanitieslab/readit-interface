@@ -1,14 +1,17 @@
+import InvalidUrl from 'jsonld';
 import Graph from "../jsonld/graph";
 import Node from "../jsonld/node";
+import { Exception } from 'handlebars';
 
+// http://purl.org/dc/terms/created
 
 const defaultGraphs = [
-    'http://www.w3.org/1999/02/22-rdf-syntax-ns.jsonld',
-    'http://www.w3.org/2000/01/rdf-schema.jsonld',
-    'https://www.w3.org/2002/07/owl.jsonld',
-    'http://www.w3.org/ns/oa.jsonld',
-    'https://www.w3.org/ns/activitystreams.jsonld',
-    'http://schema.org/version/latest/schema.jsonld',
+    // 'https://www.w3.org/1999/02/22-rdf-syntax-ns.jsonld',
+    // 'https://www.w3.org/2000/01/rdf-schema.jsonld',
+    // 'https://www.w3.org/2002/07/owl.jsonld',
+    // 'https://www.w3.org/ns/oa.jsonld',
+    // 'https://www.w3.org/ns/activitystreams.jsonld',
+    // 'https://schema.org/version/latest/schema.jsonld',
 ]
 
 export default class GraphStore {
@@ -17,6 +20,8 @@ export default class GraphStore {
      */
     private collectedGraphs: string[];
 
+    private failedUrls: string[];
+
     store: Graph;
 
     /**
@@ -24,15 +29,52 @@ export default class GraphStore {
      */
     constructor() {
         this.collectedGraphs = [];
+        this.failedUrls = [];
         this.store = new Graph();
     }
 
-    get(id: string): Node {
+    async get(id: string): Promise<Node> {
+        let baseUrl = this.getUrl(id);
 
+        if (this.collectedGraphs.indexOf(baseUrl) === -1 && this.failedUrls.indexOf(baseUrl) === -1) {
+            let error = false;
+
+
+            try {
+                await this.fetch(
+                    id,
+                    (collection, response, options) => {
+                        this.addToStore(baseUrl, collection);
+                    },
+                    (collection, response, options) => {
+                        error = true;
+                        this.failedUrls.push(baseUrl);
+                    }
+                );
+            }
+            catch (InvalidUrl) {
+                // json ld throws InvalidUrl if the response is not JSON
+                error = true;
+            }
+
+            if (error) return new Node({ '@id': id });
+            return this.store.get(id);
+        }
+        else {
+            return Promise.resolve(this.store.get(id));
+        }
     }
 
+    // async collectDefaults(): Promise<void> {
+    //     defaultGraphs.forEach(url => {
+    //         this.collectedGraphs.push(url);
+    //         this.collect(url);
+    //     });
+    //     return Promise.resolve(null);
+    // }
+
     /**
-     * Extract the base url from the node's id and supplement it with '.jsonld'.
+     * Extract the base url from the node's id (i.e. remove everything from the last '#' or '/').
      */
     getUrl(id: string): string {
         let index = id.indexOf("#");
@@ -41,6 +83,25 @@ export default class GraphStore {
             index = id.lastIndexOf('/');
         }
 
-        return `${id.substr(0, index)}.jsonld`;
+        return `${id.substr(0, index)}`;
+    }
+
+    private fetch(
+        url: string,
+        success: (collection, response, options) => void,
+        error: (collection, response, options) => void): Promise<void> {
+        let g = new Graph();
+
+        return g.fetch({
+            url: url,
+            headers: { 'Accept': 'application/ld+json' },
+            error: error,
+            success: success
+        });
+    }
+
+    private addToStore(url: string, graph: Graph) {
+        this.collectedGraphs.push(url);
+        this.store.add(graph.models);
     }
 }
