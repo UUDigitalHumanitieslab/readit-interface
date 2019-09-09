@@ -9,16 +9,13 @@ import Node from '../jsonld/node';
 
 describe('GraphStore', function () {
     let gs: GraphStore;
-    const schemaUrl = 'http://schema.org.jsonld';
-    const oaUrl = 'http://www.w3.org/ns/oa.jsonld';
-
 
     beforeEach(function () {
         jasmine.Ajax.install();
         gs = new GraphStore();
 
-        initStubRequest(schemaUrl, mockSchema);
-        initStubRequest(oaUrl, mockOa);
+        initStubRequest(schema.CreativeWork, mockSchema);
+        initStubRequest(oa.Annotation, mockOa);
     });
 
     afterEach(function() {
@@ -33,14 +30,12 @@ describe('GraphStore', function () {
     }
 
     it('adds Graphs to the store, but no duplicates', async function () {
-        console.log(gs.store);
-
-        // await gs.get(schema.CreativeWork);
-        // expect(gs.store.length).toEqual(1646);
-        // await gs.get(schema.CreativeWork);
-        // expect(gs.store.length).toEqual(1646);
-        // await gs.get(oa.Annotation);
-        // expect(gs.store.length).toEqual(1717);
+        await gs.get(schema.CreativeWork);
+        expect(gs.store.length).toEqual(1646);
+        await gs.get(schema.CreativeWork);
+        expect(gs.store.length).toEqual(1646);
+        await gs.get(oa.Annotation);
+        expect(gs.store.length).toEqual(1717);
     });
 
     it('extracts a base url from a node\'s @id', function () {

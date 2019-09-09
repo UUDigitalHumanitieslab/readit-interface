@@ -39,7 +39,6 @@ export default class GraphStore {
         if (this.collectedGraphs.indexOf(baseUrl) === -1 && this.failedUrls.indexOf(baseUrl) === -1) {
             let error = false;
 
-
             try {
                 await this.fetch(
                     id,
@@ -57,7 +56,7 @@ export default class GraphStore {
                 error = true;
             }
 
-            if (error) return new Node({ '@id': id });
+            if (error) return Promise.resolve(new Node({ '@id': id }));
             return this.store.get(id);
         }
         else {
