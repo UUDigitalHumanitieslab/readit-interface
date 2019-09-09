@@ -64,13 +64,13 @@ export default class GraphStore {
         }
     }
 
-    // async collectDefaults(): Promise<void> {
-    //     defaultGraphs.forEach(url => {
-    //         this.collectedGraphs.push(url);
-    //         this.collect(url);
-    //     });
-    //     return Promise.resolve(null);
-    // }
+    async collectDefaults(): Promise<void> {
+        await Promise.all(defaultGraphs.map(async (url) => {
+            return await this.get(url);
+        }));
+
+        return Promise.resolve(null);
+    }
 
     /**
      * Extract the base url from the node's id (i.e. remove everything from the last '#' or '/').
