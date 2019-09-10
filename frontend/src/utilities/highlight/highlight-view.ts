@@ -2,10 +2,10 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, minBy, sumBy, initial, last } from 'lodash';
 
 import View from '../../core/view';
-import Model from './../../core/model';
 
 import Node from '../../jsonld/node';
 import HighlightRectView from './highlight-rect-view';
+import { AnnotationPositionDetails } from './../annotation-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     /**
@@ -17,6 +17,11 @@ export interface ViewOptions extends BaseOpt<Node> {
      * Range object containing the ClientDomRects that the highlight should be based on.
      */
     range: Range;
+
+    /**
+     * Position details of the highlight.
+     */
+    positionDetails: AnnotationPositionDetails;
 
     /**
      * The CSS class to use to style the highlight.
@@ -38,6 +43,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 
 export default class HighlightView extends View<Node> {
     cssClass: string;
+    positionDetails: AnnotationPositionDetails;
     relativeParent: JQuery<HTMLElement>;
     isDeletable: boolean;
     rects: ClientRectList | DOMRectList;
@@ -46,10 +52,12 @@ export default class HighlightView extends View<Node> {
 
     constructor(options?: ViewOptions) {
         if (!options.range) throw TypeError("range cannot be null or undefined");
+        if (!options.positionDetails) throw TypeError("positionDetails cannot be null or undefined");
         if (!options.relativeParent) throw TypeError("relativeParent cannot be null or empty");
 
         super(options);
         this.rects = options.range.getClientRects();
+        this.positionDetails = options.positionDetails;
         this.cssClass = options.cssClass;
         this.relativeParent = options.relativeParent;
         this.isDeletable = options.isDeletable || false;
