@@ -216,6 +216,7 @@ export default class HighlightableTextView extends View {
         let hV = new HighlightView({
             model: node,
             range: range,
+            positionDetails: posDetails,
             cssClass: cssClass,
             relativeParent: this.$('.position-container'),
             isDeletable: this.isEditable
