@@ -21,11 +21,7 @@ export default class OverlappingHighlightsStrategy {
 
         let currentlyActive = 0;
         let currentOverlapHighlights = [];
-
-        let currentOverlapStartNodeIndex: number;
-        let currentOverlapStartCharacterIndex: number;
-        let currentOverlapEndNodeIndex: number;
-        let currentOverlapEndCharacterIndex: number;
+        let currentOverlapPosDetails = [];
 
         let highlightIndices = this.getHighlightIndices(highlightViews);
         let orderedIndices = orderBy(highlightIndices, ['nodeIndex', 'characterIndex', 'isStart'], ['asc', 'asc', 'desc']);
@@ -36,23 +32,23 @@ export default class OverlappingHighlightsStrategy {
                 currentOverlapHighlights.push(index.instance);
 
                 if (currentlyActive === 2) {
-                    currentOverlapStartNodeIndex = index.nodeIndex;
-                    currentOverlapStartCharacterIndex = index.characterIndex;
+                    currentOverlapPosDetails[0] = index.nodeIndex;
+                    currentOverlapPosDetails[1] = index.characterIndex;
                 }
             }
             else {
                 currentlyActive--;
 
                 if (currentlyActive === 1) {
-                    currentOverlapEndNodeIndex = index.nodeIndex;
-                    currentOverlapEndCharacterIndex = index.characterIndex;
+                    currentOverlapPosDetails[2] = index.nodeIndex;
+                    currentOverlapPosDetails[3] = index.characterIndex;
 
                     results.push({
                         highlightViews: currentOverlapHighlights, positionDetails: {
-                            startNodeIndex: currentOverlapStartNodeIndex,
-                            startCharacterIndex: currentOverlapStartCharacterIndex,
-                            endNodeIndex: currentOverlapEndNodeIndex,
-                            endCharacterIndex: currentOverlapEndCharacterIndex
+                            startNodeIndex: currentOverlapPosDetails[0],
+                            startCharacterIndex: currentOverlapPosDetails[1],
+                            endNodeIndex: currentOverlapPosDetails[2],
+                            endCharacterIndex: currentOverlapPosDetails[3]
                         }
                     });
                     currentOverlapHighlights = [];
