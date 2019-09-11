@@ -12,6 +12,7 @@ import OverlappingHighlightsStrategy, { OverlappingHighlights } from './overlapp
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
 import OverlappingHighlightsView from './overlapping-highlights-view';
+import OverlapDetailsView from './overlap-details-view';
 
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
@@ -69,6 +70,11 @@ export default class HighlightableTextView extends View {
     hVs: HighlightView[] = [];
 
     overlaps: OverlappingHighlightsView[] = [];
+
+    /**
+     * Store a reference to a OverlapDetailView
+     */
+    overlapDetailView: OverlapDetailsView;
 
     isEditable: boolean;
 
@@ -215,6 +221,7 @@ export default class HighlightableTextView extends View {
             overlap.$el.detach();
         });
 
+        this.overlapDetailView.$el.detach();
         return this;
     }
 
@@ -342,8 +349,27 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    onOverlapClicked(hVs: HighlightView[]): this {
-        this.trigger('overlapClicked', hVs);
+    onOverlapClicked(hVs: HighlightView[], ovh: OverlappingHighlightsView): this {
+        if (this.overlapDetailView) {
+            this.closeOverlapDetail();
+        }
+
+        this.overlapDetailView = new OverlapDetailsView({
+            hVs: hVs
+        });
+        let verticalMiddle = ovh.getVerticalMiddle() - this.positionContainer.offset().top;
+        this.overlapDetailView.render().position(verticalMiddle, this.positionContainer.outerWidth()).$el.prependTo(this.positionContainer);
+        this.overlapDetailView.on('detailClicked', this.onOverlapDetailClicked, this);
+        this.overlapDetailView.on('closed', this.closeOverlapDetail, this);
+        return this;
+    }
+
+    onOverlapDetailClicked(hV: HighlightView) {
+        this.clicked(hV.model);
+    }
+
+    closeOverlapDetail(): this {
+        this.overlapDetailView.$el.detach();
         return this;
     }
 
