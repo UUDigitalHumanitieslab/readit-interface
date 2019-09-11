@@ -47,8 +47,9 @@ export default class OverlappingHighlightsView extends View {
             relativeParent: options.relativeParent,
             isDeletable: false
         });
-    }
 
+        this.bindEvents(this.hV);
+    }
 
     render(): this {
         this.$el.detach();
@@ -66,6 +67,24 @@ export default class OverlappingHighlightsView extends View {
 
     getPositionDetails(): AnnotationPositionDetails{
         return this.hV.positionDetails;
+    }
+
+    bindEvents(hV: HighlightView) {
+        hV.on('clicked', this.onClick, this);
+        hV.on('hover', this.onHover, this);
+        hV.on('hoverEnd', this.onHoverEnd, this);
+    }
+
+    onHover(node: Node) {
+        this.trigger('hover');
+    }
+
+    onHoverEnd(node: Node) {
+        this.trigger('hoverEnd');
+    }
+
+    onClick(rect: ClientRect | DOMRect) {
+        this.trigger('clicked', this.overlappingHVs, this);
     }
 }
 extend(OverlappingHighlightsView.prototype, {
