@@ -8,8 +8,6 @@ import Node from '../../jsonld/node';
 import { AnnotationPositionDetails } from '../annotation-utilities';
 import HighlightView from './highlight-view';
 
-import OverlappingHighlightsTemplate from './overlapping-highlights-template'
-
 
 export interface ViewOptions extends BaseOpt<Node> {
     /**
@@ -112,7 +110,6 @@ export default class OverlappingHighlightsView extends View {
 extend(OverlappingHighlightsView.prototype, {
     tagName: 'div',
     className: 'overlappping-highlight',
-    template: OverlappingHighlightsTemplate,
     events: {
     }
 });
