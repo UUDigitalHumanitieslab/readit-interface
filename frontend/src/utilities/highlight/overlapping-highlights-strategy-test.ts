@@ -154,14 +154,53 @@ describe('OverlappingHighlightsStrategy', function () {
             };
 
             let expected: OverlappingHighlights[] = [
-            {
-                highlightViews: [hV1, hV2],
-                positionDetails: expectedPosDetails1
-            },
-            {
-                highlightViews: [hV3, hV4],
-                positionDetails: expectedPosDetails2
-            }];
+                {
+                    highlightViews: [hV1, hV2],
+                    positionDetails: expectedPosDetails1
+                },
+                {
+                    highlightViews: [hV3, hV4],
+                    positionDetails: expectedPosDetails2
+                }];
+
+            let actual = strategy.getOverlaps(highlightViews);
+
+            expect(actual).toEqual(expected);
+        });
+
+        it('handles a long highlight overlapping multiple others correctly', function () {
+            let hV1 = getHighlightView(0, 0, 3, 18);
+            let hV2 = getHighlightView(0, 4, 0, 10);
+            let hV3 = getHighlightView(3, 1, 3, 5);
+
+            highlightViews.push(hV1);
+            highlightViews.push(hV2);
+            highlightViews.push(hV3);
+
+            let expectedPosDetails1: AnnotationPositionDetails = {
+                startNodeIndex: 0,
+                startCharacterIndex: 4,
+                endNodeIndex: 0,
+                endCharacterIndex: 10
+            };
+
+            let expectedPosDetails2: AnnotationPositionDetails = {
+                startNodeIndex: 3,
+                startCharacterIndex: 1,
+                endNodeIndex: 3,
+                endCharacterIndex: 5
+            };
+
+            let expected: OverlappingHighlights[] = [
+                {
+                    highlightViews: [hV1, hV2],
+                    positionDetails: expectedPosDetails1
+                },
+                {
+                    highlightViews: [hV1, hV3],
+                    positionDetails: expectedPosDetails2
+                }
+            ];
 
             let actual = strategy.getOverlaps(highlightViews);
 
