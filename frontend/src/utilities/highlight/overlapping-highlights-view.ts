@@ -27,10 +27,16 @@ export interface ViewOptions extends BaseOpt<Node> {
      * relative to which the highlight will be positioned.
      */
     relativeParent: JQuery<HTMLElement>;
+
+    /**
+     * The overlapping highlights.
+     */
+    highlights: HighlightView[];
 }
 
 export default class OverlappingHighlightsView extends View {
     hV: HighlightView;
+    overlappingHVs: HighlightView[];
 
     constructor(options: ViewOptions) {
         if (!options.range) throw TypeError("range cannot be null or empty");
@@ -38,6 +44,7 @@ export default class OverlappingHighlightsView extends View {
         if (!options.relativeParent) throw TypeError("relativeParent cannot be null or empty");
 
         super(options);
+        this.overlappingHVs = options.highlights;
 
         this.hV = new HighlightView({
             model: undefined,
@@ -84,7 +91,11 @@ export default class OverlappingHighlightsView extends View {
     }
 
     onClick(rect: ClientRect | DOMRect) {
+<<<<<<< HEAD
         this.trigger('clicked', this.overlappingHVs, this);
+=======
+        this.trigger('clicked', this.overlappingHVs);
+>>>>>>> 87740f6... Add event for overlap click
     }
 }
 extend(OverlappingHighlightsView.prototype, {

@@ -10,6 +10,7 @@ import HighlightableTextView from '../utilities/highlight/highlightable-text-vie
 
 import { schema, vocab } from './../jsonld/ns';
 import { isType } from './../utilities/utilities';
+import HighlightView from '../utilities/highlight/highlight-view';
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**

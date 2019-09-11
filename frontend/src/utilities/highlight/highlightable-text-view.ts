@@ -138,9 +138,11 @@ export default class HighlightableTextView extends View {
             let ohv = new OverlappingHighlightsView({
                 range: range,
                 relativeParent: this.positionContainer,
-                positionDetails: overlap.positionDetails
+                positionDetails: overlap.positionDetails,
+                highlights: overlap.highlightViews
             });
 
+            ohv.on('clicked', this.onOverlapClicked, this);
             this.overlaps.push(ohv);
         });
     }
@@ -337,6 +339,11 @@ export default class HighlightableTextView extends View {
         hV.on('hoverEnd', this.hoverEnd, this);
         hV.on('delete', this.delete, this);
         hV.on('clicked', this.clicked, this);
+        return this;
+    }
+
+    onOverlapClicked(hVs: HighlightView[]): this {
+        this.trigger('overlapClicked', hVs);
         return this;
     }
 
