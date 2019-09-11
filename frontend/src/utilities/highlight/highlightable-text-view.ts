@@ -8,8 +8,10 @@ import Graph from '../../jsonld/graph';
 
 import { isType } from './../utilities';
 import { validateCompleteness, getPositionDetails, getLinkedItems, getCssClassName, getSelector } from './../annotation-utilities';
+import OverlappingHighlightsStrategy, { OverlappingHighlights } from './overlapping-highlights-strategy';
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
+import OverlappingHighlightsView from './overlapping-highlights-view';
 
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
@@ -54,6 +56,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 export default class HighlightableTextView extends View {
     text: string;
     textWrapper: JQuery<HTMLElement>;
+    positionContainer: JQuery<HTMLElement>;
     collection: Graph;
     ontology: Graph;
     showHighlightsInitially: boolean;
@@ -64,6 +67,8 @@ export default class HighlightableTextView extends View {
     scrollToNode: Node;
 
     hVs: HighlightView[] = [];
+
+    overlaps: OverlappingHighlightsView[] = [];
 
     isEditable: boolean;
 
@@ -98,9 +103,11 @@ export default class HighlightableTextView extends View {
     onInsertedIntoDOM(): this {
         this.isInDOM = true;
         this.textWrapper = this.$('.textWrapper');
+        this.positionContainer = this.$('.position-container');
 
         if (this.text) {
             this.initHighlights();
+            this.initOverlappingHighlights();
 
             if (this.showHighlightsInitially) {
                 this.showAll();
@@ -114,6 +121,28 @@ export default class HighlightableTextView extends View {
     onRemovedFromDOM(): this {
         this.isInDOM = false;
         return this;
+    }
+
+    initOverlappingHighlights(): void {
+        let overlapStrategy = new OverlappingHighlightsStrategy();
+        let overlaps: OverlappingHighlights[] = overlapStrategy.getOverlaps(this.hVs);
+        overlaps.forEach(overlap => {
+            let range = this.getRange(
+                this.textWrapper,
+                overlap.positionDetails.startNodeIndex,
+                overlap.positionDetails.startCharacterIndex,
+                overlap.positionDetails.endNodeIndex,
+                overlap.positionDetails.endCharacterIndex
+            );
+
+            let ohv = new OverlappingHighlightsView({
+                range: range,
+                relativeParent: this.positionContainer,
+                positionDetails: overlap.positionDetails
+            });
+
+            this.overlaps.push(ohv);
+        });
     }
 
     initHighlights(): this {
@@ -164,6 +193,11 @@ export default class HighlightableTextView extends View {
         this.hVs.forEach((hV) => {
             hV.render().$el.prependTo(this.$('.position-container'));
         });
+
+        this.overlaps.forEach((overlap) => {
+            overlap.render().$el.prependTo(this.$('.position-container'));
+        });
+
         return this;
     }
 
@@ -173,6 +207,10 @@ export default class HighlightableTextView extends View {
     hideAll(): this {
         this.hVs.forEach((hV) => {
             hV.$el.detach();
+        });
+
+        this.overlaps.forEach((overlap) => {
+            overlap.$el.detach();
         });
 
         return this;
@@ -218,7 +256,7 @@ export default class HighlightableTextView extends View {
             range: range,
             positionDetails: posDetails,
             cssClass: cssClass,
-            relativeParent: this.$('.position-container'),
+            relativeParent: this.positionContainer,
             isDeletable: this.isEditable
         });
 
