@@ -794,7 +794,7 @@ export const anno5EndSelector = {
     "@type": [oa.XPathSelector],
     [rdf.value]: [
         {
-            '@value': 'substring(.//*[3]/text(), 145)'
+            '@value': 'substring(.//*[6]/text(), 345)'
         }
     ],
     [dcterms.created]: [
