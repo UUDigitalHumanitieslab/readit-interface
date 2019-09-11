@@ -68,8 +68,19 @@ export default class OverlappingHighlightsView extends View {
         return this.hV.getHeight();
     }
 
+    /**
+     *  Get the top of the View, relative to 0,0 of the document.
+     */
     getTop(): number {
         return this.hV.getTop();
+    }
+
+    /**
+     *  Get the vertical middle of the View, relative to 0,0 of the document.
+     */
+    getVerticalMiddle(): number {
+        let height = this.getHeight();
+        return (this.getTop() + height) - (height / 2);
     }
 
     getPositionDetails(): AnnotationPositionDetails{
