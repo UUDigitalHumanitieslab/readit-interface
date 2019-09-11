@@ -43,6 +43,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 
 export default class HighlightView extends View<Node> {
     cssClass: string;
+    range: Range;
     positionDetails: AnnotationPositionDetails;
     relativeParent: JQuery<HTMLElement>;
     isDeletable: boolean;
@@ -56,6 +57,7 @@ export default class HighlightView extends View<Node> {
         if (!options.relativeParent) throw TypeError("relativeParent cannot be null or empty");
 
         super(options);
+        this.range = options.range;
         this.rects = options.range.getClientRects();
         this.positionDetails = options.positionDetails;
         this.cssClass = options.cssClass;
@@ -101,6 +103,10 @@ export default class HighlightView extends View<Node> {
 
     getHeight(): number {
         return sumBy(this.rectViews, (hrv) => { return hrv.$el.outerHeight() });
+    }
+
+    getText(): string {
+        return this.range.cloneContents().textContent;
     }
 
     onHover() {
