@@ -65,7 +65,7 @@ export default class OverlappingHighlightsView extends View {
     }
 
     getPositionDetails(): AnnotationPositionDetails{
-        return this.hV.getPositionDetails();
+        return this.hV.positionDetails;
     }
 }
 extend(OverlappingHighlightsView.prototype, {
