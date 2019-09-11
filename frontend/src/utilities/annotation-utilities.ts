@@ -142,7 +142,9 @@ function validateType(annotation: Node): void {
  * Get the ontology items associated with the annotation (via oa:hasBody).
  */
 function getOntologyReferencesFromBody(annotation: Node, ontology: Graph): Node[] {
-    return annotation.get(oa.hasBody).filter(n => ontology.get(n)) as Node[];
+    return annotation.get(oa.hasBody).filter(
+        n => ontology.get(n as Node)
+    ) as Node[];
 }
 
 /**
