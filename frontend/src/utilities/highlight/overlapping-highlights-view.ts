@@ -100,11 +100,7 @@ export default class OverlappingHighlightsView extends View {
     }
 
     onClick(rect: ClientRect | DOMRect) {
-<<<<<<< HEAD
         this.trigger('clicked', this.overlappingHVs, this);
-=======
-        this.trigger('clicked', this.overlappingHVs);
->>>>>>> 87740f6... Add event for overlap click
     }
 }
 extend(OverlappingHighlightsView.prototype, {
