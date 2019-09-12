@@ -1,9 +1,9 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from './../../core/view';
+import View from './../core/view';
 
-import Node from './../../jsonld/node';
-import HighlightView from './../../utilities/highlight/highlight-view';
+import Node from './../jsonld/node';
+import HighlightView from './highlight-view';
 
 import overDetailsTemplate from './overlap-details-template';
 

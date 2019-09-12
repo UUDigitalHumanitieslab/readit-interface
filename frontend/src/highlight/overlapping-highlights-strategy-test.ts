@@ -1,7 +1,7 @@
 import OverlappingHighlightsStrategy, { HighlightIndex, OverlappingHighlights } from './overlapping-highlights-strategy';
 import HighlightView from './highlight-view';
-import Node from '../../jsonld/node';
-import { AnnotationPositionDetails } from '../annotation-utilities';
+import Node from './../jsonld/node';
+import { AnnotationPositionDetails } from './../utilities/annotation-utilities';
 
 describe('OverlappingHighlightsStrategy', function () {
     let strategy = new OverlappingHighlightsStrategy();

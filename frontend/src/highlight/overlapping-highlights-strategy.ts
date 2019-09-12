@@ -1,6 +1,6 @@
 
 import { orderBy, remove, clone } from 'lodash';
-import { AnnotationPositionDetails } from './../annotation-utilities';
+import { AnnotationPositionDetails } from './../utilities/annotation-utilities';
 import HighlightView from './highlight-view';
 
 export type HighlightIndex = {

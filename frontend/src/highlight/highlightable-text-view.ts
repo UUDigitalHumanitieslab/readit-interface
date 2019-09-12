@@ -1,13 +1,13 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, bind, debounce, sortBy } from 'lodash';
 
-import View from '../../core/view';
-import { oa } from '../../jsonld/ns';
-import Node from '../../jsonld/node';
-import Graph from '../../jsonld/graph';
+import View from './../core/view';
+import { oa } from './../jsonld/ns';
+import Node from './../jsonld/node';
+import Graph from './../jsonld/graph';
 
-import { isType } from './../utilities';
-import { validateCompleteness, getPositionDetails, getLinkedItems, getCssClassName, getSelector } from './../annotation-utilities';
+import { isType } from './../utilities/utilities';
+import { validateCompleteness, getPositionDetails, getLinkedItems, getCssClassName, getSelector } from './../utilities/annotation-utilities';
 import OverlappingHighlightsStrategy, { OverlappingHighlights } from './overlapping-highlights-strategy';
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';

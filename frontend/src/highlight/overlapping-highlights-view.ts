@@ -1,11 +1,10 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
-import View from '../../core/view';
-import Node from '../../jsonld/node';
+import View from './../core/view';
+import Node from './../jsonld/node';
 
-
-import { AnnotationPositionDetails } from '../annotation-utilities';
+import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 import HighlightView from './highlight-view';
 
 
@@ -20,10 +19,10 @@ export interface ViewOptions extends BaseOpt<Node> {
      */
     positionDetails: AnnotationPositionDetails;
 
-     /**
-     * The first positioned parent, i.e. with position relative, absolute or fixed,
-     * relative to which the highlight will be positioned.
-     */
+    /**
+    * The first positioned parent, i.e. with position relative, absolute or fixed,
+    * relative to which the highlight will be positioned.
+    */
     relativeParent: JQuery<HTMLElement>;
 
     /**
@@ -81,7 +80,7 @@ export default class OverlappingHighlightsView extends View {
         return (this.getTop() + height) - (height / 2);
     }
 
-    getPositionDetails(): AnnotationPositionDetails{
+    getPositionDetails(): AnnotationPositionDetails {
         return this.hV.positionDetails;
     }
 
