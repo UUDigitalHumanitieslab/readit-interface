@@ -15,24 +15,24 @@ describe('Graph', function() {
         });
 
         it('pass function iteratees unmodified', function() {
-            expect(graph.filter(model => model.has(oa.hasBody)).length).toBe(3);
+            expect(graph.filter(model => model.has(oa.hasBody)).length).toBe(5);
         });
 
         it('pass string iteratees to our JSON-LD aware wrapper', function() {
-            expect(graph.filter(oa.hasBody).length).toBe(3);
+            expect(graph.filter(oa.hasBody).length).toBe(5);
         });
 
         it('pass hash iteratees to our JSON-LD aware wrapper', function() {
             expect(graph.filter({
                 [oa.motivatedBy]: { '@id': oa.tagging },
-            }).length).toBe(3);
+            }).length).toBe(5);
             expect(graph.filter({
                 [oa.motivatedBy]: [{ '@id': oa.tagging }],
-            }).length).toBe(3);
+            }).length).toBe(5);
         });
 
         it('pass array iteratees to our JSON-LD aware wrapper', function() {
-            expect(graph.filter([oa.hasBody, oa.motivatedBy]).length).toBe(3);
+            expect(graph.filter([oa.hasBody, oa.motivatedBy]).length).toBe(5);
         });
 
         it('pass node instances to the underlying algorithm', function() {
