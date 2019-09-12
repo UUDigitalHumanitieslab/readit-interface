@@ -11,6 +11,17 @@ export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel];
 export function getLabel(node: Node): string {
     let labelKey = find(labelKeys, key => node.has(key));
     if (labelKey) return node.get(labelKey)[0] as string;
+    return getLabelFromId(node.get('@id'));
+}
+
+/**
+ * Extract a label for an item or from a property name.
+ * @param id the string representing the id of a linked data item.
+ */
+export function getLabelFromId(id: string) {
+    let index = id.lastIndexOf("#");
+    if (index === -1) index = id.lastIndexOf("/");
+    if (index) return id.substring(index + 1);
 }
 
 /**
