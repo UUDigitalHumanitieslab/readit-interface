@@ -4,12 +4,9 @@ import Node from '../../jsonld/node';
 import { AnnotationPositionDetails } from '../annotation-utilities';
 
 describe('OverlappingHighlightsStrategy', function () {
-    let highlightViews: HighlightView[];
     let strategy = new OverlappingHighlightsStrategy();
-    let node = new Node();
 
     beforeEach(function () {
-        highlightViews = [];
         createSomeHtml();
     });
 
@@ -28,7 +25,7 @@ describe('OverlappingHighlightsStrategy', function () {
         range.setEnd(endContainer, endCharacterIndex);
 
         return new HighlightView({
-            model: node,
+            model: new Node(),
             range: range,
             cssClass: 'irrelevant',
             relativeParent: relativeParent,
@@ -45,60 +42,45 @@ describe('OverlappingHighlightsStrategy', function () {
     function createSomeHtml() {
         $(`<div class="relativeParent">
             <div class="textWrapper">
-                This text servers the purpose of containing highlights,<br/><br/> albeit virtually. Hide it if it bothers you.
+                This text servers the purpose of containing highlights,<br/><br/> albeit virtually. A what a joy that such things exists!
             </div>
         </div>`).appendTo('body');
+    }
+
+    function getPositionDetails(startNodeIndex, startCharacterIndex, endNodeIndex, endCharacterIndex): AnnotationPositionDetails {
+        return {
+            startNodeIndex: startNodeIndex,
+            startCharacterIndex: startCharacterIndex,
+            endNodeIndex: endNodeIndex,
+            endCharacterIndex: endCharacterIndex
+        };
+    }
+
+    function getOverlappingHighlights(highlightViews, positionDetails): OverlappingHighlights {
+        return {
+            highlightViews: highlightViews,
+            positionDetails: positionDetails
+        };
     }
 
     describe('getOverlaps', function () {
         it('finds a single overlap', function () {
             let hV1 = getHighlightView(0, 0, 0, 10);
             let hV2 = getHighlightView(0, 4, 3, 1)
+            let expected = [getOverlappingHighlights([hV1, hV2], getPositionDetails(0, 4, 0, 10))];
 
-            highlightViews.push(hV1);
-            highlightViews.push(hV2);
-
-            let expectedPosDetails: AnnotationPositionDetails = {
-                startNodeIndex: 0,
-                startCharacterIndex: 4,
-                endNodeIndex: 0,
-                endCharacterIndex: 10
-            };
-
-            let expected: OverlappingHighlights[] = [{
-                highlightViews: [hV1, hV2],
-                positionDetails: expectedPosDetails
-            }];
-
-            let actual = strategy.getOverlaps(highlightViews);
-
+            let actual = strategy.getOverlaps([hV1, hV2]);
             expect(actual).toEqual(expected);
         });
 
         it('ignores non overlapping highlights', function () {
-            let hV0 = getHighlightView(0, 0, 0, 5)
-            let hV1 = getHighlightView(0, 6, 0, 20);
-            let hV2 = getHighlightView(0, 15, 3, 1)
-            let hV3 = getHighlightView(3, 2, 3, 10);
+            let hV1 = getHighlightView(0, 0, 0, 5)
+            let hV2 = getHighlightView(0, 6, 0, 20);
+            let hV3 = getHighlightView(0, 15, 3, 1)
+            let hV4 = getHighlightView(3, 2, 3, 10);
+            let expected = [getOverlappingHighlights([hV2, hV3], getPositionDetails(0, 15, 0, 20))];
 
-            highlightViews.push(hV0);
-            highlightViews.push(hV1);
-            highlightViews.push(hV2);
-            highlightViews.push(hV3);
-
-            let expectedPosDetails: AnnotationPositionDetails = {
-                startNodeIndex: 0,
-                startCharacterIndex: 15,
-                endNodeIndex: 0,
-                endCharacterIndex: 20
-            };
-
-            let expected: OverlappingHighlights[] = [{
-                highlightViews: [hV1, hV2],
-                positionDetails: expectedPosDetails
-            }];
-
-            let actual = strategy.getOverlaps(highlightViews);
+            let actual = strategy.getOverlaps([hV1, hV2, hV3, hV4]);
             expect(actual).toEqual(expected);
         });
 
@@ -106,25 +88,9 @@ describe('OverlappingHighlightsStrategy', function () {
             let hV1 = getHighlightView(0, 0, 0, 10);
             let hV2 = getHighlightView(0, 4, 3, 1);
             let hV3 = getHighlightView(0, 6, 3, 5);
+            let expected = [getOverlappingHighlights([hV1, hV2, hV3], getPositionDetails(0, 4, 3, 1))];
 
-            highlightViews.push(hV1);
-            highlightViews.push(hV2);
-            highlightViews.push(hV3);
-
-            let expectedPosDetails: AnnotationPositionDetails = {
-                startNodeIndex: 0,
-                startCharacterIndex: 4,
-                endNodeIndex: 3,
-                endCharacterIndex: 1
-            };
-
-            let expected: OverlappingHighlights[] = [{
-                highlightViews: [hV1, hV2, hV3],
-                positionDetails: expectedPosDetails
-            }];
-
-            let actual = strategy.getOverlaps(highlightViews);
-
+            let actual = strategy.getOverlaps([hV1, hV2, hV3]);
             expect(actual).toEqual(expected);
         });
 
@@ -134,37 +100,12 @@ describe('OverlappingHighlightsStrategy', function () {
             let hV3 = getHighlightView(3, 1, 3, 10);
             let hV4 = getHighlightView(3, 5, 3, 15);
 
-            highlightViews.push(hV1);
-            highlightViews.push(hV2);
-            highlightViews.push(hV3);
-            highlightViews.push(hV4);
-
-            let expectedPosDetails1: AnnotationPositionDetails = {
-                startNodeIndex: 0,
-                startCharacterIndex: 4,
-                endNodeIndex: 0,
-                endCharacterIndex: 10
-            };
-
-            let expectedPosDetails2: AnnotationPositionDetails = {
-                startNodeIndex: 3,
-                startCharacterIndex: 5,
-                endNodeIndex: 3,
-                endCharacterIndex: 10
-            };
-
             let expected: OverlappingHighlights[] = [
-                {
-                    highlightViews: [hV1, hV2],
-                    positionDetails: expectedPosDetails1
-                },
-                {
-                    highlightViews: [hV3, hV4],
-                    positionDetails: expectedPosDetails2
-                }];
+                getOverlappingHighlights([hV1, hV2], getPositionDetails(0, 4, 0, 10)),
+                getOverlappingHighlights([hV3, hV4], getPositionDetails(3, 5, 3, 10))
+            ];
 
-            let actual = strategy.getOverlaps(highlightViews);
-
+            let actual = strategy.getOverlaps([hV1, hV2, hV3, hV4]);
             expect(actual).toEqual(expected);
         });
 
@@ -173,37 +114,12 @@ describe('OverlappingHighlightsStrategy', function () {
             let hV2 = getHighlightView(0, 4, 0, 10);
             let hV3 = getHighlightView(3, 1, 3, 5);
 
-            highlightViews.push(hV1);
-            highlightViews.push(hV2);
-            highlightViews.push(hV3);
-
-            let expectedPosDetails1: AnnotationPositionDetails = {
-                startNodeIndex: 0,
-                startCharacterIndex: 4,
-                endNodeIndex: 0,
-                endCharacterIndex: 10
-            };
-
-            let expectedPosDetails2: AnnotationPositionDetails = {
-                startNodeIndex: 3,
-                startCharacterIndex: 1,
-                endNodeIndex: 3,
-                endCharacterIndex: 5
-            };
-
             let expected: OverlappingHighlights[] = [
-                {
-                    highlightViews: [hV1, hV2],
-                    positionDetails: expectedPosDetails1
-                },
-                {
-                    highlightViews: [hV1, hV3],
-                    positionDetails: expectedPosDetails2
-                }
+                getOverlappingHighlights([hV1, hV2], getPositionDetails(0, 4, 0, 10)),
+                getOverlappingHighlights([hV1, hV3], getPositionDetails(3, 1, 3, 5))
             ];
 
-            let actual = strategy.getOverlaps(highlightViews);
-
+            let actual = strategy.getOverlaps([hV1, hV2, hV3]);
             expect(actual).toEqual(expected);
         });
 
@@ -213,35 +129,12 @@ describe('OverlappingHighlightsStrategy', function () {
             let hV3 = getHighlightView(0, 10, 3, 1);
             let hV4 = getHighlightView(3, 10, 3, 15);
 
-            highlightViews = [hV1, hV2, hV3, hV4];
-
-            let expectedPosDetails1: AnnotationPositionDetails = {
-                startNodeIndex: 0,
-                startCharacterIndex: 4,
-                endNodeIndex: 3,
-                endCharacterIndex: 1
-            };
-
-            let expectedPosDetails2: AnnotationPositionDetails = {
-                startNodeIndex: 3,
-                startCharacterIndex: 10,
-                endNodeIndex: 3,
-                endCharacterIndex: 15
-            };
-
             let expected: OverlappingHighlights[] = [
-                {
-                    highlightViews: [hV1, hV2, hV3],
-                    positionDetails: expectedPosDetails1
-                },
-                {
-                    highlightViews: [hV2, hV4],
-                    positionDetails: expectedPosDetails2
-                }
+                getOverlappingHighlights([hV1, hV2, hV3], getPositionDetails(0, 4, 3, 1)),
+                getOverlappingHighlights([hV2, hV4], getPositionDetails(3, 10, 3, 15))
             ];
 
-            let actual = strategy.getOverlaps(highlightViews);
-
+            let actual = strategy.getOverlaps([hV1, hV2, hV3, hV4]);
             expect(actual).toEqual(expected);
         });
     });
@@ -251,10 +144,7 @@ describe('OverlappingHighlightsStrategy', function () {
     describe('getHighlightIndices', function () {
         it('extracts highlight indices', function () {
             let hV1 = getHighlightView(0, 0, 0, 4);
-            let hV2 = getHighlightView(0, 5, 3, 1)
-
-            highlightViews.push(hV1);
-            highlightViews.push(hV2);
+            let hV2 = getHighlightView(0, 5, 3, 1);
 
             let expected: HighlightIndex[] = [
                 {
@@ -283,8 +173,8 @@ describe('OverlappingHighlightsStrategy', function () {
                 },
             ]
 
-            let actual = strategy.getHighlightIndices(highlightViews);
-            expect(actual.sort()).toEqual(expected.sort());
+            let actual = strategy.getHighlightIndices([hV1, hV2]);
+            expect(actual).toEqual(expected);
         });
     });
 });
