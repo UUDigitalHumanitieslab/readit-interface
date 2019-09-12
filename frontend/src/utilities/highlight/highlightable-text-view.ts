@@ -177,6 +177,7 @@ export default class HighlightableTextView extends View {
         validateCompleteness(node);
         this.collection.add([node].concat(getLinkedItems(node)));
 
+
         return this;
     }
 
@@ -221,7 +222,7 @@ export default class HighlightableTextView extends View {
             overlap.$el.detach();
         });
 
-        this.overlapDetailView.$el.detach();
+        if (this.overlapDetailView) this.overlapDetailView.$el.detach();
         return this;
     }
 
