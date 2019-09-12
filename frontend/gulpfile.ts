@@ -1,4 +1,4 @@
-import gulp = require('gulp');
+import { src, dest, symlink, parallel, series, watch as watchApi } from 'gulp';
 import browserify = require('browserify');
 import vinylStream = require('vinyl-source-stream');
 import vinylBuffer = require('vinyl-buffer');
@@ -32,19 +32,6 @@ type LibraryProps = {
 type ExposeConfig = {
     [moduleName: string]: string,
 };
-
-// Task names.
-const SCRIPT = 'script',
-    UNITTEST = 'unittest',
-    STYLE = 'style',
-    TEMPLATE = 'template',
-    INDEX = 'index',
-    IMAGE = 'image',
-    COMPLEMENT = 'complement',  // non-script static
-    DIST = 'dist',
-    SERVE = 'serve',
-    WATCH = 'watch',
-    CLEAN = 'clean';
 
 // General configuration.
 const sourceDir = `src`,
@@ -191,8 +178,8 @@ function ifNotProd(stream) {
     return plugins['if'](!production, stream);
 }
 
-gulp.task(TEMPLATE, function() {
-    return gulp.src(templateSourceGlob)
+export function template() {
+    return src(templateSourceGlob)
         .pipe(plugins.cached(templateCacheName))
         .pipe(plugins.handlebars({
             compilerOptions: {
@@ -204,8 +191,8 @@ gulp.task(TEMPLATE, function() {
             require: {[hbsGlobal]: hbsModule},
         }))
         .pipe(plugins.rename(templateRenameOptions))
-        .pipe(gulp.dest(sourceDir));
-});
+        .pipe(dest(sourceDir));
+};
 
 function jsBundle() {
     return tsModules.bundle()
@@ -213,11 +200,11 @@ function jsBundle() {
         .pipe(vinylStream(jsBundleName))
         .pipe(ifProd(vinylBuffer()))
         .pipe(ifProd(plugins.uglify()))
-        .pipe(gulp.dest(buildDir));
+        .pipe(dest(buildDir));
 }
 
 function jsUnittest() {
-    const libs = gulp.src(browserLibsRootedPaths);
+    const libs = src(browserLibsRootedPaths);
     const bundle = tsTestModules.bundle()
         .pipe(vinylStream(unittestBundleName))
         .pipe(vinylBuffer());
@@ -230,31 +217,31 @@ function jsUnittest() {
     headless.on('error', e => headless.end());
     return streamqueue({objectMode: true}, libs, bundle)
         .pipe(plugins.jasmineBrowser.specRunner({console: true}))
-        .pipe(gulp.dest(buildDir))
+        .pipe(dest(buildDir))
         .pipe(plugins.connect.reload())
         .pipe(headless);
 }
 
-gulp.task(SCRIPT, gulp.series(TEMPLATE, jsBundle));
+export const script = series(template, jsBundle);
 
-gulp.task(UNITTEST, gulp.series(TEMPLATE, jsUnittest));
+export const test = series(template, jsUnittest);
 
-gulp.task(STYLE, function() {
+export function style() {
     let postcssPlugins = [autoprefixer()];
     if (production) postcssPlugins.push(cssnano());
-    return gulp.src(mainStylesheet)
+    return src(mainStylesheet)
         .pipe(ifNotProd(plugins.sourcemaps.init()))
         .pipe(plugins.sass({includePaths: [nodeDir]}))
         .pipe(plugins.postcss(postcssPlugins))
         .pipe(plugins.rename(cssBundleName))
         .pipe(ifNotProd(plugins.sourcemaps.write('.')))
-        .pipe(gulp.dest(buildDir));
-});
+        .pipe(dest(buildDir));
+};
 
-gulp.task(INDEX, function(done) {
+export function index(done) {
     fs.readFile(indexConfig, 'utf-8', function(error, data) {
         if (error) return done(error);
-        gulp.src(indexTemplate)
+        src(indexTemplate)
             .pipe(plugins.hb().data(JSON.parse(data)).data({
                 libs: browserLibs,
                 jsBundleName,
@@ -263,20 +250,20 @@ gulp.task(INDEX, function(done) {
             }))
             .pipe(ifProd(plugins.cdnizer(cdnizerConfig)))
             .pipe(plugins.rename({extname: '.html'}))
-            .pipe(gulp.dest(buildDir));
+            .pipe(dest(buildDir));
         return done();
     });
-});
+};
 
-gulp.task(IMAGE, function() {
-    return gulp.src(imageDir).pipe(gulp.symlink(buildDir));
-});
+export function image() {
+    return src(imageDir).pipe(symlink(buildDir));
+};
 
-gulp.task(COMPLEMENT, gulp.parallel(STYLE, INDEX, IMAGE));
+export const complement = parallel(style, index, image);
 
-gulp.task(DIST, gulp.parallel(SCRIPT, COMPLEMENT));
+export const dist = parallel(script, complement);
 
-gulp.task(SERVE, function() {
+export function serve() {
     let serverOptions: any = {
         root: serverRoot || __dirname,
         port: ports.frontend,
@@ -291,9 +278,9 @@ gulp.task(SERVE, function() {
         );
     }
     plugins.connect.server(serverOptions);
-});
+};
 
-gulp.task(WATCH, gulp.series(gulp.parallel(TEMPLATE, COMPLEMENT), function() {
+export const watch = series(parallel(template, complement), function watch() {
     tsModules.plugin(watchify);
     tsModules.on('update', jsBundle);
     tsModules.on('log', log);
@@ -301,13 +288,13 @@ gulp.task(WATCH, gulp.series(gulp.parallel(TEMPLATE, COMPLEMENT), function() {
     tsTestModules.plugin(watchify);
     tsTestModules.on('update', jsUnittest);
     jsUnittest();
-    gulp.watch(styleSourceGlob, gulp.task(STYLE));
-    gulp.watch(templateSourceGlob, gulp.task(TEMPLATE));
-    gulp.watch([indexConfig, indexTemplate], gulp.task(INDEX));
-}));
-
-gulp.task(CLEAN, function() {
-    return del([buildDir, templateOutputGlob]);
+    watchApi(styleSourceGlob, style);
+    watchApi(templateSourceGlob, template);
+    watchApi([indexConfig, indexTemplate], index);
 });
 
-gulp.task('default', gulp.series(CLEAN, gulp.parallel(WATCH, SERVE)));
+export function clean() {
+    return del([buildDir, templateOutputGlob]);
+};
+
+export default series(clean, parallel(watch, serve));
