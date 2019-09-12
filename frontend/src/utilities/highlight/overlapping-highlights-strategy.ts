@@ -1,5 +1,5 @@
 
-import { orderBy } from 'lodash';
+import { orderBy, remove, clone } from 'lodash';
 import { AnnotationPositionDetails } from './../annotation-utilities';
 import HighlightView from './highlight-view';
 
@@ -19,8 +19,15 @@ export default class OverlappingHighlightsStrategy {
     getOverlaps(highlightViews: HighlightView[]): OverlappingHighlights[] {
         let results = [];
 
-        let currentlyActive = 0;
+        // Keep track of active highlights
+        let currentlyActiveHighlights = [];
+
+        // Keep track of currently overlapping highlights.
+        // Note that this is not the same as currentlyActiveHighlights,
+        // especially when more than two highlights are overlapping.
         let currentOverlapHighlights = [];
+
+        // Store the indices of the current overlap
         let currentOverlapPosDetails = [];
 
         let highlightIndices = this.getHighlightIndices(highlightViews);
@@ -31,15 +38,15 @@ export default class OverlappingHighlightsStrategy {
                 currentlyActive++;
                 currentOverlapHighlights.push(index.instance);
 
-                if (currentlyActive === 2) {
+                if (currentlyActiveHighlights.length === 2) {
                     currentOverlapPosDetails[0] = index.nodeIndex;
                     currentOverlapPosDetails[1] = index.characterIndex;
                 }
             }
             else {
-                currentlyActive--;
+                remove(currentlyActiveHighlights, (c) => { return c.cid === index.highlightView.cid });
 
-                if (currentlyActive === 1) {
+                if (currentlyActiveHighlights.length === 1) {
                     currentOverlapPosDetails[2] = index.nodeIndex;
                     currentOverlapPosDetails[3] = index.characterIndex;
 
@@ -51,10 +58,11 @@ export default class OverlappingHighlightsStrategy {
                             endCharacterIndex: currentOverlapPosDetails[3]
                         }
                     });
-                    currentOverlapHighlights = [];
+
+                    currentOverlapHighlights = [currentlyActiveHighlights[0]];
                 }
 
-                if (currentlyActive === 0) {
+                if (currentlyActiveHighlights.length === 0) {
                     currentOverlapHighlights = [];
                 }
             }
