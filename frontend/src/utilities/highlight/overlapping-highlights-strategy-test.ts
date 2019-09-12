@@ -206,6 +206,44 @@ describe('OverlappingHighlightsStrategy', function () {
 
             expect(actual).toEqual(expected);
         });
+
+        it('handles a long highlight overlapping multiple others correctly (second highlight remains active)', function () {
+            let hV1 = getHighlightView(0, 0, 0, 15);
+            let hV2 = getHighlightView(0, 4, 3, 25);
+            let hV3 = getHighlightView(0, 10, 3, 1);
+            let hV4 = getHighlightView(3, 10, 3, 15);
+
+            highlightViews = [hV1, hV2, hV3, hV4];
+
+            let expectedPosDetails1: AnnotationPositionDetails = {
+                startNodeIndex: 0,
+                startCharacterIndex: 4,
+                endNodeIndex: 3,
+                endCharacterIndex: 1
+            };
+
+            let expectedPosDetails2: AnnotationPositionDetails = {
+                startNodeIndex: 3,
+                startCharacterIndex: 10,
+                endNodeIndex: 3,
+                endCharacterIndex: 15
+            };
+
+            let expected: OverlappingHighlights[] = [
+                {
+                    highlightViews: [hV1, hV2, hV3],
+                    positionDetails: expectedPosDetails1
+                },
+                {
+                    highlightViews: [hV2, hV4],
+                    positionDetails: expectedPosDetails2
+                }
+            ];
+
+            let actual = strategy.getOverlaps(highlightViews);
+
+            expect(actual).toEqual(expected);
+        });
     });
 
 
