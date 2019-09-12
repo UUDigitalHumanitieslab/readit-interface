@@ -1,4 +1,4 @@
-import { rdf, rdfs, skos } from './../jsonld/ns';
+import { rdf, rdfs, skos, item } from './../jsonld/ns';
 import { getLabel, getCssClassName, isRdfsClass } from './utilities';
 import { FlatLdObject } from '../jsonld/json';
 import Node from '../jsonld/node';
@@ -9,7 +9,7 @@ function getDefaultNode(): Node {
 
 function getDefaultAttributes(): FlatLdObject {
     return {
-        '@id': 'uniqueID',
+        '@id': item('Content'),
         "@type": [
             rdfs.Class
         ],
