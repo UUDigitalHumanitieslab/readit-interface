@@ -4,7 +4,7 @@ import { AnnotationPositionDetails } from './../annotation-utilities';
 import HighlightView from './highlight-view';
 
 export type HighlightIndex = {
-    instance: HighlightView,
+    highlightView: HighlightView,
     nodeIndex: number,
     characterIndex: number,
     isStart: boolean
@@ -35,8 +35,8 @@ export default class OverlappingHighlightsStrategy {
 
         orderedIndices.forEach(index => {
             if (index.isStart) {
-                currentlyActive++;
-                currentOverlapHighlights.push(index.instance);
+                currentlyActiveHighlights.push(index.highlightView);
+                currentOverlapHighlights.push(index.highlightView);
 
                 if (currentlyActiveHighlights.length === 2) {
                     currentOverlapPosDetails[0] = index.nodeIndex;
@@ -76,14 +76,14 @@ export default class OverlappingHighlightsStrategy {
 
         highlightViews.forEach(hV => {
             indices.push({
-                instance: hV,
+                highlightView: hV,
                 nodeIndex: hV.positionDetails.startNodeIndex,
                 characterIndex: hV.positionDetails.startCharacterIndex,
                 isStart: true
             });
 
             indices.push({
-                instance: hV,
+                highlightView: hV,
                 nodeIndex: hV.positionDetails.endNodeIndex,
                 characterIndex: hV.positionDetails.endCharacterIndex,
                 isStart: false

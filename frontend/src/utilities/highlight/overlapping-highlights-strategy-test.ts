@@ -220,25 +220,25 @@ describe('OverlappingHighlightsStrategy', function () {
 
             let expected: HighlightIndex[] = [
                 {
-                    instance: hV1,
+                    highlightView: hV1,
                     nodeIndex: 0,
                     characterIndex: 0,
                     isStart: true
                 },
                 {
-                    instance: hV1,
+                    highlightView: hV1,
                     nodeIndex: 0,
                     characterIndex: 4,
                     isStart: false
                 },
                 {
-                    instance: hV2,
+                    highlightView: hV2,
                     nodeIndex: 0,
                     characterIndex: 5,
                     isStart: true
                 },
                 {
-                    instance: hV2,
+                    highlightView: hV2,
                     nodeIndex: 3,
                     characterIndex: 1,
                     isStart: false
