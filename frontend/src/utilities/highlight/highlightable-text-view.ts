@@ -344,48 +344,6 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    bindEvents(hV: HighlightView): this {
-        hV.on('hover', this.hover, this);
-        hV.on('hoverEnd', this.hoverEnd, this);
-        hV.on('delete', this.delete, this);
-        hV.on('clicked', this.clicked, this);
-        return this;
-    }
-
-    onOverlapClicked(hVs: HighlightView[], ovh: OverlappingHighlightsView): this {
-        if (this.overlapDetailView) {
-            this.closeOverlapDetail();
-        }
-
-        this.overlapDetailView = new OverlapDetailsView({
-            hVs: hVs
-        });
-        let verticalMiddle = ovh.getVerticalMiddle() - this.positionContainer.offset().top;
-        this.overlapDetailView.render().position(verticalMiddle, this.positionContainer.outerWidth()).$el.prependTo(this.positionContainer);
-        this.overlapDetailView.on('detailClicked', this.onOverlapDetailClicked, this);
-        this.overlapDetailView.on('closed', this.closeOverlapDetail, this);
-        return this;
-    }
-
-    onOverlapDetailClicked(hV: HighlightView) {
-        this.clicked(hV.model);
-    }
-
-    closeOverlapDetail(): this {
-        this.overlapDetailView.$el.detach();
-        return this;
-    }
-
-    hover(node: Node): this {
-        this.trigger('hover', node);
-        return this;
-    }
-
-    hoverEnd(node: Node): this {
-        this.trigger('hoverEnd', node);
-        return this;
-    }
-
     delete(node: Node): this {
         if (this.deleteFromCollection(node)) {
             this.hVs.find(hV => hV.model === node).$el.detach();
@@ -395,8 +353,45 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    clicked(node: Node): this {
-        this.trigger('clicked', node);
+    bindEvents(hV: HighlightView): this {
+        hV.on('hover', this.onHover, this);
+        hV.on('hoverEnd', this.onHoverEnd, this);
+        hV.on('delete', this.delete, this);
+        hV.on('clicked', this.onClicked, this);
+        return this;
+    }
+
+    onOverlapClicked(hVs: HighlightView[], ovh: OverlappingHighlightsView): this {
+        if (this.overlapDetailView) {
+            this.onCloseOverlapDetail();
+        }
+
+        this.overlapDetailView = new OverlapDetailsView({
+            hVs: hVs
+        });
+        let verticalMiddle = ovh.getVerticalMiddle() - this.positionContainer.offset().top;
+        this.overlapDetailView.render().position(verticalMiddle, this.positionContainer.outerWidth()).$el.prependTo(this.positionContainer);
+        this.overlapDetailView.on('detailClicked', this.onOverlapDetailClicked, this);
+        this.overlapDetailView.on('closed', this.onCloseOverlapDetail, this);
+        return this;
+    }
+
+    onOverlapDetailClicked(hV: HighlightView) {
+        this.onClicked(hV.model);
+    }
+
+    onCloseOverlapDetail(): this {
+        this.overlapDetailView.$el.detach();
+        return this;
+    }
+
+    onHover(node: Node): this {
+        this.trigger('hover', node);
+        return this;
+    }
+
+    onHoverEnd(node: Node): this {
+        this.trigger('hoverEnd', node);
         return this;
     }
 
@@ -409,6 +404,11 @@ export default class HighlightableTextView extends View {
         // Ignore empty selections
         if (range.startOffset === range.endOffset) return;
         this.trigger('selected', range);
+    }
+
+    onClicked(node: Node): this {
+        this.trigger('clicked', node);
+        return this;
     }
 
     /**
