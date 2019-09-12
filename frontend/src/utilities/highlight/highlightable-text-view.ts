@@ -113,7 +113,7 @@ export default class HighlightableTextView extends View {
 
         if (this.text) {
             this.initHighlights();
-            this.initOverlappingHighlights();
+            this.initOverlaps();
 
             if (this.showHighlightsInitially) {
                 this.showAll();
@@ -129,7 +129,8 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    initOverlappingHighlights(): void {
+    initOverlaps(): void {
+        this.overlaps = [];
         let overlapStrategy = new OverlappingHighlightsStrategy();
         let overlaps: OverlappingHighlights[] = overlapStrategy.getOverlaps(this.hVs);
         overlaps.forEach(overlap => {
@@ -272,6 +273,7 @@ export default class HighlightableTextView extends View {
 
         this.bindEvents(hV);
         this.hVs.push(hV);
+        this.initOverlaps();
         return hV;
     }
 
@@ -387,6 +389,7 @@ export default class HighlightableTextView extends View {
     delete(node: Node): this {
         if (this.deleteFromCollection(node)) {
             this.hVs.find(hV => hV.model === node).$el.detach();
+            this.initOverlaps();
             this.trigger('delete', node);
         }
         return this;
