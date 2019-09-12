@@ -1,11 +1,11 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, minBy, sumBy, initial, last } from 'lodash';
 
-import View from '../../core/view';
+import View from '../core/view';
 
-import Node from '../../jsonld/node';
+import Node from '../jsonld/node';
 import HighlightRectView from './highlight-rect-view';
-import { AnnotationPositionDetails } from './../annotation-utilities';
+import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     /**
