@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>READ-IT Jasmine test suite</title>
+    <link rel=stylesheet href="{{{jasminePrefix}}}jasmine.css">
+</head>
+
+<body>
+    {{#libs}}
+    <script src="{{{@root.nodeRoot}}}{{{path}}}"></script>
+    {{/libs}}
+    <script src="{{{jasminePrefix}}}jasmine.js"></script>
+    <script src="{{{jasminePrefix}}}jasmine-html.js"></script>
+    <script src="{{{jasminePrefix}}}json2.js"></script>
+    <script src="{{{jasminePrefix}}}boot.js"></script>
+    <script src="{{{staticRoot}}}{{{unittestBundleName}}}"></script>
+</body>
+
+</html>
