@@ -232,21 +232,25 @@ export function style() {
         .pipe(dest(buildDir));
 };
 
-export function index(done) {
+function renderHtml(template, targetDir, extraData, done) {
     fs.readFile(indexConfig, 'utf-8', function(error, data) {
         if (error) return done(error);
-        src(indexTemplate)
-            .pipe(plugins.hb().data(JSON.parse(data)).data({
-                libs: browserLibs,
-                jsBundleName,
-                cssBundleName,
-                production,
-            }))
+        src(template)
+            .pipe(plugins.hb().data(JSON.parse(data)).data(extraData))
             .pipe(ifProd(plugins.cdnizer(cdnizerConfig)))
             .pipe(plugins.rename({extname: '.html'}))
-            .pipe(dest(buildDir));
+            .pipe(dest(targetDir));
         return done();
     });
+};
+
+export function index(done) {
+    renderHtml(indexTemplate, buildDir, {
+        libs: browserLibs,
+        jsBundleName,
+        cssBundleName,
+        production,
+    }, done);
 };
 
 export function image() {
