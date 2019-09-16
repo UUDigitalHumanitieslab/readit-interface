@@ -41,6 +41,9 @@ const sourceDir = `src`,
     indexConfig = yargs.argv.config || configModuleName,
     indexTemplate = `${sourceDir}/index.hbs`,
     indexOutput = `${buildDir}/index.html`,
+    specRunnerTemplate = `${sourceDir}/specRunner.hbs`,
+    specRunnerOutput = `${buildDir}/specRunner.html`,
+    jasminePrefix = `/${nodeDir}/jasmine-core/lib/jasmine-core/`,
     imageDir = `${sourceDir}/image`,
     mainScript = `${sourceDir}/main.ts`,
     jsBundleName = `index.js`,
@@ -250,6 +253,14 @@ export function index(done) {
         jsBundleName,
         cssBundleName,
         production,
+    }, done);
+};
+
+export function specRunner(done) {
+    renderHtml(specRunnerTemplate, buildDir, {
+        libs: browserLibs,
+        unittestBundleName,
+        jasminePrefix,
     }, done);
 };
 
