@@ -18,6 +18,8 @@ from django.contrib import admin
 
 from rest_framework import routers
 
+from proxy.views import proxy_view
+
 from .index import index
 
 api_router = routers.DefaultRouter()  # register viewsets with this router
@@ -30,5 +32,6 @@ urlpatterns = [
         namespace='rest_framework',
     )),
     path('rest-auth/', include('rest_auth.urls')),
+    re_path(r'proxy/(?P<url>.*)', proxy_view),
     re_path(r'', index),  # catch-all; unknown paths to be handled by a SPA
 ]
