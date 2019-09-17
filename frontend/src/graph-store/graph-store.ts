@@ -1,17 +1,19 @@
 import InvalidUrl from 'jsonld';
+import { CollectionFetchOptions } from 'backbone';
+
+import { proxyRoot } from 'config.json';
 import Graph from "../jsonld/graph";
 import Node from "../jsonld/node";
-import { Exception } from 'handlebars';
 
 // http://purl.org/dc/terms/created
 
 const defaultGraphs = [
-    'https://www.w3.org/1999/02/22-rdf-syntax-ns',
-    // 'https://www.w3.org/2000/01/rdf-schema',
-    // 'https://www.w3.org/2002/07/owl',
+    `${proxyRoot}https://www.w3.org/1999/02/22-rdf-syntax-ns`,
+    // `${proxyRoot}https://www.w3.org/2000/01/rdf-schema`,
+    // `${proxyRoot}https://www.w3.org/2002/07/owl`,
     // 'https://www.w3.org/ns/oa',
     // 'https://www.w3.org/ns/activitystreams',
-    // 'https://schema.org/version/latest/schema.jsonld',
+    // `${proxyRoot}https://schema.org/version/latest/schema.jsonld`,
 ]
 
 export default class GraphStore {
@@ -96,7 +98,7 @@ export default class GraphStore {
             headers: { 'Accept': 'application/ld+json' }, // 'Content-Type': 'application/json'
             error: error,
             success: success
-        });
+        } as CollectionFetchOptions);
     }
 
     private addToStore(url: string, graph: Graph) {
