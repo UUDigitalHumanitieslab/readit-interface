@@ -8,6 +8,7 @@ import context from '../mock-data/mock-context';
 
 import { readit } from './ns';
 import Node from './node';
+import Graph from './graph';
 import Store from './store';
 
 const uri = contentInstance['@id'];
@@ -33,6 +34,25 @@ describe('Store', function() {
 
     afterEach(function() {
         jasmine.Ajax.uninstall();
+    });
+
+    it('does not set the .collection of stored Nodes', function() {
+        const stored = this.store.at(0);
+        expect(stored.collection).toBeUndefined();
+    });
+
+    it('leaves an existing .collection unchanged', function() {
+        const otherCollection = new Graph([partialHash]);
+        const stored = otherCollection.at(0);
+        this.store.add(otherCollection.models);
+        expect(stored.collection).toBe(otherCollection);
+    });
+
+    it('allows other Graphs to set the .collection later', function() {
+        const otherCollection = new Graph();
+        const stored = this.store.at(0);
+        otherCollection.add(stored);
+        expect(stored.collection).toBe(otherCollection);
     });
 
     describe('request', function() {

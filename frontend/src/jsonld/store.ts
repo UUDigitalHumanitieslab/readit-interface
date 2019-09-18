@@ -20,6 +20,12 @@ const fetchOptions = {
  * instance.
  */
 export default class Store extends Graph {
+    constructor(models, options) {
+        super(models, options);
+        this.forEach(this._preventSelfReference.bind(this));
+        this.on('add', this._preventSelfReference);
+    }
+
     /**
      * Main interface. Ensures every @id is represented by a single unique Node.
      */
@@ -79,5 +85,12 @@ export default class Store extends Graph {
             if (!response['@graph']) return [response];
         }
         return response['@graph'];
+    }
+
+    /**
+     * Prevent stored Nodes from having their .collection set to this.
+     */
+    private _preventSelfReference(node: Node): void {
+        if (node.collection === this) delete node.collection;
     }
 }
