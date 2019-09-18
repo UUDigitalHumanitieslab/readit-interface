@@ -22,6 +22,9 @@ const fetchOptions = {
  * instance.
  */
 export default class Store extends Graph {
+    private _additionQueue: Node[] = [];
+    private _concurrentSet: number = 0;
+
     constructor(models, options) {
         super(models, options);
         this.forEach(this._preventSelfReference.bind(this));
@@ -100,11 +103,27 @@ export default class Store extends Graph {
      */
     register(node: Node): this {
         if (node.id) {
-            this.add(node);
+            this._queueAddition(node);
         } else {
-            node.once('change:@id', this.add.bind(this));
+            node.once('change:@id', this._queueAddition.bind(this));
         }
         return this;
+    }
+
+    /**
+     * Override the set method to prevent duplication and process
+     * queued additions.
+     */
+    set(models, options): Node[] {
+        ++this._concurrentSet;
+        const result = super.set(models, options);
+        if (this._concurrentSet === 1) {
+            const extra = this._additionQueue;
+            this._additionQueue = [];
+            this.add(extra);
+        }
+        --this._concurrentSet;
+        return result;
     }
 
     /**
@@ -130,5 +149,16 @@ export default class Store extends Graph {
         names.forEach(name => {
             this.on(name, (...args) => ldChannel.trigger(name, ...args));
         });
+    }
+
+    /**
+     * Wrapper for .add to prevent duplicate nodes.
+     */
+    private _queueAddition(node: Node): void {
+        if (this._concurrentSet) {
+            this._additionQueue.push(node);
+        } else {
+            this.add(node);
+        }
     }
 }
