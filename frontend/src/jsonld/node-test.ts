@@ -1,5 +1,6 @@
 import { cloneDeep, get, set, initial, omit } from 'lodash';
 import { Model } from 'backbone';
+import { channel } from 'backbone.radio';
 import { compact } from 'jsonld';
 
 import {
@@ -10,9 +11,13 @@ import {
     textPositionSelector as compactTextPositionSelector,
 } from '../mock-data/mock-compact';
 import context from '../mock-data/mock-context';
+
+import { channelName } from './constants';
 import { item, readit, staff, owl, dcterms, xsd } from './ns';
 import * as conversionModule from './conversion';
 import Node from './node';
+
+const ldChannel = channel(channelName);
 
 const contentInstanceNative = {
     '@id': item('3'),
@@ -78,6 +83,14 @@ const expectedConversions = [{
 describe('Node', function() {
     beforeEach(function() {
         this.node = new Node();
+    });
+
+    it('triggers a register event on the ld channel', function() {
+        const spy = jasmine.createSpy();
+        ldChannel.on('register', spy);
+        const dummy = new Node();
+        expect(spy).toHaveBeenCalledWith(dummy);
+        ldChannel.off('register', spy);
     });
 
     describe('set', function() {
@@ -159,6 +172,13 @@ describe('Node', function() {
                     id: contentInstanceNative[key][0]['@id'],
                 }));
             });
+        });
+
+        it('requests Identifiers from the ld channel first', function() {
+            const dummy = new Node();
+            ldChannel.reply('seek', () => dummy);
+            const result = this.node.get(owl.sameAs)[0];
+            expect(result).toBe(dummy);
         });
 
         it('leaves other attributes unmodified', function() {

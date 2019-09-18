@@ -1,7 +1,9 @@
 import { defaults, has, isUndefined, isString, isArray } from 'lodash';
+import { channel } from 'backbone.radio';
 
 import { proxyRoot } from 'config.json';
 
+import { channelName } from './constants';
 import { Identifier, FlatLdDocument, FlatLdGraph } from './json';
 import Node from './node';
 import Graph from './graph';
@@ -24,6 +26,12 @@ export default class Store extends Graph {
         super(models, options);
         this.forEach(this._preventSelfReference.bind(this));
         this.on('add', this._preventSelfReference);
+        const ldChannel = channel(channelName);
+        ldChannel.reply('seek', this.request.bind(this));
+        this.listenTo(ldChannel, 'register', this.register);
+        this._forwardEventsToChannel([
+            'request', 'sync', 'error', 'add',
+        ]);
     }
 
     /**
@@ -100,9 +108,27 @@ export default class Store extends Graph {
     }
 
     /**
+     * Stop replying to the seek request to facilitate garbage collection.
+     */
+    stopReplying(): this {
+        channel(channelName).stopReplying('seek');
+        return this;
+    }
+
+    /**
      * Prevent stored Nodes from having their .collection set to this.
      */
     private _preventSelfReference(node: Node): void {
         if (node.collection === this) delete node.collection;
+    }
+
+    /**
+     * Forward the named events unmodified to the ld channel.
+     */
+    private _forwardEventsToChannel(names: string[]): void {
+        const ldChannel = channel(channelName);
+        names.forEach(name => {
+            this.on(name, (...args) => ldChannel.trigger(name, ...args));
+        });
     }
 }

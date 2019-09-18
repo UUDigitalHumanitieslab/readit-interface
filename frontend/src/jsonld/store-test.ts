@@ -1,15 +1,20 @@
 import 'jasmine-ajax';
 
+import { channel } from 'backbone.radio';
+
 import { proxyRoot } from 'config.json';
 
 import { contentInstance } from '../mock-data/mock-expanded';
 import compactData from '../mock-data/mock-compact';
 import context from '../mock-data/mock-context';
 
+import { channelName } from './constants';
 import { readit } from './ns';
 import Node from './node';
 import Graph from './graph';
 import Store from './store';
+
+const ldChannel = channel(channelName);
 
 const uri = contentInstance['@id'];
 const proxyUri = `${proxyRoot}${uri}`;
@@ -34,6 +39,8 @@ describe('Store', function() {
 
     afterEach(function() {
         jasmine.Ajax.uninstall();
+        this.store.off().stopListening().stopReplying();
+        delete this.store;
     });
 
     it('does not set the .collection of stored Nodes', function() {
@@ -53,6 +60,41 @@ describe('Store', function() {
         const stored = this.store.at(0);
         otherCollection.add(stored);
         expect(stored.collection).toBe(otherCollection);
+    });
+
+    describe('channel bindings ensure that...', function() {
+        it('"seek" is replied to with the request method', function() {
+            const result = ldChannel.request('seek', partialHash);
+            expect(result).toEqual(jasmine.any(Node));
+            expect(result.id).toBe(uri);
+            expect(this.store.has(result)).toBeTruthy();
+        });
+
+        it('"register" is handled by the register method', function() {
+            const dummy = new Node(partialHash);
+            this.store.remove(dummy);
+            ldChannel.trigger('register', dummy);
+            expect(this.store.has(dummy)).toBeTruthy();
+        });
+
+        it('key events from the store are mirrored on the channel', function() {
+            ['request', 'sync', 'error', 'add'].forEach(e => {
+                const spy = jasmine.createSpy(e);
+                ldChannel.on(e, spy);
+                this.store.trigger(e, {});
+                expect(spy).toHaveBeenCalled();
+                ldChannel.off(e, spy);
+            });
+        });
+    });
+
+    describe('stopReplying', function() {
+        it('stops the store from replying to "seek"', function() {
+            this.store.stopReplying();
+            const result = ldChannel.request('seek', partialHash);
+            expect(result).toBeUndefined();
+            expect(this.store.has(partialHash)).toBeFalsy();
+        });
     });
 
     describe('request', function() {
@@ -179,7 +221,7 @@ describe('Store', function() {
                 status: 200,
                 responseText: JSON.stringify(serverReply),
             });
-            this.store.on('update', () => {
+            this.store.on('sync', () => {
                 expect(this.store.length).toBe(7);
                 done();
             });
