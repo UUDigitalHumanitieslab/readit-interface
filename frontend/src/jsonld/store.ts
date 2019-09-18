@@ -1,8 +1,8 @@
-import { defaults, has, isUndefined, isString } from 'lodash';
+import { defaults, has, isUndefined, isString, isArray } from 'lodash';
 
 import { proxyRoot } from 'config.json';
 
-import { Identifier } from './json';
+import { Identifier, FlatLdDocument, FlatLdGraph } from './json';
 import Node from './node';
 import Graph from './graph';
 
@@ -67,5 +67,17 @@ export default class Store extends Graph {
     importViaProxy(url: string): this {
         this.fetch(defaults({url: `${proxyRoot}${url}`}, fetchOptions));
         return this;
+    }
+
+    /**
+     * Override Graph.parse in order to leave the meta Node unchanged.
+     */
+    parse(response: FlatLdDocument, options): FlatLdGraph {
+        if (isArray(response)) {
+            if (response.length !== 1) return response;
+            response = response[0];
+            if (!response['@graph']) return [response];
+        }
+        return response['@graph'];
     }
 }
