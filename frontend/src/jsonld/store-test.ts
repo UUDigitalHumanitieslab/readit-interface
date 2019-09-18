@@ -185,4 +185,22 @@ describe('Store', function() {
             });
         });
     });
+
+    describe('register', function() {
+        it('stores the given node', function() {
+            const node = new Node(partialHash);
+            this.store.remove(node);
+            this.store.register(node);
+            expect(this.store.has(node)).toBeTruthy();
+        });
+
+        it('postpones storing if the node has no id yet', function() {
+            const node = new Node();
+            node.off('change:@id');
+            this.store.register(node);
+            expect(this.store.has(node)).toBeFalsy();
+            node.set('@id', uri);
+            expect(this.store.has(node)).toBeTruthy();
+        });
+    });
 });

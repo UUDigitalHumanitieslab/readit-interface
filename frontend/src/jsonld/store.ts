@@ -88,6 +88,18 @@ export default class Store extends Graph {
     }
 
     /**
+     * Register a newly constructed Node.
+     */
+    register(node: Node): this {
+        if (node.id) {
+            this.add(node);
+        } else {
+            node.once('change:@id', this.add.bind(this));
+        }
+        return this;
+    }
+
+    /**
      * Prevent stored Nodes from having their .collection set to this.
      */
     private _preventSelfReference(node: Node): void {
