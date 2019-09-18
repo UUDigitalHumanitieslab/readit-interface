@@ -1,5 +1,7 @@
 import 'jasmine-ajax';
 
+import { proxyRoot } from 'config.json';
+
 import { contentInstance } from '../mock-data/mock-expanded';
 import compactData from '../mock-data/mock-compact';
 import context from '../mock-data/mock-context';
@@ -9,6 +11,7 @@ import Node from './node';
 import Store from './store';
 
 const uri = contentInstance['@id'];
+const proxyUri = `${proxyRoot}${uri}`;
 
 const partialHash = {
     '@id': uri,
@@ -105,6 +108,61 @@ describe('Store', function() {
             expect(result).toBe(prepared);
             expect(result.id).toBe(uri);
             expect(this.store.has(result)).toBeTruthy();
+        });
+    });
+
+    describe('import', function() {
+        beforeEach(function() {
+            spyOn(this.store, 'importViaProxy');
+        });
+
+        it('attempts to fetch whatever uri is passed to it', function() {
+            this.store.import(uri);
+            const request = jasmine.Ajax.requests.mostRecent();
+            expect(request.url).toBe(uri);
+            expect(request.requestHeaders['Accept']).toBe('application/ld+json');
+        });
+
+        it('stores the response data internally if successful', function(done) {
+            this.store.import(uri);
+            jasmine.Ajax.requests.mostRecent().respondWith({
+                status: 200,
+                responseText: JSON.stringify(serverReply),
+            });
+            this.store.on('update', () => {
+                expect(this.store.length).toBe(7);
+                done();
+            });
+        });
+
+        it('retries via proxy if the request fails', function(done) {
+            this.store.importViaProxy.and.callFake(arg => {
+                expect(arg).toBe(uri);
+                done();
+            });
+            this.store.import(uri);
+            jasmine.Ajax.requests.mostRecent().responseError();
+        });
+    });
+
+    describe('importViaProxy', function() {
+        it('attempts to fetch the passed uri via proxy', function() {
+            this.store.importViaProxy(uri);
+            const request = jasmine.Ajax.requests.mostRecent();
+            expect(request.url).toBe(proxyUri);
+            expect(request.requestHeaders['Accept']).toBe('application/ld+json');
+        });
+
+        it('stores the response data internally if successful', function(done) {
+            this.store.importViaProxy(uri);
+            jasmine.Ajax.requests.mostRecent().respondWith({
+                status: 200,
+                responseText: JSON.stringify(serverReply),
+            });
+            this.store.on('update', () => {
+                expect(this.store.length).toBe(7);
+                done();
+            });
         });
     });
 });
