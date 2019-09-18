@@ -26,6 +26,21 @@
     normalize-path "^2.0.1"
     through2 "^2.0.3"
 
+"@types/backbone.radio@^0.8.37":
+  version "0.8.37"
+  resolved "https://registry.yarnpkg.com/@types/backbone.radio/-/backbone.radio-0.8.37.tgz#c049db3f29dc5bb55a4b3cffcfd3ec7d9d985ec5"
+  integrity sha512-N0+9bvV/NfXBO772lsPPFtxrHNYOqm8ctwfF8eJAqbjQ/wKqzZfh/uMLCv6CBkenSWro3W1GIpRntMFSQvHQRA==
+  dependencies:
+    "@types/backbone" "*"
+
+"@types/backbone@*":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@types/backbone/-/backbone-1.4.1.tgz#aa03f9f69994bd96646c50cfc70b5f30d38aafaa"
+  integrity sha512-KYfGuQy4d2vvYXbn0uHFZ6brFLndatTMomxBlljpbWf4kFpA3BG/6LA3ec+J9iredrX6eAVI7sm9SVAvwiIM6g==
+  dependencies:
+    "@types/jquery" "*"
+    "@types/underscore" "*"
+
 "@types/backbone@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@types/backbone/-/backbone-1.4.0.tgz#e8560427d40c532de3708fe4ec58ab835deac2cd"
@@ -573,6 +588,11 @@ bach@^1.0.0:
     async-done "^1.2.2"
     async-settle "^1.0.0"
     now-and-later "^2.0.0"
+
+backbone.radio@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/backbone.radio/-/backbone.radio-2.0.0.tgz#bbe8672b373e313f99f36d2fbcf583fe77d04f42"
+  integrity sha1-u+hnKzc+MT+Z820vvPWD/nfQT0I=
 
 backbone@^1.4.0:
   version "1.4.0"
