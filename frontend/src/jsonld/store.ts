@@ -25,7 +25,7 @@ export default class Store extends Graph {
     private _additionQueue: Node[] = [];
     private _concurrentSet: number = 0;
 
-    constructor(models, options) {
+    constructor(models?, options?) {
         super(models, options);
         this.forEach(this._preventSelfReference.bind(this));
         this.on('add', this._preventSelfReference);
