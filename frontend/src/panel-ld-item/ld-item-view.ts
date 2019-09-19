@@ -63,6 +63,10 @@ export default class LdItemView extends View<Node> {
         this.relatedItems = [];
         this.externalResources;
 
+        this.init();
+    }
+
+    init(): this {
         if (this.modelIsAnnotation) {
             this.currentItem = this.getOntologyInstance();
             this.annotationMetadata[getLabelFromId(dcterms.creator)] = getLabel(this.model.get(dcterms.creator)[0] as Node);
