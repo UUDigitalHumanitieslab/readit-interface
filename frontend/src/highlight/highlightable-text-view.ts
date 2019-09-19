@@ -274,6 +274,7 @@ export default class HighlightableTextView extends View {
 
         this.bindEvents(hV);
         this.hVs.push(hV);
+        this.trigger('add', hV);
         return hV;
     }
 
