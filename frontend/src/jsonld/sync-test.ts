@@ -9,7 +9,7 @@ import 'jasmine-ajax';
 
 import * as Backbone from 'backbone';
 
-import syncLD, { transform, getLinkHeader } from './sync';
+import syncLD, { transform, combineContext, getLinkHeader } from './sync';
 import expandedData from './../mock-data/mock-expanded';
 import compactData from './../mock-data/mock-compact';
 import context from '../mock-data/mock-context';
@@ -140,17 +140,6 @@ describe('the jsonld/sync module', function() {
             expect(expandedGraph.toJSON()).toEqual(response);
         });
 
-        it('uses context from the link header if present', async function() {
-            // Use application/json instead of application/ld+json for this one.
-            // See https://www.w3.org/TR/json-ld/#interpreting-json-as-json-ld
-            // on how to format the link header.
-
-            // The link in the header will be requested, so you'll have to
-            // respond with a {"@context": aContext} through jasmine.Ajax. The
-            // context-type of the latter response has to be
-            // application/ld+json again.
-        });
-
         it('emits the server-dictated context', async function() {
             // Listen for sync:context on the model.
         });
@@ -170,10 +159,50 @@ describe('the jsonld/sync module', function() {
         });
     });
 
+    describe('transform', function() {
+        // transform takes a single jqXHR parameter.
+        // In each of the following tests, stub the request and make
+        // sure to set the appropriate contentType in the response.
+
+        it('can turn compact JSON-LD into flat JSON-LD', function() {
+        });
+
+        it('uses context from the link header if applicable', async function() {
+            // Use application/json instead of application/ld+json for this one.
+            // See https://www.w3.org/TR/json-ld/#interpreting-json-as-json-ld
+            // on how to format the link header.
+
+            // The link in the header will be requested, so you'll have to
+            // respond with a {"@context": aContext} through jasmine.Ajax. The
+            // context-type of the latter response has to be
+            // application/ld+json again.
+        });
+
+        it('can turn RDF/XML into flat JSON-LD', function() {
+        });
+
+        it('can turn turtle into flat JSON-LD', function() {
+        });
+    });
+
+    describe('combineContext', function() {
+        // combineContext takes a single jqXHR parameter.
+        // Use application/json for all specs.
+
+        it('returns JSON-LD as a string and a parsed context', function() {
+        });
+
+        it('includes the link header in the string if applicable', function() {
+        });
+
+        it('includes the link header in the returned context', function() {
+        });
+    });
+
     describe('getLinkHeader', function() {
         // See https://www.w3.org/TR/json-ld/#interpreting-json-as-json-ld
         // on how to format the link header.
-        // Use application/json for all specs except for the second.
+        // Use application/json for all specs.
 
         it('returns the context if the link header refers to one context', function() {
             // Content-Type: application/json
