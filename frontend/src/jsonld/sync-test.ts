@@ -9,7 +9,7 @@ import 'jasmine-ajax';
 
 import * as Backbone from 'backbone';
 
-import syncLD, { getLinkHeader, emitContext } from './sync';
+import syncLD, { transform, getLinkHeader } from './sync';
 import expandedData from './../mock-data/mock-expanded';
 import compactData from './../mock-data/mock-compact';
 import context from '../mock-data/mock-context';
@@ -46,6 +46,31 @@ describe('the jsonld/sync module', function() {
                 done();
             });
             syncLD('create', expandedGraph, {url: '/api/test'});
+        });
+
+        it('accepts many common RDF encodings', function(done) {
+            jasmine.Ajax.stubRequest('/api/test').andCallFunction(xhr => {
+                const acceptHeader = xhr.requestHeaders.Accept;
+                [
+                    'application/trig; q=1',
+                    'application/ld+json; q=0.9',
+                    'text/html; q=0.8',
+                    'application/xhtml+xml; q=0.72',
+                    'application/n-quads; q=0.7',
+                    'text/turtle; q=0.6',
+                    'application/rdf+xml; q=0.5',
+                    'application/xml; q=0.5',
+                    'text/xml; q=0.5',
+                    'image/svg+xml; q=0.5',
+                    'application/json; q=0.45',
+                    'application/n-triples; q=0.3',
+                    'text/n3; q=0.1',
+                ].forEach(contentType =>
+                    expect(acceptHeader).toContain(contentType)
+                );
+                done();
+            });
+            syncLD('read', expandedGraph, {url: '/api/test'});
         });
 
         it('sends the request through Backbone.sync', function(done) {
@@ -87,6 +112,7 @@ describe('the jsonld/sync module', function() {
         it('expands and flattens the response data', async function() {
             jasmine.Ajax.stubRequest('/api/test').andReturn({
                 status: 200,
+                contentType: 'application/ld+json',
                 responseText: `{
                     "@context": {
                         "ex": "http://example.org#"
@@ -161,9 +187,6 @@ describe('the jsonld/sync module', function() {
 
         });
 
-        it('returns undefined if the content-type is application/ld+json', function() {
-        });
-
         it('returns undefined if no link header is present', function() {
         });
 
@@ -173,25 +196,6 @@ describe('the jsonld/sync module', function() {
 
         it('throws a JsonLdError otherwise', function() {
             // Pass multiple context links in the header.
-        });
-    });
-
-    describe('emitContext', function() {
-        it('triggers sync:context on the model regardless of the arguments', function() {
-        });
-
-        it('emits the inline context if no header is present', function() {
-        });
-
-        it('emits the header context if no inline is present', function() {
-            // The header argument must be a {target: 'url'}.
-        });
-
-        it('emits [header, inline] if both are present', function() {
-            // The header argument must be a {target: 'url'}.
-        });
-
-        it('emits undefined if neither is present', function() {
         });
     });
 });
