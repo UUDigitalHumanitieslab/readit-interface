@@ -19,12 +19,18 @@ export default class OverlappingHighlightsStrategy {
     getOverlaps(highlightViews: HighlightView[]): OverlappingHighlights[] {
         let results = [];
 
-        // Keep track of active highlights
+        // Keep track of active highlights, i.e. the highlights that are currently overlapping.
+        // Note that this is not the same as currentOverlapHighlights.
+        // Example: three highlights overlap, one of them ends, and then before one of the last
+        // two ends, a fourth highlight begins.
+        // The current variable keeps track of the number of highlights 'active' at the current index,
+        // whereas currentOverlapHighlights stores all highlights that are part of the current overlap.
         let currentlyActiveHighlights = [];
 
-        // Keep track of currently overlapping highlights.
+        // Keep track of highlights that are part of the current overlap.
         // Note that this is not the same as currentlyActiveHighlights,
         // especially when more than two highlights are overlapping.
+        // See above for example.
         let currentOverlapHighlights = [];
 
         // Store the indices of the current overlap
