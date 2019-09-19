@@ -1,4 +1,4 @@
-import { isArray, omit, map, defaultsDeep } from 'lodash';
+import { isArray, omit, map, defaultsDeep, each } from 'lodash';
 import { sync as syncBase } from 'backbone';
 import { compact, flatten } from 'jsonld';
 import { parseLinkHeader } from 'jsonld/lib/util';
@@ -12,8 +12,19 @@ import { JsonLdContext, FlatLdDocument } from './json';
 import Node from './node';
 import Graph from './graph';
 
+const priorityOverrides = {
+    'text/turtle': 0.8,
+    'application/rdf+xml': 0.75,
+    'text/html': 0.7,
+    'application/xhtml+xml': 0.62,
+    'application/n-quads': 0.6,
+};
+
 const defaultSyncOptions = (async function() {
     const prioritized = await rdfParser.getContentTypesPrioritized();
+    each(priorityOverrides, (prio, type) => {
+        if (prioritized[type]) prioritized[type] = prio;
+    });
     const formatted = map(prioritized, (prio, type) => `${type}; q=${prio}`);
     return {
         headers: {
