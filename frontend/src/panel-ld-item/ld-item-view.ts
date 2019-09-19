@@ -80,7 +80,15 @@ export default class LdItemView extends View<Node> {
     render(): this {
         this.lblView.$el.detach();
         this.$el.html(this.template(this));
-        this.$('header aside').append(this.lblView.el)
+        this.$('header aside').append(this.lblView.el);
+        this.initAccordions();
+        return this;
+    }
+
+    initAccordions(): this {
+        this.$('.accordion').each(function (i, accordion) {
+            new bulmaAccordion(accordion);
+        });
         return this;
     }
 
@@ -109,7 +117,7 @@ export default class LdItemView extends View<Node> {
         return this.ontology.get(ontologyReference);
     }
 
-    collectDetails(): void {
+    collectDetails(): this {
         for (let attribute in this.currentItem.attributes) {
             if (attribute === '@id' || attribute === '@type') {
                 continue;
@@ -142,6 +150,8 @@ export default class LdItemView extends View<Node> {
                 }
             });
         }
+
+        return this;
     }
 
     onRelItemsClicked(): void {
