@@ -30,6 +30,7 @@ const defaultSyncOptions = (async function() {
         headers: {
             Accept: formatted.join(', '),
         },
+        dataType: null, // default to jQuery's intelligent guess
     };
 }());
 
