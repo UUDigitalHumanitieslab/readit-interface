@@ -53,13 +53,7 @@ export default class OverlapDetailsView extends View<Node> {
     }
 
     toggleSelection(clickedDetail: JQuery<HTMLElement>) {
-        if (clickedDetail.hasClass('is-selected')) {
-            clickedDetail.removeClass('is-selected');
-        }
-        else {
-            this.$('.is-selected').removeClass('is-selected');
-            clickedDetail.addClass('is-selected');
-        }
+        clickedDetail.toggleClass('is-selected');
     }
 
     onCloseClicked(event: any) {
