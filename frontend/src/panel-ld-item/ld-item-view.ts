@@ -8,7 +8,7 @@ import Node from '../jsonld/node';
 import ldItemTemplate from './ld-item-template';
 
 import { owl, oa, dcterms } from './../jsonld/ns';
-import { isType } from './../utilities/utilities';
+import { isType, getLabel, getLabelFromId } from './../utilities/utilities';
 import { getOntologyInstances } from './../utilities/annotation-utilities';
 
 import LabelView from '../utilities/label-view';
@@ -23,6 +23,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 export default class LdItemView extends View<Node> {
     lblView: LabelView;
     ontology: Graph;
+    staff: Graph;
 
     /**
      * The item displayed by the current view.
@@ -30,106 +31,122 @@ export default class LdItemView extends View<Node> {
      */
     currentItem: Node;
 
+    /**
+     * Store if the current model is an instance of oa:Annotation
+     */
+    modelIsAnnotation: boolean;
+
     label: string;
     properties: any = new Object();
     itemMetadata: any = new Object();
     annoMetadata: any = new Object();
-    relatedItems: any = new Object();
     annotations: any;
-    externalResources: any = new Object();
+
+    relatedItems: Node[] = [];
+    externalResources: Node[];
+
+    constructor(options?: ViewOptions) {
+        super(options);
+        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
+        if (!options.staff) throw new TypeError('staff cannot be null or undefined');
+
+        this.ontology = options.ontology;
+        this.staff = options.staff;
+        this.modelIsAnnotation = isType(this.model, oa.Annotation);
+        this.currentItem = this.model;
+
+        if (this.modelIsAnnotation) {
+            this.currentItem = this.getOntologyInstance();
+        }
+
+        this.label = getLabel(this.currentItem);
+
+        let ontologyClass = this.getOntologyClass(this.currentItem);
+        if (ontologyClass) {
+            this.lblView = new LabelView({ model: ontologyClass, hasTooltip: false });
+            this.lblView.render();
+        }
+
+        this.collectDetails();
+    }
 
     render(): this {
-        this.setItemProperties();
         this.lblView.$el.detach();
         this.$el.html(this.template(this));
         this.$('header aside').append(this.lblView.el)
         return this;
     }
 
-    constructor(options?: ViewOptions) {
-        super(options);
+    /**
+     * Get the item in oa.hasBody that is not in the ontology Graph.
+     * Throws RangeError if none or multiple items are found.
+     */
+    getOntologyInstance(): Node {
+        let ontologyInstances = getOntologyInstances(this.model, this.ontology);
 
-        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
-        let ontologyInstance = this.getOntologyInstance(options.ontology);
-        this.currentItem = this.model;
-        if (isType(this.model, oa.Annotation)) this.currentItem = ontologyInstance;
-
-        this.lblView = new LabelView({model: ontologyInstance, hasTooltip: false});
-        this.lblView.render();
-    }
-
-    getOntologyInstance(ontology: Graph): Node {
-        let ontologyReference: string = this.model.get('@type')[0] as string;
-
-        if (isType(this.model, oa.Annotation)) {
-            let ontologyInstances = getOntologyInstances(this.model, ontology);
-
-            if (ontologyInstances.length !== 1) {
-                throw new RangeError(
-                    `None or multiple ontology instances found for oa:Annotation with cid '${this.model.cid}',
+        if (ontologyInstances.length !== 1) {
+            throw new RangeError(
+                `None or multiple ontology instances found for oa:Annotation with cid '${this.model.cid}',
                     don't know which one to display`);
-            }
-            ontologyReference = ontologyInstances[0].get('@type')[0] as string;
         }
-        return ontology.get(ontologyReference);
+
+        return ontologyInstances[0];
     }
 
-    setItemProperties(): void {
-        for (let attribute in this.model.attributes) {
-            if (attribute == '@id' || attribute == '@type') {
+    /**
+     * Get ontology class item from the ontology Graph
+     * @param ontologyInstance The ontology instance associated with the View's current model
+     */
+    getOntologyClass(ontologyInstance: Node) {
+        let ontologyReference = ontologyInstance.get('@type')[0] as string;
+        return this.ontology.get(ontologyReference);
+    }
+
+    collectDetails(): void {
+        for (let attribute in this.currentItem.attributes) {
+            if (attribute === '@id' || attribute === '@type') {
                 continue;
             }
 
-            // iterate over the value for this attribute, which is an array of objects
-            // that either contain a value (i.e. string or date or whatever) and looks like
-            //'{
-            //    "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
-            //    "@value": "2085-12-31T04:33:15+01:00"
-            // }'
-            // or that represents a link to another item, which looks like
-            //'{
-            //    '@id': "http://www.wikidata.org/entity/Q331656"
-            // }'
-            for (let index in this.model.get(attribute)) {
-                let currentValue = this.model.attributes[attribute][index];
+            let attributeLabel = getLabelFromId(attribute);
 
-                // first extract everything specific that we need
-                if (attribute == dcterms.creator) {
-                    this.itemMetadata[attribute] = currentValue['@id'];
-                    continue;
-                }
-
-                if (attribute == dcterms.created) {
-                    this.itemMetadata[attribute] = currentValue;
-                    continue;
-                }
-
-                if (attribute == owl.sameAs) {
-                    this.externalResources[attribute] = currentValue['@id'];
-                    continue;
-                }
-
-                // then process what is left
-                if (currentValue instanceof Node) {
-                    this.relatedItems[attribute] = currentValue['@id'];
-                } else {
-                    this.properties[attribute] = currentValue['@id'];
-                }
+            if (attribute == dcterms.creator) {
+                this.itemMetadata[attributeLabel] = getLabel(this.currentItem.get(attribute)[0] as Node);
+                continue;
             }
+
+            if (attribute == dcterms.created) {
+                this.itemMetadata[attributeLabel] = this.currentItem.get(attribute)[0];
+                continue;
+            }
+
+            if (attribute == owl.sameAs) {
+                this.externalResources = this.currentItem.get(attribute) as Node[];
+                continue;
+            }
+
+            let valueArray = this.currentItem.get(attribute);
+            valueArray.forEach(value => {
+                if (value instanceof Node) {
+                    this.relatedItems.push(value);
+                }
+                else {
+                    this.properties[attributeLabel] = value;
+                }
+            });
         }
     }
 
     onRelItemsClicked(): void {
-        this.trigger('show:related', this.model);
-        console.log('blah');
+        this.trigger('show:related', this.currentItem, this.relatedItems);
     }
 
     onAnnotationsClicked(): void {
-        this.trigger('show:annotations', this.model);
+        this.trigger('show:annotations', this.currentItem);
     }
 
     onExtResourcesClicked(): void {
-        this.trigger('show:external', this.model);
+        this.trigger('show:external', this.currentItem, this.externalResources);
     }
 }
 extend(LdItemView.prototype, {

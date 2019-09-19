@@ -29,7 +29,7 @@
     </section>
 
     <section class="accordions">
-        <article class="accordion has-mt-10">
+        <article class="accordion has-mt-10 is-active">
             <div class="accordion-header toggle">
                 <p>Item metadata</p>
                 <button class="toggleProxy" aria-label="toggle"></button>
@@ -61,16 +61,18 @@
     </section>
 
     <section class="item-sections">
+        {{#if relatedItems}}
         <article class="item-section has-mt-10">
             <div class="item-section-header">
                 <p>Related items</p>
                 <span id="btnRelItems" class="icon is-large has-text-primary tooltip is-tooltip-left"
-                    data-tooltip="Open related items">
-                    <i class="fas fa-arrow-circle-right"></i>
-                </span>
+                data-tooltip="Open related items">
+                <i class="fas fa-arrow-circle-right"></i>
+            </span>
             </div>
         </article>
-        {{#if annotations}}
+        {{/if}}
+        {{#if modelIsAnnotation}}
         <article class="item-section has-mt-10">
             <div class="item-section-header">
                 <p>Annotations</p>
@@ -81,6 +83,7 @@
             </div>
         </article>
         {{/if}}
+        {{#if externalResources}}
         <article class="item-section has-mt-10">
             <div class="item-section-header">
                 <p>External resources</p>
@@ -90,5 +93,6 @@
                 </span>
             </div>
         </article>
+        {{/if}}
     </section>
 </div>
