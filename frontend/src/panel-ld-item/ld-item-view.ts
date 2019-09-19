@@ -39,8 +39,8 @@ export default class LdItemView extends View<Node> {
     label: string;
     properties: any = new Object();
     itemMetadata: any = new Object();
-    annoMetadata: any = new Object();
-    annotations: any;
+    annotationMetadata: any = new Object();
+    annotations: any = new Object();
 
     relatedItems: Node[] = [];
     externalResources: Node[];
@@ -57,6 +57,8 @@ export default class LdItemView extends View<Node> {
 
         if (this.modelIsAnnotation) {
             this.currentItem = this.getOntologyInstance();
+            this.annotationMetadata[getLabelFromId(dcterms.creator)] = getLabel(this.model.get(dcterms.creator)[0] as Node);
+            this.annotationMetadata[getLabelFromId(dcterms.created)] = this.model.get(dcterms.created);
         }
 
         this.label = getLabel(this.currentItem);
