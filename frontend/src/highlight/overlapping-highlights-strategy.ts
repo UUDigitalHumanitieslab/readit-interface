@@ -41,13 +41,7 @@ export default class OverlappingHighlightsStrategy {
 
         orderedIndices.forEach(index => {
             if (index.isStart) {
-                currentlyActiveHighlights.push(index.highlightView);
-                currentOverlapHighlights.push(index.highlightView);
-
-                if (currentlyActiveHighlights.length === 2) {
-                    currentOverlapPosDetails.startNodeIndex = index.nodeIndex;
-                    currentOverlapPosDetails.startCharacterIndex = index.characterIndex;
-                }
+                this.processStart(index, currentlyActiveHighlights, currentOverlapHighlights, currentOverlapPosDetails);
             }
             else {
                 remove(currentlyActiveHighlights, (c) => { return c.cid === index.highlightView.cid });
@@ -58,7 +52,7 @@ export default class OverlappingHighlightsStrategy {
 
                     results.push({
                         highlightViews: currentOverlapHighlights,
-                        positionDetails: currentOverlapPosDetails
+                        positionDetails: currentOverlapPosDetails as AnnotationPositionDetails
                     });
 
                     currentOverlapPosDetails = {};
@@ -72,6 +66,21 @@ export default class OverlappingHighlightsStrategy {
         });
 
         return results;
+    }
+
+    processStart(
+        index: HighlightIndex,
+        currentlyActiveHighlights: HighlightView[],
+        currentOverlapHighlights: HighlightView[],
+        currentOverlapPosDetails: Partial<AnnotationPositionDetails>
+    ): void {
+        currentlyActiveHighlights.push(index.highlightView);
+        currentOverlapHighlights.push(index.highlightView);
+
+        if (currentlyActiveHighlights.length === 2) {
+            currentOverlapPosDetails.startNodeIndex = index.nodeIndex;
+            currentOverlapPosDetails.startCharacterIndex = index.characterIndex;
+        }
     }
 
     getHighlightIndices(highlightViews: HighlightView[]): HighlightIndex[] {
