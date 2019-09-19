@@ -19,9 +19,13 @@ export function getLabel(node: Node): string {
  * @param id the string representing the id of a linked data item.
  */
 export function getLabelFromId(id: string) {
+    let result;
     let index = id.lastIndexOf("#");
     if (index === -1) index = id.lastIndexOf("/");
-    if (index) return id.substring(index + 1);
+    if (index) result = id.substring(index + 1);
+    // if result is a number we're dealing with an item
+    if (result && !isNaN(result)) return;
+    return result;
 }
 
 /**
