@@ -191,7 +191,7 @@ export default class HighlightableTextView extends View {
 
         this.collection.each((node) => {
             if (isType(node, oa.Annotation)) {
-                this.delete(node);
+                this.deleteNode(node);
             }
         });
         return this;
@@ -233,7 +233,7 @@ export default class HighlightableTextView extends View {
      * @param annotation The instance of oa:Annotation to remove.
      */
     removeHighlight(annotation: Node) {
-        this.delete(annotation);
+        this.deleteNode(annotation);
     }
 
     private deleteFromCollection(annotation: Node): boolean {
@@ -345,7 +345,7 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    delete(node: Node): this {
+    deleteNode(node: Node): this {
         if (this.deleteFromCollection(node)) {
             this.hVs.find(hV => hV.model === node).remove();
             this.initOverlaps();
@@ -357,7 +357,7 @@ export default class HighlightableTextView extends View {
     bindEvents(hV: HighlightView): this {
         hV.on('hover', this.onHover, this);
         hV.on('hoverEnd', this.onHoverEnd, this);
-        hV.on('delete', this.delete, this);
+        hV.on('delete', this.deleteNode, this);
         hV.on('clicked', this.onClicked, this);
         return this;
     }
