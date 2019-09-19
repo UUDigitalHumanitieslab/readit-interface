@@ -12,6 +12,10 @@ import { JsonLdContext, FlatLdDocument } from './json';
 import Node from './node';
 import Graph from './graph';
 
+const contentTypeAlias = {
+    'application/x-turtle': 'text/turtle',
+};
+
 const priorityOverrides = {
     'text/turtle': 0.8,
     'application/rdf+xml': 0.75,
@@ -66,7 +70,8 @@ export default async function syncLD(
 }
 
 export function transform(jqXHR): Promise<[FlatLdDocument, JsonLdContext]> {
-    const contentType = jqXHR.getResponseHeader('Content-Type');
+    let contentType = jqXHR.getResponseHeader('Content-Type');
+    contentType = contentTypeAlias[contentType] || contentType;
     let plaintext, context;
     if (contentType === 'application/json') {
         [plaintext, context] = combineContext(jqXHR);
