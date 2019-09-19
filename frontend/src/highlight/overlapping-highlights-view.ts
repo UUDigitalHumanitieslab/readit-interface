@@ -56,7 +56,7 @@ export default class OverlappingHighlightsView extends View {
     }
 
     render(): this {
-        this.$el.detach();
+        if (this.hV) this.hV.$el.detach();
         this.hV.render().$el.appendTo(this.$el);
         return this;
     }
