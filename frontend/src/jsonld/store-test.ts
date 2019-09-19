@@ -134,16 +134,15 @@ describe('Store', function() {
         });
 
         it('updates the returned Node with additional data', function(done) {
+            jasmine.Ajax.stubRequest(uri).andReturn({
+                status: 200,
+                contentType: 'application/ld+json',
+                responseText: JSON.stringify(serverReply),
+            });
             const added = this.store.request(partialHash);
             added.on('change', () => {
                 expect(added.get('@type')).toEqual([readit('Content')]);
                 done();
-            });
-            const request = jasmine.Ajax.requests.mostRecent();
-            expect(request.url).toBe(uri);
-            request.respondWith({
-                status: 200,
-                responseText: JSON.stringify(serverReply),
             });
         });
     });
@@ -178,49 +177,55 @@ describe('Store', function() {
             spyOn(this.store, 'importViaProxy');
         });
 
-        it('attempts to fetch whatever uri is passed to it', function() {
+        it('attempts to fetch whatever uri is passed to it', function(done) {
+            spyOn(this.store, 'fetch').and.callThrough();
+            jasmine.Ajax.stubRequest(uri).andCallFunction(xhr => {
+                expect(this.store.fetch).toHaveBeenCalled();
+                done();
+            });
             this.store.import(uri);
-            const request = jasmine.Ajax.requests.mostRecent();
-            expect(request.url).toBe(uri);
-            expect(request.requestHeaders['Accept']).toBe('application/ld+json');
         });
 
         it('stores the response data internally if successful', function(done) {
-            this.store.import(uri);
-            jasmine.Ajax.requests.mostRecent().respondWith({
+            jasmine.Ajax.stubRequest(uri).andReturn({
                 status: 200,
+                contentType: 'application/ld+json',
                 responseText: JSON.stringify(serverReply),
             });
-            this.store.on('update', () => {
+            this.store.import(uri);
+            this.store.on('sync', () => {
                 expect(this.store.length).toBe(7);
                 done();
             });
         });
 
         it('retries via proxy if the request fails', function(done) {
+            jasmine.Ajax.stubRequest(uri).andError({});
             this.store.importViaProxy.and.callFake(arg => {
                 expect(arg).toBe(uri);
                 done();
             });
             this.store.import(uri);
-            jasmine.Ajax.requests.mostRecent().responseError();
         });
     });
 
     describe('importViaProxy', function() {
-        it('attempts to fetch the passed uri via proxy', function() {
+        it('attempts to fetch the passed uri via proxy', function(done) {
+            spyOn(this.store, 'fetch').and.callThrough();
+            jasmine.Ajax.stubRequest(proxyUri).andCallFunction(xhr => {
+                expect(this.store.fetch).toHaveBeenCalled();
+                done();
+            });
             this.store.importViaProxy(uri);
-            const request = jasmine.Ajax.requests.mostRecent();
-            expect(request.url).toBe(proxyUri);
-            expect(request.requestHeaders['Accept']).toBe('application/ld+json');
         });
 
         it('stores the response data internally if successful', function(done) {
-            this.store.importViaProxy(uri);
-            jasmine.Ajax.requests.mostRecent().respondWith({
+            jasmine.Ajax.stubRequest(proxyUri).andReturn({
                 status: 200,
+                contentType: 'application/ld+json',
                 responseText: JSON.stringify(serverReply),
             });
+            this.store.importViaProxy(uri);
             this.store.on('sync', () => {
                 expect(this.store.length).toBe(7);
                 done();

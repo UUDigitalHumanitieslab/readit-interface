@@ -9,9 +9,6 @@ import Node from './node';
 import Graph from './graph';
 
 const fetchOptions = {
-    headers: {
-        Accept: 'application/ld+json',
-    },
     remove: false,
     merge: true,
 };
