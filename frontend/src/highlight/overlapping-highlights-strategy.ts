@@ -34,7 +34,7 @@ export default class OverlappingHighlightsStrategy {
         let currentOverlapHighlights = [];
 
         // Store the indices of the current overlap
-        let currentOverlapPosDetails = [];
+        let currentOverlapPosDetails: Partial<AnnotationPositionDetails> = {};
 
         let highlightIndices = this.getHighlightIndices(highlightViews);
         let orderedIndices = orderBy(highlightIndices, ['nodeIndex', 'characterIndex', 'isStart'], ['asc', 'asc', 'desc']);
@@ -45,26 +45,23 @@ export default class OverlappingHighlightsStrategy {
                 currentOverlapHighlights.push(index.highlightView);
 
                 if (currentlyActiveHighlights.length === 2) {
-                    currentOverlapPosDetails[0] = index.nodeIndex;
-                    currentOverlapPosDetails[1] = index.characterIndex;
+                    currentOverlapPosDetails.startNodeIndex = index.nodeIndex;
+                    currentOverlapPosDetails.startCharacterIndex = index.characterIndex;
                 }
             }
             else {
                 remove(currentlyActiveHighlights, (c) => { return c.cid === index.highlightView.cid });
 
                 if (currentlyActiveHighlights.length === 1) {
-                    currentOverlapPosDetails[2] = index.nodeIndex;
-                    currentOverlapPosDetails[3] = index.characterIndex;
+                    currentOverlapPosDetails.endNodeIndex = index.nodeIndex;
+                    currentOverlapPosDetails.endCharacterIndex = index.characterIndex;
 
                     results.push({
-                        highlightViews: currentOverlapHighlights, positionDetails: {
-                            startNodeIndex: currentOverlapPosDetails[0],
-                            startCharacterIndex: currentOverlapPosDetails[1],
-                            endNodeIndex: currentOverlapPosDetails[2],
-                            endCharacterIndex: currentOverlapPosDetails[3]
-                        }
+                        highlightViews: currentOverlapHighlights,
+                        positionDetails: currentOverlapPosDetails
                     });
 
+                    currentOverlapPosDetails = {};
                     currentOverlapHighlights = [currentlyActiveHighlights[0]];
                 }
 
