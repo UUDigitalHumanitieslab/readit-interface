@@ -55,6 +55,10 @@ export default class LdItemView extends View<Node> {
         this.modelIsAnnotation = isType(this.model, oa.Annotation);
         this.currentItem = this.model;
 
+        this.init();
+    }
+
+    init(): this {
         if (this.modelIsAnnotation) {
             this.currentItem = this.getOntologyInstance();
             this.annotationMetadata[getLabelFromId(dcterms.creator)] = getLabel(this.model.get(dcterms.creator)[0] as Node);
@@ -70,6 +74,7 @@ export default class LdItemView extends View<Node> {
         }
 
         this.collectDetails();
+        return this;
     }
 
     render(): this {
