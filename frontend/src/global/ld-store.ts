@@ -18,7 +18,8 @@ const defaultGraphs = [
     // as(),
     // Keep schema at the bottom, because it is large and we do not
     // use much of it.
-    'https://schema.org/version/latest/schema.jsonld',
+    // The jsonld version has invalid syntax so we're using Turtle.
+    'https://schema.org/version/latest/schema.ttl',
 ];
 
 const globalGraph = new Store();
