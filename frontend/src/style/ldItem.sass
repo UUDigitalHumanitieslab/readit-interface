@@ -5,6 +5,11 @@
     .tag
         float:right !important
 
+    .explorer-content
+        display: flex
+        flex-direction: column
+        justify-content: space-between
+
     .item-sections
         @extend .accordions
 
@@ -27,3 +32,7 @@
     .toggleProxy
         @extend .toggle
         background-color: $primary-color !important
+
+    .btn-edit
+        width: 100px
+        align-self: flex-end

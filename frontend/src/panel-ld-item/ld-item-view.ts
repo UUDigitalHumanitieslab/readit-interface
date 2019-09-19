@@ -165,6 +165,10 @@ export default class LdItemView extends View<Node> {
     onExtResourcesClicked(): void {
         this.trigger('show:external', this.currentItem, this.externalResources);
     }
+
+    onEditClicked(): void {
+        this.trigger('edit', this.currentItem);
+    }
 }
 extend(LdItemView.prototype, {
     tagName: 'div',
@@ -174,5 +178,6 @@ extend(LdItemView.prototype, {
         'click #btnRelItems': 'onRelItemsClicked',
         'click #btnAnnotations': 'onAnnotationsClicked',
         'click #btnExtResources': 'onExtResourcesClicked',
+        'click btn-edit': 'onEditClicked'
     }
 });
