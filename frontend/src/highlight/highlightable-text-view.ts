@@ -130,7 +130,10 @@ export default class HighlightableTextView extends View {
     }
 
     initOverlaps(): void {
-        this.overlaps = [];
+        if (this.overlaps) {
+            this.overlaps.forEach(overlap => overlap.remove());
+            this.overlaps = [];
+        }
         let overlapStrategy = new OverlappingHighlightsStrategy();
         let overlaps: OverlappingHighlights[] = overlapStrategy.getOverlaps(this.hVs);
         overlaps.forEach(overlap => {
@@ -343,7 +346,7 @@ export default class HighlightableTextView extends View {
 
     delete(node: Node): this {
         if (this.deleteFromCollection(node)) {
-            this.hVs.find(hV => hV.model === node).$el.detach();
+            this.hVs.find(hV => hV.model === node).remove();
             this.initOverlaps();
             this.trigger('delete', node);
         }
