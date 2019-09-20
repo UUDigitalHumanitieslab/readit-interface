@@ -64,23 +64,23 @@ export default class AnnoItemSummaryBlockView extends View<Node> {
         return this;
     }
 
-    highlight(): this {
-        this.$el.addClass('is-highlighted');
-        return this;
-    }
-
-    unHighlight(): this {
-        this.$el.removeClass('is-highlighted');
+    toggleHighlight(): this {
+        this.$el.toggleClass('is-highlighted');
         return this;
     }
 
     onClick(): this {
-        this.trigger('click', this.currentItem);
+        this.trigger('click', this, this.model);
         return this;
     }
 
     onHover(): this {
-        this.trigger('hover', this.currentItem);
+        this.trigger('hover', this, this.model);
+        return this;
+    }
+
+    onHoverEnd(): this {
+        this.trigger('hoverEnd', this, this.model);
         return this;
     }
 }
@@ -91,5 +91,6 @@ extend(AnnoItemSummaryBlockView.prototype, {
     events: {
         'click': 'onClick',
         'hover': 'onHover',
+        'hoverEnd': 'onHoverEnd'
     }
 });
