@@ -8,7 +8,7 @@ import Graph from './../jsonld/graph';
 import { getCssClassName, getLabel, isType } from './utilities';
 
 import annoItemSummaryBlockTemplate from './anno-item-summary-block-template';
-import { getOntologyInstance, getOntologyClass } from './annotation-utilities';
+import { getOntologyInstance, getOntologyClass, AnnotationPositionDetails, getPositionDetails } from './annotation-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     ontology: Graph;
@@ -31,17 +31,23 @@ export default class AnnoItemSummaryBlockView extends View<Node> {
      */
     currentItem: Node;
 
+    positionDetails: AnnotationPositionDetails;
+
     constructor(options: ViewOptions) {
         super(options);
         if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
+
         this.ontology = options.ontology;
         this.currentItem = options.model;
+
         this.init();
     }
 
     init(): this {
-        if (isType(this.model, oa.Annotation)) {
+        this.modelIsAnnotation = isType(this.model, oa.Annotation);
+        if (this.modelIsAnnotation) {
             this.currentItem = getOntologyInstance(this.model, this.ontology);
+            this.positionDetails = getPositionDetails(this.model);
         }
 
         this.instanceLabel = getLabel(this.currentItem);
