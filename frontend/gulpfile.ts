@@ -294,15 +294,16 @@ export function serve() {
     plugins.connect.server(serverOptions);
 };
 
+function watchBundle(bundle, task) {
+    bundle.plugin(watchify);
+    bundle.on('update', task);
+    bundle.on('log', log);
+    task();
+}
+
 export const watch = series(fullStatic, function watch() {
-    tsModules.plugin(watchify);
-    tsModules.on('update', jsBundle);
-    tsModules.on('log', log);
-    jsBundle();
-    tsTestModules.plugin(watchify);
-    tsTestModules.on('update', jsUnittest);
-    tsTestModules.on('log', log);
-    jsUnittest();
+    watchBundle(tsModules, jsBundle);
+    watchBundle(tsTestModules, jsUnittest);
     watchApi(styleSourceGlob, style);
     watchApi(templateSourceGlob, template);
     watchApi([indexConfig, indexTemplate], index);
