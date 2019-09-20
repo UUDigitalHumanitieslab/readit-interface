@@ -16,6 +16,7 @@ import proxy = require('http-proxy-middleware');
 import del = require('del');
 import yargs = require('yargs');
 import glob = require('glob');
+import { JSDOM, VirtualConsole } from 'jsdom';
 import loadPlugins = require('gulp-load-plugins');
 const plugins = loadPlugins();
 
@@ -82,6 +83,7 @@ const sourceDir = `src`,
     proxyConfig = yargs.argv.proxy,
     serverRoot = yargs.argv.root,
     ports = {frontend: 8080},
+    unittestUrl = `http://localhost:${ports.frontend}/${specRunnerOutput}`,
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
     unpkgPattern = 'https://unpkg.com/${package}@${version}',
     cdnjsBase = 'https://cdnjs.cloudflare.com/ajax/libs',
@@ -265,7 +267,23 @@ export function specRunner(done) {
     }, done);
 };
 
-export const test = parallel(specRunner, terminalReporter, series(template, jsUnittest));
+export const buildUnittests = parallel(specRunner, terminalReporter, series(template, jsUnittest));
+
+export function runUnittests(done) {
+    const virtualConsole = new VirtualConsole();
+    virtualConsole.on('info', console.info);
+    virtualConsole.on('jsdomError', console.error);
+    JSDOM.fromURL(unittestUrl, {
+        runScripts: 'dangerously',
+        resources: 'usable',
+        virtualConsole,
+    }).then(jsDOM => {
+        virtualConsole.on('timeEnd', () => {
+            jsDOM.window.close();
+            done();
+        });
+    });
+}
 
 export function image() {
     return src(imageDir).pipe(symlink(buildDir));
@@ -294,6 +312,8 @@ export function serve() {
     plugins.connect.server(serverOptions);
 };
 
+export const test = parallel(serve, series(buildUnittests, runUnittests, plugins.connect.serverClose));
+
 function watchBundle(bundle, task) {
     bundle.plugin(watchify);
     bundle.on('update', task);
@@ -308,7 +328,7 @@ export const watch = series(fullStatic, function watch() {
     watchApi(styleSourceGlob, style);
     watchApi(templateSourceGlob, template);
     watchApi([indexConfig, indexTemplate], index);
-    watchApi([indexConfig, specRunnerTemplate], specRunner);
+    watchApi([indexConfig, specRunnerTemplate], series(specRunner, runUnittests));
 });
 
 export function clean() {

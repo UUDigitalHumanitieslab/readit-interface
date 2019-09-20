@@ -24,6 +24,7 @@ function print(text: string): void {
 const env = jasmine.getEnv();
 const reporter = new Reporter({
     print,
+    done: () => console.timeEnd(),
 });
 
 env.addReporter(reporter);
