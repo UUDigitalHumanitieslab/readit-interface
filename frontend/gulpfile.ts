@@ -230,7 +230,6 @@ export function terminalReporter() {
     return reporterModules.bundle()
         .pipe(vinylStream(reporterBundleName))
         .pipe(dest(buildDir))
-        .pipe(plugins.connect.reload());
 }
 
 export const script = series(template, jsBundle);
@@ -250,17 +249,17 @@ export function style() {
 function renderHtml(template, targetDir, extraData, done) {
     fs.readFile(indexConfig, 'utf-8', function(error, data) {
         if (error) return done(error);
-        src(template)
+        const result = src(template)
             .pipe(plugins.hb().data(JSON.parse(data)).data(extraData))
             .pipe(ifProd(plugins.cdnizer(cdnizerConfig)))
             .pipe(plugins.rename({extname: '.html'}))
             .pipe(dest(targetDir));
-        return done();
+        return done(undefined, result);
     });
 };
 
 export function index(done) {
-    renderHtml(indexTemplate, buildDir, {
+    return renderHtml(indexTemplate, buildDir, {
         libs: browserLibs,
         jsBundleName,
         cssBundleName,
@@ -269,7 +268,7 @@ export function index(done) {
 };
 
 export function specRunner(done) {
-    renderHtml(specRunnerTemplate, buildDir, {
+    return renderHtml(specRunnerTemplate, buildDir, {
         libs: browserLibs,
         unittestBundleName,
         reporterBundleName,
@@ -335,21 +334,44 @@ function stopServing(done) {
 
 export const test = parallel(serve, series(buildUnittests, runUnittests, stopServing));
 
+function reload(inputTask) {
+    return function reload() {
+        return inputTask().pipe(plugins.connect.reload());
+    }
+}
+
+function reloadCb(inputTask) {
+    return function reload(done) {
+        inputTask((error, intermediate) => {
+            if (error) {
+                done(error);
+            } else {
+                intermediate.pipe(plugins.connect.reload()).on('end', done);
+            }
+        });
+    };
+}
+
+function retest(inputTask) {
+    return series(inputTask, runUnittests);
+}
+
 function watchBundle(bundle, task) {
     bundle.plugin(watchify);
     bundle.on('update', task);
     bundle.on('log', log);
-    task();
 }
 
 export const watch = series(fullStatic, function watch(done) {
-    watchBundle(tsModules, jsBundle);
-    watchBundle(tsTestModules, jsUnittest);
-    watchBundle(reporterModules, terminalReporter);
-    watchApi(styleSourceGlob, style);
+    watchBundle(tsModules, reload(jsBundle));
+    watchBundle(tsTestModules, retest(reload(jsUnittest)));
+    watchBundle(reporterModules, retest(reload(terminalReporter)));
+    jsBundle();
+    retest(parallel(jsUnittest, terminalReporter))();
+    watchApi(styleSourceGlob, reload(style));
     watchApi(templateSourceGlob, template);
-    watchApi([indexConfig, indexTemplate], index);
-    watchApi([indexConfig, specRunnerTemplate], series(specRunner, runUnittests));
+    watchApi([indexConfig, indexTemplate], reloadCb(index));
+    watchApi([indexConfig, specRunnerTemplate], retest(reloadCb(specRunner)));
     exitController.once('signal', done);
 });
 
