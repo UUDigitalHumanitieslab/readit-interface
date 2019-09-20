@@ -61,6 +61,8 @@ const sourceDir = `src`,
     },
     unittestBundleName = 'tests.js',
     unittestEntries = glob.sync(`${sourceDir}/**/*-test.ts`),
+    reporterEntry = `${sourceDir}/terminalReporter.ts`,
+    reporterBundleName = 'terminalReporter.js',
     templateRenameOptions = {extname: '.ts'},
     templateSourceGlob = `${sourceDir}/**/*-template.hbs`,
     templateOutputGlob = `${sourceDir}/**/*-template${templateRenameOptions.extname}`,
@@ -166,6 +168,13 @@ const tsTestModules = decoratedBrowserify({
     packageCache: {},
 });
 
+const reporterModules = decoratedBrowserify({
+    debug: true,
+    entries: [reporterEntry],
+    cache: {},
+    packageCache: {},
+});
+
 function ifProd(stream, otherwise?) {
     return plugins['if'](production, stream, otherwise);
 }
@@ -203,6 +212,13 @@ function jsUnittest() {
     return tsTestModules.bundle()
         .pipe(vinylStream(unittestBundleName))
         .pipe(dest(buildDir));
+}
+
+export function terminalReporter() {
+    return reporterModules.bundle()
+        .pipe(vinylStream(reporterBundleName))
+        .pipe(dest(buildDir))
+        .pipe(plugins.connect.reload());
 }
 
 export const script = series(template, jsBundle);
@@ -244,11 +260,12 @@ export function specRunner(done) {
     renderHtml(specRunnerTemplate, buildDir, {
         libs: browserLibs,
         unittestBundleName,
+        reporterBundleName,
         jasminePrefix,
     }, done);
 };
 
-export const test = parallel(specRunner, series(template, jsUnittest));
+export const test = parallel(specRunner, terminalReporter, series(template, jsUnittest));
 
 export function image() {
     return src(imageDir).pipe(symlink(buildDir));
@@ -256,9 +273,9 @@ export function image() {
 
 export const complement = parallel(style, index, image);
 
-const fullStatic = parallel(template, complement, specRunner);
-
 export const dist = parallel(script, complement);
+
+const fullStatic = parallel(template, complement, specRunner);
 
 export function serve() {
     let serverOptions: any = {
