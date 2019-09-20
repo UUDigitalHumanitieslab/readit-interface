@@ -9,7 +9,6 @@ import watchify = require('watchify');
 import exorcist = require('exorcist');
 import exposify = require('exposify');
 import aliasify = require('aliasify');
-import log = require('fancy-log');
 import cssnano = require('cssnano');
 import autoprefixer = require('autoprefixer');
 import fs = require('fs');
@@ -359,7 +358,6 @@ function retest(inputTask) {
 function watchBundle(bundle, task) {
     bundle.plugin(watchify);
     bundle.on('update', task);
-    bundle.on('log', log);
 }
 
 export const watch = series(fullStatic, function watch(done) {
