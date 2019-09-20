@@ -4,10 +4,6 @@
     padding: 1em 2em
     overflow-x: auto
 
-    .source
-        overflow-x: auto
-        overflow-y: hidden
-
     .explorer-panel
         height: 98%
         min-width: 550px
@@ -22,6 +18,9 @@
     .panel-content
         height: 100%
         overflow-y: auto
+
+        &.source
+            overflow-y: unset
 
     .btn-edit
         width: 100px
