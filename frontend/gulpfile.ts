@@ -275,9 +275,9 @@ export function specRunner(done) {
     }, done);
 };
 
-export const buildUnittests = parallel(specRunner, terminalReporter, series(template, jsUnittest));
+const buildUnittests = parallel(specRunner, terminalReporter, series(template, jsUnittest));
 
-export function runUnittests(done) {
+function runUnittests(done) {
     const virtualConsole = new VirtualConsole();
     virtualConsole.on('info', console.info);
     virtualConsole.on('jsdomError', console.error);
@@ -297,7 +297,7 @@ export function image() {
     return src(imageDir).pipe(symlink(buildDir));
 };
 
-export const complement = parallel(style, index, image);
+const complement = parallel(style, index, image);
 
 export const dist = parallel(script, complement);
 
