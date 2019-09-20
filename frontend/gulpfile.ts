@@ -304,6 +304,7 @@ function watchBundle(bundle, task) {
 export const watch = series(fullStatic, function watch() {
     watchBundle(tsModules, jsBundle);
     watchBundle(tsTestModules, jsUnittest);
+    watchBundle(reporterModules, terminalReporter);
     watchApi(styleSourceGlob, style);
     watchApi(templateSourceGlob, template);
     watchApi([indexConfig, indexTemplate], index);
