@@ -1,24 +1,24 @@
 import * as EventEmitter from 'events';
 
 import { src, dest, symlink, parallel, series, watch as watchApi } from 'gulp';
-import browserify = require('browserify');
-import vinylStream = require('vinyl-source-stream');
-import vinylBuffer = require('vinyl-buffer');
-import tsify = require('tsify');
-import watchify = require('watchify');
-import exorcist = require('exorcist');
-import exposify = require('exposify');
-import aliasify = require('aliasify');
-import cssnano = require('cssnano');
-import autoprefixer = require('autoprefixer');
-import fs = require('fs');
-import path = require('path');
-import proxy = require('http-proxy-middleware');
-import del = require('del');
-import yargs = require('yargs');
-import glob = require('glob');
+import * as browserify from 'browserify';
+import * as vinylStream from 'vinyl-source-stream';
+import * as vinylBuffer from 'vinyl-buffer';
+import * as tsify from 'tsify';
+import * as watchify from 'watchify';
+import * as exorcist from 'exorcist';
+import * as exposify from 'exposify';
+import * as aliasify from 'aliasify';
+import * as cssnano from 'cssnano';
+import * as autoprefixer from 'autoprefixer';
+import { readFile, readFileSync } from 'fs';
+import { relative, join } from 'path';
+import * as proxy from 'http-proxy-middleware';
+import * as del from 'del';
+import { argv } from 'yargs';
+import { sync as globSync } from 'glob';
 import { JSDOM, VirtualConsole } from 'jsdom';
-import loadPlugins = require('gulp-load-plugins');
+import * as loadPlugins from 'gulp-load-plugins';
 const plugins = loadPlugins();
 
 type LibraryProps = {
@@ -47,7 +47,7 @@ const sourceDir = `src`,
     buildDir = `dist`,
     nodeDir = `node_modules`,
     configModuleName = 'config.json',
-    indexConfig = yargs.argv.config || configModuleName,
+    indexConfig = argv.config || configModuleName,
     indexTemplate = `${sourceDir}/index.hbs`,
     indexOutput = `${buildDir}/index.html`,
     specRunnerTemplate = `${sourceDir}/specRunner.hbs`,
@@ -70,7 +70,7 @@ const sourceDir = `src`,
         appliesTo: {excludeExtensions: ['.json']},
     },
     unittestBundleName = 'tests.js',
-    unittestEntries = glob.sync(`${sourceDir}/**/*-test.ts`),
+    unittestEntries = globSync(`${sourceDir}/**/*-test.ts`),
     reporterEntry = `${sourceDir}/terminalReporter.ts`,
     reporterBundleName = 'terminalReporter.js',
     templateRenameOptions = {extname: '.ts'},
@@ -88,9 +88,9 @@ const sourceDir = `src`,
     mainStylesheet = `${styleDir}/main.sass`,
     styleSourceGlob = `${styleDir}/*.sass`,
     cssBundleName = 'index.css',
-    production = yargs.argv.production || false,
-    proxyConfig = yargs.argv.proxy,
-    serverRoot = yargs.argv.root,
+    production = argv.production || false,
+    proxyConfig = argv.proxy,
+    serverRoot = argv.root,
     ports = {frontend: 8080},
     unittestUrl = `http://localhost:${ports.frontend}/${specRunnerOutput}`,
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
@@ -143,8 +143,8 @@ const browserLibs: LibraryProps[] = [{
 
 browserLibs.forEach(lib => {
     let browser = lib.browser || lib.module;
-    lib.path = path.relative(nodeDir, require.resolve(browser));
-    browserLibsRootedPaths.push(path.join(nodeDir, lib.path));
+    lib.path = relative(nodeDir, require.resolve(browser));
+    browserLibsRootedPaths.push(join(nodeDir, lib.path));
 });
 
 // We override the filePattern (normally /\.js$/) because tsify
@@ -246,7 +246,7 @@ export function style() {
 };
 
 function renderHtml(template, targetDir, extraData, done) {
-    fs.readFile(indexConfig, 'utf-8', function(error, data) {
+    readFile(indexConfig, 'utf-8', function(error, data) {
         if (error) return done(error);
         const result = src(template)
             .pipe(plugins.hb().data(JSON.parse(data)).data(extraData))
@@ -312,7 +312,7 @@ export function serve(done) {
         fallback: indexOutput,
     };
     if (proxyConfig) {
-        const proxyData = JSON.parse(fs.readFileSync(proxyConfig, 'utf-8'));
+        const proxyData = JSON.parse(readFileSync(proxyConfig, 'utf-8'));
         serverOptions.middleware = (connect, connectOptions) => proxyData.map(
             ({context, options}) => proxy(context, options)
         );
