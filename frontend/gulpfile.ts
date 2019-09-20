@@ -1,25 +1,27 @@
 import * as EventEmitter from 'events';
-
-import { src, dest, symlink, parallel, series, watch as watchApi } from 'gulp';
-import * as browserify from 'browserify';
-import * as vinylStream from 'vinyl-source-stream';
-import * as vinylBuffer from 'vinyl-buffer';
-import * as tsify from 'tsify';
-import * as watchify from 'watchify';
-import * as exorcist from 'exorcist';
-import * as exposify from 'exposify';
-import * as aliasify from 'aliasify';
-import * as cssnano from 'cssnano';
-import * as autoprefixer from 'autoprefixer';
 import { readFile, readFileSync } from 'fs';
 import { relative, join } from 'path';
+
+import { src, dest, symlink, parallel, series, watch as watchApi } from 'gulp';
+import * as vinylStream from 'vinyl-source-stream';
+import * as vinylBuffer from 'vinyl-buffer';
+import * as exorcist from 'exorcist';
+import * as loadPlugins from 'gulp-load-plugins';
+const plugins = loadPlugins();
+
+import * as browserify from 'browserify';
+import * as tsify from 'tsify';
+import * as watchify from 'watchify';
+import * as exposify from 'exposify';
+import * as aliasify from 'aliasify';
+
+import * as cssnano from 'cssnano';
+import * as autoprefixer from 'autoprefixer';
 import * as proxy from 'http-proxy-middleware';
 import * as del from 'del';
 import { argv } from 'yargs';
 import { sync as globSync } from 'glob';
 import { JSDOM, VirtualConsole } from 'jsdom';
-import * as loadPlugins from 'gulp-load-plugins';
-const plugins = loadPlugins();
 
 type LibraryProps = {
     module: string,
