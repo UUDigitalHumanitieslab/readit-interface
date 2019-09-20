@@ -1,3 +1,5 @@
+import * as EventEmitter from 'events';
+
 import { src, dest, symlink, parallel, series, watch as watchApi } from 'gulp';
 import browserify = require('browserify');
 import vinylStream = require('vinyl-source-stream');
@@ -32,6 +34,14 @@ type LibraryProps = {
 type ExposeConfig = {
     [moduleName: string]: string,
 };
+
+// Helpers for finishing tasks that run indefinitely.
+const exitController = new EventEmitter();
+function signalExit() {
+    exitController.emit('signal');
+}
+process.on('SIGINT', signalExit);
+process.on('SIGTERM', signalExit);
 
 // General configuration.
 const sourceDir = `src`,
@@ -295,7 +305,7 @@ export const dist = parallel(script, complement);
 
 const fullStatic = parallel(template, complement, specRunner);
 
-export function serve() {
+export function serve(done) {
     let serverOptions: any = {
         root: serverRoot || __dirname,
         port: ports.frontend,
@@ -310,9 +320,20 @@ export function serve() {
         );
     }
     plugins.connect.server(serverOptions);
+    function finalize() {
+        plugins.connect.serverClose();
+        done();
+    }
+    exitController.once('stopServing', finalize);
+    exitController.once('signal', finalize);
 };
 
-export const test = parallel(serve, series(buildUnittests, runUnittests, plugins.connect.serverClose));
+function stopServing(done) {
+    exitController.emit('stopServing');
+    done();
+}
+
+export const test = parallel(serve, series(buildUnittests, runUnittests, stopServing));
 
 function watchBundle(bundle, task) {
     bundle.plugin(watchify);
@@ -321,7 +342,7 @@ function watchBundle(bundle, task) {
     task();
 }
 
-export const watch = series(fullStatic, function watch() {
+export const watch = series(fullStatic, function watch(done) {
     watchBundle(tsModules, jsBundle);
     watchBundle(tsTestModules, jsUnittest);
     watchBundle(reporterModules, terminalReporter);
@@ -329,6 +350,7 @@ export const watch = series(fullStatic, function watch() {
     watchApi(templateSourceGlob, template);
     watchApi([indexConfig, indexTemplate], index);
     watchApi([indexConfig, specRunnerTemplate], series(specRunner, runUnittests));
+    exitController.once('signal', done);
 });
 
 export function clean() {
