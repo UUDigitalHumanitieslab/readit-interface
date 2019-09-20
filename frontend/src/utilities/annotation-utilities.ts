@@ -62,8 +62,33 @@ export function getCssClassName(annotation: Node, ontology: Graph): string {
 /**
  * Get the ontology instances from an annotation (i.e. the item in 'oa.hasBody' that are not ontology items)
  */
-export function getOntologyInstances(annotation:Node, ontology: Graph): Node[] {
+export function getOntologyInstances(annotation: Node, ontology: Graph): Node[] {
     return annotation.get(oa.hasBody).filter(n => !ontology.get(n as Node)) as Node[];
+}
+
+/**
+ * Get the item in oa.hasBody that is not in the ontology Graph.
+ * Throws RangeError if none or multiple items are found.
+ */
+export function getOntologyInstance(annotation: Node, ontology: Graph): Node {
+    let ontologyInstances = getOntologyInstances(annotation, ontology);
+
+    if (ontologyInstances.length !== 1) {
+        throw new RangeError(
+            `None or multiple ontology instances found for oa:Annotation with cid '${annotation.cid}',
+                    don't know which one to display`);
+    }
+
+    return ontologyInstances[0];
+}
+
+/**
+ * Get ontology class item from the ontology Graph
+ * @param ontologyInstance The ontology instance associated with the View's current model
+ */
+export function getOntologyClass(ontologyInstance: Node, ontology: Graph) {
+    let ontologyReference = ontologyInstance.get('@type')[0] as string;
+    return ontology.get(ontologyReference);
 }
 
 /**
