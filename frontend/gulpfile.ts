@@ -234,6 +234,8 @@ export function terminalReporter() {
 }
 
 export const script = series(template, jsBundle);
+export const unittest = series(template, jsUnittest);
+export const typecheck = series(template, parallel(jsBundle, jsUnittest));
 
 export function style() {
     let postcssPlugins = [autoprefixer()];
@@ -277,7 +279,7 @@ export function specRunner(done) {
     }, done);
 };
 
-const buildUnittests = parallel(specRunner, terminalReporter, series(template, jsUnittest));
+const buildUnittests = parallel(specRunner, terminalReporter, unittest);
 
 function runUnittests(done) {
     const virtualConsole = new VirtualConsole();
