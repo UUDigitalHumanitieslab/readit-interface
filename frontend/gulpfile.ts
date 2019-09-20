@@ -12,7 +12,6 @@ import cssnano = require('cssnano');
 import autoprefixer = require('autoprefixer');
 import fs = require('fs');
 import path = require('path');
-import streamqueue = require('streamqueue');
 import proxy = require('http-proxy-middleware');
 import del = require('del');
 import yargs = require('yargs');
@@ -80,7 +79,7 @@ const sourceDir = `src`,
     production = yargs.argv.production || false,
     proxyConfig = yargs.argv.proxy,
     serverRoot = yargs.argv.root,
-    ports = {frontend: 8080, unittest: 8088},
+    ports = {frontend: 8080},
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
     unpkgPattern = 'https://unpkg.com/${package}@${version}',
     cdnjsBase = 'https://cdnjs.cloudflare.com/ajax/libs',
@@ -201,27 +200,12 @@ function jsBundle() {
 }
 
 function jsUnittest() {
-    const libs = src(browserLibsRootedPaths);
-    const bundle = tsTestModules.bundle()
+    return tsTestModules.bundle()
         .pipe(vinylStream(unittestBundleName))
-        .pipe(vinylBuffer());
-    const headless = plugins.jasmineBrowser.headless({
-        driver: 'phantomjs',
-        port: ports.unittest,
-    });
-    // The next line is a fix based on
-    // https://github.com/gulpjs/gulp/issues/71#issuecomment-41512070
-    headless.on('error', e => headless.end());
-    return streamqueue({objectMode: true}, libs, bundle)
-        .pipe(plugins.jasmineBrowser.specRunner({console: true}))
-        .pipe(dest(buildDir))
-        .pipe(plugins.connect.reload())
-        .pipe(headless);
+        .pipe(dest(buildDir));
 }
 
 export const script = series(template, jsBundle);
-
-export const test = series(template, jsUnittest);
 
 export function style() {
     let postcssPlugins = [autoprefixer()];
@@ -264,11 +248,15 @@ export function specRunner(done) {
     }, done);
 };
 
+export const test = parallel(specRunner, series(template, jsUnittest));
+
 export function image() {
     return src(imageDir).pipe(symlink(buildDir));
 };
 
 export const complement = parallel(style, index, image);
+
+const fullStatic = parallel(template, complement, specRunner);
 
 export const dist = parallel(script, complement);
 
@@ -289,17 +277,19 @@ export function serve() {
     plugins.connect.server(serverOptions);
 };
 
-export const watch = series(parallel(template, complement), function watch() {
+export const watch = series(fullStatic, function watch() {
     tsModules.plugin(watchify);
     tsModules.on('update', jsBundle);
     tsModules.on('log', log);
     jsBundle();
     tsTestModules.plugin(watchify);
     tsTestModules.on('update', jsUnittest);
+    tsTestModules.on('log', log);
     jsUnittest();
     watchApi(styleSourceGlob, style);
     watchApi(templateSourceGlob, template);
     watchApi([indexConfig, indexTemplate], index);
+    watchApi([indexConfig, specRunnerTemplate], specRunner);
 });
 
 export function clean() {
