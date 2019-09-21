@@ -291,19 +291,23 @@ export function specRunner() {
     });
 };
 
-const buildUnittests = parallel(specRunner, terminalReporter, unittest);
+const buildUnittests = parallel(terminalReporter, unittest);
 
 export function runUnittests(done) {
-    const virtualConsole = new VirtualConsole();
-    virtualConsole.on('info', console.info);
-    virtualConsole.on('jsdomError', console.error);
-    unittestUrl.then(url => JSDOM.fromURL(url, {
-        runScripts: 'dangerously',
-        resources: 'usable',
-        virtualConsole,
-    })).then(jsDOM => virtualConsole.on('timeEnd', () => {
-        jsDOM.window.close();
-        done();
+    specRunner().then(pipe => pipe.on('data', runner => {
+        const virtualConsole = new VirtualConsole();
+        virtualConsole.on('info', console.info);
+        virtualConsole.on('jsdomError', console.error);
+        const jsDOM = new JSDOM(runner.contents.toString(), {
+            url: `http://localhost:${argv.port || ports.frontend}`,
+            runScripts: 'dangerously',
+            resources: 'usable',
+            virtualConsole,
+        });
+        virtualConsole.on('timeEnd', () => {
+            jsDOM.window.close();
+            done();
+        });
     }));
 }
 
@@ -315,7 +319,7 @@ const complement = parallel(style, index, image);
 
 export const dist = parallel(script, complement);
 
-const fullStatic = parallel(template, complement, specRunner);
+const fullStatic = parallel(template, complement);
 
 export function serve(done) {
     let serverOptions: any = {
@@ -379,7 +383,7 @@ export const watch = series(fullStatic, function watch(done) {
     watchApi(styleSourceGlob, reload(style));
     watchApi(templateSourceGlob, template);
     watchApi([indexConfig, indexTemplate], reloadPr(index));
-    watchApi([indexConfig, specRunnerTemplate], retest(reloadPr(specRunner)));
+    watchApi([indexConfig, specRunnerTemplate], runUnittests);
     exitController.once('signal', done);
 });
 
