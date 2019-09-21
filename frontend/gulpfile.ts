@@ -53,7 +53,6 @@ const sourceDir = `src`,
     indexTemplate = `${sourceDir}/index.hbs`,
     indexOutput = `${buildDir}/index.html`,
     specRunnerTemplate = `${sourceDir}/specRunner.hbs`,
-    specRunnerOutput = `${buildDir}/specRunner.html`,
     jasminePrefix = `jasmine-core/lib/jasmine-core/`,
     imageDir = `${sourceDir}/image`,
     mainScript = `${sourceDir}/main.ts`,
@@ -94,7 +93,6 @@ const sourceDir = `src`,
     proxyConfig = argv.proxy,
     serverRoot = argv.root,
     ports = {frontend: 8080},
-    unittestUrl = `http://localhost:${ports.frontend}/${specRunnerOutput}`,
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
     unpkgPattern = 'https://unpkg.com/${package}@${version}',
     cdnjsBase = 'https://cdnjs.cloudflare.com/ajax/libs',
@@ -159,6 +157,23 @@ exposify.config = browserLibs.reduce((config: ExposeConfig, lib) => {
     if (lib.alias) lib.alias.forEach(alias => config[alias] = lib.global);
     return config;
 }, {});
+
+const configJSON: Promise<any> = new Promise((resolve, reject) => {
+    readFile(indexConfig, 'utf-8', (error, data) => {
+        if (error) {
+            reject(error);
+        } else {
+            resolve(JSON.parse(data));
+        }
+    });
+});
+
+const unittestUrl = configJSON.then(json => {
+    const specRunnerPort = argv.port || ports.frontend;
+    const specRunnerOutput = `${json.staticRoot}specRunner.html`;
+    const host = `localhost:${specRunnerPort}`;
+    return `http://${host}${specRunnerOutput}`;
+});
 
 function decoratedBrowserify(options) {
     return browserify(options)
@@ -249,52 +264,47 @@ export function style() {
         .pipe(dest(buildDir));
 };
 
-function renderHtml(template, targetDir, extraData, done) {
-    readFile(indexConfig, 'utf-8', function(error, data) {
-        if (error) return done(error);
-        const result = src(template)
-            .pipe(plugins.hb().data(JSON.parse(data)).data(extraData))
-            .pipe(ifProd(plugins.cdnizer(cdnizerConfig)))
-            .pipe(plugins.rename({extname: '.html'}))
-            .pipe(dest(targetDir));
-        return done(undefined, result);
-    });
+async function renderHtml(template, targetDir, extraData) {
+    const json = await configJSON;
+    return src(template)
+        .pipe(plugins.hb().data(json).data(extraData))
+        .pipe(ifProd(plugins.cdnizer(cdnizerConfig)))
+        .pipe(plugins.rename({extname: '.html'}))
+        .pipe(dest(targetDir));
 };
 
-export function index(done) {
+export function index() {
     return renderHtml(indexTemplate, buildDir, {
         libs: browserLibs,
         jsBundleName,
         cssBundleName,
         production,
-    }, done);
+    });
 };
 
-export function specRunner(done) {
+export function specRunner() {
     return renderHtml(specRunnerTemplate, buildDir, {
         libs: browserLibs,
         unittestBundleName,
         reporterBundleName,
         jasminePrefix,
-    }, done);
+    });
 };
 
 const buildUnittests = parallel(specRunner, terminalReporter, unittest);
 
-function runUnittests(done) {
+export function runUnittests(done) {
     const virtualConsole = new VirtualConsole();
     virtualConsole.on('info', console.info);
     virtualConsole.on('jsdomError', console.error);
-    JSDOM.fromURL(unittestUrl, {
+    unittestUrl.then(url => JSDOM.fromURL(url, {
         runScripts: 'dangerously',
         resources: 'usable',
         virtualConsole,
-    }).then(jsDOM => {
-        virtualConsole.on('timeEnd', () => {
-            jsDOM.window.close();
-            done();
-        });
-    });
+    })).then(jsDOM => virtualConsole.on('timeEnd', () => {
+        jsDOM.window.close();
+        done();
+    }));
 }
 
 export function image() {
@@ -343,14 +353,10 @@ function reload(inputTask) {
     }
 }
 
-function reloadCb(inputTask) {
+function reloadPr(inputTask) {
     return function reload(done) {
-        inputTask((error, intermediate) => {
-            if (error) {
-                done(error);
-            } else {
-                intermediate.pipe(plugins.connect.reload()).on('end', done);
-            }
+        inputTask.then(output => {
+            output.pipe(plugins.connect.reload()).on('end', done);
         });
     };
 }
@@ -372,8 +378,8 @@ export const watch = series(fullStatic, function watch(done) {
     retest(parallel(jsUnittest, terminalReporter))();
     watchApi(styleSourceGlob, reload(style));
     watchApi(templateSourceGlob, template);
-    watchApi([indexConfig, indexTemplate], reloadCb(index));
-    watchApi([indexConfig, specRunnerTemplate], retest(reloadCb(specRunner)));
+    watchApi([indexConfig, indexTemplate], reloadPr(index));
+    watchApi([indexConfig, specRunnerTemplate], retest(reloadPr(specRunner)));
     exitController.once('signal', done);
 });
 
