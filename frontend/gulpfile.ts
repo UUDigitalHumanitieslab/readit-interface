@@ -20,7 +20,7 @@ import * as autoprefixer from 'autoprefixer';
 import * as proxy from 'http-proxy-middleware';
 import * as del from 'del';
 import { argv } from 'yargs';
-import { sync as globSync } from 'glob';
+import * as glob from 'glob';
 import { JSDOM, VirtualConsole } from 'jsdom';
 
 type LibraryProps = {
@@ -71,7 +71,8 @@ const sourceDir = `src`,
         appliesTo: {excludeExtensions: ['.json']},
     },
     unittestBundleName = 'tests.js',
-    unittestEntries = globSync(`${sourceDir}/**/*-test.ts`),
+    unittestEntriesGlob = `${sourceDir}/**/*-test.ts`,
+    unittestEntries = glob.sync(unittestEntriesGlob),
     reporterEntry = `${sourceDir}/terminalReporter.ts`,
     reporterBundleName = 'terminalReporter.js',
     templateRenameOptions = {extname: '.ts'},
@@ -374,12 +375,22 @@ function watchBundle(bundle, task) {
     bundle.on('update', task);
 }
 
+function updateEntries(done) {
+    glob(unittestEntriesGlob, (error, entries) => {
+        if (error) return done(error);
+        tsTestModules.reset();
+        tsTestModules.add(entries).emit('update');
+        done(error, entries);
+    });
+}
+
 export const watch = series(fullStatic, function watch(done) {
     watchBundle(tsModules, reload(jsBundle));
     watchBundle(tsTestModules, retest(reload(jsUnittest)));
     watchBundle(reporterModules, retest(reload(terminalReporter)));
     jsBundle();
     retest(parallel(jsUnittest, terminalReporter))();
+    watchApi(unittestEntriesGlob, {events: ['add', 'unlink']}, updateEntries);
     watchApi(styleSourceGlob, reload(style));
     watchApi(templateSourceGlob, template);
     watchApi([indexConfig, indexTemplate], reloadPr(index));
