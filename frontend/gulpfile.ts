@@ -375,12 +375,33 @@ function watchBundle(bundle, task) {
     bundle.on('update', task);
 }
 
+function difference<T>(left: Set<T>, right: Set<T>): Set<T> {
+    const diff = new Set<T>();
+    left.forEach(item => right.has(item) || diff.add(item));
+    return diff;
+}
+
 function updateEntries(done) {
     glob(unittestEntriesGlob, (error, entries) => {
         if (error) return done(error);
+        // The following logic relies on browserify implementation details.
+        const oldEntries = new Set(unittestEntries);
+        const newEntries = new Set(entries);
+        const added = difference(newEntries, oldEntries);
+        const removed = difference(oldEntries, newEntries);
+        const recorded = tsTestModules._recorded;
         tsTestModules.reset();
-        tsTestModules.add(entries).emit('update');
-        done(error, entries);
+        const pipeline = tsTestModules.pipeline;
+        added.forEach(path => tsTestModules.add(path));
+        recorded.forEach(row => {
+            if (removed.has(row.file)) return;
+            if (row.entry) row.order = tsTestModules._entryOrder++;
+            pipeline.write(row);
+        });
+        unittestEntries.splice(0);
+        unittestEntries.splice(0, 0, ...entries);
+        tsTestModules.emit('update');
+        done(error, unittestEntries);
     });
 }
 
