@@ -400,22 +400,65 @@ function updateEntries(done) {
         });
         unittestEntries.splice(0);
         unittestEntries.splice(0, 0, ...entries);
-        tsTestModules.emit('update');
         done(error, unittestEntries);
     });
 }
 
+function emitUpdate(done) {
+    tsTestModules.emit('update');
+    done();
+}
+
 export const watch = series(fullStatic, function watch(done) {
+    let bundlingTests = false;
+    let entriesChanged = false;
+    const updateSafe = 'gulp:watch:unittests:bundle:done';
+
+    function beforeBundlingTests(done) {
+        bundlingTests = true;
+        if (entriesChanged) {
+            entriesChanged = false;
+            updateEntries(done);
+        } else {
+            done();
+        }
+    }
+
+    function afterBundlingTests(done) {
+        bundlingTests = false;
+        tsTestModules.emit(updateSafe);
+        done();
+    }
+
+    function triggerTests(done) {
+        entriesChanged = true;
+        if (bundlingTests) {
+            tsTestModules.once(updateSafe, () => emitUpdate(done));
+        } else {
+            emitUpdate(done);
+        }
+    }
+
+    function wrapBundleTests(task) {
+        return series(beforeBundlingTests, task, afterBundlingTests);
+    }
+
     watchBundle(tsModules, reload(jsBundle));
-    watchBundle(tsTestModules, retest(reload(jsUnittest)));
+    watchBundle(tsTestModules, wrapBundleTests(retest(reload(jsUnittest))));
     watchBundle(reporterModules, retest(reload(terminalReporter)));
+
     jsBundle();
-    retest(parallel(jsUnittest, terminalReporter))();
-    watchApi(unittestEntriesGlob, {events: ['add', 'unlink']}, updateEntries);
+    retest(parallel(wrapBundleTests(jsUnittest), terminalReporter))();
+
+    watchApi(unittestEntriesGlob, {
+        events: ['add', 'unlink'],
+        cwd: process.cwd(),
+    }, triggerTests);
     watchApi(styleSourceGlob, reload(style));
     watchApi(templateSourceGlob, template);
     watchApi([indexConfig, indexTemplate], reloadPr(index));
     watchApi([indexConfig, specRunnerTemplate], runUnittests);
+
     exitController.once('signal', done);
 });
 
