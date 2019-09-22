@@ -72,7 +72,7 @@ const sourceDir = `src`,
     },
     unittestBundleName = 'tests.js',
     unittestEntriesGlob = `${sourceDir}/**/*-test.ts`,
-    unittestEntries = glob.sync(unittestEntriesGlob),
+    unittestEntries = glob.sync(unittestEntriesGlob, {absolute: true}),
     reporterEntry = `${sourceDir}/terminalReporter.ts`,
     reporterBundleName = 'terminalReporter.js',
     templateRenameOptions = {extname: '.ts'},
@@ -382,7 +382,7 @@ function difference<T>(left: Set<T>, right: Set<T>): Set<T> {
 }
 
 function updateEntries(done) {
-    glob(unittestEntriesGlob, (error, entries) => {
+    glob(unittestEntriesGlob, {absolute: true}, (error, entries) => {
         if (error) return done(error);
         // The following logic relies on browserify implementation details.
         const oldEntries = new Set(unittestEntries);
