@@ -69,6 +69,14 @@ export default class AnnoItemSummaryBlockView extends View<Node> {
         return this;
     }
 
+    getTop(): number {
+        return this.$el.offset().top;
+    }
+
+    getHeight(): number {
+        return this.$el.outerHeight();
+    }
+
     onClick(): this {
         this.trigger('click', this, this.model);
         return this;
