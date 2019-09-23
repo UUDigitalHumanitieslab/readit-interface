@@ -179,10 +179,14 @@ const unittestUrl = configJSON.then(json => {
 });
 
 function decoratedBrowserify(options) {
-    return browserify(options)
-        .plugin(tsify, tsOptions)
-        .transform(aliasify, aliasOptions)
-        .transform(exposify, {global: true});
+    return (function() {
+        let bundler;
+        return () => bundler || (bundler = browserify(options)
+            .plugin(tsify, tsOptions)
+            .transform(aliasify, aliasOptions)
+            .transform(exposify, {global: true})
+        );
+    }());
 }
 
 const tsModules = decoratedBrowserify({
@@ -231,7 +235,7 @@ export function template() {
 };
 
 function jsBundle() {
-    return tsModules.bundle()
+    return tsModules().bundle()
         .pipe(ifNotProd(exorcist(jsSourceMapDest)))
         .pipe(vinylStream(jsBundleName))
         .pipe(ifProd(vinylBuffer()))
@@ -240,7 +244,7 @@ function jsBundle() {
 }
 
 function jsUnittest() {
-    return tsTestModules.bundle()
+    return tsTestModules().bundle()
         .pipe(vinylStream(unittestBundleName))
         .pipe(dest(buildDir));
 }
@@ -249,7 +253,7 @@ export function terminalReporter() {
     return src(reporterEntry)
         .pipe(plugins.changed(buildDir, {extension: '.js'}))
         .pipe(through2.obj(function(chunk, enc, cb) {
-            reporterModules.bundle()
+            reporterModules().bundle()
                 .pipe(vinylStream(reporterBundleName))
                 .pipe(dest(buildDir))
                 .pipe(this);
@@ -413,18 +417,19 @@ function difference<T>(left: Set<T>, right: Set<T>): Set<T> {
 function updateEntries(done) {
     glob(unittestEntriesGlob, {absolute: true}, (error, entries) => {
         if (error) return done(error);
+        const bundler = tsTestModules();
         // The following logic relies on browserify implementation details.
         const oldEntries = new Set(unittestEntries);
         const newEntries = new Set(entries);
         const added = difference(newEntries, oldEntries);
         const removed = difference(oldEntries, newEntries);
-        const recorded = tsTestModules._recorded;
-        tsTestModules.reset();
-        const pipeline = tsTestModules.pipeline;
-        added.forEach(path => tsTestModules.add(path));
+        const recorded = bundler._recorded;
+        bundler.reset();
+        const pipeline = bundler.pipeline;
+        added.forEach(path => bundler.add(path));
         recorded.forEach(row => {
             if (removed.has(row.file)) return;
-            if (row.entry) row.order = tsTestModules._entryOrder++;
+            if (row.entry) row.order = bundler._entryOrder++;
             pipeline.write(row);
         });
         unittestEntries.splice(0);
@@ -434,7 +439,7 @@ function updateEntries(done) {
 }
 
 function emitUpdate(done) {
-    tsTestModules.emit('update');
+    tsTestModules().emit('update');
     done();
 }
 
@@ -455,14 +460,14 @@ export const watch = series(fullStatic, function watch(done) {
 
     function afterBundlingTests(done) {
         bundlingTests = false;
-        tsTestModules.emit(updateSafe);
+        tsTestModules().emit(updateSafe);
         done();
     }
 
     function triggerTests(done) {
         entriesChanged = true;
         if (bundlingTests) {
-            tsTestModules.once(updateSafe, () => emitUpdate(done));
+            tsTestModules().once(updateSafe, () => emitUpdate(done));
         } else {
             emitUpdate(done);
         }
@@ -472,9 +477,9 @@ export const watch = series(fullStatic, function watch(done) {
         return series(beforeBundlingTests, task, afterBundlingTests);
     }
 
-    watchBundle(tsModules, reload(jsBundle));
-    watchBundle(tsTestModules, wrapBundleTests(retest(reload(jsUnittest))));
-    watchBundle(reporterModules, retest(reload(terminalReporter)));
+    watchBundle(tsModules(), reload(jsBundle));
+    watchBundle(tsTestModules(), wrapBundleTests(retest(reload(jsUnittest))));
+    watchBundle(reporterModules(), retest(reload(terminalReporter)));
 
     jsBundle();
     retest(parallel(wrapBundleTests(jsUnittest), terminalReporter))();
