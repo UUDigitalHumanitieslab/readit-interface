@@ -21,9 +21,10 @@ import * as autoprefixer from 'autoprefixer';
 import * as proxy from 'http-proxy-middleware';
 import * as del from 'del';
 import { argv } from 'yargs';
-import * as glob from 'glob';
 import { JSDOM, VirtualConsole } from 'jsdom';
 import * as through2 from 'through2';
+
+import globbedBrowserify from './gulp-watchify-glob';
 
 type LibraryProps = {
     module: string,
@@ -74,7 +75,6 @@ const sourceDir = `src`,
     },
     unittestBundleName = 'tests.js',
     unittestEntriesGlob = `${sourceDir}/**/*-test.ts`,
-    unittestEntries = glob.sync(unittestEntriesGlob, {absolute: true}),
     reporterEntry = `${sourceDir}/terminalReporter.ts`,
     reporterBundleName = 'terminalReporter.js',
     templateRenameOptions = {extname: '.ts'},
@@ -178,10 +178,10 @@ const unittestUrl = configJSON.then(json => {
     return `http://${host}${specRunnerOutput}`;
 });
 
-function decoratedBrowserify(options) {
+function decoratedBrowserify(options, constructor = browserify) {
     return (function() {
         let bundler;
-        return () => bundler || (bundler = browserify(options)
+        return () => bundler || (bundler = constructor(options)
             .plugin(tsify, tsOptions)
             .transform(aliasify, aliasOptions)
             .transform(exposify, {global: true})
@@ -198,10 +198,8 @@ const tsModules = decoratedBrowserify({
 
 const tsTestModules = decoratedBrowserify({
     debug: true,
-    entries: unittestEntries,
-    cache: {},
-    packageCache: {},
-});
+    entries: unittestEntriesGlob,
+}, globbedBrowserify);
 
 const reporterModules = decoratedBrowserify({
     debug: true,
@@ -408,86 +406,15 @@ function watchBundle(bundle, task) {
     bundle.on('update', task);
 }
 
-function difference<T>(left: Set<T>, right: Set<T>): Set<T> {
-    const diff = new Set<T>();
-    left.forEach(item => right.has(item) || diff.add(item));
-    return diff;
-}
-
-function updateEntries(done) {
-    glob(unittestEntriesGlob, {absolute: true}, (error, entries) => {
-        if (error) return done(error);
-        const bundler = tsTestModules();
-        // The following logic relies on browserify implementation details.
-        const oldEntries = new Set(unittestEntries);
-        const newEntries = new Set(entries);
-        const added = difference(newEntries, oldEntries);
-        const removed = difference(oldEntries, newEntries);
-        const recorded = bundler._recorded;
-        bundler.reset();
-        const pipeline = bundler.pipeline;
-        added.forEach(path => bundler.add(path));
-        recorded.forEach(row => {
-            if (removed.has(row.file)) return;
-            if (row.entry) row.order = bundler._entryOrder++;
-            pipeline.write(row);
-        });
-        unittestEntries.splice(0);
-        unittestEntries.splice(0, 0, ...entries);
-        done(error, unittestEntries);
-    });
-}
-
-function emitUpdate(done) {
-    tsTestModules().emit('update');
-    done();
-}
-
 export const watch = series(fullStatic, function watch(done) {
-    let bundlingTests = false;
-    let entriesChanged = false;
-    const updateSafe = 'gulp:watch:unittests:bundle:done';
-
-    function beforeBundlingTests(done) {
-        bundlingTests = true;
-        if (entriesChanged) {
-            entriesChanged = false;
-            updateEntries(done);
-        } else {
-            done();
-        }
-    }
-
-    function afterBundlingTests(done) {
-        bundlingTests = false;
-        tsTestModules().emit(updateSafe);
-        done();
-    }
-
-    function triggerTests(done) {
-        entriesChanged = true;
-        if (bundlingTests) {
-            tsTestModules().once(updateSafe, () => emitUpdate(done));
-        } else {
-            emitUpdate(done);
-        }
-    }
-
-    function wrapBundleTests(task) {
-        return series(beforeBundlingTests, task, afterBundlingTests);
-    }
-
     watchBundle(tsModules(), reload(jsBundle));
-    watchBundle(tsTestModules(), wrapBundleTests(retest(reload(jsUnittest))));
+    const retestTestBundle = retest(reload(jsUnittest));
+    const startTestBundle = tsTestModules().watch(retestTestBundle, jsUnittest);
     watchBundle(reporterModules(), retest(reload(terminalReporter)));
 
     jsBundle();
-    retest(parallel(wrapBundleTests(jsUnittest), terminalReporter))();
+    retest(parallel(startTestBundle, terminalReporter))();
 
-    watchApi(unittestEntriesGlob, {
-        events: ['add', 'unlink'],
-        cwd: process.cwd(),
-    }, triggerTests);
     watchApi(styleSourceGlob, reload(style));
     watchApi(templateSourceGlob, template);
     watchApi([indexConfig, indexTemplate], reloadPr(index));
