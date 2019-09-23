@@ -15,71 +15,79 @@ export type OverlappingHighlights = {
     positionDetails: AnnotationPositionDetails;
 }
 
+type OverlapCalculationStatus = {
+    results: OverlappingHighlights[];
+
+    // Keep track of 'active' highlights, i.e. the highlights that are currently overlapping.
+    // Note that this is not the same as the 'overlapping' variable.
+    // Example: three highlights overlap, one of them ends, and then before one of the last
+    // two ends, a fourth highlight begins.
+    // The current variable keeps track of the number of highlights 'active' at the current index,
+    // whereas overlapping stores all highlights that are part of the current overlap.
+    active: HighlightView[];
+
+    // Keep track of highlights that are part of the current overlap.
+    // Note that this is not the same as active,
+    // especially when more than two highlights are overlapping.
+    // See above for example.
+    overlapping: HighlightView[];
+
+    // Store the indices of the current overlap
+    overlapPositionDetails: Partial<AnnotationPositionDetails>;
+}
+
 export default class OverlappingHighlightsStrategy {
     getOverlaps(highlightViews: HighlightView[]): OverlappingHighlights[] {
-        let results = [];
-
-        // Keep track of active highlights, i.e. the highlights that are currently overlapping.
-        // Note that this is not the same as currentOverlapHighlights.
-        // Example: three highlights overlap, one of them ends, and then before one of the last
-        // two ends, a fourth highlight begins.
-        // The current variable keeps track of the number of highlights 'active' at the current index,
-        // whereas currentOverlapHighlights stores all highlights that are part of the current overlap.
-        let currentlyActiveHighlights = [];
-
-        // Keep track of highlights that are part of the current overlap.
-        // Note that this is not the same as currentlyActiveHighlights,
-        // especially when more than two highlights are overlapping.
-        // See above for example.
-        let currentOverlapHighlights = [];
-
-        // Store the indices of the current overlap
-        let currentOverlapPosDetails: Partial<AnnotationPositionDetails> = {};
-
+        let status: OverlapCalculationStatus = { results: [], active: [], overlapping: [], overlapPositionDetails: {} }
         let highlightIndices = this.getHighlightIndices(highlightViews);
         let orderedIndices = orderBy(highlightIndices, ['nodeIndex', 'characterIndex', 'isStart'], ['asc', 'asc', 'desc']);
 
         orderedIndices.forEach(index => {
             if (index.isStart) {
-                this.processStart(index, currentlyActiveHighlights, currentOverlapHighlights, currentOverlapPosDetails);
+                this.processStart(status, index);
             }
             else {
-                remove(currentlyActiveHighlights, (c) => { return c.cid === index.highlightView.cid });
-
-                if (currentlyActiveHighlights.length === 1) {
-                    currentOverlapPosDetails.endNodeIndex = index.nodeIndex;
-                    currentOverlapPosDetails.endCharacterIndex = index.characterIndex;
-
-                    results.push({
-                        highlightViews: currentOverlapHighlights,
-                        positionDetails: currentOverlapPosDetails as AnnotationPositionDetails
-                    });
-
-                    currentOverlapPosDetails = {};
-                    currentOverlapHighlights = [currentlyActiveHighlights[0]];
-                }
-
-                if (currentlyActiveHighlights.length === 0) {
-                    currentOverlapHighlights = [];
-                }
+                this.processEnd(status, index);
             }
         });
 
-        return results;
+        return status.results;
     }
 
     processStart(
+        status: OverlapCalculationStatus,
         index: HighlightIndex,
-        currentlyActiveHighlights: HighlightView[],
-        currentOverlapHighlights: HighlightView[],
-        currentOverlapPosDetails: Partial<AnnotationPositionDetails>
     ): void {
-        currentlyActiveHighlights.push(index.highlightView);
-        currentOverlapHighlights.push(index.highlightView);
+        status.active.push(index.highlightView);
+        status.overlapping.push(index.highlightView);
 
-        if (currentlyActiveHighlights.length === 2) {
-            currentOverlapPosDetails.startNodeIndex = index.nodeIndex;
-            currentOverlapPosDetails.startCharacterIndex = index.characterIndex;
+        if (status.active.length === 2) {
+            status.overlapPositionDetails.startNodeIndex = index.nodeIndex;
+            status.overlapPositionDetails.startCharacterIndex = index.characterIndex;
+        }
+    }
+
+    processEnd(
+        status: OverlapCalculationStatus,
+        index: HighlightIndex,
+    ): void {
+        remove(status.active, (c) => { return c.cid === index.highlightView.cid });
+
+        if (status.active.length === 1) {
+            status.overlapPositionDetails.endNodeIndex = index.nodeIndex;
+            status.overlapPositionDetails.endCharacterIndex = index.characterIndex;
+
+            status.results.push({
+                highlightViews: status.overlapping,
+                positionDetails: status.overlapPositionDetails as AnnotationPositionDetails
+            });
+
+            status.overlapPositionDetails = {};
+            status.overlapping = [status.active[0]];
+        }
+
+        if (status.active.length === 0) {
+            status.overlapping = [];
         }
     }
 
