@@ -35,15 +35,13 @@ export default class AnnoItemSummaryBlockView extends View<Node> {
 
     constructor(options: ViewOptions) {
         super(options);
-        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
+    }
 
+    initialize(options: ViewOptions): this {
+        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
         this.ontology = options.ontology;
         this.currentItem = options.model;
 
-        this.init();
-    }
-
-    init(): this {
         this.modelIsAnnotation = isType(this.model, oa.Annotation);
         if (this.modelIsAnnotation) {
             this.currentItem = getOntologyInstance(this.model, this.ontology);

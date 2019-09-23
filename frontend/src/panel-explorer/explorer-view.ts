@@ -72,10 +72,11 @@ export default class ExplorerView extends View {
      * of the new panel's stack from the left.
      */
     push(panel: View): this {
+        this.eventController.subscribeToPanelEvents(panel);
         let position = this.stacks.length;
         this.stacks.push(new PanelStackView({ first: panel }));
         this.rltPanelStack.set(panel.cid, position);
-        this.eventController.subscribeToPanelEvents(panel);
+
         this.stacks[position].render().$el.appendTo(this.$el);
         this.trigger('push', panel, position);
         this.scroll();
