@@ -19,7 +19,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 
 export default class AnnotationsView extends View<Node> {
     ontology: Graph;
-    summaryBlocks: AnnoItemSummaryBlockView[] = [];
+    summaryBlocks: AnnoItemSummaryBlockView[];
 
     /**
      * Keep track of the currently highlighted summary block
@@ -28,10 +28,6 @@ export default class AnnotationsView extends View<Node> {
 
     constructor(options: ViewOptions) {
         super(options);
-        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
-        this.ontology = options.ontology;
-        this.validate();
-        this.init();
     }
 
     validate(): this {
@@ -50,7 +46,12 @@ export default class AnnotationsView extends View<Node> {
         return this;
     }
 
-    init(): this {
+    initialize(options): this {
+        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
+        this.ontology = options.ontology;
+        this.summaryBlocks = [];
+        this.validate();
+
         this.collection.each(node => {
             if (isType(node, oa.Annotation)) {
                 this.initSummaryBlock(node);
