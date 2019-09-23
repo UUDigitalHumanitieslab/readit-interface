@@ -23,6 +23,7 @@ import * as del from 'del';
 import { argv } from 'yargs';
 import * as glob from 'glob';
 import { JSDOM, VirtualConsole } from 'jsdom';
+import * as through2 from 'through2';
 
 type LibraryProps = {
     module: string,
@@ -245,9 +246,15 @@ function jsUnittest() {
 }
 
 export function terminalReporter() {
-    return reporterModules.bundle()
-        .pipe(vinylStream(reporterBundleName))
-        .pipe(dest(buildDir))
+    return src(reporterEntry)
+        .pipe(plugins.changed(buildDir, {extension: '.js'}))
+        .pipe(through2.obj(function(chunk, enc, cb) {
+            reporterModules.bundle()
+                .pipe(vinylStream(reporterBundleName))
+                .pipe(dest(buildDir))
+                .pipe(this);
+            cb();
+        }));
 }
 
 export const script = series(template, jsBundle);
@@ -485,7 +492,12 @@ export const watch = series(fullStatic, function watch(done) {
 });
 
 export function clean() {
-    return del([buildDir, templateOutputGlob]);
+    return del([
+        `${buildDir}/**`,
+        `!${buildDir}`,
+        `!${buildDir}/${reporterBundleName}`,
+        templateOutputGlob,
+    ]);
 };
 
 export default series(clean, parallel(watch, serve));
