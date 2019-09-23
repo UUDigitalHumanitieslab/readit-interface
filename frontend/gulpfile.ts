@@ -1,6 +1,7 @@
 import * as EventEmitter from 'events';
 import { readFile, readFileSync } from 'fs';
 import { relative, join } from 'path';
+import { Readable } from 'stream';
 
 import { src, dest, symlink, parallel, series, watch as watchApi } from 'gulp';
 import * as vinylStream from 'vinyl-source-stream';
@@ -265,13 +266,17 @@ export function style() {
         .pipe(dest(buildDir));
 };
 
-async function renderHtml(template, targetDir, extraData) {
-    const json = await configJSON;
-    return src(template)
-        .pipe(plugins.hb().data(json).data(extraData))
-        .pipe(ifProd(plugins.cdnizer(cdnizerConfig)))
-        .pipe(plugins.rename({extname: '.html'}))
-        .pipe(dest(targetDir));
+function renderHtml(template, targetDir, extraData) {
+    return new Promise((resolve, reject) => configJSON.then(
+        json => src(template)
+            .pipe(plugins.hb().data(json).data(extraData))
+            .pipe(ifProd(plugins.cdnizer(cdnizerConfig)))
+            .pipe(plugins.rename({extname: '.html'}))
+            .pipe(dest(targetDir))
+    ).then(
+        pipe => pipe.on('data', resolve).on('error', reject),
+        reject
+    ));
 };
 
 export function index() {
@@ -283,19 +288,29 @@ export function index() {
     });
 };
 
-export function specRunner() {
-    return renderHtml(specRunnerTemplate, buildDir, {
-        libs: browserLibs,
-        unittestBundleName,
-        reporterBundleName,
-        jasminePrefix,
-    });
-};
+export const specRunner = (function() {
+    let runnerPromise;
 
-const buildUnittests = parallel(terminalReporter, unittest);
+    function specRunner() {
+        return runnerPromise = renderHtml(specRunnerTemplate, buildDir, {
+            libs: browserLibs,
+            unittestBundleName,
+            reporterBundleName,
+            jasminePrefix,
+        });
+    }
+
+    function get(cb) {
+        (runnerPromise || specRunner()).then(cb);
+    }
+
+    return { render: specRunner, get };
+}());
+
+const buildUnittests = parallel(terminalReporter, unittest, specRunner.render);
 
 export function runUnittests(done) {
-    specRunner().then(pipe => pipe.on('data', runner => {
+    specRunner.get(runner => {
         const virtualConsole = new VirtualConsole();
         virtualConsole.on('info', console.info);
         virtualConsole.on('jsdomError', console.error);
@@ -309,7 +324,7 @@ export function runUnittests(done) {
             jsDOM.window.close();
             done();
         });
-    }));
+    });
 }
 
 export function image() {
@@ -320,7 +335,7 @@ const complement = parallel(style, index, image);
 
 export const dist = parallel(script, complement);
 
-const fullStatic = parallel(template, complement);
+const fullStatic = parallel(template, complement, specRunner.render);
 
 export function serve(done) {
     let serverOptions: any = {
@@ -358,12 +373,19 @@ function reload(inputTask) {
     }
 }
 
+function streamFromPromise(promise) {
+    const stream = new Readable({objectMode: true, read(){}});
+    promise.then(result => {
+        stream.push(result);
+        stream.push(null);
+    }, error => stream.emit('error', error));
+    return stream;
+}
+
 function reloadPr(inputTask) {
-    return function reload(done) {
-        inputTask.then(output => {
-            output.pipe(plugins.connect.reload()).on('end', done);
-        });
-    };
+    return function reload() {
+        return streamFromPromise(inputTask()).pipe(plugins.connect.reload());
+    }
 }
 
 function retest(inputTask) {
@@ -457,7 +479,7 @@ export const watch = series(fullStatic, function watch(done) {
     watchApi(styleSourceGlob, reload(style));
     watchApi(templateSourceGlob, template);
     watchApi([indexConfig, indexTemplate], reloadPr(index));
-    watchApi([indexConfig, specRunnerTemplate], runUnittests);
+    watchApi([indexConfig, specRunnerTemplate], retest(reloadPr(specRunner.render)));
 
     exitController.once('signal', done);
 });
