@@ -46,6 +46,9 @@ export default class LabelView extends View<Node> {
             else if (options.hasTooltipLeft !== undefined) {
                 this.hasTooltipLeft = options.hasTooltipLeft;
             }
+            else if (options.hasTooltip !== undefined) {
+                this.hasTooltipTop = options.hasTooltip;
+            }
             else {
                 this.hasTooltipTop = true;
             }
