@@ -135,6 +135,19 @@ export function getEndSelector(node: Node): Node {
 }
 
 /**
+ * Get the oa:hasSource associated with an oa:Annotation or its associated oa:SpecificResource.
+ */
+export function getSource(node: Node): Node {
+    let specificResource: Node;
+    let source = node.get(oa.hasSource);
+    if (!source || !source.length) {
+        specificResource = getSpecificResource(node);
+        source = specificResource.get(oa.hasSource);
+    }
+    return source && source[0] as Node;
+}
+
+/**
  * Validate if all items associated to meaningfully display an oa:Annotation
  * are present in its collection.
  * Throws TypeError with appropriate message if they are not.
