@@ -76,14 +76,6 @@ describe('utilities', function () {
             let node = new Node(attributes);
             expect(getCssClassName(node)).toBe('is-readit-acapitalizedlabelwithspaces');
         });
-
-        it('ignores nodes without a label', function () {
-            let attributes = getDefaultAttributes();
-            delete attributes[skos.prefLabel];
-            delete attributes[skos.altLabel];
-            let node = new Node(attributes);
-            expect(getCssClassName(node)).toBeNull();
-        });
     });
 
     describe('isRdfsClass', function () {
