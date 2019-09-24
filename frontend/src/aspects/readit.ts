@@ -62,7 +62,7 @@ directionFsm.on('enter:exploring', () => {
         initialScrollTo: scrollTo,
     });
 
-    let exView = new ExplorerView({ first: sourceView });
+    let exView = new ExplorerView({ first: sourceView, ontology: ontology });
 
     let vh = $(window).height();
     // compensates for menu and footer (555 is min-height)
