@@ -69,7 +69,7 @@ directionFsm.on('enter:exploring', () => {
         ontology: ontology
     })
 
-    let exView = new ExplorerView({ first: ldiView });
+    let exView = new ExplorerView({ first: sourceView, ontology: ontology });
 
     let vh = $(window).height();
     // compensates for menu and footer (555 is min-height)
