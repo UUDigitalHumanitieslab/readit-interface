@@ -3,12 +3,16 @@ import { enableI18n } from '../test-util';
 import ExplorerView from './explorer-view';
 import View from './../core/view';
 
+import mockOntology from './../mock-data/mock-ontology';
+import Graph from './../jsonld/graph';
+
 describe('ExplorerView', function () {
     beforeAll(enableI18n);
 
     beforeEach(function () {
         let firstPanel = new View();
-        this.view = new ExplorerView({ first: firstPanel });
+        let ontology = new Graph(mockOntology);
+        this.view = new ExplorerView({ first: firstPanel, ontology: ontology });
     });
 
     it('adds a stack with first panel on init', function () {
