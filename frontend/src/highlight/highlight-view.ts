@@ -58,6 +58,11 @@ export default class HighlightView extends View<Node> {
 
         super(options);
         this.range = options.range;
+        // Workaround for Safari in order to prevent empty rects.
+        const selection = document.getSelection();
+        selection.addRange(options.range);
+        selection.removeAllRanges();  // Safari cannot remove a single range.
+        // End of workaround for Safari.
         this.rects = options.range.getClientRects();
         this.positionDetails = options.positionDetails;
         this.cssClass = options.cssClass;
