@@ -37,16 +37,18 @@ export default class LdItemView extends View<Node> {
     modelIsAnnotation: boolean;
 
     label: string;
-    properties: any = new Object();
-    itemMetadata: any = new Object();
-    annotationMetadata: any = new Object();
-    annotations: any = new Object();
-
-    relatedItems: Node[] = [];
+    properties: any;
+    itemMetadata: any;
+    annotationMetadata: any;
+    annotations: any;
+    relatedItems: Node[];
     externalResources: Node[];
 
     constructor(options?: ViewOptions) {
         super(options);
+    }
+
+    initialize(options: ViewOptions): this {
         if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
         if (!options.staff) throw new TypeError('staff cannot be null or undefined');
 
@@ -54,11 +56,13 @@ export default class LdItemView extends View<Node> {
         this.staff = options.staff;
         this.modelIsAnnotation = isType(this.model, oa.Annotation);
         this.currentItem = this.model;
+        this.properties = new Object();
+        this.itemMetadata = new Object();
+        this.annotationMetadata = new Object();
+        this.annotations = new Object();
+        this.relatedItems = [];
+        this.externalResources;
 
-        this.init();
-    }
-
-    init(): this {
         if (this.modelIsAnnotation) {
             this.currentItem = getOntologyInstance(this.currentItem, this.ontology);
             this.annotationMetadata[getLabelFromId(dcterms.creator)] = getLabel(this.model.get(dcterms.creator)[0] as Node);

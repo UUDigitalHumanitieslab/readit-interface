@@ -20,6 +20,7 @@ import mockOntology from './../mock-data/mock-ontology';
 import mockItems from './../mock-data/mock-items';
 import mockSources from './../mock-data/mock-sources';
 import mockStaff from '../mock-data/mock-staff';
+import LdItemView from '../panel-ld-item/ld-item-view';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -62,7 +63,13 @@ directionFsm.on('enter:exploring', () => {
         initialScrollTo: scrollTo,
     });
 
-    let exView = new ExplorerView({ first: sourceView, ontology: ontology });
+    let ldiView = new LdItemView({
+        model: scrollTo,
+        ontology: ontology,
+        staff: staff
+    })
+
+    let exView = new ExplorerView({ first: ldiView, ontology: ontology });
 
     let vh = $(window).height();
     // compensates for menu and footer (555 is min-height)
