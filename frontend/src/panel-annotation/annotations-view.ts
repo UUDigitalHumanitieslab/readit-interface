@@ -76,7 +76,7 @@ export default class AnnotationsView extends View<Node> {
     render(): this {
         if (this.summaryBlocks) {
             this.summaryBlocks.forEach(sb => {
-                sb.$el.detach();
+                sb.$el.remove();
             });
         }
         this.$el.html(this.template(this));
