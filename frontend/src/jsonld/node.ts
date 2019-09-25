@@ -26,11 +26,10 @@ import {
     registerRDFParser,  // (contentType, parser) => void
 } from 'jsonld';
 import { ModelSetOptions } from 'backbone';
-import { channel } from 'backbone.radio';
 
 import Model from '../core/model';
 
-import { channelName } from './constants';
+import ldChannel from './radio';
 import {
     JsonLdContext,
     FlatLdObject,
@@ -82,7 +81,7 @@ export default class Node extends Model {
         super(attributes, options);
         let context: JsonLdContext = options && options.context;
         if (!isUndefined(context)) this.context = context;
-        channel(channelName).trigger('register', this);
+        ldChannel.trigger('register', this);
     }
 
     /**
@@ -214,7 +213,6 @@ function asNativeArray(value: any, key: string): OptimizedNative {
 
 function id2node(value: OptimizedNative): Native {
     if (has(value, '@id')) {
-        const ldChannel = channel(channelName);
         return ldChannel.request('obtain', value) || new Node(value);
     }
     if (isArray(value)) return map(value, id2node.bind(this));

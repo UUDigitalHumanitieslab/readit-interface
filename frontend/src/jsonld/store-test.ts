@@ -1,7 +1,5 @@
 import 'jasmine-ajax';
-
 import { defaults } from 'lodash';
-import { channel } from 'backbone.radio';
 
 import { proxyRoot } from 'config.json';
 
@@ -9,13 +7,11 @@ import { contentInstance } from '../mock-data/mock-expanded';
 import compactData from '../mock-data/mock-compact';
 import context from '../mock-data/mock-context';
 
-import { channelName } from './constants';
+import ldChannel from './radio';
 import { readit } from './ns';
 import Node from './node';
 import Graph from './graph';
 import Store from './store';
-
-const ldChannel = channel(channelName);
 
 const uri = contentInstance['@id'];
 const proxyUri = `${proxyRoot}${uri}`;

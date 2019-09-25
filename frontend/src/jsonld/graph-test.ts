@@ -1,11 +1,8 @@
-import { channel } from 'backbone.radio';
-
 import mockItems, { anno1Instance } from '../mock-data/mock-items';
-import { channelName } from './constants';
+import ldChannel from './radio';
 import { oa } from './ns';
 import Graph from './graph';
 
-const ldChannel = channel(channelName);
 
 describe('Graph', function() {
     let graph;

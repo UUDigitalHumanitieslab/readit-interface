@@ -1,6 +1,5 @@
 import { cloneDeep, get, set, initial, omit } from 'lodash';
 import { Model } from 'backbone';
-import { channel } from 'backbone.radio';
 import { compact } from 'jsonld';
 
 import {
@@ -12,12 +11,10 @@ import {
 } from '../mock-data/mock-compact';
 import context from '../mock-data/mock-context';
 
-import { channelName } from './constants';
+import ldChannel from './radio';
 import { item, readit, staff, owl, dcterms, xsd } from './ns';
 import * as conversionModule from './conversion';
 import Node from './node';
-
-const ldChannel = channel(channelName);
 
 const contentInstanceNative = {
     '@id': item('3'),

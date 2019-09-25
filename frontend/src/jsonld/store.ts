@@ -4,6 +4,7 @@ import { channel } from 'backbone.radio';
 import { proxyRoot } from 'config.json';
 
 import { channelName } from './constants';
+import ldChannel from './radio';
 import { Identifier, FlatLdDocument, FlatLdGraph } from './json';
 import Node from './node';
 import Graph from './graph';
@@ -26,7 +27,6 @@ export default class Store extends Graph {
         super(models, options);
         this.forEach(this._preventSelfReference.bind(this));
         this.on('add', this._preventSelfReference);
-        const ldChannel = channel(channelName);
         ldChannel.reply('obtain', this.obtain.bind(this));
         ldChannel.reply('merge', this.mergeExisting.bind(this));
         this.listenTo(ldChannel, 'register', this.register);
@@ -135,8 +135,8 @@ export default class Store extends Graph {
      * Stop replying to requests to facilitate garbage collection.
      */
     stopReplying(): this {
-        channel(channelName).stopReplying('obtain');
-        channel(channelName).stopReplying('merge');
+        ldChannel.stopReplying('obtain');
+        ldChannel.stopReplying('merge');
         return this;
     }
 
@@ -151,7 +151,6 @@ export default class Store extends Graph {
      * Forward the named events unmodified to the ld channel.
      */
     private _forwardEventsToChannel(names: string[]): void {
-        const ldChannel = channel(channelName);
         names.forEach(name => {
             this.on(name, (...args) => ldChannel.trigger(name, ...args));
         });

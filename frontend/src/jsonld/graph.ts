@@ -11,7 +11,6 @@ import {
     isString,
 } from 'lodash';
 import * as _ from 'lodash';
-import { channel } from 'backbone.radio';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
     expand,   // (jsonld, options?, callback?) => Promise<jsonld>
@@ -23,7 +22,7 @@ import {
 } from 'jsonld';
 
 import Collection from '../core/collection';
-import { channelName } from './constants';
+import ldChannel from './radio';
 import {
     FlatLdDocument,
     FlatLdGraph,
@@ -86,7 +85,6 @@ export default class Graph extends Collection<Node> {
             // TODO: clear properties on this.meta not in meta
             this.meta.set(meta);
         }
-        const ldChannel = channel(channelName);
         return map(data, hash => ldChannel.request('merge', hash) || hash);
     }
 
