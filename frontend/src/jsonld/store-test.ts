@@ -1,5 +1,6 @@
 import 'jasmine-ajax';
 
+import { defaults } from 'lodash';
 import { channel } from 'backbone.radio';
 
 import { proxyRoot } from 'config.json';
@@ -68,6 +69,16 @@ describe('Store', function() {
             expect(result).toEqual(jasmine.any(Node));
             expect(result.id).toBe(uri);
             expect(this.store.has(result)).toBeTruthy();
+        });
+
+        it('"merge" is replied to with the mergeExisting method', function() {
+            const stored = this.store.at(0);
+            const result1 = ldChannel.request('merge', partialHash);
+            const result2 = ldChannel.request('merge', otherHash);
+            expect(result1).toBe(partialHash);
+            expect(this.store.has(result1)).toBeFalsy();
+            expect(result2).toBe(stored);
+            expect(this.store.has(result2)).toBeTruthy();
         });
 
         it('"register" is handled by the register method', function() {
@@ -230,6 +241,28 @@ describe('Store', function() {
                 expect(this.store.length).toBe(7);
                 done();
             });
+        });
+    });
+
+    describe('mergeExisting', function() {
+        it('returns existing nodes', function() {
+            const stored = this.store.at(0);
+            const result = this.store.mergeExisting(otherHash);
+            expect(result).toBe(stored);
+        });
+
+        it('merges passed properties into the existing node', function() {
+            const stored = this.store.at(0);
+            const hash = defaults({prop: 'value'}, otherHash);
+            const result = this.store.mergeExisting(hash);
+            expect(result).toBe(stored);
+            expect(result.id).toBe(otherHash['@id']);
+            expect(result.get('prop')[0]).toBe('value');
+        });
+
+        it('returns the argument if no node exists to merge with', function() {
+            const result = this.store.mergeExisting(partialHash);
+            expect(result).toBe(partialHash);
         });
     });
 

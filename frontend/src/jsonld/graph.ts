@@ -2,6 +2,7 @@ import {
     extend,
     omit,
     forEach,
+    map,
     every,
     isArray,
     isUndefined,
@@ -10,6 +11,7 @@ import {
     isString,
 } from 'lodash';
 import * as _ from 'lodash';
+import { channel } from 'backbone.radio';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
     expand,   // (jsonld, options?, callback?) => Promise<jsonld>
@@ -21,9 +23,11 @@ import {
 } from 'jsonld';
 
 import Collection from '../core/collection';
+import { channelName } from './constants';
 import {
     FlatLdDocument,
     FlatLdGraph,
+    FlatLdObject,
     JsonLdContext,
 } from './json';
 import Node from './node';
@@ -62,21 +66,28 @@ export default class Graph extends Collection<Node> {
     }
 
     /**
-     * Separate the graph proper from global attributes. Set the
-     * latter on the .meta node immediately.
+     * Separate the graph proper from global attributes.
+     */
+    preparse(response: FlatLdDocument): [FlatLdGraph, FlatLdObject] {
+        if (isArray(response)) {
+            if (response.length !== 1) return [response, null];
+            response = response[0];
+            if (!response['@graph']) return [[response], null];
+        }
+        return [response['@graph'], omit(response, '@graph')];
+    }
+
+    /**
+     * Set any metadata on the .meta node immediately. Return the rest.
      */
     parse(response: FlatLdDocument, options): FlatLdGraph {
-        if (isArray(response)) {
-            if (response.length !== 1) return response;
-            response = response[0];
-            if (!response['@graph']) return [response];
-        }
-        let meta = omit(response, '@graph');
+        const [data, meta] = this.preparse(response);
         if (!isEmpty(meta)) {
             // TODO: clear properties on this.meta not in meta
             this.meta.set(meta);
         }
-        return response['@graph'];
+        const ldChannel = channel(channelName);
+        return map(data, hash => ldChannel.request('merge', hash));
     }
 
     /**

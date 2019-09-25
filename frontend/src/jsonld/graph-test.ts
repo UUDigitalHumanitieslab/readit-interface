@@ -1,12 +1,34 @@
+import { channel } from 'backbone.radio';
+
 import mockItems, { anno1Instance } from '../mock-data/mock-items';
+import { channelName } from './constants';
 import { oa } from './ns';
 import Graph from './graph';
+
+const ldChannel = channel(channelName);
 
 describe('Graph', function() {
     let graph;
 
     beforeEach(function() {
         graph = new Graph();
+    });
+
+    afterEach(function() {
+        ldChannel.stopReplying();
+    });
+
+    describe('parse', function() {
+        it('maps nodes through a merge request before returning', function() {
+            const spy = jasmine.createSpy();
+            ldChannel.reply('merge', spy);
+            const result = graph.parse(mockItems, null);
+            expect(result.length).toBe(mockItems.length);
+            expect(spy.calls.count()).toBe(mockItems.length);
+            spy.calls.all().forEach(({invocationOrder, args}) => {
+                expect(args[0]).toBe(mockItems[invocationOrder]);
+            });
+        });
     });
 
     describe('underscore collection methods', function() {

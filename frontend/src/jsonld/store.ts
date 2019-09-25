@@ -28,6 +28,7 @@ export default class Store extends Graph {
         this.on('add', this._preventSelfReference);
         const ldChannel = channel(channelName);
         ldChannel.reply('seek', this.request.bind(this));
+        ldChannel.reply('merge', this.mergeExisting.bind(this));
         this.listenTo(ldChannel, 'register', this.register);
         this._forwardEventsToChannel([
             'request', 'sync', 'error', 'add',
@@ -84,15 +85,22 @@ export default class Store extends Graph {
     }
 
     /**
-     * Override Graph.parse in order to leave the meta Node unchanged.
+     * Request handler that facilitates Graph.parse.
+     */
+    mergeExisting(id: Identifier): Identifier | Node {
+        const initialResult = this.get(id as Node);
+        if (isUndefined(initialResult)) return id;
+        initialResult.set(id);
+        return initialResult;
+    }
+
+    /**
+     * Override Graph.parse in order to leave the meta Node unchanged
+     * and skip the mergeExisting step.
      */
     parse(response: FlatLdDocument, options): FlatLdGraph {
-        if (isArray(response)) {
-            if (response.length !== 1) return response;
-            response = response[0];
-            if (!response['@graph']) return [response];
-        }
-        return response['@graph'];
+        const [data] = this.preparse(response);
+        return data;
     }
 
     /**
