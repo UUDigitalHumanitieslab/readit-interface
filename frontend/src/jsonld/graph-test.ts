@@ -25,7 +25,7 @@ describe('Graph', function() {
             const result = graph.parse(mockItems, null);
             expect(result.length).toBe(mockItems.length);
             expect(spy.calls.count()).toBe(mockItems.length);
-            spy.calls.all().forEach(({invocationOrder, args}) => {
+            spy.calls.all().forEach(({invocationOrder, args}: any) => {
                 expect(args[0]).toBe(mockItems[invocationOrder]);
             });
         });

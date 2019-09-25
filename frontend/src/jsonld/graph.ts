@@ -74,7 +74,7 @@ export default class Graph extends Collection<Node> {
             response = response[0];
             if (!response['@graph']) return [[response], null];
         }
-        return [response['@graph'], omit(response, '@graph')];
+        return [response['@graph'], omit(response, '@graph') as FlatLdObject];
     }
 
     /**

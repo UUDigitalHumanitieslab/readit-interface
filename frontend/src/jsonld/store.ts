@@ -88,7 +88,7 @@ export default class Store extends Graph {
      * Request handler that facilitates Graph.parse.
      */
     mergeExisting(id: Identifier): Identifier | Node {
-        const initialResult = this.get(id as Node);
+        const initialResult = this.get(id as unknown as Node);
         if (isUndefined(initialResult)) return id;
         initialResult.set(id);
         return initialResult;
