@@ -215,7 +215,7 @@ function asNativeArray(value: any, key: string): OptimizedNative {
 function id2node(value: OptimizedNative): Native {
     if (has(value, '@id')) {
         const ldChannel = channel(channelName);
-        return ldChannel.request('seek', value) || new Node(value);
+        return ldChannel.request('obtain', value) || new Node(value);
     }
     if (isArray(value)) return map(value, id2node.bind(this));
     return value;

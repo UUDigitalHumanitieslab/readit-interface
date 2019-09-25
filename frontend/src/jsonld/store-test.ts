@@ -64,8 +64,8 @@ describe('Store', function() {
     });
 
     describe('channel bindings ensure that...', function() {
-        it('"seek" is replied to with the request method', function() {
-            const result = ldChannel.request('seek', partialHash);
+        it('"obtain" is replied to with the obtain method', function() {
+            const result = ldChannel.request('obtain', partialHash);
             expect(result).toEqual(jasmine.any(Node));
             expect(result.id).toBe(uri);
             expect(this.store.has(result)).toBeTruthy();
@@ -100,39 +100,39 @@ describe('Store', function() {
     });
 
     describe('stopReplying', function() {
-        it('stops the store from replying to "seek"', function() {
+        it('stops the store from replying to "obtain"', function() {
             this.store.stopReplying();
-            const result = ldChannel.request('seek', partialHash);
+            const result = ldChannel.request('obtain', partialHash);
             expect(result).toBeUndefined();
             expect(this.store.has(partialHash)).toBeFalsy();
         });
     });
 
-    describe('request', function() {
+    describe('obtain', function() {
         beforeEach(function() {
             this.existing = this.store.at(0);
         });
 
         it('returns the existing Node for a known @id', function() {
-            expect(this.store.request(otherHash['@id'])).toBe(this.existing);
+            expect(this.store.obtain(otherHash['@id'])).toBe(this.existing);
         });
 
         it('returns the existing Node for a known hash', function() {
-            expect(this.store.request(otherHash)).toBe(this.existing);
+            expect(this.store.obtain(otherHash)).toBe(this.existing);
         });
 
         it('returns the existing Node for a known Node', function() {
-            expect(this.store.request(this.existing)).toBe(this.existing);
+            expect(this.store.obtain(this.existing)).toBe(this.existing);
         });
 
         it('returns a new Node for an unknown @id', function() {
-            const added = this.store.request(uri);
+            const added = this.store.obtain(uri);
             expect(added).toEqual(jasmine.any(Node))
             expect(added.id).toBe(uri);
         });
 
         it('returns a new Node for an unknown hash', function() {
-            const added = this.store.request(partialHash);
+            const added = this.store.obtain(partialHash);
             expect(added).toEqual(jasmine.any(Node))
             expect(added.id).toBe(uri);
         });
@@ -140,7 +140,7 @@ describe('Store', function() {
         it('returns the same Node for an unknown Node', function() {
             const added = new Node(partialHash);
             this.store.remove(added);
-            const obtained = this.store.request(added);
+            const obtained = this.store.obtain(added);
             expect(obtained).toBe(added);
         });
 
@@ -150,7 +150,7 @@ describe('Store', function() {
                 contentType: 'application/ld+json',
                 responseText: JSON.stringify(serverReply),
             });
-            const added = this.store.request(partialHash);
+            const added = this.store.obtain(partialHash);
             added.on('change', () => {
                 expect(added.get('@type')).toEqual([readit('Content')]);
                 done();

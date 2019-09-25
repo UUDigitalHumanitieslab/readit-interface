@@ -176,7 +176,7 @@ describe('Node', function() {
 
         it('requests Identifiers from the ld channel first', function() {
             const dummy = new Node();
-            ldChannel.reply('seek', () => dummy);
+            ldChannel.reply('obtain', () => dummy);
             const result = this.node.get(owl.sameAs)[0];
             expect(result).toBe(dummy);
         });

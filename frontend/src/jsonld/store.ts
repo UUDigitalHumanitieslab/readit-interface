@@ -27,7 +27,7 @@ export default class Store extends Graph {
         this.forEach(this._preventSelfReference.bind(this));
         this.on('add', this._preventSelfReference);
         const ldChannel = channel(channelName);
-        ldChannel.reply('seek', this.request.bind(this));
+        ldChannel.reply('obtain', this.obtain.bind(this));
         ldChannel.reply('merge', this.mergeExisting.bind(this));
         this.listenTo(ldChannel, 'register', this.register);
         this._forwardEventsToChannel([
@@ -38,7 +38,7 @@ export default class Store extends Graph {
     /**
      * Main interface. Ensures every @id is represented by a single unique Node.
      */
-    request(id: string | Identifier | Node): Node {
+    obtain(id: string | Identifier | Node): Node {
         const initialResult = this.get(id as string | Node);
         if (isUndefined(initialResult)) {
             const placeholder = this.getPlaceholder(id);
@@ -132,10 +132,10 @@ export default class Store extends Graph {
     }
 
     /**
-     * Stop replying to the seek request to facilitate garbage collection.
+     * Stop replying to the obtain request to facilitate garbage collection.
      */
     stopReplying(): this {
-        channel(channelName).stopReplying('seek');
+        channel(channelName).stopReplying('obtain');
         return this;
     }
 
