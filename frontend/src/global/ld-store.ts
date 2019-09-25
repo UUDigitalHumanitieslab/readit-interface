@@ -22,8 +22,8 @@ const defaultGraphs = [
     'https://schema.org/version/latest/schema.ttl',
 ];
 
-const globalGraph = new Store();
+export const globalGraph = new Store();
 
-defaultGraphs.forEach(ns => globalGraph.import(ns));
-
-export default globalGraph;
+export function prefetch() {
+    defaultGraphs.forEach(ns => globalGraph.import(ns));
+}
