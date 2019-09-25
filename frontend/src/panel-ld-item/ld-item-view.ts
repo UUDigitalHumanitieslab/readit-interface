@@ -1,9 +1,10 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from '../core/view';
 
+import View from '../core/view';
 import Graph from './../jsonld/graph';
 import Node from '../jsonld/node';
+import ldChannel from '../jsonld/radio';
 
 import ldItemTemplate from './ld-item-template';
 
@@ -117,7 +118,7 @@ export default class LdItemView extends View<Node> {
      */
     getOntologyClass(ontologyInstance: Node) {
         let ontologyReference = ontologyInstance.get('@type')[0] as string;
-        return this.ontology.get(ontologyReference);
+        return ldChannel.request('obtain', ontologyReference);
     }
 
     collectDetails(): this {
