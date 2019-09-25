@@ -7,6 +7,7 @@ import { src, dest, symlink, parallel, series, watch as watchApi } from 'gulp';
 import * as vinylStream from 'vinyl-source-stream';
 import * as vinylBuffer from 'vinyl-buffer';
 import * as exorcist from 'exorcist';
+import globbedBrowserify from 'gulp-browserify-watchify-glob';
 import * as loadPlugins from 'gulp-load-plugins';
 const plugins = loadPlugins();
 
@@ -23,8 +24,6 @@ import * as del from 'del';
 import { argv } from 'yargs';
 import { JSDOM, VirtualConsole } from 'jsdom';
 import * as through2 from 'through2';
-
-import globbedBrowserify from './gulp-watchify-glob';
 
 type LibraryProps = {
     module: string,
