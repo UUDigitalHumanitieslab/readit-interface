@@ -132,10 +132,11 @@ export default class Store extends Graph {
     }
 
     /**
-     * Stop replying to the obtain request to facilitate garbage collection.
+     * Stop replying to requests to facilitate garbage collection.
      */
     stopReplying(): this {
         channel(channelName).stopReplying('obtain');
+        channel(channelName).stopReplying('merge');
         return this;
     }
 

@@ -87,7 +87,7 @@ export default class Graph extends Collection<Node> {
             this.meta.set(meta);
         }
         const ldChannel = channel(channelName);
-        return map(data, hash => ldChannel.request('merge', hash));
+        return map(data, hash => ldChannel.request('merge', hash) || hash);
     }
 
     /**
