@@ -2509,9 +2509,10 @@ graceful-fs@4.X, graceful-fs@^4.0.0, graceful-fs@^4.1.11, graceful-fs@^4.1.2, gr
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.2.tgz#6f0952605d0140c1cfdb138ed005775b92d67b02"
   integrity sha512-IItsdsea19BoLC7ELy13q1iJFNmd7ofZH5+X/pJr90/nRoPEX0DJo1dHDbgtYWOhJhcCgMDTOw84RZ72q6lB+Q==
 
-"gulp-browserify-watchify-glob@gitlab:jgonggrijp/gulp-browserify-watchify-glob#master":
-  version "0.0.0"
-  resolved "https://gitlab.com/jgonggrijp/gulp-browserify-watchify-glob/repository/archive.tar.gz?ref=fc26ad68eb9f062de57d171afc377b2b1923880a"
+gulp-browserify-watchify-glob@^1.0.0-0:
+  version "1.0.0-0"
+  resolved "https://registry.yarnpkg.com/gulp-browserify-watchify-glob/-/gulp-browserify-watchify-glob-1.0.0-0.tgz#d7d3dc56d10edc3677db438abdf4cb71d234ffa2"
+  integrity sha512-YtUZVqD1HqDCeSBIyAc4/NJTkSNJQxLXFYKWuBuDiL8Ap38HWRVXDb4RKdzJ+25Fw0nS1ubN2FmvDi0dxqP5zA==
   dependencies:
     browserify "^16.5.0"
     glob "^7.1.4"
