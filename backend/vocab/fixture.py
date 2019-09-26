@@ -17,28 +17,24 @@ def triples():
     subPropertyOf = RDFS.subPropertyOf
     hasDomain = RDFS.domain
     hasRange = RDFS.range
-    Source = my.Source
-    RangeSelector = my.RangeSelector
     XPathSelector = OA.XPathSelector
-    hasStartSelector = my.hasStartSelector
-    hasEndSelector = my.hasEndSelector
 
     return [
-        ( Source,           is_a,          Class ),
-        ( Source,           subClassOf,    SCHEMA.CreativeWork ),
+        ( my.Source,           is_a,          Class ),
+        ( my.Source,           subClassOf,    SCHEMA.CreativeWork ),
 
-        ( RangeSelector,    is_a,          Class ),
-        ( RangeSelector,    subClassOf,    OA.RangeSelector ),
+        ( my.RangeSelector,    is_a,          Class ),
+        ( my.RangeSelector,    subClassOf,    OA.RangeSelector ),
 
-        ( hasStartSelector, is_a,          Property ),
-        ( hasStartSelector, subPropertyOf, OA.hasStartSelector ),
-        ( hasStartSelector, hasDomain,     RangeSelector ),
-        ( hasStartSelector, hasRange,      XPathSelector ),
+        ( my.hasStartSelector, is_a,          Property ),
+        ( my.hasStartSelector, subPropertyOf, OA.hasStartSelector ),
+        ( my.hasStartSelector, hasDomain,     my.RangeSelector ),
+        ( my.hasStartSelector, hasRange,      XPathSelector ),
 
-        ( hasEndSelector,   is_a,          Property ),
-        ( hasEndSelector,   subPropertyOf, OA.hasEndSelector ),
-        ( hasEndSelector,   hasDomain,     RangeSelector ),
-        ( hasEndSelector,   hasRange,      XPathSelector ),
+        ( my.hasEndSelector,   is_a,          Property ),
+        ( my.hasEndSelector,   subPropertyOf, OA.hasEndSelector ),
+        ( my.hasEndSelector,   hasDomain,     my.RangeSelector ),
+        ( my.hasEndSelector,   hasRange,      XPathSelector ),
     ]
 
 def canonical_graph():
