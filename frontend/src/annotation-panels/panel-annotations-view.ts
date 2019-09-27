@@ -2,13 +2,13 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, sortBy } from 'lodash';
 import View from '../core/view';
 
-import { oa } from './../jsonld/ns';
+import { oa } from '../jsonld/ns';
 import Node from '../jsonld/node';
-import Graph from './../jsonld/graph';
+import Graph from '../jsonld/graph';
 
-import { isType, getScrollTop } from './../utilities/utilities';
+import { isType, getScrollTop } from '../utilities/utilities';
 
-import annotationsTemplate from './annotations-template';
+import annotationsTemplate from './panel-annotations-template';
 import AnnoItemSummaryBlockView from '../utilities/anno-item-summary-block-view';
 import { getSource } from '../utilities/annotation-utilities';
 
