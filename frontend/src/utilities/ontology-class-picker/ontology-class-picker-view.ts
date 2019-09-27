@@ -60,6 +60,7 @@ export default class OntologyClassPickerView extends View<Node> {
         this.dropdownItems.forEach((item) => {
             if (item.model === newValue) {
                 item.activate();
+                this.trigger('select', newValue);
             }
             else {
                 item.deactivate();
@@ -90,7 +91,6 @@ export default class OntologyClassPickerView extends View<Node> {
 
     onItemClicked(view: OntologyClassPickerItemView): this {
         this.select(view.model);
-        this.trigger('select', view.model);
         return this;
     }
 
