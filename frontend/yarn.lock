@@ -44,6 +44,13 @@
   resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-2.8.16.tgz#a6cb24b1149d65293bd616923500014838e14e7d"
   integrity sha512-056oRlBBp7MDzr+HoU5su099s/s7wjZ3KcHxLfv+Byqb9MwdLUvsfLgw1VS97hsh3ddxSPyQu+olHMnoVTUY6g==
 
+"@types/jquery.validation@^1.16.6":
+  version "1.16.6"
+  resolved "https://registry.yarnpkg.com/@types/jquery.validation/-/jquery.validation-1.16.6.tgz#d6916af1c8fd858d5da11f81b14c80d75762f30e"
+  integrity sha512-RA2bYZELFFmA17mxarjKdCtsn8EH0dOKgj7tpJmeLREkMaOj4H1PbD3UIBuAGQ3Yn8o5748l5IWUmWoAoRYgIw==
+  dependencies:
+    "@types/jquery" "*"
+
 "@types/jquery@*", "@types/jquery@^3.3.5":
   version "3.3.31"
   resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.3.31.tgz#27c706e4bf488474e1cb54a71d8303f37c93451b"
@@ -3537,6 +3544,11 @@ jasmine-terminal-reporter@^1.0.2:
   dependencies:
     indent-string "^2.1.0"
     pluralize "^1.2.1"
+
+jquery-validation@^1.19.1:
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/jquery-validation/-/jquery-validation-1.19.1.tgz#a85043467dc2b70d9fff05778646d150e747742f"
+  integrity sha512-QNnrZBqSltWUEJx+shOY5WtfrIb0gWmDjFfQP8rZKqMMSfpRSwEkSqhfHPvDfkObD8Hnv5KHSYI8yg73sVFdqA==
 
 jquery@^3.3.1:
   version "3.4.1"

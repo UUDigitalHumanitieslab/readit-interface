@@ -119,6 +119,12 @@ const browserLibs: LibraryProps[] = [{
         browser: 'bulma-accordion/dist/js/bulma-accordion.min.js',
         global: 'bulmaAccordion',
         cdn: `${jsdelivrPattern}/dist/js/\${filenameMin}`,
+    },
+    {
+        module: 'jquery-validation',
+        browser: 'jquery-validation/dist/jquery.validate.min.js',
+        global: 'jquery-validation',
+        cdn: `${jsdelivrPattern}/dist/js/\${filenameMin}`,
     }],
     browserLibsRootedPaths: string[] = [],
     cdnizerConfig = {files: browserLibs.map(lib => {
