@@ -23,6 +23,12 @@ export default class OntologyClassPickerView extends View<Node> {
     initialize(options: ViewOptions): this {
         if (!options.collection) throw new TypeError('collection cannot be null or undefined');
         this.initDropdownItems();
+
+        let self = this;
+        $(document).click(function () {
+            self.hideDropdown();
+        });
+
         this.preselection = options.preselection;
         return this;
     }
@@ -71,8 +77,14 @@ export default class OntologyClassPickerView extends View<Node> {
         return this;
     }
 
-    onClick(): this {
+    hideDropdown(): this {
+        this.$('.dropdown').removeClass('is-active');
+        return this;
+    }
+
+    onClick(event: any): this {
         this.$('.dropdown').toggleClass('is-active');
+        event.stopPropagation();
         return this;
     }
 
