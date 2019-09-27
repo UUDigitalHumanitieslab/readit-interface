@@ -1,0 +1,30 @@
+<form class="anno-edit-form" method="get" action="">
+    <div class="panel-content">
+        <p class="title">Edit Annotation</p>
+        <fieldset>
+
+            <div class="field">
+                <label for="cusername" class="label">Username</label>
+                <div class="control has-icons-left has-icons-right">
+                    <input class="input is-success" type="text" placeholder="Text input" id="cusername" name="name"
+                        minlength="2" type="text" required>
+                    <span class="icon is-small is-left">
+                        <i class="fas fa-user"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Subject</label>
+                <div class="control ddOntology">
+                    {{! Ontology class picker is inserted here }}
+                </div>
+                {{! Fake input to utilize jquery validation on Bulma dropdown}}
+                <input class="hidden-input" type="text" id="contology" required>
+            </div>
+
+        </fieldset>
+    </div>
+    <button class="button btn-save is-pulled-right submit" type="submit">Save</button>
+    <button class="button btn-cancel is-pulled-right is-primary">Cancel</button>
+</form>

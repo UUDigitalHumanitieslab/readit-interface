@@ -72,7 +72,7 @@ export default class LdItemView extends View<Node> {
         this.label = getLabel(this.currentItem);
         let ontologyClass = this.getOntologyClass(this.currentItem);
         if (ontologyClass) {
-            this.lblView = new LabelView({ model: ontologyClass, hasTooltipLeft: true });
+            this.lblView = new LabelView({ model: ontologyClass, toolTipSetting: 'left' });
             this.lblView.render();
         }
 
