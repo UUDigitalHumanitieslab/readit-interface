@@ -70,7 +70,6 @@ export default class OntologyClassPickerView extends View<Node> {
 
     setLabel(node: Node): this {
         let dropdownLabel = this.$('.dropdown-label-tag');
-        console.log(dropdownLabel);
         if (this.label) this.label.remove();
         dropdownLabel.text('');
         this.label = new LabelView({ model: node });
@@ -95,7 +94,6 @@ export default class OntologyClassPickerView extends View<Node> {
     }
 
     onItemActivated(view: OntologyClassPickerItemView): this {
-        console.log('onacts')
         this.selected = view.model;
         this.setLabel(view.model);
         return this;
