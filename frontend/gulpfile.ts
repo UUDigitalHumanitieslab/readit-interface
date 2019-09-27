@@ -6,6 +6,7 @@ import { Readable } from 'stream';
 import { src, dest, symlink, parallel, series, watch as watchApi } from 'gulp';
 import * as vinylStream from 'vinyl-source-stream';
 import * as vinylBuffer from 'vinyl-buffer';
+import * as log from 'fancy-log';
 import * as exorcist from 'exorcist';
 import globbedBrowserify from 'gulp-browserify-watchify-glob';
 import * as loadPlugins from 'gulp-load-plugins';
@@ -24,6 +25,7 @@ import * as del from 'del';
 import { argv } from 'yargs';
 import { JSDOM, VirtualConsole } from 'jsdom';
 import * as through2 from 'through2';
+import chalk from 'chalk';
 
 type LibraryProps = {
     module: string,
@@ -231,8 +233,13 @@ export function template() {
         .pipe(dest(sourceDir));
 };
 
+function reportBundleError(errorObj) {
+    log.error(chalk.red(errorObj.message));
+}
+
 function jsBundle() {
     return tsModules().bundle()
+        .on('error', reportBundleError)
         .pipe(ifNotProd(exorcist(jsSourceMapDest)))
         .pipe(vinylStream(jsBundleName))
         .pipe(ifProd(vinylBuffer()))
@@ -242,6 +249,7 @@ function jsBundle() {
 
 function jsUnittest() {
     return tsTestModules().bundle()
+        .on('error', reportBundleError)
         .pipe(vinylStream(unittestBundleName))
         .pipe(dest(buildDir));
 }
@@ -251,6 +259,7 @@ export function terminalReporter() {
         .pipe(plugins.changed(buildDir, {extension: '.js'}))
         .pipe(through2.obj(function(chunk, enc, cb) {
             reporterModules().bundle()
+                .on('error', reportBundleError)
                 .pipe(vinylStream(reporterBundleName))
                 .pipe(dest(buildDir))
                 .pipe(this);
