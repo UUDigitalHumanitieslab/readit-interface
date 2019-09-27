@@ -330,6 +330,8 @@ export function runUnittests(done) {
     specRunner.get(runner => {
         const virtualConsole = new VirtualConsole();
         virtualConsole.on('info', console.info);
+        virtualConsole.on('log', console.log);
+        virtualConsole.on('debug', console.debug);
         virtualConsole.on('jsdomError', console.error);
         const jsDOM = new JSDOM(runner.contents.toString(), {
             url: `http://localhost:${argv.port || ports.frontend}`,
