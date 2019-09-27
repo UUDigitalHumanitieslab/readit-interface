@@ -6,54 +6,23 @@ import { skos } from './../jsonld/ns';
 import Node from '../jsonld/node';
 import { getCssClassName, getLabel } from './utilities';
 
+type TooltipSetting = false | 'top' | 'bottom' | 'left' | 'right';
+
 export interface ViewOptions extends BaseOpt<Node> {
-    /**
-     * Specifies if the tooltip is shown. Defaults to true and is shown at the top of the label.
-     */
-    hasTooltip?: boolean;
-    /**
-     * Specifies if the tooltip is shown on the right of the label.
-     */
-    hasTooltipRight?: boolean;
-    /**
-     * Specifies if the tooltip is shown in the bottom of the label.
-     */
-    hasTooltipBottom?: boolean;
-    /**
-     * Specifies if the tooltip is shown on the left of the label.
-     */
-    hasTooltipLeft?: boolean;
+    toolTipSetting?: TooltipSetting;
 }
 
 export default class LabelView extends View<Node> {
     label: string;
     cssClassName: string;
-    hasTooltipTop: boolean;
-    hasTooltipLeft: boolean;
-    hasTooltipBottom: boolean;
-    hasTooltipRight: boolean;
+    toolTipSetting: TooltipSetting;
 
     constructor(options?: ViewOptions) {
         super(options);
 
-        if (options) {
-            if (options.hasTooltipRight !== undefined) {
-                this.hasTooltipRight = options.hasTooltipRight;
-            }
-            else if (options.hasTooltipBottom !== undefined) {
-                this.hasTooltipBottom = options.hasTooltipBottom;
-            }
-            else if (options.hasTooltipLeft !== undefined) {
-                this.hasTooltipLeft = options.hasTooltipLeft;
-            }
-            else if (options.hasTooltip !== undefined) {
-                this.hasTooltipTop = options.hasTooltip;
-            }
-            else {
-                this.hasTooltipTop = true;
-            }
-        } else {
-            this.hasTooltipTop = true;
+        this.toolTipSetting = 'top';
+        if (options && options.toolTipSetting !== undefined) {
+            this.toolTipSetting = options.toolTipSetting;
         }
     }
 
@@ -85,14 +54,11 @@ export default class LabelView extends View<Node> {
     }
 
     hasTooltip(): boolean {
-        return this.hasTooltipTop || this.hasTooltipRight || this.hasTooltipBottom || this.hasTooltipLeft;
+        return typeof this.toolTipSetting === 'string';
     }
 
     setTooltipOrientation(): this {
-        let orientation = "";
-        if (this.hasTooltipRight) orientation = "-right";
-        if (this.hasTooltipBottom) orientation = "-bottom";
-        if (this.hasTooltipLeft) orientation = "-left";
+        let orientation = `-${this.toolTipSetting}`;
         this.$el.addClass(`is-tooltip${orientation}`);
         return this;
     }
