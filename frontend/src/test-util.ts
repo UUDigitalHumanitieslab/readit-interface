@@ -44,3 +44,31 @@ const introspector = {
 
 extend(introspector, Events);
 jasmine.getEnv().addReporter(introspector);
+
+/**
+ * Call this inside a suite or spec to automatically disable it if
+ * `condition` is not met and show the reason in the console.
+ * Assign the return value to a local override of the `it` variable
+ * if you are applying this to a suite.
+ */
+export function onlyIf(condition, message) {
+    function report() {
+        const path = introspector.path();
+        console.debug(`${path}:\n disabled in this environment:\n  ${message}`);
+    }
+    if (!condition) {
+        let registered = false;
+        if (introspector.spec) {
+            report();
+            pending(message);
+        }
+        return (description, f?, t?) => it(description, function() {
+            if (!registered) {
+                registered = true;
+                (introspector as unknown as Events).once('end:suite', report);
+            }
+            pending(message);
+        });
+    }
+    return it;
+}
