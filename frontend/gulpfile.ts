@@ -384,10 +384,15 @@ function stopServing(done) {
 
 export const test = parallel(serve, series(buildUnittests, runUnittests, stopServing));
 
+function adoptName(originalTask, wrappedTask) {
+    wrappedTask.displayName = originalTask.displayName || originalTask.name;
+    return wrappedTask;
+}
+
 function reload(inputTask) {
-    return function reload() {
+    return adoptName(inputTask, function() {
         return inputTask().pipe(plugins.connect.reload());
-    }
+    });
 }
 
 function streamFromPromise(promise) {
@@ -400,9 +405,9 @@ function streamFromPromise(promise) {
 }
 
 function reloadPr(inputTask) {
-    return function reload() {
+    return adoptName(inputTask, function() {
         return streamFromPromise(inputTask()).pipe(plugins.connect.reload());
-    }
+    });
 }
 
 function retest(inputTask) {
