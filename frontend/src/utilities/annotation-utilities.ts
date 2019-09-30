@@ -84,9 +84,12 @@ export function getOntologyInstance(annotation: Node, ontology: Graph): Node {
 
 /**
  * Get ontology class item from the ontology Graph
- * @param ontologyInstance The ontology instance associated with the View's current model
+ * @param node Either an instance of oa:Annotation or the ontology instance associated with the oa:Annotation.
  */
-export function getOntologyClass(ontologyInstance: Node, ontology: Graph) {
+
+export function getOntologyClass(node: Node, ontology: Graph) {
+    let ontologyInstance = node;
+    if (isType(node, oa.Annotation)) ontologyInstance = getOntologyInstance(node, ontology);
     let ontologyReference = ontologyInstance.get('@type')[0] as string;
     return ontology.get(ontologyReference);
 }
