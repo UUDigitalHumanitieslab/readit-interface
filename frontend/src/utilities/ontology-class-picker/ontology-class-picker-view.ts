@@ -20,6 +20,10 @@ export default class OntologyClassPickerView extends View<Node> {
     preselection: Node;
     label: any;
 
+    constructor(options: ViewOptions) {
+        super(options);
+    }
+
     initialize(options: ViewOptions): this {
         if (!options.collection) throw new TypeError('collection cannot be null or undefined');
         this.initDropdownItems();
@@ -36,7 +40,7 @@ export default class OntologyClassPickerView extends View<Node> {
     initDropdownItems(): this {
         this.dropdownItems = [];
         this.collection.each((node) => {
-            let view = new OntologyClassPickerItemView({ model: node });
+            let view = new OntologyClassPickerItemView({ model: node as Node });
             view.on('click', this.onItemClicked, this);
             view.on('activated', this.onItemActivated, this);
             this.dropdownItems.push(view);
