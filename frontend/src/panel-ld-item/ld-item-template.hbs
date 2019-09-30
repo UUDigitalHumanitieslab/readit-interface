@@ -27,36 +27,9 @@
         </article>
     </section>
 
-    <section class="accordions">
-        <article class="accordion has-mt-10">
-            <div class="accordion-header toggle">
-                <p>Item metadata</p>
-                <button class="toggleProxy" aria-label="toggle"></button>
-            </div>
-            <div class="accordion-body">
-                <div class="accordion-content">
-                    {{#each itemMetadata}}
-                    <b>{{@key}}</b>: {{this}}</p>
-                    {{/each}}
-                </div>
-            </div>
-        </article>
-
-        {{#if annotationMetadata}}
-        <article class="accordion has-mt-10">
-            <div class="accordion-header toggle">
-                <p>Annotation metadata</p>
-                <button class="toggleProxy" aria-label="toggle"></button>
-            </div>
-            <div class="accordion-body">
-                <div class="accordion-content">
-                    {{#each annotationMetadata}}
-                    <b>{{@key}}</b>: {{this}}</p>
-                    {{/each}}
-                </div>
-            </div>
-        </article>
-        {{/if}}
+    <section>
+        <div class="itemMetadataContainer"></div>
+        <div class="annotationMetadataContainer"></div>
     </section>
 
     <section class="item-sections">
