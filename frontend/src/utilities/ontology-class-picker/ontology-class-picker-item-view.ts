@@ -13,7 +13,7 @@ export default class OntologyClassPickerItemView extends View<Node> {
     labelView: LabelView;
 
     initialize(options: ViewOptions): this {
-        this.labelView = new LabelView({ model: options.model });
+        this.labelView = new LabelView({ model: options.model, toolTipSetting: false });
         return this;
     }
 
