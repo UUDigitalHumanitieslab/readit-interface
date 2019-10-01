@@ -176,6 +176,7 @@ describe('Node', function() {
             ldChannel.reply('obtain', () => dummy);
             const result = this.node.get(owl.sameAs)[0];
             expect(result).toBe(dummy);
+            ldChannel.stopReplying('obtain');
         });
 
         it('leaves other attributes unmodified', function() {
