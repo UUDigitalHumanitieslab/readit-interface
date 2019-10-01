@@ -24,18 +24,22 @@ const priorityOverrides = {
     'application/n-quads': 0.6,
 };
 
-const defaultSyncOptions = (async function() {
-    const prioritized = await rdfParser.getContentTypesPrioritized();
-    each(priorityOverrides, (prio, type) => {
-        if (prioritized[type]) prioritized[type] = prio;
-    });
-    const formatted = map(prioritized, (prio, type) => `${type}; q=${prio}`);
-    return {
-        headers: {
-            Accept: formatted.join(', '),
-        },
-        dataType: null, // default to jQuery's intelligent guess
-    };
+const defaultSyncOptions = (function() {
+    let optionsPromise: any;
+
+    return () => optionsPromise || (optionsPromise = async function() {
+        const prioritized = await rdfParser.getContentTypesPrioritized();
+        each(priorityOverrides, (prio, type) => {
+            if (prioritized[type]) prioritized[type] = prio;
+        });
+        const formatted = map(prioritized, (prio, type) => `${type}; q=${prio}`);
+        return {
+            headers: {
+                Accept: formatted.join(', '),
+            },
+            dataType: null, // default to jQuery's intelligent guess
+        };
+    }());
 }());
 
 /**
@@ -47,7 +51,7 @@ export default async function syncLD(
 ): Promise<FlatLdDocument> {
     let { success, error, attrs } = options;
     options = omit(options, 'success', 'error');
-    options = defaultsDeep(options, await defaultSyncOptions);
+    options = defaultsDeep(options, await defaultSyncOptions());
     let context = model && model.context;
     let jqXHR;
     try {
