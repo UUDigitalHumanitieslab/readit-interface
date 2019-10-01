@@ -3,15 +3,19 @@ import { extend, sumBy, method, bind, debounce, findLast } from 'lodash';
 import Model from '../core/model';
 import View from '../core/view';
 
+import Graph from '../jsonld/graph';
 import PanelStackView from './explorer-panelstack-view';
 import EventController from './explorer-event-controller';
+
 
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?
     first: View;
+    ontology: Graph;
 }
 
 export default class ExplorerView extends View {
+    ontology: Graph;
     stacks: PanelStackView[];
 
     eventController: EventController;
@@ -30,10 +34,14 @@ export default class ExplorerView extends View {
 
     constructor(options?: ViewOptions) {
         super(options);
+        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
+
+        this.ontology = options.ontology;
         this.stacks = [];
         this.eventController = new EventController(this);
         this.rltPanelStack = new Map();
         this.push(options.first);
+
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 500));
     }
@@ -64,10 +72,11 @@ export default class ExplorerView extends View {
      * of the new panel's stack from the left.
      */
     push(panel: View): this {
+        this.eventController.subscribeToPanelEvents(panel);
         let position = this.stacks.length;
         this.stacks.push(new PanelStackView({ first: panel }));
         this.rltPanelStack.set(panel.cid, position);
-        this.eventController.subscribeToPanelEvents(panel);
+
         this.stacks[position].render().$el.appendTo(this.$el);
         this.trigger('push', panel, position);
         this.scroll();

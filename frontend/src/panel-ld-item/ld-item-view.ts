@@ -9,7 +9,7 @@ import ldItemTemplate from './ld-item-template';
 
 import { owl, oa, dcterms } from './../jsonld/ns';
 import { isType, getLabel, getLabelFromId } from './../utilities/utilities';
-import { getOntologyInstances } from './../utilities/annotation-utilities';
+import { getOntologyInstance, getOntologyClass } from './../utilities/annotation-utilities';
 
 import LabelView from '../utilities/label-view';
 
@@ -64,13 +64,14 @@ export default class LdItemView extends View<Node> {
         this.externalResources;
 
         if (this.modelIsAnnotation) {
-            this.currentItem = this.getOntologyInstance();
+            this.currentItem = getOntologyInstance(this.currentItem, this.ontology);
             this.annotationMetadata[getLabelFromId(dcterms.creator)] = getLabel(this.model.get(dcterms.creator)[0] as Node);
             this.annotationMetadata[getLabelFromId(dcterms.created)] = this.model.get(dcterms.created);
         }
 
         this.label = getLabel(this.currentItem);
-        let ontologyClass = this.getOntologyClass(this.currentItem);
+
+        let ontologyClass = getOntologyClass(this.currentItem, this.ontology);
         if (ontologyClass) {
             this.lblView = new LabelView({ model: ontologyClass, toolTipSetting: 'left' });
             this.lblView.render();
@@ -93,31 +94,6 @@ export default class LdItemView extends View<Node> {
             new bulmaAccordion(accordion);
         });
         return this;
-    }
-
-    /**
-     * Get the item in oa.hasBody that is not in the ontology Graph.
-     * Throws RangeError if none or multiple items are found.
-     */
-    getOntologyInstance(): Node {
-        let ontologyInstances = getOntologyInstances(this.model, this.ontology);
-
-        if (ontologyInstances.length !== 1) {
-            throw new RangeError(
-                `None or multiple ontology instances found for oa:Annotation with cid '${this.model.cid}',
-                    don't know which one to display`);
-        }
-
-        return ontologyInstances[0];
-    }
-
-    /**
-     * Get ontology class item from the ontology Graph
-     * @param ontologyInstance The ontology instance associated with the View's current model
-     */
-    getOntologyClass(ontologyInstance: Node) {
-        let ontologyReference = ontologyInstance.get('@type')[0] as string;
-        return this.ontology.get(ontologyReference);
     }
 
     collectDetails(): this {

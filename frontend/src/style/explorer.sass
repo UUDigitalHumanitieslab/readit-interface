@@ -4,10 +4,6 @@
     padding: 1em 2em
     overflow-x: auto
 
-    .source
-        overflow-x: auto
-        overflow-y: hidden
-
     .explorer-panel
         height: 98%
         min-width: 550px
@@ -19,9 +15,17 @@
         border: 1px solid black
         border-radius: 3px
 
-    .explorer-content
+    .panel-content
         height: 100%
-
-    .explorer-content
         overflow-y: auto
 
+        &.source
+            overflow-y: unset
+
+        &.annotations-panel
+            overflow-y: unset
+
+
+    .btn-edit
+        width: 100px
+        align-self: flex-end

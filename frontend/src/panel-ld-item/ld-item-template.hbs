@@ -1,100 +1,99 @@
-<div class="explorer-content">
-    <div>
-        <header>
-            <aside>{{! label view will be inserted here }}</aside>
-            <h3 class="title is-3">{{label}}</h3>
-        </header>
-        <section class="item-sections">
-            <article class="item-section">
-                <div class="item-section-header">
-                    <p>Properties</p>
-                </div>
-                <table class="table is-bordered">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{#each properties}}
-                        <tr>
-                            <td>{{@key}}</td>
-                            <td>{{this}}</td>
-                        </tr>
-                        {{/each}}
-                    </tbody>
-                </table>
-            </article>
-        </section>
+<div class="panel-content">
+    <header>
+        <aside>{{! label view will be inserted here }}</aside>
+        <h3 class="title is-3">{{label}}</h3>
+    </header>
+    <section class="item-sections">
+        <article class="item-section">
+            <div class="item-section-header">
+                <p>Properties</p>
+            </div>
+            <table class="table is-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each properties}}
+                    <tr>
+                        <td>{{@key}}</td>
+                        <td>{{this}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </article>
+    </section>
 
-        <section class="accordions">
-            <article class="accordion has-mt-10">
-                <div class="accordion-header toggle">
-                    <p>Item metadata</p>
-                    <button class="toggleProxy" aria-label="toggle"></button>
+    <section class="accordions">
+        <article class="accordion has-mt-10">
+            <div class="accordion-header toggle">
+                <p>Item metadata</p>
+                <button class="toggleProxy" aria-label="toggle"></button>
+            </div>
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    {{#each itemMetadata}}
+                    <b>{{@key}}</b>: {{this}}</p>
+                    {{/each}}
                 </div>
-                <div class="accordion-body">
-                    <div class="accordion-content">
-                        {{#each itemMetadata}}
-                        <b>{{@key}}</b>: {{this}}</p>
-                        {{/each}}
-                    </div>
-                </div>
-            </article>
+            </div>
+        </article>
 
-            {{#if annotationMetadata}}
-            <article class="accordion has-mt-10">
-                <div class="accordion-header toggle">
-                    <p>Annotation metadata</p>
-                    <button class="toggleProxy" aria-label="toggle"></button>
+        {{#if annotationMetadata}}
+        <article class="accordion has-mt-10">
+            <div class="accordion-header toggle">
+                <p>Annotation metadata</p>
+                <button class="toggleProxy" aria-label="toggle"></button>
+            </div>
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    {{#each annotationMetadata}}
+                    <b>{{@key}}</b>: {{this}}</p>
+                    {{/each}}
                 </div>
-                <div class="accordion-body">
-                    <div class="accordion-content">
-                        {{#each annotationMetadata}}
-                        <b>{{@key}}</b>: {{this}}</p>
-                        {{/each}}
-                    </div>
-                </div>
-            </article>
-            {{/if}}
-        </section>
+            </div>
+        </article>
+        {{/if}}
+    </section>
 
-        <section class="item-sections">
-            {{#if relatedItems}}
-            <article class="item-section has-mt-10">
-                <div class="item-section-header">
-                    <p>Related items</p>
-                    <span id="btnRelItems" class="icon is-large has-text-primary tooltip is-tooltip-left"
-                        data-tooltip="Open related items">
-                        <i class="fas fa-arrow-circle-right"></i>
-                    </span>
-                </div>
-            </article>
-            {{/if}}
-            {{#if modelIsAnnotation}}
-            <article class="item-section has-mt-10">
-                <div class="item-section-header">
-                    <p>Annotations</p>
-                    <span id="btnAnnotations" class="icon is-large has-text-primary tooltip is-tooltip-left"
-                        data-tooltip="Open annotations">
-                        <i class="fas fa-arrow-circle-right"></i>
-                    </span>
-                </div>
-            </article>
-            {{/if}}
-            {{#if externalResources}}
-            <article class="item-section has-mt-10">
-                <div class="item-section-header">
-                    <p>External resources</p>
-                    <span id="btnExtResources" class="icon is-large has-text-primary tooltip is-tooltip-left"
-                        data-tooltip="Open external resources">
-                        <i class="fas fa-arrow-circle-right"></i>
-                    </span>
-                </div>
-            </article>
-            {{/if}}
-        </section>
-    </div>
-    <button class="button btn-edit">Edit</button>
+    <section class="item-sections">
+        {{#if relatedItems}}
+        <article class="item-section has-mt-10">
+            <div class="item-section-header">
+                <p>Related items</p>
+                <span id="btnRelItems" class="icon is-large has-text-primary tooltip is-tooltip-left"
+                    data-tooltip="Open related items">
+                    <i class="fas fa-arrow-circle-right"></i>
+                </span>
+            </div>
+        </article>
+        {{/if}}
+        {{#if modelIsAnnotation}}
+        <article class="item-section has-mt-10">
+            <div class="item-section-header">
+                <p>Annotations</p>
+                <span id="btnAnnotations" class="icon is-large has-text-primary tooltip is-tooltip-left"
+                    data-tooltip="Open annotations">
+                    <i class="fas fa-arrow-circle-right"></i>
+                </span>
+            </div>
+        </article>
+        {{/if}}
+        {{#if externalResources}}
+        <article class="item-section has-mt-10">
+            <div class="item-section-header">
+                <p>External resources</p>
+                <span id="btnExtResources" class="icon is-large has-text-primary tooltip is-tooltip-left"
+                    data-tooltip="Open external resources">
+                    <i class="fas fa-arrow-circle-right"></i>
+                </span>
+            </div>
+        </article>
+        {{/if}}
+    </section>
 </div>
+</div>
+<button class="button btn-edit">Edit</button>
