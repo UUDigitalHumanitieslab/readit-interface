@@ -5,6 +5,7 @@ import View from '../core/view';
 import Graph from './../jsonld/graph';
 import Node from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
+import { isNode } from '../utilities/types';
 
 import ldItemTemplate from './ld-item-template';
 
@@ -146,7 +147,7 @@ export default class LdItemView extends View<Node> {
 
             let valueArray = this.currentItem.get(attribute);
             valueArray.forEach(value => {
-                if (value instanceof Node) {
+                if (isNode(value)) {
                     this.relatedItems.push(value);
                 }
                 else {

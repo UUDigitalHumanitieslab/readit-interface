@@ -1,8 +1,9 @@
-import { defaults, has, isUndefined, isString, isArray } from 'lodash';
+import { defaults, isUndefined, isString, isArray } from 'lodash';
 import { channel } from 'backbone.radio';
 
 import { proxyRoot } from 'config.json';
 
+import { isNode, isIdentifier } from '../utilities/types';
 import { channelName } from './constants';
 import ldChannel from './radio';
 import { Identifier, FlatLdDocument, FlatLdGraph } from './json';
@@ -53,11 +54,11 @@ export default class Store extends Graph {
      */
     getPlaceholder(id: string | Identifier | Node): Node {
         let placeholder;
-        if (id instanceof Node) {
+        if (isNode(id)) {
             placeholder = id;
         } else if (isString(id)) {
             placeholder = new Node({'@id': id});
-        } else if (has(id, '@id')) {
+        } else if (isIdentifier(id)) {
             placeholder = new Node(id);
         } else {
             throw TypeError('id must be string, Identifier or Node');
