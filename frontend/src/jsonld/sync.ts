@@ -73,7 +73,9 @@ export default async function syncLD(
     }
 }
 
-export function transform(jqXHR): Promise<[FlatLdDocument, JsonLdContext]> {
+export function transform(jqXHR: JQuery.jqXHR): Promise<[
+    FlatLdDocument, JsonLdContext
+]> {
     let contentType = jqXHR.getResponseHeader('Content-Type');
     contentType = contentTypeAlias[contentType] || contentType;
     let plaintext, context;
