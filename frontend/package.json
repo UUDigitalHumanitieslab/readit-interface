@@ -11,7 +11,9 @@
   ],
   "dependencies": {
     "@dhl-uu/jquery-promise": "^1.1.1",
+    "@rdfjs/serializer-jsonld-ext": "^2.0.0",
     "backbone": "^1.4.0",
+    "backbone.radio": "^2.0.0",
     "bulma": "^0.7.1",
     "bulma-accordion": "^2.0.1",
     "bulma-tooltip": "^2.0.2",
@@ -23,11 +25,14 @@
     "js-cookie": "^2.2.0",
     "jsonld": "^1.5.1",
     "lodash": "^4.17.10",
-    "machina": "^2.0.2"
+    "machina": "^2.0.2",
+    "rdf-parse": "^1.1.1",
+    "streamify-string": "^1.0.1"
   },
   "devDependencies": {
     "@types/backbone": "^1.4.0",
-    "@types/jasmine": "^2.8.8",
+    "@types/backbone.radio": "^0.8.37",
+    "@types/jasmine": "^3.4.0",
     "@types/jasmine-ajax": "^3.3.0",
     "@types/jquery": "^3.3.5",
     "@types/lodash": "^4.14.113",
