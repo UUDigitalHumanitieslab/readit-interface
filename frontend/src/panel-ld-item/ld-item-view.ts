@@ -64,10 +64,6 @@ export default class LdItemView extends View<Node> {
         this.relatedItems = [];
         this.externalResources;
 
-        this.init();
-    }
-
-    init(): this {
         if (this.modelIsAnnotation) {
             this.currentItem = getOntologyInstance(this.currentItem, this.ontology);
             this.annotationMetadataView = new ItemMetadataView({ model: this.model, title: 'Annotation metadata' });
