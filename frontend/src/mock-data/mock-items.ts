@@ -102,7 +102,7 @@ export const anno1SpecificResource = {
     ],
     [oa.hasSource]: [
         {
-            "@id": item('1')
+            "@id": source('1')
         }
     ]
 };
@@ -255,7 +255,7 @@ export const anno2SpecificResource = {
     ],
     [oa.hasSource]: [
         {
-            "@id": item('1')
+            "@id": source('1')
         }
     ]
 };
@@ -438,7 +438,7 @@ export const anno3SpecificResource = {
     ],
     [oa.hasSource]: [
         {
-            "@id": item('1')
+            "@id": source('1')
         }
     ]
 };
