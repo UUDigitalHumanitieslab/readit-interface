@@ -8,6 +8,7 @@ import 'jasmine-ajax';
 // https://github.com/jasmine/jasmine-ajax/blob/efc1961b131aec836a9bcf14285f8c4f9f2eefb3/src/requestStub.js#L51
 
 import * as Backbone from 'backbone';
+import rdfParser from 'rdf-parse';
 
 import syncLD, { transform, combineContext, getLinkHeader } from './sync';
 import expandedData from './../mock-data/mock-expanded';
@@ -163,6 +164,23 @@ describe('the jsonld/sync module', function() {
         // transform takes a single jqXHR parameter.
         // In each of the following tests, stub the request and make
         // sure to set the appropriate contentType in the response.
+
+        it('strips parameters from the response type', async function() {
+            const testUrl = 'http://test.com';
+            jasmine.Ajax.stubRequest(testUrl).andReturn({
+                status: 200,
+                contentType: 'application/ld+json; charset=UTF-8',
+                responseText: '{}',
+            });
+            const xhr = Backbone.$.get(testUrl);
+            await xhr;
+            spyOn(rdfParser, 'parse').and.callThrough();
+            await transform(xhr);
+            expect(rdfParser.parse).toHaveBeenCalledWith(
+                jasmine.anything(),
+                jasmine.objectContaining({contentType: 'application/ld+json'}),
+            );
+        });
 
         it('can turn compact JSON-LD into flat JSON-LD', function() {
         });
