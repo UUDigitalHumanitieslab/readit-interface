@@ -436,12 +436,21 @@ export const watch = series(fullStatic, function watch(done) {
     jsBundle();
     retest(parallel(startTestBundle, terminalReporter))();
 
-    watchApi(styleSourceGlob, reload(style));
-    watchApi(templateSourceGlob, template);
-    watchApi([indexConfig, indexTemplate], reloadPr(index));
-    watchApi([indexConfig, specRunnerTemplate], retest(reloadPr(specRunner.render)));
+    const styleWatch = watchApi(styleSourceGlob, reload(style));
+    const templateWatch = watchApi(templateSourceGlob, template);
+    const indexWatch = watchApi([indexConfig, indexTemplate], reloadPr(index));
+    const specWatch = watchApi(
+        [indexConfig, specRunnerTemplate],
+        retest(reloadPr(specRunner.render))
+    );
 
-    exitController.once('signal', done);
+    exitController.once('signal', () => {
+        [
+            tsModules(), tsTestModules(), reporterModules(), styleWatch,
+            templateWatch, indexWatch, specWatch,
+        ].forEach(watcher => watcher.close());
+        done();
+    });
 });
 
 export function clean() {
