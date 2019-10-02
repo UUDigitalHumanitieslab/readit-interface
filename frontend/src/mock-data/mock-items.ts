@@ -381,6 +381,14 @@ export const anno3ReaderInstance = {
     [readit('descriptionOf')]: [
         {
             "@id": item('600')
+        },
+        {
+            "@id": item('601')
+        }
+    ],
+    [readit('reading')]: [
+        {
+            "@id": item('200')
         }
     ],
     [readit('age')]: [
@@ -408,6 +416,30 @@ export const anno3PersonInstance = {
     [readit('name')]: [
         {
             "@value": "Henry Williams"
+        }
+    ],
+    [schema.birthPlace]: [
+        {
+            "@value": "London"
+        }
+    ],
+}
+
+export const anno3Person2Instance = {
+    '@id': item('601'),
+    "@type": [readit('Person')],
+    [dcterms.creator]: [
+        { '@id': staff('JdeKruif') },
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            '@value': "2085-12-31T04:33:16+0100"
+        }
+    ],
+    [readit('name')]: [
+        {
+            "@value": "Robert Pattison"
         }
     ],
     [schema.birthPlace]: [
@@ -526,6 +558,8 @@ export default [
     anno2EndSelector,
     anno3Instance,
     anno3ReaderInstance,
+    anno3PersonInstance,
+    anno3Person2Instance,
     anno3SpecificResource,
     anno3RangeSelector,
     anno3StartSelector,
