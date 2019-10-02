@@ -1,13 +1,46 @@
-import { isArray, omit } from 'lodash';
+import { isArray, omit, map, defaultsDeep, each } from 'lodash';
 import { sync as syncBase } from 'backbone';
 import { compact, flatten } from 'jsonld';
 import { parseLinkHeader } from 'jsonld/lib/util';
 import { LINK_HEADER_REL } from 'jsonld/lib/constants';
 import JsonLdError from 'jsonld/lib/JsonLdError';
+import rdfParser from 'rdf-parse';
+import * as Serializer from '@rdfjs/serializer-jsonld-ext';
+import * as streamify from 'streamify-string';
 
-import { JsonLdDocument, FlatLdDocument } from './json';
+import { JsonLdContext, FlatLdDocument } from './json';
 import Node from './node';
 import Graph from './graph';
+
+const contentTypeAlias = {
+    'application/x-turtle': 'text/turtle',
+};
+
+const priorityOverrides = {
+    'text/turtle': 0.8,
+    'application/rdf+xml': 0.75,
+    'text/html': 0.7,
+    'application/xhtml+xml': 0.62,
+    'application/n-quads': 0.6,
+};
+
+const defaultSyncOptions = (function() {
+    let optionsPromise: any;
+
+    return () => optionsPromise || (optionsPromise = async function() {
+        const prioritized = await rdfParser.getContentTypesPrioritized();
+        each(priorityOverrides, (prio, type) => {
+            if (prioritized[type]) prioritized[type] = prio;
+        });
+        const formatted = map(prioritized, (prio, type) => `${type}; q=${prio}`);
+        return {
+            headers: {
+                Accept: formatted.join(', '),
+            },
+            dataType: null, // default to jQuery's intelligent guess
+        };
+    }());
+}());
 
 /**
  * Compact data before sending a request, flatten before
@@ -18,6 +51,7 @@ export default async function syncLD(
 ): Promise<FlatLdDocument> {
     let { success, error, attrs } = options;
     options = omit(options, 'success', 'error');
+    options = defaultsDeep(options, await defaultSyncOptions());
     let context = model && model.context;
     let jqXHR;
     try {
@@ -26,13 +60,10 @@ export default async function syncLD(
             options.attrs = await compact(attrs, context);
         }
         jqXHR = syncBase(method, model, options);
-        let response = await jqXHR as JsonLdDocument;
-        let flattenOptions: any = { base: response['@base'] || options.url };
-        let linkHeader = getLinkHeader(jqXHR);
-        if (linkHeader) flattenOptions.expandContext = linkHeader.target;
-        let flattened = await flatten(response, null, flattenOptions);
+        await jqXHR;
+        const [flattened, newContext] = await transform(jqXHR);
         if (method !== 'delete') {
-            emitContext(linkHeader, response['@context'], model);
+            model.trigger('sync:context', newContext);
         }
         if (success) success(flattened, jqXHR.statusText, jqXHR);
         return flattened;
@@ -42,30 +73,56 @@ export default async function syncLD(
     }
 }
 
-export function getLinkHeader(jqXHR) {
-    // Logic roughly imitated from jsonld/lib/documentLoaders/xhr
-    if (jqXHR.getResponseHeader('Content-Type') !== 'application/ld+json') {
-        let linkHeader = jqXHR.getResponseHeader('Link');
-        if (linkHeader) {
-            linkHeader = parseLinkHeader(linkHeader)[LINK_HEADER_REL];
-            if (isArray(linkHeader)) throw new JsonLdError(
-                'More than one associated HTTP Link header.',
-                'jsonld.InvalidUrl',
-                {code: 'multiple context link headers', url: jqXHR.url},
-            );
-        }
-        return linkHeader;
+export function transform(jqXHR: JQuery.jqXHR): Promise<[
+    FlatLdDocument, JsonLdContext
+]> {
+    let contentType = jqXHR.getResponseHeader('Content-Type');
+    contentType = contentTypeAlias[contentType] || contentType;
+    let plaintext, context;
+    if (contentType === 'application/json') {
+        [plaintext, context] = combineContext(jqXHR);
+    } else {
+        plaintext = jqXHR.responseText;
     }
+    const input = streamify(plaintext);
+    const serializer = new Serializer();
+    return new Promise((resolve, reject) => {
+        let result: FlatLdDocument = [];
+        const process = rdfParser.parse(input, {contentType});
+        const output = serializer.import(process);
+        output.on('data', jsonld => result = jsonld);
+        output.on('end', () => resolve([result, context]));
+        output.on('error', error => reject(error));
+    });
 }
 
-export function emitContext(linkHeader, inlineContext, model) {
-    let newContext = inlineContext;
+export function combineContext(jqXHR) {
+    const linkHeader = getLinkHeader(jqXHR);
+    const parsedJson = jqXHR.responseJSON;
+    const inlineContext = parsedJson['@context'];
+    let fullContext = inlineContext;
     if (linkHeader) {
         if (inlineContext) {
-            newContext = [linkHeader.target, inlineContext];
+            fullContext = [linkHeader.target, inlineContext];
         } else {
-            newContext = linkHeader.target;
+            fullContext = linkHeader.target;
         }
     }
-    model.trigger('sync:context', newContext);
+    if (fullContext === inlineContext) return [jqXHR.responseText, fullContext];
+    parsedJson['@context'] = fullContext;
+    return [JSON.stringify(parsedJson), fullContext];
+}
+
+export function getLinkHeader(jqXHR) {
+    // Logic roughly imitated from jsonld/lib/documentLoaders/xhr
+    let linkHeader = jqXHR.getResponseHeader('Link');
+    if (linkHeader) {
+        linkHeader = parseLinkHeader(linkHeader)[LINK_HEADER_REL];
+        if (isArray(linkHeader)) throw new JsonLdError(
+            'More than one associated HTTP Link header.',
+            'jsonld.InvalidUrl',
+            {code: 'multiple context link headers', url: jqXHR.url},
+        );
+    }
+    return linkHeader;
 }
