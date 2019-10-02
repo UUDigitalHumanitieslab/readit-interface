@@ -15,12 +15,13 @@ Including another URLconf
 """
 from django.urls import path, re_path, include
 from django.contrib import admin
+from django.conf import settings
 
 from rest_framework import routers
 
 from proxy.views import proxy_view
 
-from .index import index
+from .index import index, specRunner
 
 api_router = routers.DefaultRouter()  # register viewsets with this router
 
@@ -33,5 +34,11 @@ urlpatterns = [
     )),
     path('rest-auth/', include('rest_auth.urls')),
     re_path(r'proxy/(?P<url>.*)', proxy_view),
-    re_path(r'', index),  # catch-all; unknown paths to be handled by a SPA
 ]
+
+# Inject any Jasmine testing page from a frontend during development.
+if settings.DEBUG:
+    urlpatterns.append(path('specRunner.html', specRunner))
+
+# Catch-all; unknown paths to be handled by a SPA.
+urlpatterns.append(re_path(r'', index))
