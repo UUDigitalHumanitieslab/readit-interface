@@ -9,7 +9,7 @@ import relatedItemsTemplate from './related-items-template';
 
 import { dcterms } from '../jsonld/ns';
 import { getLabelFromId } from '../utilities/utilities';
-import AnnoItemSummaryBlockView from './../utilities/anno-item-summary-block-view';
+import AnnoItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import RelatedItemsRelationView from './related-items-relation-view';
 
 export interface ViewOptions extends BaseOpt<Node> {

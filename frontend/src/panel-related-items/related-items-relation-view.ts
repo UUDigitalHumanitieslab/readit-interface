@@ -6,7 +6,7 @@ import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
 
 import relatedItemsRelationTemplate from './related-items-relation-template';
-import AnnoItemSummaryBlockView from '../utilities/anno-item-summary-block-view';
+import AnnoItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 
 export interface ViewOptions extends BaseOpt<Node> {
     relationName: string;

@@ -1,14 +1,14 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from '../core/view';
+import View from '../../core/view';
 
-import { oa } from '../jsonld/ns';
-import Node from '../jsonld/node';
-import Graph from './../jsonld/graph';
-import { getCssClassName, getLabel, isType } from './utilities';
+import { oa } from '../../jsonld/ns';
+import Node from '../../jsonld/node';
+import Graph from '../../jsonld/graph';
+import { getCssClassName, getLabel, isType } from '../utilities';
 
-import annoItemSummaryBlockTemplate from './anno-item-summary-block-template';
-import { getOntologyInstance, getOntologyClass, AnnotationPositionDetails, getPositionDetails } from './annotation-utilities';
+import annoItemSummaryBlockTemplate from './item-summary-block-template';
+import { getOntologyInstance, getOntologyClass, AnnotationPositionDetails, getPositionDetails } from '../annotation-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     ontology: Graph;

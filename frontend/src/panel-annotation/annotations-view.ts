@@ -9,7 +9,7 @@ import Graph from './../jsonld/graph';
 import { isType, getScrollTop } from './../utilities/utilities';
 
 import annotationsTemplate from './annotations-template';
-import AnnoItemSummaryBlockView from '../utilities/anno-item-summary-block-view';
+import AnnoItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import { getSource } from '../utilities/annotation-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
