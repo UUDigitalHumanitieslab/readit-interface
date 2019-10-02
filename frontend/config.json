@@ -4,5 +4,6 @@
   "nodeRoot": "/node_modules/",
   "apiRoot": "/api/",
   "authRoot": "/rest-auth/",
+  "proxyRoot": "/proxy/",
   "nsRoot": "http://readit.example/"
 }

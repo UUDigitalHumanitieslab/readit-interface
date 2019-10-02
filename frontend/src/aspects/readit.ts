@@ -20,6 +20,8 @@ import directionFsm from '../global/direction-fsm';
 import mockOntology from './../mock-data/mock-ontology';
 import mockItems from './../mock-data/mock-items';
 import mockSources from './../mock-data/mock-sources';
+import mockStaff from '../mock-data/mock-staff';
+import LdItemView from '../panel-ld-item/ld-item-view';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -48,8 +50,10 @@ directionFsm.on('enter:exploring', () => {
     // This is just a quick and dirty solution, will have to be moved in the future
     let source = new Graph(mockSources).models[0];
     let items = new Graph(mockItems);
+    let ontology = new Graph(mockOntology);
+    let staff = new Graph(mockStaff);
 
-    let scrollTo = items.find(n => n.get("@id") == item('102'));
+    let scrollTo = items.find(n => n.get("@id") == item('100')); // item("201"));
 
     let sourceView = new SourceView({
         collection: items,
@@ -60,7 +64,13 @@ directionFsm.on('enter:exploring', () => {
         initialScrollTo: scrollTo,
     });
 
-    let exView = new ExplorerView({ first: sourceView });
+    let ldiView = new LdItemView({
+        model: scrollTo,
+        staff: staff,
+        ontology: ontology
+    })
+
+    let exView = new ExplorerView({ first: ldiView });
 
     let vh = $(window).height();
     // compensates for menu and footer (555 is min-height)

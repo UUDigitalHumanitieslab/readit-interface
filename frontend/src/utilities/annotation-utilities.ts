@@ -55,8 +55,15 @@ export function getCssClassName(annotation: Node, ontology: Graph): string {
         throw RangeError('This oa:Annotation is associated with multiple ontology items, henceforth a cssClassName cannot be established reliably');
     }
     if (ontologyReferences.length === 1) {
-        return getCssClass(ontology.get(ontologyReferences[0]));
+        return getCssClass(ontologyReferences[0]);
     }
+}
+
+/**
+ * Get the ontology instances from an annotation (i.e. the item in 'oa.hasBody' that are not ontology items)
+ */
+export function getOntologyInstances(annotation:Node, ontology: Graph): Node[] {
+    return annotation.get(oa.hasBody).filter(n => !ontology.get(n as Node)) as Node[];
 }
 
 /**

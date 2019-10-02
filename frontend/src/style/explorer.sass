@@ -1,9 +1,12 @@
 .explorer
     display: flex
     flex-direction: row
-    overflow-x: scroll
-    overflow-y: hidden
     padding: 1em 2em
+    overflow-x: auto
+
+    .source
+        overflow-x: auto
+        overflow-y: hidden
 
     .explorer-panel
         height: 98%
@@ -18,4 +21,7 @@
 
     .explorer-content
         height: 100%
+
+    .explorer-content
+        overflow-y: auto
 

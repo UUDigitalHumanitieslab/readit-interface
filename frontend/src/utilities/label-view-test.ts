@@ -49,7 +49,7 @@ describe('LabelView', function () {
 
     it('excludes a tooltip if told so', function () {
         let node = getDefaultNode();
-        let view = new LabelView({ model: node, hasTooltip: false });
+        let view = new LabelView({ model: node, toolTipSetting: false });
 
         expect(view.render().el.className).toContain('is-readit-content');
         expect(view.render().$el.attr('data-tooltip')).toBeUndefined();

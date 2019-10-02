@@ -1,12 +1,31 @@
 import mockItems, { anno1Instance } from '../mock-data/mock-items';
+import ldChannel from './radio';
 import { oa } from './ns';
 import Graph from './graph';
+
 
 describe('Graph', function() {
     let graph;
 
     beforeEach(function() {
         graph = new Graph();
+    });
+
+    afterEach(function() {
+        ldChannel.stopReplying();
+    });
+
+    describe('parse', function() {
+        it('maps nodes through a merge request before returning', function() {
+            const spy = jasmine.createSpy();
+            ldChannel.reply('merge', spy);
+            const result = graph.parse(mockItems, null);
+            expect(result.length).toBe(mockItems.length);
+            expect(spy.calls.count()).toBe(mockItems.length);
+            spy.calls.all().forEach(({args}, index) => {
+                expect(args[0]).toBe(mockItems[index]);
+            });
+        });
     });
 
     describe('underscore collection methods', function() {
