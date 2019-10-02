@@ -477,7 +477,7 @@ export const READIT = nsRoot;
  * (to be properly defined)
  */
 
-export const vocabPrefix = READIT + 'vocab/';
+export const vocabPrefix = READIT + 'vocab#';
 
 export const vocabTerms = [
 ] as const;
