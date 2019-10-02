@@ -1,9 +1,9 @@
 import { find, includes } from 'lodash'
 import Node from '../jsonld/node';
 
-import { skos, rdfs } from './../jsonld/ns';
+import { skos, rdfs, readit } from './../jsonld/ns';
 
-export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel];
+export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name')];
 
 /**
  * Get a label from the node.
