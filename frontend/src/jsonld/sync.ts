@@ -76,7 +76,7 @@ export default async function syncLD(
 export function transform(jqXHR: JQuery.jqXHR): Promise<[
     FlatLdDocument, JsonLdContext
 ]> {
-    let contentType = jqXHR.getResponseHeader('Content-Type');
+    let contentType = jqXHR.getResponseHeader('Content-Type').split(';', 2)[0];
     contentType = contentTypeAlias[contentType] || contentType;
     let plaintext, context;
     if (contentType === 'application/json') {

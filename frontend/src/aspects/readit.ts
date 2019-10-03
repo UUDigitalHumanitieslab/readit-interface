@@ -8,6 +8,7 @@ import ExplorerView from '../panel-explorer/explorer-view';
 import Graph from './../jsonld/graph';
 import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
+import { item } from '../jsonld/ns';
 
 import CategoryColorView from './../utilities/category-colors/category-colors-view';
 import SourceView from './../panel-source/source-view';
@@ -52,7 +53,7 @@ directionFsm.on('enter:exploring', () => {
     let ontology = new Graph(mockOntology);
     let staff = new Graph(mockStaff);
 
-    let scrollTo = items.find(n => n.get("@id") == "https://read-it.hum.uu.nl/item/100"); // "https://read-it.hum.uu.nl/item/201");
+    let scrollTo = items.find(n => n.get("@id") == item('100')); // item("201"));
 
     let sourceView = new SourceView({
         collection: items,

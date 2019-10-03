@@ -4,5 +4,6 @@
   "nodeRoot": "/static/",
   "apiRoot": "/api/",
   "authRoot": "/rest-auth/",
-  "proxyRoot": "/proxy/"
+  "proxyRoot": "/proxy/",
+  "nsRoot": "http://localhost:8000/"
 }
