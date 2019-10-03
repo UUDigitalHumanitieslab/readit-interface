@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from rdf.views import RDFView
+from .graph import graph
 
-# Create your views here.
+class ListStaff(RDFView):
+    """ List the full staff in RDF. """
+    def get_graph(self, request):
+        return graph()
