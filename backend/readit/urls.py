@@ -22,6 +22,7 @@ from rest_framework import routers
 from proxy.views import proxy_view
 
 from vocab import VOCAB_ROUTE
+from staff import STAFF_ROUTE
 from .index import index, specRunner
 
 api_router = routers.DefaultRouter()  # register viewsets with this router
@@ -36,6 +37,7 @@ urlpatterns = [
     path('rest-auth/', include('rest_auth.urls')),
     re_path(r'proxy/(?P<url>.*)', proxy_view),
     path(VOCAB_ROUTE, include('vocab.urls')),
+    path(STAFF_ROUTE, include('staff.urls')),
 ]
 
 # Inject any Jasmine testing page from a frontend during development.
