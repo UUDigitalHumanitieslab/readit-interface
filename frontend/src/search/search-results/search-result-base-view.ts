@@ -28,7 +28,7 @@ export default class SearchResultBaseItemView extends View<Node> {
     }
 
     initialize(options: ViewOptions): this {
-        this.selectable = options.selectable || true;
+        this.selectable = (options.selectable === undefined) || options.selectable;
 
         if (isType(this.model, oa.Annotation)) {
             this.contentView = new SearchResultSourceView({model: options.model});
