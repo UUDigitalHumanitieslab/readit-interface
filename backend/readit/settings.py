@@ -25,6 +25,12 @@ SECRET_KEY = 'll9*4+3uzfl2@_(_%+j8gltmqd2!w^3fxrf7oiohv2vifl+da5'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# RDF_NAMESPACE_ROOT is the common prefix for our own graphs
+# (vocab, team, readit, source and item). If DEBUG == False, you
+# probably want to add the RDF_NAMESPACE_HOST to the ALLOWED_HOSTS.
+RDF_NAMESPACE_HOST = 'localhost'
+RDF_NAMESPACE_ROOT = 'http://{}:8000/'.format(RDF_NAMESPACE_HOST)
+
 ALLOWED_HOSTS = []
 
 
@@ -42,6 +48,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_auth',
     'rdflib_django',
+    'rdf',
+    'vocab',
+    'staff',
 ]
 
 MIDDLEWARE = [

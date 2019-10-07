@@ -1,11 +1,11 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, minBy, sumBy, initial, last } from 'lodash';
 
-import View from '../../core/view';
-import Model from './../../core/model';
+import View from '../core/view';
 
-import Node from '../../jsonld/node';
+import Node from '../jsonld/node';
 import HighlightRectView from './highlight-rect-view';
+import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     /**
@@ -17,6 +17,11 @@ export interface ViewOptions extends BaseOpt<Node> {
      * Range object containing the ClientDomRects that the highlight should be based on.
      */
     range: Range;
+
+    /**
+     * Position details of the highlight.
+     */
+    positionDetails: AnnotationPositionDetails;
 
     /**
      * The CSS class to use to style the highlight.
@@ -38,6 +43,8 @@ export interface ViewOptions extends BaseOpt<Node> {
 
 export default class HighlightView extends View<Node> {
     cssClass: string;
+    range: Range;
+    positionDetails: AnnotationPositionDetails;
     relativeParent: JQuery<HTMLElement>;
     isDeletable: boolean;
     rects: ClientRectList | DOMRectList;
@@ -46,10 +53,18 @@ export default class HighlightView extends View<Node> {
 
     constructor(options?: ViewOptions) {
         if (!options.range) throw TypeError("range cannot be null or undefined");
+        if (!options.positionDetails) throw TypeError("positionDetails cannot be null or undefined");
         if (!options.relativeParent) throw TypeError("relativeParent cannot be null or empty");
 
         super(options);
+        this.range = options.range;
+        // Workaround for Safari in order to prevent empty rects.
+        const selection = document.getSelection();
+        selection.addRange(options.range);
+        selection.removeAllRanges();  // Safari cannot remove a single range.
+        // End of workaround for Safari.
         this.rects = options.range.getClientRects();
+        this.positionDetails = options.positionDetails;
         this.cssClass = options.cssClass;
         this.relativeParent = options.relativeParent;
         this.isDeletable = options.isDeletable || false;
@@ -93,6 +108,10 @@ export default class HighlightView extends View<Node> {
 
     getHeight(): number {
         return sumBy(this.rectViews, (hrv) => { return hrv.$el.outerHeight() });
+    }
+
+    getText(): string {
+        return this.range.cloneContents().textContent;
     }
 
     onHover() {

@@ -15,7 +15,7 @@ import {
 } from '../jsonld/ns';
 
 /**
- * 3 example annotations, all in source1
+ * 5 example annotations, 3 overlapping, all in source1
  */
 
 // annotation 1. Note that it only points to a Body and a Target
@@ -98,11 +98,14 @@ export const anno1SpecificResource = {
     [oa.hasSelector]: [
         {
             "@id": item('400')
+        },
+        {
+            "@id": item('700')
         }
     ],
     [oa.hasSource]: [
         {
-            "@id": item('1')
+            "@id": source('1')
         }
     ]
 };
@@ -175,6 +178,44 @@ export const anno1EndSelector = {
         }
     ],
 }
+
+//a TextQuoteSelector belong to anno 1
+export const anno1TextQuoteSelector = {
+    "@id": item('700'),
+    "@type": [oa.TextQuoteSelector],
+    [oa.prefix]: [
+        {
+            '@value': `English descriptions of reading experiences
+            <br><br>
+            id_19
+            Titre : The Idler in France / by the countess of Blessington Auteur: `
+        }
+    ],
+    [oa.exact]: [
+        {
+            "@value": `Blessington, Margaret Gardiner. Date d'édition : 1841. Droits : do-
+            maine public. Provenance : Bibliothèque nationale de France.
+            <br><br>
+            id_19_a, p 40
+            I remember reading years ago of the melancholy physiognomy of King
+            Charles I, which when seen in his portrait by a Florentine sculptor, to
+            whom it was sent in order that a bust should be made from it, drew forth
+            the observation that the countenance indicated that its owner would come
+            to a violent death.
+            I was reminded of this anecdote by the face`
+        }
+    ],
+    [oa.suffix]: [
+        {
+            "@value": ` of the Duchesse d'Angoulême;
+            for though I do not pretend to a prescience as to her future fate, I cannot
+            help arguing`
+        }
+    ],
+}
+
+
+
 
 // annotation 2.
 export const anno2Instance = {
@@ -251,11 +292,14 @@ export const anno2SpecificResource = {
     [oa.hasSelector]: [
         {
             "@id": item('401')
+        },
+        {
+            "@id": item('701')
         }
     ],
     [oa.hasSource]: [
         {
-            "@id": item('1')
+            "@id": source('1')
         }
     ]
 };
@@ -324,6 +368,31 @@ export const anno2EndSelector = {
     [dcterms.creator]: [
         {
             "@id": staff('JdeKruif')
+        }
+    ],
+}
+
+export const anno2TextQuoteSelector = {
+    "@id": item('701'),
+    "@type": [oa.TextQuoteSelector],
+    [oa.prefix]: [
+        {
+            '@value': `English descriptions of reading experiences
+            <br><br>
+            id_19
+            Titre : The Idler in France / by the countess of Blessington Auteur: `
+        }
+    ],
+    [oa.exact]: [
+        {
+            "@value": `Blessington, Margaret Gardiner. Date d'édition : 1841. Droits : do-
+            maine public. Provenance : Bibliothèque nationale de France.`
+        }
+    ],
+    [oa.suffix]: [
+        {
+            "@value": ` to a prescience as to her future fate, I cannot
+            help arguing`
         }
     ],
 }
@@ -466,11 +535,14 @@ export const anno3SpecificResource = {
     [oa.hasSelector]: [
         {
             "@id": item('402')
+        },
+        {
+            "@id": item('702')
         }
     ],
     [oa.hasSource]: [
         {
-            "@id": item('1')
+            "@id": source('1')
         }
     ]
 };
@@ -506,7 +578,7 @@ export const anno3StartSelector = {
     "@type": [oa.XPathSelector],
     [rdf.value]: [
         {
-            '@value': 'substring(.//*[18]/text(), 1)'
+            '@value': 'substring(.//*[3]/text(), 70)'
         }
     ],
     [dcterms.created]: [
@@ -527,7 +599,7 @@ export const anno3EndSelector = {
     "@type": [oa.XPathSelector],
     [rdf.value]: [
         {
-            '@value': 'substring(.//*[18]/text(), 250)'
+            '@value': 'substring(.//*[3]/text(), 150)'
         }
     ],
     [dcterms.created]: [
@@ -543,6 +615,334 @@ export const anno3EndSelector = {
     ],
 }
 
+export const anno3TextQuoteSelector = {
+    "@id": item('702'),
+    "@type": [oa.TextQuoteSelector],
+    [oa.prefix]: [
+        {
+            '@value': `Blessington Auteur: `
+        }
+    ],
+    [oa.exact]: [
+        {
+            "@value": `Provenance : Bibliothèque nationale de France.`
+        }
+    ],
+    [oa.suffix]: [
+        {
+            "@value": ` to a prescience as to her future fate, I cannot
+            help arguing`
+        }
+    ],
+}
+
+// First overlapping anno
+export const anno4Instance = {
+    "@id": item('103'),
+    "@type": [oa.Annotation],
+    [oa.hasBody]: [
+        {
+            "@id": readit('Content')
+        },
+        {
+            "@id": item('201')
+        }
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:16+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('JdeKruif')
+        }
+    ],
+    [oa.motivatedBy]: [
+        {
+            "@id": oa.tagging
+        },
+        {
+            "@id": oa.identifying
+        }
+    ],
+    [oa.hasTarget]: [
+        {
+            "@id": item('303')
+        }
+    ]
+};
+
+export const anno4ContentInstance = {
+    '@id': item('201'),
+    "@type": [readit('Content')],
+    [owl.sameAs]: [
+        { '@id': "http://www.wikidata.org/entity/Q331656" }
+    ],
+    [dcterms.creator]: [
+        { '@id': staff('JdeKruif') },
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            '@value': "2085-12-31T04:33:16+0100"
+        }
+    ],
+    [dcterms.title]: [
+        { '@value': 'Pretty Little Title' }
+    ],
+};
+
+export const anno4SpecificResource = {
+    "@id": item('303'),
+    "@type": [oa.SpecificResource],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:15+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('JdeKruif')
+        }
+    ],
+    [oa.hasSelector]: [
+        {
+            "@id": item('403')
+        }
+    ],
+    [oa.hasSource]: [
+        {
+            "@id": item('1')
+        }
+    ]
+};
+
+export const anno4RangeSelector = {
+    "@id": item('403'),
+    "@type": [vocab('RangeSelector')],
+    [oa.hasStartSelector]: [
+        {
+            "@id": item('506')
+        }
+    ],
+    [oa.hasEndSelector]: [
+        {
+            "@id": item('507')
+        }
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:15+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('JdeKruif')
+        }
+    ],
+}
+
+export const anno4StartSelector = {
+    "@id": item('506'),
+    "@type": [oa.XPathSelector],
+    [rdf.value]: [
+        {
+            '@value': 'substring(.//*[3]/text(), 20)'
+        }
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:15+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('JdeKruif')
+        }
+    ],
+}
+
+export const anno4EndSelector = {
+    "@id": item('507'),
+    "@type": [oa.XPathSelector],
+    [rdf.value]: [
+        {
+            '@value': 'substring(.//*[3]/text(), 75)'
+        }
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:15+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('JdeKruif')
+        }
+    ]
+}
+
+
+
+// annotation 5.
+export const anno5Instance = {
+    "@id": item('104'),
+    "@type": [oa.Annotation],
+    [oa.hasBody]: [
+        {
+            "@id": readit('Medium')
+        },
+        {
+            "@id": item('203')
+        }
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:16+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('JdeKruif')
+        }
+    ],
+    [oa.motivatedBy]: [
+        {
+            "@id": oa.tagging
+        },
+        {
+            "@id": oa.identifying
+        }
+    ],
+    [oa.hasTarget]: [
+        {
+            "@id": item('304')
+        }
+    ]
+};
+
+export const anno5MediumInstance = {
+    '@id': item('203'),
+    "@type": [readit('Medium')],
+    [owl.sameAs]: [
+        { '@id': "http://www.wikidata.org/entity/Q331656" }
+    ],
+    [dcterms.creator]: [
+        { '@id': staff('JdeKruif') },
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            '@value': "2085-12-31T04:33:16+0100"
+        }
+    ],
+    [dcterms.title]: [
+        { '@value': 'Pretty Little Title' }
+    ],
+};
+
+export const anno5SpecificResource = {
+    "@id": item('304'),
+    "@type": [oa.SpecificResource],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:15+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('JdeKruif')
+        }
+    ],
+    [oa.hasSelector]: [
+        {
+            "@id": item('404')
+        }
+    ],
+    [oa.hasSource]: [
+        {
+            "@id": item('1')
+        }
+    ]
+};
+
+export const anno5RangeSelector = {
+    "@id": item('404'),
+    "@type": [vocab('RangeSelector')],
+    [oa.hasStartSelector]: [
+        {
+            "@id": item('508')
+        }
+    ],
+    [oa.hasEndSelector]: [
+        {
+            "@id": item('509')
+        }
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:15+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('JdeKruif')
+        }
+    ],
+}
+
+export const anno5StartSelector = {
+    "@id": item('508'),
+    "@type": [oa.XPathSelector],
+    [rdf.value]: [
+        {
+            '@value': 'substring(.//*[3]/text(), 45)'
+        }
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:15+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('JdeKruif')
+        }
+    ],
+}
+
+export const anno5EndSelector = {
+    "@id": item('509'),
+    "@type": [oa.XPathSelector],
+    [rdf.value]: [
+        {
+            '@value': 'substring(.//*[6]/text(), 345)'
+        }
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:15+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('JdeKruif')
+        }
+    ],
+}
+
+
 export default [
     anno1Instance,
     anno1ContentInstance,
@@ -550,12 +950,14 @@ export default [
     anno1RangeSelector,
     anno1StartSelector,
     anno1EndSelector,
+    anno1TextQuoteSelector,
     anno2Instance,
     anno2MediumInstance,
     anno2SpecificResource,
     anno2RangeSelector,
     anno2StartSelector,
     anno2EndSelector,
+    anno2TextQuoteSelector,
     anno3Instance,
     anno3ReaderInstance,
     anno3PersonInstance,
@@ -564,4 +966,17 @@ export default [
     anno3RangeSelector,
     anno3StartSelector,
     anno3EndSelector,
+    anno3TextQuoteSelector,
+    anno4Instance,
+    anno4ContentInstance,
+    anno4SpecificResource,
+    anno4RangeSelector,
+    anno4StartSelector,
+    anno4EndSelector,
+    anno5Instance,
+    anno5MediumInstance,
+    anno5SpecificResource,
+    anno5RangeSelector,
+    anno5StartSelector,
+    anno5EndSelector,
 ];

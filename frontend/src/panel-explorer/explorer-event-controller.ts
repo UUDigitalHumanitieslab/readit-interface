@@ -9,6 +9,7 @@ import Graph from '../jsonld/graph';
 import AnnotationsView from '../panel-annotation/annotations-view';
 
 
+import HighlightView from '../highlight/highlight-view';
 
 export default class ExplorerEventController {
     /**

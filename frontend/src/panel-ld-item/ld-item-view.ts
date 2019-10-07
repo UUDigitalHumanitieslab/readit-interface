@@ -1,15 +1,17 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from '../core/view';
 
+import View from '../core/view';
 import Graph from './../jsonld/graph';
 import Node from '../jsonld/node';
+import ldChannel from '../jsonld/radio';
+import { isNode } from '../utilities/types';
 
 import ldItemTemplate from './ld-item-template';
 
 import { owl, oa, dcterms } from './../jsonld/ns';
 import { isType, getLabel, getLabelFromId } from './../utilities/utilities';
-import { getOntologyInstance, getOntologyClass } from './../utilities/annotation-utilities';
+import { getOntologyInstance } from './../utilities/annotation-utilities';
 
 import LabelView from '../utilities/label-view';
 
@@ -61,7 +63,6 @@ export default class LdItemView extends View<Node> {
         this.annotationMetadata = new Object();
         this.annotations = new Object();
         this.relatedItems = [];
-        this.externalResources;
 
         if (this.modelIsAnnotation) {
             this.currentItem = getOntologyInstance(this.currentItem, this.ontology);
@@ -70,8 +71,8 @@ export default class LdItemView extends View<Node> {
         }
 
         this.label = getLabel(this.currentItem);
+        let ontologyClass = ldChannel.request('obtain', this.currentItem.get('@type')[0] as string);
 
-        let ontologyClass = getOntologyClass(this.currentItem, this.ontology);
         if (ontologyClass) {
             this.lblView = new LabelView({ model: ontologyClass, toolTipSetting: 'left' });
             this.lblView.render();
@@ -121,8 +122,8 @@ export default class LdItemView extends View<Node> {
 
             let valueArray = this.currentItem.get(attribute);
             valueArray.forEach(value => {
-                if (value instanceof Node) {
-                    this.relatedItems.push(value);
+                if (isNode(value)) {
+                    this.relatedItems.push(value as Node);
                 }
                 else {
                     this.properties[attributeLabel] = value;

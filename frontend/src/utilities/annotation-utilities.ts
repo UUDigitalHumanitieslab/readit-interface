@@ -55,7 +55,7 @@ export function getCssClassName(annotation: Node, ontology: Graph): string {
         throw RangeError('This oa:Annotation is associated with multiple ontology items, henceforth a cssClassName cannot be established reliably');
     }
     if (ontologyReferences.length === 1) {
-        return getCssClass(ontology.get(ontologyReferences[0]));
+        return getCssClass(ontologyReferences[0]);
     }
 }
 
@@ -80,15 +80,6 @@ export function getOntologyInstance(annotation: Node, ontology: Graph): Node {
     }
 
     return ontologyInstances[0];
-}
-
-/**
- * Get ontology class item from the ontology Graph
- * @param ontologyInstance The ontology instance associated with the View's current model
- */
-export function getOntologyClass(ontologyInstance: Node, ontology: Graph) {
-    let ontologyReference = ontologyInstance.get('@type')[0] as string;
-    return ontology.get(ontologyReference);
 }
 
 /**

@@ -69,7 +69,7 @@ export default class AnnotationsView extends View<Node> {
             ontology: this.ontology
         });
         view.on('click', this.onSummaryBlockClicked, this);
-        view.on('hover', this.onSummaryBlockedHover, this);
+        view.on('hover', this.onSummaryBlockedHovered, this);
         this.summaryBlocks.push(view);
     }
 
@@ -106,17 +106,15 @@ export default class AnnotationsView extends View<Node> {
         return this;
     }
 
-    onSummaryBlockedHover(annotation: Node): this {
+    onSummaryBlockedHovered(annotation: Node): this {
         this.trigger('hover', annotation);
         return this;
     }
 
     onSummaryBlockClicked(summaryBlock: AnnoItemSummaryBlockView, annotation: Node): this {
-        if (this.currentlyHighlighted && summaryBlock !== this.currentlyHighlighted) {
-            this.currentlyHighlighted.toggleHighlight();
-        }
-        this.currentlyHighlighted = summaryBlock;
+        this.currentlyHighlighted && this.currentlyHighlighted.toggleHighlight();
         summaryBlock.toggleHighlight();
+        this.currentlyHighlighted = summaryBlock;
         this.trigger('click', annotation);
         return this;
     }

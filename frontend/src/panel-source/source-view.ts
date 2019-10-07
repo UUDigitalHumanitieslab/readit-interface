@@ -6,10 +6,11 @@ import Model from './../core/model';
 import Node from './../jsonld/node';
 import Graph from './../jsonld/graph';
 import sourceTemplate from './source-template';
-import HighlightableTextView from '../utilities/highlight/highlightable-text-view';
+import HighlightableTextView from '../highlight/highlightable-text-view';
 
 import { schema, vocab } from './../jsonld/ns';
 import { isType } from './../utilities/utilities';
+import HighlightView from '../highlight/highlight-view';
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
