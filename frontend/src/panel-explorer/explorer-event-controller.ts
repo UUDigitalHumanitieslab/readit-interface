@@ -1,10 +1,14 @@
 import View from './../core/view';
-
+import { defer } from 'lodash';
 import Node from './../jsonld/node';
 
 import ExplorerView from './explorer-view';
 import SourceView from '../panel-source/source-view';
 import LdItemView from '../panel-ld-item/ld-item-view';
+import Graph from '../jsonld/graph';
+import AnnotationsView from '../panel-annotation/annotations-view';
+
+
 import HighlightView from '../highlight/highlight-view';
 
 export default class ExplorerEventController {
@@ -27,6 +31,7 @@ export default class ExplorerEventController {
         panel.on({
             'fakeBtnClicked': this.ldItemViewFakeButtonClicked,
             'showMetadata': this.sourceViewShowMetadata,
+            'showAnnotations': (graph) => defer(this.sourceViewShowAnnotations, graph),
             'enlarge': this.sourceViewEnlarge,
         }, this);
     }
@@ -43,6 +48,12 @@ export default class ExplorerEventController {
     sourceViewEnlarge(node: Node): void {
         // let ldiView = new LdItemView({ model: mockLdItem });
         // this.explorerView.push(ldiView);
+    }
+
+    sourceViewShowAnnotations(graph: Graph): void {
+        // This is just here as an example on how to add a second panel
+        // on an event triggered by the explorer's 'first' panel.
+        // The trick is the defer() in the event hash above
     }
 
     /**

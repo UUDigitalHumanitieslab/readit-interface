@@ -1,9 +1,9 @@
 import { find, includes } from 'lodash'
 import Node from '../jsonld/node';
 
-import { skos, rdfs } from './../jsonld/ns';
+import { skos, rdfs, dcterms } from './../jsonld/ns';
 
-export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel];
+export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, dcterms.title];
 
 /**
  * Get a label from the node.
@@ -84,4 +84,25 @@ export function hasProperty(node: Node, property: string): boolean {
  */
 export function isType(node: Node, type: string) {
     return includes(node.get('@type'), type);
+}
+
+
+/**
+ * Get the scroll top for a 'scrollTo' element that needs to scrolled to within a scrollable element.
+ * Will position scrollTo at the top of the scrollable if scrollTo is heigher than scrollable, and center
+ * it vertically otherwise.
+ * @param scrollableEl The element that is scrollable, i.e. has overflow-y: scroll (or similar)
+ * @param scrollToTop The top of the scrollTo element.
+ * @param scrollToHeight The height of the scrollTo element.
+ */
+export function getScrollTop(scrollableEl: JQuery<HTMLElement>, scrollToTop: number, scrollToHeight: number) {
+    if (scrollToHeight >= scrollableEl.height()) {
+        // show start at the top
+        return scrollToTop - scrollableEl.offset().top;
+    }
+    else {
+        // center it
+        let centerOffset = (scrollableEl.height() - scrollToHeight) / 2
+        return scrollToTop - scrollableEl.offset().top - centerOffset;
+    }
 }

@@ -75,6 +75,9 @@ export const anno1ContentInstance = {
     [dcterms.title]: [
         { '@value': 'Pretty Little Title' }
     ],
+    [skos.prefLabel]: [
+        { '@value': 'This is the title of the instance, say Jane Eyre' },
+    ],
 };
 
 // the target of anno1
@@ -267,8 +270,8 @@ export const anno2MediumInstance = {
             '@value': "2085-12-31T04:33:16+0100"
         }
     ],
-    [dcterms.title]: [
-        { '@value': 'Pretty Little Title' }
+    [skos.prefLabel]: [
+        { '@value': 'Book' },
     ],
 };
 
@@ -453,7 +456,10 @@ export const anno3ReaderInstance = {
         {
             "@value": 12
         }
-    ]
+    ],
+    [skos.prefLabel]: [
+        { '@value': 'Alex Hebing' },
+    ],
 };
 
 export const anno3PersonInstance = {
