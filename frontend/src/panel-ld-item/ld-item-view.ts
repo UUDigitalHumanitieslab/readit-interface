@@ -63,7 +63,6 @@ export default class LdItemView extends View<Node> {
         this.annotationMetadata = new Object();
         this.annotations = new Object();
         this.relatedItems = [];
-        this.externalResources;
 
         if (this.modelIsAnnotation) {
             this.currentItem = getOntologyInstance(this.currentItem, this.ontology);
@@ -124,7 +123,7 @@ export default class LdItemView extends View<Node> {
             let valueArray = this.currentItem.get(attribute);
             valueArray.forEach(value => {
                 if (isNode(value)) {
-                    this.relatedItems.push(value);
+                    this.relatedItems.push(value as Node);
                 }
                 else {
                     this.properties[attributeLabel] = value;
