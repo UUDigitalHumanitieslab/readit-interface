@@ -1,3 +1,4 @@
+import { nsRoot } from 'config.json';
 import Vocabulary from './vocabulary';
 
 /**
@@ -469,14 +470,14 @@ export const schema = Vocabulary(schemaPrefix, schemaTerms);
  * READ-IT global prefix
  */
 
-export const READIT = 'https://read-it.hum.uu.nl/';
+export const READIT = nsRoot;
 
 /**
  * READ-IT special vocabulary
  * (to be properly defined)
  */
 
-export const vocabPrefix = READIT + 'vocab/';
+export const vocabPrefix = READIT + 'vocab#';
 
 export const vocabTerms = [
 ] as const;

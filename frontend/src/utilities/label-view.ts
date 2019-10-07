@@ -6,22 +6,23 @@ import { skos } from './../jsonld/ns';
 import Node from '../jsonld/node';
 import { getCssClassName, getLabel } from './utilities';
 
+type TooltipSetting = false | 'top' | 'bottom' | 'left' | 'right';
+
 export interface ViewOptions extends BaseOpt<Node> {
-    hasTooltip?: boolean;
+    toolTipSetting?: TooltipSetting;
 }
 
 export default class LabelView extends View<Node> {
     label: string;
     cssClassName: string;
-    hasTooltip: boolean;
+    toolTipSetting: TooltipSetting;
 
     constructor(options?: ViewOptions) {
         super(options);
 
-        if (options && options.hasTooltip !== undefined) {
-            this.hasTooltip = options.hasTooltip;
-        } else {
-            this.hasTooltip = true;
+        this.toolTipSetting = 'top';
+        if (options && options.toolTipSetting !== undefined) {
+            this.toolTipSetting = options.toolTipSetting;
         }
     }
 
@@ -38,9 +39,10 @@ export default class LabelView extends View<Node> {
     }
 
     addDefinition(): void {
-        if (this.hasTooltip && this.model.has(skos.definition)) {
+        if (this.hasTooltip() && this.model.has(skos.definition)) {
             this.$el.addClass("tooltip");
             this.$el.addClass("is-tooltip");
+            this.setTooltipOrientation();
 
             let definition = this.model.get(skos.definition)[0] as string;
             this.$el.attr("data-tooltip", definition);
@@ -49,6 +51,16 @@ export default class LabelView extends View<Node> {
                 this.$el.addClass("is-tooltip-multiline");
             }
         }
+    }
+
+    hasTooltip(): boolean {
+        return typeof this.toolTipSetting === 'string';
+    }
+
+    setTooltipOrientation(): this {
+        let orientation = `-${this.toolTipSetting}`;
+        this.$el.addClass(`is-tooltip${orientation}`);
+        return this;
     }
 }
 extend(LabelView.prototype, {
