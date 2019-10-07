@@ -289,6 +289,9 @@ export const anno2SpecificResource = {
     [oa.hasSelector]: [
         {
             "@id": item('401')
+        },
+        {
+            "@id": item('701')
         }
     ],
     [oa.hasSource]: [
@@ -362,6 +365,31 @@ export const anno2EndSelector = {
     [dcterms.creator]: [
         {
             "@id": staff('JdeKruif')
+        }
+    ],
+}
+
+export const anno2TextQuoteSelector = {
+    "@id": item('701'),
+    "@type": [oa.TextQuoteSelector],
+    [oa.prefix]: [
+        {
+            '@value': `English descriptions of reading experiences
+            <br><br>
+            id_19
+            Titre : The Idler in France / by the countess of Blessington Auteur: `
+        }
+    ],
+    [oa.exact]: [
+        {
+            "@value": `Blessington, Margaret Gardiner. Date d'édition : 1841. Droits : do-
+            maine public. Provenance : Bibliothèque nationale de France.`
+        }
+    ],
+    [oa.suffix]: [
+        {
+            "@value": ` to a prescience as to her future fate, I cannot
+            help arguing`
         }
     ],
 }
@@ -469,6 +497,9 @@ export const anno3SpecificResource = {
     [oa.hasSelector]: [
         {
             "@id": item('402')
+        },
+        {
+            "@id": item('702')
         }
     ],
     [oa.hasSource]: [
@@ -545,6 +576,28 @@ export const anno3EndSelector = {
         }
     ],
 }
+
+export const anno3TextQuoteSelector = {
+    "@id": item('702'),
+    "@type": [oa.TextQuoteSelector],
+    [oa.prefix]: [
+        {
+            '@value': `Blessington Auteur: `
+        }
+    ],
+    [oa.exact]: [
+        {
+            "@value": `Provenance : Bibliothèque nationale de France.`
+        }
+    ],
+    [oa.suffix]: [
+        {
+            "@value": ` to a prescience as to her future fate, I cannot
+            help arguing`
+        }
+    ],
+}
+
 export default [
     anno1Instance,
     anno1ContentInstance,
@@ -559,10 +612,12 @@ export default [
     anno2RangeSelector,
     anno2StartSelector,
     anno2EndSelector,
+    anno2TextQuoteSelector,
     anno3Instance,
     anno3ReaderInstance,
     anno3SpecificResource,
     anno3RangeSelector,
     anno3StartSelector,
     anno3EndSelector,
+    anno3TextQuoteSelector,
 ];
