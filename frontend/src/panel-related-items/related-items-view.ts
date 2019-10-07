@@ -9,7 +9,7 @@ import relatedItemsTemplate from './related-items-template';
 
 import { dcterms } from '../jsonld/ns';
 import { getLabelFromId } from '../utilities/utilities';
-import AnnoItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
+import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import RelatedItemsRelationView from './related-items-relation-view';
 
 export interface ViewOptions extends BaseOpt<Node> {
@@ -23,7 +23,7 @@ export default class RelatedItemsView extends View<Node> {
     /**
      * Keep track of the currently highlighted summary block
      */
-    currentlyHighlighted: AnnoItemSummaryBlockView;
+    currentlyHighlighted: ItemSummaryBlockView;
 
     constructor(options?: ViewOptions) {
         super(options);
@@ -77,7 +77,7 @@ export default class RelatedItemsView extends View<Node> {
         return this;
     }
 
-    onSummaryBlockClicked(summaryBlock: AnnoItemSummaryBlockView, annotation: Node): this {
+    onSummaryBlockClicked(summaryBlock: ItemSummaryBlockView, annotation: Node): this {
         if (this.currentlyHighlighted && summaryBlock !== this.currentlyHighlighted) {
             this.currentlyHighlighted.toggleHighlight();
         }

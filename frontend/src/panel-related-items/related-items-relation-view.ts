@@ -6,7 +6,7 @@ import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
 
 import relatedItemsRelationTemplate from './related-items-relation-template';
-import AnnoItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
+import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 
 export interface ViewOptions extends BaseOpt<Node> {
     relationName: string;
@@ -20,7 +20,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 export default class RelatedItemsRelationView extends View<Node> {
     relationName: string;
     ontology: Graph;
-    summaryBlocks: AnnoItemSummaryBlockView[];
+    summaryBlocks: ItemSummaryBlockView[];
 
     constructor(options?: ViewOptions) {
         if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
@@ -39,7 +39,7 @@ export default class RelatedItemsRelationView extends View<Node> {
     }
 
     initRelatedItem(item: Node): this {
-        let view = new AnnoItemSummaryBlockView({
+        let view = new ItemSummaryBlockView({
             model: item,
             ontology: this.ontology
         });
@@ -69,7 +69,7 @@ export default class RelatedItemsRelationView extends View<Node> {
         return this;
     }
 
-    onSummaryBlockClicked(summaryBlock: AnnoItemSummaryBlockView, annotation: Node): this {
+    onSummaryBlockClicked(summaryBlock: ItemSummaryBlockView, annotation: Node): this {
         this.trigger('sumblock-clicked', summaryBlock, annotation);
         return this;
     }

@@ -9,14 +9,14 @@ import ldChannel from './../../jsonld/radio';
 import { getCssClassName, getLabel, isType } from './../utilities';
 import { getOntologyInstance, AnnotationPositionDetails, getPositionDetails } from './../annotation-utilities';
 
-import annoItemSummaryBlockTemplate from './item-summary-block-template';
+import itemSummaryBlockTemplate from './item-summary-block-template';
 
 
 export interface ViewOptions extends BaseOpt<Node> {
     ontology: Graph;
 }
 
-export default class AnnoItemSummaryBlockView extends View<Node> {
+export default class ItemSummaryBlockView extends View<Node> {
     instanceLabel: string;
     classLabel: string;
     cssClassName: string;
@@ -93,10 +93,10 @@ export default class AnnoItemSummaryBlockView extends View<Node> {
         return this;
     }
 }
-extend(AnnoItemSummaryBlockView.prototype, {
+extend(ItemSummaryBlockView.prototype, {
     tagName: 'span',
     className: 'anno-item-sum-block',
-    template: annoItemSummaryBlockTemplate,
+    template: itemSummaryBlockTemplate,
     events: {
         'click': 'onClick',
         'hover': 'onHover',
