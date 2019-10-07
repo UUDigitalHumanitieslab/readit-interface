@@ -112,11 +112,9 @@ export default class AnnotationsView extends View<Node> {
     }
 
     onSummaryBlockClicked(summaryBlock: AnnoItemSummaryBlockView, annotation: Node): this {
-        if (this.currentlyHighlighted && summaryBlock !== this.currentlyHighlighted) {
-            this.currentlyHighlighted.toggleHighlight();
-        }
-        this.currentlyHighlighted = summaryBlock;
+        this.currentlyHighlighted && this.currentlyHighlighted.toggleHighlight();
         summaryBlock.toggleHighlight();
+        this.currentlyHighlighted = summaryBlock;
         this.trigger('click', annotation);
         return this;
     }
