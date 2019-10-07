@@ -368,7 +368,7 @@ export default class HighlightableTextView extends View {
         }
 
         this.overlapDetailView = new OverlapDetailsView({
-            hVs: hVs
+            highlightViews: hVs
         });
         let verticalMiddle = ovh.getVerticalMiddle() - this.positionContainer.offset().top;
         this.overlapDetailView.render().position(verticalMiddle, this.positionContainer.outerWidth()).$el.prependTo(this.positionContainer);

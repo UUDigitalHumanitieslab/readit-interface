@@ -11,7 +11,7 @@ export interface ViewOptions extends BaseOpt {
     /**
      * The collection of highlightViews that are overlapping
      */
-    hVs: HighlightView[];
+    highlightViews: HighlightView[];
 }
 
 export default class OverlapDetailsView extends View<Node> {
@@ -23,9 +23,9 @@ export default class OverlapDetailsView extends View<Node> {
     constructor(options: ViewOptions) {
         super();
 
-        this.hVs = options.hVs;
+        this.hVs = options.highlightViews;
 
-        this.details = options.hVs.map(hV => {
+        this.details = options.highlightViews.map(hV => {
             return {
                 cid: hV.cid,
                 cssClass: hV.cssClass,
