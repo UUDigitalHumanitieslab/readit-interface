@@ -89,7 +89,8 @@ export default class SnippetView extends View {
     }
 
     setText(): this {
-        let availableSpace = 3 * this.availableWidth;
+        // subtract 100 to compensate for ellipses
+        let availableSpace = (3 * this.availableWidth) - 100;
         let prefix = this.selector.get(oa.prefix)[0] as string;
         let exact = this.selector.get(oa.exact)[0] as string;
         let suffix = this.selector.get(oa.suffix)[0] as string;
@@ -101,11 +102,11 @@ export default class SnippetView extends View {
             this.suffix_calc = suffix;
         }
         else {
-            this.prefix_calc = this.trimToFit(prefix, this.availableWidth / 2, true);
+            this.prefix_calc = this.trimToFit(prefix, availableSpace / 4, true);
             this.trimmedStart = true;
-            this.exact_calc = `${this.trimToFit(exact, this.availableWidth)}
-                ${this.ellipsis} ${this.trimToFit(exact, this.availableWidth, true)}`;
-            this.suffix_calc = this.trimToFit(suffix, this.availableWidth / 2);
+            this.exact_calc = `${this.trimToFit(exact, availableSpace / 4)}
+                ${this.ellipsis} ${this.trimToFit(exact, availableSpace / 4, true)}`;
+            this.suffix_calc = this.trimToFit(suffix, availableSpace / 4);
             this.trimmedEnd = true;
         }
 
