@@ -1,5 +1,5 @@
 
-import { orderBy, remove, clone } from 'lodash';
+import { orderBy, remove, clone, reduce } from 'lodash';
 import { AnnotationPositionDetails } from './../utilities/annotation-utilities';
 import HighlightView from './highlight-view';
 
@@ -42,16 +42,17 @@ export default class OverlappingHighlightsStrategy {
         let highlightIndices = this.getHighlightIndices(highlightViews);
         let orderedIndices = orderBy(highlightIndices, ['nodeIndex', 'characterIndex', 'isStart'], ['asc', 'asc', 'desc']);
 
-        orderedIndices.forEach(index => {
-            if (index.isStart) {
-                this.processStart(status, index);
-            }
-            else {
-                this.processEnd(status, index);
-            }
-        });
+        return reduce(orderedIndices, this.processIndex.bind(this), status).results;
+    }
 
-        return status.results;
+    processIndex(accumulator: OverlapCalculationStatus, index: HighlightIndex) {
+        if (index.isStart) {
+            this.processStart(accumulator, index);
+        }
+        else {
+            this.processEnd(accumulator, index);
+        }
+        return accumulator;
     }
 
     processStart(

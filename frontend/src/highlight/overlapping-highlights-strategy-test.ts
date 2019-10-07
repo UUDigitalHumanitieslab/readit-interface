@@ -65,43 +65,43 @@ describe('OverlappingHighlightsStrategy', function () {
 
     describe('getOverlaps', function () {
         it('finds a single overlap', function () {
-            let hV1 = getHighlightView(0, 0, 0, 10);
-            let hV2 = getHighlightView(0, 4, 3, 1)
-            let expected = [getOverlappingHighlights([hV1, hV2], getPositionDetails(0, 4, 0, 10))];
+            let hV1 = getHighlightView(0, 17, 0, 27);
+            let hV2 = getHighlightView(0, 21, 3, 1)
+            let expected = [getOverlappingHighlights([hV1, hV2], getPositionDetails(0, 21, 0, 27))];
 
             let actual = strategy.getOverlaps([hV1, hV2]);
             expect(actual).toEqual(expected);
         });
 
         it('ignores non overlapping highlights', function () {
-            let hV1 = getHighlightView(0, 0, 0, 5)
-            let hV2 = getHighlightView(0, 6, 0, 20);
-            let hV3 = getHighlightView(0, 15, 3, 1)
+            let hV1 = getHighlightView(0, 17, 0, 22)
+            let hV2 = getHighlightView(0, 23, 0, 37);
+            let hV3 = getHighlightView(0, 32, 3, 1)
             let hV4 = getHighlightView(3, 2, 3, 10);
-            let expected = [getOverlappingHighlights([hV2, hV3], getPositionDetails(0, 15, 0, 20))];
+            let expected = [getOverlappingHighlights([hV2, hV3], getPositionDetails(0, 32, 0, 37))];
 
             let actual = strategy.getOverlaps([hV1, hV2, hV3, hV4]);
             expect(actual).toEqual(expected);
         });
 
         it('finds multiple overlapping highlights (i.e. stacked overlaps)', function () {
-            let hV1 = getHighlightView(0, 0, 0, 10);
-            let hV2 = getHighlightView(0, 4, 3, 1);
-            let hV3 = getHighlightView(0, 6, 3, 5);
-            let expected = [getOverlappingHighlights([hV1, hV2, hV3], getPositionDetails(0, 4, 3, 1))];
+            let hV1 = getHighlightView(0, 17, 0, 27);
+            let hV2 = getHighlightView(0, 21, 3, 1);
+            let hV3 = getHighlightView(0, 23, 3, 5);
+            let expected = [getOverlappingHighlights([hV1, hV2, hV3], getPositionDetails(0, 21, 3, 1))];
 
             let actual = strategy.getOverlaps([hV1, hV2, hV3]);
             expect(actual).toEqual(expected);
         });
 
         it('finds multiple overlaps', function () {
-            let hV1 = getHighlightView(0, 0, 0, 10);
-            let hV2 = getHighlightView(0, 4, 0, 15);
+            let hV1 = getHighlightView(0, 17, 0, 27);
+            let hV2 = getHighlightView(0, 21, 0, 32);
             let hV3 = getHighlightView(3, 1, 3, 10);
             let hV4 = getHighlightView(3, 5, 3, 15);
 
             let expected: OverlappingHighlights[] = [
-                getOverlappingHighlights([hV1, hV2], getPositionDetails(0, 4, 0, 10)),
+                getOverlappingHighlights([hV1, hV2], getPositionDetails(0, 21, 0, 27)),
                 getOverlappingHighlights([hV3, hV4], getPositionDetails(3, 5, 3, 10))
             ];
 
@@ -110,12 +110,12 @@ describe('OverlappingHighlightsStrategy', function () {
         });
 
         it('handles a long highlight overlapping multiple others correctly', function () {
-            let hV1 = getHighlightView(0, 0, 3, 18);
-            let hV2 = getHighlightView(0, 4, 0, 10);
+            let hV1 = getHighlightView(0, 17, 3, 18);
+            let hV2 = getHighlightView(0, 21, 0, 27);
             let hV3 = getHighlightView(3, 1, 3, 5);
 
             let expected: OverlappingHighlights[] = [
-                getOverlappingHighlights([hV1, hV2], getPositionDetails(0, 4, 0, 10)),
+                getOverlappingHighlights([hV1, hV2], getPositionDetails(0, 21, 0, 27)),
                 getOverlappingHighlights([hV1, hV3], getPositionDetails(3, 1, 3, 5))
             ];
 
@@ -124,13 +124,13 @@ describe('OverlappingHighlightsStrategy', function () {
         });
 
         it('handles a long highlight overlapping multiple others correctly (second highlight remains active)', function () {
-            let hV1 = getHighlightView(0, 0, 0, 15);
-            let hV2 = getHighlightView(0, 4, 3, 25);
-            let hV3 = getHighlightView(0, 10, 3, 1);
+            let hV1 = getHighlightView(0, 17, 0, 32);
+            let hV2 = getHighlightView(0, 21, 3, 25);
+            let hV3 = getHighlightView(0, 27, 3, 1);
             let hV4 = getHighlightView(3, 10, 3, 15);
 
             let expected: OverlappingHighlights[] = [
-                getOverlappingHighlights([hV1, hV2, hV3], getPositionDetails(0, 4, 3, 1)),
+                getOverlappingHighlights([hV1, hV2, hV3], getPositionDetails(0, 21, 3, 1)),
                 getOverlappingHighlights([hV2, hV4], getPositionDetails(3, 10, 3, 15))
             ];
 
@@ -143,26 +143,26 @@ describe('OverlappingHighlightsStrategy', function () {
 
     describe('getHighlightIndices', function () {
         it('extracts highlight indices', function () {
-            let hV1 = getHighlightView(0, 0, 0, 4);
-            let hV2 = getHighlightView(0, 5, 3, 1);
+            let hV1 = getHighlightView(0, 17, 0, 21);
+            let hV2 = getHighlightView(0, 22, 3, 1);
 
             let expected: HighlightIndex[] = [
                 {
                     highlightView: hV1,
                     nodeIndex: 0,
-                    characterIndex: 0,
+                    characterIndex: 17,
                     isStart: true
                 },
                 {
                     highlightView: hV1,
                     nodeIndex: 0,
-                    characterIndex: 4,
+                    characterIndex: 21,
                     isStart: false
                 },
                 {
                     highlightView: hV2,
                     nodeIndex: 0,
-                    characterIndex: 5,
+                    characterIndex: 22,
                     isStart: true
                 },
                 {
