@@ -1,10 +1,10 @@
 <div class="columns is-mobile">
+    {{#if selectable}}
     <div class="column is-1">
-        {{#if selectable}}
-            <input type="checkbox" class="checkbox chbSelected">
-        {{/if}}
+        <input type="checkbox" class="checkbox chbSelected">
     </div>
-    <div class="result-content column is-11">
+    {{/if}}
+    <div class="result-content column">
         {{! insert content here }}
     </div>
 </div>
