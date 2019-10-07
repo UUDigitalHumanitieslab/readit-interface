@@ -1,24 +1,31 @@
+import * as EventEmitter from 'events';
+import { readFile, readFileSync } from 'fs';
+import { relative, join } from 'path';
+import { Readable } from 'stream';
+
 import { src, dest, symlink, parallel, series, watch as watchApi } from 'gulp';
-import browserify = require('browserify');
-import vinylStream = require('vinyl-source-stream');
-import vinylBuffer = require('vinyl-buffer');
-import tsify = require('tsify');
-import watchify = require('watchify');
-import exorcist = require('exorcist');
-import exposify = require('exposify');
-import aliasify = require('aliasify');
-import log = require('fancy-log');
-import cssnano = require('cssnano');
-import autoprefixer = require('autoprefixer');
-import fs = require('fs');
-import path = require('path');
-import streamqueue = require('streamqueue');
-import proxy = require('http-proxy-middleware');
-import del = require('del');
-import yargs = require('yargs');
-import glob = require('glob');
-import loadPlugins = require('gulp-load-plugins');
+import * as vinylStream from 'vinyl-source-stream';
+import * as vinylBuffer from 'vinyl-buffer';
+import * as log from 'fancy-log';
+import * as exorcist from 'exorcist';
+import globbedBrowserify from 'gulp-browserify-watchify-glob';
+import * as loadPlugins from 'gulp-load-plugins';
 const plugins = loadPlugins();
+
+import * as browserify from 'browserify';
+import * as tsify from 'tsify';
+import * as watchify from 'watchify';
+import * as exposify from 'exposify';
+import * as aliasify from 'aliasify';
+
+import * as cssnano from 'cssnano';
+import * as autoprefixer from 'autoprefixer';
+import * as proxy from 'http-proxy-middleware';
+import * as del from 'del';
+import { argv } from 'yargs';
+import { JSDOM, VirtualConsole } from 'jsdom';
+import * as through2 from 'through2';
+import chalk from 'chalk';
 
 type LibraryProps = {
     module: string,
@@ -33,14 +40,24 @@ type ExposeConfig = {
     [moduleName: string]: string,
 };
 
+// Helpers for finishing tasks that run indefinitely.
+const exitController = new EventEmitter();
+function signalExit() {
+    exitController.emit('signal');
+}
+process.on('SIGINT', signalExit);
+process.on('SIGTERM', signalExit);
+
 // General configuration.
 const sourceDir = `src`,
     buildDir = `dist`,
     nodeDir = `node_modules`,
     configModuleName = 'config.json',
-    indexConfig = yargs.argv.config || configModuleName,
+    indexConfig = argv.config || configModuleName,
     indexTemplate = `${sourceDir}/index.hbs`,
     indexOutput = `${buildDir}/index.html`,
+    specRunnerTemplate = `${sourceDir}/specRunner.hbs`,
+    jasminePrefix = `jasmine-core/lib/jasmine-core/`,
     imageDir = `${sourceDir}/image`,
     mainScript = `${sourceDir}/main.ts`,
     jsBundleName = `index.js`,
@@ -58,7 +75,9 @@ const sourceDir = `src`,
         appliesTo: {excludeExtensions: ['.json']},
     },
     unittestBundleName = 'tests.js',
-    unittestEntries = glob.sync(`${sourceDir}/**/*-test.ts`),
+    unittestEntriesGlob = `${sourceDir}/**/*-test.ts`,
+    reporterEntry = `${sourceDir}/terminalReporter.ts`,
+    reporterBundleName = 'terminalReporter.js',
     templateRenameOptions = {extname: '.ts'},
     templateSourceGlob = `${sourceDir}/**/*-template.hbs`,
     templateOutputGlob = `${sourceDir}/**/*-template${templateRenameOptions.extname}`,
@@ -74,10 +93,10 @@ const sourceDir = `src`,
     mainStylesheet = `${styleDir}/main.sass`,
     styleSourceGlob = `${styleDir}/*.sass`,
     cssBundleName = 'index.css',
-    production = yargs.argv.production || false,
-    proxyConfig = yargs.argv.proxy,
-    serverRoot = yargs.argv.root,
-    ports = {frontend: 8080, unittest: 8088},
+    production = argv.production || false,
+    proxyConfig = argv.proxy,
+    serverRoot = argv.root,
+    ports = {frontend: 8080},
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
     unpkgPattern = 'https://unpkg.com/${package}@${version}',
     cdnjsBase = 'https://cdnjs.cloudflare.com/ajax/libs',
@@ -134,8 +153,8 @@ const browserLibs: LibraryProps[] = [{
 
 browserLibs.forEach(lib => {
     let browser = lib.browser || lib.module;
-    lib.path = path.relative(nodeDir, require.resolve(browser));
-    browserLibsRootedPaths.push(path.join(nodeDir, lib.path));
+    lib.path = relative(nodeDir, require.resolve(browser));
+    browserLibsRootedPaths.push(join(nodeDir, lib.path));
 });
 
 // We override the filePattern (normally /\.js$/) because tsify
@@ -149,11 +168,32 @@ exposify.config = browserLibs.reduce((config: ExposeConfig, lib) => {
     return config;
 }, {});
 
-function decoratedBrowserify(options) {
-    return browserify(options)
-        .plugin(tsify, tsOptions)
-        .transform(aliasify, aliasOptions)
-        .transform(exposify, {global: true});
+const configJSON: Promise<any> = new Promise((resolve, reject) => {
+    readFile(indexConfig, 'utf-8', (error, data) => {
+        if (error) {
+            reject(error);
+        } else {
+            resolve(JSON.parse(data));
+        }
+    });
+});
+
+const unittestUrl = configJSON.then(json => {
+    const specRunnerPort = argv.port || ports.frontend;
+    const specRunnerOutput = `${json.staticRoot}specRunner.html`;
+    const host = `localhost:${specRunnerPort}`;
+    return `http://${host}${specRunnerOutput}`;
+});
+
+function decoratedBrowserify(options, constructor = browserify) {
+    return (function() {
+        let bundler;
+        return () => bundler || (bundler = constructor(options)
+            .plugin(tsify, tsOptions)
+            .transform(aliasify, aliasOptions)
+            .transform(exposify, {global: true})
+        );
+    }());
 }
 
 const tsModules = decoratedBrowserify({
@@ -165,7 +205,12 @@ const tsModules = decoratedBrowserify({
 
 const tsTestModules = decoratedBrowserify({
     debug: true,
-    entries: unittestEntries,
+    entries: unittestEntriesGlob,
+}, globbedBrowserify);
+
+const reporterModules = decoratedBrowserify({
+    debug: true,
+    entries: [reporterEntry],
     cache: {},
     packageCache: {},
 });
@@ -194,8 +239,13 @@ export function template() {
         .pipe(dest(sourceDir));
 };
 
+function reportBundleError(errorObj) {
+    log.error(chalk.red(errorObj.message));
+}
+
 function jsBundle() {
-    return tsModules.bundle()
+    return tsModules().bundle()
+        .on('error', reportBundleError)
         .pipe(ifNotProd(exorcist(jsSourceMapDest)))
         .pipe(vinylStream(jsBundleName))
         .pipe(ifProd(vinylBuffer()))
@@ -204,27 +254,28 @@ function jsBundle() {
 }
 
 function jsUnittest() {
-    const libs = src(browserLibsRootedPaths);
-    const bundle = tsTestModules.bundle()
+    return tsTestModules().bundle()
+        .on('error', reportBundleError)
         .pipe(vinylStream(unittestBundleName))
-        .pipe(vinylBuffer());
-    const headless = plugins.jasmineBrowser.headless({
-        driver: 'phantomjs',
-        port: ports.unittest,
-    });
-    // The next line is a fix based on
-    // https://github.com/gulpjs/gulp/issues/71#issuecomment-41512070
-    headless.on('error', e => headless.end());
-    return streamqueue({objectMode: true}, libs, bundle)
-        .pipe(plugins.jasmineBrowser.specRunner({console: true}))
-        .pipe(dest(buildDir))
-        .pipe(plugins.connect.reload())
-        .pipe(headless);
+        .pipe(dest(buildDir));
+}
+
+export function terminalReporter() {
+    return src(reporterEntry)
+        .pipe(plugins.changed(buildDir, {extension: '.js'}))
+        .pipe(through2.obj(function(chunk, enc, cb) {
+            reporterModules().bundle()
+                .on('error', reportBundleError)
+                .pipe(vinylStream(reporterBundleName))
+                .pipe(dest(buildDir))
+                .pipe(this);
+            cb();
+        }));
 }
 
 export const script = series(template, jsBundle);
-
-export const test = series(template, jsUnittest);
+export const unittest = series(template, jsUnittest);
+export const typecheck = series(template, parallel(jsBundle, jsUnittest));
 
 export function style() {
     let postcssPlugins = [autoprefixer()];
@@ -238,32 +289,80 @@ export function style() {
         .pipe(dest(buildDir));
 };
 
-export function index(done) {
-    fs.readFile(indexConfig, 'utf-8', function(error, data) {
-        if (error) return done(error);
-        src(indexTemplate)
-            .pipe(plugins.hb().data(JSON.parse(data)).data({
-                libs: browserLibs,
-                jsBundleName,
-                cssBundleName,
-                production,
-            }))
+function renderHtml(template, targetDir, extraData) {
+    return new Promise((resolve, reject) => configJSON.then(
+        json => src(template)
+            .pipe(plugins.hb().data(json).data(extraData))
             .pipe(ifProd(plugins.cdnizer(cdnizerConfig)))
             .pipe(plugins.rename({extname: '.html'}))
-            .pipe(dest(buildDir));
-        return done();
+            .pipe(dest(targetDir))
+    ).then(
+        pipe => pipe.on('data', resolve).on('error', reject),
+        reject
+    ));
+};
+
+export function index() {
+    return renderHtml(indexTemplate, buildDir, {
+        libs: browserLibs,
+        jsBundleName,
+        cssBundleName,
+        production,
     });
 };
+
+export const specRunner = (function() {
+    let runnerPromise;
+
+    function specRunner() {
+        return runnerPromise = renderHtml(specRunnerTemplate, buildDir, {
+            libs: browserLibs,
+            unittestBundleName,
+            reporterBundleName,
+            jasminePrefix,
+        });
+    }
+
+    function get(cb) {
+        (runnerPromise || specRunner()).then(cb);
+    }
+
+    return { render: specRunner, get };
+}());
+
+const buildUnittests = parallel(terminalReporter, unittest, specRunner.render);
+
+export function runUnittests(done) {
+    specRunner.get(runner => {
+        const virtualConsole = new VirtualConsole();
+        virtualConsole.on('info', console.info);
+        virtualConsole.on('log', console.log);
+        virtualConsole.on('debug', console.debug);
+        virtualConsole.on('jsdomError', console.error);
+        const jsDOM = new JSDOM(runner.contents.toString(), {
+            url: `http://localhost:${argv.port || ports.frontend}`,
+            runScripts: 'dangerously',
+            resources: 'usable',
+            virtualConsole,
+        });
+        virtualConsole.on('timeEnd', () => {
+            jsDOM.window.close();
+            done();
+        });
+    });
+}
 
 export function image() {
     return src(imageDir).pipe(symlink(buildDir));
 };
 
-export const complement = parallel(style, index, image);
+const complement = parallel(style, index, image);
 
 export const dist = parallel(script, complement);
 
-export function serve() {
+const fullStatic = parallel(template, complement, specRunner.render);
+
+export function serve(done) {
     let serverOptions: any = {
         root: serverRoot || __dirname,
         port: ports.frontend,
@@ -272,29 +371,95 @@ export function serve() {
         fallback: indexOutput,
     };
     if (proxyConfig) {
-        const proxyData = JSON.parse(fs.readFileSync(proxyConfig, 'utf-8'));
+        const proxyData = JSON.parse(readFileSync(proxyConfig, 'utf-8'));
         serverOptions.middleware = (connect, connectOptions) => proxyData.map(
             ({context, options}) => proxy(context, options)
         );
     }
     plugins.connect.server(serverOptions);
+    function finalize() {
+        plugins.connect.serverClose();
+        done();
+    }
+    exitController.once('stopServing', finalize);
+    exitController.once('signal', finalize);
 };
 
-export const watch = series(parallel(template, complement), function watch() {
-    tsModules.plugin(watchify);
-    tsModules.on('update', jsBundle);
-    tsModules.on('log', log);
+function stopServing(done) {
+    exitController.emit('stopServing');
+    done();
+}
+
+export const test = parallel(serve, series(buildUnittests, runUnittests, stopServing));
+
+function adoptName(originalTask, wrappedTask) {
+    wrappedTask.displayName = originalTask.displayName || originalTask.name;
+    return wrappedTask;
+}
+
+function reload(inputTask) {
+    return adoptName(inputTask, function() {
+        return inputTask().pipe(plugins.connect.reload());
+    });
+}
+
+function streamFromPromise(promise) {
+    const stream = new Readable({objectMode: true, read(){}});
+    promise.then(result => {
+        stream.push(result);
+        stream.push(null);
+    }, error => stream.emit('error', error));
+    return stream;
+}
+
+function reloadPr(inputTask) {
+    return adoptName(inputTask, function() {
+        return streamFromPromise(inputTask()).pipe(plugins.connect.reload());
+    });
+}
+
+function retest(inputTask) {
+    return series(inputTask, runUnittests);
+}
+
+function watchBundle(bundle, task) {
+    bundle.plugin(watchify);
+    bundle.on('update', task);
+}
+
+export const watch = series(fullStatic, function watch(done) {
+    watchBundle(tsModules(), reload(jsBundle));
+    const retestTestBundle = retest(reload(jsUnittest));
+    const startTestBundle = tsTestModules().watch(retestTestBundle, jsUnittest);
+    watchBundle(reporterModules(), retest(reload(terminalReporter)));
+
     jsBundle();
-    tsTestModules.plugin(watchify);
-    tsTestModules.on('update', jsUnittest);
-    jsUnittest();
-    watchApi(styleSourceGlob, style);
-    watchApi(templateSourceGlob, template);
-    watchApi([indexConfig, indexTemplate], index);
+    retest(parallel(startTestBundle, terminalReporter))();
+
+    const styleWatch = watchApi(styleSourceGlob, reload(style));
+    const templateWatch = watchApi(templateSourceGlob, template);
+    const indexWatch = watchApi([indexConfig, indexTemplate], reloadPr(index));
+    const specWatch = watchApi(
+        [indexConfig, specRunnerTemplate],
+        retest(reloadPr(specRunner.render))
+    );
+
+    exitController.once('signal', () => {
+        [
+            tsModules(), tsTestModules(), reporterModules(), styleWatch,
+            templateWatch, indexWatch, specWatch,
+        ].forEach(watcher => watcher.close());
+        done();
+    });
 });
 
 export function clean() {
-    return del([buildDir, templateOutputGlob]);
+    return del([
+        `${buildDir}/**`,
+        `!${buildDir}`,
+        `!${buildDir}/${reporterBundleName}`,
+        templateOutputGlob,
+    ]);
 };
 
 export default series(clean, parallel(watch, serve));

@@ -1,7 +1,7 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 
 import { extend } from 'lodash';
-import View from '../../core/view';
+import View from './../core/view';
 
 import highlightRectTemplate from './highlight-rect-template';
 

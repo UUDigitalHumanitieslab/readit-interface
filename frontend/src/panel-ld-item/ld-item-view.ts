@@ -1,9 +1,11 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from '../core/view';
 
+import View from '../core/view';
 import Graph from './../jsonld/graph';
 import Node from '../jsonld/node';
+import ldChannel from '../jsonld/radio';
+import { isNode } from '../utilities/types';
 
 import ldItemTemplate from './ld-item-template';
 
@@ -73,7 +75,7 @@ export default class LdItemView extends View<Node> {
 
         let ontologyClass = getOntologyClass(this.currentItem, this.ontology);
         if (ontologyClass) {
-            this.lblView = new LabelView({ model: ontologyClass, hasTooltipLeft: true });
+            this.lblView = new LabelView({ model: ontologyClass, toolTipSetting: 'left' });
             this.lblView.render();
         }
 
@@ -121,7 +123,7 @@ export default class LdItemView extends View<Node> {
 
             let valueArray = this.currentItem.get(attribute);
             valueArray.forEach(value => {
-                if (value instanceof Node) {
+                if (isNode(value)) {
                     this.relatedItems.push(value);
                 }
                 else {
