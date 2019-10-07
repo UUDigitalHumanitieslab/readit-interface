@@ -18,6 +18,8 @@ export default class OverlapDetailsView extends View<Node> {
     details = [];
     hVs: HighlightView[];
 
+    currentlySelectedDetail: JQuery<HTMLElement>;
+
     constructor(options: ViewOptions) {
         super();
 
@@ -48,7 +50,17 @@ export default class OverlapDetailsView extends View<Node> {
         let clickedDetail = $(event.currentTarget);
         let cid = clickedDetail.data('cid');
         let hV = this.hVs.find(h => h.cid == cid);
-        this.toggleSelection(clickedDetail);
+
+        if (this.currentlySelectedDetail && this.currentlySelectedDetail.data('cid') === cid) {
+            this.toggleSelection(clickedDetail);
+            this.currentlySelectedDetail = undefined;
+        }
+        else {
+            if (this.currentlySelectedDetail) this.toggleSelection(this.currentlySelectedDetail);
+            this.toggleSelection(clickedDetail);
+            this.currentlySelectedDetail = clickedDetail;
+        }
+
         this.trigger('detailClicked', hV);
     }
 
