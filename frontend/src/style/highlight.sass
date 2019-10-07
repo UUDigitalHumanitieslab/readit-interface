@@ -12,9 +12,16 @@
         z-index: 2
 
     .highlight
+        cursor: pointer
+
         .highlight-rect
             z-index: 1
             position: absolute
+
+        .highlight-rect.is-overlap
+            z-index: 2
+            background-color: white !important
+            background: repeating-linear-gradient(135deg,white,white 6px,#d9d9d9 0px,#d9d9d9 12px)
 
         .delete-highlight
             display: none
@@ -22,3 +29,26 @@
             right: -8px
             top: -14px
             cursor: pointer
+
+    .overlap-details
+        position: absolute
+        z-index: 3
+        width: 80%
+        margin: auto
+        cursor: pointer
+
+        .overlap-detail
+            margin-top: 6px
+
+            &.is-selected
+                border: 2px solid $primary-color
+
+
+        .close
+            float: right
+            margin-top: -21px
+            margin-right: -15px
+
+
+
+

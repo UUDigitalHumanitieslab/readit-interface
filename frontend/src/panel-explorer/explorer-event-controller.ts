@@ -5,8 +5,7 @@ import Node from './../jsonld/node';
 import ExplorerView from './explorer-view';
 import SourceView from '../panel-source/source-view';
 import LdItemView from '../panel-ld-item/ld-item-view';
-
-
+import HighlightView from '../highlight/highlight-view';
 
 export default class ExplorerEventController {
     /**
