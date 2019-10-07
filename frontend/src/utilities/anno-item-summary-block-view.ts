@@ -5,10 +5,12 @@ import View from '../core/view';
 import { oa } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from './../jsonld/graph';
+import ldChannel from '../jsonld/radio';
 import { getCssClassName, getLabel, isType } from './utilities';
+import { getOntologyInstance, AnnotationPositionDetails, getPositionDetails } from './annotation-utilities';
 
 import annoItemSummaryBlockTemplate from './anno-item-summary-block-template';
-import { getOntologyInstance, getOntologyClass, AnnotationPositionDetails, getPositionDetails } from './annotation-utilities';
+
 
 export interface ViewOptions extends BaseOpt<Node> {
     ontology: Graph;
@@ -49,7 +51,8 @@ export default class AnnoItemSummaryBlockView extends View<Node> {
         }
 
         this.instanceLabel = getLabel(this.currentItem);
-        let ontologyClassItem = getOntologyClass(this.currentItem, this.ontology);
+        let ontologyClassItem = ldChannel.request('obtain', this.currentItem.get('@type')[0] as string);
+
         this.classLabel = getLabel(ontologyClassItem);
         this.cssClassName = getCssClassName(ontologyClassItem);
 

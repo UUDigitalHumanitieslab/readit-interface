@@ -11,7 +11,7 @@ import ldItemTemplate from './ld-item-template';
 
 import { owl, oa, dcterms } from './../jsonld/ns';
 import { isType, getLabel, getLabelFromId } from './../utilities/utilities';
-import { getOntologyInstance, getOntologyClass } from './../utilities/annotation-utilities';
+import { getOntologyInstance } from './../utilities/annotation-utilities';
 
 import LabelView from '../utilities/label-view';
 
@@ -72,8 +72,8 @@ export default class LdItemView extends View<Node> {
         }
 
         this.label = getLabel(this.currentItem);
+        let ontologyClass = ldChannel.request('obtain', this.currentItem.get('@type')[0] as string);
 
-        let ontologyClass = getOntologyClass(this.currentItem, this.ontology);
         if (ontologyClass) {
             this.lblView = new LabelView({ model: ontologyClass, toolTipSetting: 'left' });
             this.lblView.render();
