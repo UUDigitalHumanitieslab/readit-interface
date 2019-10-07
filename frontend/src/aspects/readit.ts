@@ -22,6 +22,7 @@ import mockItems from './../mock-data/mock-items';
 import mockSources from './../mock-data/mock-sources';
 import mockStaff from '../mock-data/mock-staff';
 import LdItemView from '../panel-ld-item/ld-item-view';
+import RelatedItemsView from '../panel-related-items/related-items-view';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -53,24 +54,30 @@ directionFsm.on('enter:exploring', () => {
     let ontology = new Graph(mockOntology);
     let staff = new Graph(mockStaff);
 
-    let scrollTo = items.find(n => n.get("@id") == item('100')); // item("201"));
+    let scrollTo = items.find(n => n.get("@id") == item('202')); // item("201"));
 
-    let sourceView = new SourceView({
-        collection: items,
-        model: source,
-        ontology: new Graph(mockOntology),
-        // showHighlightsInitially: true,
-        isEditable: true,
-        initialScrollTo: scrollTo,
+    // IMPORTANT To test related items view, use 202 ! (it actually has related items)
+
+    // let sourceView = new SourceView({
+    //     collection: items,
+    //     model: source,
+    //     ontology: new Graph(mockOntology),
+    //     // showHighlightsInitially: true,
+    //     isEditable: true,
+    //     initialScrollTo: scrollTo,
+    // });
+
+    // let ldiView = new LdItemView({
+    //     model: scrollTo,
+    //     ontology: ontology,
+    //     staff: staff
+    // })
+
+    let relItemsView = new RelatedItemsView({
+        model: scrollTo, ontology: ontology
     });
 
-    let ldiView = new LdItemView({
-        model: scrollTo,
-        ontology: ontology,
-        staff: staff
-    })
-
-    let exView = new ExplorerView({ first: ldiView, ontology: ontology });
+    let exView = new ExplorerView({ first: relItemsView, ontology: ontology });
 
     let vh = $(window).height();
     // compensates for menu and footer (555 is min-height)

@@ -94,6 +94,31 @@ export const mediumClass = {
     ],
 };
 
+export const personClass = {
+    "@id": readit('Person'),
+    "@type": [rdfs.Class],
+    [skos.prefLabel]: [
+        { '@value': 'Person' },
+    ],
+    [skos.definition]: [
+        { '@value': 'Dit is de definitie van person' },
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:16+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('JdeKruif')
+        }
+    ],
+    [schema.color]: [
+        { '@value': '#c32433' }
+    ],
+};
+
 export const descriptionOfProperty = {
     '@id': readit('descriptionOf'),
     '@type': [rdf.Property],
@@ -126,4 +151,5 @@ export default [
     contentClass,
     mediumClass,
     readerClass,
+    personClass,
 ]
