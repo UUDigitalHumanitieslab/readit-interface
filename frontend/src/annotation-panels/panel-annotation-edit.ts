@@ -23,6 +23,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 
 export default class AnnotationEditView extends View<Node> {
     ontology: Graph;
+    preselection: Node;
     metadataView: ItemMetadataView;
     ontologyClassPicker: OntologyClassPickerView;
     text: string;
@@ -38,10 +39,11 @@ export default class AnnotationEditView extends View<Node> {
         if (options.model) {
             this.metadataView = new ItemMetadataView({ model: this.model });
             this.metadataView.render();
-            let preselection: Node = getOntologyClass(this.model, this.ontology);
+            this.preselection = getOntologyClass(this.model, this.ontology);
+
             this.ontologyClassPicker = new OntologyClassPickerView({
                 collection: this.ontology,
-                preselection: preselection
+                preselection: this.preselection
             });
         }
         else {
@@ -86,8 +88,19 @@ export default class AnnotationEditView extends View<Node> {
         return this;
     }
 
-    onOntologyItemSelected(item: Node): this {
+    select(item: Node): this {
         this.$('.hidden-input').val(item.id).valid();
+        return this;
+    }
+
+    onInsertedIntoDOM(): this {
+        if (this.preselection) this.select(this.preselection);
+        return this;
+    }
+
+    onOntologyItemSelected(item: Node): this {
+        this.select(item);
+        // TODO: remove the earlier one?
         this.model.set(oa.hasBody, item);
         return this;
     }
@@ -114,5 +127,6 @@ extend(AnnotationEditView.prototype, {
     events: {
         'click .btn-save': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
+        'DOMNodeInsertedIntoDocument': 'onInsertedIntoDOM',
     }
 });
