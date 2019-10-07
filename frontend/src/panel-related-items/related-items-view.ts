@@ -33,15 +33,16 @@ export default class RelatedItemsView extends View<Node> {
         this.ontology = options.ontology;
         this.relations = [];
 
-        this.initRelatedItems();
+        this.initRelatedItems(this.model);
+        this.listenTo(this.model, 'change', this.initRelatedItems);
 
         return this;
     }
 
-    initRelatedItems(): this {
+    initRelatedItems(node: Node): this {
         const ignore = ['@id', '@type', dcterms.creator]
 
-        for (let attribute in this.model.attributes) {
+        for (let attribute in node.attributes) {
             if (ignore.includes(attribute)) {
                 continue;
             }
