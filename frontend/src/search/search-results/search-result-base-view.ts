@@ -72,11 +72,17 @@ export default class SearchResultBaseItemView extends View<Node> {
         else this.select();
         return this;
     }
+
+    onClick(event: JQueryEventObject): this {
+        this.trigger('click', this);
+        return this;
+    }
 }
 extend(SearchResultBaseItemView.prototype, {
     tagName: 'article',
     className: 'search-result box',
     template: searchResultBaseTemplate,
     events: {
+        'click': 'onClick'
     }
 });
