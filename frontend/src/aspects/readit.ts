@@ -23,6 +23,8 @@ import mockSources from './../mock-data/mock-sources';
 import mockStaff from '../mock-data/mock-staff';
 import LdItemView from '../panel-ld-item/ld-item-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
+import AnnotationEditView from './../panel-annotation/annotations-view';
+import SearchResultBaseItemView from '../search/search-results/search-result-base-view';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -54,30 +56,21 @@ directionFsm.on('enter:exploring', () => {
     let ontology = new Graph(mockOntology);
     let staff = new Graph(mockStaff);
 
-    let scrollTo = items.find(n => n.get("@id") == item('202')); // item("201"));
+    let annotation = items.find(n => n.get("@id") == item('100'));
+    // let item = items.find(n => n.get("@id") == item('100')); // item("201"));
 
     // IMPORTANT To test related items view, use 202 ! (it actually has related items)
 
-    // let sourceView = new SourceView({
-    //     collection: items,
-    //     model: source,
-    //     ontology: new Graph(mockOntology),
-    //     // showHighlightsInitially: true,
-    //     isEditable: true,
-    //     initialScrollTo: scrollTo,
-    // });
-
-    // let ldiView = new LdItemView({
-    //     model: scrollTo,
-    //     ontology: ontology,
-    //     staff: staff
-    // })
-
-    let relItemsView = new RelatedItemsView({
-        model: scrollTo, ontology: ontology
+    let sourceView = new SourceView({
+        collection: items,
+        model: source,
+        ontology: new Graph(mockOntology),
+        // showHighlightsInitially: true,
+        isEditable: true,
+        initialScrollTo: annotation,
     });
 
-    let exView = new ExplorerView({ first: relItemsView, ontology: ontology });
+    let exView = new ExplorerView({ first: sourceView, ontology: ontology });
 
     let vh = $(window).height();
     // compensates for menu and footer (555 is min-height)
