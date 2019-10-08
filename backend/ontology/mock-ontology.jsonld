@@ -1,0 +1,96 @@
+[
+    {
+        "@id": "http://readit.example/ontology/Content",
+        "@type": [
+            "http://www.w3.org/2000/01/rdf-schema#Class"
+        ],
+        "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+            {
+                "@id": "http://readit.example/ontology/ReadingResource"
+            }
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "Content"
+            }
+        ],
+        "http://www.w3.org/2004/02/skos/core#definition": [
+            {
+                "@value": "Dit is de definitie van content"
+            }
+        ],
+        "http://schema.org/color": [
+            {
+                "@value": "#F5CAC3"
+            }
+        ]
+    },
+    {
+        "@id": "http://readit.example/ontology/Medium",
+        "@type": [
+            "http://www.w3.org/2000/01/rdf-schema#Class"
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "Medium"
+            }
+        ],
+        "http://www.w3.org/2004/02/skos/core#definition": [
+            {
+                "@value": "Dit is de definitie van medium"
+            }
+        ],
+        "http://schema.org/color": [
+            {
+                "@value": "#60D394"
+            }
+        ]
+    },
+    {
+        "@id": "http://readit.example/ontology/Reader",
+        "@type": [
+            "http://www.w3.org/2000/01/rdf-schema#Class"
+        ],
+        "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+            {
+                "@id": "http://readit.example/ontology/Person"
+            }
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "Reader"
+            }
+        ],
+        "http://www.w3.org/2004/02/skos/core#definition": [
+            {
+                "@value": "Dit is de definitie van reader"
+            }
+        ],
+        "http://schema.org/color": [
+            {
+                "@value": "#F18F01"
+            }
+        ]
+    },
+    {
+        "@id": "http://readit.example/ontology/Person",
+        "@type": [
+            "http://www.w3.org/2000/01/rdf-schema#Class"
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "Person"
+            }
+        ],
+        "http://www.w3.org/2004/02/skos/core#definition": [
+            {
+                "@value": "Dit is de definitie van person"
+            }
+        ],
+        "http://schema.org/color": [
+            {
+                "@value": "#c32433"
+            }
+        ]
+    }
+]
