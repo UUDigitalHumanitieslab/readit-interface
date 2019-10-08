@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'rdf',
     'vocab',
     'staff',
+    'ontology',
 ]
 
 MIDDLEWARE = [
