@@ -28,6 +28,8 @@ import {
 import { ModelSetOptions } from 'backbone';
 
 import Model from '../core/model';
+
+import ldChannel from './radio';
 import {
     JsonLdContext,
     FlatLdObject,
@@ -79,6 +81,7 @@ export default class Node extends Model {
         super(attributes, options);
         let context: JsonLdContext = options && options.context;
         if (!isUndefined(context)) this.context = context;
+        ldChannel.trigger('register', this);
     }
 
     /**
@@ -210,7 +213,7 @@ function asNativeArray(value: any, key: string): OptimizedNative {
 
 function id2node(value: OptimizedNative): Native {
     if (has(value, '@id')) {
-        return this.collection && this.collection.get(value) || new Node(value);
+        return ldChannel.request('obtain', value) || new Node(value);
     }
     if (isArray(value)) return map(value, id2node.bind(this));
     return value;

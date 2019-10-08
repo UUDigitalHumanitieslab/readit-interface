@@ -33,6 +33,26 @@ export const sourceClass = {
             "@id": staff('AHebing')
         }
     ],
+    [skos.prefLabel]: [
+        { '@value': 'Source' },
+    ],
+    [skos.definition]: [
+        { '@value': 'Dit is de definitie van source' },
+    ],
+    [dcterms.created]: [
+        {
+            "@type": xsd.dateTime,
+            "@value": "2085-12-31T04:33:16+0100"
+        }
+    ],
+    [dcterms.creator]: [
+        {
+            "@id": staff('JdeKruif')
+        }
+    ],
+    [schema.color]: [
+        { '@value': 'hotpink' }
+    ],
 }
 
 // This is the class definition of our RangeSelector

@@ -9,7 +9,7 @@ import Graph from '../jsonld/graph';
 import { isType, getScrollTop } from '../utilities/utilities';
 
 import annotationsTemplate from './panel-annotations-template';
-import AnnoItemSummaryBlockView from '../utilities/anno-item-summary-block-view';
+import ItemSummaryBlockView from './../utilities/item-summary-block/item-summary-block-view';
 import { getSource } from '../utilities/annotation-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
@@ -19,12 +19,12 @@ export interface ViewOptions extends BaseOpt<Node> {
 
 export default class AnnotationsView extends View<Node> {
     ontology: Graph;
-    summaryBlocks: AnnoItemSummaryBlockView[];
+    summaryBlocks: ItemSummaryBlockView[];
 
     /**
      * Keep track of the currently highlighted summary block
      */
-    currentlyHighlighted: AnnoItemSummaryBlockView;
+    currentlyHighlighted: ItemSummaryBlockView;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -64,7 +64,7 @@ export default class AnnotationsView extends View<Node> {
     }
 
     initSummaryBlock(annotation: Node) {
-        let view = new AnnoItemSummaryBlockView({
+        let view = new ItemSummaryBlockView({
             model: annotation,
             ontology: this.ontology
         });
@@ -111,7 +111,7 @@ export default class AnnotationsView extends View<Node> {
         return this;
     }
 
-    onSummaryBlockClicked(summaryBlock: AnnoItemSummaryBlockView, annotation: Node): this {
+    onSummaryBlockClicked(summaryBlock: ItemSummaryBlockView, annotation: Node): this {
         if (this.currentlyHighlighted && summaryBlock !== this.currentlyHighlighted) {
             this.currentlyHighlighted.toggleHighlight();
         }

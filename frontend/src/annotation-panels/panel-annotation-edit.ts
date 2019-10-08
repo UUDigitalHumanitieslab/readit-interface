@@ -5,7 +5,7 @@ import View from '../core/view';
 import { oa } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
-import { getOntologyClass } from '../utilities/annotation-utilities';
+import ldChannel from './../jsonld/radio';
 
 import annotationEditTemplate from './panel-annotation-edit-template';
 import OntologyClassPickerView from '../utilities/ontology-class-picker/ontology-class-picker-view';
@@ -39,7 +39,7 @@ export default class AnnotationEditView extends View<Node> {
         if (options.model) {
             this.metadataView = new ItemMetadataView({ model: this.model });
             this.metadataView.render();
-            this.preselection = getOntologyClass(this.model, this.ontology);
+            this.preselection = ldChannel.request('obtain', this.model.get('@type')[0] as string);
 
             this.ontologyClassPicker = new OntologyClassPickerView({
                 collection: this.ontology,
