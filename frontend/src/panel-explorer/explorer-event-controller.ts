@@ -31,7 +31,7 @@ export default class ExplorerEventController {
         panel.on({
             'fakeBtnClicked': this.ldItemViewFakeButtonClicked,
             'showMetadata': this.sourceViewShowMetadata,
-            'showAnnotations': (graph) => defer(this.sourceViewShowAnnotations, graph),
+            'showAnnotations': (graph) => defer(this.sourceViewShowAnnotations.bind(this), graph),
             'enlarge': this.sourceViewEnlarge,
         }, this);
     }
