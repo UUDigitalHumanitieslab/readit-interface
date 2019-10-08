@@ -1,3 +1,6 @@
-from django.shortcuts import render
+from rdf.views import RDFView
+from .graph import graph
 
-# Create your views here.
+class ListOntology(RDFView):
+    """ List the full ontology in RDF. """
+    graph = graph
