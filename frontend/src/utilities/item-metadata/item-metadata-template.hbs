@@ -4,10 +4,21 @@
         <button class="toggleProxy" aria-label="toggle"></button>
     </div>
     <div class="accordion-body">
-        <div class="accordion-content">
-            {{#each metadata}}
-            <b>{{@key}}</b>: {{this}}</p>
-            {{/each}}
-        </div>
+        <table class="accordion-content table is-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each metadata}}
+                <tr>
+                    <td>{{@key}}</td>
+                    <td>{{this}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
     </div>
 </article>
