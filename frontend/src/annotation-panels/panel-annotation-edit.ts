@@ -141,6 +141,11 @@ export default class AnnotationEditView extends BaseAnnotationView {
         this.trigger('close')
         return this;
     }
+
+    onRelatedItemsClicked(event: JQueryEventObject): this {
+        this.trigger('add-related-item', this.ontologyClassPicker.getSelected());
+        return this;
+    }
 }
 extend(AnnotationEditView.prototype, {
     tagName: 'div',
@@ -149,6 +154,7 @@ extend(AnnotationEditView.prototype, {
     events: {
         'click .btn-save': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
+        'click .btn-rel-items': 'onRelatedItemsClicked',
         'DOMNodeInsertedIntoDocument': 'onInsertedIntoDOM',
     }
 });
