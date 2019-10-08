@@ -1,21 +1,20 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from '../../core/view';
 
 import searchResultSourceTemplate from './search-result-source-template';
 
-import { oa, schema } from './../../jsonld/ns';
+import { schema } from './../../jsonld/ns';
 import ldChannel from './../../jsonld/radio';
 import Node from '../../jsonld/node';
-import { isType } from '../../utilities/utilities';
 import LabelView from '../../utilities/label-view';
 import SnippetView from '../../utilities/snippet-view/snippet-view';
+import BaseAnnotationView from '../../annotation-panels/base-annotation-view';
 
 export interface ViewOptions extends BaseOpt<Node> {
     model: Node;
 }
 
-export default class SearchResultSourceView extends View<Node> {
+export default class SearchResultSourceView extends BaseAnnotationView {
     snippetView: SnippetView;
     labelView: LabelView;
     title: string;
@@ -25,41 +24,15 @@ export default class SearchResultSourceView extends View<Node> {
     }
 
     initialize(options: ViewOptions): this {
-        this.processModel(this.model);
-        this.listenTo(this.model, 'change', this.processModel);
+        this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
+        this.listenTo(this, 'source', this.baseProcessSource);
+
+        this.baseProcessModel(this.model);
+        this.listenTo(this.model, 'change', this.baseProcessModel);
         return this;
     }
 
-    processModel(annotation: Node): this {
-        let targets = annotation.get(oa.hasTarget);
-        targets.forEach(n  => {
-            this.processTarget(n as Node);
-            this.stopListening(n, 'change', this.processTarget);
-            this.listenTo(n, 'change', this.processTarget);
-        });
-
-        return this;
-    }
-
-    processTarget(target: Node): this {
-        if (isType(target, oa.SpecificResource)) {
-            let source = target.get(oa.hasSource)[0] as Node;
-            this.stopListening(source, 'change', this.processSource);
-            this.listenTo(source, 'change', this.processSource);
-            this.processSource(source);
-
-            let selectors: Node[] = target.get(oa.hasSelector) as Node[];
-            for (let selector of selectors) {
-                this.processSelector(selector);
-                this.stopListening(selector, 'change', this.processSelector);
-                this.listenTo(selector, 'change', this.processSelector);
-            }
-        }
-
-        return this;
-    }
-
-    processSource(source: Node): this {
+    baseProcessSource(source: Node): this {
         this.title = source.get(schema.name)[0] as string;
         let sourceOntologyInstance = ldChannel.request('obtain', source.get('@type')[0] as string);
         if (!this.labelView) {
@@ -69,20 +42,12 @@ export default class SearchResultSourceView extends View<Node> {
         return this;
     }
 
-    processSelector(selector: Node): this {
-        if (isType(selector, oa.TextQuoteSelector)) {
-            this.processTextQuoteSelector(selector);
-        }
-
-        return this;
-    }
-
     processTextQuoteSelector(selector: Node): this {
         if (this.snippetView) return;
-        this.snippetView = new SnippetView({
-            title: this.title,
-            selector: selector
-        });
+            this.snippetView = new SnippetView({
+                title: this.title,
+                selector: selector
+            });
         this.snippetView.render();
         return this;
     }

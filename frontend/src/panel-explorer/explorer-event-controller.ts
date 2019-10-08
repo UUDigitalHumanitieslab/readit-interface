@@ -6,7 +6,7 @@ import ExplorerView from './explorer-view';
 import SourceView from '../panel-source/source-view';
 import LdItemView from '../panel-ld-item/ld-item-view';
 import Graph from '../jsonld/graph';
-import AnnotationsView from '../panel-annotation/annotations-view';
+import AnnotationsView from '../annotation-panels/panel-annotations-view';
 
 
 import HighlightView from '../highlight/highlight-view';
