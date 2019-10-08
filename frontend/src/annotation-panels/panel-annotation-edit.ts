@@ -1,32 +1,37 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from '../core/view';
 
 import { oa } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
 import ldChannel from './../jsonld/radio';
 
-import annotationEditTemplate from './panel-annotation-edit-template';
 import OntologyClassPickerView from '../utilities/ontology-class-picker/ontology-class-picker-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
+import SnippetView from '../utilities/snippet-view/snippet-view';
+import { isType } from './../utilities/utilities';
+import { getOntologyInstance } from './../utilities/annotation-utilities';
+
+import BaseAnnotationView from './base-annotation-view';
+
+import annotationEditTemplate from './panel-annotation-edit-template';
 
 
 export interface ViewOptions extends BaseOpt<Node> {
-    model?: Node;
-    ontology: Graph;
     /**
-     * The text of the annotation.
+     * An instance of oa:Annotation that links to a oa:TextQuoteSelector.
      */
-    text: string;
+    model: Node;
+    ontology: Graph;
+
 }
 
-export default class AnnotationEditView extends View<Node> {
+export default class AnnotationEditView extends BaseAnnotationView {
     ontology: Graph;
     preselection: Node;
     metadataView: ItemMetadataView;
     ontologyClassPicker: OntologyClassPickerView;
-    text: string;
+    snippetView: SnippetView;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -34,43 +39,52 @@ export default class AnnotationEditView extends View<Node> {
 
     initialize(options: ViewOptions): this {
         this.ontology = options.ontology;
-        this.text = options.text;
+        this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
+        this.processModel(options.model);
+        this.listenTo(this.model, 'change', this.processModel);
+        return this;
+    }
 
-        if (options.model) {
+    processModel(node: Node): this {
+        this.baseProcessModel(node);
+
+        if (isType(node, oa.Annotation)) {
             this.metadataView = new ItemMetadataView({ model: this.model });
             this.metadataView.render();
-            this.preselection = ldChannel.request('obtain', this.model.get('@type')[0] as string);
+
+            let ontologyInstance = getOntologyInstance(this.model, this.ontology);
+            this.preselection = ldChannel.request('obtain', ontologyInstance.get('@type')[0] as string);
 
             this.ontologyClassPicker = new OntologyClassPickerView({
                 collection: this.ontology,
                 preselection: this.preselection
             });
-        }
-        else {
-            this.model = new Node();
-            this.ontologyClassPicker = new OntologyClassPickerView({
-                collection: this.ontology
-            });
+
+            this.ontologyClassPicker.render();
+            this.ontologyClassPicker.on('select', this.onOntologyItemSelected, this);
         }
 
-        this.ontologyClassPicker.render();
-        this.ontologyClassPicker.on('select', this.onOntologyItemSelected, this);
+        return this;
+    }
+
+    processTextQuoteSelector(selector: Node): this {
+        if (this.snippetView) return;
+            this.snippetView = new SnippetView({
+                selector: selector
+            });
+        this.snippetView.render();
         return this;
     }
 
     render(): this {
         this.ontologyClassPicker.$el.detach();
+        this.snippetView.$el.detach();
         if (this.metadataView) this.metadataView.$el.detach();
 
         this.$el.html(this.template(this));
 
-        this.$(".anno-edit-form").submit(function(e) { e.preventDefault(); })
-        this.$(".anno-edit-form").validate({
-            errorClass: "help is-danger",
-            ignore: "",
-        });
-
         this.$('.ontology-class-picker-container').append(this.ontologyClassPicker.el);
+        this.$('.snippet-container').append(this.snippetView.el);
         if (this.metadataView) this.$('.metadata-container').append(this.metadataView.el);
         return this;
     }
@@ -95,11 +109,19 @@ export default class AnnotationEditView extends View<Node> {
 
     onInsertedIntoDOM(): this {
         if (this.preselection) this.select(this.preselection);
+
+        this.$(".anno-edit-form").submit(function (e) { e.preventDefault(); })
+        this.$(".anno-edit-form").validate({
+            errorClass: "help is-danger",
+            ignore: "",
+        });
+
         return this;
     }
 
     onOntologyItemSelected(item: Node): this {
         this.select(item);
+        this.snippetView.selector = item;
         // TODO: remove the earlier one?
         this.model.set(oa.hasBody, item);
         return this;
