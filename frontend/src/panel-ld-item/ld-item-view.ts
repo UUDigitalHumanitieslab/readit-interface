@@ -16,6 +16,7 @@ import { getOntologyInstance } from './../utilities/annotation-utilities';
 import LabelView from '../utilities/label-view';
 
 import * as bulmaAccordion from 'bulma-accordion';
+import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 
 export interface ViewOptions extends BaseOpt<Node> {
     ontology: Graph;
@@ -40,11 +41,13 @@ export default class LdItemView extends View<Node> {
 
     label: string;
     properties: any;
-    itemMetadata: any;
-    annotationMetadata: any;
     annotations: any;
     relatedItems: Node[];
     externalResources: Node[];
+
+
+    itemMetadataView: ItemMetadataView;
+    annotationMetadataView: ItemMetadataView;
 
     constructor(options?: ViewOptions) {
         super(options);
@@ -59,20 +62,20 @@ export default class LdItemView extends View<Node> {
         this.modelIsAnnotation = isType(this.model, oa.Annotation);
         this.currentItem = this.model;
         this.properties = new Object();
-        this.itemMetadata = new Object();
-        this.annotationMetadata = new Object();
         this.annotations = new Object();
         this.relatedItems = [];
 
         if (this.modelIsAnnotation) {
             this.currentItem = getOntologyInstance(this.currentItem, this.ontology);
-            this.annotationMetadata[getLabelFromId(dcterms.creator)] = getLabel(this.model.get(dcterms.creator)[0] as Node);
-            this.annotationMetadata[getLabelFromId(dcterms.created)] = this.model.get(dcterms.created);
+            this.annotationMetadataView = new ItemMetadataView({ model: this.model, title: 'Annotation metadata' });
+            this.annotationMetadataView.render();
         }
 
         this.label = getLabel(this.currentItem);
-        let ontologyClass = ldChannel.request('obtain', this.currentItem.get('@type')[0] as string);
+        this.itemMetadataView = new ItemMetadataView({model: this.currentItem});
+        this.itemMetadataView.render();
 
+        let ontologyClass = ldChannel.request('obtain', this.currentItem.get('@type')[0] as string);
         if (ontologyClass) {
             this.lblView = new LabelView({ model: ontologyClass, toolTipSetting: 'left' });
             this.lblView.render();
@@ -84,16 +87,12 @@ export default class LdItemView extends View<Node> {
 
     render(): this {
         this.lblView.$el.detach();
+        this.itemMetadataView.$el.detach();
+        if (this.annotationMetadataView) this.annotationMetadataView.$el.detach();
         this.$el.html(this.template(this));
         this.$('header aside').append(this.lblView.el);
-        this.initAccordions();
-        return this;
-    }
-
-    initAccordions(): this {
-        this.$('.accordion').each(function (i, accordion) {
-            new bulmaAccordion(accordion);
-        });
+        this.$('.itemMetadataContainer').append(this.itemMetadataView.el);
+        if (this.annotationMetadataView) this.$('.annotationMetadataContainer').append(this.annotationMetadataView.el);
         return this;
     }
 
@@ -104,16 +103,6 @@ export default class LdItemView extends View<Node> {
             }
 
             let attributeLabel = getLabelFromId(attribute);
-
-            if (attribute == dcterms.creator) {
-                this.itemMetadata[attributeLabel] = getLabel(this.currentItem.get(attribute)[0] as Node);
-                continue;
-            }
-
-            if (attribute == dcterms.created) {
-                this.itemMetadata[attributeLabel] = this.currentItem.get(attribute)[0];
-                continue;
-            }
 
             if (attribute == owl.sameAs) {
                 this.externalResources = this.currentItem.get(attribute) as Node[];

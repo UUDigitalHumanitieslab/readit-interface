@@ -1,0 +1,37 @@
+<form class="anno-edit-form" method="get" action="">
+    <div class="panel-content">
+        <p class="title">Edit Annotation</p>
+
+        <div class="snippet-container">
+            {{! Snippet inserted here }}
+        </div>
+
+        <fieldset>
+            <div class="field">
+                <label class="label"></label>
+                <div class="control ontology-class-picker-container">
+                    {{! Ontology class picker is inserted here }}
+                </div>
+                {{! Fake input to utilize jquery validation on Bulma dropdown}}
+                <input class="hidden-input" type="text" id="contology" required>
+            </div>
+        </fieldset>
+
+        <div class="metadata-container">
+            {{! metadata view inserted here}}
+        </div>
+        <section class="item-sections">
+            <article class="item-section has-mt-10">
+                <div class="item-section-header">
+                    <p>Add Related item</p>
+                    <span class="btn-rel-item icon is-large has-text-primary tooltip is-tooltip-left"
+                        data-tooltip="Add related item">
+                        <i class="fas fa-arrow-circle-right"></i>
+                    </span>
+                </div>
+            </article>
+        </section>
+    </div>
+    <button class="button btn-save is-pulled-right submit" type="submit">Save</button>
+    <button class="button btn-cancel is-pulled-right is-primary">Cancel</button>
+</form>
