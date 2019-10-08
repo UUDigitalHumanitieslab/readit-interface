@@ -489,7 +489,7 @@ export const vocab = Vocabulary(vocabPrefix, vocabTerms);
  * (not really a vocabulary but still associated with a prefix)
  */
 
-export const staffPrefix = READIT + 'staff/';
+export const staffPrefix = READIT + 'staff#';
 
 const staffNotHardcoded = [] as const;
 
