@@ -30,31 +30,20 @@ export default class AnnotationsView extends View<Node> {
         super(options);
     }
 
-    validate(): this {
+    initialize(options): this {
+        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
+        this.ontology = options.ontology;
+        this.summaryBlocks = [];
+
         let initialSource;
 
         this.collection.each(node => {
             if (isType(node, oa.Annotation)) {
                 let source = getSource(node);
                 if (!initialSource) initialSource = source;
-                else if (!source === initialSource) {
-                    throw new TypeError("All annotations should have the same oa:hasSource");
+                if (source === initialSource) {
+                    this.initSummaryBlock(node);
                 }
-            }
-        });
-
-        return this;
-    }
-
-    initialize(options): this {
-        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
-        this.ontology = options.ontology;
-        this.summaryBlocks = [];
-        this.validate();
-
-        this.collection.each(node => {
-            if (isType(node, oa.Annotation)) {
-                this.initSummaryBlock(node);
             }
         });
 
