@@ -95,7 +95,7 @@ export default class ItemSummaryBlockView extends View<Node> {
 }
 extend(ItemSummaryBlockView.prototype, {
     tagName: 'span',
-    className: 'anno-item-sum-block',
+    className: 'item-sum-block',
     template: itemSummaryBlockTemplate,
     events: {
         'click': 'onClick',
