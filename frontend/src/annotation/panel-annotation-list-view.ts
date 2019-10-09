@@ -8,8 +8,8 @@ import Graph from '../jsonld/graph';
 
 import { isType, getScrollTop } from '../utilities/utilities';
 
-import annotationsTemplate from './panel-annotations-template';
-import ItemSummaryBlockView from './../utilities/item-summary-block/item-summary-block-view';
+import annotationsTemplate from './panel-annotation-list-template';
+import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import { getSource } from '../utilities/annotation-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {

@@ -1,12 +1,12 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from './../core/view';
+import View from '../core/view';
 
-import { oa, schema } from './../jsonld/ns';
-import Node from './../jsonld/node';
-import ldChannel from './../jsonld/radio';
+import { oa, schema } from '../jsonld/ns';
+import Node from '../jsonld/node';
+import ldChannel from '../jsonld/radio';
 
-import { isType } from './../utilities/utilities';
+import { isType } from '../utilities/utilities';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import LabelView from '../utilities/label-view';
 

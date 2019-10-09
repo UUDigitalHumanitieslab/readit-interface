@@ -8,7 +8,7 @@ import ldChannel from './../../jsonld/radio';
 import Node from '../../jsonld/node';
 import LabelView from '../../utilities/label-view';
 import SnippetView from '../../utilities/snippet-view/snippet-view';
-import BaseAnnotationView from '../../annotation-panels/base-annotation-view';
+import BaseAnnotationView from '../../annotation/base-annotation-view';
 
 export interface ViewOptions extends BaseOpt<Node> {
     model: Node;
