@@ -220,6 +220,7 @@ export default class HighlightableTextView extends View {
     hideAll(): this {
         this.hVs.forEach((hV) => {
             hV.$el.detach();
+            hV.unSelect();
         });
 
         this.overlaps.forEach((overlap) => {
