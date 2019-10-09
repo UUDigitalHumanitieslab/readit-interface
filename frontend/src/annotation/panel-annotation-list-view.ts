@@ -123,7 +123,7 @@ export default class AnnotationListView extends View<Node> {
 }
 extend(AnnotationListView.prototype, {
     tagName: 'div',
-    className: 'annotations-panel explorer-panel',
+    className: 'annotation-list-panel explorer-panel',
     template: annotationsTemplate,
     events: {
         'click .btn-edit': 'onEditClicked',
