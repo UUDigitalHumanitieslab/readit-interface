@@ -29,42 +29,61 @@ export default class ExplorerEventController {
      */
     subscribeToPanelEvents(panel: View): void {
         panel.on({
-            'fakeBtnClicked': this.ldItemViewFakeButtonClicked,
-            'showMetadata': this.sourceViewShowMetadata,
-            'showAnnotations': (graph) => defer(this.sourceViewShowAnnotations.bind(this), graph),
-            'enlarge': this.sourceViewEnlarge,
+            'sourceview:highlightSelected': this.sourceViewHighlightSelected,
+            'sourceview:highlightUnselected': this.sourceViewHighlightUnselected,
+            'sourceview:showMetadata': this.sourceViewShowMetadata,
+            'sourceview:hideMetadata': this.sourceViewHideMetadata,
+            'sourceview:showAnnotations': (graph) => defer(this.sourceViewShowAnnotations.bind(this), graph),
+            'sourceview:hideAnnotations': this.sourceViewHideAnnotations,
+            'sourceView:enlarge': this.sourceViewEnlarge,
+            'sourceView:shrink': this.sourceViewShrink
         }, this);
     }
 
-    /**
-     * Fake method for testing purposes
-     * @param buttonClicked
-     */
-    sourceViewShowMetadata(node: Node): void {
-        // let ldiView = new LdItemView({ model: mockLdItem });
-        // this.explorerView.push(ldiView);
+    sourceViewHighlightSelected(sourceView: View, annotation: Node): this {
+        let itemView = new LdItemView({ model: annotation, ontology: this.explorerView.ontology });
+        this.explorerView.push(itemView);
+        return this;
     }
 
-    sourceViewEnlarge(node: Node): void {
-        // let ldiView = new LdItemView({ model: mockLdItem });
-        // this.explorerView.push(ldiView);
+    sourceViewHighlightUnselected(sourceView: View, annotation: Node): this {
+        this.explorerView.popUntil(sourceView);
+        this.sourceViewShowAnnotations(sourceView);
+        return this;
     }
 
-    sourceViewShowAnnotations(graph: Graph): void {
-        // This is just here as an example on how to add a second panel
-        // on an event triggered by the explorer's 'first' panel.
-        // The trick is the defer() in the event hash above
+    sourceViewShowMetadata(sourceView: View, node: Node): this {
+        this.explorerView.popUntil(sourceView);
+        alert('sorry, not implemented yet...');
+        return this;
     }
 
-    /**
-     * Fake method for testing purposes
-     * @param buttonClicked
-     */
-    ldItemViewFakeButtonClicked() {
-        // let ldiView = new LdItemView({ model: mockLdItem });
-        // this.explorerView.push(ldiView);
-        // let sourceView = new SourceView({ annotations: getMockAnnotationsGraph(), inFullViewportMode: false });
-        // this.explorerView.push(sourceView);
+    sourceViewHideMetadata(sourceView: View): this {
+        // this.explorerView.popUntil(sourceView);
+        return this;
     }
 
+    sourceViewEnlarge(sourceView: View): this {
+        this.explorerView.popUntil(sourceView);
+        alert('sorry, not implemented yet...');
+        return this;
+    }
+
+    sourceViewShrink(sourceView: View): this {
+        return this;
+    }
+
+    sourceViewShowAnnotations(sourceView: View): this {
+        this.explorerView.popUntil(sourceView);
+        let annotationsView = new AnnotationsView({
+            collection: sourceView.collection as Graph, ontology: this.explorerView.ontology
+        });
+        this.explorerView.push(annotationsView);
+        return this;
+    }
+
+    sourceViewHideAnnotations(sourceView): this {
+        this.explorerView.popUntil(sourceView);
+        return this;
+    }
 }

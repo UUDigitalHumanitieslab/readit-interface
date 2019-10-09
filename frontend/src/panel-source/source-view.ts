@@ -117,7 +117,8 @@ export default class SourceView extends View<Node> {
     bindToEvents(htv: HighlightableTextView): HighlightableTextView {
         this.htv.on('hover', this.onHover, this);
         this.htv.on('hoverEnd', this.onHoverEnd, this);
-        this.htv.on('click', this.onClick, this);
+        this.htv.on('highlightSelected', this.onHighlightSelected, this);
+        this.htv.on('highlightUnselected', this.onHighlightUnselected, this);
         this.htv.on('scroll', this.onScroll, this);
         return htv;
     }
@@ -139,8 +140,15 @@ export default class SourceView extends View<Node> {
     /**
      * Pass events from HighlightableTextView
      */
-    onClick(node: Node): void {
-        this.trigger('click', node);
+    onHighlightSelected(node: Node): void {
+        this.trigger('sourceview:highlightSelected', this, node);
+    }
+
+    /**
+     * Pass events from HighlightableTextView
+     */
+    onHighlightUnselected(node: Node): void {
+        this.trigger('sourceview:highlightUnselected', this, node);
     }
 
     /**
@@ -156,9 +164,11 @@ export default class SourceView extends View<Node> {
     toggleHighlights(): this {
         if (this.isShowingHighlights) {
             this.hideHighlights();
+            this.trigger('sourceview:hideAnnotations', this);
         }
         else {
             this.showHighlights();
+            this.trigger('sourceview:showAnnotations', this);
         }
         this.toggleToolbarItemSelected('annotations');
         this.isShowingHighlights = !this.isShowingHighlights;
@@ -172,7 +182,6 @@ export default class SourceView extends View<Node> {
 
     showHighlights(): this {
         this.htv.showAll();
-        this.trigger('showAnnotations', this.collection);
         return this;
     }
 
@@ -183,18 +192,21 @@ export default class SourceView extends View<Node> {
 
     toggleMetadata(): this {
         if (this.isShowingMetadata) {
-            this.trigger('hideMetadata', this.model);
+            this.trigger('sourceview:hideMetadata', this, this.model);
         } else {
-            this.trigger('showMetadata', this.model);
+            this.trigger('sourceview:showMetadata', this, this.model);
         }
+        this.isShowingMetadata = !this.isShowingMetadata;
         this.toggleToolbarItemSelected('metadata');
+
         return this;
     }
 
     toggleViewMode(): this {
         // TODO: update when full screen modal is implemented
-        if (this.isInFullScreenViewMode) this.trigger('shrink', this);
-        else this.trigger('enlarge', this);
+        if (this.isInFullScreenViewMode) this.trigger('sourceView:shrink', this);
+        else this.trigger('sourceView:enlarge', this);
+        this.isInFullScreenViewMode = !this.isInFullScreenViewMode;
         this.toggleToolbarItemSelected('viewmode');
         return this;
     }
