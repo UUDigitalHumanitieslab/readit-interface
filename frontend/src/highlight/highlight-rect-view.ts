@@ -67,6 +67,18 @@ export default class HighlightRectView extends View {
         return this;
     }
 
+    select(): this {
+        if (this.$el.width() !== 0) {
+            this.$el.addClass('is-selected');
+        }
+        return this;
+    }
+
+    unSelect(): this {
+        this.$el.removeClass('is-selected');
+        return this;
+    }
+
     onHover(): this {
         this.trigger('hover');
         return this;

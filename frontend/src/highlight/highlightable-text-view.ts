@@ -80,6 +80,8 @@ export default class HighlightableTextView extends View {
 
     isInDOM: boolean;
 
+    selectedHighlight: HighlightView;
+
     constructor(options?: ViewOptions) {
         super(options);
         if (options.initialScrollTo) {
@@ -395,8 +397,20 @@ export default class HighlightableTextView extends View {
         this.trigger('selected', range);
     }
 
-    onClicked(node: Node): this {
-        this.trigger('clicked', node);
+    onClicked(hV: HighlightView, node: Node): this {
+        let isNew = true;
+        if (this.selectedHighlight) {
+            isNew = this.selectedHighlight.cid !== hV.cid;
+            this.selectedHighlight.unSelect();
+            this.selectedHighlight = undefined;
+            this.trigger('highlightUnselected', node);
+        }
+
+        if (isNew) {
+            hV.select();
+            this.selectedHighlight = hV;
+            this.trigger('highlightSelected', node);
+        }
         return this;
     }
 

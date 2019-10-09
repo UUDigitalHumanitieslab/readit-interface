@@ -102,6 +102,16 @@ export default class HighlightView extends View<Node> {
         return this;
     }
 
+    select(): this {
+        this.rectViews.forEach(v => v.select());
+        return this;
+    }
+
+    unSelect(): this {
+        this.rectViews.forEach(v => v.unSelect());
+        return this;
+    }
+
     getTop(): number {
         return minBy(this.rectViews, (hrv) => { return hrv.$el.offset().top }).$el.offset().top;
     }
@@ -137,7 +147,7 @@ export default class HighlightView extends View<Node> {
     }
 
     onClick(rect: ClientRect | DOMRect) {
-        this.trigger('clicked', this.model);
+        this.trigger('click', this, this.model);
     }
 }
 extend(HighlightView.prototype, {
