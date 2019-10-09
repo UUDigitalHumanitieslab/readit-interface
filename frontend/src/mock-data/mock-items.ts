@@ -72,11 +72,8 @@ export const anno1ContentInstance = {
             '@value': "2085-12-31T04:33:16+0100"
         }
     ],
-    [dcterms.title]: [
-        { '@value': 'Pretty Little Title' }
-    ],
     [skos.prefLabel]: [
-        { '@value': 'This is the title of the instance, say Jane Eyre' },
+        { '@value': 'The Idler in France' },
     ],
 };
 
@@ -142,7 +139,7 @@ export const anno1StartSelector = {
     "@type": [oa.XPathSelector],
     [rdf.value]: [
         {
-            '@value': 'substring(.//*[0]/text(), 5)'
+            '@value': 'substring(.//*[3]/text(), 15)'
         }
     ],
     [dcterms.created]: [
@@ -163,7 +160,7 @@ export const anno1EndSelector = {
     "@type": [oa.XPathSelector],
     [rdf.value]: [
         {
-            '@value': 'substring(.//*[3]/text(), 15)'
+            '@value': 'substring(.//*[3]/text(), 34)'
         }
     ],
     [dcterms.created]: [
@@ -185,31 +182,17 @@ export const anno1TextQuoteSelector = {
     "@type": [oa.TextQuoteSelector],
     [oa.prefix]: [
         {
-            '@value': `English descriptions of reading experiences
-            <br><br>
-            id_19
-            Titre : The Idler in France / by the countess of Blessington Auteur: `
+            '@value': `English descriptions of reading experiences <br><br> id_19 Titre : `
         }
     ],
     [oa.exact]: [
         {
-            "@value": `Blessington, Margaret Gardiner. Date d'édition : 1841. Droits : do-
-            maine public. Provenance : Bibliothèque nationale de France.
-            <br><br>
-            id_19_a, p 40
-            I remember reading years ago of the melancholy physiognomy of King
-            Charles I, which when seen in his portrait by a Florentine sculptor, to
-            whom it was sent in order that a bust should be made from it, drew forth
-            the observation that the countenance indicated that its owner would come
-            to a violent death.
-            I was reminded of this anecdote by the face`
+            "@value": `The Idler in France`
         }
     ],
     [oa.suffix]: [
         {
-            "@value": ` of the Duchesse d'Angoulême;
-            for though I do not pretend to a prescience as to her future fate, I cannot
-            help arguing`
+            "@value": ` / by the countess of Blessington Auteur : Blessington,`
         }
     ],
 }
@@ -223,7 +206,7 @@ export const anno2Instance = {
     "@type": [oa.Annotation],
     [oa.hasBody]: [
         {
-            "@id": readit('Medium')
+            "@id": readit('Reader')
         },
         {
             "@id": item('201')
@@ -255,9 +238,9 @@ export const anno2Instance = {
     ]
 };
 
-export const anno2MediumInstance = {
+export const anno2ReaderInstance = {
     '@id': item('201'),
-    "@type": [readit('Medium')],
+    "@type": [readit('Reader')],
     [owl.sameAs]: [
         { '@id': "http://www.wikidata.org/entity/Q331656" }
     ],
@@ -271,7 +254,7 @@ export const anno2MediumInstance = {
         }
     ],
     [skos.prefLabel]: [
-        { '@value': 'Book' },
+        { '@value': 'Blessington, Margaret' },
     ],
 };
 
@@ -335,7 +318,7 @@ export const anno2StartSelector = {
     "@type": [oa.XPathSelector],
     [rdf.value]: [
         {
-            '@value': 'substring(.//*[6]/text(), 80)'
+            '@value': 'substring(.//*[3]/text(), 77)'
         }
     ],
     [dcterms.created]: [
@@ -356,7 +339,7 @@ export const anno2EndSelector = {
     "@type": [oa.XPathSelector],
     [rdf.value]: [
         {
-            '@value': 'substring(.//*[6]/text(), 97)'
+            '@value': 'substring(.//*[3]/text(), 98)'
         }
     ],
     [dcterms.created]: [
@@ -377,22 +360,17 @@ export const anno2TextQuoteSelector = {
     "@type": [oa.TextQuoteSelector],
     [oa.prefix]: [
         {
-            '@value': `English descriptions of reading experiences
-            <br><br>
-            id_19
-            Titre : The Idler in France / by the countess of Blessington Auteur: `
+            '@value': `by the countess of Blessington Auteur: `
         }
     ],
     [oa.exact]: [
         {
-            "@value": `Blessington, Margaret Gardiner. Date d'édition : 1841. Droits : do-
-            maine public. Provenance : Bibliothèque nationale de France.`
+            "@value": `Blessington, Margaret`
         }
     ],
     [oa.suffix]: [
         {
-            "@value": ` to a prescience as to her future fate, I cannot
-            help arguing`
+            "@value": ` Gardiner. Date d'édition : 1841. Droits`
         }
     ],
 }
@@ -466,11 +444,11 @@ export const anno3ReaderInstance = {
         }
     ],
     [skos.prefLabel]: [
-        { '@value': 'Alex Hebing' },
+        { '@value': 'Blessington, Margaret Gardiner' },
     ],
 };
 
-export const anno3PersonInstance = {
+export const BlessingtonPersonInstance = {
     '@id': item('600'),
     "@type": [readit('Person')],
     [dcterms.creator]: [
@@ -484,7 +462,7 @@ export const anno3PersonInstance = {
     ],
     [readit('name')]: [
         {
-            "@value": "Henry Williams"
+            "@value": "Margaret Gardiner Blessington"
         }
     ],
     [schema.birthPlace]: [
@@ -578,7 +556,7 @@ export const anno3StartSelector = {
     "@type": [oa.XPathSelector],
     [rdf.value]: [
         {
-            '@value': 'substring(.//*[3]/text(), 70)'
+            '@value': 'substring(.//*[3]/text(), 77)'
         }
     ],
     [dcterms.created]: [
@@ -599,7 +577,7 @@ export const anno3EndSelector = {
     "@type": [oa.XPathSelector],
     [rdf.value]: [
         {
-            '@value': 'substring(.//*[3]/text(), 150)'
+            '@value': 'substring(.//*[3]/text(), 107)'
         }
     ],
     [dcterms.created]: [
@@ -620,32 +598,30 @@ export const anno3TextQuoteSelector = {
     "@type": [oa.TextQuoteSelector],
     [oa.prefix]: [
         {
-            '@value': `Blessington Auteur: `
+            '@value': `by the countess of Blessington Auteur: `
         }
     ],
     [oa.exact]: [
         {
-            "@value": `Provenance : Bibliothèque nationale de France.`
+            "@value": `Blessington, Margaret Gardiner`
         }
     ],
     [oa.suffix]: [
         {
-            "@value": ` to a prescience as to her future fate, I cannot
-            help arguing`
+            "@value": `. Date d'édition : 1841. Droits : do- maine`
         }
     ],
 }
 
-// First overlapping anno
 export const anno4Instance = {
     "@id": item('103'),
     "@type": [oa.Annotation],
     [oa.hasBody]: [
         {
-            "@id": readit('Content')
+            "@id": readit('Reader')
         },
         {
-            "@id": item('201')
+            "@id": item('203')
         }
     ],
     [dcterms.created]: [
@@ -674,14 +650,19 @@ export const anno4Instance = {
     ]
 };
 
-export const anno4ContentInstance = {
-    '@id': item('201'),
-    "@type": [readit('Content')],
+export const anno4ReaderInstance = {
+    '@id': item('203'),
+    "@type": [readit('Reader')],
     [owl.sameAs]: [
         { '@id': "http://www.wikidata.org/entity/Q331656" }
     ],
     [dcterms.creator]: [
         { '@id': staff('JdeKruif') },
+    ],
+    [readit('descriptionOf')]: [
+        {
+            "@id": item('600')
+        },
     ],
     [dcterms.created]: [
         {
@@ -690,7 +671,7 @@ export const anno4ContentInstance = {
         }
     ],
     [dcterms.title]: [
-        { '@value': 'Pretty Little Title' }
+        { '@value': 'I' }
     ],
 };
 
@@ -711,6 +692,9 @@ export const anno4SpecificResource = {
     [oa.hasSelector]: [
         {
             "@id": item('403')
+        },
+        {
+            "@id": item('703')
         }
     ],
     [oa.hasSource]: [
@@ -751,7 +735,7 @@ export const anno4StartSelector = {
     "@type": [oa.XPathSelector],
     [rdf.value]: [
         {
-            '@value': 'substring(.//*[3]/text(), 20)'
+            '@value': 'substring(.//*[6]/text(), 15)'
         }
     ],
     [dcterms.created]: [
@@ -772,7 +756,7 @@ export const anno4EndSelector = {
     "@type": [oa.XPathSelector],
     [rdf.value]: [
         {
-            '@value': 'substring(.//*[3]/text(), 75)'
+            '@value': 'substring(.//*[6]/text(), 16)'
         }
     ],
     [dcterms.created]: [
@@ -788,7 +772,25 @@ export const anno4EndSelector = {
     ]
 }
 
-
+export const anno4TextQuoteSelector = {
+    "@id": item('703'),
+    "@type": [oa.TextQuoteSelector],
+    [oa.prefix]: [
+        {
+            '@value': `nationale de France. id_19_a, p 40 `
+        }
+    ],
+    [oa.exact]: [
+        {
+            "@value": `I`
+        }
+    ],
+    [oa.suffix]: [
+        {
+            "@value": ` remember reading years ago of the melancholy physiognomy`
+        }
+    ],
+}
 
 // annotation 5.
 export const anno5Instance = {
@@ -799,7 +801,7 @@ export const anno5Instance = {
             "@id": readit('Medium')
         },
         {
-            "@id": item('203')
+            "@id": item('204')
         }
     ],
     [dcterms.created]: [
@@ -829,7 +831,7 @@ export const anno5Instance = {
 };
 
 export const anno5MediumInstance = {
-    '@id': item('203'),
+    '@id': item('204'),
     "@type": [readit('Medium')],
     [owl.sameAs]: [
         { '@id': "http://www.wikidata.org/entity/Q331656" }
@@ -844,7 +846,7 @@ export const anno5MediumInstance = {
         }
     ],
     [dcterms.title]: [
-        { '@value': 'Pretty Little Title' }
+        { '@value': `the face of the Duchesse d'Angoulême` }
     ],
 };
 
@@ -865,6 +867,9 @@ export const anno5SpecificResource = {
     [oa.hasSelector]: [
         {
             "@id": item('404')
+        },
+        {
+            "@id": item('704')
         }
     ],
     [oa.hasSource]: [
@@ -905,7 +910,7 @@ export const anno5StartSelector = {
     "@type": [oa.XPathSelector],
     [rdf.value]: [
         {
-            '@value': 'substring(.//*[3]/text(), 45)'
+            '@value': 'substring(.//*[6]/text(), 355)'
         }
     ],
     [dcterms.created]: [
@@ -926,7 +931,7 @@ export const anno5EndSelector = {
     "@type": [oa.XPathSelector],
     [rdf.value]: [
         {
-            '@value': 'substring(.//*[6]/text(), 345)'
+            '@value': 'substring(.//*[6]/text(), 391)'
         }
     ],
     [dcterms.created]: [
@@ -942,6 +947,27 @@ export const anno5EndSelector = {
     ],
 }
 
+export const anno5TextQuoteSelector = {
+    "@id": item('704'),
+    "@type": [oa.TextQuoteSelector],
+    [oa.prefix]: [
+        {
+            '@value': `was reminded of this anecdote by `
+        }
+    ],
+    [oa.exact]: [
+        {
+            "@value": `the face of the Duchesse d'Angoulême`
+        }
+    ],
+    [oa.suffix]: [
+        {
+            "@value": `;for though I do not pretend to`
+        }
+    ],
+}
+
+
 
 export default [
     anno1Instance,
@@ -952,7 +978,7 @@ export default [
     anno1EndSelector,
     anno1TextQuoteSelector,
     anno2Instance,
-    anno2MediumInstance,
+    anno2ReaderInstance,
     anno2SpecificResource,
     anno2RangeSelector,
     anno2StartSelector,
@@ -960,23 +986,25 @@ export default [
     anno2TextQuoteSelector,
     anno3Instance,
     anno3ReaderInstance,
-    anno3PersonInstance,
     anno3Person2Instance,
     anno3SpecificResource,
     anno3RangeSelector,
     anno3StartSelector,
     anno3EndSelector,
     anno3TextQuoteSelector,
+    BlessingtonPersonInstance,
     anno4Instance,
-    anno4ContentInstance,
+    anno4ReaderInstance,
     anno4SpecificResource,
     anno4RangeSelector,
     anno4StartSelector,
     anno4EndSelector,
+    anno4TextQuoteSelector,
     anno5Instance,
     anno5MediumInstance,
     anno5SpecificResource,
     anno5RangeSelector,
     anno5StartSelector,
     anno5EndSelector,
+    anno5TextQuoteSelector
 ];
