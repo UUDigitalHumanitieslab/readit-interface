@@ -85,7 +85,7 @@ export default class OverlappingHighlightsView extends View {
     }
 
     bindEvents(hV: HighlightView) {
-        hV.on('clicked', this.onClick, this);
+        hV.on('click', this.onClick, this);
         hV.on('hover', this.onHover, this);
         hV.on('hoverEnd', this.onHoverEnd, this);
     }
@@ -99,7 +99,7 @@ export default class OverlappingHighlightsView extends View {
     }
 
     onClick(rect: ClientRect | DOMRect) {
-        this.trigger('clicked', this.overlappingHVs, this);
+        this.trigger('click', this.overlappingHVs, this);
     }
 }
 extend(OverlappingHighlightsView.prototype, {

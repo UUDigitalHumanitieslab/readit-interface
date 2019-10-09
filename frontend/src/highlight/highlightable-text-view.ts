@@ -154,7 +154,7 @@ export default class HighlightableTextView extends View {
                 highlights: overlap.highlightViews
             });
 
-            ohv.on('clicked', this.onOverlapClicked, this);
+            ohv.on('click', this.onOverlapClicked, this);
             this.overlaps.push(ohv);
         });
     }
@@ -348,7 +348,7 @@ export default class HighlightableTextView extends View {
         hV.on('hover', this.onHover, this);
         hV.on('hoverEnd', this.onHoverEnd, this);
         hV.on('delete', this.deleteNode, this);
-        hV.on('clicked', this.onClicked, this);
+        hV.on('click', this.onClicked, this);
         return this;
     }
 
@@ -368,7 +368,7 @@ export default class HighlightableTextView extends View {
     }
 
     onOverlapDetailClicked(hV: HighlightView) {
-        this.onClicked(hV.model);
+        this.onClicked(hV, hV.model);
     }
 
     onCloseOverlapDetail(): this {
@@ -420,7 +420,7 @@ export default class HighlightableTextView extends View {
      */
     onScroll(): void {
         let scrollableEl = this.$el;
-        let scrollableVisibleMiddle = scrollableEl.offset().top + (scrollableEl.height() / 2 );
+        let scrollableVisibleMiddle = scrollableEl.offset().top + (scrollableEl.height() / 2);
         let resultAnnotation = undefined;
         let visibleHighlights = this.getVisibleHighlightViews();
 
@@ -447,7 +447,7 @@ export default class HighlightableTextView extends View {
         let scrollableTop = scrollableEl.offset().top;
         let scrollableBottom = scrollableTop + scrollableEl.height();
 
-        let visibleHighlights = this.hVs.filter( (hV) => {
+        let visibleHighlights = this.hVs.filter((hV) => {
             let top = hV.getTop();
             let bottom = top + hV.getHeight();
             return bottom > scrollableTop && top < scrollableBottom;
