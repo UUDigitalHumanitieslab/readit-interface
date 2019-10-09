@@ -17,7 +17,7 @@ export interface ViewOptions extends BaseOpt<Node> {
     collection: Graph;
 }
 
-export default class AnnotationsView extends View<Node> {
+export default class AnnotationListView extends View<Node> {
     ontology: Graph;
     summaryBlocks: ItemSummaryBlockView[];
 
@@ -76,7 +76,7 @@ export default class AnnotationsView extends View<Node> {
     render(): this {
         if (this.summaryBlocks) {
             this.summaryBlocks.forEach(sb => {
-                sb.$el.remove();
+                sb.$el.detach();
             });
         }
         this.$el.html(this.template(this));
@@ -121,7 +121,7 @@ export default class AnnotationsView extends View<Node> {
         return this;
     }
 }
-extend(AnnotationsView.prototype, {
+extend(AnnotationListView.prototype, {
     tagName: 'div',
     className: 'annotations-panel explorer-panel',
     template: annotationsTemplate,
