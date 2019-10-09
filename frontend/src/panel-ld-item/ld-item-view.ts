@@ -20,13 +20,11 @@ import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 
 export interface ViewOptions extends BaseOpt<Node> {
     ontology: Graph;
-    staff: Graph;
 }
 
 export default class LdItemView extends View<Node> {
     lblView: LabelView;
     ontology: Graph;
-    staff: Graph;
 
     /**
      * The item displayed by the current view.
@@ -55,10 +53,8 @@ export default class LdItemView extends View<Node> {
 
     initialize(options: ViewOptions): this {
         if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
-        if (!options.staff) throw new TypeError('staff cannot be null or undefined');
 
         this.ontology = options.ontology;
-        this.staff = options.staff;
         this.modelIsAnnotation = isType(this.model, oa.Annotation);
         this.currentItem = this.model;
         this.properties = new Object();
