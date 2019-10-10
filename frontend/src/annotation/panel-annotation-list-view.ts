@@ -103,6 +103,7 @@ export default class AnnotationListView extends View<Node> {
 
     onEditClicked(): this {
         this.trigger('edit', this.collection);
+        alert('sorry, not implemented yet...');
         return this;
     }
 
@@ -112,12 +113,19 @@ export default class AnnotationListView extends View<Node> {
     }
 
     onSummaryBlockClicked(summaryBlock: ItemSummaryBlockView, annotation: Node): this {
-        if (this.currentlyHighlighted && summaryBlock !== this.currentlyHighlighted) {
+        if (this.currentlyHighlighted) {
             this.currentlyHighlighted.toggleHighlight();
+            this.trigger('annotation-listview:annoUnselected', annotation);
+
+            if (summaryBlock === this.currentlyHighlighted) {
+                this.currentlyHighlighted = undefined;
+                return;
+            }
         }
+
         this.currentlyHighlighted = summaryBlock;
         summaryBlock.toggleHighlight();
-        this.trigger('click', annotation);
+        this.trigger('annotation-listview:annoSelected', annotation);
         return this;
     }
 }
