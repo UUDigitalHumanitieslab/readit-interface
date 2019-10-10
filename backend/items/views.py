@@ -49,7 +49,7 @@ def error_response(request, status, message):
     return Response(data, status=status)
 
 
-class ItemsEndpoint(RDFView):
+class ItemsAPIRoot(RDFView):
     """ By default, list an empty graph. """
     def get_graph(self, request):
         return Graph()

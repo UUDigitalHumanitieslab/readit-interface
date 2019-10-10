@@ -2,8 +2,8 @@ from django.urls import path
 
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from .views import ItemsEndpoint
+from .views import ItemsAPIRoot
 
 urlpatterns = format_suffix_patterns([
-    path('', ItemsEndpoint.as_view()),
+    path('', ItemsAPIRoot.as_view()),
 ])
