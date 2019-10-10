@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from rdflib import Graph, URIRef, BNode, Literal
 
@@ -13,6 +13,7 @@ from .graph import graph
 from .models import ItemCounter
 
 MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank node.'
+DOES_NOT_EXIST_404 = 'Resource does not exist.'
 DEFAULT_NS = {
     'vocab': vocab,
     'staff': staff,
@@ -21,6 +22,7 @@ DEFAULT_NS = {
 }
 HTTPSC_MAP = {
     HTTP_400_BAD_REQUEST: HTTPSC.BadRequest,
+    HTTP_404_NOT_FOUND: HTTPSC.NotFound,
 }
 
 
@@ -70,3 +72,22 @@ class ItemsAPIRoot(RDFView):
             result.add(triple)
             graph.add(triple)
         return Response(result)
+
+
+class ItemsAPISingular(RDFView):
+    """ API endpoint for fetching and changing individual subjects. """
+
+    def get(self, request, serial, format=None, **kwargs):
+        data = self.get_graph(request, serial)
+        if len(data) == 0:
+            return error_response(request, HTTP_404_NOT_FOUND, DOES_NOT_EXIST_404)
+        return Response(data)
+
+    def get_graph(self, request, serial, **kwargs):
+        # warning: query params will cause an uncaught exception.
+        identifier = my[str(serial)]
+        result = Graph()
+        for triple in graph.triples((identifier, None, None)):
+            result.add(triple)
+        # TODO: also include related nodes
+        return result
