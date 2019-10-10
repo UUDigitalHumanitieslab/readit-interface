@@ -54,7 +54,22 @@ def error_response(request, status, message):
 class ItemsAPIRoot(RDFView):
     """ By default, list an empty graph. """
     def get_graph(self, request):
-        return Graph()
+        result = Graph()
+        params = request.query_params
+        if not params:
+            return result
+        p = params.get('p')
+        p = p and URIRef(p)
+        o = params.get('o')
+        if o:
+            o = URIRef(o)
+        else:
+            o = params.get('o_literal')
+            o = o and Literal(o)
+        for s in graph.subjects(p, o):
+            for pred, obj in graph.predicate_objects(s):
+                result.add((s, pred, obj))
+        return result
 
     def post(self, request, format=None):
         data = graph_from_request(request)
