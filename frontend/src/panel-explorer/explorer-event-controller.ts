@@ -3,10 +3,10 @@ import { defer } from 'lodash';
 import Node from './../jsonld/node';
 
 import ExplorerView from './explorer-view';
-import SourceView from '../panel-source/source-view';
 import LdItemView from '../panel-ld-item/ld-item-view';
 import Graph from '../jsonld/graph';
-import AnnotationsView from '../annotation/panel-annotation-list-view';
+import SourceView from './../panel-source/source-view';
+import AnnotationListView from '../annotation/panel-annotation-list-view';
 
 
 import HighlightView from '../highlight/highlight-view';
@@ -16,6 +16,8 @@ export default class ExplorerEventController {
      * The explorer view instance to manage events for
      */
     explorerView: ExplorerView;
+
+    mapSourceAnnotationList: Map<SourceView, AnnotationListView> = new Map();
 
     constructor(explorerView: ExplorerView) {
         this.explorerView = explorerView;
@@ -36,19 +38,38 @@ export default class ExplorerEventController {
             'sourceview:showAnnotations': (graph) => defer(this.sourceViewShowAnnotations.bind(this), graph),
             'sourceview:hideAnnotations': this.sourceViewHideAnnotations,
             'sourceView:enlarge': this.sourceViewEnlarge,
-            'sourceView:shrink': this.sourceViewShrink
+            'sourceView:shrink': this.sourceViewShrink,
+            'annotation-listview:blockClicked': this.annotationListBlockClicked,
         }, this);
     }
 
-    sourceViewHighlightSelected(sourceView: View, annotation: Node): this {
-        let itemView = new LdItemView({ model: annotation, ontology: this.explorerView.ontology });
-        this.explorerView.push(itemView);
+    annotationListBlockClicked(annotationList: AnnotationListView, annotation: Node): this {
+        // The idea here is that the source view is in full control over which highlight is selected
+        // The AnnotationListView simply passes each click on a summary block to the source view,
+        // which then does what it always does (i.e. also highlight the relevant block in the list view)
+        // In other words: the AnnotationListView doesn't throw any other events than click and doesn't select
+        // anything itself.
+        let sourceView : SourceView;
+        this.mapSourceAnnotationList.forEach((value, key) => {
+            if (value.cid === annotationList.cid) sourceView = key;
+        });
+        sourceView.scrollTo(annotation);
         return this;
     }
 
-    sourceViewHighlightUnselected(sourceView: View, annotation: Node): this {
-        this.explorerView.popUntil(sourceView);
-        this.sourceViewShowAnnotations(sourceView);
+    sourceViewHighlightSelected(sourceView: SourceView, annotation: Node): this {
+        let itemView = new LdItemView({ model: annotation, ontology: this.explorerView.ontology });
+        this.explorerView.push(itemView);
+
+        let annoListView = this.mapSourceAnnotationList.get(sourceView);
+        annoListView.scrollTo(annotation);
+        return this;
+    }
+
+    sourceViewHighlightUnselected(sourceView: SourceView, annotation: Node): this {
+        let annoListView = this.mapSourceAnnotationList.get(sourceView);
+        this.explorerView.popUntil(annoListView);
+        annoListView.unSelectAnno(annotation);
         return this;
     }
 
@@ -73,16 +94,23 @@ export default class ExplorerEventController {
         return this;
     }
 
-    sourceViewShowAnnotations(sourceView: View): this {
-        this.explorerView.popUntil(sourceView);
-        let annotationsView = new AnnotationsView({
-            collection: sourceView.collection as Graph, ontology: this.explorerView.ontology
-        });
-        this.explorerView.push(annotationsView);
+    sourceViewShowAnnotations(sourceView: SourceView): this {
+        if (this.explorerView.stacks.length >= 2 && this.mapSourceAnnotationList.has(sourceView)) {
+            this.explorerView.popUntil(this.mapSourceAnnotationList.get(sourceView));
+        }
+        else {
+            let annotationsView = new AnnotationListView({
+                collection: sourceView.collection as Graph, ontology: this.explorerView.ontology
+            });
+
+            this.mapSourceAnnotationList.set(sourceView, annotationsView);
+            this.explorerView.push(annotationsView);
+        }
         return this;
     }
 
     sourceViewHideAnnotations(sourceView): this {
+        this.mapSourceAnnotationList.delete(sourceView);
         this.explorerView.popUntil(sourceView);
         return this;
     }

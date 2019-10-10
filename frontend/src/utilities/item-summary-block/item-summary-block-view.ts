@@ -65,6 +65,16 @@ export default class ItemSummaryBlockView extends View<Node> {
         return this;
     }
 
+    select(): this {
+        this.$el.addClass('is-highlighted');
+        return this;
+    }
+
+    unSelect(): this {
+        this.$el.removeClass('is-highlighted');
+        return this;
+    }
+
     toggleHighlight(): this {
         this.$el.toggleClass('is-highlighted');
         return this;

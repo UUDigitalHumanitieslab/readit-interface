@@ -91,13 +91,28 @@ export default class AnnotationListView extends View<Node> {
 
     scrollTo(annotation: Node): this {
         if (!annotation) return this;
-        let scrollToBlock = this.summaryBlocks.find(sb => sb.model === annotation);
+        let scrollToBlock = this.getSummaryBlock(annotation);
 
         if (scrollToBlock) {
             let scrollableEl = this.$('.summary-list');
             let scrollTop = getScrollTop(scrollableEl, scrollToBlock.getTop(), scrollToBlock.getHeight());
+            this.selectAnno(annotation);
             scrollableEl.animate({ scrollTop: scrollTop }, 800);
         }
+        return this;
+    }
+
+    getSummaryBlock(annotation: Node): ItemSummaryBlockView {
+        return this.summaryBlocks.find(sb => sb.model === annotation);
+    }
+
+    selectAnno(annotation: Node): this {
+        this.getSummaryBlock(annotation).select();
+        return this;
+    }
+
+    unSelectAnno(annotation: Node): this {
+        this.getSummaryBlock(annotation).unSelect();
         return this;
     }
 
@@ -113,19 +128,7 @@ export default class AnnotationListView extends View<Node> {
     }
 
     onSummaryBlockClicked(summaryBlock: ItemSummaryBlockView, annotation: Node): this {
-        if (this.currentlyHighlighted) {
-            this.currentlyHighlighted.toggleHighlight();
-            this.trigger('annotation-listview:annoUnselected', annotation);
-
-            if (summaryBlock === this.currentlyHighlighted) {
-                this.currentlyHighlighted = undefined;
-                return;
-            }
-        }
-
-        this.currentlyHighlighted = summaryBlock;
-        summaryBlock.toggleHighlight();
-        this.trigger('annotation-listview:annoSelected', annotation);
+        this.trigger('annotation-listview:blockClicked', this, annotation);
         return this;
     }
 }

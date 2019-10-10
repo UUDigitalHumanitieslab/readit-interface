@@ -315,13 +315,18 @@ export default class HighlightableTextView extends View {
      */
     private scroll(scrollToNode: Node): this {
         if (!scrollToNode) return this;
-        let scrollToHv = this.hVs.find(hV => hV.model === scrollToNode);
+        let scrollToHv = this.getHighlightView(scrollToNode);
         if (scrollToHv) {
             let scrollableEl = this.$el;
             let scrollTop = getScrollTop(scrollableEl, scrollToHv.getTop(), scrollToHv.getHeight());
+            this.processSelection(scrollToHv, scrollToNode);
             scrollableEl.animate({ scrollTop: scrollTop }, 800);
         }
         return this;
+    }
+
+    private getHighlightView(annotation: Node): HighlightView {
+        return this.hVs.find(hV => hV.model === annotation);
     }
 
     /**
@@ -350,6 +355,35 @@ export default class HighlightableTextView extends View {
         hV.on('hoverEnd', this.onHoverEnd, this);
         hV.on('delete', this.deleteNode, this);
         hV.on('click', this.onClicked, this);
+        return this;
+    }
+
+    processSelection(hV: HighlightView, annotation: Node): this {
+        let isNew = true;
+
+        if (this.selectedHighlight) {
+            isNew = this.selectedHighlight.cid !== hV.cid;
+            this.unSelect(this.selectedHighlight, this.selectedHighlight.model);
+            this.selectedHighlight = undefined;
+        }
+
+        if (isNew) {
+            this.select(hV, annotation);
+        }
+
+        return this;
+    }
+
+    select(hV: HighlightView, annotation: Node): this {
+        hV.select();
+        this.selectedHighlight = hV;
+        this.trigger('highlightSelected', annotation);
+        return this;
+    }
+
+    unSelect(hV: HighlightView, annotation: Node): this {
+        hV.unSelect();
+        this.trigger('highlightUnselected', annotation);
         return this;
     }
 
@@ -399,19 +433,7 @@ export default class HighlightableTextView extends View {
     }
 
     onClicked(hV: HighlightView, node: Node): this {
-        let isNew = true;
-        if (this.selectedHighlight) {
-            isNew = this.selectedHighlight.cid !== hV.cid;
-            this.selectedHighlight.unSelect();
-            this.selectedHighlight = undefined;
-            this.trigger('highlightUnselected', node);
-        }
-
-        if (isNew) {
-            hV.select();
-            this.selectedHighlight = hV;
-            this.trigger('highlightSelected', node);
-        }
+        this.processSelection(hV, node);
         return this;
     }
 
