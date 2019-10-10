@@ -7,9 +7,10 @@ import 'jasmine-ajax';
 // FakeXmlHttpRequest.
 // https://github.com/jasmine/jasmine-ajax/blob/efc1961b131aec836a9bcf14285f8c4f9f2eefb3/src/requestStub.js#L51
 
-import * as Backbone from 'backbone';
 import rdfParser from 'rdf-parse';
+import * as $ from 'jquery';
 
+import * as csrf from '../core/csrf';
 import syncLD, { transform, combineContext, getLinkHeader } from './sync';
 import expandedData from './../mock-data/mock-expanded';
 import compactData from './../mock-data/mock-compact';
@@ -74,17 +75,17 @@ describe('the jsonld/sync module', function() {
             syncLD('read', expandedGraph, {url: '/api/test'});
         });
 
-        it('sends the request through Backbone.sync', function(done) {
-            spyOn(Backbone, 'sync').and.callThrough();
+        it('sends the request through syncWithCSRF', function(done) {
+            spyOn(csrf, 'syncWithCSRF').and.callThrough();
             jasmine.Ajax.stubRequest('/api/test').andCallFunction(xhr => {
-                expect(Backbone.sync).toHaveBeenCalled();
+                expect(csrf.syncWithCSRF).toHaveBeenCalled();
                 done();
             });
             syncLD('create', expandedGraph, {url: '/api/test'});
         });
 
-        it('forwards the options to Backbone.sync', function(done) {
-            spyOn(Backbone, 'sync').and.callFake((method, model, options) => {
+        it('forwards the options to csrf.syncWithCSRF', function(done) {
+            spyOn(csrf, 'syncWithCSRF').and.callFake((method, model, options) => {
                 expect(options).toEqual(jasmine.objectContaining({
                     url: '/api/test',
                     arbitraryOption: 'bananas',
@@ -98,7 +99,7 @@ describe('the jsonld/sync module', function() {
         });
 
         it('omits success and error handlers when forwarding', function(done) {
-            spyOn(Backbone, 'sync').and.callFake((method, model, options) => {
+            spyOn(csrf, 'syncWithCSRF').and.callFake((method, model, options) => {
                 expect(options.success).not.toBeDefined();
                 expect(options.error).not.toBeDefined();
                 done();
@@ -172,7 +173,7 @@ describe('the jsonld/sync module', function() {
                 contentType: 'application/ld+json; charset=UTF-8',
                 responseText: '{}',
             });
-            const xhr = Backbone.$.get(testUrl);
+            const xhr = $.get(testUrl);
             await xhr;
             spyOn(rdfParser, 'parse').and.callThrough();
             await transform(xhr);

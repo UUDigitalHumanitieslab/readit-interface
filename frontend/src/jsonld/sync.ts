@@ -1,5 +1,4 @@
 import { isArray, omit, map, defaultsDeep, each } from 'lodash';
-import { sync as syncBase } from 'backbone';
 import { compact, flatten } from 'jsonld';
 import { parseLinkHeader } from 'jsonld/lib/util';
 import { LINK_HEADER_REL } from 'jsonld/lib/constants';
@@ -8,6 +7,7 @@ import rdfParser from 'rdf-parse';
 import * as Serializer from '@rdfjs/serializer-jsonld-ext';
 import * as streamify from 'streamify-string';
 
+import { syncWithCSRF } from '../core/csrf';
 import { JsonLdContext, FlatLdDocument } from './json';
 import Node from './node';
 import Graph from './graph';
@@ -59,7 +59,7 @@ export default async function syncLD(
             attrs = attrs || model.toJSON(options);
             options.attrs = await compact(attrs, context);
         }
-        jqXHR = syncBase(method, model, options);
+        jqXHR = syncWithCSRF(method, model, options);
         await jqXHR;
         const [flattened, newContext] = await transform(jqXHR);
         if (method !== 'delete') {
