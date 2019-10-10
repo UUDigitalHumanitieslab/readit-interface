@@ -8,6 +8,7 @@ import {
     unionWith,
     differenceWith,
     has,
+    result,
     isUndefined,
     isArray,
     isEqual,
@@ -25,7 +26,7 @@ import {
     toRDF,    // (jsonld, options?, callback?) => Promise<dataset>
     registerRDFParser,  // (contentType, parser) => void
 } from 'jsonld';
-import { ModelSetOptions } from 'backbone';
+import { ModelSetOptions, Model as BackboneModel } from 'backbone';
 
 import Model from '../core/model';
 
@@ -193,13 +194,15 @@ export default class Node extends Model {
     toJSON(options?: any): FlatLdObject {
         return mapValues(this.attributes, asLDArray) as FlatLdObject;
     }
-
-    // TODO: non-modifying compact and flatten methods
 }
 
 extend(Node.prototype, {
     idAttribute: '@id',
     sync,
+    url(): string {
+        if (this.id) return this.id;
+        return BackboneModel.prototype.url.call(this);
+    },
 });
 
 /**
