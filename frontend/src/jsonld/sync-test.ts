@@ -50,6 +50,15 @@ describe('the jsonld/sync module', function() {
             syncLD('create', expandedGraph, {url: '/api/test'});
         });
 
+        it('sends the data as JSON-LD', function(done) {
+            jasmine.Ajax.stubRequest('/api/test').andCallFunction(xhr => {
+                const contentTypeHeader = xhr.requestHeaders['Content-Type'];
+                expect(contentTypeHeader).toContain('application/ld+json');
+                done();
+            });
+            syncLD('create', expandedGraph, {url: '/api/test'});
+        });
+
         it('accepts many common RDF encodings', function(done) {
             jasmine.Ajax.stubRequest('/api/test').andCallFunction(xhr => {
                 const acceptHeader = xhr.requestHeaders.Accept;

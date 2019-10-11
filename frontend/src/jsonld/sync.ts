@@ -37,6 +37,7 @@ const defaultSyncOptions = (function() {
             headers: {
                 Accept: formatted.join(', '),
             },
+            contentType: 'application/ld+json',
             dataType: null, // default to jQuery's intelligent guess
         };
     }());
