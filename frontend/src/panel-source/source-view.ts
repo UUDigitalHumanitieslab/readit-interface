@@ -74,6 +74,9 @@ export default class SourceView extends View<Node> {
      */
     isInFullScreenViewMode: boolean;
 
+    htvIsInDOM: boolean;
+    DOMMutationObserver: MutationObserver;
+
     constructor(options?: ViewOptions) {
         super(options);
         this.validate();
@@ -91,6 +94,20 @@ export default class SourceView extends View<Node> {
             isEditable: this.isEditable
         });
         this.bindToEvents(this.htv);
+
+        const config = { attributes: true, childList: true, subtree: true };
+        this.DOMMutationObserver = new MutationObserver(this.onDOMMutation.bind(this));
+        this.DOMMutationObserver.observe(this.$el.get(0), config);
+    }
+
+    onDOMMutation(mutationsList, observer): this {
+        for (let mutation of mutationsList) {
+            if (mutation.type === 'childList' && $(mutation.target).hasClass('source-container')) {
+                this.htvIsInDOM = !this.htvIsInDOM;
+                this.htv.handleDOMMutation(this.htvIsInDOM);
+            }
+        }
+        return this;
     }
 
     validate() {
