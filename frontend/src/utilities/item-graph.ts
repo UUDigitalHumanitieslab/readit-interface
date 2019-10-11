@@ -6,9 +6,28 @@ import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
 import { isNode } from './types';
 
-export interface QueryParams {
-    predicate?: Node;
+export interface QueryParamsURI {
+    predicate?: Node | string;
     object?: Node | string;
+}
+
+export interface QueryParamsLiteral {
+    predicate?: Node | string;
+    objectLiteral?: string;
+}
+
+export type QueryParams = QueryParamsURI | QueryParamsLiteral;
+
+function isURIQuery(params: QueryParams): params is QueryParamsURI {
+    return (params as QueryParamsURI).object !== undefined;
+}
+
+function isLiteralQuery(params: QueryParams): params is QueryParamsLiteral {
+    return (params as QueryParamsLiteral).objectLiteral !== undefined;
+}
+
+function asURI(source: Node | string): string {
+    return isNode(source) ? source.id : source;
 }
 
 /**
@@ -34,16 +53,11 @@ export default class ItemGraph extends Graph {
      * The request runs async. Wait for the 'sync' or 'update' event
      * or await the returned promise in order to use the results.
      */
-    query({predicate, object}: QueryParams): JQuery.jqXHR {
+    query(params: QueryParams): JQuery.jqXHR {
         const data: any = {};
-        if (predicate) data.p = predicate.id;
-        if (object) {
-            if (isNode(object)) {
-                data.o = object.id;
-            } else {
-                data.o_literal = object;
-            }
-        }
+        if (params.predicate) data.p = asURI(params.predicate);
+        if (isURIQuery(params)) data.o = asURI(params.object);
+        if (isLiteralQuery(params)) data.o_literal = params.objectLiteral;
         return this.fetch({data});
     }
 }
