@@ -489,7 +489,7 @@ extend(HighlightableTextView.prototype, {
     template: HighlightableTextTemplate,
     events: {
         'DOMNodeInsertedIntoDocument': 'onInsertedIntoDOM',
-        'DOMNodeRemoved': 'onRemovedFromDOM',
+        'DOMNodeRemovedFromDocument': 'onRemovedFromDOM',
         'mouseup': 'onTextSelected',
     }
 });
