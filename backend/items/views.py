@@ -13,6 +13,7 @@ from .graph import graph
 from .models import ItemCounter
 
 MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank node.'
+MUST_EQUAL_IDENTIFIER_400 = 'PUT must affect exactly the resource URI.'
 DOES_NOT_EXIST_404 = 'Resource does not exist.'
 DEFAULT_NS = {
     'vocab': vocab,
@@ -106,3 +107,18 @@ class ItemsAPISingular(RDFView):
             result.add(triple)
         # TODO: also include related nodes
         return result
+
+    def put(self, request, serial, format=None, **kwargs):
+        identifier = my[str(serial)]
+        override = graph_from_request(request)
+        subjects = set(override.subjects())
+        if len(subjects) != 1 or subjects.pop() != identifier:
+            return error_response(request, HTTP_400_BAD_REQUEST, MUST_EQUAL_IDENTIFIER_400)
+        existing = self.get_graph(request, serial)
+        added = override - existing
+        removed = existing - override
+        for triple in removed:
+            graph.remove(triple)
+        for triple in added:
+            graph.add(triple)
+        return Response(override)
