@@ -28,6 +28,10 @@ const otherHash = {
 
 const serverReply = {'@context': context, '@graph': compactData};
 
+function waitUntilRequest(store, done) {
+    store.once('request', () => done());
+}
+
 describe('Store', function() {
     beforeEach(function() {
         jasmine.Ajax.install();
@@ -60,11 +64,12 @@ describe('Store', function() {
     });
 
     describe('channel bindings ensure that...', function() {
-        it('"obtain" is replied to with the obtain method', function() {
+        it('"obtain" is replied to with the obtain method', function(done) {
             const result = ldChannel.request('obtain', partialHash);
             expect(result).toEqual(jasmine.any(Node));
             expect(result.id).toBe(uri);
             expect(this.store.has(result)).toBeTruthy();
+            waitUntilRequest(this.store, done);
         });
 
         it('"merge" is replied to with the mergeExisting method', function() {
@@ -121,23 +126,26 @@ describe('Store', function() {
             expect(this.store.obtain(this.existing)).toBe(this.existing);
         });
 
-        it('returns a new Node for an unknown @id', function() {
+        it('returns a new Node for an unknown @id', function(done) {
             const added = this.store.obtain(uri);
             expect(added).toEqual(jasmine.any(Node))
             expect(added.id).toBe(uri);
+            waitUntilRequest(this.store, done);
         });
 
-        it('returns a new Node for an unknown hash', function() {
+        it('returns a new Node for an unknown hash', function(done) {
             const added = this.store.obtain(partialHash);
             expect(added).toEqual(jasmine.any(Node))
             expect(added.id).toBe(uri);
+            waitUntilRequest(this.store, done);
         });
 
-        it('returns the same Node for an unknown Node', function() {
+        it('returns the same Node for an unknown Node', function(done) {
             const added = new Node(partialHash);
             this.store.remove(added);
             const obtained = this.store.obtain(added);
             expect(obtained).toBe(added);
+            waitUntilRequest(this.store, done);
         });
 
         it('updates the returned Node with additional data', function(done) {

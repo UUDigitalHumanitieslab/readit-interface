@@ -8,6 +8,7 @@ import {
     unionWith,
     differenceWith,
     has,
+    result,
     isUndefined,
     isArray,
     isEqual,
@@ -15,6 +16,7 @@ import {
     isBoolean,
     isNumber,
     isString,
+    isPlainObject,
 } from 'lodash';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
@@ -25,7 +27,7 @@ import {
     toRDF,    // (jsonld, options?, callback?) => Promise<dataset>
     registerRDFParser,  // (contentType, parser) => void
 } from 'jsonld';
-import { ModelSetOptions } from 'backbone';
+import { ModelSetOptions, Model as BackboneModel } from 'backbone';
 
 import Model from '../core/model';
 
@@ -194,12 +196,23 @@ export default class Node extends Model {
         return mapValues(this.attributes, asLDArray) as FlatLdObject;
     }
 
-    // TODO: non-modifying compact and flatten methods
+    /**
+     * Override the parse method to unwrap singleton arrays.
+     */
+    parse(data: FlatLdObject | [FlatLdObject], options?: any): FlatLdObject {
+        if (isPlainObject(data)) return data as FlatLdObject;
+        if (isArray(data) && (data as [FlatLdObject]).length === 1) return data[0];
+        throw TypeError('Object or singleton array expected.');
+    }
 }
 
 extend(Node.prototype, {
     idAttribute: '@id',
     sync,
+    url(): string {
+        if (this.id) return this.id;
+        return BackboneModel.prototype.url.call(this);
+    },
 });
 
 /**
