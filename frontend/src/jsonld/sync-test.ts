@@ -10,6 +10,7 @@ import 'jasmine-ajax';
 import rdfParser from 'rdf-parse';
 import * as $ from 'jquery';
 
+import { JSONLDParser } from '../test-util';
 import * as csrf from '../core/csrf';
 import syncLD, { transform, combineContext, getLinkHeader } from './sync';
 import expandedData from './../mock-data/mock-expanded';
@@ -24,6 +25,7 @@ describe('the jsonld/sync module', function() {
 
     beforeEach(function () {
         jasmine.Ajax.install();
+        jasmine.Ajax.addCustomParamParser(JSONLDParser);
         expandedGraph = new Graph(null, {context});
         success = jasmine.createSpy('success');
         error = jasmine.createSpy('error');
