@@ -271,4 +271,27 @@ describe('Node', function() {
             expect(compacted).toEqual(compactTextPositionSelector);
         });
     });
+
+    describe('parse', function() {
+        it('returns a single object unmodified', function() {
+            const backup = cloneDeep(contentInstance);
+            expect(this.node.parse(contentInstance)).toBe(contentInstance);
+            expect(contentInstance).toEqual(backup);
+        });
+
+        it('unwraps a singleton array', function() {
+            const backup = cloneDeep(contentInstance);
+            expect(this.node.parse([contentInstance])).toBe(contentInstance);
+            expect(contentInstance).toEqual(backup);
+        });
+
+        it('throws otherwise', function() {
+            const buggies = [
+                () => this.node.parse([]),
+                () => this.node.parse([contentInstance, {}]),
+                () => this.node.parse([{}, {}, {}, {}, {}]),
+            ];
+            buggies.forEach(buggy => expect(buggy).toThrow());
+        });
+    });
 });

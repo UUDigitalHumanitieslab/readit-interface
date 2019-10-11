@@ -16,6 +16,7 @@ import {
     isBoolean,
     isNumber,
     isString,
+    isPlainObject,
 } from 'lodash';
 import {
     compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
@@ -193,6 +194,15 @@ export default class Node extends Model {
      */
     toJSON(options?: any): FlatLdObject {
         return mapValues(this.attributes, asLDArray) as FlatLdObject;
+    }
+
+    /**
+     * Override the parse method to unwrap singleton arrays.
+     */
+    parse(data: FlatLdObject | [FlatLdObject], options?: any): FlatLdObject {
+        if (isPlainObject(data)) return data as FlatLdObject;
+        if (isArray(data) && (data as [FlatLdObject]).length === 1) return data[0];
+        throw TypeError('Object or singleton array expected.');
     }
 }
 
