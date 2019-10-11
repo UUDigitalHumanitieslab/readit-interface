@@ -10,7 +10,7 @@ import OntologyClassPickerView from '../utilities/ontology-class-picker/ontology
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import { isType } from '../utilities/utilities';
-import { getOntologyInstance } from '../utilities/annotation-utilities';
+import { getOntologyInstance } from '../utilities/annotation/annotation-utilities';
 
 import BaseAnnotationView from './base-annotation-view';
 

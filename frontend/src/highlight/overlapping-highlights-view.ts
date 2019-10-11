@@ -4,7 +4,7 @@ import { extend } from 'lodash';
 import View from './../core/view';
 import Node from './../jsonld/node';
 
-import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
+import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import HighlightView from './highlight-view';
 
 

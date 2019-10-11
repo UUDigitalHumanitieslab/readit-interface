@@ -10,7 +10,7 @@ import { isType, getScrollTop } from '../utilities/utilities';
 
 import annotationsTemplate from './panel-annotation-list-template';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
-import { getSource } from '../utilities/annotation-utilities';
+import { getSource } from '../utilities/annotation/annotation-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     ontology: Graph;

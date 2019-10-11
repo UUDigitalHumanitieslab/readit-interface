@@ -11,7 +11,7 @@ import ldItemTemplate from './ld-item-template';
 
 import { owl, oa, dcterms } from './../jsonld/ns';
 import { isType, getLabel, getLabelFromId } from './../utilities/utilities';
-import { getOntologyInstance } from './../utilities/annotation-utilities';
+import { getOntologyInstance } from '../utilities/annotation/annotation-utilities';
 
 import LabelView from '../utilities/label-view';
 

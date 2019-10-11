@@ -1,9 +1,9 @@
 
-import Node from './../jsonld/node';
-import Graph from './../jsonld/graph';
+import Node from '../../jsonld/node';
+import Graph from '../../jsonld/graph';
 
-import { oa, vocab, rdf } from './../jsonld/ns';
-import { isType, getCssClassName as getCssClass } from './utilities';
+import { oa, vocab, rdf } from '../../jsonld/ns';
+import { isType, getCssClassName as getCssClass } from '../utilities';
 
 export type AnnotationPositionDetails = {
     startNodeIndex: number;
@@ -216,3 +216,5 @@ function getCharacterIndex(selector: Node): number {
     let endIndex = xpath.length - 1;
     return +xpath.substring(startIndex, endIndex);
 }
+
+

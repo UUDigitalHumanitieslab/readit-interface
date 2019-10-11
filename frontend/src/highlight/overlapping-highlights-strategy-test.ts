@@ -3,7 +3,7 @@ import { onlyIf } from '../test-util';
 import OverlappingHighlightsStrategy, { HighlightIndex, OverlappingHighlights } from './overlapping-highlights-strategy';
 import HighlightView from './highlight-view';
 import Node from './../jsonld/node';
-import { AnnotationPositionDetails } from './../utilities/annotation-utilities';
+import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 
 describe('OverlappingHighlightsStrategy', function () {
     const it = onlyIf(document.createRange, 'DOM Traversal and Selection APIs required.');

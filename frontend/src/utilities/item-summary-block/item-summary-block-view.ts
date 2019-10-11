@@ -7,7 +7,7 @@ import Node from './../../jsonld/node';
 import Graph from './../../jsonld/graph';
 import ldChannel from './../../jsonld/radio';
 import { getCssClassName, getLabel, isType } from './../utilities';
-import { getOntologyInstance, AnnotationPositionDetails, getPositionDetails } from './../annotation-utilities';
+import { getOntologyInstance, AnnotationPositionDetails, getPositionDetails } from '../annotation/annotation-utilities';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
 
