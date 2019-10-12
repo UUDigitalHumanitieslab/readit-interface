@@ -8,6 +8,7 @@ import Graph from './../jsonld/graph';
 
 import { isType, getScrollTop } from './../utilities/utilities';
 import { validateCompleteness, getPositionDetails, getLinkedItems, getCssClassName, getSelector } from '../utilities/annotation/annotation-utilities';
+import { createAnnotation } from './../utilities/annotation/annotation-creation-utilities';
 import OverlappingHighlightsStrategy, { OverlappingHighlights } from './overlapping-highlights-strategy';
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
@@ -434,17 +435,9 @@ export default class HighlightableTextView extends View {
         let selection = window.getSelection();
         let range = selection.getRangeAt(0).cloneRange();
 
-
-
-        let prefixRange = document.createRange();
-        prefixRange.setStart(range.startContainer, range.startOffset - 5);
-        prefixRange.setEnd(range.startContainer, range.startOffset);
-
-        console.log(prefixRange.toString());
-
         // Ignore empty selections
         if (range.startOffset === range.endOffset) return;
-        this.trigger('selected', range);
+        this.trigger('textSelected', createAnnotation(range));
     }
 
     onClicked(hV: HighlightView, node: Node): this {
