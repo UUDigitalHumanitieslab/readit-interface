@@ -102,26 +102,6 @@ export default class HighlightableTextView extends View {
         this.collection.on('add', this.addHighlight, this);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
-
-        // const config = { attributes: true, childList: true, subtree: true };
-        // const callback = function (mutationsList, observer) {
-        //     for (let mutation of mutationsList) {
-        //         console.log(mutation);
-
-        //         if (mutation.type === 'childList') {
-        //             console.log('A child node has been added or removed.');
-        //         }
-        //         else if (mutation.type === 'attributes') {
-        //             console.log('The ' + mutation.attributeName + ' attribute was modified.');
-        //         }
-        //     }
-        // };
-
-        // this.DOMMutationObserver = new MutationObserver(callback);
-
-        // // Start observing the target node for configured mutations
-        // console.log(this.$el.parent());
-        // this.DOMMutationObserver.observe(this.$el.get(0), config);
     }
 
     render(): this {
