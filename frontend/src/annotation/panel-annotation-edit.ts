@@ -33,6 +33,9 @@ export default class AnnotationEditView extends BaseAnnotationView {
     ontologyClassPicker: OntologyClassPickerView;
     snippetView: SnippetView;
 
+    snippetViewIsInDOM: boolean;
+    DOMMutationObserver: MutationObserver;
+
     constructor(options: ViewOptions) {
         super(options);
     }
@@ -42,6 +45,20 @@ export default class AnnotationEditView extends BaseAnnotationView {
         this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
         this.processModel(options.model);
         this.listenTo(this.model, 'change', this.processModel);
+
+        const config = { attributes: true, childList: true, subtree: true };
+        this.DOMMutationObserver = new MutationObserver(this.onDOMMutation.bind(this));
+        this.DOMMutationObserver.observe(this.$el.get(0), config);
+        return this;
+    }
+
+    onDOMMutation(mutationsList, observer): this {
+        for (let mutation of mutationsList) {
+            if (mutation.type === 'childList' && $(mutation.target).hasClass('snippet-container')) {
+                this.snippetViewIsInDOM = !this.snippetViewIsInDOM;
+                this.snippetView.handleDOMMutation(this.snippetViewIsInDOM);
+            }
+        }
         return this;
     }
 

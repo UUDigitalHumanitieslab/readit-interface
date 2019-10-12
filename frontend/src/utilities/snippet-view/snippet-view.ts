@@ -51,6 +51,12 @@ export default class SnippetView extends View {
         return this;
     }
 
+    handleDOMMutation(isInDOM: boolean): this {
+        if (isInDOM) this.onInsertedIntoDOM();
+        else this.onRemovedFromDOM();
+        return this;
+    }
+
     onInsertedIntoDOM(): any {
         this.isInDom = true;
         this.createContent();
@@ -145,7 +151,5 @@ extend(SnippetView.prototype, {
     className: 'snippet',
     template: snippetTemplate,
     events: {
-        'DOMNodeInsertedIntoDocument': 'onInsertedIntoDOM',
-        'DOMNodeRemoved': 'onRemovedFromDOM',
     }
 });
