@@ -110,8 +110,13 @@ export default class SnippetView extends View {
         else {
             this.prefix_calc = this.trimToFit(prefix, availableSpace / 4, true);
             this.trimmedStart = true;
-            this.exact_calc = `${this.trimToFit(exact, availableSpace / 4)}
+            if (this.getLengthInPixels(exact) <= availableSpace / 2.5) {
+                this.exact_calc = exact;
+            }
+            else {
+                this.exact_calc = `${this.trimToFit(exact, availableSpace / 4)}
                 ${this.ellipsis} ${this.trimToFit(exact, availableSpace / 4, true)}`;
+            }
             this.suffix_calc = this.trimToFit(suffix, availableSpace / 4);
             this.trimmedEnd = true;
         }
@@ -142,7 +147,6 @@ export default class SnippetView extends View {
      * Get the length of a string in pixels.
      */
     getLengthInPixels(text: string): number {
-
         return this.canvasCtx.measureText(text).width;
     }
 }
