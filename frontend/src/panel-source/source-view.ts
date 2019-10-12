@@ -136,6 +136,7 @@ export default class SourceView extends View<Node> {
         this.htv.on('hoverEnd', this.onHoverEnd, this);
         this.htv.on('highlightSelected', this.onHighlightSelected, this);
         this.htv.on('highlightUnselected', this.onHighlightUnselected, this);
+        this.htv.on('textSelected', this.onTextSelected, this);
         this.htv.on('scroll', this.onScroll, this);
         return htv;
     }
@@ -152,6 +153,13 @@ export default class SourceView extends View<Node> {
      */
     onHoverEnd(node: Node): void {
         this.trigger('hoverEnd', node);
+    }
+
+    /**
+     * Pass events from HighlightableTextView
+     */
+    onTextSelected(node: Node): void {
+        this.trigger('sourceview:textSelected', this, node);
     }
 
     /**

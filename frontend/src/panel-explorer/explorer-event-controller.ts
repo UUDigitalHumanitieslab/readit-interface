@@ -10,6 +10,7 @@ import AnnotationListView from '../annotation/panel-annotation-list-view';
 
 
 import HighlightView from '../highlight/highlight-view';
+import AnnotationEditView from '../annotation/panel-annotation-edit';
 
 export default class ExplorerEventController {
     /**
@@ -18,6 +19,7 @@ export default class ExplorerEventController {
     explorerView: ExplorerView;
 
     mapSourceAnnotationList: Map<SourceView, AnnotationListView> = new Map();
+    mapAnnotationEditSource: Map<AnnotationEditView, SourceView> = new Map();
 
     constructor(explorerView: ExplorerView) {
         this.explorerView = explorerView;
@@ -33,14 +35,28 @@ export default class ExplorerEventController {
         panel.on({
             'sourceview:highlightSelected': this.sourceViewHighlightSelected,
             'sourceview:highlightUnselected': this.sourceViewHighlightUnselected,
+            'sourceview:highlightAdded': this.sourceViewHighlightAdded,
             'sourceview:showMetadata': this.sourceViewShowMetadata,
             'sourceview:hideMetadata': this.sourceViewHideMetadata,
             'sourceview:showAnnotations': (graph) => defer(this.sourceViewShowAnnotations.bind(this), graph),
             'sourceview:hideAnnotations': this.sourceViewHideAnnotations,
             'sourceView:enlarge': this.sourceViewEnlarge,
             'sourceView:shrink': this.sourceViewShrink,
+            'sourceview:textSelected': this.sourceViewOnTextSelected,
             'annotation-listview:blockClicked': this.annotationListBlockClicked,
+            'annotationEditView:save': this.annotationEditSave,
         }, this);
+    }
+
+    annotationEditSave(editView: AnnotationEditView, annotation: Node): this {
+        let sourceView = this.mapAnnotationEditSource.get(editView);
+        sourceView.add(annotation);
+
+        this.explorerView.removeOverlay(editView);
+
+        let listView = this.mapSourceAnnotationList.get(sourceView);
+        listView.collection.add(annotation);
+        return this;
     }
 
     annotationListBlockClicked(annotationList: AnnotationListView, annotation: Node): this {
@@ -114,4 +130,15 @@ export default class ExplorerEventController {
         this.explorerView.popUntil(sourceView);
         return this;
     }
+
+    sourceViewOnTextSelected(sourceView: SourceView, annotation: Node): this {
+        let listView = this.mapSourceAnnotationList.get(sourceView);
+        this.explorerView.popUntil(listView);
+
+        let annoEditView = new AnnotationEditView({ model: annotation, ontology: this.explorerView.ontology });
+        this.mapAnnotationEditSource.set(annoEditView, sourceView);
+        this.explorerView.overlay(annoEditView);
+        return this;
+    }
+
 }
