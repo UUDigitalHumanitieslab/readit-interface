@@ -24,7 +24,11 @@ export default class PanelStackView extends View {
     }
 
     pop(): View {
-        return this.panels.pop().remove() as View;
+        let wasLastPanel = this.hasOnlyOnePanel();
+        let poppedPanel = this.panels.pop().remove() as View;
+        if (wasLastPanel) this.$el.remove();
+        else this.getTopPanel().$el.appendTo(this.$el);
+        return poppedPanel;
     }
 
     push(panel: View): this {
