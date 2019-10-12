@@ -11,6 +11,7 @@ import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import { isType } from '../utilities/utilities';
 import { getOntologyInstance } from '../utilities/annotation/annotation-utilities';
+import { createBody } from './../utilities/annotation/annotation-creation-utilities';
 
 import BaseAnnotationView from './base-annotation-view';
 
@@ -23,7 +24,6 @@ export interface ViewOptions extends BaseOpt<Node> {
      */
     model: Node;
     ontology: Graph;
-
 }
 
 export default class AnnotationEditView extends BaseAnnotationView {
@@ -69,8 +69,10 @@ export default class AnnotationEditView extends BaseAnnotationView {
             this.metadataView = new ItemMetadataView({ model: this.model });
             this.metadataView.render();
 
-            let ontologyInstance = getOntologyInstance(this.model, this.ontology);
-            this.preselection = ldChannel.request('obtain', ontologyInstance.get('@type')[0] as string);
+            if (this.model.get(oa.hasBody)) {
+                let ontologyInstance = getOntologyInstance(this.model, this.ontology);
+                this.preselection = ldChannel.request('obtain', ontologyInstance.get('@type')[0] as string);
+            }
 
             this.ontologyClassPicker = new OntologyClassPickerView({
                 collection: this.ontology,
@@ -95,20 +97,24 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     render(): this {
         this.ontologyClassPicker.$el.detach();
-        this.snippetView.$el.detach();
+        if (this.snippetView) this.snippetView.$el.detach();
         if (this.metadataView) this.metadataView.$el.detach();
 
         this.$el.html(this.template(this));
 
         this.$('.ontology-class-picker-container').append(this.ontologyClassPicker.el);
-        this.$('.snippet-container').append(this.snippetView.el);
+        if (this.snippetView) this.$('.snippet-container').append(this.snippetView.el);
         if (this.metadataView) this.$('.metadata-container').append(this.metadataView.el);
         return this;
     }
 
     submit(): this {
-        this.model.save();
-        this.trigger('submit');
+        // TODO: store references to this stuff in this view itself?
+
+        let body = createBody(this.snippetView.selector, this.snippetView.exact_calc);
+        this.model.set(oa.hasBody, body);
+        // this.model.save();
+        this.trigger('annotationEditView:save', this, this.model);
         return this;
     }
 
@@ -139,8 +145,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
     onOntologyItemSelected(item: Node): this {
         this.select(item);
         this.snippetView.selector = item;
-        // TODO: remove the earlier one?
-        this.model.set(oa.hasBody, item);
+
         return this;
     }
 
