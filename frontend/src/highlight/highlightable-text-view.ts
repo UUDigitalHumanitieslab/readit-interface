@@ -106,7 +106,9 @@ export default class HighlightableTextView extends View {
     }
 
     render(): this {
+        this.hideAll();
         this.$el.html(this.template({ text: this.text }));
+        this.showAll();
         return this;
     }
 
@@ -125,8 +127,10 @@ export default class HighlightableTextView extends View {
             this.initHighlights();
             this.initOverlaps();
 
-            if (this.showHighlightsInitially) {
-                this.showAll();
+            if (!this.showHighlightsInitially) {
+                this.hideAll();
+            }
+            else {
                 this.scroll(this.scrollToNode);
             }
         }
@@ -164,6 +168,7 @@ export default class HighlightableTextView extends View {
 
             ohv.on('click', this.onOverlapClicked, this);
             this.overlaps.push(ohv);
+            ohv.render().$el.prependTo(this.$('.position-container'));
         });
     }
 
@@ -190,6 +195,7 @@ export default class HighlightableTextView extends View {
 
         validateCompleteness(node);
         this.collection.add([node].concat(getLinkedItems(node)));
+        // this.render();
         return this;
     }
 
@@ -255,6 +261,7 @@ export default class HighlightableTextView extends View {
 
     /**
      * Add a HighlightView to the current text.
+     * Note that this method appends the new HighlightView to the DOM (i.e. position container).
      * @param node The Node to base the highlight on.
      */
     private addHighlight(node: Node): HighlightView {
@@ -285,7 +292,8 @@ export default class HighlightableTextView extends View {
 
         this.bindEvents(hV);
         this.hVs.push(hV);
-        this.trigger('add', hV);
+        hV.render().$el.prependTo(this.$('.position-container'));
+        this.trigger('highlightAdded', node);
         return hV;
     }
 
@@ -416,6 +424,10 @@ export default class HighlightableTextView extends View {
 
     onCloseOverlapDetail(): this {
         this.overlapDetailView.$el.detach();
+        if (this.selectedHighlight) {
+            this.unSelect(this.selectedHighlight, this.selectedHighlight.model);
+            this.selectedHighlight = undefined;
+        }
         return this;
     }
 

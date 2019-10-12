@@ -35,7 +35,6 @@ export default class ExplorerEventController {
         panel.on({
             'sourceview:highlightSelected': this.sourceViewHighlightSelected,
             'sourceview:highlightUnselected': this.sourceViewHighlightUnselected,
-            'sourceview:highlightAdded': this.sourceViewHighlightAdded,
             'sourceview:showMetadata': this.sourceViewShowMetadata,
             'sourceview:hideMetadata': this.sourceViewHideMetadata,
             'sourceview:showAnnotations': (graph) => defer(this.sourceViewShowAnnotations.bind(this), graph),

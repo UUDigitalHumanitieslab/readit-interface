@@ -84,6 +84,7 @@ export default class SourceView extends View<Node> {
         this.initialScrollTo = options.initialScrollTo;
         this.isEditable = options.isEditable || false;
         this.showHighlightsInitially = options.showHighlightsInitially || this.initialScrollTo != null || false;
+        this.isShowingHighlights = this.showHighlightsInitially;
 
         this.htv = new HighlightableTextView({
             text: <string>this.model.get(schema.text)[0],
@@ -125,7 +126,8 @@ export default class SourceView extends View<Node> {
         this.$('highlightable-text-view').replaceWith(this.htv.render().$el);
 
         if (this.showHighlightsInitially) {
-            this.toggleHighlights();
+            this.trigger('sourceview:showAnnotations', this);
+            this.toggleToolbarItemSelected('annotations');
         }
 
         return this;
@@ -139,6 +141,11 @@ export default class SourceView extends View<Node> {
         this.htv.on('textSelected', this.onTextSelected, this);
         this.htv.on('scroll', this.onScroll, this);
         return htv;
+    }
+
+    add(annotation: Node): this {
+        this.htv.add(annotation);
+        return this;
     }
 
     /**

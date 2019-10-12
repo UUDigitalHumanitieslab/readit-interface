@@ -18,6 +18,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 }
 
 export default class AnnotationListView extends View<Node> {
+    collection: Graph;
     ontology: Graph;
     summaryBlocks: ItemSummaryBlockView[];
 
@@ -58,19 +59,21 @@ export default class AnnotationListView extends View<Node> {
             }
         });
 
-        this.summaryBlocks = sortBy(this.summaryBlocks, ['positionDetails.startNodeIndex', 'positionDetails.startCharacterIndex']);
-
+        this.listenTo(this.collection, 'add', this.add);
         return this;
     }
 
-    initSummaryBlock(annotation: Node) {
-        let view = new ItemSummaryBlockView({
-            model: annotation,
-            ontology: this.ontology
-        });
-        view.on('click', this.onSummaryBlockClicked, this);
-        view.on('hover', this.onSummaryBlockedHover, this);
-        this.summaryBlocks.push(view);
+    initSummaryBlock(node: Node): this {
+        if (isType(node, oa.Annotation)) {
+            let view = new ItemSummaryBlockView({
+                model: node,
+                ontology: this.ontology
+            });
+            view.on('click', this.onSummaryBlockClicked, this);
+            view.on('hover', this.onSummaryBlockedHover, this);
+            this.summaryBlocks.push(view);
+        }
+        return this;
     }
 
     render(): this {
@@ -82,11 +85,17 @@ export default class AnnotationListView extends View<Node> {
         this.$el.html(this.template(this));
         let summaryList = this.$('.summary-list');
 
+        this.summaryBlocks = sortBy(this.summaryBlocks, ['positionDetails.startNodeIndex', 'positionDetails.startCharacterIndex']);
         this.summaryBlocks.forEach(sb => {
             sb.render().$el.appendTo(summaryList);
         });
 
         return this;
+    }
+
+    add(annotation: Node) {
+        this.initSummaryBlock(annotation);
+        this.render();
     }
 
     scrollTo(annotation: Node): this {
