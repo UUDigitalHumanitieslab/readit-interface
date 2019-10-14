@@ -61,6 +61,17 @@ For live debugging of the frontend unittests, visit http://localhost:8000/specRu
 
 [8]: #development-mode-vs-production-mode
 
+To temporarily work only on the backend or frontend, respectively, run
+
+```console
+# backend
+$ yarn start-back
+# frontend
+$ yarn gulp
+```
+
+In the former case, please note that there is no index page; you need to go directly to http://localhost:8000/admin/ etcetera. Obviously, there is no `specRunner.html`, either. In the latter case, the port number is `8080` instead of `8000` and the unittests are at http://localhost:8080/static/specRunner.html. Of course, backend pages like `/admin/` don’t exist in this case.
+
 
 ### Recommended order of development
 
