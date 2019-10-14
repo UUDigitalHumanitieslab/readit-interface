@@ -47,10 +47,19 @@ export default class ExplorerEventController {
             'lditem:showRelated': this.ldItemShowRelated,
             'lditem:showAnnotations': this.ldItemShowAnnotations,
             'lditem:showExternal': this.ldItemShowExternal,
+            'relItems:itemClick': this.relItemsItemClicked,
         }, this);
     }
 
-    ldItemShowRelated(item: Node): this {
+    relItemsItemClicked(relView: RelatedItemsView, item: Node): this {
+        this.explorerView.popUntil(relView);
+        let itemView = new LdItemView({ model: item, ontology: this.explorerView.ontology });
+        this.explorerView.push(itemView);
+        return this;
+    }
+
+    ldItemShowRelated(view: LdItemView, item: Node): this {
+        this.explorerView.popUntil(view);
         let relatedItems = new RelatedItemsView({ model: item, ontology: this.explorerView.ontology });
         this.explorerView.push(relatedItems);
         return this;
