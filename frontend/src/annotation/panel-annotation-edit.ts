@@ -156,7 +156,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
     onCancelClicked(event: JQueryEventObject): this {
         event.preventDefault();
         this.reset();
-        this.trigger('close')
+        this.trigger('annotationEditView:close', this);
         return this;
     }
 

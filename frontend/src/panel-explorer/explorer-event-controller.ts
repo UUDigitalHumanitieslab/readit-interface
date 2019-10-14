@@ -44,6 +44,7 @@ export default class ExplorerEventController {
             'sourceview:textSelected': this.sourceViewOnTextSelected,
             'annotation-listview:blockClicked': this.annotationListBlockClicked,
             'annotationEditView:save': this.annotationEditSave,
+            'annotationEditView:close': this.annotationEditClose,
             'lditem:showRelated': this.ldItemShowRelated,
             'lditem:showAnnotations': this.ldItemShowAnnotations,
             'lditem:showExternal': this.ldItemShowExternal,
@@ -91,6 +92,11 @@ export default class ExplorerEventController {
 
         let listView = this.mapSourceAnnotationList.get(sourceView);
         listView.collection.add(annotation);
+        return this;
+    }
+
+    annotationEditClose(editView: AnnotationEditView): this {
+        this.explorerView.removeOverlay(editView);
         return this;
     }
 
