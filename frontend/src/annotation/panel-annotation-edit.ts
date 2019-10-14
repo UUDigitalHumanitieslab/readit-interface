@@ -102,6 +102,14 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
         this.$el.html(this.template(this));
 
+        if (this.preselection) this.select(this.preselection);
+
+        this.$(".anno-edit-form").submit(function (e) { e.preventDefault(); })
+        this.$(".anno-edit-form").validate({
+            errorClass: "help is-danger",
+            ignore: "",
+        });
+
         this.$('.ontology-class-picker-container').append(this.ontologyClassPicker.el);
         if (this.snippetView) this.$('.snippet-container').append(this.snippetView.el);
         if (this.metadataView) this.$('.metadata-container').append(this.metadataView.el);
@@ -127,18 +135,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     select(item: Node): this {
         this.$('.hidden-input').val(item.id).valid();
-        return this;
-    }
-
-    onInsertedIntoDOM(): this {
-        if (this.preselection) this.select(this.preselection);
-
-        this.$(".anno-edit-form").submit(function (e) { e.preventDefault(); })
-        this.$(".anno-edit-form").validate({
-            errorClass: "help is-danger",
-            ignore: "",
-        });
-
         return this;
     }
 
@@ -177,6 +173,5 @@ extend(AnnotationEditView.prototype, {
         'click .btn-save': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
         'click .btn-rel-items': 'onRelatedItemsClicked',
-        'DOMNodeInsertedIntoDocument': 'onInsertedIntoDOM',
     }
 });
