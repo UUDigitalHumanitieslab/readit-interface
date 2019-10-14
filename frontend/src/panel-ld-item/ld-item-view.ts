@@ -122,19 +122,19 @@ export default class LdItemView extends View<Node> {
     }
 
     onRelItemsClicked(): void {
-        this.trigger('lditem:showRelated', this.currentItem);
+        this.trigger('lditem:showRelated', this, this.currentItem);
     }
 
     onAnnotationsClicked(): void {
-        this.trigger('lditem:showAnnotations', this.currentItem);
+        this.trigger('lditem:showAnnotations', this, this.currentItem);
     }
 
     onExtResourcesClicked(): void {
-        this.trigger('lditem:showExternal', this.currentItem, this.externalResources);
+        this.trigger('lditem:showExternal', this, this.currentItem, this.externalResources);
     }
 
     onEditClicked(): void {
-        this.trigger('lditem:edit', this.currentItem);
+        this.trigger('lditem:edit', this, this.currentItem);
     }
 }
 extend(LdItemView.prototype, {

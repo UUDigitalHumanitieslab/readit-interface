@@ -56,17 +56,20 @@ export default class ExplorerEventController {
         return this;
     }
 
-    ldItemShowAnnotations(item: Node): this {
+    ldItemShowAnnotations(view: LdItemView, item: Node): this {
+        this.explorerView.popUntil(view);
         this.notImplemented();
         return this;
     }
 
-    ldItemShowExternal(item: Node, externalResources: Node[]): this {
+    ldItemShowExternal(view: LdItemView, item: Node, externalResources: Node[]): this {
+        this.explorerView.popUntil(view);
         this.notImplemented();
         return this;
     }
 
-    ldItemEdit(item: Node): this {
+    ldItemEdit(view: LdItemView, item: Node): this {
+        this.explorerView.popUntil(view);
         this.notImplemented();
         return this;
     }
