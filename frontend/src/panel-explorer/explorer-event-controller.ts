@@ -8,9 +8,9 @@ import Graph from '../jsonld/graph';
 import SourceView from './../panel-source/source-view';
 import AnnotationListView from '../annotation/panel-annotation-list-view';
 
-
 import HighlightView from '../highlight/highlight-view';
 import AnnotationEditView from '../annotation/panel-annotation-edit';
+import RelatedItemsView from '../panel-related-items/related-items-view';
 
 export default class ExplorerEventController {
     /**
@@ -44,7 +44,31 @@ export default class ExplorerEventController {
             'sourceview:textSelected': this.sourceViewOnTextSelected,
             'annotation-listview:blockClicked': this.annotationListBlockClicked,
             'annotationEditView:save': this.annotationEditSave,
+            'lditem:showRelated': this.ldItemShowRelated,
+            'lditem:showAnnotations': this.ldItemShowAnnotations,
+            'lditem:showExternal': this.ldItemShowExternal,
         }, this);
+    }
+
+    ldItemShowRelated(item: Node): this {
+        let relatedItems = new RelatedItemsView({ model: item, ontology: this.explorerView.ontology });
+        this.explorerView.push(relatedItems);
+        return this;
+    }
+
+    ldItemShowAnnotations(item: Node): this {
+        this.notImplemented();
+        return this;
+    }
+
+    ldItemShowExternal(item: Node, externalResources: Node[]): this {
+        this.notImplemented();
+        return this;
+    }
+
+    ldItemEdit(item: Node): this {
+        this.notImplemented();
+        return this;
     }
 
     annotationEditSave(editView: AnnotationEditView, annotation: Node): this {
@@ -90,7 +114,7 @@ export default class ExplorerEventController {
 
     sourceViewShowMetadata(sourceView: View, node: Node): this {
         this.explorerView.popUntil(sourceView);
-        alert('sorry, not implemented yet...');
+        this.notImplemented();
         return this;
     }
 
@@ -101,7 +125,7 @@ export default class ExplorerEventController {
 
     sourceViewEnlarge(sourceView: View): this {
         this.explorerView.popUntil(sourceView);
-        alert('sorry, not implemented yet...');
+        this.notImplemented();
         return this;
     }
 
@@ -140,4 +164,7 @@ export default class ExplorerEventController {
         return this;
     }
 
+    notImplemented() {
+        alert('Sorry, not implemented yet!');
+    }
 }

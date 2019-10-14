@@ -122,19 +122,19 @@ export default class LdItemView extends View<Node> {
     }
 
     onRelItemsClicked(): void {
-        this.trigger('show:related', this.currentItem, this.relatedItems);
+        this.trigger('lditem:showRelated', this.currentItem);
     }
 
     onAnnotationsClicked(): void {
-        this.trigger('show:annotations', this.currentItem);
+        this.trigger('lditem:showAnnotations', this.currentItem);
     }
 
     onExtResourcesClicked(): void {
-        this.trigger('show:external', this.currentItem, this.externalResources);
+        this.trigger('lditem:showExternal', this.currentItem, this.externalResources);
     }
 
     onEditClicked(): void {
-        this.trigger('edit', this.currentItem);
+        this.trigger('lditem:edit', this.currentItem);
     }
 }
 extend(LdItemView.prototype, {
@@ -145,6 +145,6 @@ extend(LdItemView.prototype, {
         'click #btnRelItems': 'onRelItemsClicked',
         'click #btnAnnotations': 'onAnnotationsClicked',
         'click #btnExtResources': 'onExtResourcesClicked',
-        'click btn-edit': 'onEditClicked'
+        'click .btn-edit': 'onEditClicked'
     }
 });
