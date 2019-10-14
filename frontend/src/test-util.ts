@@ -27,6 +27,22 @@ export function enableI18n() {
 }
 
 /**
+ * Invoke jasmine.Ajax.addCustomParamParser(JSONLDParser) in the
+ * setup code of tests that meet the following three conditions:
+ *  - Uses the Jasmine ajax mock;
+ *  - Invokes syncLD;
+ *  - Tries to do something with the request data at the mock server.
+ */
+export const JSONLDParser = {
+    test(xhr: any) {
+        return xhr.contentType() === 'application/ld+json';
+    },
+    parse(params) {
+        return JSON.parse(params);
+    },
+};
+
+/**
  * A trick to get access to the current spec/suite.
  */
 const introspector = {

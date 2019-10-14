@@ -500,7 +500,7 @@ export const staff = Vocabulary(staffPrefix, staffNotHardcoded);
  * (subject to change, so not hardcoding any terms)
  */
 
-export const readitPrefix = READIT + 'ontology/';
+export const readitPrefix = READIT + 'ontology#';
 
 const ontologyNotHardcoded = [] as const;
 
