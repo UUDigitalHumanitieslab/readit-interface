@@ -126,8 +126,7 @@ export default class AnnotationListView extends View<Node> {
     }
 
     onEditClicked(): this {
-        this.trigger('edit', this.collection);
-        alert('sorry, not implemented yet...');
+        this.trigger('annotation-listview:edit', this, this.collection);
         return this;
     }
 

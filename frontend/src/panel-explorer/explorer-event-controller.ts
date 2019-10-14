@@ -43,6 +43,7 @@ export default class ExplorerEventController {
             'sourceView:shrink': this.sourceViewShrink,
             'sourceview:textSelected': this.sourceViewOnTextSelected,
             'annotation-listview:blockClicked': this.annotationListBlockClicked,
+            'annotation-listview:edit': this.annotationListEdit,
             'annotationEditView:save': this.annotationEditSave,
             'annotationEditView:close': this.annotationEditClose,
             'lditem:showRelated': this.ldItemShowRelated,
@@ -111,6 +112,11 @@ export default class ExplorerEventController {
             if (value.cid === annotationList.cid) sourceView = key;
         });
         sourceView.scrollTo(annotation);
+        return this;
+    }
+
+    annotationListEdit(view: AnnotationListView, annotationList: Graph): this {
+        this.notImplemented();
         return this;
     }
 
