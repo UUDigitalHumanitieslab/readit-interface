@@ -7,7 +7,7 @@ import Node from './../../jsonld/node';
 import Graph from './../../jsonld/graph';
 import ldChannel from './../../jsonld/radio';
 import { getCssClassName, getLabel, isType } from './../utilities';
-import { getOntologyInstance, AnnotationPositionDetails, getPositionDetails } from '../annotation/annotation-utilities';
+import { getOntologyInstance } from '../annotation/annotation-utilities';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
 
@@ -33,8 +33,6 @@ export default class ItemSummaryBlockView extends View<Node> {
      */
     currentItem: Node;
 
-    positionDetails: AnnotationPositionDetails;
-
     constructor(options: ViewOptions) {
         super(options);
     }
@@ -47,7 +45,6 @@ export default class ItemSummaryBlockView extends View<Node> {
         this.modelIsAnnotation = isType(this.model, oa.Annotation);
         if (this.modelIsAnnotation) {
             this.currentItem = getOntologyInstance(this.model, this.ontology);
-            this.positionDetails = getPositionDetails(this.model);
         }
 
         this.instanceLabel = getLabel(this.currentItem);
