@@ -17,15 +17,18 @@ import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
 
+import { oa } from './../jsonld/ns';
+
 import mockOntology from './../mock-data/mock-ontology';
 import mockItems from './../mock-data/mock-items';
 import mockSources from './../mock-data/mock-sources';
 import mockStaff from '../mock-data/mock-staff';
 import LdItemView from '../panel-ld-item/ld-item-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
-import AnnotationEditView from './../panel-annotation/annotations-view';
 import SearchResultBaseItemView from '../search/search-results/search-result-base-view';
-import AnnotationsView from './../panel-annotation/annotations-view';
+
+import ItemGraph from './../utilities/item-graph';
+import SourceListView from '../source/source-list-view';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -51,34 +54,44 @@ directionRouter.on('route:explore', () => {
 });
 
 directionFsm.on('enter:exploring', () => {
-    // This is just a quick and dirty solution, will have to be moved in the future
-    let source = new Graph(mockSources).models[0];
+     // This are just a quick and dirty solutions, will have to be moved in the future
+    let sourcesList = new SourceListView({
+        collection: new Graph(mockSources),
+
+    });
+    sourcesList.render().$el.appendTo('#main');
+
+
+    // let source = new Graph(mockSources).models[0];
     let items = new Graph(mockItems);
     let ontology = new Graph(mockOntology);
-    let staff = new Graph(mockStaff);
+    // let staff = new Graph(mockStaff);
 
-    let annotation = items.find(n => n.get("@id") == item('100'));
-    // let item = items.find(n => n.get("@id") == item('100')); // item("201"));
+    // let annotation = items.find(n => n.get("@id") == item('100'));
+    // // let item = items.find(n => n.get("@id") == item('100')); // item("201"));
 
-    // IMPORTANT To test related items view, use 202 ! (it actually has related items)
+    // // IMPORTANT To test related items view, use 202 ! (it actually has related items)
 
-    let sourceView = new SourceView({
-        collection: items,
-        model: source,
-        ontology: new Graph(mockOntology),
-        showHighlightsInitially: true,
-        isEditable: true,
-        // initialScrollTo: annotation,
-    });
-
-    let exView = new ExplorerView({ first: sourceView, ontology: ontology });
-
+    let exView = new ExplorerView({ first: sourcesList, ontology: ontology });
     let vh = $(window).height();
     // compensates for menu and footer (555 is min-height)
     let height = Math.max(vh - 194, 555);
 
     exView.setHeight(height);
     exView.render().$el.appendTo('#main');
+
+    sourcesList.on('source-list:click', (listView: SourceListView, source: Node) => {
+        let sourceView = new SourceView({
+            collection: items,
+            model: source,
+            ontology: new Graph(mockOntology),
+            showHighlightsInitially: true,
+            isEditable: true,
+            // initialScrollTo: annotation,
+        });
+        exView.popUntil(sourcesList);
+        exView.push(sourceView);
+    });
 });
 
 directionFsm.on('exit:exploring', () => {
