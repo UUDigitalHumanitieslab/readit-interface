@@ -50,7 +50,13 @@ export default class ExplorerEventController {
             'lditem:showAnnotations': this.ldItemShowAnnotations,
             'lditem:showExternal': this.ldItemShowExternal,
             'relItems:itemClick': this.relItemsItemClicked,
+            'source-list:click': this.sourceListClick,
         }, this);
+    }
+
+    sourceListClick(source: Node): this {
+        // TODO
+        return this;
     }
 
     relItemsItemClicked(relView: RelatedItemsView, item: Node): this {
