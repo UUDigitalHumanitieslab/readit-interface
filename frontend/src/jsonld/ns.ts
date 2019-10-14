@@ -458,6 +458,7 @@ export const schemaTerms = [
     'creator',
     'datePublished',
     'headline',
+    'inLanguage',
     'location',
     'Organization',
     'Person',
