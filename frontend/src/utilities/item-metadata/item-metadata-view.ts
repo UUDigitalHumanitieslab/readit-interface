@@ -43,8 +43,12 @@ export default class ItemMetadataView extends View<Node> {
     }
 
     collectDetails(): this {
-        this.metadata['creator'] = getLabel(this.model.get(dcterms.creator)[0] as Node);
-        this.metadata['created'] = this.model.get(dcterms.created)[0];
+        if (this.model.has(dcterms.creator)) {
+            this.metadata['creator'] = getLabel(this.model.get(dcterms.creator)[0] as Node);
+        }
+        if (this.model.has(dcterms.created)) {
+            this.metadata['created'] = this.model.get(dcterms.created)[0];
+        }
         return this;
     }
 
