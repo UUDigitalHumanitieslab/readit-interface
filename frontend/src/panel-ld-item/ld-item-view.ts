@@ -93,8 +93,10 @@ export default class LdItemView extends View<Node> {
     }
 
     collectDetails(): this {
+        const excluded = ['@id', '@type', dcterms.created, dcterms.creator];
+
         for (let attribute in this.currentItem.attributes) {
-            if (attribute === '@id' || attribute === '@type') {
+            if (excluded.includes(attribute)) {
                 continue;
             }
 
