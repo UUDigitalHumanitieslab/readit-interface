@@ -49,6 +49,7 @@ export default class ExplorerEventController {
             'lditem:showRelated': this.ldItemShowRelated,
             'lditem:showAnnotations': this.ldItemShowAnnotations,
             'lditem:showExternal': this.ldItemShowExternal,
+            'lditem:edit': this.ldItemEdit,
             'relItems:itemClick': this.relItemsItemClicked,
             'source-list:click': this.sourceListClick,
         }, this);
