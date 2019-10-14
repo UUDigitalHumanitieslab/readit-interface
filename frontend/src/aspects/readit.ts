@@ -25,6 +25,7 @@ import LdItemView from '../panel-ld-item/ld-item-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
 import AnnotationEditView from './../panel-annotation/annotations-view';
 import SearchResultBaseItemView from '../search/search-results/search-result-base-view';
+import AnnotationsView from './../panel-annotation/annotations-view';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -65,9 +66,9 @@ directionFsm.on('enter:exploring', () => {
         collection: items,
         model: source,
         ontology: new Graph(mockOntology),
-        // showHighlightsInitially: true,
+        showHighlightsInitially: true,
         isEditable: true,
-        initialScrollTo: annotation,
+        // initialScrollTo: annotation,
     });
 
     let exView = new ExplorerView({ first: sourceView, ontology: ontology });
