@@ -2,7 +2,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, omit } from 'lodash';
 import View from '../core/view';
 
-import { schema } from './../jsonld/ns';
+import { schema } from '../jsonld/ns';
 
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';

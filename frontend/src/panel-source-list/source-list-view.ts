@@ -22,7 +22,7 @@ export default class SourceListView extends View<Node> {
     initialize(options: ViewOptions): this {
         this.subViews = [];
 
-        const languages = ["English", "French", "German"];
+        const languages = ["en", "fr", "de"];
 
         for (let language of languages) {
             let view = new SourceLanguageView({ collection: options.collection, language: language });
@@ -45,7 +45,7 @@ export default class SourceListView extends View<Node> {
 
         if (this.subViews) {
             this.subViews.forEach(sV => {
-                sV.$el.appendTo('.sources-per-language');
+                sV.$el.appendTo(this.$('.sources-per-language'));
             });
         }
         return this;
