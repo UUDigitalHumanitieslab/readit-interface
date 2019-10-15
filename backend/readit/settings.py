@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'staff',
     'ontology',
     'annotation',
+    'sources',
 ]
 
 MIDDLEWARE = [
