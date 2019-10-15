@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'ontology',
     'items',
     'annotation',
+    'sources',
 ]
 
 MIDDLEWARE = [
