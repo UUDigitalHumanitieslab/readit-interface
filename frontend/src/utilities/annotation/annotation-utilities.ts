@@ -81,14 +81,7 @@ export function getOntologyInstances(annotation: Node, ontology: Graph): Node[] 
  */
 export function getOntologyInstance(annotation: Node, ontology: Graph): Node {
     let ontologyInstances = getOntologyInstances(annotation, ontology);
-
-    if (ontologyInstances.length !== 1) {
-        throw new RangeError(
-            `None or multiple ontology instances found for oa:Annotation with cid '${annotation.cid}',
-                    don't know which one to display`);
-    }
-
-    return ontologyInstances[0];
+    if (ontologyInstances.length > 0) return ontologyInstances[0];
 }
 
 /**
