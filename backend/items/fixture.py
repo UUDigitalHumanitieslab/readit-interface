@@ -69,7 +69,7 @@ def as_rdf(annotation):
     start_xpath = as_xpath(startIndex)
     end_xpath = as_xpath(endIndex)
     exact = annotation.text
-    date = annotation.creationDate
+    date = Literal(annotation.creationDate)
     classURI = ONTO[annotation.category]
     source_serial = annotation.source.pk
     source = SOURCE[str(source_serial)]
@@ -86,28 +86,38 @@ def as_rdf(annotation):
     yield (     subject.quote_sel, OA.exact,            Literal(exact)       )
     if suffix:
         yield ( subject.quote_sel, OA.suffix,           Literal(suffix)      )
+    yield (     subject.quote_sel, DCTERMS.creator,     user                 )
+    yield (     subject.quote_sel, DCTERMS.created,     date                 )
 
     yield (     subject.start_sel, is_a,                OA.XPathSelector     )
     yield (     subject.start_sel, RDF.value,           Literal(start_xpath) )
+    yield (     subject.start_sel, DCTERMS.creator,     user                 )
+    yield (     subject.start_sel, DCTERMS.created,     date                 )
 
     yield (     subject.end_sel,   is_a,                OA.XPathSelector     )
     yield (     subject.end_sel,   RDF.value,           Literal(end_xpath)   )
+    yield (     subject.end_sel,   DCTERMS.creator,     user                 )
+    yield (     subject.end_sel,   DCTERMS.created,     date                 )
 
     yield (     subject.range_sel, is_a,                VOCAB.RangeSelector  )
     yield (     subject.range_sel, OA.hasStartSelector, subject.start_sel    )
     yield (     subject.range_sel, OA.hasEndSelector,   subject.end_sel      )
+    yield (     subject.range_sel, DCTERMS.creator,     user                 )
+    yield (     subject.range_sel, DCTERMS.created,     date                 )
 
     yield (     subject.resource,  is_a,                OA.SpecificResource  )
     yield (     subject.resource,  OA.hasSource,        source               )
     yield (     subject.resource,  OA.hasSelector,      subject.range_sel    )
     yield (     subject.resource,  OA.hasSelector,      subject.quote_sel    )
+    yield (     subject.resource,  DCTERMS.creator,     user                 )
+    yield (     subject.resource,  DCTERMS.created,     date                 )
 
     yield (     subject.anno,      is_a,                OA.Annotation        )
     yield (     subject.anno,      OA.hasBody,          classURI             )
     yield (     subject.anno,      OA.hasTarget,        subject.resource     )
     yield (     subject.anno,      OA.motivatedBy,      OA.tagging           )
     yield (     subject.anno,      DCTERMS.creator,     user                 )
-    yield (     subject.anno,      DCTERMS.created,     Literal(date)        )
+    yield (     subject.anno,      DCTERMS.created,     date                 )
 
 
 def canonical_graph():
