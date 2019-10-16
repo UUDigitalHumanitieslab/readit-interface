@@ -2,7 +2,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 import View from '../core/view';
 
-import { oa, schema } from '../jsonld/ns';
+import { oa, schema, vocab } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
 
@@ -72,6 +72,28 @@ export default abstract class BaseAnnotationView extends View<Node> {
             this.trigger('textQuoteSelector', selector);
         }
 
+        if (isType(selector, vocab('RangeSelector'))) {
+            let startSelector = selector.get(oa.hasStartSelector)[0] as Node;
+            this.stopListening(startSelector, 'change', this.baseProcessStartSelector);
+            this.listenTo(startSelector, 'change', this.baseProcessStartSelector);
+            this.baseProcessStartSelector(startSelector);
+
+            let endSelector = selector.get(oa.hasEndSelector)[0] as Node;
+            this.stopListening(endSelector, 'change', this.baseProcessEndSelector);
+            this.listenTo(endSelector, 'change', this.baseProcessEndSelector);
+            this.baseProcessEndSelector(endSelector);
+        }
+
+        return this;
+    }
+
+    baseProcessStartSelector(selector: Node): this {
+        this.trigger('startSelector', selector);
+        return this;
+    }
+
+    baseProcessEndSelector(selector: Node): this {
+        this.trigger('endSelector', selector);
         return this;
     }
 }
