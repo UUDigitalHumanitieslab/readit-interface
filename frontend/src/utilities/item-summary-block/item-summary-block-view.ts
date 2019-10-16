@@ -1,22 +1,21 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from '../../core/view';
 
 import { oa } from './../../jsonld/ns';
 import Node from './../../jsonld/node';
 import Graph from './../../jsonld/graph';
 import ldChannel from './../../jsonld/radio';
 import { getCssClassName, getLabel, isType } from './../utilities';
-import { getOntologyInstance } from '../annotation/annotation-utilities';
+import { getOntologyInstance, getLabelText } from '../annotation/annotation-utilities';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
+import BaseAnnotationView, {ViewOptions as BaseOpt } from '../../annotation/base-annotation-view';
 
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt {
     ontology: Graph;
 }
 
-export default class ItemSummaryBlockView extends View<Node> {
+export default class ItemSummaryBlockView extends BaseAnnotationView {
     instanceLabel: string;
     classLabel: string;
     cssClassName: string;
@@ -40,19 +39,46 @@ export default class ItemSummaryBlockView extends View<Node> {
     initialize(options: ViewOptions): this {
         if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
         this.ontology = options.ontology;
-        this.currentItem = options.model;
 
-        this.modelIsAnnotation = isType(this.model, oa.Annotation);
-        if (this.modelIsAnnotation) {
-            this.currentItem = getOntologyInstance(this.model, this.ontology);
+        this.stopListening(this.model, 'change', this.processModel);
+        this.listenTo(this.model, 'change', this.processModel);
+        this.processModel(this.model);
+        return this;
+    }
+
+    processModel(model: Node): this {
+        this.currentItem = model;
+
+        if (model.has('@type')) {
+            this.modelIsAnnotation = isType(this.model, oa.Annotation);
+            if (this.modelIsAnnotation) {
+                this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
+                this.baseProcessModel(this.model);
+                this.currentItem = getOntologyInstance(this.model, this.ontology);
+            }
         }
 
-        this.instanceLabel = getLabel(this.currentItem);
-        let ontologyClassItem = ldChannel.request('obtain', this.currentItem.get('@type')[0] as string);
+        this.stopListening(this.currentItem, 'change', this.processItem);
+        this.listenTo(this.currentItem, 'change', this.processItem);
+        this.processItem(this.currentItem);
+        return this;
+    }
 
-        this.classLabel = getLabel(ontologyClassItem);
-        this.cssClassName = getCssClassName(ontologyClassItem);
+    processItem(item: Node): this {
+        this.instanceLabel = getLabel(item);
 
+        if (item.has('@type')) {
+            let ontologyClassItem = ldChannel.request('obtain', this.currentItem.get('@type')[0] as string);
+            this.classLabel = getLabel(ontologyClassItem);
+            this.cssClassName = getCssClassName(ontologyClassItem);
+        }
+        this.render();
+        return this;
+    }
+
+    processTextQuoteSelector(selector: Node): this {
+        this.instanceLabel = getLabelText(selector);
+        this.render();
         return this;
     }
 
