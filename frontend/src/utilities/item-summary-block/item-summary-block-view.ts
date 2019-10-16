@@ -58,9 +58,11 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
             }
         }
 
-        this.stopListening(this.currentItem, 'change', this.processItem);
-        this.listenTo(this.currentItem, 'change', this.processItem);
-        this.processItem(this.currentItem);
+        if (this.currentItem) {
+            this.stopListening(this.currentItem, 'change', this.processItem);
+            this.listenTo(this.currentItem, 'change', this.processItem);
+            this.processItem(this.currentItem);
+        }
         return this;
     }
 
