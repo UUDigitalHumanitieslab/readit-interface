@@ -1,3 +1,4 @@
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
@@ -24,6 +25,7 @@ DEFAULT_NS = {
 
 class ItemsAPIRoot(RDFView):
     """ By default, list an empty graph. """
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     graph = graph
     
     def get_graph(self, request):
@@ -64,6 +66,7 @@ class ItemsAPIRoot(RDFView):
 
 class ItemsAPISingular(RDFResourceView):
     """ API endpoint for fetching and changing individual subjects. """
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     graph = graph
 
     def put(self, request, format=None, **kwargs):
