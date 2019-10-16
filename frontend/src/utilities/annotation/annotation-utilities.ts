@@ -13,6 +13,20 @@ export type AnnotationPositionDetails = {
 }
 
 /**
+ * Get a text that is usable as a label for an oa:Annotation,
+ * from its oa:TextQuoteSelector.
+ */
+export function getLabelText(selector: Node): string {
+    if (!isType(selector, oa.TextQuoteSelector))
+        throw TypeError('selector should be an oa:TextQuoteSelector');
+    if (!selector.has(oa.exact)) return;
+
+    let exact = selector.get(oa.exact)[0] as string;
+    if (exact.length < 80) return exact;
+    return `${exact.substring(0, 33)} (..) ${exact.substring(exact.length - 34, exact.length)}`;
+}
+
+/**
  * Get the annotation's position details (i.e. node and character indices).
  * @param annotation The node to extract the details from.
  */
