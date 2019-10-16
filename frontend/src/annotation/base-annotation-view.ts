@@ -2,7 +2,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 import View from '../core/view';
 
-import { oa, schema, vocab } from '../jsonld/ns';
+import { oa, schema, vocab, readit } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
 
@@ -41,6 +41,13 @@ export default abstract class BaseAnnotationView extends View<Node> {
             this.listenTo(n, 'change', this.baseProcessTarget);
         });
 
+        let bodies = annotation.get(oa.hasBody);
+        bodies.forEach(b => {
+            this.stopListening(b, 'change', this.baseProcessBody);
+            this.listenTo(b, 'change', this.baseProcessBody);
+            this.baseProcessBody(b as Node);
+        });
+
         return this;
     }
 
@@ -57,6 +64,17 @@ export default abstract class BaseAnnotationView extends View<Node> {
                 this.stopListening(selector, 'change', this.baseProcessSelector);
                 this.listenTo(selector, 'change', this.baseProcessSelector);
             }
+        }
+
+        return this;
+    }
+
+    baseProcessBody(body: Node): this {
+        if ((body.id as string).startsWith(readit())) {
+            this.trigger('body:ontologyClass', body);
+        }
+        else {
+            this.trigger('body:ontologyInstance', body);
         }
 
         return this;
