@@ -1,5 +1,6 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, bind, debounce, sortBy } from 'lodash';
+import { each } from 'async';
 
 import View from './../core/view';
 import { oa } from './../jsonld/ns';
@@ -8,7 +9,7 @@ import Graph from './../jsonld/graph';
 
 import { isType, getScrollTop } from './../utilities/utilities';
 import { validateCompleteness, getPositionDetails, getLinkedItems, getCssClassName, getSelector } from '../utilities/annotation/annotation-utilities';
-import { createAnnotation } from './../utilities/annotation/annotation-creation-utilities';
+import { getAnonymousTextQuoteSelector } from './../utilities/annotation/annotation-creation-utilities';
 import OverlappingHighlightsStrategy, { OverlappingHighlights } from './overlapping-highlights-strategy';
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
@@ -124,16 +125,18 @@ export default class HighlightableTextView extends View {
         this.textWrapper = this.$('.textWrapper');
         this.positionContainer = this.$('.position-container');
 
+        let self = this;
         if (this.text) {
             this.initHighlights();
-            this.initOverlaps();
-
-            if (!this.showHighlightsInitially) {
-                this.hideAll();
-            }
-            else {
-                this.scroll(this.scrollToNode);
-            }
+            each(this.hVs, (hV, callback) => hV.test(callback), function (err) {
+                self.initOverlaps();
+                if (!this.showHighlightsInitially) {
+                    self.hideAll();
+                }
+                else {
+                    self.scroll(this.scrollToNode);
+                }
+            });
         }
 
         return this;
@@ -151,17 +154,10 @@ export default class HighlightableTextView extends View {
         }
         let overlapStrategy = new OverlappingHighlightsStrategy();
         let overlaps: OverlappingHighlights[] = overlapStrategy.getOverlaps(this.hVs);
-        overlaps.forEach(overlap => {
-            let range = this.getRange(
-                this.textWrapper,
-                overlap.positionDetails.startNodeIndex,
-                overlap.positionDetails.startCharacterIndex,
-                overlap.positionDetails.endNodeIndex,
-                overlap.positionDetails.endCharacterIndex
-            );
 
+        overlaps.forEach(overlap => {
             let ohv = new OverlappingHighlightsView({
-                range: range,
+                textWrapper: this.textWrapper,
                 relativeParent: this.positionContainer,
                 positionDetails: overlap.positionDetails,
                 highlights: overlap.highlightViews
@@ -176,7 +172,6 @@ export default class HighlightableTextView extends View {
     initHighlights(): this {
         this.collection.each((node) => {
             if (isType(node, oa.Annotation)) {
-                validateCompleteness(node);
                 this.addHighlight(node);
             }
         });
@@ -268,25 +263,13 @@ export default class HighlightableTextView extends View {
     private addHighlight(node: Node): HighlightView {
         if (!isType(node, oa.Annotation)) return;
 
-        // annotation styling details
+        // Get styling here because HighlightViews shouldn't care about the ontology (nor should this view, but ok..)
         let cssClass = getCssClassName(node, this.ontology);
-
-        // annotation position details
-        let posDetails = getPositionDetails(node);
-
-        let range = this.getRange(
-            this.textWrapper,
-            posDetails.startNodeIndex,
-            posDetails.startCharacterIndex,
-            posDetails.endNodeIndex,
-            posDetails.endCharacterIndex
-        );
 
         let hV = new HighlightView({
             model: node,
-            range: range,
-            positionDetails: posDetails,
             cssClass: cssClass,
+            textWrapper: this.textWrapper,
             relativeParent: this.positionContainer,
             isDeletable: this.isEditable
         });
@@ -341,10 +324,10 @@ export default class HighlightableTextView extends View {
     }
 
     bindEvents(hV: HighlightView): this {
-        hV.on('hover', this.onHover, this);
-        hV.on('hoverEnd', this.onHoverEnd, this);
-        hV.on('delete', this.deleteNode, this);
-        hV.on('click', this.onClicked, this);
+        this.listenTo(hV, 'hover', this.onHover);
+        this.listenTo(hV, 'hoverEnd', this.onHoverEnd);
+        this.listenTo(hV, 'delete', this.deleteNode);
+        this.listenTo(hV, 'click', this.onClicked);
         return this;
     }
 
@@ -423,7 +406,7 @@ export default class HighlightableTextView extends View {
 
         // Ignore empty selections
         if (range.startOffset === range.endOffset) return;
-        this.trigger('textSelected', createAnnotation(range));
+        this.trigger('textSelected', range);
     }
 
     onClicked(hV: HighlightView, node: Node): this {

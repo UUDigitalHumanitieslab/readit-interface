@@ -10,14 +10,15 @@ import HighlightView from './highlight-view';
 
 export interface ViewOptions extends BaseOpt<Node> {
     /**
-     * Range object containing the ClientDomRects that the overlap view should be based on.
-     */
-    range: Range;
-
-    /**
      * Position details of the highlight.
      */
     positionDetails: AnnotationPositionDetails;
+
+    /**
+     * The element containing the text (inc. HTML tags) that the gighlight should appear in.
+     * Should be in the DOM.
+     */
+    textWrapper: JQuery<HTMLElement>;
 
     /**
     * The first positioned parent, i.e. with position relative, absolute or fixed,
@@ -36,9 +37,9 @@ export default class OverlappingHighlightsView extends View {
     overlappingHVs: HighlightView[];
 
     constructor(options: ViewOptions) {
-        if (!options.range) throw TypeError("range cannot be null or empty");
         if (!options.positionDetails) throw TypeError("positionDetails cannot be null or undefined");
         if (!options.relativeParent) throw TypeError("relativeParent cannot be null or empty");
+        if (!options.textWrapper) throw TypeError("textWrapper cannot be null or undefined");
 
         super(options);
         this.overlappingHVs = options.highlights;
@@ -46,7 +47,7 @@ export default class OverlappingHighlightsView extends View {
         this.hV = new HighlightView({
             model: undefined,
             cssClass: 'is-overlap',
-            range: options.range,
+            textWrapper: options.textWrapper,
             positionDetails: options.positionDetails,
             relativeParent: options.relativeParent,
             isDeletable: false
