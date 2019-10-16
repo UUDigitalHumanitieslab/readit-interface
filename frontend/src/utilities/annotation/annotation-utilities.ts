@@ -16,12 +16,7 @@ export type AnnotationPositionDetails = {
  * Get the annotation's position details (i.e. node and character indices).
  * @param annotation The node to extract the details from.
  */
-export function getPositionDetails(annotation: Node): AnnotationPositionDetails {
-    validateType(annotation);
-
-    let selector = getSelector(annotation);
-    let startSelector = getStartSelector(selector);
-    let endSelector = getEndSelector(selector);
+export function getPositionDetails(startSelector: Node, endSelector: Node): AnnotationPositionDetails {
     return {
         startNodeIndex: getNodeIndex(startSelector),
         startCharacterIndex: getCharacterIndex(startSelector),

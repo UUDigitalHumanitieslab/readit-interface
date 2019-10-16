@@ -1,33 +1,31 @@
-import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, minBy, sumBy, initial, last } from 'lodash';
+// import { ViewOptions as BaseOpt } from 'backbone';
+import { extend, minBy, sumBy, initial, last, defer } from 'lodash';
 
-import View from '../core/view';
+import { rdf } from './../jsonld/ns';
 
 import Node from '../jsonld/node';
 import HighlightRectView from './highlight-rect-view';
-import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
+import { AnnotationPositionDetails, getPositionDetails, getCssClassName } from '../utilities/annotation/annotation-utilities';
+import BaseAnnotationView, { ViewOptions as BaseOpt } from '../annotation/base-annotation-view';
+import { getRange } from '../utilities/range-utilities';
+import View from '../core/view';
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt {
     /**
      * The oa:Annotation instance to create the highlight for.
      */
     model: Node;
 
     /**
-     * Range object containing the ClientDomRects that the highlight should be based on.
-     */
-    range: Range;
-
-    /**
-     * Position details of the highlight.
-     */
-    positionDetails: AnnotationPositionDetails;
-
-    /**
-     * The CSS class to use to style the highlight.
-     * Is allowed to be null or undefined, but in that case the highlight will not be visible.
+     * The READ-IT specific cssClass to add to this rect.
      */
     cssClass: string;
+
+    /**
+     * The element containing the text (inc. HTML tags) that the gighlight should appear in.
+     * Should be in the DOM.
+     */
+    textWrapper: JQuery<HTMLElement>;
 
     /**
      * The first positioned parent, i.e. with position relative, absolute or fixed,
@@ -39,40 +37,103 @@ export interface ViewOptions extends BaseOpt<Node> {
      * Specifies whether the highlight can be deleted. Defaults to false.
      */
     isDeletable: boolean;
+
+    positionDetails?: AnnotationPositionDetails
 }
 
-export default class HighlightView extends View<Node> {
+export default class HighlightView extends BaseAnnotationView {
     cssClass: string;
     range: Range;
     positionDetails: AnnotationPositionDetails;
+    textWrapper: JQuery<HTMLElement>;
     relativeParent: JQuery<HTMLElement>;
     isDeletable: boolean;
     rects: ClientRectList | DOMRectList;
     rectViews: HighlightRectView[];
     lastRect: HighlightRectView;
 
-    constructor(options?: ViewOptions) {
-        if (!options.range) throw TypeError("range cannot be null or undefined");
-        if (!options.positionDetails) throw TypeError("positionDetails cannot be null or undefined");
-        if (!options.relativeParent) throw TypeError("relativeParent cannot be null or empty");
+    startSelector: Node;
+    endSelector: Node;
+    callbackFn: any;
 
+    constructor(options?: ViewOptions) {
+        if (!options.textWrapper) throw TypeError("textWrapper cannot be null or undefined");
+        if (!options.relativeParent) throw TypeError("relativeParent cannot be null or empty");
+        if (!options.model && !options.positionDetails) throw TypeError("positionDetails and model cannot both be undefined");
         super(options);
-        this.range = options.range;
-        // Workaround for Safari in order to prevent empty rects.
-        const selection = document.getSelection();
-        selection.addRange(options.range);
-        selection.removeAllRanges();  // Safari cannot remove a single range.
-        // End of workaround for Safari.
-        this.rects = options.range.getClientRects();
-        this.positionDetails = options.positionDetails;
+    }
+
+    initialize(options: ViewOptions): this {
         this.cssClass = options.cssClass;
         this.relativeParent = options.relativeParent;
+        this.textWrapper = options.textWrapper;
         this.isDeletable = options.isDeletable || false;
+
+        if (this.model) {
+            this.listenTo(this, 'startSelector', this.processStartSelector);
+            this.listenTo(this, 'endSelector', this.processEndSelector);
+            this.listenTo(this.model, 'change', this.processModel);
+            this.processModel(this.model);
+        }
+        else {
+            this.positionDetails = options.positionDetails;
+            this.processPositionDetails();
+        }
+        return this;
+    }
+
+    processModel(model: Node): this {
+        this.baseProcessModel(model);
+        return this;
+    }
+
+    processStartSelector(selector: Node): this {
+        if (selector.has(rdf.value)) {
+            this.startSelector = selector;
+            this.processSelectors();
+        }
+        return this;
+    }
+
+    processEndSelector(selector: Node): this {
+        if (selector.has(rdf.value)) {
+            this.endSelector = selector;
+            this.processSelectors();
+        }
+        return this;
+    }
+
+    processSelectors(): this {
+        if (this.startSelector && this.endSelector) {
+            this.positionDetails = getPositionDetails(this.startSelector, this.endSelector);
+            this.processPositionDetails();
+            if (this.callbackFn) this.callbackFn();
+        }
+        return this;
+    }
+
+    processPositionDetails(): this {
+        this.range = getRange(this.textWrapper, this.positionDetails);
+        this.rects = this.range.getClientRects();
         this.initRectViews();
+        this.render();
+
+        return this;
+    }
+
+    test(callback: any): void {
+        if (this.positionDetails) {
+            defer(callback())
+        }
+        this.callbackFn = callback;
     }
 
     render(): this {
-        this.$el.append(this.rectViews.map((view) => view.el));
+        if (this.rectViews) {
+            this.rectViews.forEach(v => v.$el.detach());
+            this.$el.append(this.rectViews.map((view) => view.el));
+            this.trigger('rendered');
+        }
         return this;
     }
 
