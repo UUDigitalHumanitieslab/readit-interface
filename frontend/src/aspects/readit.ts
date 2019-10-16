@@ -1,5 +1,5 @@
-import { history } from 'backbone';
-
+import { history, View } from 'backbone';
+import { parallel } from 'async';
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
@@ -8,7 +8,7 @@ import ExplorerView from '../panel-explorer/explorer-view';
 import Graph from './../jsonld/graph';
 import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
-import { item } from '../jsonld/ns';
+import { item, readit, rdf } from '../jsonld/ns';
 
 import CategoryColorView from './../utilities/category-colors/category-colors-view';
 import SourceView from './../panel-source/source-view';
@@ -28,7 +28,7 @@ import RelatedItemsView from '../panel-related-items/related-items-view';
 import SearchResultBaseItemView from '../search/search-results/search-result-base-view';
 
 import ItemGraph from './../utilities/item-graph';
-import SourceListView from '../source/source-list-view';
+import SourceListView from '../panel-source-list/source-list-view';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -53,44 +53,85 @@ directionRouter.on('route:explore', () => {
     directionFsm.handle('explore');
 });
 
-directionFsm.on('enter:exploring', () => {
-     // This are just a quick and dirty solutions, will have to be moved in the future
-    let sourcesList = new SourceListView({
-        collection: new Graph(mockSources),
+function getOntology(callback) {
+    let o = new Graph();
+    o.fetch({ url: readit() }).then(
+        function success() {
+            callback(null, o);
+        },
+        function error(collection, response, options: any) {
+            callback(options.error)
+        }
+    );
+}
 
-    });
-    sourcesList.render().$el.appendTo('#main');
+function getItems(callback) {
+    const items = new ItemGraph();
+    items.query({ predicate: rdf.type, object: oa.Annotation }).then(
+        function success() {
+            callback(null, items);
+        },
+        function error(collection, response, options: any) {
+            callback(options.error);
+        });
+}
 
+function getSources(callback) {
+    // TODO: implement properly when backend is ready
+    setTimeout(function () {
+        callback(null, new Graph(mockSources));
+    }, 200);
+}
 
-    // let source = new Graph(mockSources).models[0];
-    let items = new Graph(mockItems);
-    let ontology = new Graph(mockOntology);
-    // let staff = new Graph(mockStaff);
-
-    // let annotation = items.find(n => n.get("@id") == item('100'));
-    // // let item = items.find(n => n.get("@id") == item('100')); // item("201"));
-
-    // // IMPORTANT To test related items view, use 202 ! (it actually has related items)
-
-    let exView = new ExplorerView({ first: sourcesList, ontology: ontology });
+function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
+    let exView = new ExplorerView({ first: first, ontology: ontology });
     let vh = $(window).height();
     // compensates for menu and footer (555 is min-height)
     let height = Math.max(vh - 194, 555);
-
     exView.setHeight(height);
     exView.render().$el.appendTo('#main');
+    return exView
+}
 
-    sourcesList.on('source-list:click', (listView: SourceListView, source: Node) => {
-        let sourceView = new SourceView({
-            collection: items,
-            model: source,
-            ontology: new Graph(mockOntology),
-            showHighlightsInitially: true,
-            isEditable: true,
-            // initialScrollTo: annotation,
-        });
-        exView.popUntil(sourcesList);
-        exView.push(sourceView);
+function createSourceView(source: Node, ontology: Graph, callback: any) {
+    getItems(function (error, items) {
+        if (error) console.debug(error)
+        else {
+            let sourceView = new SourceView({
+                collection: new Graph(items.models),
+                model: source,
+                ontology: ontology,
+                showHighlightsInitially: true,
+                isEditable: true,
+                // initialScrollTo: annotation,
+            });
+            callback(null, sourceView);
+        }
+    });
+}
+
+directionFsm.on('enter:exploring', () => {
+    parallel([getOntology, getSources], function (error, results) {
+        if (error) console.debug(error);
+        else {
+            let ontology = results[0];
+            let sources = results[1];
+
+            let sourceListView = new SourceListView({
+                collection: sources,
+            });
+            let explorer = initExplorer(sourceListView, ontology);
+
+            sourceListView.on('source-list:click', (listView: SourceListView, source: Node) => {
+                createSourceView(source, ontology, (error, sourceView) => {
+                    if (error) console.error(error);
+                    else {
+                        explorer.popUntil(sourceListView);
+                        explorer.push(sourceView);
+                    }
+                });
+            });
+        }
     });
 });
 
