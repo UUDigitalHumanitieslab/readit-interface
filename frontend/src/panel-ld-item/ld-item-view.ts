@@ -1,7 +1,6 @@
-import { ViewOptions as BaseOpt } from 'backbone';
+
 import { extend } from 'lodash';
 
-import View from '../core/view';
 import Graph from './../jsonld/graph';
 import Node from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
@@ -11,18 +10,19 @@ import ldItemTemplate from './ld-item-template';
 
 import { owl, oa, dcterms } from './../jsonld/ns';
 import { isType, getLabel, getLabelFromId } from './../utilities/utilities';
-import { getOntologyInstance } from '../utilities/annotation/annotation-utilities';
+import { getOntologyInstance, getLabelText } from '../utilities/annotation/annotation-utilities';
 
 import LabelView from '../utilities/label-view';
 
 import * as bulmaAccordion from 'bulma-accordion';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
+import BaseAnnotationView, { ViewOptions as BaseOpt } from '../annotation/base-annotation-view';
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt {
     ontology: Graph;
 }
 
-export default class LdItemView extends View<Node> {
+export default class LdItemView extends BaseAnnotationView {
     lblView: LabelView;
     ontology: Graph;
 
@@ -48,46 +48,91 @@ export default class LdItemView extends View<Node> {
     annotationMetadataView: ItemMetadataView;
 
     constructor(options?: ViewOptions) {
+        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
         super(options);
     }
 
     initialize(options: ViewOptions): this {
-        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
-
         this.ontology = options.ontology;
-        this.modelIsAnnotation = isType(this.model, oa.Annotation);
-        this.currentItem = this.model;
         this.properties = new Object();
         this.annotations = new Object();
         this.relatedItems = [];
 
-        if (this.modelIsAnnotation) {
-            this.currentItem = getOntologyInstance(this.currentItem, this.ontology);
-            this.annotationMetadataView = new ItemMetadataView({ model: this.model, title: 'Annotation metadata' });
-            this.annotationMetadataView.render();
+        this.listenTo(this.model, 'change', this.processModel);
+        this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
+        this.listenTo(this, 'body:ontologyClass', this.processOntologyClass);
+        this.listenTo(this, 'body:ontologyInstance', this.processOntologyInstance)
+        this.processModel(this.model);
+        return this;
+    }
+
+    processModel(model: Node): this {
+        this.currentItem = model;
+
+        if (model.has('@type')) {
+            this.modelIsAnnotation = isType(this.model, oa.Annotation);
+            if (this.modelIsAnnotation) {
+                this.baseProcessModel(model);
+                this.currentItem = getOntologyInstance(this.currentItem, this.ontology);
+                this.annotationMetadataView = new ItemMetadataView({ model: this.model, title: 'Annotation metadata' });
+                this.annotationMetadataView.render();
+            }
         }
 
-        this.label = getLabel(this.currentItem);
-        this.itemMetadataView = new ItemMetadataView({model: this.currentItem});
-        this.itemMetadataView.render();
+        if (this.currentItem) {
+            this.stopListening(this.currentItem, 'change', this.processItem);
+            this.listenTo(this.currentItem, 'change', this.processItem);
+            this.processItem(this.currentItem);
+        }
+        return this.render();
+    }
 
-        let ontologyClass = ldChannel.request('obtain', this.currentItem.get('@type')[0] as string);
+    processItem(item: Node): this {
+        this.label = getLabel(this.currentItem);
+
+        if (item.has('@type')) {
+            this.itemMetadataView = new ItemMetadataView({ model: this.currentItem });
+            this.itemMetadataView.render();
+            this.collectDetails();
+        }
+
+        return this.render();
+    }
+
+    processOntologyClass(body: Node): this {
+        if (!this.lblView) {
+            this.createLabel(body);
+        }
+        return this.render();
+    }
+
+    processOntologyInstance(item: Node): this {
+        if (!this.lblView) {
+            this.createLabel(ldChannel.request('obtain', item.get('@type')[0] as string));
+        }
+        return this.render();
+    }
+
+    processTextQuoteSelector(selector: Node): this {
+        this.label = getLabelText(selector);
+        return this.render();
+    }
+
+    createLabel(ontologyClass: Node): this {
         if (ontologyClass) {
             this.lblView = new LabelView({ model: ontologyClass, toolTipSetting: 'left' });
             this.lblView.render();
         }
-
-        this.collectDetails();
         return this;
     }
 
     render(): this {
-        this.lblView.$el.detach();
-        this.itemMetadataView.$el.detach();
+        if (this.lblView) this.lblView.$el.detach();
+        if (this.itemMetadataView) this.itemMetadataView.$el.detach();
         if (this.annotationMetadataView) this.annotationMetadataView.$el.detach();
         this.$el.html(this.template(this));
-        this.$('header aside').append(this.lblView.el);
-        this.$('.itemMetadataContainer').append(this.itemMetadataView.el);
+        if (this.lblView) this.$('header aside').append(this.lblView.el);
+        if (this.itemMetadataView) this.$('.itemMetadataContainer').append(this.itemMetadataView.el);
         if (this.annotationMetadataView) this.$('.annotationMetadataContainer').append(this.annotationMetadataView.el);
         return this;
     }
