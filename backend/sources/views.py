@@ -1,3 +1,12 @@
-from django.shortcuts import render
+from rdf.views import RDFView, RDFResourceView
+from .graph import graph
 
-# Create your views here.
+
+class SourcesAPIRoot(RDFView):
+    """ For now, simply lists all sources. """
+    graph = graph
+
+
+class SourcesAPISingular(RDFResourceView):
+    """ API endpoint for fetching individual subjects. """
+    graph = graph
