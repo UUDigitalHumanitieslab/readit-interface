@@ -103,13 +103,17 @@ export default class SnippetView extends View {
         let fullString = `${prefix}${exact}${suffix}`;
 
         if (this.getLengthInPixels(fullString) < availableSpace) {
-            this.prefix_calc = prefix;
+            this.prefix_calc = prefix || "";
             this.exact_calc = exact;
-            this.suffix_calc = suffix;
+            this.suffix_calc = suffix || "";
         }
         else {
-            this.prefix_calc = this.trimToFit(prefix, availableSpace / 4, true);
-            this.trimmedStart = true;
+            if (!prefix) this.prefix_calc = "";
+            else {
+                this.prefix_calc = this.trimToFit(prefix, availableSpace / 4, true);
+                this.trimmedStart = true;
+            }
+
             if (this.getLengthInPixels(exact) <= availableSpace / 2.5) {
                 this.exact_calc = exact;
             }
@@ -117,8 +121,12 @@ export default class SnippetView extends View {
                 this.exact_calc = `${this.trimToFit(exact, availableSpace / 4)}
                 ${this.ellipsis} ${this.trimToFit(exact, availableSpace / 4, true)}`;
             }
-            this.suffix_calc = this.trimToFit(suffix, availableSpace / 4);
-            this.trimmedEnd = true;
+
+            if (!suffix) this.suffix_calc = "";
+            else {
+                this.suffix_calc = this.trimToFit(suffix, availableSpace / 4);
+                this.trimmedEnd = true;
+            }
         }
 
         return this;

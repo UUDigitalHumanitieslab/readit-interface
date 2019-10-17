@@ -16,24 +16,21 @@ const suffixLength = 100;
  * the AnnotationEditView.
  */
 export function getAnonymousTextQuoteSelector(range: Range): Node {
-    return new Node({
+    let prefix = getPrefix(range);
+    let suffix = getSuffix(range);
+
+    let tqs = new Node({
         '@type': [oa.TextQuoteSelector],
-        [oa.prefix]: [
-            {
-                '@value': getPrefix(range)
-            }
-        ],
         [oa.exact]: [
             {
                 "@value": range.toString()
             }
-        ],
-        [oa.suffix]: [
-            {
-                "@value": getSuffix(range)
-            }
-        ],
+        ]
     });
+
+    if (prefix) tqs.set(oa.prefix, prefix);
+    if (suffix) tqs.set(oa.suffix, suffix);
+    return tqs;
 }
 
 function getPrefix(exactRange: Range): string {
