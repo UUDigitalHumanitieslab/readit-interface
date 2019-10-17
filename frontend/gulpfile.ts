@@ -197,11 +197,6 @@ function lazyInit(initialize: () => any) {
 function decoratedBrowserify(options, constructor = browserify) {
     return lazyInit(() => constructor(options)
         .plugin(tsify, tsOptions)
-        .transform('babelify', {
-            global: true,
-            presets: [['@babel/env', { targets: "defaults" }]],
-            only: [/\/node_modules\/(jsonld|rdf-parse)\//],
-        })
         .transform(aliasify, aliasOptions)
         .transform(exposify, {global: true})
     );
@@ -259,7 +254,10 @@ function jsBundle() {
         .on('error', reportBundleError)
         .pipe(ifNotProd(exorcist(jsSourceMapDest)))
         .pipe(vinylStream(jsBundleName))
-        .pipe(ifProd(vinylBuffer()))
+        .pipe(vinylBuffer())
+        .pipe(plugins.babel({
+            presets: [['@babel/env', { targets: "defaults" }]],
+        }))
         .pipe(ifProd(plugins.uglify()))
         .pipe(dest(buildDir));
 }
@@ -268,6 +266,10 @@ function jsUnittest() {
     return tsTestModules().bundle()
         .on('error', reportBundleError)
         .pipe(vinylStream(unittestBundleName))
+        .pipe(vinylBuffer())
+        .pipe(plugins.babel({
+            presets: [['@babel/env', { targets: "defaults" }]],
+        }))
         .pipe(dest(buildDir));
 }
 
