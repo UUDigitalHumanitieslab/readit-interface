@@ -239,6 +239,7 @@ const reporterModules = decoratedBrowserify({
 const vendorModules = lazyInit(() => browserify({
         debug: !production,
         require: vendorLibs,
+        fullPaths: true,
     }).transform('babelify', {
         global: true,
         presets: [['@babel/env', { targets: "defaults" }]],
