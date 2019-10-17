@@ -10,8 +10,8 @@ import OntologyClassPickerView from '../utilities/ontology-class-picker/ontology
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import { isType } from '../utilities/utilities';
-import { getOntologyInstance } from '../utilities/annotation/annotation-utilities';
-import { createBody } from './../utilities/annotation/annotation-creation-utilities';
+import { getOntologyInstance, AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
+import { composeAnnotation, getAnonymousTextQuoteSelector } from './../utilities/annotation/annotation-creation-utilities';
 
 import BaseAnnotationView from './base-annotation-view';
 
@@ -20,18 +20,30 @@ import annotationEditTemplate from './panel-annotation-edit-template';
 
 export interface ViewOptions extends BaseOpt<Node> {
     /**
-     * An instance of oa:Annotation that links to a oa:TextQuoteSelector.
+     * An instance of oa:Annotation that links to a oa:TextQuoteSelector
      */
     model: Node;
+
+    source: Node;
+
     ontology: Graph;
+
+    range?: Range;
+
+    positionDetails: AnnotationPositionDetails;
 }
 
 export default class AnnotationEditView extends BaseAnnotationView {
     ontology: Graph;
+    source: Node;
+    range: Range;
+    positionDetails: AnnotationPositionDetails;
     preselection: Node;
     metadataView: ItemMetadataView;
     ontologyClassPicker: OntologyClassPickerView;
     snippetView: SnippetView;
+    modelIsAnnotion: boolean;
+    selectedOntologyClass: Node;
 
     snippetViewIsInDOM: boolean;
     DOMMutationObserver: MutationObserver;
@@ -42,9 +54,25 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     initialize(options: ViewOptions): this {
         this.ontology = options.ontology;
-        this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
-        this.processModel(options.model);
-        this.listenTo(this.model, 'change', this.processModel);
+        this.source = options.source;
+
+        if (options.range) {
+            this.range = options.range;
+            this.positionDetails = options.positionDetails;
+            this.model = getAnonymousTextQuoteSelector(this.range);
+        }
+
+        this.modelIsAnnotion = isType(this.model, oa.Annotation);
+
+        if (this.modelIsAnnotion) {
+            this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
+            this.processModel(options.model);
+            this.listenTo(this.model, 'change', this.processModel);
+        }
+        else {
+            this.processTextQuoteSelector(this.model);
+            this.listenTo(this.model, 'change', this.processTextQuoteSelector);
+        }
 
         const config = { attributes: true, childList: true, subtree: true };
         this.DOMMutationObserver = new MutationObserver(this.onDOMMutation.bind(this));
@@ -74,13 +102,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
                 this.preselection = ldChannel.request('obtain', ontologyInstance.get('@type')[0] as string);
             }
 
-            this.ontologyClassPicker = new OntologyClassPickerView({
-                collection: this.ontology,
-                preselection: this.preselection
-            });
-
-            this.ontologyClassPicker.render();
-            this.ontologyClassPicker.on('select', this.onOntologyItemSelected, this);
+            this.initOntologyClassPicker();
         }
 
         return this;
@@ -88,10 +110,24 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     processTextQuoteSelector(selector: Node): this {
         if (this.snippetView) return;
-            this.snippetView = new SnippetView({
-                selector: selector
-            });
+
+        this.snippetView = new SnippetView({
+            selector: selector
+        });
         this.snippetView.render();
+
+        if (!this.modelIsAnnotion) this.initOntologyClassPicker();
+        return this;
+    }
+
+    initOntologyClassPicker(): this {
+        this.ontologyClassPicker = new OntologyClassPickerView({
+            collection: this.ontology,
+            preselection: this.preselection
+        });
+
+        this.ontologyClassPicker.render();
+        this.listenTo(this.ontologyClassPicker, 'select', this.onOntologyItemSelected);
         return this;
     }
 
@@ -101,7 +137,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
         if (this.metadataView) this.metadataView.$el.detach();
 
         this.$el.html(this.template(this));
-
         if (this.preselection) this.select(this.preselection);
 
         this.$(".anno-edit-form").submit(function (e) { e.preventDefault(); })
@@ -117,12 +152,16 @@ export default class AnnotationEditView extends BaseAnnotationView {
     }
 
     submit(): this {
-        // TODO: store references to this stuff in this view itself?
-
-        let body = createBody(this.snippetView.selector, this.snippetView.exact_calc);
-        this.model.set(oa.hasBody, body);
-        // this.model.save();
-        this.trigger('annotationEditView:save', this, this.model);
+        composeAnnotation(
+            this.source,
+            this.positionDetails,
+            this.selectedOntologyClass,
+            this.snippetView.selector,
+            (error, results) => {
+                if (error) return console.debug(error);
+                console.log(results.items);
+                // this.trigger('annotationEditView:save', this, results.annotation, results.items);
+            });
         return this;
     }
 
@@ -135,13 +174,12 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     select(item: Node): this {
         this.$('.hidden-input').val(item.id).valid();
+        this.selectedOntologyClass = item;
         return this;
     }
 
     onOntologyItemSelected(item: Node): this {
         this.select(item);
-        this.snippetView.selector = item;
-
         return this;
     }
 
