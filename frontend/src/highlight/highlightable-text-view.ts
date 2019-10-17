@@ -187,6 +187,8 @@ export default class HighlightableTextView extends View {
     add(newItems: ItemGraph): this {
         if (!this.isEditable) return;
         this.collection.add(newItems.models);
+        this.overlaps = [];
+        this.initOverlaps();
         return this;
     }
 
@@ -256,6 +258,8 @@ export default class HighlightableTextView extends View {
      * @param node The Node to base the highlight on.
      */
     private addHighlight(node: Node): HighlightView {
+        console.log('addHighlight');
+
         if (!isType(node, oa.Annotation)) return;
 
         // Get styling here because HighlightViews shouldn't care about the ontology (nor should this view, but ok..)
