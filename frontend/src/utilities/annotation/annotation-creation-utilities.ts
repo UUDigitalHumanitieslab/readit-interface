@@ -79,7 +79,7 @@ export function composeAnnotation(source: Node, posDetails: AnnotationPositionDe
         rangeSelector: ['items', 'startSelector', 'endSelector',
             createRangeSelector,
         ],
-        textQuoteSelector: ['items', 'tQSelector',
+        textQuoteSelector: ['items', 'tQSelector', 'rangeSelector',
             createTextQuoteSelector,
         ],
         specificResource: ['items', 'source', 'rangeSelector', 'textQuoteSelector',
@@ -152,7 +152,7 @@ function createOntologyInstance(items: ItemGraph, ontoClass: Node, done?) {
     return createItem(items, attributes, done);
 }
 
-function createTextQuoteSelector(items: ItemGraph, textQuoteSelector: Node, done?) {
+function createTextQuoteSelector(items: ItemGraph, textQuoteSelector: Node, rangeSelector, done?) {
     return createItem(items, textQuoteSelector.attributes, done);
 }
 
