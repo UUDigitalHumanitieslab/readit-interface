@@ -37,6 +37,12 @@ export default class HighlightRectView extends View {
         return this;
     }
 
+    newCssClass(newClass: string): this {
+        this.$el.removeClass(this.cssClass);
+        this.cssClass = newClass;
+        return this.render();
+    }
+
     /**
      * Set the relevant css attributes to position this rect.
      * @param rect The rectangle in the DOM to model the HighlightRect after.

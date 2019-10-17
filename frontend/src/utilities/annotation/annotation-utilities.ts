@@ -72,7 +72,10 @@ export function getCssClassName(annotation: Node, ontology: Graph): string {
  * Get the ontology instances from an annotation (i.e. the item in 'oa.hasBody' that are not ontology items)
  */
 export function getOntologyInstances(annotation: Node, ontology: Graph): Node[] {
-    return annotation.get(oa.hasBody).filter(n => !ontology.get(n as Node)) as Node[];
+    let bodies = annotation.get(oa.hasBody);
+    if (bodies) {
+        return bodies.filter(n => !ontology.get(n as Node)) as Node[];
+    }
 }
 
 /**
@@ -81,7 +84,7 @@ export function getOntologyInstances(annotation: Node, ontology: Graph): Node[] 
  */
 export function getOntologyInstance(annotation: Node, ontology: Graph): Node {
     let ontologyInstances = getOntologyInstances(annotation, ontology);
-    if (ontologyInstances.length > 0) return ontologyInstances[0];
+    if (ontologyInstances && ontologyInstances.length > 0) return ontologyInstances[0];
 }
 
 /**
