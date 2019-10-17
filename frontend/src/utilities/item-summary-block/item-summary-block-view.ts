@@ -53,6 +53,7 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
         if (model.has('@type')) {
             this.modelIsAnnotation = isType(this.model, oa.Annotation);
             if (this.modelIsAnnotation) {
+                this.stopListening(this, 'textQuoteSelector', this.processTextQuoteSelector);
                 this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
                 this.baseProcessModel(this.model);
                 this.currentItem = getOntologyInstance(this.model, this.ontology);

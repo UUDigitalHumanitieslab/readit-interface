@@ -35,6 +35,11 @@ export interface ViewOptions extends BaseOpt<Node> {
      * Should be set in case of a new annotation (i.e. when model is undefined).
      */
     positionDetails?: AnnotationPositionDetails;
+
+    /**
+     * Should be set in case of a new annotation (i.e. when model is undefined).
+     */
+    source?: Node;
 }
 
 export default class AnnotationEditView extends BaseAnnotationView {
@@ -60,6 +65,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
         this.ontology = options.ontology;
 
         if (options.range) {
+            this.source = options.source;
             this.range = options.range;
             this.positionDetails = options.positionDetails;
             this.model = getAnonymousTextQuoteSelector(this.range);
