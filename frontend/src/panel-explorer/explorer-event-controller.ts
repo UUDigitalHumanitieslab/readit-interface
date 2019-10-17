@@ -204,6 +204,7 @@ export default class ExplorerEventController {
         let annoEditView = new AnnotationEditView({
             range: range,
             positionDetails: positionDetails,
+            source: source,
             ontology: this.explorerView.ontology,
             model: undefined,
         });

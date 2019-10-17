@@ -65,9 +65,9 @@ export default abstract class BaseAnnotationView extends View<Node> {
 
             let selectors: Node[] = target.get(oa.hasSelector) as Node[];
             for (let selector of selectors) {
-                this.baseProcessSelector(selector);
                 this.stopListening(selector, 'change', this.baseProcessSelector);
                 this.listenTo(selector, 'change', this.baseProcessSelector);
+                this.baseProcessSelector(selector);
             }
         }
 
