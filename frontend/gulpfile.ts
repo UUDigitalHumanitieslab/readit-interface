@@ -252,12 +252,15 @@ function reportBundleError(errorObj) {
 function jsBundle() {
     return tsModules().bundle()
         .on('error', reportBundleError)
-        .pipe(ifNotProd(exorcist(jsSourceMapDest)))
         .pipe(vinylStream(jsBundleName))
         .pipe(vinylBuffer())
+        .pipe(ifNotProd(plugins.sourcemaps.init({
+            loadMaps: true,
+        })))
         .pipe(plugins.babel({
             presets: [['@babel/env', { targets: "defaults" }]],
         }))
+        .pipe(ifNotProd(plugins.sourcemaps.write('.')))
         .pipe(ifProd(plugins.uglify()))
         .pipe(dest(buildDir));
 }
@@ -267,9 +270,13 @@ function jsUnittest() {
         .on('error', reportBundleError)
         .pipe(vinylStream(unittestBundleName))
         .pipe(vinylBuffer())
+        .pipe(plugins.sourcemaps.init({
+            loadMaps: true,
+        }))
         .pipe(plugins.babel({
             presets: [['@babel/env', { targets: "defaults" }]],
         }))
+        .pipe(plugins.sourcemaps.write('.'))
         .pipe(dest(buildDir));
 }
 
