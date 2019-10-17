@@ -73,8 +73,8 @@ export function composeAnnotation(source: Node, posDetails: AnnotationPositionDe
         startSelector: ['items', 'startNodeIndex', 'startCharacterIndex',
             createXPathSelector,
         ],
-        endSelector: ['items', 'endNodeIndex', 'endCharacterIndex',
-            createXPathSelector,
+        endSelector: ['items', 'endNodeIndex', 'endCharacterIndex', 'startSelector',
+            createEndSelector,
         ],
         rangeSelector: ['items', 'startSelector', 'endSelector',
             createRangeSelector,
@@ -154,6 +154,10 @@ function createOntologyInstance(items: ItemGraph, ontoClass: Node, done?) {
 
 function createTextQuoteSelector(items: ItemGraph, textQuoteSelector: Node, done?) {
     return createItem(items, textQuoteSelector.attributes, done);
+}
+
+function createEndSelector(items: ItemGraph, container, offset, startSelector, done?) {
+    createXPathSelector(items,  container, offset, done);
 }
 
 function createXPathSelector(items: ItemGraph, container, offset, done?) {
