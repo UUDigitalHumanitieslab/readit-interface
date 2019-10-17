@@ -11,6 +11,8 @@ import AnnotationListView from '../annotation/panel-annotation-list-view';
 import HighlightView from '../highlight/highlight-view';
 import AnnotationEditView from '../annotation/panel-annotation-edit';
 import RelatedItemsView from '../panel-related-items/related-items-view';
+import ItemGraph from '../utilities/item-graph';
+import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 
 export default class ExplorerEventController {
     /**
@@ -92,9 +94,9 @@ export default class ExplorerEventController {
         return this;
     }
 
-    annotationEditSave(editView: AnnotationEditView, annotation: Node): this {
+    annotationEditSave(editView: AnnotationEditView, annotation: Node, newItems: ItemGraph): this {
         let sourceView = this.mapAnnotationEditSource.get(editView);
-        sourceView.add(annotation);
+        sourceView.add(newItems);
 
         this.explorerView.removeOverlay(editView);
 
@@ -185,11 +187,16 @@ export default class ExplorerEventController {
         return this;
     }
 
-    sourceViewOnTextSelected(sourceView: SourceView, annotation: Node): this {
+    sourceViewOnTextSelected(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): this {
         let listView = this.mapSourceAnnotationList.get(sourceView);
         this.explorerView.popUntil(listView);
-
-        let annoEditView = new AnnotationEditView({ model: annotation, ontology: this.explorerView.ontology });
+        let annoEditView = new AnnotationEditView({
+            range: range,
+            positionDetails: positionDetails,
+            ontology: this.explorerView.ontology,
+            source: source,
+            model: undefined,
+        });
         this.mapAnnotationEditSource.set(annoEditView, sourceView);
         this.explorerView.overlay(annoEditView);
         return this;

@@ -11,6 +11,8 @@ import HighlightableTextView from '../highlight/highlightable-text-view';
 import { schema, vocab } from './../jsonld/ns';
 import { isType } from './../utilities/utilities';
 import HighlightView from '../highlight/highlight-view';
+import ItemGraph from '../utilities/item-graph';
+import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
@@ -143,8 +145,8 @@ export default class SourceView extends View<Node> {
         return htv;
     }
 
-    add(annotation: Node): this {
-        this.htv.add(annotation);
+    add(newItems: ItemGraph): this {
+        this.htv.add(newItems);
         return this;
     }
 
@@ -165,8 +167,8 @@ export default class SourceView extends View<Node> {
     /**
      * Pass events from HighlightableTextView
      */
-    onTextSelected(node: Node): void {
-        this.trigger('sourceview:textSelected', this, node);
+    onTextSelected(range: Range, posDetails: AnnotationPositionDetails): void {
+        this.trigger('sourceview:textSelected', this, this.model, range, posDetails);
     }
 
     /**

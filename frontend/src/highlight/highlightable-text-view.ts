@@ -15,7 +15,8 @@ import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
 import OverlappingHighlightsView from './overlapping-highlights-view';
 import OverlapDetailsView from './overlap-details-view';
-import { getRange } from '../utilities/range-utilities';
+import { getRange, getPositionDetailsFromRange } from '../utilities/range-utilities';
+import ItemGraph from '../utilities/item-graph';
 
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
@@ -181,17 +182,11 @@ export default class HighlightableTextView extends View {
 
     /**
      * Add a new highlight to the text based on an instance of oa:Annotation.
+     * @param newItems All items created when composing a new oa:Annotation.
      */
-    add(node: Node): this {
+    add(newItems: ItemGraph): this {
         if (!this.isEditable) return;
-
-        if (!isType(node, oa.Annotation)) {
-            throw TypeError('node should be of type oa:Annotation');
-        }
-
-        validateCompleteness(node);
-        this.collection.add([node].concat(getLinkedItems(node)));
-        // this.render();
+        this.collection.add(newItems.models);
         return this;
     }
 
@@ -406,7 +401,8 @@ export default class HighlightableTextView extends View {
 
         // Ignore empty selections
         if (range.startOffset === range.endOffset) return;
-        this.trigger('textSelected', range);
+
+        this.trigger('textSelected', range, getPositionDetailsFromRange(this.textWrapper, range));
     }
 
     onClicked(hV: HighlightView, node: Node): this {
