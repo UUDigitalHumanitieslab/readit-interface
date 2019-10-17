@@ -1,5 +1,6 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, sortBy } from 'lodash';
+import { each } from 'async';
 import View from '../core/view';
 
 import { oa } from '../jsonld/ns';
@@ -31,32 +32,27 @@ export default class AnnotationListView extends View<Node> {
         super(options);
     }
 
-    validate(): this {
+    initialize(options): this {
+        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
+        this.ontology = options.ontology;
+        this.summaryBlocks = [];
+
+        this.listenTo(this.collection, 'change', this.render);
+
         let initialSource;
 
         this.collection.each(node => {
             if (isType(node, oa.Annotation)) {
                 let source = getSource(node);
                 if (!initialSource) initialSource = source;
-                else if (!source === initialSource) {
-                    throw new TypeError("All annotations should have the same oa:hasSource");
-                }
+                if (source === initialSource) this.initSummaryBlock(node);
             }
         });
 
-        return this;
-    }
-
-    initialize(options): this {
-        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
-        this.ontology = options.ontology;
-        this.summaryBlocks = [];
-        this.validate();
-
-        this.collection.each(node => {
-            if (isType(node, oa.Annotation)) {
-                this.initSummaryBlock(node);
-            }
+        let self = this;
+        each(this.summaryBlocks, (sb, callback) => sb.ensurePositionDetails(callback), function (err) {
+            self.summaryBlocks = self.sortSummaryBlocks();
+            self.render();
         });
 
         this.listenTo(this.collection, 'add', this.add);
@@ -85,7 +81,6 @@ export default class AnnotationListView extends View<Node> {
         this.$el.html(this.template(this));
         let summaryList = this.$('.summary-list');
 
-        this.summaryBlocks = sortBy(this.summaryBlocks, ['positionDetails.startNodeIndex', 'positionDetails.startCharacterIndex']);
         this.summaryBlocks.forEach(sb => {
             sb.render().$el.appendTo(summaryList);
         });
@@ -93,9 +88,14 @@ export default class AnnotationListView extends View<Node> {
         return this;
     }
 
-    add(annotation: Node) {
+    add(annotation: Node): this {
         this.initSummaryBlock(annotation);
-        this.render();
+        this.summaryBlocks = this.sortSummaryBlocks();
+        return this.render();
+    }
+
+    sortSummaryBlocks(): ItemSummaryBlockView[] {
+        return sortBy(this.summaryBlocks, ['positionDetails.startNodeIndex', 'positionDetails.startCharacterIndex']);
     }
 
     scrollTo(annotation: Node): this {
