@@ -1,197 +1,22 @@
-
+import * as _ from 'lodash';
+import * as a$ from 'async';
 
 import Node  from './../../jsonld/node';
-import { oa, item, source, vocab, rdf, xsd, staff, dcterms, skos } from './../../jsonld/ns';
-import Graph from '../../jsonld/graph';
+import { oa, vocab, rdf, xsd, staff, dcterms, } from './../../jsonld/ns';
+
+import ItemGraph from './../../utilities/item-graph';
+import { AnnotationPositionDetails } from './annotation-utilities';
 
 const prefixLength = 100;
 const suffixLength = 100;
-const localStorageKey = "lskLatestNodeId";
 
 /**
- *
+ * Get an instance of oa:TextQuoteSelector that is not synced to the backend,
+ * and doesn't have an @id. Ideal for passing a user selection('s Range) to
+ * the AnnotationEditView.
  */
-export function createBody(ontologyItem: Node, annotationText: string): Node[] {
-    return [
-        ontologyItem,
-        new Node({
-            '@id': getNewId(),
-            '@type': ontologyItem.id,
-            [skos.prefLabel]: getItemLabel(annotationText),
-            [dcterms.created]: [
-                {
-                    "@type": xsd.dateTime,
-                    "@value": "2085-12-31T04:33:16+0100"
-                }
-            ],
-            [dcterms.creator]: [
-                {
-                    "@id": staff('JdeKruif')
-                }
-            ],
-        })
-    ]
-}
-
-function getItemLabel(annotationText: string): string {
-    if (annotationText.length < 80) return annotationText;
-    return `${annotationText.substring(0, 75)} (...)`;
-}
-
-/**
- * Create all items required to correctly save an annotation.
- * Returns a array of nodes with the following:
- *  - oa:Annotation,
- *  - oa:SpecificResource,
- *  - vocab('RangeSelector'),
- *  - 2 oa.XPathSelectors (start and end)
- *  - oa: TextQuoteSelector
- *
- * Please note that the View that selectable text is in should be in the DOM.
- * If it is not, the TextQuoteSelector will not be present in the result.
- * @param range
- */
-export function createAnnotation(range: Range): Node {
-
-    let startSelector = getStartSelector(range);
-    let endSelector = getEndSelector(range);
-    let rangeSelector = getRangeSelector(startSelector.id, endSelector.id);
-    let textQuoteSelector = getTextQuoteSelector(range);
-    let specificResource = getSpecificResource(rangeSelector.id, textQuoteSelector.id);
-    let anno = getAnnotation(specificResource.id);
-
-    anno.collection = new Graph([
-        specificResource,
-        rangeSelector,
-        startSelector,
-        endSelector,
-        textQuoteSelector
-    ]);
-
-    return anno;
-}
-
-function getNewId(): string {
-    // localStorage.clear();
-    let latestIdString = localStorage.getItem(localStorageKey) || "1000";
-    let latestId = parseInt(latestIdString);
-    let newId = (latestId + 1).toString();
-    localStorage.setItem(localStorageKey, newId);
-    return newId;
-}
-
-function getAnnotation(specResId: string): Node {
+export function getAnonymousTextQuoteSelector(range: Range): Node {
     return new Node({
-        "@id": item(getNewId()),
-    "@type": [oa.Annotation],
-    [oa.hasTarget]: [
-        {
-            "@id": specResId
-        }
-    ],
-    [dcterms.created]: [
-        {
-            "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:16+0100"
-        }
-    ],
-    [dcterms.creator]: [
-        {
-            "@id": staff('JdeKruif')
-        }
-    ],
-    });
-}
-
-function getSpecificResource(rangeSelId: string, textQuoteSelectorId: string): Node {
-    return new Node({
-        '@id': item(getNewId()),
-        '@type': [oa.SpecificResource],
-        [oa.hasSelector]: [
-            {
-                '@id': rangeSelId
-            },
-            {
-                '@id': textQuoteSelectorId
-            }
-        ],
-        [oa.hasSource]: [
-            {
-                "@id": source('1')
-            }
-        ]
-    });
-}
-
-function getRangeSelector(startSelId: string, endSelId: string): Node {
-    return new Node({
-        '@id': item(getNewId()),
-        '@type': [vocab('RangeSelector')],
-        [oa.hasStartSelector]: [
-            {
-                "@id": startSelId
-            }
-        ],
-        [oa.hasEndSelector]: [
-            {
-                "@id": endSelId
-            }
-        ],
-    });
-}
-
-function getStartSelector(range: Range): Node {
-    return new Node({
-        '@id': item(getNewId()),
-        '@type': [oa.XPathSelector],
-        [rdf.value]: [
-            {
-                '@value': `substring(.//*[${getStartNodeIndex(range)}]/text(), ${range.startOffset})`
-            }
-        ],
-    });
-}
-
-function getEndSelector(range: Range): Node {
-    return new Node({
-        '@id': item(getNewId()),
-        '@type': [oa.XPathSelector],
-        [rdf.value]: [
-            {
-                '@value': `substring(.//*[${getEndNodeIndex(range)}]/text(), ${range.endOffset})`
-            }
-        ],
-    });
-}
-
-function getStartNodeIndex(range: Range): number {
-    return getNodeIndex(range.startContainer.parentElement, range.startContainer);
-}
-
-function getEndNodeIndex(range: Range): number {
-    return getNodeIndex(range.endContainer.parentElement, range.endContainer);
-}
-
-function getNodeIndex(parent, child): number {
-    // TODO: do this in a nicer way!!
-    let children = $(parent).contents();
-
-    let index = 0;
-
-    for (let c of <any>children) {
-        if (c === child) {
-            break;
-        }
-
-        index++;
-    }
-
-    return index;
-}
-
-function getTextQuoteSelector(range: Range): Node {
-    return new Node({
-        '@id': item(getNewId()),
         '@type': [oa.TextQuoteSelector],
         [oa.prefix]: [
             {
@@ -233,4 +58,137 @@ function getSuffix(exactRange: Range): string {
     let result = suffixRange.toString();
     suffixRange.detach();
     return result;
+}
+
+
+export function composeAnnotation(source: Node, posDetails: AnnotationPositionDetails, ontoClass: Node, tQSelector: Node, done?) {
+    const { startNodeIndex, startCharacterIndex, endNodeIndex, endCharacterIndex } = posDetails;
+
+    const inputs = {
+        startNodeIndex, startCharacterIndex, endNodeIndex, endCharacterIndex,
+        source, ontoClass, tQSelector, items: new ItemGraph(),
+    };
+
+    const tasks = {
+        startSelector: ['items', 'startNodeIndex', 'startCharacterIndex',
+            createXPathSelector,
+        ],
+        endSelector: ['items', 'endNodeIndex', 'endCharacterIndex',
+            createXPathSelector,
+        ],
+        rangeSelector: ['items', 'startSelector', 'endSelector',
+            createRangeSelector,
+        ],
+        textQuoteSelector: ['items', 'tQSelector',
+            createTextQuoteSelector,
+        ],
+        specificResource: ['items', 'source', 'rangeSelector', 'textQuoteSelector',
+            createSpecificResource,
+        ],
+        // instance: ['items', 'ontoClass',
+        //     createOntologyInstance
+        // ],
+        annotation: ['items', 'specificResource', 'ontoClass',
+            createAnnotation,
+        ],
+    };
+    return a$.autoInject(combineAutoHash(inputs, tasks), done);
+}
+
+function combineAutoHash(inputs, tasks) {
+    const asyncifiedInputs = _.mapValues(inputs, constant => [a$.constant(constant)]);
+    return _.extend(asyncifiedInputs, tasks);
+}
+
+function unshiftArgs(callback) {
+    return _.partial(callback, null);
+}
+
+function watchEvent(emitter, name, transformCb = _.identity) {
+    return (done) => emitter.once(name, (...args) => {
+        transformCb(done)(...args)
+    });
+}
+
+function awaitEvent(success, error?, getVal = unshiftArgs, getErr?) {
+    return function(emitter, done) {
+        const tasks = [watchEvent(emitter, success, getVal)];
+        if (error) tasks.push(watchEvent(emitter, error, getErr));
+        return a$.race(tasks, done);
+    }
+}
+
+function errorFromXHR(callback) {
+    return (_, xhr, options) => {
+        callback(options.error);
+    }
+}
+
+function createItem(items: ItemGraph, attributes: any, done?) {
+    return a$.waterfall([
+        a$.constant(items.create(attributes)),
+        awaitEvent('sync', 'error', unshiftArgs, errorFromXHR),
+    ], (error, results) => done(error, results));
+}
+
+// This is here for when linking to an item is implemented (but needs updating as well)
+function createOntologyInstance(items: ItemGraph, ontoClass: Node, done?) {
+    return;
+    const attributes = {
+        '@type': ontoClass.id,
+        // [skos.prefLabel]: getItemLabel(annotationText),
+        [dcterms.created]: [
+            {
+                "@type": xsd.dateTime,
+                "@value": "2085-12-31T04:33:16+0100"
+            }
+        ],
+        [dcterms.creator]: [
+            {
+                "@id": staff('JdeKruif')
+            }
+        ],
+    }
+    return createItem(items, attributes, done);
+}
+
+function createTextQuoteSelector(items: ItemGraph, textQuoteSelector: Node, done?) {
+    return createItem(items, textQuoteSelector.attributes, done);
+}
+
+function createXPathSelector(items: ItemGraph, container, offset, done?) {
+    const xPath = `substring(.//*[${container}]/text(), ${offset})`;
+    const attributes = {
+        '@type': oa.XPathSelector,
+        [rdf.value]: xPath,
+    };
+
+    return createItem(items, attributes, done);
+}
+
+function createRangeSelector(items: ItemGraph, start, end, done?) {
+    const attributes = {
+        '@type': vocab('RangeSelector'),
+        [oa.hasStartSelector]: start,
+        [oa.hasEndSelector]: end,
+    };
+    return createItem(items, attributes, done);
+}
+
+function createSpecificResource(items: ItemGraph, source, rangeSelector, textQuoteSelector, done?) {
+    const attributes = {
+        '@type': oa.SpecificResource,
+        [oa.hasSource]: source,
+        [oa.hasSelector]: [rangeSelector, textQuoteSelector],
+    };
+    return createItem(items, attributes, done);
+}
+
+function createAnnotation(items, specificResource, ontoClass, done?) {
+    const attributes = {
+        '@type': oa.Annotation,
+        [oa.hasBody]: [ontoClass],
+        [oa.hasTarget]: specificResource,
+    };
+    return createItem(items, attributes, done);
 }
