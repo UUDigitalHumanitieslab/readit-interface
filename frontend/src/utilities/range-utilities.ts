@@ -47,7 +47,7 @@ export function getPositionDetailsFromRange(textWrapper: JQuery<HTMLElement>, ra
 function getNodeIndex(textWrapper: JQuery<HTMLElement>, container: Node): number {
     let index = 0;
 
-    for (let child of textWrapper.contents()) {
+    for (let child of <any>textWrapper.contents()) {
         if (child === container) {
             break;
         }
