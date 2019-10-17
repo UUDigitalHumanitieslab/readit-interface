@@ -191,15 +191,17 @@ const unittestUrl = configJSON.then(json => {
     return `http://${host}${specRunnerOutput}`;
 });
 
+function lazyInit(initialize: () => any) {
+    let value;
+    return () => value || (value = initialize());
+}
+
 function decoratedBrowserify(options, constructor = browserify) {
-    return (function() {
-        let bundler;
-        return () => bundler || (bundler = constructor(options)
-            .plugin(tsify, tsOptions)
-            .transform(aliasify, aliasOptions)
-            .transform(exposify, {global: true})
-        );
-    }());
+    return lazyInit(() => constructor(options)
+        .plugin(tsify, tsOptions)
+        .transform(aliasify, aliasOptions)
+        .transform(exposify, {global: true})
+    );
 }
 
 const tsModules = decoratedBrowserify({
