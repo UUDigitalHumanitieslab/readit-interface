@@ -46,12 +46,13 @@ export default class ExplorerEventController {
             'sourceview:textSelected': this.sourceViewOnTextSelected,
             'annotation-listview:blockClicked': this.annotationListBlockClicked,
             'annotation-listview:edit': this.annotationListEdit,
+            'annotationEditView:saveNew': this.annotationEditSaveNew,
             'annotationEditView:save': this.annotationEditSave,
             'annotationEditView:close': this.annotationEditClose,
             'lditem:showRelated': this.ldItemShowRelated,
             'lditem:showAnnotations': this.ldItemShowAnnotations,
             'lditem:showExternal': this.ldItemShowExternal,
-            'lditem:edit': this.ldItemEdit,
+            'lditem:editAnnotation': this.ldItemEditAnnotation,
             'relItems:itemClick': this.relItemsItemClicked,
             'source-list:click': this.sourceListClick,
         }, this);
@@ -88,13 +89,23 @@ export default class ExplorerEventController {
         return this;
     }
 
-    ldItemEdit(view: LdItemView, item: Node): this {
-        this.explorerView.popUntil(view);
-        this.notImplemented();
+    ldItemEditAnnotation(ldItemview: LdItemView, annotation: Node): this {
+        // this.explorerView.popUntil(view);
+        let annoEditView = new AnnotationEditView({
+            ontology: this.explorerView.ontology,
+            model: annotation,
+        });
+        this.explorerView.overlay(annoEditView, ldItemview);
+
         return this;
     }
 
-    annotationEditSave(editView: AnnotationEditView, annotation: Node, newItems: ItemGraph): this {
+    annotationEditSave(editView: AnnotationEditView, annotation: Node): this {
+        this.explorerView.removeOverlay(editView);
+        return this;
+    }
+
+    annotationEditSaveNew(editView: AnnotationEditView, annotation: Node, newItems: ItemGraph): this {
         let sourceView = this.mapAnnotationEditSource.get(editView);
         sourceView.add(newItems);
 
@@ -194,7 +205,6 @@ export default class ExplorerEventController {
             range: range,
             positionDetails: positionDetails,
             ontology: this.explorerView.ontology,
-            source: source,
             model: undefined,
         });
         this.mapAnnotationEditSource.set(annoEditView, sourceView);

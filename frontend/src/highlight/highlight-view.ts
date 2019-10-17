@@ -1,14 +1,13 @@
-// import { ViewOptions as BaseOpt } from 'backbone';
+
 import { extend, minBy, sumBy, initial, last, defer } from 'lodash';
 
 import { rdf } from './../jsonld/ns';
-
 import Node from '../jsonld/node';
 import HighlightRectView from './highlight-rect-view';
-import { AnnotationPositionDetails, getPositionDetails, getCssClassName } from '../utilities/annotation/annotation-utilities';
+import { getCssClassName } from './../utilities/utilities';
+import { AnnotationPositionDetails, getPositionDetails } from '../utilities/annotation/annotation-utilities';
 import BaseAnnotationView, { ViewOptions as BaseOpt } from '../annotation/base-annotation-view';
 import { getRange } from '../utilities/range-utilities';
-import View from '../core/view';
 
 export interface ViewOptions extends BaseOpt {
     /**
@@ -72,6 +71,7 @@ export default class HighlightView extends BaseAnnotationView {
         if (this.model) {
             this.listenTo(this, 'startSelector', this.processStartSelector);
             this.listenTo(this, 'endSelector', this.processEndSelector);
+            this.listenTo(this, 'body:ontologyClass', this.processOntologyClass);
             this.listenTo(this.model, 'change', this.processModel);
             this.processModel(this.model);
         }
@@ -84,6 +84,17 @@ export default class HighlightView extends BaseAnnotationView {
 
     processModel(model: Node): this {
         this.baseProcessModel(model);
+        return this;
+    }
+
+    processOntologyClass(ontologyClass: Node): this {
+        this.cssClass = getCssClassName(ontologyClass);
+        if (this.rectViews) {
+            this.rectViews.forEach(v => {
+                v.newCssClass(this.cssClass);
+            });
+        }
+        if (!this.rectViews && this.rects) this.initRectViews();
         return this;
     }
 
@@ -107,7 +118,10 @@ export default class HighlightView extends BaseAnnotationView {
         if (this.startSelector && this.endSelector) {
             this.positionDetails = getPositionDetails(this.startSelector, this.endSelector);
             this.processPositionDetails();
-            if (this.callbackFn) this.callbackFn();
+            if (this.callbackFn) {
+                this.callbackFn();
+                delete this.callbackFn;
+            }
         }
         return this;
     }
@@ -115,7 +129,7 @@ export default class HighlightView extends BaseAnnotationView {
     processPositionDetails(): this {
         this.range = getRange(this.textWrapper, this.positionDetails);
         this.rects = this.range.getClientRects();
-        this.initRectViews();
+        if (!this.rectViews && this.cssClass) this.initRectViews();
         this.render();
 
         return this;

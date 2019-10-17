@@ -100,9 +100,7 @@ export default class LdItemView extends BaseAnnotationView {
     }
 
     processOntologyClass(body: Node): this {
-        if (!this.lblView) {
-            this.createLabel(body);
-        }
+        this.createLabel(body);
         return this.render();
     }
 
@@ -179,7 +177,8 @@ export default class LdItemView extends BaseAnnotationView {
     }
 
     onEditClicked(): void {
-        this.trigger('lditem:edit', this, this.currentItem);
+        if (this.modelIsAnnotation) this.trigger('lditem:editAnnotation', this, this.model);
+        // else this.trigger('lditem:editItem', this, this.currentItem);
     }
 }
 extend(LdItemView.prototype, {

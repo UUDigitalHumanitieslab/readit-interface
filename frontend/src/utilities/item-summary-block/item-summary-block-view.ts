@@ -40,13 +40,14 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
         if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
         this.ontology = options.ontology;
 
-        this.stopListening(this.model, 'change', this.processModel);
+        this.listenTo(this, 'body:ontologyClass', this.processOntologyClass)
         this.listenTo(this.model, 'change', this.processModel);
         this.processModel(this.model);
         return this;
     }
 
     processModel(model: Node): this {
+        this.baseProcessBody(this.model);
         this.currentItem = model;
 
         if (model.has('@type')) {
@@ -66,14 +67,17 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
         return this;
     }
 
+    processOntologyClass(ontologyClass: Node): this {
+        if (ontologyClass.has('@type')) {
+            this.classLabel = getLabel(ontologyClass);
+            this.$el.removeClass(this.cssClassName);
+            this.cssClassName = getCssClassName(ontologyClass);
+        }
+        return this.render();
+    }
+
     processItem(item: Node): this {
         this.instanceLabel = getLabel(item);
-
-        if (item.has('@type')) {
-            let ontologyClassItem = ldChannel.request('obtain', this.currentItem.get('@type')[0] as string);
-            this.classLabel = getLabel(ontologyClassItem);
-            this.cssClassName = getCssClassName(ontologyClassItem);
-        }
         this.render();
         return this;
     }

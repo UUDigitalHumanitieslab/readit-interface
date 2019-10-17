@@ -20,17 +20,21 @@ import annotationEditTemplate from './panel-annotation-edit-template';
 
 export interface ViewOptions extends BaseOpt<Node> {
     /**
-     * An instance of oa:Annotation that links to a oa:TextQuoteSelector
+     * An instance of oa:Annotation that links to a oa:TextQuoteSelector,
+     * can be undefined if range and positionDetaisl are set (i.e. in case of a new annotation)
      */
     model: Node;
-
-    source: Node;
-
     ontology: Graph;
 
+    /**
+     * Should be set in case of a new annotation (i.e. when model is undefined).
+     */
     range?: Range;
 
-    positionDetails: AnnotationPositionDetails;
+    /**
+     * Should be set in case of a new annotation (i.e. when model is undefined).
+     */
+    positionDetails?: AnnotationPositionDetails;
 }
 
 export default class AnnotationEditView extends BaseAnnotationView {
@@ -54,7 +58,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     initialize(options: ViewOptions): this {
         this.ontology = options.ontology;
-        this.source = options.source;
 
         if (options.range) {
             this.range = options.range;
@@ -65,6 +68,8 @@ export default class AnnotationEditView extends BaseAnnotationView {
         this.modelIsAnnotion = isType(this.model, oa.Annotation);
 
         if (this.modelIsAnnotion) {
+            this.listenTo(this, 'source', this.processSource);
+            this.listenTo(this, 'body:ontologyClass', this.processOntologyClass)
             this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
             this.processModel(options.model);
             this.listenTo(this.model, 'change', this.processModel);
@@ -96,15 +101,14 @@ export default class AnnotationEditView extends BaseAnnotationView {
         if (isType(node, oa.Annotation)) {
             this.metadataView = new ItemMetadataView({ model: this.model });
             this.metadataView.render();
-
-            if (this.model.get(oa.hasBody)) {
-                let ontologyInstance = getOntologyInstance(this.model, this.ontology);
-                this.preselection = ldChannel.request('obtain', ontologyInstance.get('@type')[0] as string);
-            }
-
             this.initOntologyClassPicker();
         }
 
+        return this;
+    }
+
+    processSource(source: Node): this {
+        this.source = source;
         return this;
     }
 
@@ -117,6 +121,11 @@ export default class AnnotationEditView extends BaseAnnotationView {
         this.snippetView.render();
 
         if (!this.modelIsAnnotion) this.initOntologyClassPicker();
+        return this;
+    }
+
+    processOntologyClass(ontologyClass: Node): this {
+        this.preselection = ontologyClass;
         return this;
     }
 
@@ -152,16 +161,24 @@ export default class AnnotationEditView extends BaseAnnotationView {
     }
 
     submit(): this {
-        composeAnnotation(
-            this.source,
-            this.positionDetails,
-            this.selectedOntologyClass,
-            this.snippetView.selector,
-            (error, results) => {
-                if (error) return console.debug(error);
-                console.log(results.items);
-                // this.trigger('annotationEditView:save', this, results.annotation, results.items);
-            });
+        if (this.model.isNew()) {
+            composeAnnotation(
+                this.source,
+                this.positionDetails,
+                this.selectedOntologyClass,
+                this.snippetView.selector,
+                (error, results) => {
+                    if (error) return console.debug(error);
+                    this.trigger('annotationEditView:saveNew', this, results.annotation, results.items);
+                });
+        }
+        else {
+            let existingBodyOntologyClass = this.model.get(oa.hasBody);
+            if (existingBodyOntologyClass) this.model.unset(oa.hasBody, existingBodyOntologyClass);
+            this.model.set(oa.hasBody, (this.selectedOntologyClass));
+            this.model.save();
+            this.trigger('annotationEditView:save', this, this.model);
+        }
         return this;
     }
 

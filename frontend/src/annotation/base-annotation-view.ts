@@ -35,18 +35,23 @@ export default abstract class BaseAnnotationView extends View<Node> {
 
     baseProcessModel(annotation: Node): this {
         let targets = annotation.get(oa.hasTarget);
-        targets.forEach(n  => {
-            this.baseProcessTarget(n as Node);
-            this.stopListening(n, 'change', this.baseProcessTarget);
-            this.listenTo(n, 'change', this.baseProcessTarget);
-        });
+
+        if (targets) {
+            targets.forEach(n => {
+                this.baseProcessTarget(n as Node);
+                this.stopListening(n, 'change', this.baseProcessTarget);
+                this.listenTo(n, 'change', this.baseProcessTarget);
+            });
+        }
 
         let bodies = annotation.get(oa.hasBody);
-        bodies.forEach(b => {
-            this.stopListening(b, 'change', this.baseProcessBody);
-            this.listenTo(b, 'change', this.baseProcessBody);
-            this.baseProcessBody(b as Node);
-        });
+        if (bodies) {
+            bodies.forEach(b => {
+                this.stopListening(b, 'change', this.baseProcessBody);
+                this.listenTo(b, 'change', this.baseProcessBody);
+                this.baseProcessBody(b as Node);
+            });
+        }
 
         return this;
     }

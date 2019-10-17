@@ -34,6 +34,13 @@ export default class OntologyClassPickerView extends View<Node> {
         });
 
         this.preselection = options.preselection;
+        this.listenTo(this.preselection, 'change', this.processPreselection);
+        return this;
+    }
+
+    processPreselection(ontologyClass: Node): this {
+        this.preselection = ontologyClass;
+        this.render();
         return this;
     }
 
