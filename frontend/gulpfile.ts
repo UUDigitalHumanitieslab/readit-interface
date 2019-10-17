@@ -259,6 +259,7 @@ function jsBundle() {
         })))
         .pipe(plugins.babel({
             presets: [['@babel/env', { targets: "defaults" }]],
+            plugins: ['@babel/transform-runtime'],
         }))
         .pipe(ifNotProd(plugins.sourcemaps.write('.')))
         .pipe(ifProd(plugins.uglify()))
@@ -275,6 +276,7 @@ function jsUnittest() {
         }))
         .pipe(plugins.babel({
             presets: [['@babel/env', { targets: "defaults" }]],
+            plugins: ['@babel/transform-runtime'],
         }))
         .pipe(plugins.sourcemaps.write('.'))
         .pipe(dest(buildDir));
