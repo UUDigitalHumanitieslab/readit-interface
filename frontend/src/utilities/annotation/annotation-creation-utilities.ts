@@ -109,7 +109,7 @@ function watchEvent(emitter, name, transformCb = _.identity) {
 
 function awaitEvent(success, error?, getVal = unshiftArgs, getErr?) {
     return function(emitter, done) {
-        const tasks = [watchEvent(emitter, success, getVal)];
+        const tasks = [watchEvent(emitter, success, <any>getVal)];
         if (error) tasks.push(watchEvent(emitter, error, getErr));
         return a$.race(tasks, done);
     }
