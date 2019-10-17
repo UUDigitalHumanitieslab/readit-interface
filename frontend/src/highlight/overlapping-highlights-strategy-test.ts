@@ -30,7 +30,7 @@ describe('OverlappingHighlightsStrategy', function () {
 
         return new HighlightView({
             model: new Node(),
-            range: range,
+            textWrapper: textWrapper,
             cssClass: 'irrelevant',
             relativeParent: relativeParent,
             isDeletable: false,
