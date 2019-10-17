@@ -258,8 +258,6 @@ export default class HighlightableTextView extends View {
      * @param node The Node to base the highlight on.
      */
     private addHighlight(node: Node): HighlightView {
-        console.log('addHighlight');
-
         if (!isType(node, oa.Annotation)) return;
 
         // Get styling here because HighlightViews shouldn't care about the ontology (nor should this view, but ok..)
