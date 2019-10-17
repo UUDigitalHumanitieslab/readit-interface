@@ -129,7 +129,7 @@ export default class HighlightableTextView extends View {
         let self = this;
         if (this.text) {
             this.initHighlights();
-            each(this.hVs, (hV, callback) => hV.test(callback), function (err) {
+            each(this.hVs, (hV, callback) => hV.ensurePositionDetails(callback), function (err) {
                 self.initOverlaps();
                 if (!self.showHighlightsInitially) {
                     self.hideAll();
