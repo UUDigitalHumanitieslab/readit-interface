@@ -137,7 +137,7 @@ export default class HighlightView extends BaseAnnotationView {
 
     ensurePositionDetails(callback: any): void {
         if (this.positionDetails) {
-            defer(callback());
+            defer(callback);
         }
         this.callbackFn = callback;
     }

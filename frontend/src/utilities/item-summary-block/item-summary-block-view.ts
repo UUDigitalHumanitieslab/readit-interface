@@ -1,14 +1,13 @@
-import { extend } from 'lodash';
+import { extend, defer } from 'lodash';
 
-import { oa } from './../../jsonld/ns';
+import { oa, rdf } from './../../jsonld/ns';
 import Node from './../../jsonld/node';
 import Graph from './../../jsonld/graph';
-import ldChannel from './../../jsonld/radio';
 import { getCssClassName, getLabel, isType } from './../utilities';
-import { getOntologyInstance, getLabelText } from '../annotation/annotation-utilities';
+import { getOntologyInstance, getLabelText, AnnotationPositionDetails, getPositionDetails } from '../annotation/annotation-utilities';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
-import BaseAnnotationView, {ViewOptions as BaseOpt } from '../../annotation/base-annotation-view';
+import BaseAnnotationView, { ViewOptions as BaseOpt } from '../../annotation/base-annotation-view';
 
 
 export interface ViewOptions extends BaseOpt {
@@ -32,6 +31,11 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
      */
     currentItem: Node;
 
+    positionDetails: AnnotationPositionDetails;
+    startSelector: Node;
+    endSelector: Node;
+    callbackFn: any;
+
     constructor(options: ViewOptions) {
         super(options);
     }
@@ -40,6 +44,8 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
         if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
         this.ontology = options.ontology;
 
+        this.listenTo(this, 'startSelector', this.processStartSelector);
+        this.listenTo(this, 'endSelector', this.processEndSelector);
         this.listenTo(this, 'body:ontologyClass', this.processOntologyClass)
         this.listenTo(this.model, 'change', this.processModel);
         this.processModel(this.model);
@@ -87,6 +93,40 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
         this.instanceLabel = getLabelText(selector);
         this.render();
         return this;
+    }
+
+    processStartSelector(selector: Node): this {
+        if (selector.has(rdf.value)) {
+            this.startSelector = selector;
+            this.processSelectors();
+        }
+        return this;
+    }
+
+    processEndSelector(selector: Node): this {
+        if (selector.has(rdf.value)) {
+            this.endSelector = selector;
+            this.processSelectors();
+        }
+        return this;
+    }
+
+    processSelectors(): this {
+        if (this.startSelector && this.endSelector) {
+            this.positionDetails = getPositionDetails(this.startSelector, this.endSelector);
+            if (this.callbackFn) {
+                this.callbackFn();
+                delete this.callbackFn;
+            }
+        }
+        return this;
+    }
+
+    ensurePositionDetails(callback: any): void {
+        if (this.positionDetails) {
+            defer(callback);
+        }
+        this.callbackFn = callback;
     }
 
     render(): this {
