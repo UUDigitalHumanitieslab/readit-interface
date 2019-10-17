@@ -78,8 +78,6 @@ const sourceDir = `src`,
     unittestEntriesGlob = `${sourceDir}/**/*-test.ts`,
     reporterEntry = `${sourceDir}/terminalReporter.ts`,
     reporterBundleName = 'terminalReporter.js',
-    vendorBundleName = 'vendor.js',
-    vendorSourceMapDest = `${buildDir}/${vendorBundleName}.map`,
     templateRenameOptions = {extname: '.ts'},
     templateSourceGlob = `${sourceDir}/**/*-template.hbs`,
     templateOutputGlob = `${sourceDir}/**/*-template${templateRenameOptions.extname}`,
@@ -103,18 +101,6 @@ const sourceDir = `src`,
     unpkgPattern = 'https://unpkg.com/${package}@${version}',
     cdnjsBase = 'https://cdnjs.cloudflare.com/ajax/libs',
     cdnjsPattern = `${cdnjsBase}/\${package}/\${version}`;
-
-// Modules which are bundled separately in the vendor.js. Add a node
-// module to this list if it isn't browser-ready, i.e., it (a) needs
-// a Babel transform and (b) is for whatever reason impractical to
-// use as a browserLib (see next constant), for example because we
-// import both the top module and specific submodules as in the case of jsonld.
-const vendorLibs = [
-    'jsonld/lib/util',
-    'jsonld/lib/constants',
-    'jsonld/lib/JsonLdError',
-    'rdf-parse',
-];
 
 // Libraries which are inserted through <script> tags rather than being bundled
 // by Browserify. They will be inserted in the order shown.
@@ -210,8 +196,12 @@ function lazyInit(initialize: () => any) {
 
 function decoratedBrowserify(options, constructor = browserify) {
     return lazyInit(() => constructor(options)
-        .external(vendorModules())
         .plugin(tsify, tsOptions)
+        .transform('babelify', {
+            global: true,
+            presets: [['@babel/env', { targets: "defaults" }]],
+            only: [/\/node_modules\/(jsonld|rdf-parse)\//],
+        })
         .transform(aliasify, aliasOptions)
         .transform(exposify, {global: true})
     );
@@ -235,17 +225,6 @@ const reporterModules = decoratedBrowserify({
     cache: {},
     packageCache: {},
 });
-
-const vendorModules = lazyInit(() => browserify({
-        debug: !production,
-        require: vendorLibs,
-        fullPaths: true,
-    }).transform('babelify', {
-        global: true,
-        presets: [['@babel/env', { targets: "defaults" }]],
-        only: [/\/node_modules\/(jsonld|rdf-parse)\//],
-    }).transform(aliasify, aliasOptions).transform(exposify, {global: true})
-);
 
 function ifProd(stream, otherwise?) {
     return plugins['if'](production, stream, otherwise);
@@ -305,18 +284,8 @@ export function terminalReporter() {
         }));
 }
 
-function vendorBundle() {
-    return vendorModules().bundle()
-        .on('error', reportBundleError)
-        .pipe(ifNotProd(exorcist(vendorSourceMapDest)))
-        .pipe(vinylStream(vendorBundleName))
-        .pipe(ifProd(vinylBuffer()))
-        .pipe(ifProd(plugins.uglify()))
-        .pipe(dest(buildDir));
-}
-
-export const script = series(template, vendorBundle, jsBundle);
-export const unittest = series(template, vendorBundle, jsUnittest);
+export const script = series(template, jsBundle);
+export const unittest = series(template, jsUnittest);
 export const typecheck = series(template, parallel(jsBundle, jsUnittest));
 
 export function style() {
@@ -348,7 +317,6 @@ export function index() {
     return renderHtml(indexTemplate, buildDir, {
         libs: browserLibs,
         jsBundleName,
-        vendorBundleName,
         cssBundleName,
         production,
     });
@@ -362,7 +330,6 @@ export const specRunner = (function() {
             libs: browserLibs,
             unittestBundleName,
             reporterBundleName,
-            vendorBundleName,
             jasminePrefix,
         });
     }
@@ -374,7 +341,7 @@ export const specRunner = (function() {
     return { render: specRunner, get };
 }());
 
-const buildUnittests = parallel(terminalReporter, vendorBundle, unittest, specRunner.render);
+const buildUnittests = parallel(terminalReporter, unittest, specRunner.render);
 
 export function runUnittests(done) {
     specRunner.get(runner => {
@@ -478,7 +445,7 @@ export const watch = series(fullStatic, function watch(done) {
     watchBundle(reporterModules(), retest(reload(terminalReporter)));
 
     jsBundle();
-    retest(parallel(startTestBundle, terminalReporter, vendorBundle))();
+    retest(parallel(startTestBundle, terminalReporter))();
 
     const styleWatch = watchApi(styleSourceGlob, reload(style));
     const templateWatch = watchApi(templateSourceGlob, template);
@@ -502,7 +469,6 @@ export function clean() {
         `${buildDir}/**`,
         `!${buildDir}`,
         `!${buildDir}/${reporterBundleName}`,
-        `!${buildDir}/${vendorBundleName}`,
         templateOutputGlob,
     ]);
 };
