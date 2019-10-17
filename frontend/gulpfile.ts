@@ -243,6 +243,7 @@ const vendorModules = lazyInit(() => browserify({
     }).transform('babelify', {
         global: true,
         presets: [['@babel/env', { targets: "defaults" }]],
+        only: [/\/node_modules\/(jsonld|rdf-parse)\//],
     }).transform(aliasify, aliasOptions).transform(exposify, {global: true})
 );
 
