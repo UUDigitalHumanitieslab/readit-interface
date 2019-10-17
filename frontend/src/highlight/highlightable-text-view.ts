@@ -130,11 +130,11 @@ export default class HighlightableTextView extends View {
             this.initHighlights();
             each(this.hVs, (hV, callback) => hV.test(callback), function (err) {
                 self.initOverlaps();
-                if (!this.showHighlightsInitially) {
+                if (!self.showHighlightsInitially) {
                     self.hideAll();
                 }
                 else {
-                    self.scroll(this.scrollToNode);
+                    self.scroll(self.scrollToNode);
                 }
             });
         }

@@ -28,3 +28,33 @@ export function getRange(
 
     return range;
 }
+
+export function getPositionDetailsFromRange(textWrapper: JQuery<HTMLElement>, range: Range): AnnotationPositionDetails {
+    return {
+        startNodeIndex: getNodeIndex(textWrapper, range.startContainer),
+        startCharacterIndex: range.startOffset,
+        endNodeIndex: getNodeIndex(textWrapper, range.endContainer),
+        endCharacterIndex: range.endOffset
+    }
+}
+
+/**
+ * TODO: This is a quick and dirty implementation.
+ * think of something nice when there is time.
+ * @param container Note that this is not the type Node from jsonld/node.ts,
+ * but a DOM type retrieved by rangeInstance.startContainer / rangeInstance.endContainer
+ */
+function getNodeIndex(textWrapper: JQuery<HTMLElement>, container: Node): number {
+    let index = 0;
+
+    for (let child of textWrapper.contents()) {
+        if (child === container) {
+            break;
+        }
+
+        index++;
+    }
+
+    return index;
+}
+
