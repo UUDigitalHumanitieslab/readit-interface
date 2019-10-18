@@ -121,7 +121,7 @@ function createSourceView(source: Node, ontology: Graph, callback: any) {
                 model: source,
                 ontology: ontology,
                 showHighlightsInitially: true,
-                isEditable: true,
+                isEditable: false,
                 // initialScrollTo: annotation,
             });
             callback(null, sourceView);
