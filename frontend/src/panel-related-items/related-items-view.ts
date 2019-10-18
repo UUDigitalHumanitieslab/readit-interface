@@ -40,6 +40,7 @@ export default class RelatedItemsView extends View<Node> {
     }
 
     initRelatedItems(node: Node): this {
+        if (!node) return;
         const ignore = ['@id', '@type', dcterms.creator, owl.sameAs]
 
         for (let attribute in node.attributes) {
