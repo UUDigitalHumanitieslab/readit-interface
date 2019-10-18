@@ -286,6 +286,10 @@ export default class HighlightableTextView extends View {
      */
     private scroll(scrollToNode: Node): this {
         if (!scrollToNode) return this;
+        if (this.overlapDetailView) {
+            this.onCloseOverlapDetail();
+        }
+
         let scrollToHv = this.getHighlightView(scrollToNode);
         if (scrollToHv) {
             let scrollableEl = this.$el;
