@@ -75,7 +75,7 @@ export default abstract class BaseAnnotationView extends View<Node> {
     }
 
     baseProcessBody(body: Node): this {
-        if ((body.id as string).startsWith(readit())) {
+        if ((body.id as string).includes('ontology')) {
             this.trigger('body:ontologyClass', body);
         }
         else {

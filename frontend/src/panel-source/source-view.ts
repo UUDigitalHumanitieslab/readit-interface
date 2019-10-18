@@ -124,7 +124,8 @@ export default class SourceView extends View<Node> {
 
     render(): this {
         this.htv.$el.detach();
-        this.$el.html(this.template({ title: this.model.get(schema.name)[0] }));
+        this.$el.html(this.template({ title: this.model.get(schema('name'))[0] }));
+
         this.$('highlightable-text-view').replaceWith(this.htv.render().$el);
 
         if (this.showHighlightsInitially) {
