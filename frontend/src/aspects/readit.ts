@@ -1,5 +1,5 @@
 import { history, View } from 'backbone';
-import { parallel } from 'async';
+import { parallel, mapLimit } from 'async';
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
@@ -8,7 +8,7 @@ import ExplorerView from '../panel-explorer/explorer-view';
 import Graph from './../jsonld/graph';
 import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
-import { item, readit, rdf } from '../jsonld/ns';
+import { item, readit, rdf, vocab } from '../jsonld/ns';
 
 import CategoryColorView from './../utilities/category-colors/category-colors-view';
 import SourceView from './../panel-source/source-view';
@@ -33,8 +33,6 @@ import SourceListView from '../panel-source-list/source-list-view';
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
     footerView.render().$el.appendTo('.footer');
-    let ccView = new CategoryColorView({ collection: new Graph(mockOntology) });
-    ccView.render().$el.appendTo('body');
 });
 
 directionRouter.on('route:arrive', () => {
@@ -65,22 +63,42 @@ function getOntology(callback) {
     );
 }
 
-function getItems(callback) {
+function getAnnotations(specificResource: Node, callback: any) {
     const items = new ItemGraph();
-    items.query({ predicate: rdf.type, object: oa.Annotation }).then(
+    items.query({ predicate: oa.hasTarget, object: specificResource as Node }).then(
         function success() {
-            callback(null, items);
+            callback(null, items.at(0));
         },
         function error(collection, response, options: any) {
             callback(options.error);
+        }
+    );
+}
+
+function getItems(source, itemCallback) {
+    const specificResources = new ItemGraph();
+    specificResources.query({ predicate: oa.hasSource, object: source }).then(
+        function success() {
+            mapLimit(specificResources.models, 4, (sr, cb) => getAnnotations(sr, cb), function (err, result) {
+                itemCallback(null, result);
+            });
+        },
+        function error(collection, response, options: any) {
+            itemCallback(options.error);
         });
 }
 
 function getSources(callback) {
-    // TODO: implement properly when backend is ready
-    setTimeout(function () {
-        callback(null, new Graph(mockSources));
-    }, 200);
+    const sources = new Graph();
+    sources.fetch({
+        url: '/source/',
+        success: function succes() {
+            callback(null, sources);
+        },
+        error: function error(collection, response, options: any) {
+            callback(options.error);
+        }
+    });
 }
 
 function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
@@ -94,11 +112,11 @@ function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
 }
 
 function createSourceView(source: Node, ontology: Graph, callback: any) {
-    getItems(function (error, items) {
+    getItems(source, function (error, items) {
         if (error) console.debug(error)
         else {
             let sourceView = new SourceView({
-                collection: new Graph(items.models),
+                collection: new Graph(items),
                 model: source,
                 ontology: ontology,
                 showHighlightsInitially: true,
@@ -116,6 +134,9 @@ directionFsm.on('enter:exploring', () => {
         else {
             let ontology = results[0];
             let sources = results[1];
+
+            let ccView = new CategoryColorView({ collection: ontology });
+            ccView.render().$el.appendTo('body');
 
             let sourceListView = new SourceListView({
                 collection: sources,
