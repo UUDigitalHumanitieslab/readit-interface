@@ -8,7 +8,7 @@ import ldChannel from './../../jsonld/radio';
 import Node from '../../jsonld/node';
 import LabelView from '../../utilities/label-view';
 import SnippetView from '../../utilities/snippet-view/snippet-view';
-import BaseAnnotationView from '../../annotation-panels/base-annotation-view';
+import BaseAnnotationView from '../../annotation/base-annotation-view';
 
 export interface ViewOptions extends BaseOpt<Node> {
     model: Node;
@@ -33,7 +33,7 @@ export default class SearchResultSourceView extends BaseAnnotationView {
     }
 
     baseProcessSource(source: Node): this {
-        this.title = source.get(schema.name)[0] as string;
+        this.title = source.get(schema('name'))[0] as string;
         let sourceOntologyInstance = ldChannel.request('obtain', source.get('@type')[0] as string);
         if (!this.labelView) {
             this.labelView = new LabelView({ model: sourceOntologyInstance });

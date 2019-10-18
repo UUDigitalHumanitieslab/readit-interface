@@ -1,22 +1,20 @@
-import { ViewOptions as BaseOpt } from 'backbone';
-import { extend } from 'lodash';
-import View from '../../core/view';
+import { extend, defer } from 'lodash';
 
-import { oa } from './../../jsonld/ns';
+import { oa, rdf } from './../../jsonld/ns';
 import Node from './../../jsonld/node';
 import Graph from './../../jsonld/graph';
-import ldChannel from './../../jsonld/radio';
 import { getCssClassName, getLabel, isType } from './../utilities';
-import { getOntologyInstance, AnnotationPositionDetails, getPositionDetails } from './../annotation-utilities';
+import { getOntologyInstance, getLabelText, AnnotationPositionDetails, getPositionDetails } from '../annotation/annotation-utilities';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
+import BaseAnnotationView, { ViewOptions as BaseOpt } from '../../annotation/base-annotation-view';
 
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt {
     ontology: Graph;
 }
 
-export default class ItemSummaryBlockView extends View<Node> {
+export default class ItemSummaryBlockView extends BaseAnnotationView {
     instanceLabel: string;
     classLabel: string;
     cssClassName: string;
@@ -34,6 +32,9 @@ export default class ItemSummaryBlockView extends View<Node> {
     currentItem: Node;
 
     positionDetails: AnnotationPositionDetails;
+    startSelector: Node;
+    endSelector: Node;
+    callbackFn: any;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -42,26 +43,105 @@ export default class ItemSummaryBlockView extends View<Node> {
     initialize(options: ViewOptions): this {
         if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
         this.ontology = options.ontology;
-        this.currentItem = options.model;
 
-        this.modelIsAnnotation = isType(this.model, oa.Annotation);
-        if (this.modelIsAnnotation) {
-            this.currentItem = getOntologyInstance(this.model, this.ontology);
-            this.positionDetails = getPositionDetails(this.model);
+        this.listenTo(this, 'startSelector', this.processStartSelector);
+        this.listenTo(this, 'endSelector', this.processEndSelector);
+        this.listenTo(this, 'body:ontologyClass', this.processOntologyClass)
+        this.listenTo(this.model, 'change', this.processModel);
+        this.processModel(this.model);
+        return this;
+    }
+
+    processModel(model: Node): this {
+        this.baseProcessBody(this.model);
+        this.currentItem = model;
+
+        if (model.has('@type')) {
+            this.modelIsAnnotation = isType(this.model, oa.Annotation);
+            if (this.modelIsAnnotation) {
+                this.stopListening(this, 'textQuoteSelector', this.processTextQuoteSelector);
+                this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
+                this.baseProcessModel(this.model);
+                this.currentItem = getOntologyInstance(this.model, this.ontology);
+            }
         }
 
-        this.instanceLabel = getLabel(this.currentItem);
-        let ontologyClassItem = ldChannel.request('obtain', this.currentItem.get('@type')[0] as string);
-
-        this.classLabel = getLabel(ontologyClassItem);
-        this.cssClassName = getCssClassName(ontologyClassItem);
-
+        if (this.currentItem) {
+            this.stopListening(this.currentItem, 'change', this.processItem);
+            this.listenTo(this.currentItem, 'change', this.processItem);
+            this.processItem(this.currentItem);
+        }
         return this;
+    }
+
+    processOntologyClass(ontologyClass: Node): this {
+        if (ontologyClass.has('@type')) {
+            this.classLabel = getLabel(ontologyClass);
+            this.$el.removeClass(this.cssClassName);
+            this.cssClassName = getCssClassName(ontologyClass);
+        }
+        return this.render();
+    }
+
+    processItem(item: Node): this {
+        this.instanceLabel = getLabel(item);
+        this.render();
+        return this;
+    }
+
+    processTextQuoteSelector(selector: Node): this {
+        this.instanceLabel = getLabelText(selector);
+        this.render();
+        return this;
+    }
+
+    processStartSelector(selector: Node): this {
+        if (selector.has(rdf.value)) {
+            this.startSelector = selector;
+            this.processSelectors();
+        }
+        return this;
+    }
+
+    processEndSelector(selector: Node): this {
+        if (selector.has(rdf.value)) {
+            this.endSelector = selector;
+            this.processSelectors();
+        }
+        return this;
+    }
+
+    processSelectors(): this {
+        if (this.startSelector && this.endSelector) {
+            this.positionDetails = getPositionDetails(this.startSelector, this.endSelector);
+            if (this.callbackFn) {
+                this.callbackFn();
+                delete this.callbackFn;
+            }
+        }
+        return this;
+    }
+
+    ensurePositionDetails(callback: any): void {
+        if (this.positionDetails) {
+            defer(callback);
+        }
+        this.callbackFn = callback;
     }
 
     render(): this {
         this.$el.html(this.template(this));
         this.$el.addClass(this.cssClassName);
+        return this;
+    }
+
+    select(): this {
+        this.$el.addClass('is-highlighted');
+        return this;
+    }
+
+    unSelect(): this {
+        this.$el.removeClass('is-highlighted');
         return this;
     }
 
@@ -95,7 +175,7 @@ export default class ItemSummaryBlockView extends View<Node> {
 }
 extend(ItemSummaryBlockView.prototype, {
     tagName: 'span',
-    className: 'anno-item-sum-block',
+    className: 'item-sum-block',
     template: itemSummaryBlockTemplate,
     events: {
         'click': 'onClick',

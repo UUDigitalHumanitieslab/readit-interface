@@ -1,12 +1,12 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from './../core/view';
+import View from '../core/view';
 
-import { oa, schema } from './../jsonld/ns';
-import Node from './../jsonld/node';
-import ldChannel from './../jsonld/radio';
+import { oa, schema, vocab, readit } from '../jsonld/ns';
+import Node from '../jsonld/node';
+import ldChannel from '../jsonld/radio';
 
-import { isType } from './../utilities/utilities';
+import { isType } from '../utilities/utilities';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import LabelView from '../utilities/label-view';
 
@@ -35,11 +35,23 @@ export default abstract class BaseAnnotationView extends View<Node> {
 
     baseProcessModel(annotation: Node): this {
         let targets = annotation.get(oa.hasTarget);
-        targets.forEach(n  => {
-            this.baseProcessTarget(n as Node);
-            this.stopListening(n, 'change', this.baseProcessTarget);
-            this.listenTo(n, 'change', this.baseProcessTarget);
-        });
+
+        if (targets) {
+            targets.forEach(n => {
+                this.baseProcessTarget(n as Node);
+                this.stopListening(n, 'change', this.baseProcessTarget);
+                this.listenTo(n, 'change', this.baseProcessTarget);
+            });
+        }
+
+        let bodies = annotation.get(oa.hasBody);
+        if (bodies) {
+            bodies.forEach(b => {
+                this.stopListening(b, 'change', this.baseProcessBody);
+                this.listenTo(b, 'change', this.baseProcessBody);
+                this.baseProcessBody(b as Node);
+            });
+        }
 
         return this;
     }
@@ -53,10 +65,21 @@ export default abstract class BaseAnnotationView extends View<Node> {
 
             let selectors: Node[] = target.get(oa.hasSelector) as Node[];
             for (let selector of selectors) {
-                this.baseProcessSelector(selector);
                 this.stopListening(selector, 'change', this.baseProcessSelector);
                 this.listenTo(selector, 'change', this.baseProcessSelector);
+                this.baseProcessSelector(selector);
             }
+        }
+
+        return this;
+    }
+
+    baseProcessBody(body: Node): this {
+        if ((body.id as string).includes('ontology')) {
+            this.trigger('body:ontologyClass', body);
+        }
+        else {
+            this.trigger('body:ontologyInstance', body);
         }
 
         return this;
@@ -72,6 +95,28 @@ export default abstract class BaseAnnotationView extends View<Node> {
             this.trigger('textQuoteSelector', selector);
         }
 
+        if (isType(selector, vocab('RangeSelector'))) {
+            let startSelector = selector.get(oa.hasStartSelector)[0] as Node;
+            this.stopListening(startSelector, 'change', this.baseProcessStartSelector);
+            this.listenTo(startSelector, 'change', this.baseProcessStartSelector);
+            this.baseProcessStartSelector(startSelector);
+
+            let endSelector = selector.get(oa.hasEndSelector)[0] as Node;
+            this.stopListening(endSelector, 'change', this.baseProcessEndSelector);
+            this.listenTo(endSelector, 'change', this.baseProcessEndSelector);
+            this.baseProcessEndSelector(endSelector);
+        }
+
+        return this;
+    }
+
+    baseProcessStartSelector(selector: Node): this {
+        this.trigger('startSelector', selector);
+        return this;
+    }
+
+    baseProcessEndSelector(selector: Node): this {
+        this.trigger('endSelector', selector);
         return this;
     }
 }
