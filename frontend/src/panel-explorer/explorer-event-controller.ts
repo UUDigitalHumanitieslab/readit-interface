@@ -91,12 +91,16 @@ export default class ExplorerEventController {
     }
 
     ldItemEditAnnotation(ldItemview: LdItemView, annotation: Node): this {
-        // this.explorerView.popUntil(view);
-        let annoEditView = new AnnotationEditView({
-            ontology: this.explorerView.ontology,
-            model: annotation,
-        });
-        this.explorerView.overlay(annoEditView, ldItemview);
+        this.explorerView.popUntil(ldItemview);
+        this.notImplemented();
+
+        // TODO: this opens an edit panel for an annotation,
+        // but this doesn't currently make sense, because users can only edit their own annotations.
+        // let annoEditView = new AnnotationEditView({
+        //     ontology: this.explorerView.ontology,
+        //     model: annotation,
+        // });
+        // this.explorerView.overlay(annoEditView, ldItemview);
 
         return this;
     }
