@@ -7,7 +7,7 @@ import Node from '../jsonld/node';
 
 import relatedItemsTemplate from './related-items-template';
 
-import { dcterms } from '../jsonld/ns';
+import { dcterms, owl } from '../jsonld/ns';
 import { getLabelFromId } from '../utilities/utilities';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import RelatedItemsRelationView from './related-items-relation-view';
@@ -40,7 +40,8 @@ export default class RelatedItemsView extends View<Node> {
     }
 
     initRelatedItems(node: Node): this {
-        const ignore = ['@id', '@type', dcterms.creator]
+        if (!node) return;
+        const ignore = ['@id', '@type', dcterms.creator, owl.sameAs]
 
         for (let attribute in node.attributes) {
             if (ignore.includes(attribute)) {
@@ -83,7 +84,7 @@ export default class RelatedItemsView extends View<Node> {
         }
         this.currentlyHighlighted = summaryBlock;
         summaryBlock.toggleHighlight();
-        this.trigger('click', annotation);
+        this.trigger('relItems:itemClick', this, annotation);
         return this;
     }
 }

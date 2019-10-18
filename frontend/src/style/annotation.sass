@@ -1,4 +1,4 @@
-.annotations-panel
+.annotation-list-panel
     width: 260px !important
     min-width: unset !important
 
@@ -6,15 +6,8 @@
         overflow-y: auto
         height: 85%
 
-    .anno-item-sum-block
-        margin: 6px
+        .item-sum-block
+            opacity: 0.8
 
-.anno-item-sum-block
-    @extend .tag
-    height: unset !important
-    white-space: pre-line !important
-    justify-content: unset !important
-    max-width: 200px
-
-    &.is-highlighted
-        border: 2px solid rgba(0,0,0, 0.25)
+            &.is-highlighted
+                opacity: 1

@@ -51,6 +51,12 @@ export default class SnippetView extends View {
         return this;
     }
 
+    handleDOMMutation(isInDOM: boolean): this {
+        if (isInDOM) this.onInsertedIntoDOM();
+        else this.onRemovedFromDOM();
+        return this;
+    }
+
     onInsertedIntoDOM(): any {
         this.isInDom = true;
         this.createContent();
@@ -97,17 +103,30 @@ export default class SnippetView extends View {
         let fullString = `${prefix}${exact}${suffix}`;
 
         if (this.getLengthInPixels(fullString) < availableSpace) {
-            this.prefix_calc = prefix;
+            this.prefix_calc = prefix || "";
             this.exact_calc = exact;
-            this.suffix_calc = suffix;
+            this.suffix_calc = suffix || "";
         }
         else {
-            this.prefix_calc = this.trimToFit(prefix, availableSpace / 4, true);
-            this.trimmedStart = true;
-            this.exact_calc = `${this.trimToFit(exact, availableSpace / 4)}
+            if (!prefix) this.prefix_calc = "";
+            else {
+                this.prefix_calc = this.trimToFit(prefix, availableSpace / 4, true);
+                this.trimmedStart = true;
+            }
+
+            if (this.getLengthInPixels(exact) <= availableSpace / 2.5) {
+                this.exact_calc = exact;
+            }
+            else {
+                this.exact_calc = `${this.trimToFit(exact, availableSpace / 4)}
                 ${this.ellipsis} ${this.trimToFit(exact, availableSpace / 4, true)}`;
-            this.suffix_calc = this.trimToFit(suffix, availableSpace / 4);
-            this.trimmedEnd = true;
+            }
+
+            if (!suffix) this.suffix_calc = "";
+            else {
+                this.suffix_calc = this.trimToFit(suffix, availableSpace / 4);
+                this.trimmedEnd = true;
+            }
         }
 
         return this;
@@ -136,7 +155,6 @@ export default class SnippetView extends View {
      * Get the length of a string in pixels.
      */
     getLengthInPixels(text: string): number {
-
         return this.canvasCtx.measureText(text).width;
     }
 }
@@ -145,7 +163,5 @@ extend(SnippetView.prototype, {
     className: 'snippet',
     template: snippetTemplate,
     events: {
-        'DOMNodeInsertedIntoDocument': 'onInsertedIntoDOM',
-        'DOMNodeRemoved': 'onRemovedFromDOM',
     }
 });

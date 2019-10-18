@@ -42,6 +42,12 @@ export const source1instance = {
             "@value": "1900-01-01T00:00:00+0100"
         }
     ],
+    [schema.inLanguage]: [
+        {
+            "@type": "Language",
+            "@value": "en"
+        },
+    ],
     [dcterms.created]: [
         {
             "@type": xsd.dateTime,
@@ -57,5 +63,5 @@ export const source1instance = {
 }
 
 export default [
-    source1instance
+    source1instance,
 ]

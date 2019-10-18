@@ -11,6 +11,8 @@ import HighlightableTextView from '../highlight/highlightable-text-view';
 import { schema, vocab } from './../jsonld/ns';
 import { isType } from './../utilities/utilities';
 import HighlightView from '../highlight/highlight-view';
+import ItemGraph from '../utilities/item-graph';
+import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
@@ -74,6 +76,9 @@ export default class SourceView extends View<Node> {
      */
     isInFullScreenViewMode: boolean;
 
+    htvIsInDOM: boolean;
+    DOMMutationObserver: MutationObserver;
+
     constructor(options?: ViewOptions) {
         super(options);
         this.validate();
@@ -81,6 +86,7 @@ export default class SourceView extends View<Node> {
         this.initialScrollTo = options.initialScrollTo;
         this.isEditable = options.isEditable || false;
         this.showHighlightsInitially = options.showHighlightsInitially || this.initialScrollTo != null || false;
+        this.isShowingHighlights = this.showHighlightsInitially;
 
         this.htv = new HighlightableTextView({
             text: <string>this.model.get(schema.text)[0],
@@ -91,6 +97,20 @@ export default class SourceView extends View<Node> {
             isEditable: this.isEditable
         });
         this.bindToEvents(this.htv);
+
+        const config = { attributes: true, childList: true, subtree: true };
+        this.DOMMutationObserver = new MutationObserver(this.onDOMMutation.bind(this));
+        this.DOMMutationObserver.observe(this.$el.get(0), config);
+    }
+
+    onDOMMutation(mutationsList, observer): this {
+        for (let mutation of mutationsList) {
+            if (mutation.type === 'childList' && $(mutation.target).hasClass('source-container')) {
+                this.htvIsInDOM = !this.htvIsInDOM;
+                this.htv.handleDOMMutation(this.htvIsInDOM);
+            }
+        }
+        return this;
     }
 
     validate() {
@@ -104,11 +124,13 @@ export default class SourceView extends View<Node> {
 
     render(): this {
         this.htv.$el.detach();
-        this.$el.html(this.template({ title: this.model.get(schema.name)[0] }));
+        this.$el.html(this.template({ title: this.model.get(schema('name'))[0] }));
+
         this.$('highlightable-text-view').replaceWith(this.htv.render().$el);
 
         if (this.showHighlightsInitially) {
-            this.toggleHighlights();
+            this.trigger('sourceview:showAnnotations', this);
+            this.toggleToolbarItemSelected('annotations');
         }
 
         return this;
@@ -117,9 +139,17 @@ export default class SourceView extends View<Node> {
     bindToEvents(htv: HighlightableTextView): HighlightableTextView {
         this.htv.on('hover', this.onHover, this);
         this.htv.on('hoverEnd', this.onHoverEnd, this);
-        this.htv.on('click', this.onClick, this);
+        this.htv.on('highlightSelected', this.onHighlightSelected, this);
+        this.htv.on('highlightUnselected', this.onHighlightUnselected, this);
+        this.htv.on('textSelected', this.onTextSelected, this);
         this.htv.on('scroll', this.onScroll, this);
+        this.htv.on('overlapsLoaded', this.onOverlapsLoaded, this);
         return htv;
+    }
+
+    add(newItems: ItemGraph): this {
+        this.htv.add(newItems);
+        return this;
     }
 
     /**
@@ -139,8 +169,22 @@ export default class SourceView extends View<Node> {
     /**
      * Pass events from HighlightableTextView
      */
-    onClick(node: Node): void {
-        this.trigger('click', node);
+    onTextSelected(range: Range, posDetails: AnnotationPositionDetails): void {
+        this.trigger('sourceview:textSelected', this, this.model, range, posDetails);
+    }
+
+    /**
+     * Pass events from HighlightableTextView
+     */
+    onHighlightSelected(node: Node): void {
+        this.trigger('sourceview:highlightSelected', this, node);
+    }
+
+    /**
+     * Pass events from HighlightableTextView
+     */
+    onHighlightUnselected(node: Node): void {
+        this.trigger('sourceview:highlightUnselected', this, node);
     }
 
     /**
@@ -151,14 +195,23 @@ export default class SourceView extends View<Node> {
     }
 
     /**
+     * Pass events from HighlightableTextView
+     */
+    onOverlapsLoaded(): void {
+        this.trigger('sourceview:overlapsLoaded', this);
+    }
+
+    /**
      * Toggle highlights on and off.
      */
     toggleHighlights(): this {
         if (this.isShowingHighlights) {
             this.hideHighlights();
+            this.trigger('sourceview:hideAnnotations', this);
         }
         else {
             this.showHighlights();
+            this.trigger('sourceview:showAnnotations', this);
         }
         this.toggleToolbarItemSelected('annotations');
         this.isShowingHighlights = !this.isShowingHighlights;
@@ -172,7 +225,6 @@ export default class SourceView extends View<Node> {
 
     showHighlights(): this {
         this.htv.showAll();
-        this.trigger('showAnnotations', this.collection);
         return this;
     }
 
@@ -183,18 +235,21 @@ export default class SourceView extends View<Node> {
 
     toggleMetadata(): this {
         if (this.isShowingMetadata) {
-            this.trigger('hideMetadata', this.model);
+            this.trigger('sourceview:hideMetadata', this, this.model);
         } else {
-            this.trigger('showMetadata', this.model);
+            this.trigger('sourceview:showMetadata', this, this.model);
         }
+        this.isShowingMetadata = !this.isShowingMetadata;
         this.toggleToolbarItemSelected('metadata');
+
         return this;
     }
 
     toggleViewMode(): this {
         // TODO: update when full screen modal is implemented
-        if (this.isInFullScreenViewMode) this.trigger('shrink', this);
-        else this.trigger('enlarge', this);
+        if (this.isInFullScreenViewMode) this.trigger('sourceView:shrink', this);
+        else this.trigger('sourceView:enlarge', this);
+        this.isInFullScreenViewMode = !this.isInFullScreenViewMode;
         this.toggleToolbarItemSelected('viewmode');
         return this;
     }

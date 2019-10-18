@@ -207,6 +207,7 @@ const tsModules = decoratedBrowserify({
     entries: [mainScript],
     cache: {},
     packageCache: {},
+    ignoreTransform: ['babelify']
 });
 
 const tsTestModules = decoratedBrowserify({

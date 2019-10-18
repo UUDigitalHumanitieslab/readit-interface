@@ -1,9 +1,9 @@
 
-import Node from './../jsonld/node';
-import Graph from './../jsonld/graph';
+import Node from '../../jsonld/node';
+import Graph from '../../jsonld/graph';
 
-import { oa, vocab, rdf } from './../jsonld/ns';
-import { isType, getCssClassName as getCssClass } from './utilities';
+import { oa, vocab, rdf } from '../../jsonld/ns';
+import { isType, getCssClassName as getCssClass } from '../utilities';
 
 export type AnnotationPositionDetails = {
     startNodeIndex: number;
@@ -13,15 +13,24 @@ export type AnnotationPositionDetails = {
 }
 
 /**
+ * Get a text that is usable as a label for an oa:Annotation,
+ * from its oa:TextQuoteSelector.
+ */
+export function getLabelText(selector: Node): string {
+    if (!isType(selector, oa.TextQuoteSelector))
+        throw TypeError('selector should be an oa:TextQuoteSelector');
+    if (!selector.has(oa.exact)) return;
+
+    let exact = selector.get(oa.exact)[0] as string;
+    if (exact.length < 80) return exact;
+    return `${exact.substring(0, 33)} (..) ${exact.substring(exact.length - 34, exact.length)}`;
+}
+
+/**
  * Get the annotation's position details (i.e. node and character indices).
  * @param annotation The node to extract the details from.
  */
-export function getPositionDetails(annotation: Node): AnnotationPositionDetails {
-    validateType(annotation);
-
-    let selector = getSelector(annotation);
-    let startSelector = getStartSelector(selector);
-    let endSelector = getEndSelector(selector);
+export function getPositionDetails(startSelector: Node, endSelector: Node): AnnotationPositionDetails {
     return {
         startNodeIndex: getNodeIndex(startSelector),
         startCharacterIndex: getCharacterIndex(startSelector),
@@ -63,7 +72,10 @@ export function getCssClassName(annotation: Node, ontology: Graph): string {
  * Get the ontology instances from an annotation (i.e. the item in 'oa.hasBody' that are not ontology items)
  */
 export function getOntologyInstances(annotation: Node, ontology: Graph): Node[] {
-    return annotation.get(oa.hasBody).filter(n => !ontology.get(n as Node)) as Node[];
+    let bodies = annotation.get(oa.hasBody);
+    if (bodies) {
+        return bodies.filter(n => !ontology.get(n as Node)) as Node[];
+    }
 }
 
 /**
@@ -72,14 +84,7 @@ export function getOntologyInstances(annotation: Node, ontology: Graph): Node[] 
  */
 export function getOntologyInstance(annotation: Node, ontology: Graph): Node {
     let ontologyInstances = getOntologyInstances(annotation, ontology);
-
-    if (ontologyInstances.length !== 1) {
-        throw new RangeError(
-            `None or multiple ontology instances found for oa:Annotation with cid '${annotation.cid}',
-                    don't know which one to display`);
-    }
-
-    return ontologyInstances[0];
+    if (ontologyInstances && ontologyInstances.length > 0) return ontologyInstances[0];
 }
 
 /**
@@ -216,3 +221,5 @@ function getCharacterIndex(selector: Node): number {
     let endIndex = xpath.length - 1;
     return +xpath.substring(startIndex, endIndex);
 }
+
+

@@ -37,6 +37,12 @@ export default class HighlightRectView extends View {
         return this;
     }
 
+    newCssClass(newClass: string): this {
+        this.$el.removeClass(this.cssClass);
+        this.cssClass = newClass;
+        return this.render();
+    }
+
     /**
      * Set the relevant css attributes to position this rect.
      * @param rect The rectangle in the DOM to model the HighlightRect after.
@@ -64,6 +70,18 @@ export default class HighlightRectView extends View {
 
     hideDeleteButton(): this {
         this.$('.delete-highlight').css('display', 'none');
+        return this;
+    }
+
+    select(): this {
+        if (this.$el.width() !== 0) {
+            this.$el.addClass('is-selected');
+        }
+        return this;
+    }
+
+    unSelect(): this {
+        this.$el.removeClass('is-selected');
         return this;
     }
 

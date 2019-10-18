@@ -18,6 +18,10 @@
             z-index: 1
             position: absolute
 
+            &.is-selected
+                border: 2px solid rgba(0,0,0, 0.4)
+                z-index: 2
+
         .highlight-rect.is-overlap
             z-index: 2
             background-color: white !important
@@ -30,6 +34,7 @@
             top: -14px
             cursor: pointer
 
+
     .overlap-details
         position: absolute
         z-index: 3
@@ -41,7 +46,7 @@
             margin-top: 6px
 
             &.is-selected
-                border: 2px solid $primary-color
+                border: 2px solid rgba(0,0,0, 0.4)
 
 
         .close

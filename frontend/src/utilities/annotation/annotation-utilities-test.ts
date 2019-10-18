@@ -1,9 +1,9 @@
-import { startStore, endStore } from '../test-util';
-import Node from './../jsonld/node';
-import { item, oa } from './../jsonld/ns';
-import mockItems from './../mock-data/mock-items';
+import { startStore, endStore } from '../../test-util';
+import Node from '../../jsonld/node';
+import { item, oa } from '../../jsonld/ns';
+import mockItems from '../../mock-data/mock-items';
 import { validateCompleteness, getEndSelector, getSelector } from './annotation-utilities';
-import Graph from '../jsonld/graph';
+import Graph from '../../jsonld/graph';
 
 describe('annotation-utilities', function () {
     const anno1InstanceId = item('100');

@@ -1,6 +1,6 @@
 [
     {
-        "@id": "http://readit.example/ontology/Content",
+        "@id": "http://readit.example/ontology/content",
         "@type": [
             "http://www.w3.org/2000/01/rdf-schema#Class"
         ],
@@ -16,17 +16,38 @@
         ],
         "http://www.w3.org/2004/02/skos/core#definition": [
             {
-                "@value": "Dit is de definitie van content"
+                "@value": "This is the definition of content"
             }
         ],
         "http://schema.org/color": [
             {
-                "@value": "#F5CAC3"
+                "@value": "orange"
             }
         ]
     },
     {
-        "@id": "http://readit.example/ontology/Medium",
+        "@id": "http://readit.example/ontology/resource_properties",
+        "@type": [
+            "http://www.w3.org/2000/01/rdf-schema#Class"
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "Resource Properties"
+            }
+        ],
+        "http://www.w3.org/2004/02/skos/core#definition": [
+            {
+                "@value": "This is the definition of Reasource Properties"
+            }
+        ],
+        "http://schema.org/color": [
+            {
+                "@value": "#FFB6FE"
+            }
+        ]
+    },
+    {
+        "@id": "http://readit.example/ontology/medium",
         "@type": [
             "http://www.w3.org/2000/01/rdf-schema#Class"
         ],
@@ -37,23 +58,23 @@
         ],
         "http://www.w3.org/2004/02/skos/core#definition": [
             {
-                "@value": "Dit is de definitie van medium"
+                "@value": "This is the definition of medium"
             }
         ],
         "http://schema.org/color": [
             {
-                "@value": "#60D394"
+                "@value": "#f08080"
             }
         ]
     },
     {
-        "@id": "http://readit.example/ontology/Reader",
+        "@id": "http://readit.example/ontology/reader",
         "@type": [
             "http://www.w3.org/2000/01/rdf-schema#Class"
         ],
         "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
             {
-                "@id": "http://readit.example/ontology/Person"
+                "@id": "http://readit.example/ontology/person"
             }
         ],
         "http://www.w3.org/2004/02/skos/core#prefLabel": [
@@ -63,33 +84,75 @@
         ],
         "http://www.w3.org/2004/02/skos/core#definition": [
             {
-                "@value": "Dit is de definitie van reader"
+                "@value": "This is the definition of reader"
             }
         ],
         "http://schema.org/color": [
             {
-                "@value": "#F18F01"
+                "@value": "#00e600"
             }
         ]
     },
     {
-        "@id": "http://readit.example/ontology/Person",
+        "@id": "http://readit.example/ontology/reader_properties",
         "@type": [
             "http://www.w3.org/2000/01/rdf-schema#Class"
         ],
         "http://www.w3.org/2004/02/skos/core#prefLabel": [
             {
-                "@value": "Person"
+                "@value": "Reader Properties"
             }
         ],
         "http://www.w3.org/2004/02/skos/core#definition": [
             {
-                "@value": "Dit is de definitie van person"
+                "@value": "This is the definition of Reader Properties"
             }
         ],
         "http://schema.org/color": [
             {
-                "@value": "#c32433"
+                "@value": "#ff0"
+            }
+        ]
+    },
+    {
+        "@id": "http://readit.example/ontology/reading_session",
+        "@type": [
+            "http://www.w3.org/2000/01/rdf-schema#Class"
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "Reading Session"
+            }
+        ],
+        "http://www.w3.org/2004/02/skos/core#definition": [
+            {
+                "@value": "This is the definition of Reading Session"
+            }
+        ],
+        "http://schema.org/color": [
+            {
+                "@value": "#add8e6"
+            }
+        ]
+    },
+    {
+        "@id": "http://readit.example/ontology/state_of_mind",
+        "@type": [
+            "http://www.w3.org/2000/01/rdf-schema#Class"
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "State of Mind"
+            }
+        ],
+        "http://www.w3.org/2004/02/skos/core#definition": [
+            {
+                "@value": "This is the definition of Reader Properties"
+            }
+        ],
+        "http://schema.org/color": [
+            {
+                "@value": "#af82a1"
             }
         ]
     }

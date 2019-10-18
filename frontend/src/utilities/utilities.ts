@@ -96,13 +96,13 @@ export function isType(node: Node, type: string) {
  * @param scrollToHeight The height of the scrollTo element.
  */
 export function getScrollTop(scrollableEl: JQuery<HTMLElement>, scrollToTop: number, scrollToHeight: number) {
-    if (scrollToHeight >= scrollableEl.height()) {
-        // show start at the top
-        return scrollToTop - scrollableEl.offset().top;
-    }
-    else {
+    // base position: show start at the top
+    let scrollTop = scrollToTop - scrollableEl.offset().top + scrollableEl.scrollTop();
+
+    if (scrollToHeight < scrollableEl.height()) {
         // center it
-        let centerOffset = (scrollableEl.height() - scrollToHeight) / 2
-        return scrollToTop - scrollableEl.offset().top - centerOffset;
+        let centerOffset = (scrollableEl.height() - scrollToHeight) / 2;
+        scrollTop = scrollTop - centerOffset;
     }
+    return scrollTop;
 }
