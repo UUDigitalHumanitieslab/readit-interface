@@ -168,6 +168,7 @@ export default class HighlightableTextView extends View {
             this.overlaps.push(ohv);
             ohv.render().$el.prependTo(this.$('.position-container'));
         });
+        this.trigger('overlapsLoaded');
     }
 
     initHighlights(): this {

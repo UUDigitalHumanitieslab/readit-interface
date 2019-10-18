@@ -6,6 +6,7 @@ import View from '../core/view';
 import Graph from '../jsonld/graph';
 import PanelStackView from './explorer-panelstack-view';
 import EventController from './explorer-event-controller';
+import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
 
 
 export interface ViewOptions extends BaseOpt<Model> {
@@ -32,6 +33,11 @@ export default class ExplorerView extends View {
      */
     mostRightFullyVisibleStack: PanelStackView;
 
+    /**
+     * Have a loader ready to show when loading panels takes long.
+     */
+    loadingSpinnerView: LoadingSpinnerView;
+
     constructor(options?: ViewOptions) {
         super(options);
         if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
@@ -42,8 +48,10 @@ export default class ExplorerView extends View {
         this.rltPanelStack = new Map();
         this.push(options.first);
 
-
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 500));
+
+        this.loadingSpinnerView = new LoadingSpinnerView();
+        this.loadingSpinnerView.render().$el.appendTo(this.$el);
     }
 
     render(): View {
