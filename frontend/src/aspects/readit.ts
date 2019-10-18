@@ -29,6 +29,7 @@ import SearchResultBaseItemView from '../search/search-results/search-result-bas
 
 import ItemGraph from './../utilities/item-graph';
 import SourceListView from '../panel-source-list/source-list-view';
+import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -144,6 +145,7 @@ directionFsm.on('enter:exploring', () => {
             let explorer = initExplorer(sourceListView, ontology);
 
             sourceListView.on('source-list:click', (listView: SourceListView, source: Node) => {
+                explorer.loadingSpinnerView.activate();
                 createSourceView(source, ontology, (error, sourceView) => {
                     if (error) console.error(error);
                     else {
