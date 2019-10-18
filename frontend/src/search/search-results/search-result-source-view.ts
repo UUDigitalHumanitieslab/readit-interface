@@ -33,7 +33,7 @@ export default class SearchResultSourceView extends BaseAnnotationView {
     }
 
     baseProcessSource(source: Node): this {
-        this.title = source.get(schema.name)[0] as string;
+        this.title = source.get(schema('name'))[0] as string;
         let sourceOntologyInstance = ldChannel.request('obtain', source.get('@type')[0] as string);
         if (!this.labelView) {
             this.labelView = new LabelView({ model: sourceOntologyInstance });

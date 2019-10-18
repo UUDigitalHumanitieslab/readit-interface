@@ -460,6 +460,7 @@ export const schemaTerms = [
     'headline',
     'inLanguage',
     'location',
+    // 'name', // causes runtime error, use schema('name') instead
     'Organization',
     'Person',
     'text',

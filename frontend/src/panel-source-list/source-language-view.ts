@@ -34,7 +34,7 @@ export default class SourceLanguageView extends View<Node> {
             .map((s: Node) => {
                 if (s.get(schema.inLanguage)[0] == this.language) {
                     return {
-                        name: s.get(schema.name)[0],
+                        name: s.get(schema('name'))[0],
                         author: s.get(schema.creator)[0],
                         cid: s.cid
                     }
