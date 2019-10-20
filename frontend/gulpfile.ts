@@ -106,6 +106,7 @@ const sourceDir = `src`,
 // by Browserify. They will be inserted in the order shown.
 const browserLibs: LibraryProps[] = [{
         module: 'jquery',
+        browser: 'jquery/dist/jquery.min',
         global: '$',
         cdn: `${cdnjsPattern}/\${filenameMin}`,
     }, {
@@ -132,17 +133,15 @@ const browserLibs: LibraryProps[] = [{
         browser: 'jsonld/dist/jsonld.min',
         global: 'jsonld',
         cdn: `${jsdelivrPattern}/dist/\${filenameMin}`,
-    },
-    {
-        module: 'bulma-accordion',
-        browser: 'bulma-accordion/dist/js/bulma-accordion.min.js',
-        global: 'bulmaAccordion',
-        cdn: `${jsdelivrPattern}/dist/js/\${filenameMin}`,
-    },
-    {
+    }, {
         module: 'jquery-validation',
-        browser: 'jquery-validation/dist/jquery.validate.min.js',
+        browser: 'jquery-validation/dist/jquery.validate.min',
         global: 'jquery-validation',
+        cdn: `${cdnjsBase}/jquery-validate/\${version}/jquery.validate.min.js`,
+    }, {
+        module: 'bulma-accordion',
+        browser: 'bulma-accordion/dist/js/bulma-accordion.min',
+        global: 'bulmaAccordion',
         cdn: `${jsdelivrPattern}/dist/js/\${filenameMin}`,
     }],
     browserLibsRootedPaths: string[] = [],
