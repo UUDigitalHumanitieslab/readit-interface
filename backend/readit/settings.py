@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_auth',
     'rdflib_django',
+    'corsheaders',
     'rdf',
     'vocab',
     'staff',
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -86,6 +88,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'readit.wsgi.application'
+
+
+# Cross-origin resource sharing (CORS)
+# https://github.com/adamchainz/django-cors-headers
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_URLS_REGEX = r'^/((vocab|staff|ontology)|(source|item)/.*)$'
+CORS_ALLOW_METHODS = ('GET', 'HEAD', 'OPTIONS')
 
 
 # Database

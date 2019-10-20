@@ -58,9 +58,7 @@ function getOntology(callback) {
         function success() {
             callback(null, o);
         },
-        function error(collection, response, options: any) {
-            callback(options.error)
-        }
+        /*error*/ callback
     );
 }
 
@@ -70,9 +68,7 @@ function getAnnotations(specificResource: Node, callback: any) {
         function success() {
             callback(null, items.at(0));
         },
-        function error(collection, response, options: any) {
-            callback(options.error);
-        }
+        /*error*/ callback
     );
 }
 
@@ -84,22 +80,18 @@ function getItems(source, itemCallback) {
                 itemCallback(null, result);
             });
         },
-        function error(collection, response, options: any) {
-            itemCallback(options.error);
-        });
+        /*error*/ itemCallback
+    );
 }
 
 function getSources(callback) {
     const sources = new Graph();
-    sources.fetch({
-        url: '/source/',
-        success: function succes() {
+    sources.fetch({ url: '/source/' }).then(
+        function succes() {
             callback(null, sources);
         },
-        error: function error(collection, response, options: any) {
-            callback(options.error);
-        }
-    });
+        /*error*/ callback
+    );
 }
 
 function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
