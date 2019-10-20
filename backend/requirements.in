@@ -3,6 +3,7 @@ djangorestframework
 django-rest-auth
 django-livereload-server
 django-proxy
+django-cors-headers
 rdflib-django3
 rdflib-jsonld
 psycopg2 --no-binary psycopg2
