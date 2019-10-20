@@ -106,6 +106,7 @@ const sourceDir = `src`,
 // by Browserify. They will be inserted in the order shown.
 const browserLibs: LibraryProps[] = [{
         module: 'jquery',
+        browser: 'jquery/dist/jquery.min',
         global: '$',
         cdn: `${cdnjsPattern}/\${filenameMin}`,
     }, {
@@ -132,17 +133,15 @@ const browserLibs: LibraryProps[] = [{
         browser: 'jsonld/dist/jsonld.min',
         global: 'jsonld',
         cdn: `${jsdelivrPattern}/dist/\${filenameMin}`,
-    },
-    {
-        module: 'bulma-accordion',
-        browser: 'bulma-accordion/dist/js/bulma-accordion.min.js',
-        global: 'bulmaAccordion',
-        cdn: `${jsdelivrPattern}/dist/js/\${filenameMin}`,
-    },
-    {
+    }, {
         module: 'jquery-validation',
-        browser: 'jquery-validation/dist/jquery.validate.min.js',
+        browser: 'jquery-validation/dist/jquery.validate.min',
         global: 'jquery-validation',
+        cdn: `${cdnjsBase}/jquery-validate/\${version}/jquery.validate.min.js`,
+    }, {
+        module: 'bulma-accordion',
+        browser: 'bulma-accordion/dist/js/bulma-accordion.min',
+        global: 'bulmaAccordion',
         cdn: `${jsdelivrPattern}/dist/js/\${filenameMin}`,
     }],
     browserLibsRootedPaths: string[] = [],
@@ -174,6 +173,24 @@ exposify.config = browserLibs.reduce((config: ExposeConfig, lib) => {
     return config;
 }, {});
 
+// These libraries are shipped to NPM with untranspiled ES6 code.
+const problemLibs = [
+    '@comunica',
+    '@rdfjs',
+    'dom-serializer',
+    'jsonld',
+    'jsonld-context-parser',
+    'jsonld-streaming-parser',
+    'n3',
+    'rdf-canonize',
+    'rdf-parse',
+    'rdfa-streaming-parser',
+    'rdfxml-streaming-parser',
+    'relative-to-absolute-iri',
+    'streamify-string',
+];
+const problemLibsRegex = new RegExp(`${nodeDir}/(${problemLibs.join('|')})/`);
+
 const configJSON: Promise<any> = new Promise((resolve, reject) => {
     readFile(indexConfig, 'utf-8', (error, data) => {
         if (error) {
@@ -196,6 +213,11 @@ function decoratedBrowserify(options, constructor = browserify) {
         let bundler;
         return () => bundler || (bundler = constructor(options)
             .plugin(tsify, tsOptions)
+            .transform('babelify', {
+                global: true,
+                presets: [['@babel/env', { targets: 'defaults' }]],
+                only: [problemLibsRegex],
+            })
             .transform(aliasify, aliasOptions)
             .transform(exposify, {global: true})
         );
@@ -207,7 +229,6 @@ const tsModules = decoratedBrowserify({
     entries: [mainScript],
     cache: {},
     packageCache: {},
-    ignoreTransform: ['babelify']
 });
 
 const tsTestModules = decoratedBrowserify({
