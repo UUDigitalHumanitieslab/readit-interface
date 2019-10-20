@@ -174,6 +174,24 @@ exposify.config = browserLibs.reduce((config: ExposeConfig, lib) => {
     return config;
 }, {});
 
+// These libraries are shipped to NPM with untranspiled ES6 code.
+const problemLibs = [
+    '@comunica',
+    '@rdfjs',
+    'dom-serializer',
+    'jsonld',
+    'jsonld-context-parser',
+    'jsonld-streaming-parser',
+    'n3',
+    'rdf-canonize',
+    'rdf-parse',
+    'rdfa-streaming-parser',
+    'rdfxml-streaming-parser',
+    'relative-to-absolute-iri',
+    'streamify-string',
+];
+const problemLibsRegex = new RegExp(`${nodeDir}/(${problemLibs.join('|')})/`);
+
 const configJSON: Promise<any> = new Promise((resolve, reject) => {
     readFile(indexConfig, 'utf-8', (error, data) => {
         if (error) {
@@ -196,6 +214,11 @@ function decoratedBrowserify(options, constructor = browserify) {
         let bundler;
         return () => bundler || (bundler = constructor(options)
             .plugin(tsify, tsOptions)
+            .transform('babelify', {
+                global: true,
+                presets: [['@babel/env', { targets: 'defaults' }]],
+                only: [problemLibsRegex],
+            })
             .transform(aliasify, aliasOptions)
             .transform(exposify, {global: true})
         );
@@ -207,7 +230,6 @@ const tsModules = decoratedBrowserify({
     entries: [mainScript],
     cache: {},
     packageCache: {},
-    ignoreTransform: ['babelify']
 });
 
 const tsTestModules = decoratedBrowserify({
