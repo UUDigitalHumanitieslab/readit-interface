@@ -21,7 +21,9 @@ def inject_fulltext(input):
 
 class SourcesAPIRoot(RDFView):
     """ For now, simply lists all sources. """
-    graph = graph
+
+    def graph(self):
+        return graph()
 
     def get_graph(self, request, **kwargs):
         return inject_fulltext(super().get_graph(request, **kwargs))
@@ -29,7 +31,9 @@ class SourcesAPIRoot(RDFView):
 
 class SourcesAPISingular(RDFResourceView):
     """ API endpoint for fetching individual subjects. """
-    graph = graph
+
+    def graph(self):
+        return graph()
 
     def get_graph(self, request, **kwargs):
         return inject_fulltext(super().get_graph(request, **kwargs))

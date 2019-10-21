@@ -48,11 +48,11 @@ def canonical_graph():
 
      1. The instances of the deprecated annotation.models.Source,
         mapped through as_rdf.
-     2. All of the triples that are already in .graph.graph.
+     2. All of the triples that are already in .graph.graph().
     """
     g = Graph()
     for source in Source.objects.all():
         for triple in as_rdf(source):
             g.add(triple)
-    g += graph
+    g += graph()
     return g
