@@ -3,9 +3,10 @@ import { extend } from 'lodash';
 import View from '../core/view';
 import menuTemplate from './menu-template';
 
+
 export default class MenuView extends View {
     render() {
-        this.$el.html(this.template({}));
+        this.$el.html(this.template({ username: this.model.get('username')}));
         return this;
     }
 
@@ -31,7 +32,7 @@ export default class MenuView extends View {
 }
 
 extend(MenuView.prototype, {
-    tagName: 'header',    
+    tagName: 'header',
     template: menuTemplate,
     events: {
         "click .navbar-burger": "toggleHamburger",
