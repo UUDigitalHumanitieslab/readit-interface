@@ -14,7 +14,7 @@ def inject_fulltext(input):
     text_triples = Graph()
     for s in subjects:
         serial = str(s).split('/')[-1]
-        with default_storage.open(get_media_filename(serial), 'r') as f:
+        with default_storage.open(get_media_filename(serial)) as f:
             text_triples.add((s, SCHEMA.text, Literal(f.read())))
     return input + text_triples
 
