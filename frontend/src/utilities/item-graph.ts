@@ -65,3 +65,5 @@ export default class ItemGraph extends Graph {
 extend(ItemGraph.prototype, {
     url: item(),
 });
+
+window['whatever'] = ItemGraph;
