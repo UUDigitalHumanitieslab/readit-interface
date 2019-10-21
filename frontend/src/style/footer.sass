@@ -1,14 +1,13 @@
-footer 
+footer
     background-color: $footer-background-color
     // position: absolute
-    height: 142px    
-    padding: 2em 1em
+    height: $footer-height
+    padding: 1em 1em !important
     bottom: 0
     left: 0
     right: 0
-    padding: 2em 1em
     color: $footer-text-color
-    
+
     &.fixed
         position: fixed
         bottom: 0
@@ -23,26 +22,35 @@ footer
     img
         display: inline-block
         margin-right: 15px
-        margin-bottom: 15px
+
+
+    .footer-dh
         height: 40px
 
-    img.uu
+        figure
+            height: 100%
+
+        img.dhlab
+            height: 100%
+
+
+    .footer-project
         height: 40px
 
-    img.dhlab 
-        height: 34px
+        figure
+            height: 100%
 
-    img.lemans
-        height: 35px
+        img.uu
+            height: 100%
 
-    img.irisa
-        height: 50px
-        margin-bottom: 8px
+        img.lemans
+            height: 85%
 
-    img.ou
-        margin-bottom: 11px
+        img.irisa
+            height: 100%
 
-    img.icl
-        margin-bottom: 12px
-  
-    
+        img.ou
+            height: 90%
+
+        img.icl
+            height: 90%

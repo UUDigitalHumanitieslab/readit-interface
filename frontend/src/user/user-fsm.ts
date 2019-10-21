@@ -10,6 +10,7 @@ import AuthorizationFsm, { requireAuthorization } from './user-fsm-base';
 const unprivilegedState = {
     arrive: requireAuthorization,
     leave: 'leaving',
+    explore: requireAuthorization,
 };
 
 /**
@@ -19,6 +20,7 @@ const unprivilegedState = {
 const privilegedState = {
     arrive: 'arriving',
     leave: 'leaving',
+    explore: 'exploring',
 };
 
 /**
@@ -39,5 +41,6 @@ export default AuthorizationFsm.extend({
         }, privilegedState),
         leaving: unprivilegedState,
         authorizationGranted: privilegedState,
+        exploring: privilegedState
     },
 });

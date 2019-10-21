@@ -37,19 +37,57 @@ history.once('route', () => {
 });
 
 directionRouter.on('route:arrive', () => {
-    directionFsm.handle('arrive');
+    userFsm.handle('arrive');
 });
 
-directionFsm.on('enter:arriving', () => {
+userFsm.on('enter:arriving', () => {
     welcomeView.render().$el.appendTo('#main');
 });
 
-directionFsm.on('exit:arriving', () => {
+userFsm.on('exit:arriving', () => {
     welcomeView.$el.detach();
 });
 
 directionRouter.on('route:explore', () => {
-    directionFsm.handle('explore');
+    userFsm.handle('explore');
+});
+
+userFsm.on('enter:exploring', () => {
+    parallel([getOntology, getSources], function (error, results) {
+        if (error) console.debug(error);
+        else {
+            let ontology = results[0];
+            let sources = results[1];
+
+            let ccView = new CategoryColorView({ collection: ontology });
+            ccView.render().$el.appendTo('body');
+
+            let sourceListView = new SourceListView({
+                collection: sources,
+            });
+            let explorer = initExplorer(sourceListView, ontology);
+
+            sourceListView.on('source-list:click', (listView: SourceListView, source: Node) => {
+                explorer.loadingSpinnerView.activate();
+                createSourceView(source, ontology, (error, sourceView) => {
+                    if (error) console.error(error);
+                    else {
+                        explorer.popUntil(sourceListView);
+                        explorer.push(sourceView);
+                    }
+                });
+            });
+        }
+    });
+});
+
+userFsm.on('exit:exploring', () => {
+    // exView.$el.detach();
+});
+
+
+directionRouter.on('route:leave', () => {
+    userFsm.handle('leave');
 });
 
 function getOntology(callback) {
@@ -113,48 +151,10 @@ function createSourceView(source: Node, ontology: Graph, callback: any) {
                 model: source,
                 ontology: ontology,
                 showHighlightsInitially: true,
-                isEditable: false,
+                isEditable: true,
                 // initialScrollTo: annotation,
             });
             callback(null, sourceView);
         }
     });
 }
-
-directionFsm.on('enter:exploring', () => {
-    parallel([getOntology, getSources], function (error, results) {
-        if (error) console.debug(error);
-        else {
-            let ontology = results[0];
-            let sources = results[1];
-
-            let ccView = new CategoryColorView({ collection: ontology });
-            ccView.render().$el.appendTo('body');
-
-            let sourceListView = new SourceListView({
-                collection: sources,
-            });
-            let explorer = initExplorer(sourceListView, ontology);
-
-            sourceListView.on('source-list:click', (listView: SourceListView, source: Node) => {
-                explorer.loadingSpinnerView.activate();
-                createSourceView(source, ontology, (error, sourceView) => {
-                    if (error) console.error(error);
-                    else {
-                        explorer.popUntil(sourceListView);
-                        explorer.push(sourceView);
-                    }
-                });
-            });
-        }
-    });
-});
-
-directionFsm.on('exit:exploring', () => {
-    // exView.$el.detach();
-});
-
-
-directionRouter.on('route:leave', () => {
-    console.log('not implemented!');
-});
