@@ -60,7 +60,9 @@ def submission_info(request):
 class ItemsAPIRoot(RDFView):
     """ By default, list an empty graph. """
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    graph = graph
+
+    def graph(self):
+        return graph()
 
     def get_graph(self, request):
         result = Graph()
@@ -75,8 +77,9 @@ class ItemsAPIRoot(RDFView):
         else:
             o = params.get('o_literal')
             o = o and Literal(o)
-        for s in self.graph.subjects(p, o):
-            for pred, obj in graph.predicate_objects(s):
+        full_graph = super().get_graph(request)
+        for s in full_graph.subjects(p, o):
+            for pred, obj in full_graph.predicate_objects(s):
                 result.add((s, pred, obj))
         return result
 
@@ -96,14 +99,17 @@ class ItemsAPIRoot(RDFView):
             result.add((new_subject, p, o))
         result.add((new_subject, DCTERMS.creator, user))
         result.add((new_subject, DCTERMS.created, now))
-        self.graph += result
+        full_graph = super().get_graph(request)
+        full_graph += result
         return Response(result, HTTP_201_CREATED)
 
 
 class ItemsAPISingular(RDFResourceView):
     """ API endpoint for fetching and changing individual subjects. """
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    graph = graph
+
+    def graph(self):
+        return graph()
 
     def put(self, request, format=None, **kwargs):
         existing = self.get_graph(request, **kwargs)
@@ -124,6 +130,7 @@ class ItemsAPISingular(RDFResourceView):
             # No changes, skip database manipulations and attribution
             return Response(existing)
         added.add((identifier, DCTERMS.modified, now))
-        self.graph -= removed
-        self.graph += added
+        full_graph = super().get_graph(request)
+        full_graph -= removed
+        full_graph += added
         return Response(existing - removed + added)

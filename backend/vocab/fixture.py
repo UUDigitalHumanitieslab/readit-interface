@@ -1,5 +1,5 @@
 """
-This module represents what we believe *should* be in .graph.graph.
+This module represents what we believe *should* be in .graph.graph().
 """
 
 from rdflib import Graph, URIRef, Literal
