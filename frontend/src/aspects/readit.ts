@@ -53,36 +53,10 @@ directionRouter.on('route:explore', () => {
 });
 
 userFsm.on('enter:exploring', () => {
-    parallel([getOntology, getSources], function (error, results) {
-        if (error) console.debug(error);
-        else {
-            let ontology = results[0];
-            let sources = results[1];
-
-            let ccView = new CategoryColorView({ collection: ontology });
-            ccView.render().$el.appendTo('body');
-
-            let sourceListView = new SourceListView({
-                collection: sources,
-            });
-            let explorer = initExplorer(sourceListView, ontology);
-
-            sourceListView.on('source-list:click', (listView: SourceListView, source: Node) => {
-                explorer.loadingSpinnerView.activate();
-                createSourceView(source, ontology, (error, sourceView) => {
-                    if (error) console.error(error);
-                    else {
-                        explorer.popUntil(sourceListView);
-                        explorer.push(sourceView);
-                    }
-                });
-            });
-        }
-    });
+    initSourceList();
 });
 
 userFsm.on('exit:exploring', () => {
-    // exView.$el.detach();
 });
 
 
@@ -155,6 +129,35 @@ function createSourceView(source: Node, ontology: Graph, callback: any) {
                 // initialScrollTo: annotation,
             });
             callback(null, sourceView);
+        }
+    });
+}
+
+function initSourceList() {
+    parallel([getOntology, getSources], function (error, results) {
+        if (error) console.debug(error);
+        else {
+            let ontology = results[0];
+            let sources = results[1];
+
+            let ccView = new CategoryColorView({ collection: ontology });
+            ccView.render().$el.appendTo('body');
+
+            let sourceListView = new SourceListView({
+                collection: sources,
+            });
+            let explorer = initExplorer(sourceListView, ontology);
+
+            sourceListView.on('source-list:click', (listView: SourceListView, source: Node) => {
+                explorer.loadingSpinnerView.activate();
+                createSourceView(source, ontology, (error, sourceView) => {
+                    if (error) console.error(error);
+                    else {
+                        explorer.popUntil(sourceListView);
+                        explorer.push(sourceView);
+                    }
+                });
+            });
         }
     });
 }
