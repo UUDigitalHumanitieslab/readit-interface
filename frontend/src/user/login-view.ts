@@ -27,7 +27,6 @@ extend(LoginForm.prototype, {
     className: 'modal is-active',
     template: loginTemplate,
     events: {
-        'click .modal-background, .modal-close': 'reset',  // triggers cancel
         reset: 'cancel',
         submit: 'submit',
     },
