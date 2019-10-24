@@ -44,7 +44,11 @@ import menuView from '../global/menu-view';
 let formerUserState: string = userFsm.state;
 
 user.on('login:success', () => authFsm.handle('loginSuccess'));
-user.on('login:error', () => authFsm.handle('loginFail'));
+user.on('login:error', () => {
+    authFsm.handle('loginFail');
+    loginForm.onLoginFailed();
+
+});
 user.on('logout:success', () => authFsm.handle('logout'));
 
 // When authorization fails, just return to the last unprivileged state.

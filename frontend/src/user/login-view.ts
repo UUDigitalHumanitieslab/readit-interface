@@ -21,6 +21,11 @@ export default class LoginForm extends View {
         (this.$('form').get(0) as HTMLFormElement).reset();
         return this;
     }
+
+    onLoginFailed(): this {
+        this.$('.login-failed').removeClass('is-hidden');
+        return this;
+    }
 }
 
 extend(LoginForm.prototype, {
