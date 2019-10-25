@@ -66,7 +66,7 @@ export default class SearchResultListView extends View {
     }
 
     onItemClicked(subView: View): this {
-        this.trigger('click', subView, subView.model);
+        this.trigger('searchResultList:itemClicked', this, subView.model);
         return this;
     }
 }
