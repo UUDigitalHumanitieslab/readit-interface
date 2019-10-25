@@ -74,7 +74,7 @@ function getOntology(callback) {
     );
 }
 
-function getAnnotations(specificResource: Node, callback: any) {
+export function getAnnotations(specificResource: Node, callback: any) {
     const items = new ItemGraph();
     items.query({ predicate: oa.hasTarget, object: specificResource as Node }).then(
         function success() {
@@ -84,7 +84,7 @@ function getAnnotations(specificResource: Node, callback: any) {
     );
 }
 
-function getItems(source, itemCallback) {
+export function getItems(source, itemCallback) {
     const specificResources = new ItemGraph();
     specificResources.query({ predicate: oa.hasSource, object: source }).then(
         function success() {
