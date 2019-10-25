@@ -14,7 +14,7 @@ import RelatedItemsView from '../panel-related-items/related-items-view';
 import ItemGraph from '../utilities/item-graph';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { oa } from '../jsonld/ns';
-import { getItems } from './../aspects/readit';
+import { getItems } from './../utilities/utilities';
 import SearchResultListView from '../search/search-results/panel-search-result-list-view';
 import { isType } from '../utilities/utilities';
 
