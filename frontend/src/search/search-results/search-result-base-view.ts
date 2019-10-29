@@ -58,12 +58,16 @@ export default class SearchResultBaseItemView extends View<Node> {
     }
 
     select(): this {
-        this.chbSelected.prop('checked', true);
+        // TODO: clean up here (implement both?)
+        // this.chbSelected.prop('checked', true);
+        this.$el.addClass('is-selected');
         return this;
     }
 
     unSelect(): this {
-        this.chbSelected.prop('checked', false);
+        // TODO: clean up here (implement both?)
+        // this.chbSelected.prop('checked', false);
+        this.$el.removeClass('is-selected');
         return this;
     }
 

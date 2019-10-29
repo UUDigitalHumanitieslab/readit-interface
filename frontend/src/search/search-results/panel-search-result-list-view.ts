@@ -23,6 +23,8 @@ export default class SearchResultListView extends View {
 
     items: SearchResultBaseItemView[];
 
+    currentlySelected: SearchResultBaseItemView;
+
     constructor(options: ViewOptions) {
         super(options);
     }
@@ -65,7 +67,25 @@ export default class SearchResultListView extends View {
         return this;
     }
 
-    onItemClicked(subView: View): this {
+    processSelection(subView: SearchResultBaseItemView): this {
+        if (this.currentlySelected) this.unSelect(this.currentlySelected);
+        this.select(subView);
+        return this;
+    }
+
+    select(subView: SearchResultBaseItemView): this {
+        subView.select();
+        this.currentlySelected = subView;
+        return this;
+    }
+
+    unSelect(subView: SearchResultBaseItemView): this {
+        subView.unSelect();
+        return this;
+    }
+
+    onItemClicked(subView: SearchResultBaseItemView): this {
+        this.processSelection(subView);
         this.trigger('searchResultList:itemClicked', this, subView.model);
         return this;
     }
