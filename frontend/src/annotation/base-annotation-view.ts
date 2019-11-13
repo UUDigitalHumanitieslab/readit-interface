@@ -39,6 +39,8 @@ export default abstract class BaseAnnotationView extends View<Node> {
         if (targets) {
             targets.forEach(n => {
                 this.processTarget(n as Node);
+                // Stop listening in case we are already listening...
+                // ... and then listen afresh. (i.e. prevent double event handling)
                 this.stopListening(n, 'change', this.processTarget);
                 this.listenTo(n, 'change', this.processTarget);
             });
@@ -47,6 +49,8 @@ export default abstract class BaseAnnotationView extends View<Node> {
         let bodies = annotation.get(oa.hasBody);
         if (bodies) {
             bodies.forEach(b => {
+                // Stop listening in case we are already listening...
+                // ... and then listen afresh. (i.e. to prevent double event handling)
                 this.stopListening(b, 'change', this.processBody);
                 this.listenTo(b, 'change', this.processBody);
                 this.processBody(b as Node);
@@ -59,12 +63,14 @@ export default abstract class BaseAnnotationView extends View<Node> {
     processTarget(target: Node): this {
         if (isType(target, oa.SpecificResource)) {
             let source = target.get(oa.hasSource)[0] as Node;
+            // See comment above for explanation of stopListening/listenTo pattern.
             this.stopListening(source, 'change', this.processSource);
             this.listenTo(source, 'change', this.processSource);
             this.processSource(source);
 
             let selectors: Node[] = target.get(oa.hasSelector) as Node[];
             for (let selector of selectors) {
+                // See comment above for explanation of stopListening/listenTo pattern.
                 this.stopListening(selector, 'change', this.processSelector);
                 this.listenTo(selector, 'change', this.processSelector);
                 this.processSelector(selector);
@@ -97,11 +103,13 @@ export default abstract class BaseAnnotationView extends View<Node> {
 
         if (isType(selector, vocab('RangeSelector'))) {
             let startSelector = selector.get(oa.hasStartSelector)[0] as Node;
+            // See comment above for explanation of stopListening/listenTo pattern.
             this.stopListening(startSelector, 'change', this.processStartSelector);
             this.listenTo(startSelector, 'change', this.processStartSelector);
             this.processStartSelector(startSelector);
 
             let endSelector = selector.get(oa.hasEndSelector)[0] as Node;
+            // See comment above for explanation of stopListening/listenTo pattern.
             this.stopListening(endSelector, 'change', this.processEndSelector);
             this.listenTo(endSelector, 'change', this.processEndSelector);
             this.processEndSelector(endSelector);
