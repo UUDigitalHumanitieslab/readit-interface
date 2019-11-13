@@ -27,7 +27,8 @@ export default class WelcomeView extends View {
 
     search(query: string, queryfields: string = 'all') {
         // var url = encodeURI(`search/?query=${query}&queryfields=${queryfields}`);
-        console.log('searching! (not implemented yet)');
+        // console.log('searching! (not implemented yet)');
+        alert('Sorry, not implemented yet!');
     }
 }
 

@@ -13,6 +13,10 @@ import AnnotationEditView from '../annotation/panel-annotation-edit';
 import RelatedItemsView from '../panel-related-items/related-items-view';
 import ItemGraph from '../utilities/item-graph';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
+import { oa } from '../jsonld/ns';
+import { getItems } from './../utilities/utilities';
+import SearchResultListView from '../search/search-results/panel-search-result-list-view';
+import { isType } from '../utilities/utilities';
 
 export default class ExplorerEventController {
     /**
@@ -56,12 +60,37 @@ export default class ExplorerEventController {
             'lditem:editAnnotation': this.ldItemEditAnnotation,
             'relItems:itemClick': this.relItemsItemClicked,
             'source-list:click': this.sourceListClick,
+            'searchResultList:itemClicked': this.searchResultListItemClicked,
         }, this);
     }
 
     sourceListClick(source: Node): this {
         // TODO
         return this;
+    }
+
+    searchResultListItemClicked(searchResultList: SearchResultListView, item: Node) {
+        if (isType(item, oa.Annotation)) {
+            const specificResource = item.get(oa.hasTarget)[0] as Node;
+            let source = specificResource.get(oa.hasSource)[0] as Node;
+            let self = this;
+
+            this.explorerView.popUntil(searchResultList);
+            this.explorerView.loadingSpinnerView.activate();
+
+            getItems(source, function (error, items) {
+                if (error) console.debug(error)
+                else {
+                    let sourceView = new SourceView({
+                        model: source,
+                        collection: new Graph(items),
+                        ontology: self.explorerView.ontology,
+                        initialScrollTo: item
+                    });
+                    self.explorerView.push(sourceView);
+                }
+            });
+        }
     }
 
     relItemsItemClicked(relView: RelatedItemsView, item: Node): this {
@@ -73,6 +102,12 @@ export default class ExplorerEventController {
 
     ldItemShowRelated(view: LdItemView, item: Node): this {
         this.explorerView.popUntil(view);
+
+        if (!item) {
+            alert('no related items!');
+            return;
+        }
+
         let relatedItems = new RelatedItemsView({ model: item, ontology: this.explorerView.ontology });
         this.explorerView.push(relatedItems);
         return this;
@@ -80,7 +115,23 @@ export default class ExplorerEventController {
 
     ldItemShowAnnotations(view: LdItemView, item: Node): this {
         this.explorerView.popUntil(view);
-        this.notImplemented();
+
+        if (!item) {
+            alert('no linked annotations!');
+            return;
+        }
+
+        let self = this;
+        let items = new ItemGraph();
+        items.query({ predicate: oa.hasBody, object: item }).then(
+            function success() {
+                let resultView = new SearchResultListView({ collection: new Graph(items.models), selectable: false });
+                self.explorerView.push(resultView);
+            },
+            function error(error) {
+                console.error(error);
+            }
+        );
         return this;
     }
 
@@ -132,10 +183,11 @@ export default class ExplorerEventController {
         // which then does what it always does (i.e. also highlight the relevant block in the list view)
         // In other words: the AnnotationListView doesn't throw any other events than click and doesn't select
         // anything itself.
-        let sourceView : SourceView;
+        let sourceView: SourceView;
         this.mapSourceAnnotationList.forEach((value, key) => {
             if (value.cid === annotationList.cid) sourceView = key;
         });
+
         sourceView.scrollTo(annotation);
         return this;
     }

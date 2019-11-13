@@ -14,14 +14,16 @@ def inject_fulltext(input):
     text_triples = Graph()
     for s in subjects:
         serial = str(s).split('/')[-1]
-        with default_storage.open(get_media_filename(serial), 'r') as f:
+        with default_storage.open(get_media_filename(serial)) as f:
             text_triples.add((s, SCHEMA.text, Literal(f.read())))
     return input + text_triples
 
 
 class SourcesAPIRoot(RDFView):
     """ For now, simply lists all sources. """
-    graph = graph
+
+    def graph(self):
+        return graph()
 
     def get_graph(self, request, **kwargs):
         return inject_fulltext(super().get_graph(request, **kwargs))
@@ -29,7 +31,9 @@ class SourcesAPIRoot(RDFView):
 
 class SourcesAPISingular(RDFResourceView):
     """ API endpoint for fetching individual subjects. """
-    graph = graph
+
+    def graph(self):
+        return graph()
 
     def get_graph(self, request, **kwargs):
         return inject_fulltext(super().get_graph(request, **kwargs))

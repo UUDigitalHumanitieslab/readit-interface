@@ -3,7 +3,8 @@ import { extend, defer } from 'lodash';
 import { oa, rdf } from './../../jsonld/ns';
 import Node from './../../jsonld/node';
 import Graph from './../../jsonld/graph';
-import { getCssClassName, getLabel, isType } from './../utilities';
+import ldChannel from './../../jsonld/radio';
+import { getCssClassName, getLabel, isType, getLabelFromId } from './../utilities';
 import { getOntologyInstance, getLabelText, AnnotationPositionDetails, getPositionDetails } from '../annotation/annotation-utilities';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
@@ -25,12 +26,6 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
      */
     modelIsAnnotation: boolean;
 
-    /**
-     * The item displayed by the current view.
-     * Is either the model or the ontology instance associated with the model if its type is oa:Annotation.
-     */
-    currentItem: Node;
-
     positionDetails: AnnotationPositionDetails;
     startSelector: Node;
     endSelector: Node;
@@ -46,7 +41,8 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
 
         this.listenTo(this, 'startSelector', this.processStartSelector);
         this.listenTo(this, 'endSelector', this.processEndSelector);
-        this.listenTo(this, 'body:ontologyClass', this.processOntologyClass)
+        this.listenTo(this, 'body:ontologyClass', this.processOntologyClass);
+        this.listenTo(this, 'body:ontologyInstance', this.processOntologyInstance);
         this.listenTo(this.model, 'change', this.processModel);
         this.processModel(this.model);
         return this;
@@ -54,7 +50,6 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
 
     processModel(model: Node): this {
         this.baseProcessBody(this.model);
-        this.currentItem = model;
 
         if (model.has('@type')) {
             this.modelIsAnnotation = isType(this.model, oa.Annotation);
@@ -62,15 +57,14 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
                 this.stopListening(this, 'textQuoteSelector', this.processTextQuoteSelector);
                 this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
                 this.baseProcessModel(this.model);
-                this.currentItem = getOntologyInstance(this.model, this.ontology);
+            }
+            else {
+                this.stopListening(this.model, 'change', this.processItem);
+                this.listenTo(this.model, 'change', this.processItem);
+                this.processItem(this.model);
             }
         }
 
-        if (this.currentItem) {
-            this.stopListening(this.currentItem, 'change', this.processItem);
-            this.listenTo(this.currentItem, 'change', this.processItem);
-            this.processItem(this.currentItem);
-        }
         return this;
     }
 
@@ -83,8 +77,18 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
         return this.render();
     }
 
+    processOntologyInstance(ontologyInstance): this {
+        this.instanceLabel = getLabel(ontologyInstance);
+        this.render();
+        return this;
+    }
+
     processItem(item: Node): this {
         this.instanceLabel = getLabel(item);
+        if (item.has('@type')) {
+            let ontologyClass = ldChannel.request('obtain', item.get('@type')[0] as string);
+            this.processOntologyClass(ontologyClass);
+        }
         this.render();
         return this;
     }
