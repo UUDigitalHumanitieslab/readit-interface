@@ -3,13 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Temporary files
-/static/
-
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
-*.log
 
 # Unit test / coverage reports
 .coverage
@@ -31,8 +27,8 @@ ENV/
 env.bak/
 venv.bak/
 
-# Node
-node_modules/
+# WebDriver logs
+*.log
 
-# VS code
-.vscode/
+# Local overrides
+pytest.ini

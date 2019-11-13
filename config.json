@@ -1,0 +1,9 @@
+{
+  "baseUrl": "/",
+  "staticRoot": "/static/",
+  "nodeRoot": "/static/",
+  "apiRoot": "/api/",
+  "authRoot": "/rest-auth/",
+  "proxyRoot": "/proxy/",
+  "nsRoot": "http://localhost:8000/"
+}

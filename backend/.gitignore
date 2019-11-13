@@ -3,13 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Temporary files
-/static/
-
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
-*.log
 
 # Unit test / coverage reports
 .coverage
@@ -18,6 +14,12 @@ pip-delete-this-directory.txt
 coverage.xml
 *.cover
 .pytest_cache/
+
+# Django
+*.log
+local_settings.py
+*.sqlite3
+media/
 
 # pyenv
 .python-version
@@ -30,9 +32,3 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
-# Node
-node_modules/
-
-# VS code
-.vscode/
