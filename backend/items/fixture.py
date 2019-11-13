@@ -135,5 +135,5 @@ def canonical_graph():
     for annotation in Annotation.objects.all():
         for triple in as_rdf(annotation):
             g.add(triple)
-    g += graph
+    g += graph()
     return g

@@ -1,7 +1,10 @@
-import { find, includes } from 'lodash'
-import Node from '../jsonld/node';
+import { find, includes } from 'lodash';
+import { mapLimit } from 'async';
 
-import { skos, rdfs, readit, dcterms } from './../jsonld/ns';
+import Node from '../jsonld/node';
+import Graph from './../jsonld/graph';
+import ItemGraph from './item-graph';
+import { skos, rdfs, readit, dcterms, oa } from './../jsonld/ns';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -105,4 +108,47 @@ export function getScrollTop(scrollableEl: JQuery<HTMLElement>, scrollToTop: num
         scrollTop = scrollTop - centerOffset;
     }
     return scrollTop;
+}
+
+
+export function getOntology(callback) {
+    let o = new Graph();
+    o.fetch({ url: readit() }).then(
+        function success() {
+            callback(null, o);
+        },
+        /*error*/ callback
+    );
+}
+
+export function getAnnotations(specificResource: Node, callback: any) {
+    const items = new ItemGraph();
+    items.query({ predicate: oa.hasTarget, object: specificResource as Node }).then(
+        function success() {
+            callback(null, items.at(0));
+        },
+        /*error*/ callback
+    );
+}
+
+export function getItems(source, itemCallback) {
+    const specificResources = new ItemGraph();
+    specificResources.query({ predicate: oa.hasSource, object: source }).then(
+        function success() {
+            mapLimit(specificResources.models, 4, (sr, cb) => getAnnotations(sr, cb), function (err, result) {
+                itemCallback(null, result);
+            });
+        },
+        /*error*/ itemCallback
+    );
+}
+
+export function getSources(callback) {
+    const sources = new Graph();
+    sources.fetch({ url: '/source/' }).then(
+        function succes() {
+            callback(null, sources);
+        },
+        /*error*/ callback
+    );
 }

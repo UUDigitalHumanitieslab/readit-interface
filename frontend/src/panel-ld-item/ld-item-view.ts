@@ -67,33 +67,17 @@ export default class LdItemView extends BaseAnnotationView {
     }
 
     processModel(model: Node): this {
-        this.currentItem = model;
-
         if (model.has('@type')) {
             this.modelIsAnnotation = isType(this.model, oa.Annotation);
             if (this.modelIsAnnotation) {
                 this.baseProcessModel(model);
-                this.currentItem = getOntologyInstance(this.currentItem, this.ontology);
                 this.annotationMetadataView = new ItemMetadataView({ model: this.model, title: 'Annotation metadata' });
                 this.annotationMetadataView.render();
             }
-        }
-
-        if (this.currentItem) {
-            this.stopListening(this.currentItem, 'change', this.processItem);
-            this.listenTo(this.currentItem, 'change', this.processItem);
-            this.processItem(this.currentItem);
-        }
-        return this.render();
-    }
-
-    processItem(item: Node): this {
-        this.label = getLabel(this.currentItem);
-
-        if (item.has('@type')) {
-            this.itemMetadataView = new ItemMetadataView({ model: this.currentItem });
-            this.itemMetadataView.render();
-            this.collectDetails();
+            else {
+                this.listenTo(this.model, 'change', this.processOntologyInstance);
+                this.processOntologyInstance(this.model);
+            }
         }
 
         return this.render();
@@ -105,9 +89,18 @@ export default class LdItemView extends BaseAnnotationView {
     }
 
     processOntologyInstance(item: Node): this {
+        this.currentItem = item;
+
         if (!this.lblView) {
             this.createLabel(ldChannel.request('obtain', item.get('@type')[0] as string));
         }
+
+        if (item.has('@type')) {
+            this.itemMetadataView = new ItemMetadataView({ model: this.currentItem });
+            this.itemMetadataView.render();
+            this.collectDetails();
+        }
+
         return this.render();
     }
 
