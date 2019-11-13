@@ -102,7 +102,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
     }
 
     processModel(node: Node): this {
-        this.baseProcessModel(node);
+        super.processAnnotation(node);
 
         if (isType(node, oa.Annotation)) {
             this.metadataView = new ItemMetadataView({ model: this.model });
