@@ -87,6 +87,11 @@ export default class HighlightableTextView extends View {
 
     selectedHighlight: HighlightView;
 
+    /** A simple lookup hash with Annotation cid as key,
+     * and associated HighlightView as value
+     */
+    highlightByModel: Map<string, HighlightView>;
+
     constructor(options?: ViewOptions) {
         super(options);
         if (options.initialScrollTo) {
@@ -101,6 +106,7 @@ export default class HighlightableTextView extends View {
         this.ontology = options.ontology;
         this.isEditable = options.isEditable || false;
         this.showHighlightsInitially = options.showHighlightsInitially || false;
+        this.highlightByModel = new Map();
 
         if (!options.collection) this.collection = new Graph();
         this.collection.on('add', this.addHighlight, this);
@@ -274,6 +280,7 @@ export default class HighlightableTextView extends View {
 
         this.bindEvents(hV);
         this.hVs.push(hV);
+        this.highlightByModel.set(node.cid, hV);
         hV.render().$el.prependTo(this.$('.position-container'));
         this.trigger('highlightAdded', node);
         return hV;
@@ -301,7 +308,7 @@ export default class HighlightableTextView extends View {
     }
 
     private getHighlightView(annotation: Node): HighlightView {
-        return this.hVs.find(hV => hV.model === annotation);
+        return this.highlightByModel.get(annotation.cid);
     }
 
     /**
@@ -318,7 +325,7 @@ export default class HighlightableTextView extends View {
 
     deleteNode(node: Node): this {
         if (this.deleteFromCollection(node)) {
-            this.hVs.find(hV => hV.model === node).remove();
+            this.getHighlightView(node).remove();
             this.initOverlaps();
             this.trigger('delete', node);
         }
