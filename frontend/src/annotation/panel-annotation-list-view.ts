@@ -103,7 +103,7 @@ export default class AnnotationListView extends View<Node> {
         let scrollToBlock = this.getSummaryBlock(annotation);
 
         if (scrollToBlock) {
-            let scrollableEl = this.$('.summary-list');
+            let scrollableEl = this.$('.panel-content');
             let scrollTop = getScrollTop(scrollableEl, scrollToBlock.getTop(), scrollToBlock.getHeight());
             this.selectAnno(annotation);
             scrollableEl.animate({ scrollTop: scrollTop }, 800);
