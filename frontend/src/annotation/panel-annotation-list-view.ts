@@ -28,6 +28,12 @@ export default class AnnotationListView extends View<Node> {
      */
     currentlyHighlighted: ItemSummaryBlockView;
 
+    /**
+     * A simple lookup hash with Annotation cid as key,
+     * and ItemSummaryBlock as value
+     */
+    blockByModel: Map<string, ItemSummaryBlockView>
+
     constructor(options: ViewOptions) {
         super(options);
     }
@@ -36,6 +42,7 @@ export default class AnnotationListView extends View<Node> {
         if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
         this.ontology = options.ontology;
         this.summaryBlocks = [];
+        this.blockByModel = new Map();
 
         this.listenTo(this.collection, 'change', this.render);
 
@@ -68,6 +75,7 @@ export default class AnnotationListView extends View<Node> {
             view.on('click', this.onSummaryBlockClicked, this);
             view.on('hover', this.onSummaryBlockedHover, this);
             this.summaryBlocks.push(view);
+            this.blockByModel.set(node.cid, view);
         }
         return this;
     }
@@ -112,7 +120,7 @@ export default class AnnotationListView extends View<Node> {
     }
 
     getSummaryBlock(annotation: Node): ItemSummaryBlockView {
-        return this.summaryBlocks.find(sb => sb.model === annotation);
+        return this.blockByModel.get(annotation.cid);
     }
 
     selectAnno(annotation: Node): this {
