@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, bind, debounce, sortBy } from 'lodash';
+import { extend, bind, debounce, sortBy, sortedIndexBy, sortedIndexOf } from 'lodash';
 import { each } from 'async';
 
 import View from './../core/view';
@@ -17,6 +17,7 @@ import OverlappingHighlightsView from './overlapping-highlights-view';
 import OverlapDetailsView from './overlap-details-view';
 import { getRange, getPositionDetailsFromRange } from '../utilities/range-utilities';
 import ItemGraph from '../utilities/item-graph';
+import { BinarySearchableView, BinarySearchStrategy } from './../utilities/binary-searchable-view/binary-search-strategy';
 
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
@@ -80,6 +81,11 @@ export default class HighlightableTextView extends View {
      */
     overlapDetailView: OverlapDetailsView;
 
+    /**
+     * Store highlight views in a binary search strategy to enable quick searching
+     */
+    searchStrategy: BinarySearchStrategy;
+
     isEditable: boolean;
 
     isInDOM: boolean;
@@ -104,6 +110,7 @@ export default class HighlightableTextView extends View {
 
         if (!options.collection) this.collection = new Graph();
         this.collection.on('add', this.addHighlight, this);
+        this.searchStrategy = new BinarySearchStrategy();
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
     }
@@ -330,6 +337,7 @@ export default class HighlightableTextView extends View {
         this.listenTo(hV, 'hoverEnd', this.onHoverEnd);
         this.listenTo(hV, 'delete', this.deleteNode);
         this.listenTo(hV, 'click', this.onClicked);
+        this.listenTo(hV, 'positionDetailsProcessed', this.onHighlightPositionDetailsProcessed);
         return this;
     }
 
@@ -423,44 +431,36 @@ export default class HighlightableTextView extends View {
      */
     onScroll(): void {
         let scrollableEl = this.$el;
-        let scrollableVisibleMiddle = scrollableEl.offset().top + (scrollableEl.height() / 2);
-        let resultAnnotation = undefined;
-        let visibleHighlights = this.getVisibleHighlightViews();
+        let scrollableVisibleMiddle = Math.round(scrollableEl.scrollTop() + (scrollableEl.height() / 2));
 
         if (!this.hVs || this.hVs.length === 0) {
             this.trigger('scroll');
         }
-
-        if (!visibleHighlights || visibleHighlights.length === 0) {
-            resultAnnotation = this.getHighlightClosestTo(scrollableVisibleMiddle, this.hVs).model;
-        }
-        else if (visibleHighlights.length === 1) {
-            resultAnnotation = visibleHighlights[0].model;
-        }
         else {
-            resultAnnotation = this.getHighlightClosestTo(scrollableVisibleMiddle, visibleHighlights).model;
+            // Get the view closest to the visible vertical middle
+            let view = this.searchStrategy.getClosestTo(
+                this.getSearchableIndexValue(scrollableVisibleMiddle, scrollableVisibleMiddle)
+            );
+            this.trigger('scroll', getSelector(view.model as Node));
         }
-
-        let selector = getSelector(resultAnnotation);
-        this.trigger('scroll', selector);
     }
 
-    getVisibleHighlightViews(): HighlightView[] {
-        let scrollableEl = this.$el;
-        let scrollableTop = scrollableEl.offset().top;
-        let scrollableBottom = scrollableTop + scrollableEl.height();
+    /**
+     * Helper method to create an indexValue for BinarySearchableView initialization.
+     */
+    private getSearchableIndexValue(top: number, bottom: number): number {
+        return top * 1000 + bottom;
+    }
 
-        let visibleHighlights = this.hVs.filter((hV) => {
-            let top = hV.getTop();
-            let bottom = top + hV.getHeight();
-            return bottom > scrollableTop && top < scrollableBottom;
+    /**
+     * Process the highlights positiondetails.
+     */
+    private onHighlightPositionDetailsProcessed(hV: HighlightView): this {
+        this.searchStrategy.add({
+            indexValue: this.getSearchableIndexValue(hV.getTop(), hV.getBottom()),
+            view: hV
         });
-
-        return visibleHighlights;
-    }
-
-    getHighlightClosestTo(referenceValue: number, highlightViews: HighlightView[]): HighlightView {
-        return sortBy(highlightViews, (h) => Math.abs(referenceValue - h.$el.offset().top))[0];
+        return this;
     }
 }
 extend(HighlightableTextView.prototype, {
