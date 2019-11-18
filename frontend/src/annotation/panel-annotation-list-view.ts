@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, sortBy } from 'lodash';
+import { extend, sortBy, sortedIndexBy } from 'lodash';
 import { each } from 'async';
 import View from '../core/view';
 
@@ -12,6 +12,8 @@ import { isType, getScrollTop } from '../utilities/utilities';
 import annotationsTemplate from './panel-annotation-list-template';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import { getSource } from '../utilities/annotation/annotation-utilities';
+
+const summaryBlockIteratees = ['positionDetails.startNodeIndex', 'positionDetails.startCharacterIndex'];
 
 export interface ViewOptions extends BaseOpt<Node> {
     ontology: Graph;
@@ -74,7 +76,7 @@ export default class AnnotationListView extends View<Node> {
             });
             view.on('click', this.onSummaryBlockClicked, this);
             view.on('hover', this.onSummaryBlockedHover, this);
-            this.summaryBlocks.push(view);
+            this.insertBlock(view);
             this.blockByModel.set(node.cid, view);
         }
         return this;
@@ -98,8 +100,17 @@ export default class AnnotationListView extends View<Node> {
 
     add(annotation: Node): this {
         this.initSummaryBlock(annotation);
-        this.summaryBlocks = this.sortSummaryBlocks();
         return this.render();
+    }
+
+    /**
+     * Insert a new summary block at the correct index (i.e. keep summary blocks sorted).
+     * Will only work if the blocks have position details!
+     */
+    insertBlock(block: ItemSummaryBlockView): this {
+        let index = sortedIndexBy(this.summaryBlocks, block, ['positionDetails.startNodeIndex', 'positionDetails.startCharacterIndex']);
+        this.summaryBlocks.splice(index, 0, block);
+        return this;
     }
 
     sortSummaryBlocks(): ItemSummaryBlockView[] {
