@@ -139,6 +139,7 @@ export default class SourceView extends View<Node> {
     bindToEvents(htv: HighlightableTextView): HighlightableTextView {
         this.htv.on('hover', this.onHover, this);
         this.htv.on('hoverEnd', this.onHoverEnd, this);
+        this.htv.on('highlightClicked', this.onHighlightClicked, this);
         this.htv.on('highlightSelected', this.onHighlightSelected, this);
         this.htv.on('highlightUnselected', this.onHighlightUnselected, this);
         this.htv.on('textSelected', this.onTextSelected, this);
@@ -149,6 +150,14 @@ export default class SourceView extends View<Node> {
 
     add(newItems: ItemGraph): this {
         this.htv.add(newItems);
+        return this;
+    }
+
+    /**
+     * Pass request to HighlightableTextView
+     */
+    processClick(annotation: Node): this {
+        this.htv.processClick(annotation);
         return this;
     }
 
@@ -171,6 +180,13 @@ export default class SourceView extends View<Node> {
      */
     onTextSelected(range: Range, posDetails: AnnotationPositionDetails): void {
         this.trigger('sourceview:textSelected', this, this.model, range, posDetails);
+    }
+
+    /**
+     * Pass events from HighlightableTextView
+     */
+    onHighlightClicked(node: Node): void {
+        this.trigger('sourceview:highlightClicked', this, node);
     }
 
     /**

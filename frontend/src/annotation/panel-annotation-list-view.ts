@@ -26,7 +26,7 @@ export default class AnnotationListView extends View<Node> {
     /**
      * Keep track of the currently highlighted summary block
      */
-    currentlyHighlighted: ItemSummaryBlockView;
+    currentlySelected: ItemSummaryBlockView;
 
     /**
      * A simple lookup hash with Annotation cid as key,
@@ -113,7 +113,7 @@ export default class AnnotationListView extends View<Node> {
         if (scrollToBlock) {
             let scrollableEl = this.$('.panel-content');
             let scrollTop = getScrollTop(scrollableEl, scrollToBlock.getTop(), scrollToBlock.getHeight());
-            this.selectAnno(annotation);
+            this.select(scrollToBlock);
             scrollableEl.animate({ scrollTop: scrollTop }, 800);
         }
         return this;
@@ -123,14 +123,45 @@ export default class AnnotationListView extends View<Node> {
         return this.blockByModel.get(annotation.cid);
     }
 
-    selectAnno(annotation: Node): this {
-        this.getSummaryBlock(annotation).select();
+    /**
+     * Process a click on an oa:Annotation in another view,
+     * as if it were a click in the current view.
+     */
+    processClick(annotation): this {
+        let block = this.getSummaryBlock(annotation);
+        this.processSelection(block, annotation);
         return this;
     }
 
-    unSelectAnno(annotation: Node): this {
-        this.getSummaryBlock(annotation).unSelect();
+    /**
+     * Process un/selecting summary blocks when user clicks an annotation.
+     */
+    processSelection(block: ItemSummaryBlockView, annotation: Node): this {
+        let isNew = true;
+
+        if (this.currentlySelected) {
+            isNew = this.currentlySelected.cid !== block.cid;
+            this.unSelect(this.currentlySelected);
+            this.currentlySelected = undefined;
+        }
+
+        if (isNew) {
+            this.select(block);
+            this.scrollTo(annotation);
+        }
+
         return this;
+    }
+
+    select(block: ItemSummaryBlockView): this {
+        block.select();
+        this.currentlySelected = block;
+        return this
+    }
+
+    unSelect(block: ItemSummaryBlockView): this {
+        block.unSelect();
+        return this
     }
 
     onEditClicked(): this {
@@ -144,6 +175,7 @@ export default class AnnotationListView extends View<Node> {
     }
 
     onSummaryBlockClicked(summaryBlock: ItemSummaryBlockView, annotation: Node): this {
+        this.processSelection(summaryBlock, annotation);
         this.trigger('annotation-listview:blockClicked', this, annotation);
         return this;
     }

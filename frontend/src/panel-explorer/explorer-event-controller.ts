@@ -39,6 +39,7 @@ export default class ExplorerEventController {
      */
     subscribeToPanelEvents(panel: View): void {
         panel.on({
+            'sourceview:highlightClicked': this.sourceViewHighlightClicked,
             'sourceview:highlightSelected': this.sourceViewHighlightSelected,
             'sourceview:highlightUnselected': this.sourceViewHighlightUnselected,
             'sourceview:showMetadata': this.sourceViewShowMetadata,
@@ -178,17 +179,11 @@ export default class ExplorerEventController {
     }
 
     annotationListBlockClicked(annotationList: AnnotationListView, annotation: Node): this {
-        // The idea here is that the source view is in full control over which highlight is selected
-        // The AnnotationListView simply passes each click on a summary block to the source view,
-        // which then does what it always does (i.e. also highlight the relevant block in the list view)
-        // In other words: the AnnotationListView doesn't throw any other events than click and doesn't select
-        // anything itself.
         let sourceView: SourceView;
         this.mapSourceAnnotationList.forEach((value, key) => {
             if (value.cid === annotationList.cid) sourceView = key;
         });
-
-        sourceView.scrollTo(annotation);
+        sourceView.processClick(annotation);
         return this;
     }
 
@@ -197,19 +192,21 @@ export default class ExplorerEventController {
         return this;
     }
 
+    sourceViewHighlightClicked(sourceView: SourceView, annotation: Node): this {
+        let annoListView = this.mapSourceAnnotationList.get(sourceView);
+        annoListView.processClick(annotation);
+        return this;
+    }
+
     sourceViewHighlightSelected(sourceView: SourceView, annotation: Node): this {
         let itemView = new LdItemView({ model: annotation, ontology: this.explorerView.ontology });
         this.explorerView.push(itemView);
-
-        let annoListView = this.mapSourceAnnotationList.get(sourceView);
-        annoListView.scrollTo(annotation);
         return this;
     }
 
     sourceViewHighlightUnselected(sourceView: SourceView, annotation: Node): this {
         let annoListView = this.mapSourceAnnotationList.get(sourceView);
         this.explorerView.popUntil(annoListView);
-        annoListView.unSelectAnno(annotation);
         return this;
     }
 
