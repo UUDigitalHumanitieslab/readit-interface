@@ -445,6 +445,7 @@ export default class HighlightableTextView extends View {
         // Ignore empty selections
         if (range.startOffset === range.endOffset) return;
 
+        if (this.overlapDetailView) this.onCloseOverlapDetail();
         this.trigger('textSelected', range, getPositionDetailsFromRange(this.textWrapper, range));
     }
 
