@@ -1,4 +1,4 @@
-<form class="anno-edit-form" method="get" action="">
+<form class="anno-edit-form">
     <div class="panel-content">
         <p class="title">Edit Annotation</p>
         <p class="subtitle is-7">(Find more info on what and how to annotate in
@@ -16,13 +16,15 @@
                     {{! Ontology class picker is inserted here }}
                 </div>
                 {{! Fake input to utilize jquery validation on Bulma dropdown}}
-                <input class="hidden-input" type="text" id="contology" required>
+                <input class="hidden-input" type="text" id="{{cid}}-contology" required>
             </div>
         </fieldset>
 
         <div class="metadata-container">
             {{! metadata view inserted here}}
         </div>
+        {{! Code below first implentation of a button to add related items.
+            Commented out for version 0.1.0 (i.e. Utrecht 2019 presentation), but might be useful in the future }}
         {{!-- <section class="item-sections">
             <article class="item-section has-mt-10">
                 <div class="item-section-header">

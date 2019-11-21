@@ -31,6 +31,7 @@ export default class OntologyClassPickerItemView extends View<Node> {
 
     deactivate(): this {
         this.$el.removeClass('is-active');
+        this.trigger('deactivated', this);
         return this;
     }
 
