@@ -38,7 +38,8 @@ history.once('route', () => {
 });
 
 directionRouter.on('route:arrive', () => {
-    userFsm.handle('arrive');
+    // userFsm.handle('arrive');
+    welcomeView.render().$el.appendTo('#main');
 });
 
 userFsm.on('enter:arriving', () => {
@@ -50,7 +51,9 @@ userFsm.on('exit:arriving', () => {
 });
 
 directionRouter.on('route:explore', () => {
-    userFsm.handle('explore');
+    // userFsm.handle('explore');
+    welcomeView.$el.detach();
+    initSourceList();
 });
 
 userFsm.on('enter:exploring', () => {

@@ -1,10 +1,14 @@
-<form class="anno-edit-form">
-    <div class="panel-content">
-        <p class="title">Edit Annotation</p>
+<div class="panel-header">
+    <header>
+        <p class="title is-3">Edit Annotation</p>
         <p class="subtitle is-7">(Find more info on what and how to annotate in
-            <a class="is-link" href="http://dhstatic.hum.uu.nl/readit/AnnotationGuide.pdf" target="_blank">the Annotation Guide</a>)
+            <a class="is-link" href="http://dhstatic.hum.uu.nl/readit/AnnotationGuide.pdf" target="_blank">the
+                Annotation Guide</a>)
         </p>
-
+    </header>
+</div>
+<form class="anno-edit-form panel-form">
+    <div class="panel-content">
         <div class="snippet-container">
             {{! Snippet inserted here }}
         </div>
@@ -37,6 +41,8 @@
             </article>
         </section> --}}
     </div>
-    <button class="button btn-save is-pulled-right submit" type="submit">Save</button>
-    <button class="button btn-cancel is-pulled-right is-primary">Cancel</button>
+    <div class="panel-footer">
+        <button class="button btn-save submit" type="submit">Save</button>
+        <button class="button btn-cancel is-primary">Cancel</button>
+    </div>
 </form>
