@@ -19,6 +19,7 @@ export default class OntologyClassPickerView extends View<Node> {
     selected: Node;
     preselection: Node;
     label: any;
+    externalCloseHandler: any;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -28,10 +29,7 @@ export default class OntologyClassPickerView extends View<Node> {
         if (!options.collection) throw new TypeError('collection cannot be null or undefined');
         this.initDropdownItems();
 
-        let self = this;
-        $(document).click(function () {
-            self.hideDropdown();
-        });
+        this.externalCloseHandler = $(document).click(() => this.hideDropdown());
 
         this.preselection = options.preselection;
         this.listenTo(this.preselection, 'change', this.processPreselection);
@@ -60,6 +58,12 @@ export default class OntologyClassPickerView extends View<Node> {
         this.$el.html(this.template(this));
         this.dropdownItems.forEach((item) => item.render().$el.appendTo(this.$('.dropdown-content')));
         if (this.preselection) this.select(this.preselection);
+        return this;
+    }
+
+    remove(): this {
+        this.externalCloseHandler.off();
+        super.remove();
         return this;
     }
 
