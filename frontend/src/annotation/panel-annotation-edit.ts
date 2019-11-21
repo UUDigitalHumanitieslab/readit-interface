@@ -228,7 +228,7 @@ extend(AnnotationEditView.prototype, {
     className: 'annotation-edit-panel explorer-panel',
     template: annotationEditTemplate,
     events: {
-        '.anno-edit-form submit': 'onSaveClicked',
+        'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
         'click .btn-rel-items': 'onRelatedItemsClicked',
     }
