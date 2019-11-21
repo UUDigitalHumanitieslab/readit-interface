@@ -235,17 +235,12 @@ export default class ExplorerEventController {
     }
 
     sourceViewShowAnnotations(sourceView: SourceView): this {
-        if (this.explorerView.stacks.length >= 2 && this.mapSourceAnnotationList.has(sourceView)) {
-            this.explorerView.popUntil(this.mapSourceAnnotationList.get(sourceView));
-        }
-        else {
-            let annotationsView = new AnnotationListView({
-                collection: sourceView.collection as Graph, ontology: this.explorerView.ontology
-            });
+        let annotationsView = new AnnotationListView({
+            collection: sourceView.collection as Graph, ontology: this.explorerView.ontology
+        });
 
-            this.mapSourceAnnotationList.set(sourceView, annotationsView);
-            this.explorerView.push(annotationsView);
-        }
+        this.mapSourceAnnotationList.set(sourceView, annotationsView);
+        this.explorerView.push(annotationsView);
         return this;
     }
 
