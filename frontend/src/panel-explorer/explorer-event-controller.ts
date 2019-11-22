@@ -25,6 +25,7 @@ export default class ExplorerEventController {
     explorerView: ExplorerView;
 
     mapSourceAnnotationList: Map<SourceView, AnnotationListView> = new Map();
+    mapAnnotationListSource: Map<AnnotationListView, SourceView> = new Map();
     mapAnnotationEditSource: Map<AnnotationEditView, SourceView> = new Map();
 
     constructor(explorerView: ExplorerView) {
@@ -179,10 +180,7 @@ export default class ExplorerEventController {
     }
 
     annotationListBlockClicked(annotationList: AnnotationListView, annotation: Node): this {
-        let sourceView: SourceView;
-        this.mapSourceAnnotationList.forEach((value, key) => {
-            if (value.cid === annotationList.cid) sourceView = key;
-        });
+        let sourceView = this.mapAnnotationListSource.get(annotationList);
         sourceView.processClick(annotation);
         return this;
     }
@@ -236,18 +234,21 @@ export default class ExplorerEventController {
             this.explorerView.popUntil(this.mapSourceAnnotationList.get(sourceView));
         }
         else {
-            let annotationsView = new AnnotationListView({
+            let annotationListView = new AnnotationListView({
                 collection: sourceView.collection as Graph, ontology: this.explorerView.ontology
             });
 
-            this.mapSourceAnnotationList.set(sourceView, annotationsView);
-            this.explorerView.push(annotationsView);
+            this.mapSourceAnnotationList.set(sourceView, annotationListView);
+            this.mapAnnotationListSource.set(annotationListView, sourceView);
+            this.explorerView.push(annotationListView);
         }
         return this;
     }
 
     sourceViewHideAnnotations(sourceView): this {
+        let annoListView = this.mapSourceAnnotationList.get(sourceView);
         this.mapSourceAnnotationList.delete(sourceView);
+        this.mapAnnotationListSource.delete(annoListView);
         this.explorerView.popUntil(sourceView);
         return this;
     }
