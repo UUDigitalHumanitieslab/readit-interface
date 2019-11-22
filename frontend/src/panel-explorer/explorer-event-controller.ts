@@ -198,10 +198,12 @@ export default class ExplorerEventController {
     }
 
     sourceViewHighlightSelected(sourceView: SourceView, annotation: Node): this {
+        let annoListView = this.mapSourceAnnotationList.get(sourceView);
+        this.explorerView.popUntil(annoListView);
+
         let itemView = new LdItemView({ model: annotation, ontology: this.explorerView.ontology });
         this.explorerView.push(itemView);
 
-        let annoListView = this.mapSourceAnnotationList.get(sourceView);
         annoListView.scrollTo(annotation);
         return this;
     }
