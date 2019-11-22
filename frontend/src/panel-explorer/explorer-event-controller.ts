@@ -101,12 +101,12 @@ export default class ExplorerEventController {
     }
 
     ldItemShowRelated(view: LdItemView, item: Node): this {
-        this.explorerView.popUntil(view);
-
         if (!item) {
             alert('no related items!');
             return;
         }
+
+        this.explorerView.popUntil(view);
 
         let relatedItems = new RelatedItemsView({ model: item, ontology: this.explorerView.ontology });
         this.explorerView.push(relatedItems);
@@ -114,12 +114,12 @@ export default class ExplorerEventController {
     }
 
     ldItemShowAnnotations(view: LdItemView, item: Node): this {
-        this.explorerView.popUntil(view);
-
         if (!item) {
             alert('no linked annotations!');
             return;
         }
+
+        this.explorerView.popUntil(view);
 
         let self = this;
         let items = new ItemGraph();
