@@ -34,8 +34,6 @@ export default class RelatedItemsView extends View<Node> {
         this.relations = [];
 
         this.initRelatedItems(this.model);
-        this.listenTo(this.model, 'change', this.initRelatedItems);
-
         return this;
     }
 
