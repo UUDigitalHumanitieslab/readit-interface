@@ -1,6 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, sortBy, sortedIndexBy } from 'lodash';
-import { each } from 'async';
+import { extend, sortedIndexBy } from 'lodash';
 import View from '../core/view';
 
 import { oa } from '../jsonld/ns';
@@ -12,8 +11,7 @@ import { isType, getScrollTop } from '../utilities/utilities';
 import annotationsTemplate from './panel-annotation-list-template';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import { getSource } from '../utilities/annotation/annotation-utilities';
-
-const summaryBlockIteratees = ['positionDetails.startNodeIndex', 'positionDetails.startCharacterIndex'];
+import { singleNumber } from './../utilities/binary-searchable-strategy/binary-search-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     ontology: Graph;
@@ -58,12 +56,6 @@ export default class AnnotationListView extends View<Node> {
             }
         });
 
-        let self = this;
-        each(this.summaryBlocks, (sb, callback) => sb.ensurePositionDetails(callback), function (err) {
-            self.summaryBlocks = self.sortSummaryBlocks();
-            self.render();
-        });
-
         this.listenTo(this.collection, 'add', this.add);
         return this;
     }
@@ -74,9 +66,14 @@ export default class AnnotationListView extends View<Node> {
                 model: node,
                 ontology: this.ontology
             });
-            view.on('click', this.onSummaryBlockClicked, this);
-            view.on('hover', this.onSummaryBlockedHover, this);
-            this.insertBlock(view);
+            this.listenTo(view, 'click', this.onSummaryBlockClicked);
+            this.listenTo(view, 'hover', this.onSummaryBlockedHover);
+            if (view.positionDetails) {
+                this.onPositionDetailsProcessed(view);
+            }
+            else {
+                this.listenToOnce(view, 'positionDetailsProcessed', this.onPositionDetailsProcessed);
+            }
             this.blockByModel.set(node.cid, view);
         }
         return this;
@@ -108,13 +105,12 @@ export default class AnnotationListView extends View<Node> {
      * Will only work if the blocks have position details!
      */
     insertBlock(block: ItemSummaryBlockView): this {
-        let index = sortedIndexBy(this.summaryBlocks, block, ['positionDetails.startNodeIndex', 'positionDetails.startCharacterIndex']);
+        let index = sortedIndexBy(this.summaryBlocks, block, (block) => {
+            return singleNumber(block.positionDetails.startNodeIndex, block.positionDetails.startCharacterIndex);
+        });
         this.summaryBlocks.splice(index, 0, block);
+        if (this.collection.length == this.summaryBlocks.length) this.render();
         return this;
-    }
-
-    sortSummaryBlocks(): ItemSummaryBlockView[] {
-        return sortBy(this.summaryBlocks, ['positionDetails.startNodeIndex', 'positionDetails.startCharacterIndex']);
     }
 
     scrollTo(annotation: Node): this {
@@ -173,6 +169,11 @@ export default class AnnotationListView extends View<Node> {
     unSelect(block: ItemSummaryBlockView): this {
         block.unSelect();
         return this
+    }
+
+    onPositionDetailsProcessed(block: ItemSummaryBlockView): this {
+        this.insertBlock(block);
+        return this;
     }
 
     onEditClicked(): this {
