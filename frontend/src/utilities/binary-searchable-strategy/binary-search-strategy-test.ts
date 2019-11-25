@@ -46,6 +46,51 @@ describe('BinarySearchStrategy', function () {
         });
     });
 
+    describe('remove', function () {
+        it('deletes a searchable view', function () {
+            strategy.remove({ indexValue: 6, view: view3 });
+            expect(strategy.searchables.length).toEqual(3);
+        });
+
+        it('deletes the correct searchable view if multiple exist with same indexValue', function () {
+            let view5 = new View();
+            let searchable = { indexValue: 6, view: view5 };
+            strategy.add(searchable);
+            expect(strategy.searchables.length).toEqual(5);
+            strategy.remove(searchable);
+            expect(strategy.searchables.length).toEqual(4);
+
+            expect(strategy.searchables).toEqual([
+                { indexValue: 1, view: view1 },
+                { indexValue: 3, view: view2 },
+                { indexValue: 6, view: view3 },
+                { indexValue: 9, view: view4 }
+            ]);
+
+            strategy.add(searchable);
+            expect(strategy.searchables.length).toEqual(5);
+            strategy.remove({ indexValue: 6, view: view3 });
+            expect(strategy.searchables.length).toEqual(4);
+
+            expect(strategy.searchables).toEqual([
+                { indexValue: 1, view: view1 },
+                { indexValue: 3, view: view2 },
+                { indexValue: 6, view: view5 },
+                { indexValue: 9, view: view4 }
+            ]);
+        });
+
+        it('doesn\'t break if we remove an unknown view', function () {
+            // try to delete unknown indexValue
+            strategy.remove({ indexValue: 10, view: new View() });
+            expect(strategy.searchables.length).toEqual(4);
+
+            // try to delete known indexValue, but with unknown view
+            strategy.remove({ indexValue: 6, view: new View() });
+            expect(strategy.searchables.length).toEqual(4);
+        });
+    });
+
     describe('getClosestTo', function () {
         it('finds a view at index closest to', function () {
             let actual = strategy.getClosestTo(2);
@@ -54,14 +99,14 @@ describe('BinarySearchStrategy', function () {
             expect(actual).toEqual(view3);
         });
 
-        it('returns view with exactly matching indexValue if it exists', function() {
+        it('returns view with exactly matching indexValue if it exists', function () {
             let actual = strategy.getClosestTo(6);
             expect(actual).toEqual(view3);
         });
 
-        it('doesn\'t care if an indexValue exists multiple time', function() {
+        it('doesn\'t care if an indexValue exists multiple time', function () {
             let view5 = new View();
-            strategy.add({ indexValue: 6, view: view5});
+            strategy.add({ indexValue: 6, view: view5 });
             let actual = strategy.getClosestTo(6);
             expect(actual).toEqual(view5);
         });

@@ -26,6 +26,24 @@ export class BinarySearchStrategy {
     }
 
     /**
+     * Remove a searchable from the strategy's list of searchables.
+     */
+    remove(searchable: BinarySearchableView): this {
+        // index will always be BEFORE the first instance of indexValue
+        let index = sortedIndexBy(this.searchables, searchable, 'indexValue');
+        let toBeRemoved = this.searchables[index];
+
+        // if we didn't find the right one, loop until we do
+        while (toBeRemoved && toBeRemoved.view !== searchable.view) {
+            index++;
+            toBeRemoved = this.searchables[index];
+        }
+
+        if (toBeRemoved) this.searchables.splice(index, 1);
+        return this;
+    }
+
+    /**
      * Get the View closest to an indexValue. 'Closest to' here means the value
      * before the supplied indexValue, i.e. the nearest smaller one.
      */
