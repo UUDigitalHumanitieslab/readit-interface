@@ -17,7 +17,8 @@ import OverlappingHighlightsView from './overlapping-highlights-view';
 import OverlapDetailsView from './overlap-details-view';
 import { getRange, getPositionDetailsFromRange } from '../utilities/range-utilities';
 import ItemGraph from '../utilities/item-graph';
-import { BinarySearchableView, BinarySearchStrategy } from './../utilities/binary-searchable-view/binary-search-strategy';
+import { BinarySearchStrategy } from './../utilities/binary-searchable-strategy/binary-search-strategy';
+import { singleNumber } from './../utilities/binary-searchable-strategy/binary-search-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
@@ -251,6 +252,13 @@ export default class HighlightableTextView extends View {
         });
 
         this.bindEvents(hV);
+        if (hV.positionDetails) {
+            this.onHighlightPositionDetailsProcessed(hV);
+        }
+        else {
+            this.listenTo(hV, 'positionDetailsProcessed', this.onHighlightPositionDetailsProcessed);
+        }
+
         this.hVs.push(hV);
         hV.render().$el.prependTo(this.$('.position-container'));
         this.trigger('highlightAdded', node);
@@ -262,7 +270,6 @@ export default class HighlightableTextView extends View {
         this.listenTo(hV, 'hoverEnd', this.onHoverEnd);
         this.listenTo(hV, 'delete', this.deleteNode);
         this.listenTo(hV, 'click', this.onClicked);
-        this.listenTo(hV, 'positionDetailsProcessed', this.onHighlightPositionDetailsProcessed);
         return this;
     }
 
@@ -270,32 +277,29 @@ export default class HighlightableTextView extends View {
      * Remove a single highlight.
      * @param annotation The instance of oa:Annotation to remove.
      */
-    removeHighlight(annotation: Node) {
-        this.deleteNode(annotation);
-    }
-
-    /**
-    * Remove all highlights from the text.
-    */
-    removeAll(): this {
-        if (!this.isEditable) return;
-
-        this.collection.each((node) => {
-            if (isType(node, oa.Annotation)) {
-                this.deleteNode(node);
-            }
-        });
-        return this;
-    }
-
     deleteNode(node: Node): this {
         if (this.deleteFromCollection(node)) {
-            this.hVs.find(hV => hV.model === node).remove();
+            let hV = this.getHighlightView(node);
+            this.searchStrategy.remove({ indexValue: singleNumber(hV.getTop(), hV.getBottom()), view: hV });
             this.initOverlaps();
             this.trigger('delete', node);
         }
         return this;
     }
+
+    /**
+    * Remove all highlights from the text.
+    */
+   removeAll(): this {
+    if (!this.isEditable) return;
+
+    this.collection.each((node) => {
+        if (isType(node, oa.Annotation)) {
+            this.deleteNode(node);
+        }
+    });
+    return this;
+}
 
     private deleteFromCollection(annotation: Node): boolean {
         if (!isType(annotation, oa.Annotation)) return false;
@@ -438,25 +442,18 @@ export default class HighlightableTextView extends View {
         else {
             // Get the view closest to the visible vertical middle
             let view = this.searchStrategy.getClosestTo(
-                this.getSearchableIndexValue(scrollableVisibleMiddle, scrollableVisibleMiddle)
+                singleNumber(scrollableVisibleMiddle, scrollableVisibleMiddle)
             );
             this.trigger('scroll', getSelector(view.model as Node));
         }
     }
 
     /**
-     * Helper method to create an indexValue for BinarySearchableView initialization.
-     */
-    private getSearchableIndexValue(top: number, bottom: number): number {
-        return top * 1000 + bottom;
-    }
-
-    /**
-     * Process the highlights positiondetails.
+     * Process the highlights positiondetails, i.e. add a BinarySearchableView to the search strategy.
      */
     private onHighlightPositionDetailsProcessed(hV: HighlightView): this {
         this.searchStrategy.add({
-            indexValue: this.getSearchableIndexValue(hV.getTop(), hV.getBottom()),
+            indexValue: singleNumber(hV.getTop(), hV.getBottom()),
             view: hV
         });
         return this;
