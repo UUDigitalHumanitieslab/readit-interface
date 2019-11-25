@@ -189,32 +189,6 @@ export default class HighlightableTextView extends View {
     }
 
     /**
-     * Add a new highlight to the text based on an instance of oa:Annotation.
-     * @param newItems All items created when composing a new oa:Annotation.
-     */
-    add(newItems: ItemGraph): this {
-        if (!this.isEditable) return;
-        this.collection.add(newItems.models);
-        this.overlaps = [];
-        this.initOverlaps();
-        return this;
-    }
-
-    /**
-     * Remove all highlights from the text.
-     */
-    removeAll(): this {
-        if (!this.isEditable) return;
-
-        this.collection.each((node) => {
-            if (isType(node, oa.Annotation)) {
-                this.deleteNode(node);
-            }
-        });
-        return this;
-    }
-
-    /**
      * Show all annotations in the text.
      */
     showAll(): this {
@@ -247,17 +221,14 @@ export default class HighlightableTextView extends View {
     }
 
     /**
-     * Remove a single highlight.
-     * @param annotation The instance of oa:Annotation to remove.
+     * Add a new highlight to the text based on an instance of oa:Annotation.
+     * @param newItems All items created when composing a new oa:Annotation.
      */
-    removeHighlight(annotation: Node) {
-        this.deleteNode(annotation);
-    }
-
-    private deleteFromCollection(annotation: Node): boolean {
-        if (!isType(annotation, oa.Annotation)) return false;
-        this.collection.remove([annotation].concat(getLinkedItems(annotation)));
-        return true;
+    add(newItems: ItemGraph): this {
+        if (!this.isEditable) return;
+        this.collection.add(newItems.models);
+        this.initOverlaps();
+        return this;
     }
 
     /**
@@ -284,6 +255,52 @@ export default class HighlightableTextView extends View {
         hV.render().$el.prependTo(this.$('.position-container'));
         this.trigger('highlightAdded', node);
         return hV;
+    }
+
+    bindEvents(hV: HighlightView): this {
+        this.listenTo(hV, 'hover', this.onHover);
+        this.listenTo(hV, 'hoverEnd', this.onHoverEnd);
+        this.listenTo(hV, 'delete', this.deleteNode);
+        this.listenTo(hV, 'click', this.onClicked);
+        this.listenTo(hV, 'positionDetailsProcessed', this.onHighlightPositionDetailsProcessed);
+        return this;
+    }
+
+    /**
+     * Remove a single highlight.
+     * @param annotation The instance of oa:Annotation to remove.
+     */
+    removeHighlight(annotation: Node) {
+        this.deleteNode(annotation);
+    }
+
+    /**
+    * Remove all highlights from the text.
+    */
+    removeAll(): this {
+        if (!this.isEditable) return;
+
+        this.collection.each((node) => {
+            if (isType(node, oa.Annotation)) {
+                this.deleteNode(node);
+            }
+        });
+        return this;
+    }
+
+    deleteNode(node: Node): this {
+        if (this.deleteFromCollection(node)) {
+            this.hVs.find(hV => hV.model === node).remove();
+            this.initOverlaps();
+            this.trigger('delete', node);
+        }
+        return this;
+    }
+
+    private deleteFromCollection(annotation: Node): boolean {
+        if (!isType(annotation, oa.Annotation)) return false;
+        this.collection.remove([annotation].concat(getLinkedItems(annotation)));
+        return true;
     }
 
     /**
@@ -320,24 +337,6 @@ export default class HighlightableTextView extends View {
         }
         this.scrollToNode = node;
         if (this.isInDOM) this.scroll(node);
-        return this;
-    }
-
-    deleteNode(node: Node): this {
-        if (this.deleteFromCollection(node)) {
-            this.hVs.find(hV => hV.model === node).remove();
-            this.initOverlaps();
-            this.trigger('delete', node);
-        }
-        return this;
-    }
-
-    bindEvents(hV: HighlightView): this {
-        this.listenTo(hV, 'hover', this.onHover);
-        this.listenTo(hV, 'hoverEnd', this.onHoverEnd);
-        this.listenTo(hV, 'delete', this.deleteNode);
-        this.listenTo(hV, 'click', this.onClicked);
-        this.listenTo(hV, 'positionDetailsProcessed', this.onHighlightPositionDetailsProcessed);
         return this;
     }
 
