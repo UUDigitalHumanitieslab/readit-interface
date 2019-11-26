@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend } from 'lodash';
+import { extend, bind } from 'lodash';
 import View from '../../core/view';
 
 import snippetTemplate from './snippet-template';
@@ -43,6 +43,7 @@ export default class SnippetView extends View {
         this.title = options.title;
         this.selector = options.selector;
         this.listenTo(this.selector, 'change', this.createContent);
+        this.$el.ready(bind(this.onReady, this));
         return this;
     }
 
@@ -51,19 +52,16 @@ export default class SnippetView extends View {
         return this;
     }
 
-    handleDOMMutation(isInDOM: boolean): this {
-        if (isInDOM) this.onInsertedIntoDOM();
-        else this.onRemovedFromDOM();
-        return this;
-    }
-
-    onInsertedIntoDOM(): any {
+    /**
+     * Handle the ready event.
+     * Ideal for working with (i.e. initializing HTML on the basis of) Javascript Range Objects (as HighlightViews do),
+     * because it is fired 'as soon as the page's Document Object Model (DOM) becomes safe to manipulate'
+     * (from: https://api.jquery.com/ready/). For the currrent View it guarantees that the View is in the DOM.
+     */
+    onReady(): this {
         this.isInDom = true;
         this.createContent();
-    }
-
-    onRemovedFromDOM(): any {
-        this.isInDom = false;
+        return this;
     }
 
     createContent(): this {
