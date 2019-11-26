@@ -7,7 +7,7 @@ import Graph from '../jsonld/graph';
 import PanelStackView from './explorer-panelstack-view';
 import EventController from './explorer-event-controller';
 import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
-
+import { BinarySearchStrategy } from './../utilities/binary-searchable-strategy/binary-search-strategy';
 
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?
@@ -38,6 +38,11 @@ export default class ExplorerView extends View {
      */
     loadingSpinnerView: LoadingSpinnerView;
 
+    /**
+     *
+     */
+    searchStrategy: BinarySearchStrategy;
+
     constructor(options?: ViewOptions) {
         super(options);
         if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
@@ -46,6 +51,7 @@ export default class ExplorerView extends View {
         this.stacks = [];
         this.eventController = new EventController(this);
         this.rltPanelStack = new Map();
+        this.searchStrategy = new BinarySearchStrategy();
         this.push(options.first);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 500));
@@ -83,9 +89,10 @@ export default class ExplorerView extends View {
         this.eventController.subscribeToPanelEvents(panel);
         let position = this.stacks.length;
         this.stacks.push(new PanelStackView({ first: panel }));
+        let stack = this.stacks[position];
         this.rltPanelStack.set(panel.cid, position);
-
-        this.stacks[position].render().$el.appendTo(this.$el);
+        stack.render().$el.appendTo(this.$el);
+        this.searchStrategy.add({ indexValue: stack.getRightBorderOffset(), view: stack });
         this.trigger('push', panel, position);
         this.scroll();
         return this;
@@ -117,8 +124,12 @@ export default class ExplorerView extends View {
         }
 
         let stack = this.stacks[position];
+        // remove the old panel for this stack from searchstrategy, new one may have different width
+        this.searchStrategy.remove({ indexValue: stack.getRightBorderOffset(), view: stack });
         stack.push(panel);
         this.rltPanelStack.set(panel.cid, position);
+        this.searchStrategy.add({ indexValue: stack.getRightBorderOffset(), view: stack });
+
         this.eventController.subscribeToPanelEvents(panel);
         this.trigger('overlay', panel, ontoPanel, position, (position - this.stacks.length));
         this.scroll();
@@ -175,16 +186,20 @@ export default class ExplorerView extends View {
     }
 
     /**
-     * Remove the topmost panel from the stack at position
+     * Remove the topmost panel from the stack at position. Returns the deleted panel.
      * @param position The indes of the stack to remove the panel from
      */
     deletePanel(position: number): View {
         let stack = this.stacks[position];
+        this.searchStrategy.remove({ indexValue: stack.getRightBorderOffset(), view: stack });
         let panel = stack.getTopPanel();
         stack.pop();
 
         if (stack.panels.length == 0) {
             this.stacks.splice(position, 1);
+        }
+        else {
+            this.searchStrategy.add({ indexValue: stack.getRightBorderOffset(), view: stack });
         }
 
         this.rltPanelStack.delete(panel.cid);
@@ -218,8 +233,8 @@ export default class ExplorerView extends View {
     }
 
     getMostRightFullyVisibleStack(): PanelStackView {
-        let explorerMostRight = this.$el.outerWidth();
-        return findLast(this.stacks, s => s.getRightBorderOffset() <= explorerMostRight);
+        let explorerMostRight = this.$el.scrollLeft() + this.$el.innerWidth();
+        return this.searchStrategy.getClosestTo(explorerMostRight) as PanelStackView;
     }
 }
 extend(ExplorerView.prototype, {
