@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, bind, debounce, sortBy, sortedIndexBy, sortedIndexOf } from 'lodash';
+import { extend, bind, debounce } from 'lodash';
 import { each } from 'async';
 
 import View from './../core/view';
@@ -8,14 +8,13 @@ import Node from './../jsonld/node';
 import Graph from './../jsonld/graph';
 
 import { isType, getScrollTop } from './../utilities/utilities';
-import { validateCompleteness, getPositionDetails, getLinkedItems, getCssClassName, getSelector } from '../utilities/annotation/annotation-utilities';
-import { getAnonymousTextQuoteSelector } from './../utilities/annotation/annotation-creation-utilities';
+import { getLinkedItems, getCssClassName, getSelector } from '../utilities/annotation/annotation-utilities';
 import OverlappingHighlightsStrategy, { OverlappingHighlights } from './overlapping-highlights-strategy';
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
 import OverlappingHighlightsView from './overlapping-highlights-view';
 import OverlapDetailsView from './overlap-details-view';
-import { getRange, getPositionDetailsFromRange } from '../utilities/range-utilities';
+import { getPositionDetailsFromRange } from '../utilities/range-utilities';
 import ItemGraph from '../utilities/item-graph';
 import { BinarySearchStrategy } from './../utilities/binary-searchable-strategy/binary-search-strategy';
 import { singleNumber } from './../utilities/binary-searchable-strategy/binary-search-utilities';
@@ -351,7 +350,7 @@ export default class HighlightableTextView extends View {
      * Process a click on an oa:Annotation in another view,
      * as if it were a click in the current view.
      */
-    processClick(annotation): this {
+    processClick(annotation: Node): this {
         let hV = this.getHighlightView(annotation);
         this.processSelection(hV, annotation);
         this.scrollTo(annotation);
