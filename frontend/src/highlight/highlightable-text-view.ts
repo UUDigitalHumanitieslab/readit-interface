@@ -94,6 +94,11 @@ export default class HighlightableTextView extends View {
 
     selectedHighlight: HighlightView;
 
+    /** A simple lookup hash with Annotation cid as key,
+     * and associated HighlightView as value
+     */
+    highlightByModel: Map<string, HighlightView>;
+
     constructor(options?: ViewOptions) {
         super(options);
         if (options.initialScrollTo) {
@@ -108,6 +113,7 @@ export default class HighlightableTextView extends View {
         this.ontology = options.ontology;
         this.isEditable = options.isEditable || false;
         this.showHighlightsInitially = options.showHighlightsInitially || false;
+        this.highlightByModel = new Map();
 
         if (!options.collection) this.collection = new Graph();
         this.collection.on('add', this.addHighlight, this);
@@ -260,6 +266,7 @@ export default class HighlightableTextView extends View {
         }
 
         this.hVs.push(hV);
+        this.highlightByModel.set(node.cid, hV);
         hV.render().$el.prependTo(this.$('.position-container'));
         this.trigger('highlightAdded', node);
         return hV;
@@ -314,22 +321,18 @@ export default class HighlightableTextView extends View {
      */
     private scroll(scrollToNode: Node): this {
         if (!scrollToNode) return this;
-        if (this.overlapDetailView) {
-            this.onCloseOverlapDetail();
-        }
 
         let scrollToHv = this.getHighlightView(scrollToNode);
         if (scrollToHv) {
             let scrollableEl = this.$el;
             let scrollTop = getScrollTop(scrollableEl, scrollToHv.getTop(), scrollToHv.getHeight());
-            this.processSelection(scrollToHv, scrollToNode);
             scrollableEl.animate({ scrollTop: scrollTop }, 800);
         }
         return this;
     }
 
     private getHighlightView(annotation: Node): HighlightView {
-        return this.hVs.find(hV => hV.model === annotation);
+        return this.highlightByModel.get(annotation.cid);
     }
 
     /**
@@ -344,31 +347,62 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    processSelection(hV: HighlightView, annotation: Node): this {
+     /**
+     * Process a click on an oa:Annotation in another view,
+     * as if it were a click in the current view.
+     */
+    processClick(annotation): this {
+        let hV = this.getHighlightView(annotation);
+        this.processSelection(hV, annotation);
+        this.scrollTo(annotation);
+        return this;
+    }
+
+    /**
+     * Make sure the correct highlight is selected or unselected.
+     * @param hV The highlight view to manage (i.e. that was clicked).
+     * @param annotation The annotation associated with said highlight view.
+     * @param isOverlapDetailClick Specifies if the highlight view was in the overlapDetailView when clicked.
+     */
+    processSelection(hV: HighlightView, annotation: Node, isOverlapDetailClick: boolean = false): this {
         let isNew = true;
 
         if (this.selectedHighlight) {
             isNew = this.selectedHighlight.cid !== hV.cid;
             this.unSelect(this.selectedHighlight, this.selectedHighlight.model);
             this.selectedHighlight = undefined;
+            if (!isOverlapDetailClick && this.overlapDetailView) this.onCloseOverlapDetail();
         }
 
         if (isNew) {
             this.select(hV, annotation);
+            if (!this.overlapDetailView) this.scrollTo(annotation);
         }
 
         return this;
     }
 
+    /**
+     * Select a certain highlight view. Will also be selected on an active OverlapDetailView.
+     */
     select(hV: HighlightView, annotation: Node): this {
         hV.select();
         this.selectedHighlight = hV;
+        if (this.overlapDetailView) {
+            this.overlapDetailView.select(hV);
+        }
         this.trigger('highlightSelected', annotation);
         return this;
     }
 
+    /**
+     * Unselect a certain highlight view. Will also be unselected on an active OverlapDetailView.
+     */
     unSelect(hV: HighlightView, annotation: Node): this {
         hV.unSelect();
+        if (this.overlapDetailView) {
+            this.overlapDetailView.unSelect(hV);
+        }
         this.trigger('highlightUnselected', annotation);
         return this;
     }
@@ -383,21 +417,23 @@ export default class HighlightableTextView extends View {
         });
         let verticalMiddle = ovh.getVerticalMiddle() - this.positionContainer.offset().top;
         this.overlapDetailView.render().position(verticalMiddle, this.positionContainer.outerWidth()).$el.prependTo(this.positionContainer);
-        this.overlapDetailView.on('detailClicked', this.onOverlapDetailClicked, this);
-        this.overlapDetailView.on('closed', this.onCloseOverlapDetail, this);
+        this.listenTo(this.overlapDetailView, 'detailClicked', this.onOverlapDetailClicked);
+        this.listenTo(this.overlapDetailView, 'closed', this.onCloseOverlapDetail);
         return this;
     }
 
     onOverlapDetailClicked(hV: HighlightView) {
-        this.onClicked(hV, hV.model);
+        this.processSelection(hV, hV.model, true);
+        this.trigger('highlightClicked', hV.model);
     }
 
+    /**
+     * Removes the overlapDetailView after resetting all selections on it.
+     */
     onCloseOverlapDetail(): this {
-        this.overlapDetailView.$el.detach();
-        if (this.selectedHighlight) {
-            this.unSelect(this.selectedHighlight, this.selectedHighlight.model);
-            this.selectedHighlight = undefined;
-        }
+        if (!this.overlapDetailView) return;
+        this.overlapDetailView.resetSelection();
+        this.overlapDetailView.$el.remove();
         return this;
     }
 
@@ -420,11 +456,13 @@ export default class HighlightableTextView extends View {
         // Ignore empty selections
         if (range.startOffset === range.endOffset) return;
 
+        if (this.overlapDetailView) this.onCloseOverlapDetail();
         this.trigger('textSelected', range, getPositionDetailsFromRange(this.textWrapper, range));
     }
 
     onClicked(hV: HighlightView, node: Node): this {
         this.processSelection(hV, node);
+        this.trigger('highlightClicked', node);
         return this;
     }
 
