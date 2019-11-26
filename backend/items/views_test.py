@@ -74,10 +74,12 @@ def test_get_item_query(client, itemgraph_db):
 
 def test_post_item(auth_client):
     bnode = BNode()
+    muppet = URIRef('https://muppets.disney.com/')
+    pork = URIRef('https://en.wikipedia.org/wiki/Pork')
     triples = (
-        ( bnode, RDF.type, URIRef('https://muppets.disney.com/') ),
+        ( bnode, RDF.type, muppet ),
         ( bnode, FOAF.name, Literal('Kermit the Frog') ),
-        ( bnode, FOAF.interest, URIRef('https://en.wikipedia.org/wiki/Pork') ),
+        ( bnode, FOAF.interest, pork ),
         ( bnode, DCTERMS.creator, STAFF.Statler ),
     )
     input_graph = Graph()
@@ -90,9 +92,9 @@ def test_post_item(auth_client):
     subjects = set(output_graph.subjects())
     assert len(subjects) == 1
     s = subjects.pop()
-    assert ( s, RDF.type, URIRef('https://muppets.disney.com/') ) in output_graph
+    assert ( s, RDF.type, muppet ) in output_graph
     assert ( s, FOAF.name, Literal('Kermit the Frog') ) in output_graph
-    assert ( s, FOAF.interest, URIRef('https://en.wikipedia.org/wiki/Pork') ) in output_graph
+    assert ( s, FOAF.interest, pork ) in output_graph
     assert ( s, DCTERMS.creator, STAFF.tester ) in output_graph
     assert ( s, DCTERMS.creator, STAFF.Statler ) not in output_graph
     created = next(output_graph.objects(s, DCTERMS.created)).toPython()
