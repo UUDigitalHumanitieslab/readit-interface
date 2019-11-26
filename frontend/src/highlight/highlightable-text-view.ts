@@ -83,7 +83,6 @@ export default class HighlightableTextView extends View {
     isEditable: boolean;
 
     isInDOM: boolean;
-    DOMMutationObserver: MutationObserver;
 
     selectedHighlight: HighlightView;
 
@@ -106,6 +105,7 @@ export default class HighlightableTextView extends View {
         this.collection.on('add', this.addHighlight, this);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
+        this.$el.ready(bind(this.onReady, this));
     }
 
     render(): this {
@@ -115,13 +115,13 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    handleDOMMutation(isInDOM: boolean): this {
-        if (isInDOM) this.onInsertedIntoDOM();
-        else this.onRemovedFromDOM();
-        return this;
-    }
-
-    onInsertedIntoDOM(): this {
+    /**
+     * Handle the ready event.
+     * Ideal for working with (i.e. initializing HTML on the basis of) Javascript Range Objects (as HighlightViews do),
+     * because it is fired 'as soon as the page's Document Object Model (DOM) becomes safe to manipulate'
+     * (from: https://api.jquery.com/ready/). For the currrent View it guarantees that the View is in the DOM.
+     */
+    onReady(): this {
         this.isInDOM = true;
         this.textWrapper = this.$('.textWrapper');
         this.positionContainer = this.$('.position-container');
@@ -140,11 +140,6 @@ export default class HighlightableTextView extends View {
             });
         }
 
-        return this;
-    }
-
-    onRemovedFromDOM(): this {
-        this.isInDOM = false;
         return this;
     }
 
