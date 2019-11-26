@@ -72,6 +72,16 @@ def test_get_item_query(client, itemgraph_db):
         assert ITEM[str(serial)] not in subjects
 
 
+def submit_data(client, input_graph, method, serial=None):
+    """ Send some item data to the backend to work with. """
+    url = '/' + ITEMS_ROUTE + (str(serial) if serial else '')
+    plaintext = input_graph.serialize(format='json-ld')
+    response = getattr(client, method)(url, plaintext, 'application/ld+json')
+    output_graph = Graph()
+    output_graph.parse(data=response.content, format='turtle')
+    return response, output_graph
+
+
 def test_post_item(auth_client):
     bnode = BNode()
     muppet = URIRef('https://muppets.disney.com/')
@@ -85,9 +95,7 @@ def test_post_item(auth_client):
     input_graph = Graph()
     for t in triples:
         input_graph.add(t)
-    response = auth_client.post('/' + ITEMS_ROUTE, input_graph.serialize(format='json-ld'), 'application/ld+json')
-    output_graph = Graph()
-    output_graph.parse(data=response.content, format='turtle')
+    response, output_graph = submit_data(auth_client, input_graph, 'post')
     assert len(output_graph) == 5
     subjects = set(output_graph.subjects())
     assert len(subjects) == 1
