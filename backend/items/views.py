@@ -130,7 +130,7 @@ class ItemsAPISingular(RDFResourceView):
             # No changes, skip database manipulations and attribution
             return Response(existing)
         added.add((identifier, DCTERMS.modified, now))
-        full_graph = super().get_graph(request)
+        full_graph = self.graph()
         full_graph -= removed
         full_graph += added
         return Response(existing - removed + added)
