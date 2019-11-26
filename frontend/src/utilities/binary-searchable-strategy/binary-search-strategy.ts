@@ -54,7 +54,7 @@ export class BinarySearchStrategy {
         }
         let index = sortedIndexBy(this.searchables, fakeSearchable, 'indexValue');
         let searchable = this.searchables[index];
-        if (searchable.indexValue !== indexValue) searchable = this.searchables[index - 1];
+        if (!searchable || searchable.indexValue !== indexValue) searchable = this.searchables[index - 1];
         return searchable.view;
     }
 }
