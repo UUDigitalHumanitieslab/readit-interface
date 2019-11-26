@@ -75,25 +75,25 @@ def test_get_item_query(client, itemgraph_db):
 def test_post_item(auth_client):
     bnode = BNode()
     triples = (
-        ( bnode, RDF.type, URIRef('https://muppets.disney.com') ),
+        ( bnode, RDF.type, URIRef('https://muppets.disney.com/') ),
         ( bnode, FOAF.name, Literal('Kermit the Frog') ),
         ( bnode, FOAF.interest, URIRef('https://en.wikipedia.org/wiki/Pork') ),
-        ( bnode, DCTERMS.creator, STAFF('Statler') ),
+        ( bnode, DCTERMS.creator, STAFF.Statler ),
     )
     input_graph = Graph()
     for t in triples:
         input_graph.add(t)
-    response = auth_client.post('/' + ITEMS_ROUTE, input_graph.serialize(format='json-ld'))
+    response = auth_client.post('/' + ITEMS_ROUTE, input_graph.serialize(format='json-ld'), 'application/ld+json')
     output_graph = Graph()
     output_graph.parse(data=response.content, format='turtle')
     assert len(output_graph) == 5
     subjects = set(output_graph.subjects())
     assert len(subjects) == 1
     s = subjects.pop()
-    assert ( s, RDF.type, URIRef('https://muppets.disney.com') ) in output_graph
+    assert ( s, RDF.type, URIRef('https://muppets.disney.com/') ) in output_graph
     assert ( s, FOAF.name, Literal('Kermit the Frog') ) in output_graph
     assert ( s, FOAF.interest, URIRef('https://en.wikipedia.org/wiki/Pork') ) in output_graph
-    assert ( s, DCTERMS.creator, STAFF('tester') ) in output_graph
-    assert ( s, DCTERMS.creator, STAFF('Statler') ) not in output_graph
-    created = output_graph.objects(s, DCTERMS.created).toPython()
+    assert ( s, DCTERMS.creator, STAFF.tester ) in output_graph
+    assert ( s, DCTERMS.creator, STAFF.Statler ) not in output_graph
+    created = next(output_graph.objects(s, DCTERMS.created)).toPython()
     assert abs(created - datetime.now(timezone.utc)) < timedelta(seconds=1)

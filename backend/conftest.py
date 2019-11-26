@@ -1,6 +1,7 @@
 import pytest
 
 
+@pytest.fixture
 def auth_client(client, django_user_model):
     username = 'tester'
     password = 'testing123'
