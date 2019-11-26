@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'vocab',
     'staff',
     'ontology',
+    'items',
     'annotation',
     'sources',
 ]

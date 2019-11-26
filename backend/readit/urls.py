@@ -25,6 +25,7 @@ from vocab import VOCAB_ROUTE
 from staff import STAFF_ROUTE
 from ontology import ONTOLOGY_ROUTE
 from sources import SOURCES_ROUTE
+from items import ITEMS_ROUTE
 from .index import index, specRunner
 
 api_router = routers.DefaultRouter()  # register viewsets with this router
@@ -42,6 +43,7 @@ urlpatterns = [
     path(STAFF_ROUTE, include('staff.urls')),
     path(ONTOLOGY_ROUTE, include('ontology.urls')),
     path(SOURCES_ROUTE, include('sources.urls')),
+    path(ITEMS_ROUTE, include('items.urls')),
 ]
 
 # Inject any Jasmine testing page from a frontend during development.
