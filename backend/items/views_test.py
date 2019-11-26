@@ -9,6 +9,7 @@ from ontology import namespace as ONTO
 from . import namespace as ITEM
 from .constants import ITEMS_ROUTE
 from .views import *
+from .graph import graph
 
 QUERY_PATTERN = '/{}?'.format(ITEMS_ROUTE) + '{}'
 
@@ -107,3 +108,26 @@ def test_post_item(auth_client):
     assert ( s, DCTERMS.creator, STAFF.Statler ) not in output_graph
     created = next(output_graph.objects(s, DCTERMS.created)).toPython()
     assert abs(created - datetime.now(timezone.utc)) < timedelta(seconds=1)
+
+
+def test_put_item(auth_client, itemgraph_db):
+    g = graph()
+    before = 'substring(.//*[0]/text(), 22)'
+    after = 'substring(.//*[0]/text(), 21)'
+    triples = (
+        ( ITEM['2'], RDF.type,  OA.XPathSelector ),
+        ( ITEM['2'], RDF.value, Literal(after)   ),
+    )
+    input_graph = Graph()
+    for t in triples:
+        input_graph.add(t)
+    assert (ITEM['2'], RDF.value, Literal(before)) in g
+    assert (ITEM['2'], RDF.value, Literal(after)) not in g
+    response, output_graph = submit_data(auth_client, input_graph, 'put', 2)
+    assert len(output_graph) == 5
+    assert (ITEM['2'], RDF.value, Literal(before)) not in output_graph
+    assert (ITEM['2'], RDF.value, Literal(after)) in output_graph
+    assert (ITEM['2'], DCTERMS.modified, None) in output_graph
+    assert (ITEM['2'], RDF.value, Literal(before)) not in g
+    assert (ITEM['2'], RDF.value, Literal(after)) in g
+    assert (ITEM['2'], DCTERMS.modified, None) in g
