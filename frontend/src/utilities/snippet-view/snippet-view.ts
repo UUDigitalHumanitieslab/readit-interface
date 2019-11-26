@@ -54,7 +54,7 @@ export default class SnippetView extends View {
 
     /**
      * Handle the ready event.
-     * Ideal for working with (i.e. initializing HTML on the basis of) Javascript Range Objects (as HighlightViews do),
+     * Ideal for working with (i.e. initializing HTML on the basis of) Javascript Range Objects (as SnippetViews do),
      * because it is fired 'as soon as the page's Document Object Model (DOM) becomes safe to manipulate'
      * (from: https://api.jquery.com/ready/). For the currrent View it guarantees that the View is in the DOM.
      */
