@@ -58,10 +58,9 @@ export default class PanelStackView extends View {
      * because of margins.
      */
     getRightBorderOffset(): number {
-
         let width = this.getWidth();
         let widthWithoutRightMargin = width - ((width - this.getTopPanel().$el.outerWidth()) / 2);
-        return this.$el.offset().left + widthWithoutRightMargin;
+        return this.$el.parent().scrollLeft() + this.$el.position().left + widthWithoutRightMargin;
     }
 }
 extend(PanelStackView.prototype, {
