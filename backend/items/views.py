@@ -57,6 +57,14 @@ def submission_info(request):
     return user, now
 
 
+def optional_int(text):
+    """ Try to parse `text` as a decimal int, return None on failure. """
+    try:
+        return int(text)
+    except:
+        return None
+
+
 class ItemsAPIRoot(RDFView):
     """ By default, list an empty graph. """
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -69,6 +77,7 @@ class ItemsAPIRoot(RDFView):
         params = request.query_params
         if not params:
             return result
+        # params: p - predicate, o(_literal) - object, t - traverse, r - reverse
         p = params.get('p')
         p = p and URIRef(p)
         o = params.get('o')
@@ -77,10 +86,40 @@ class ItemsAPIRoot(RDFView):
         else:
             o = params.get('o_literal')
             o = o and Literal(o)
+        t = optional_int(params.get('t'))
+        r = optional_int(params.get('r'))
+        # get the initial graph based on p, o, o_literal params
         full_graph = super().get_graph(request)
-        for s in full_graph.subjects(p, o):
+        subjects = set(full_graph.subjects(p, o))
+        for s in subjects:
             for pred, obj in full_graph.predicate_objects(s):
                 result.add((s, pred, obj))
+        # traverse from here based on t, r params
+        # import pdb; pdb.set_trace()
+        fringe = result
+        visited_objects = set()
+        while t and t > 0:
+            objects = set(fringe.objects()) - visited_objects
+            if not len(objects):
+                break
+            fringe = graph()
+            for o in objects:
+                for triple in full_graph.triples((o, None, None)):
+                    fringe.add(triple)
+            result += fringe
+            visited_objects += objects
+            t -= 1
+        visited_subjects = set()
+        while r and r > 0:
+            if not len(subjects):
+                break
+            fringe = graph()
+            for s in subjects:
+                for triple in full_graph.triples((None, None, s)):
+                    fringe.add(triple)
+            result += fringe
+            visited_subjects += subjects
+            subjects = set(fringe.subjects()) - visited_subjects
         return result
 
     def post(self, request, format=None):
