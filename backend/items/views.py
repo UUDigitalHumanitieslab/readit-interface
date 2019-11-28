@@ -8,6 +8,7 @@ from rdflib import Graph, URIRef, BNode, Literal
 
 from rdf.views import RDFView, RDFResourceView, graph_from_request, error_response, DOES_NOT_EXIST_404
 from rdf.ns import *
+from rdf.utils import traverse_forward, traverse_backward
 from vocab import namespace as vocab
 from staff import namespace as staff
 from staff.views import get_user_uriref
@@ -73,10 +74,10 @@ class ItemsAPIRoot(RDFView):
         return graph()
 
     def get_graph(self, request):
-        result = Graph()
+        core = Graph()
         params = request.query_params
         if not params:
-            return result
+            return core
         # params: p - predicate, o(_literal) - object, t - traverse, r - reverse
         p = params.get('p')
         p = p and URIRef(p)
@@ -93,36 +94,11 @@ class ItemsAPIRoot(RDFView):
         subjects = set(full_graph.subjects(p, o))
         for s in subjects:
             for pred, obj in full_graph.predicate_objects(s):
-                result.add((s, pred, obj))
+                core.add((s, pred, obj))
         # traverse from here based on t, r params
-        fringe = result
-        visited_objects = set()
-        while t and t > 0:
-            objects = set(fringe.objects()) - visited_objects
-            if not len(objects):
-                break
-            fringe = Graph()
-            for o in objects:
-                if not isinstance(o, Literal):
-                    for triple in full_graph.triples((o, None, None)):
-                        fringe.add(triple)
-            result |= fringe
-            visited_objects |= objects
-            t -= 1
-        visited_subjects = set()
-        while r and r > 0:
-            if not len(subjects):
-                break
-            fringe = Graph()
-            for s in subjects:
-                for ss in full_graph.subjects(None, s):
-                    for triple in full_graph.triples((ss, None, None)):
-                        fringe.add(triple)
-            result |= fringe
-            visited_subjects |= subjects
-            subjects = set(fringe.subjects()) - visited_subjects
-            r -= 1
-        return result
+        children = traverse_forward(full_graph, core, t)
+        parents = traverse_backward(full_graph, core, r)
+        return parents | core | children
 
     def post(self, request, format=None):
         data = graph_from_request(request)
