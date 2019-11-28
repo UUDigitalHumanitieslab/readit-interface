@@ -95,31 +95,32 @@ class ItemsAPIRoot(RDFView):
             for pred, obj in full_graph.predicate_objects(s):
                 result.add((s, pred, obj))
         # traverse from here based on t, r params
-        # import pdb; pdb.set_trace()
         fringe = result
         visited_objects = set()
         while t and t > 0:
             objects = set(fringe.objects()) - visited_objects
             if not len(objects):
                 break
-            fringe = graph()
+            fringe = Graph()
             for o in objects:
-                for triple in full_graph.triples((o, None, None)):
-                    fringe.add(triple)
-            result += fringe
-            visited_objects += objects
+                if not isinstance(o, Literal):
+                    for triple in full_graph.triples((o, None, None)):
+                        fringe.add(triple)
+            result |= fringe
+            visited_objects |= objects
             t -= 1
         visited_subjects = set()
         while r and r > 0:
             if not len(subjects):
                 break
-            fringe = graph()
+            fringe = Graph()
             for s in subjects:
                 for triple in full_graph.triples((None, None, s)):
                     fringe.add(triple)
-            result += fringe
-            visited_subjects += subjects
+            result |= fringe
+            visited_subjects |= subjects
             subjects = set(fringe.subjects()) - visited_subjects
+            r -= 1
         return result
 
     def post(self, request, format=None):
