@@ -7,6 +7,7 @@ from rdflib import Graph, Literal
 
 from annotation.models import Source
 from rdf.ns import *
+from rdf.utils import append_triples
 from vocab import namespace as VOCAB
 from staff import namespace as STAFF
 from . import namespace as my
@@ -52,7 +53,6 @@ def canonical_graph():
     """
     g = Graph()
     for source in Source.objects.all():
-        for triple in as_rdf(source):
-            g.add(triple)
+        append_triples(g, as_rdf(source))
     g += graph()
     return g

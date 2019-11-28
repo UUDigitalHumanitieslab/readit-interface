@@ -5,6 +5,7 @@ This module represents what we believe *should* be in .graph.graph().
 from rdflib import Graph, URIRef, Literal
 
 from rdf.ns import *
+from rdf.utils import graph_from_triples
 
 from . import namespace as my
 
@@ -39,7 +40,4 @@ def triples():
 
 def canonical_graph():
     """ Returns a Graph with correct contents. """
-    g = Graph()
-    for t in triples():
-        g.add(t)
-    return g
+    return graph_from_triples(triples())

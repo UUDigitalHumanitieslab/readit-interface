@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from rdflib import Graph, Literal
 
 from rdf.ns import *
+from rdf.utils import append_triples
 from . import namespace as my
 
 is_a = RDF.type
@@ -35,6 +36,5 @@ def graph():
     """ Recomputes the staff graph on every invocation. """
     g = Graph()
     for user in User.objects.all():
-        for triple in as_rdf(user):
-            g.add(triple)
+        append_triples(g, as_rdf(user))
     return g

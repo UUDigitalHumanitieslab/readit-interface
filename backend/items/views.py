@@ -8,7 +8,7 @@ from rdflib import Graph, URIRef, BNode, Literal
 
 from rdf.views import RDFView, RDFResourceView, graph_from_request, error_response, DOES_NOT_EXIST_404
 from rdf.ns import *
-from rdf.utils import traverse_forward, traverse_backward
+from rdf.utils import graph_from_triples, append_triples, traverse_forward, traverse_backward
 from vocab import namespace as vocab
 from staff import namespace as staff
 from staff.views import get_user_uriref
@@ -45,10 +45,7 @@ def is_unreserved(triple):
 
 def sanitize(input):
     """ Return a subset of input that excludes the reserved predicates. """
-    output = Graph()
-    for s, p, o in filter(is_unreserved, input):
-        output.add((s, p, o))
-    return output
+    return graph_from_triples(filter(is_unreserved, input))
 
 
 def submission_info(request):
@@ -93,8 +90,7 @@ class ItemsAPIRoot(RDFView):
         full_graph = super().get_graph(request)
         subjects = set(full_graph.subjects(p, o))
         for s in subjects:
-            for pred, obj in full_graph.predicate_objects(s):
-                core.add((s, pred, obj))
+            append_triples(core, full_graph.triples((s, None, None)))
         # traverse from here based on t, r params
         children = traverse_forward(full_graph, core, t)
         parents = traverse_backward(full_graph, core, r)

@@ -6,6 +6,7 @@ from rdflib import Graph, URIRef, Literal
 
 from annotation.models import Annotation
 from rdf.ns import *
+from rdf.utils import append_triples
 from vocab import namespace as VOCAB
 from staff import namespace as STAFF
 from ontology import namespace as ONTO
@@ -133,7 +134,6 @@ def canonical_graph():
     """
     g = Graph()
     for annotation in Annotation.objects.all():
-        for triple in as_rdf(annotation):
-            g.add(triple)
+        append_triples(g, as_rdf(annotation))
     g += graph()
     return g
