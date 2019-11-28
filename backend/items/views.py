@@ -115,8 +115,9 @@ class ItemsAPIRoot(RDFView):
                 break
             fringe = Graph()
             for s in subjects:
-                for triple in full_graph.triples((None, None, s)):
-                    fringe.add(triple)
+                for ss in full_graph.subjects(None, s):
+                    for triple in full_graph.triples((ss, None, None)):
+                        fringe.add(triple)
             result |= fringe
             visited_subjects |= subjects
             subjects = set(fringe.subjects()) - visited_subjects
