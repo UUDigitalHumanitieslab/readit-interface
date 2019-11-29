@@ -49,14 +49,14 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
     }
 
     processModel(model: Node): this {
-        this.baseProcessBody(this.model);
+        super.processBody(this.model);
 
         if (model.has('@type')) {
             this.modelIsAnnotation = isType(this.model, oa.Annotation);
             if (this.modelIsAnnotation) {
                 this.stopListening(this, 'textQuoteSelector', this.processTextQuoteSelector);
                 this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
-                this.baseProcessModel(this.model);
+                super.processAnnotation(this.model);
             }
             else {
                 this.stopListening(this.model, 'change', this.processItem);

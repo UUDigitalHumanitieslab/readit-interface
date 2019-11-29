@@ -22,7 +22,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 
 export default class ItemMetadataView extends View<Node> {
     title: string;
-    metadata: Object;
+    metadata: any;
 
     constructor(options?: ViewOptions) {
         super(options);

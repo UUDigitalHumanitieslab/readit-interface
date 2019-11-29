@@ -83,7 +83,7 @@ export default class HighlightView extends BaseAnnotationView {
     }
 
     processModel(model: Node): this {
-        this.baseProcessModel(model);
+        super.processAnnotation(model);
         return this;
     }
 
