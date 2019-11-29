@@ -25,13 +25,13 @@ export default class SearchResultSourceView extends BaseAnnotationView {
 
     initialize(options: ViewOptions): this {
         this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
-        this.listenTo(this, 'source', this.baseProcessSource);
-        this.baseProcessModel(this.model);
-        this.listenTo(this.model, 'change', this.baseProcessModel);
+        this.listenTo(this.model, 'change', super.processAnnotation);
+        this.listenTo(this, 'source', super.processSource);
+        super.processAnnotation(this.model);
         return this;
     }
 
-    baseProcessSource(source: Node): this {
+    processSource(source: Node): this {
         this.title = source.get(schema('name'))[0] as string;
         let sourceOntologyInstance = ldChannel.request('obtain', source.get('@type')[0] as string);
         if (!this.labelView) {

@@ -70,7 +70,7 @@ export default class LdItemView extends BaseAnnotationView {
         if (model.has('@type')) {
             this.modelIsAnnotation = isType(this.model, oa.Annotation);
             if (this.modelIsAnnotation) {
-                this.baseProcessModel(model);
+                super.processAnnotation(model);
                 this.annotationMetadataView = new ItemMetadataView({ model: this.model, title: 'Annotation metadata' });
                 this.annotationMetadataView.render();
             }

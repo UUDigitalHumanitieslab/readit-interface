@@ -101,12 +101,12 @@ export default class ExplorerEventController {
     }
 
     ldItemShowRelated(view: LdItemView, item: Node): this {
-        this.explorerView.popUntil(view);
-
         if (!item) {
             alert('no related items!');
             return;
         }
+
+        this.explorerView.popUntil(view);
 
         let relatedItems = new RelatedItemsView({ model: item, ontology: this.explorerView.ontology });
         this.explorerView.push(relatedItems);
@@ -114,12 +114,12 @@ export default class ExplorerEventController {
     }
 
     ldItemShowAnnotations(view: LdItemView, item: Node): this {
-        this.explorerView.popUntil(view);
-
         if (!item) {
             alert('no linked annotations!');
             return;
         }
+
+        this.explorerView.popUntil(view);
 
         let self = this;
         let items = new ItemGraph();
@@ -198,10 +198,12 @@ export default class ExplorerEventController {
     }
 
     sourceViewHighlightSelected(sourceView: SourceView, annotation: Node): this {
+        let annoListView = this.mapSourceAnnotationList.get(sourceView);
+        this.explorerView.popUntil(annoListView);
+
         let itemView = new LdItemView({ model: annotation, ontology: this.explorerView.ontology });
         this.explorerView.push(itemView);
 
-        let annoListView = this.mapSourceAnnotationList.get(sourceView);
         annoListView.scrollTo(annotation);
         return this;
     }
@@ -235,17 +237,12 @@ export default class ExplorerEventController {
     }
 
     sourceViewShowAnnotations(sourceView: SourceView): this {
-        if (this.explorerView.stacks.length >= 2 && this.mapSourceAnnotationList.has(sourceView)) {
-            this.explorerView.popUntil(this.mapSourceAnnotationList.get(sourceView));
-        }
-        else {
-            let annotationsView = new AnnotationListView({
-                collection: sourceView.collection as Graph, ontology: this.explorerView.ontology
-            });
+        let annotationsView = new AnnotationListView({
+            collection: sourceView.collection as Graph, ontology: this.explorerView.ontology
+        });
 
-            this.mapSourceAnnotationList.set(sourceView, annotationsView);
-            this.explorerView.push(annotationsView);
-        }
+        this.mapSourceAnnotationList.set(sourceView, annotationsView);
+        this.explorerView.push(annotationsView);
         return this;
     }
 
