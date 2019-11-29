@@ -21,7 +21,7 @@ import annotationEditTemplate from './panel-annotation-edit-template';
 export interface ViewOptions extends BaseOpt<Node> {
     /**
      * An instance of oa:Annotation that links to a oa:TextQuoteSelector,
-     * can be undefined if range and positionDetaisl are set (i.e. in case of a new annotation)
+     * can be undefined if range and positionDetails are set (i.e. in case of a new annotation)
      */
     model: Node;
     ontology: Graph;
@@ -119,7 +119,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
     }
 
     processTextQuoteSelector(selector: Node): this {
-        if (this.snippetView) return;
+        if (this.snippetView) return this;
 
         this.snippetView = new SnippetView({
             selector: selector
@@ -154,7 +154,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
         this.$el.html(this.template(this));
         if (this.preselection) this.select(this.preselection);
 
-        this.$(".anno-edit-form").submit(function (e) { e.preventDefault(); })
         this.$(".anno-edit-form").validate({
             errorClass: "help is-danger",
             ignore: "",
@@ -189,8 +188,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
     }
 
     reset(): this {
-        this.model.previousAttributes();
-        // this.ontologyClassPicker.render();
         this.trigger('reset');
         return this;
     }
@@ -231,7 +228,7 @@ extend(AnnotationEditView.prototype, {
     className: 'annotation-edit-panel explorer-panel',
     template: annotationEditTemplate,
     events: {
-        'click .btn-save': 'onSaveClicked',
+        'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
         'click .btn-rel-items': 'onRelatedItemsClicked',
     }
