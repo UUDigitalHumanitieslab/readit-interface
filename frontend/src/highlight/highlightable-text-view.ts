@@ -422,7 +422,8 @@ export default class HighlightableTextView extends View {
     onCloseOverlapDetail(): this {
         if (!this.overlapDetailView) return;
         this.overlapDetailView.resetSelection();
-        this.overlapDetailView.$el.remove();
+        this.overlapDetailView.remove();
+        delete this.overlapDetailView;
         return this;
     }
 
