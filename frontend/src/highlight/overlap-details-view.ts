@@ -18,12 +18,20 @@ export default class OverlapDetailsView extends View<Node> {
     details = [];
     hVs: HighlightView[];
 
+   /**
+     * A simple lookup hash with Annotation cid as key,
+     * and associated HighlightView as value
+     */
+    highlightByCid: Map<string, HighlightView>;
+
     constructor(options: ViewOptions) {
         super();
-
+        this.highlightByCid = new Map();
         this.hVs = options.highlightViews;
 
         this.details = options.highlightViews.map(hV => {
+            this.highlightByCid.set(hV.cid, hV);
+
             return {
                 cid: hV.cid,
                 cssClass: hV.cssClass,
@@ -44,8 +52,8 @@ export default class OverlapDetailsView extends View<Node> {
         return this;
     }
 
-    getHighlightView(cid): HighlightView {
-        return this.hVs.find(h => h.cid == cid);
+    getHighlightView(cid: string): HighlightView {
+        return this.highlightByCid.get(cid);
     }
 
     onDetailClicked(event: any) {

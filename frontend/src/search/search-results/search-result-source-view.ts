@@ -19,34 +19,15 @@ export default class SearchResultSourceView extends BaseAnnotationView {
     labelView: LabelView;
     title: string;
 
-    snippetViewIsInDOM: boolean;
-    DOMMutationObserver: MutationObserver;
-
     constructor(options: ViewOptions) {
         super(options);
     }
 
     initialize(options: ViewOptions): this {
         this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
-        this.listenTo(this, 'source', super.processSource);
-
-        super.processAnnotation(this.model);
         this.listenTo(this.model, 'change', super.processAnnotation);
-
-        const config = { attributes: true, childList: true, subtree: true };
-        this.DOMMutationObserver = new MutationObserver(this.onDOMMutation.bind(this));
-        this.DOMMutationObserver.observe(this.$el.get(0), config);
-
-        return this;
-    }
-
-    onDOMMutation(mutationsList, observer): this {
-        for (let mutation of mutationsList) {
-            if (mutation.type === 'childList' && $(mutation.target).hasClass('snippet-container')) {
-                this.snippetViewIsInDOM = !this.snippetViewIsInDOM;
-                this.snippetView.handleDOMMutation(this.snippetViewIsInDOM);
-            }
-        }
+        this.listenTo(this, 'source', super.processSource);
+        super.processAnnotation(this.model);
         return this;
     }
 
