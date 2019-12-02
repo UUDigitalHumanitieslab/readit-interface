@@ -2,24 +2,18 @@ import { extend } from 'lodash';
 
 import { oa, rdf } from './../../jsonld/ns';
 import Node from './../../jsonld/node';
-import Graph from './../../jsonld/graph';
 import ldChannel from './../../jsonld/radio';
 import { getCssClassName, getLabel, isType } from './../utilities';
 import { getLabelText, AnnotationPositionDetails, getPositionDetails } from '../annotation/annotation-utilities';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
-import BaseAnnotationView, { ViewOptions as BaseOpt } from '../../annotation/base-annotation-view';
+import BaseAnnotationView, { ViewOptions } from '../../annotation/base-annotation-view';
 
-
-export interface ViewOptions extends BaseOpt {
-    ontology: Graph;
-}
 
 export default class ItemSummaryBlockView extends BaseAnnotationView {
     instanceLabel: string;
     classLabel: string;
     cssClassName: string;
-    ontology: Graph;
 
     /**
      * Store if the current model is an instance of oa:Annotation
@@ -36,9 +30,6 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
     }
 
     initialize(options: ViewOptions): this {
-        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
-        this.ontology = options.ontology;
-
         this.listenTo(this, 'startSelector', this.processStartSelector);
         this.listenTo(this, 'endSelector', this.processEndSelector);
         this.listenTo(this, 'body:ontologyClass', this.processOntologyClass);

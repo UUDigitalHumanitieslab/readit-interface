@@ -78,14 +78,13 @@ function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
     return exView
 }
 
-function createSourceView(source: Node, ontology: Graph, callback: any) {
+function createSourceView(source: Node, callback: any) {
     getItems(source, function (error, items) {
         if (error) console.debug(error)
         else {
             let sourceView = new SourceView({
                 collection: new Graph(items),
                 model: source,
-                ontology: ontology,
                 showHighlightsInitially: true,
                 isEditable: true,
                 // initialScrollTo: annotation,
@@ -112,7 +111,7 @@ function initSourceList() {
 
             sourceListView.on('source-list:click', (listView: SourceListView, source: Node) => {
                 explorer.loadingSpinnerView.activate();
-                createSourceView(source, ontology, (error, sourceView) => {
+                createSourceView(source, (error, sourceView) => {
                     if (error) console.error(error);
                     else {
                         explorer.popUntil(sourceListView);

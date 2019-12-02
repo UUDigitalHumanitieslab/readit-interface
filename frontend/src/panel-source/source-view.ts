@@ -26,11 +26,6 @@ export interface ViewOptions extends BaseOpt<Model> {
     collection: Graph;
 
     /**
-     * The Read IT ontology.
-     */
-    ontology: Graph;
-
-    /**
      * Specify whether the View should only display oa:Annotations, or if it allows editing
      * them. Defaults to false.
      */
@@ -51,7 +46,6 @@ export interface ViewOptions extends BaseOpt<Model> {
 
 export default class SourceView extends View<Node> {
     collection: Graph;
-    ontology: Graph;
     isEditable: boolean;
     showHighlightsInitially: boolean;
     initialScrollTo?: Node;
@@ -89,7 +83,6 @@ export default class SourceView extends View<Node> {
             text: <string>this.model.get(schema.text)[0],
             showHighlightsInitially: this.showHighlightsInitially,
             collection: this.collection,
-            ontology: options.ontology,
             initialScrollTo: this.initialScrollTo,
             isEditable: this.isEditable
         });

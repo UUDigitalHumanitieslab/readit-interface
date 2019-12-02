@@ -14,13 +14,11 @@ import { getSource } from '../utilities/annotation/annotation-utilities';
 import { singleNumber } from './../utilities/binary-searchable-strategy/binary-search-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
-    ontology: Graph;
     collection: Graph;
 }
 
 export default class AnnotationListView extends View<Node> {
     collection: Graph;
-    ontology: Graph;
     summaryBlocks: ItemSummaryBlockView[];
 
     /**
@@ -39,8 +37,6 @@ export default class AnnotationListView extends View<Node> {
     }
 
     initialize(options): this {
-        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
-        this.ontology = options.ontology;
         this.summaryBlocks = [];
         this.blockByModel = new Map();
 
@@ -63,8 +59,7 @@ export default class AnnotationListView extends View<Node> {
     initSummaryBlock(node: Node): this {
         if (isType(node, oa.Annotation)) {
             let view = new ItemSummaryBlockView({
-                model: node,
-                ontology: this.ontology
+                model: node
             });
             this.listenTo(view, 'click', this.onSummaryBlockClicked);
             this.listenTo(view, 'hover', this.onSummaryBlockedHover);

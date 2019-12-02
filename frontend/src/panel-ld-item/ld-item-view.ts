@@ -1,30 +1,21 @@
 
 import { extend } from 'lodash';
+import * as bulmaAccordion from 'bulma-accordion';
 
-import Graph from './../jsonld/graph';
 import Node from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
-import { isNode } from '../utilities/types';
-
-import ldItemTemplate from './ld-item-template';
-
 import { owl, oa, dcterms } from './../jsonld/ns';
-import { isType, getLabelFromId } from './../utilities/utilities';
+import { isNode } from '../utilities/types';
 import { getLabelText } from '../utilities/annotation/annotation-utilities';
-
 import LabelView from '../utilities/label-view';
-
-import * as bulmaAccordion from 'bulma-accordion';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
-import BaseAnnotationView, { ViewOptions as BaseOpt } from '../annotation/base-annotation-view';
+import { isType, getLabelFromId } from './../utilities/utilities';
+import ldItemTemplate from './ld-item-template';
+import BaseAnnotationView, { ViewOptions } from '../annotation/base-annotation-view';
 
-export interface ViewOptions extends BaseOpt {
-    ontology: Graph;
-}
 
 export default class LdItemView extends BaseAnnotationView {
     lblView: LabelView;
-    ontology: Graph;
 
     /**
      * The item displayed by the current view.
@@ -48,12 +39,10 @@ export default class LdItemView extends BaseAnnotationView {
     annotationMetadataView: ItemMetadataView;
 
     constructor(options?: ViewOptions) {
-        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
         super(options);
     }
 
     initialize(options: ViewOptions): this {
-        this.ontology = options.ontology;
         this.properties = new Object();
         this.annotations = new Object();
         this.relatedItems = [];
