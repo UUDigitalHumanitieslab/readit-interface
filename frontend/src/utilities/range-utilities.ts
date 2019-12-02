@@ -44,12 +44,16 @@ export function getPositionDetailsFromRange(textWrapper: JQuery<HTMLElement>, ra
  * but a DOM type retrieved by rangeInstance.startContainer / rangeInstance.endContainer
  */
 function getNodeIndex(textWrapper: JQuery<HTMLElement>, container: Node): number {
+    let result = undefined;
     // Loop through content (i.e. children incl textNodes).
     // Ugly cast needed to stop Typescript complaining. Sigh.
-    return each(<any>textWrapper.contents(), (child, index) => {
+    each(<any>textWrapper.contents(), (child, index) => {
         if (child === container) {
-            return index;
+            result = index;
+            // break
+            return false;
         }
     });
+    return result;
 }
 
