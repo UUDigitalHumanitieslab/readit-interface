@@ -1,9 +1,7 @@
-
 import Node from '../../jsonld/node';
-import Graph from '../../jsonld/graph';
 
-import { oa, vocab, rdf } from '../../jsonld/ns';
-import { isType, getCssClassName as getCssClass } from '../utilities';
+import { oa, rdf } from '../../jsonld/ns';
+import { isType, getCssClassName as getCssClass, isOntologyClass } from '../utilities';
 
 export type AnnotationPositionDetails = {
     startNodeIndex: number;
@@ -144,32 +142,6 @@ export function getSource(node: Node): Node {
 }
 
 /**
- * Validate if all items associated to meaningfully display an oa:Annotation
- * are present in its collection.
- * Throws TypeError with appropriate message if they are not.
- * @param annotation The oa:Annotation instance to validate.
- * @param graph The Graph instance that should contain all related items
- */
-export function validateCompleteness(annotation: Node): void {
-    validateType(annotation);
-
-    let selector = getSelector(annotation);
-    if (!selector || !isType(selector, vocab('RangeSelector'))) {
-        throw new TypeError(getErrorMessage("Selector", selector, "vocab('RangeSelector')"));
-    }
-
-    let startSelector = getStartSelector(annotation);
-    if (!startSelector || !isType(startSelector, oa.XPathSelector)) {
-        throw new TypeError(getErrorMessage('StartSelector', startSelector, 'oa:XPathSelector'));
-    }
-
-    let endSelector = getEndSelector(annotation);
-    if (!endSelector || !isType(endSelector, oa.XPathSelector)) {
-        throw new TypeError(getErrorMessage('Endselector', endSelector, 'oa:XPathSelector'));
-    }
-}
-
-/**
  * Verify that the node is an instance of oa:Annotation.
  */
 function validateType(annotation: Node): void {
@@ -179,26 +151,6 @@ function validateType(annotation: Node): void {
     }
 }
 
-/**
- * Get the ontology items associated with the annotation (via oa:hasBody).
- */
-function getOntologyReferencesFromBody(annotation: Node, ontology: Graph): Node[] {
-    return annotation.get(oa.hasBody).filter(
-        n => ontology.get(n as Node)
-    ) as Node[];
-}
-
-/**
- * Helper function for isCompleteAnnotation that constructs error message from variable parts.
- */
-function getErrorMessage(itemName: string, item?: Node, expectedType?: string): string {
-    if (item) {
-        return `${itemName} with id '${item.get('@id')}' should be of type ${expectedType}`;
-    }
-    else {
-        return `${itemName} cannot be empty or undefined.`
-    }
-}
 
 /**
  * Get the node index from an XPathSelector
@@ -221,5 +173,3 @@ function getCharacterIndex(selector: Node): number {
     let endIndex = xpath.length - 1;
     return +xpath.substring(startIndex, endIndex);
 }
-
-
