@@ -52,18 +52,12 @@ export function getLinkedItems(annotation: Node): Node[] {
 }
 
 /**
- * Get the cssclass associated with annotation (i.e. via ontology item / category).
+ * Get the cssclass associated with annotation (i.e. via ontology class in body).
  * Returns be null if a value cannot be found.
  */
-export function getCssClassName(annotation: Node, ontology: Graph): string {
+export function getCssClassName(annotation: Node): string {
     validateType(annotation);
-    let ontologyReferences = getOntologyReferencesFromBody(annotation, ontology);
-    if (ontologyReferences.length > 1) {
-        throw RangeError('This oa:Annotation is associated with multiple ontology items, henceforth a cssClassName cannot be established reliably');
-    }
-    if (ontologyReferences.length === 1) {
-        return getCssClass(ontologyReferences[0]);
-    }
+    return getCssClass(getOntologyClassFromBody(annotation));
 }
 
 /**
@@ -120,6 +114,15 @@ export function getSource(node: Node): Node {
         source = specificResource.get(oa.hasSource);
     }
     return source && source[0] as Node;
+}
+
+/**
+ * Get the ontology class (not the instances of such classes!) from the annotation's body.
+ * Will return ths first one if multiple are found.
+ */
+function getOntologyClassFromBody(annotation: Node): Node {
+    let ontologyClass = annotation.get(oa.hasBody).filter(b => isOntologyClass(b as Node)) as Node[];
+    return ontologyClass && ontologyClass[0];
 }
 
 /**

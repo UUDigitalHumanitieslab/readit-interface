@@ -110,6 +110,15 @@ export function getScrollTop(scrollableEl: JQuery<HTMLElement>, scrollToTop: num
     return scrollTop;
 }
 
+/**
+ * Establish whether the item is in the ontology graph, i.e. is an ontology class
+ * (as opposed to an instance of one of the ontology's classes).
+ * @param item The linked data item to investigate.
+ */
+export function isOntologyClass(item: Node): boolean {
+    return (item.id as string).startsWith(readit());
+}
+
 
 export function getOntology(callback) {
     let o = new Graph();
