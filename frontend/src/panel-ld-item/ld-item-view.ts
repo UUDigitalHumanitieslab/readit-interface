@@ -9,8 +9,8 @@ import { isNode } from '../utilities/types';
 import ldItemTemplate from './ld-item-template';
 
 import { owl, oa, dcterms } from './../jsonld/ns';
-import { isType, getLabel, getLabelFromId } from './../utilities/utilities';
-import { getOntologyInstance, getLabelText } from '../utilities/annotation/annotation-utilities';
+import { isType, getLabelFromId } from './../utilities/utilities';
+import { getLabelText } from '../utilities/annotation/annotation-utilities';
 
 import LabelView from '../utilities/label-view';
 

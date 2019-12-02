@@ -4,13 +4,12 @@ import { extend } from 'lodash';
 import { oa } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
-import ldChannel from '../jsonld/radio';
 
 import OntologyClassPickerView from '../utilities/ontology-class-picker/ontology-class-picker-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import { isType } from '../utilities/utilities';
-import { getOntologyInstance, AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
+import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { composeAnnotation, getAnonymousTextQuoteSelector } from './../utilities/annotation/annotation-creation-utilities';
 
 import BaseAnnotationView from './base-annotation-view';
