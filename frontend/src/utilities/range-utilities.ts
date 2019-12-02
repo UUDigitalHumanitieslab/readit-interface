@@ -1,3 +1,4 @@
+import { each } from 'lodash';
 import { AnnotationPositionDetails } from "./annotation/annotation-utilities";
 
 
@@ -39,22 +40,16 @@ export function getPositionDetailsFromRange(textWrapper: JQuery<HTMLElement>, ra
 }
 
 /**
- * TODO: This is a quick and dirty implementation.
- * think of something nice when there is time.
  * @param container Note that this is not the type Node from jsonld/node.ts,
  * but a DOM type retrieved by rangeInstance.startContainer / rangeInstance.endContainer
  */
 function getNodeIndex(textWrapper: JQuery<HTMLElement>, container: Node): number {
-    let index = 0;
-
-    for (let child of <any>textWrapper.contents()) {
+    // Loop through content (i.e. children incl textNodes).
+    // Ugly cast needed to stop Typescript complaining. Sigh.
+    return each(<any>textWrapper.contents(), (child, index) => {
         if (child === container) {
-            break;
+            return index;
         }
-
-        index++;
-    }
-
-    return index;
+    });
 }
 
