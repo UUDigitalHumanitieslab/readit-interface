@@ -18,13 +18,7 @@ def test_ItemCounter_current():
     assert isinstance(instance, ItemCounter)
     assert instance.pk == 1
     assert instance.count == 1
-    # retrieve cached singleton
-    instance = ItemCounter.current
-    assert isinstance(instance, ItemCounter)
-    assert instance.pk == 1
-    assert instance.count == 1
     # retrieve singleton from previous session
-    del ItemCounter._current
     instance = ItemCounter.current
     assert isinstance(instance, ItemCounter)
     assert instance.pk == 1
