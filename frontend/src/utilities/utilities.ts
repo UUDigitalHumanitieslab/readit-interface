@@ -121,25 +121,18 @@ export function getOntology(callback) {
     );
 }
 
-export function getAnnotations(specificResource: Node, callback: any) {
+/**
+ * Get an ItemGraph with all oa:Annotations, oa:SpecificResources,
+ * oa:TextQuoteSelectors, vocab:RangeSelectors and oa:XPathSelectors
+ * associated with the specified source.
+ */
+export function getItems(source, callback): void  {
     const items = new ItemGraph();
-    items.query({ predicate: oa.hasTarget, object: specificResource as Node }).then(
+    items.query({ object: source, traverse: 2, revTraverse: 1 }).then(
         function success() {
-            callback(null, items.at(0));
+            callback(null, items);
         },
         /*error*/ callback
-    );
-}
-
-export function getItems(source, itemCallback) {
-    const specificResources = new ItemGraph();
-    specificResources.query({ predicate: oa.hasSource, object: source }).then(
-        function success() {
-            mapLimit(specificResources.models, 4, (sr, cb) => getAnnotations(sr, cb), function (err, result) {
-                itemCallback(null, result);
-            });
-        },
-        /*error*/ itemCallback
     );
 }
 

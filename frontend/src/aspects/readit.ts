@@ -83,7 +83,7 @@ function createSourceView(source: Node, ontology: Graph, callback: any) {
         if (error) console.debug(error)
         else {
             let sourceView = new SourceView({
-                collection: new Graph(items),
+                collection: new Graph(items.models),
                 model: source,
                 ontology: ontology,
                 showHighlightsInitially: true,
