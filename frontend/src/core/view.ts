@@ -16,7 +16,8 @@ export default class View<M extends Model = Model> extends BView<M> {
     constructor(options?) {
         super(options);
 
-        this.$el.on('click', bind(this.onBaseClick, this));
+        if (window['DEBUGGING'])
+            this.$el.on('click', bind(this.onBaseClick, this));
     }
 
     onBaseClick(event: JQueryEventObject): this {
