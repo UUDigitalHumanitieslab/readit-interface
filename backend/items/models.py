@@ -17,15 +17,10 @@ class ItemCounter(models.Model):
     @classproperty
     def current(cls):
         """ Get or create a singleton instance of ItemCounter. """
-        instance = getattr(cls, '_current', None)
-        if instance:
-            instance.refresh_from_db()
-            return instance
         instance = cls.objects.all().first()
         if not instance:
             instance = ItemCounter(count=1)
             instance.save()
-        cls._current = instance
         return instance
 
     def increment(self):
