@@ -1,3 +1,4 @@
+import { bind } from 'lodash'
 import { View as BView } from 'backbone';
 import { TemplateDelegate } from 'handlebars';
 
@@ -10,4 +11,25 @@ import Model from './model';
  */
 export default class View<M extends Model = Model> extends BView<M> {
     template: TemplateDelegate;
+    extraLoggingInfo: any;
+
+    constructor(options?) {
+        super(options);
+
+        this.$el.on('click', bind(this.onBaseClick, this));
+    }
+
+    onBaseClick(event: JQueryEventObject): this {
+        if (event.altKey) {
+            this.logInfo();
+        }
+        return this;
+    }
+
+    logInfo(): this {
+        if (this.cid == "view1") return this; // ignore internalLinkEnabler
+        console.log(this);
+        if (this.extraLoggingInfo) console.log(this.extraLoggingInfo);
+        return this;
+    }
 }
