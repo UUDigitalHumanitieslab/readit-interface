@@ -148,3 +148,16 @@ class ItemsAPISingular(RDFResourceView):
         full_graph -= removed
         full_graph += added
         return Response(existing - removed + added)
+
+    def delete(self, request, format=None, **kwargs):
+        existing = self.get_graph(request, **kwargs)
+        if len(existing) == 0:
+            return error_response(request, HTTP_404_NOT_FOUND, DOES_NOT_EXIST_404)
+        user, now = submission_info(request)
+        identifier = URIRef(self.get_resource_uri(request, **kwargs))
+        creator = existing.value(identifier, DCTERMS.creator)
+        if user != creator:
+            return error_response(request, HTTP_403_FORBIDDEN, MUST_BE_OWNER_403)
+        full_graph = self.graph()
+        full_graph -= existing
+        return Response(existing)
