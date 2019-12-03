@@ -75,7 +75,7 @@ function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
     let height = Math.max(vh - 194, 555);
     exView.setHeight(height);
     exView.render().$el.appendTo('#main');
-    return exView
+    return exView;
 }
 
 function createSourceView(source: Node, ontology: Graph, callback: any) {

@@ -1,10 +1,9 @@
 import { find, includes } from 'lodash';
-import { mapLimit } from 'async';
 
 import Node from '../jsonld/node';
 import Graph from './../jsonld/graph';
 import ItemGraph from './item-graph';
-import { skos, rdfs, readit, dcterms, oa } from './../jsonld/ns';
+import { skos, rdfs, readit, dcterms } from './../jsonld/ns';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -111,7 +110,7 @@ export function getScrollTop(scrollableEl: JQuery<HTMLElement>, scrollToTop: num
 }
 
 
-export function getOntology(callback) {
+export function getOntology(callback): void {
     let o = new Graph();
     o.fetch({ url: readit() }).then(
         function success() {
@@ -126,7 +125,7 @@ export function getOntology(callback) {
  * oa:TextQuoteSelectors, vocab:RangeSelectors and oa:XPathSelectors
  * associated with the specified source.
  */
-export function getItems(source, callback): void  {
+export function getItems(source: Node, callback): void  {
     const items = new ItemGraph();
     items.query({ object: source, traverse: 2, revTraverse: 1 }).then(
         function success() {
@@ -136,7 +135,7 @@ export function getItems(source, callback): void  {
     );
 }
 
-export function getSources(callback) {
+export function getSources(callback): void {
     const sources = new Graph();
     sources.fetch({ url: '/source/' }).then(
         function succes() {
