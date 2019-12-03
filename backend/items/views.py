@@ -8,6 +8,7 @@ from rdflib import Graph, URIRef, BNode, Literal
 
 from rdf.views import RDFView, RDFResourceView, graph_from_request, error_response, DOES_NOT_EXIST_404
 from rdf.ns import *
+from rdf.utils import graph_from_triples, append_triples, traverse_forward, traverse_backward
 from vocab import namespace as vocab
 from staff import namespace as staff
 from staff.views import get_user_uriref
@@ -44,10 +45,7 @@ def is_unreserved(triple):
 
 def sanitize(input):
     """ Return a subset of input that excludes the reserved predicates. """
-    output = Graph()
-    for s, p, o in filter(is_unreserved, input):
-        output.add((s, p, o))
-    return output
+    return graph_from_triples(filter(is_unreserved, input))
 
 
 def submission_info(request):
@@ -55,6 +53,14 @@ def submission_info(request):
     user = get_user_uriref(request)
     now = Literal(datetime.now(timezone.utc))
     return user, now
+
+
+def optional_int(text):
+    """ Try to parse `text` as a decimal int, return None on failure. """
+    try:
+        return int(text)
+    except:
+        return None
 
 
 class ItemsAPIRoot(RDFView):
@@ -65,10 +71,11 @@ class ItemsAPIRoot(RDFView):
         return graph()
 
     def get_graph(self, request):
-        result = Graph()
+        core = Graph()
         params = request.query_params
         if not params:
-            return result
+            return core
+        # params: p - predicate, o(_literal) - object, t - traverse, r - reverse
         p = params.get('p')
         p = p and URIRef(p)
         o = params.get('o')
@@ -77,11 +84,17 @@ class ItemsAPIRoot(RDFView):
         else:
             o = params.get('o_literal')
             o = o and Literal(o)
+        t = optional_int(params.get('t'))
+        r = optional_int(params.get('r'))
+        # get the initial graph based on p, o, o_literal params
         full_graph = super().get_graph(request)
-        for s in full_graph.subjects(p, o):
-            for pred, obj in full_graph.predicate_objects(s):
-                result.add((s, pred, obj))
-        return result
+        subjects = set(full_graph.subjects(p, o))
+        for s in subjects:
+            append_triples(core, full_graph.triples((s, None, None)))
+        # traverse from here based on t, r params
+        children = traverse_forward(full_graph, core, t)
+        parents = traverse_backward(full_graph, core, r)
+        return parents | core | children
 
     def post(self, request, format=None):
         data = graph_from_request(request)
