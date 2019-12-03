@@ -66,4 +66,6 @@ extend(ItemGraph.prototype, {
     url: item(),
 });
 
-window['whatever'] = ItemGraph;
+if (window['DEBUGGING']) {
+    window['ItemGraph'] = ItemGraph;
+}
