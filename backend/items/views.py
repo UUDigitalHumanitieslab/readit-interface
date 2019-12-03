@@ -84,8 +84,8 @@ class ItemsAPIRoot(RDFView):
         else:
             o = params.get('o_literal')
             o = o and Literal(o)
-        t = optional_int(params.get('t'))
-        r = optional_int(params.get('r'))
+        t = optional_int(params.get('t')) or 0
+        r = optional_int(params.get('r')) or 0
         # get the initial graph based on p, o, o_literal params
         full_graph = super().get_graph(request)
         subjects = set(full_graph.subjects(p, o))
