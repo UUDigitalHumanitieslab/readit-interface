@@ -127,7 +127,6 @@ export default class SourceView extends View<Node> {
         this.htv.on('highlightUnselected', this.onHighlightUnselected, this);
         this.htv.on('textSelected', this.onTextSelected, this);
         this.htv.on('scroll', this.onScroll, this);
-        this.htv.on('overlapsLoaded', this.onOverlapsLoaded, this);
         return htv;
     }
 
@@ -191,13 +190,6 @@ export default class SourceView extends View<Node> {
      */
     onScroll(selector?: Node): void {
         this.trigger('scroll', selector);
-    }
-
-    /**
-     * Pass events from HighlightableTextView
-     */
-    onOverlapsLoaded(): void {
-        this.trigger('sourceview:overlapsLoaded', this);
     }
 
     /**

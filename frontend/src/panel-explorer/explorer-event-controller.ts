@@ -50,7 +50,6 @@ export default class ExplorerEventController {
             'sourceView:enlarge': this.sourceViewEnlarge,
             'sourceView:shrink': this.sourceViewShrink,
             'sourceview:textSelected': this.sourceViewOnTextSelected,
-            'sourceview:overlapsLoaded': this.sourceviewOnOverlapsLoaded,
             'annotation-listview:blockClicked': this.annotationListBlockClicked,
             'annotation-listview:edit': this.annotationListEdit,
             'annotationEditView:saveNew': this.annotationEditSaveNew,
@@ -250,11 +249,6 @@ export default class ExplorerEventController {
         });
         this.mapAnnotationEditSource.set(annoEditView, sourceView);
         this.explorerView.overlay(annoEditView);
-        return this;
-    }
-
-    sourceviewOnOverlapsLoaded(sourceView: SourceView): this {
-        this.explorerView.loadingSpinnerView.deActivate();
         return this;
     }
 

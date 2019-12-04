@@ -12,6 +12,8 @@ import annotationsTemplate from './panel-annotation-list-template';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import { getSource } from '../utilities/annotation/annotation-utilities';
 import { singleNumber } from './../utilities/binary-searchable-strategy/binary-search-utilities';
+import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
+
 
 export interface ViewOptions extends BaseOpt<Node> {
     ontology: Graph;
@@ -32,7 +34,12 @@ export default class AnnotationListView extends View<Node> {
      * A simple lookup hash with Annotation cid as key,
      * and ItemSummaryBlock as value
      */
-    blockByModel: Map<string, ItemSummaryBlockView>
+    blockByModel: Map<string, ItemSummaryBlockView>;
+
+    /**
+     * Have a loader ready to show when loading panels takes long.
+     */
+    loadingSpinnerView: LoadingSpinnerView;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -57,6 +64,8 @@ export default class AnnotationListView extends View<Node> {
         });
 
         this.listenTo(this.collection, 'add', this.add);
+
+        this.loadingSpinnerView = new LoadingSpinnerView();
         return this;
     }
 
@@ -81,16 +90,23 @@ export default class AnnotationListView extends View<Node> {
 
     render(): this {
         if (this.summaryBlocks) {
+            this.loadingSpinnerView.remove();
             this.summaryBlocks.forEach(sb => {
                 sb.$el.detach();
             });
         }
-        this.$el.html(this.template(this));
-        let summaryList = this.$('.summary-list');
 
+        this.$el.html(this.template(this));
+
+        let summaryList = this.$('.summary-list');
         this.summaryBlocks.forEach(sb => {
             sb.render().$el.appendTo(summaryList);
         });
+
+        if (this.summaryBlocks && this.summaryBlocks.length < 1) {
+            this.loadingSpinnerView.render().$el.appendTo(summaryList);
+            this.loadingSpinnerView.activate();
+        }
 
         return this;
     }

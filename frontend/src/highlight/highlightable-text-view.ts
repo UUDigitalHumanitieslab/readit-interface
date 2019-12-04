@@ -74,6 +74,10 @@ export default class HighlightableTextView extends View {
     hVs: HighlightView[] = [];
 
     overlaps: OverlappingHighlightsView[] = [];
+    /**
+     * Keep track of overlaps loading. Do not allow selecting text before they are.
+     */
+    hasOverlapsLoaded: boolean;
 
     /**
      * Store a reference to a OverlapDetailView
@@ -169,7 +173,7 @@ export default class HighlightableTextView extends View {
             this.overlaps.push(ohv);
             ohv.render().$el.prependTo(this.$('.position-container'));
         });
-        this.trigger('overlapsLoaded');
+        this.hasOverlapsLoaded = true;
     }
 
     initHighlights(): this {
@@ -434,6 +438,7 @@ export default class HighlightableTextView extends View {
 
     onTextSelected(): void {
         if (!this.isEditable) return;
+        if (!this.hasOverlapsLoaded) return;
 
         let selection = window.getSelection();
         let range = selection.getRangeAt(0).cloneRange();
