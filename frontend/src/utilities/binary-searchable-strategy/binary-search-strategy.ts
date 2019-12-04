@@ -29,17 +29,15 @@ export class BinarySearchStrategy {
      * Remove a searchable from the strategy's list of searchables.
      */
     remove(searchable: BinarySearchableView): this {
-        // index will always be BEFORE the first instance of indexValue
         let index = sortedIndexBy(this.searchables, searchable, 'indexValue');
-        let toBeRemoved = this.searchables[index];
+        let lowerBound = sortedIndexBy(this.searchables, searchable, 'indexValue');
+        let upperBound = sortedLastIndexBy(this.searchables, searchable, 'indexValue');
 
-        // if we didn't find the right one, loop until we do
-        while (toBeRemoved && toBeRemoved.view !== searchable.view) {
-            index++;
-            toBeRemoved = this.searchables[index];
+        for (let index = lowerBound; index < upperBound; ++index) {
+            if (this.searchables[index].view === searchable.view) break;
         }
 
-        if (toBeRemoved) this.searchables.splice(index, 1);
+        if (index < upperBound) this.searchables.splice(index, 1);
         return this;
     }
 
