@@ -64,7 +64,13 @@ export default class HighlightableTextView extends View {
     positionContainer: JQuery<HTMLElement>;
     collection: Graph;
     ontology: Graph;
-    showHighlightsInitially: boolean;
+
+    /**
+     * Store some state
+     */
+    isShowingHighlights: boolean;
+    isEditable: boolean;
+    isInDOM: boolean;
 
     /**
      * Store the oa:Annotation that needs to be scrolled to
@@ -72,6 +78,7 @@ export default class HighlightableTextView extends View {
     scrollToNode: Node;
 
     hVs: HighlightView[] = [];
+    selectedHighlight: HighlightView;
 
     overlaps: OverlappingHighlightsView[] = [];
     /**
@@ -83,12 +90,6 @@ export default class HighlightableTextView extends View {
      * Store a reference to a OverlapDetailView
      */
     overlapDetailView: OverlapDetailsView;
-
-    isEditable: boolean;
-
-    isInDOM: boolean;
-
-    selectedHighlight: HighlightView;
 
     /** A simple lookup hash with Annotation cid as key,
      * and associated HighlightView as value
@@ -108,20 +109,22 @@ export default class HighlightableTextView extends View {
         this.text = options.text;
         this.ontology = options.ontology;
         this.isEditable = options.isEditable || false;
-        this.showHighlightsInitially = options.showHighlightsInitially || false;
+        this.isShowingHighlights = options.showHighlightsInitially || false;
         this.highlightByModel = new Map();
 
         if (!options.collection) this.collection = new Graph();
-        this.collection.on('add', this.addHighlight, this);
+        this.listenTo(this.collection, 'add', this.addHighlight);
+        this.listenTo(this.collection, 'update', this.initOverlaps);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
         this.$el.ready(bind(this.onReady, this));
     }
 
     render(): this {
+        let wasShowingHighlights = this.isShowingHighlights;
         this.hideAll();
         this.$el.html(this.template({ text: this.text }));
-        this.showAll();
+        if (wasShowingHighlights) this.showAll();
         return this;
     }
 
@@ -135,21 +138,7 @@ export default class HighlightableTextView extends View {
         this.isInDOM = true;
         this.textWrapper = this.$('.textWrapper');
         this.positionContainer = this.$('.position-container');
-
-        let self = this;
-        if (this.text) {
-            this.initHighlights();
-            each(this.hVs, (hV, callback) => hV.ensurePositionDetails(callback), function (err) {
-                self.initOverlaps();
-                if (!self.showHighlightsInitially) {
-                    self.hideAll();
-                }
-                else {
-                    self.scroll(self.scrollToNode);
-                }
-            });
-        }
-
+        if (this.text) this.initHighlights();
         return this;
     }
 
@@ -171,7 +160,7 @@ export default class HighlightableTextView extends View {
 
             ohv.on('click', this.onOverlapClicked, this);
             this.overlaps.push(ohv);
-            ohv.render().$el.prependTo(this.$('.position-container'));
+            if (this.isShowingHighlights) ohv.render().$el.prependTo(this.$('.position-container'));
         });
         this.hasOverlapsLoaded = true;
     }
@@ -224,6 +213,7 @@ export default class HighlightableTextView extends View {
             overlap.render().$el.prependTo(this.$('.position-container'));
         });
 
+        this.isShowingHighlights = true;
         return this;
     }
 
@@ -241,6 +231,7 @@ export default class HighlightableTextView extends View {
         });
 
         if (this.overlapDetailView) this.overlapDetailView.$el.detach();
+        this.isShowingHighlights = false;
         return this;
     }
 
@@ -265,6 +256,7 @@ export default class HighlightableTextView extends View {
      */
     private addHighlight(node: Node): HighlightView {
         if (!isType(node, oa.Annotation)) return;
+        if (!this.isInDOM) return;
 
         // Get styling here because HighlightViews shouldn't care about the ontology (nor should this view, but ok..)
         let cssClass = getCssClassName(node, this.ontology);
@@ -280,7 +272,7 @@ export default class HighlightableTextView extends View {
         this.bindEvents(hV);
         this.hVs.push(hV);
         this.highlightByModel.set(node.cid, hV);
-        hV.render().$el.prependTo(this.$('.position-container'));
+        if (this.isShowingHighlights) hV.render().$el.prependTo(this.$('.position-container'));
         this.trigger('highlightAdded', node);
         return hV;
     }
