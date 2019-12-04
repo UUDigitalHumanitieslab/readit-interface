@@ -17,7 +17,7 @@ export class BinarySearchStrategy {
      * Add a searchable to the strategy's list of searchables.
      * The new searchable will be added at the index corresponding to its indexValue.
      * Note that if an indexValue already exists, the new searchable will be added
-     * BEFORE the existing one(s).
+     * AFTER the existing one(s).
      */
     add(searchable: BinarySearchableView): this {
         let index = sortedLastIndexBy(this.searchables, searchable, 'indexValue');
