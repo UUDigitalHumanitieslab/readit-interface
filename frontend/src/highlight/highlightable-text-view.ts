@@ -256,7 +256,7 @@ export default class HighlightableTextView extends View {
             this.onHighlightPositionDetailsProcessed(hV);
         }
         else {
-            this.listenTo(hV, 'positionDetailsProcessed', this.onHighlightPositionDetailsProcessed);
+            this.listenToOnce(hV, 'positionDetailsProcessed', this.onHighlightPositionDetailsProcessed);
         }
 
         this.hVs.push(hV);
@@ -291,16 +291,16 @@ export default class HighlightableTextView extends View {
     /**
     * Remove all highlights from the text.
     */
-   removeAll(): this {
-    if (!this.isEditable) return;
+    removeAll(): this {
+        if (!this.isEditable) return;
 
-    this.collection.each((node) => {
-        if (isType(node, oa.Annotation)) {
-            this.deleteNode(node);
-        }
-    });
-    return this;
-}
+        this.collection.each((node) => {
+            if (isType(node, oa.Annotation)) {
+                this.deleteNode(node);
+            }
+        });
+        return this;
+    }
 
     private deleteFromCollection(annotation: Node): boolean {
         if (!isType(annotation, oa.Annotation)) return false;
@@ -341,10 +341,10 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-     /**
-     * Process a click on an oa:Annotation in another view,
-     * as if it were a click in the current view.
-     */
+    /**
+    * Process a click on an oa:Annotation in another view,
+    * as if it were a click in the current view.
+    */
     processClick(annotation: Node): this {
         let hV = this.getHighlightView(annotation);
         this.processSelection(hV, annotation);
