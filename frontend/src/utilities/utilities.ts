@@ -4,6 +4,7 @@ import Node from '../jsonld/node';
 import Graph from './../jsonld/graph';
 import ItemGraph from './item-graph';
 import { skos, rdfs, readit, dcterms } from './../jsonld/ns';
+import SourceView from '../panel-source/source-view';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -125,7 +126,7 @@ export function getOntology(callback): void {
  * oa:TextQuoteSelectors, vocab:RangeSelectors and oa:XPathSelectors
  * associated with the specified source.
  */
-export function getItems(source: Node, callback): void  {
+export function getItems(source: Node, callback): void {
     const items = new ItemGraph();
     items.query({ object: source, traverse: 2, revTraverse: 1 }).then(
         function success() {
@@ -143,4 +144,37 @@ export function getSources(callback): void {
         },
         /*error*/ callback
     );
+}
+
+/**
+ * Create an instance of SourceView for the specified source.
+ * Will collect the annotations associated with the source async, i.e.
+ * these will be added to the SourceView's collection when ready.
+ */
+export function createSourceView(
+    source: Node,
+    ontology: Graph,
+    showHighlightsInitially?: boolean,
+    isEditable?: boolean,
+    initialScrollTo?: Node
+): SourceView {
+    let sourceItems = new Graph();
+
+    getItems(source, function (error, items) {
+        if (error) console.debug(error)
+        else {
+            sourceItems.add(items.models);
+        }
+    });
+
+    let sourceView = new SourceView({
+        collection: sourceItems,
+        model: source,
+        ontology: ontology,
+        showHighlightsInitially: showHighlightsInitially,
+        isEditable: isEditable,
+        initialScrollTo: initialScrollTo,
+    });
+
+    return sourceView;
 }
