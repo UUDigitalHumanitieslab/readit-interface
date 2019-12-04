@@ -1,4 +1,4 @@
-import { sortedIndexBy } from 'lodash';
+import { sortedLastIndexBy, sortedIndexBy } from 'lodash';
 import View from "../../core/view";
 
 export type BinarySearchableView = {
@@ -20,7 +20,7 @@ export class BinarySearchStrategy {
      * BEFORE the existing one(s).
      */
     add(searchable: BinarySearchableView): this {
-        let index = sortedIndexBy(this.searchables, searchable, 'indexValue');
+        let index = sortedLastIndexBy(this.searchables, searchable, 'indexValue');
         this.searchables.splice(index, 0, searchable);
         return this;
     }

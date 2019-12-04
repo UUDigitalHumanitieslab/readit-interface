@@ -28,21 +28,21 @@ describe('BinarySearchStrategy', function () {
             expect(strategy.searchables[2].view).toEqual(view5);
         });
 
-        it('adds a searchable with same indexValue before existing searchable', function () {
+        it('adds a searchable with same indexValue after all existing searchables with same indexValue', function () {
             let view5 = new View();
             strategy.add({ indexValue: 6, view: view5 });
             expect(strategy.searchables.length).toEqual(5);
-            expect(strategy.searchables[2].view).toEqual(view5);
+            expect(strategy.searchables[3].view).toEqual(view5);
 
             let view6 = new View();
             strategy.add({ indexValue: 9, view: view6 });
             expect(strategy.searchables.length).toEqual(6);
-            expect(strategy.searchables[4].view).toEqual(view6);
+            expect(strategy.searchables[5].view).toEqual(view6);
 
             let view7 = new View();
             strategy.add({ indexValue: 9, view: view7 });
             expect(strategy.searchables.length).toEqual(7);
-            expect(strategy.searchables[4].view).toEqual(view7);
+            expect(strategy.searchables[6].view).toEqual(view7);
         });
     });
 
@@ -108,7 +108,7 @@ describe('BinarySearchStrategy', function () {
             let view5 = new View();
             strategy.add({ indexValue: 6, view: view5 });
             let actual = strategy.getClosestTo(6);
-            expect(actual).toEqual(view5);
+            expect(actual).toEqual(view3);
         });
     });
 });
