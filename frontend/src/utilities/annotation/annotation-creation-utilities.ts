@@ -83,7 +83,7 @@ export function composeAnnotation(source: Node, posDetails: AnnotationPositionDe
         rangeSelector: ['items', 'startSelector', 'endSelector',
             createRangeSelector,
         ],
-        textQuoteSelector: ['items', 'tQSelector', 'rangeSelector',
+        textQuoteSelector: ['items', 'tQSelector',
             createTextQuoteSelector,
         ],
         specificResource: ['items', 'source', 'rangeSelector', 'textQuoteSelector',
@@ -193,11 +193,11 @@ function createOntologyInstance(items: ItemGraph, ontoClass: Node, done?) {
     return createItem(items, attributes, done);
 }
 
-function createTextQuoteSelector(items: ItemGraph, textQuoteSelector: Node, rangeSelector, done?) {
+function createTextQuoteSelector(items: ItemGraph, textQuoteSelector: Node, done?) {
     return createItem(items, textQuoteSelector.attributes, done);
 }
 
-function createXPathSelector(items: ItemGraph, container, offset, done?) {
+function createXPathSelector(items: ItemGraph, container: number, offset: number, done?) {
     const xPath = `substring(.//*[${container}]/text(), ${offset})`;
     const attributes = {
         '@type': oa.XPathSelector,
@@ -207,7 +207,7 @@ function createXPathSelector(items: ItemGraph, container, offset, done?) {
     return createItem(items, attributes, done);
 }
 
-function createRangeSelector(items: ItemGraph, start, end, done?) {
+function createRangeSelector(items: ItemGraph, start: number, end: number, done?) {
     const attributes = {
         '@type': vocab('RangeSelector'),
         [oa.hasStartSelector]: start,
@@ -216,7 +216,7 @@ function createRangeSelector(items: ItemGraph, start, end, done?) {
     return createItem(items, attributes, done);
 }
 
-function createSpecificResource(items: ItemGraph, source, rangeSelector, textQuoteSelector, done?) {
+function createSpecificResource(items: ItemGraph, source: Node, rangeSelector: Node, textQuoteSelector: Node, done?) {
     const attributes = {
         '@type': oa.SpecificResource,
         [oa.hasSource]: source,
@@ -225,7 +225,7 @@ function createSpecificResource(items: ItemGraph, source, rangeSelector, textQuo
     return createItem(items, attributes, done);
 }
 
-function createAnnotation(items, specificResource, ontoClass, done?) {
+function createAnnotation(items: ItemGraph, specificResource: Node, ontoClass: Node, done?) {
     const attributes = {
         '@type': oa.Annotation,
         [oa.hasBody]: [ontoClass],
