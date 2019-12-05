@@ -14,34 +14,27 @@ export interface ViewOptions extends BaseOpt<Node> {
      * The items that are object of the relation
      */
     collection: Graph;
-    ontology: Graph;
 }
 
 export default class RelatedItemsRelationView extends View<Node> {
     relationName: string;
-    ontology: Graph;
     summaryBlocks: ItemSummaryBlockView[];
 
     constructor(options?: ViewOptions) {
-        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
         if (!options.relationName) throw new TypeError('relationName cannot be null or undefined');
         super(options);
     }
 
     initialize(options: ViewOptions): this {
         this.relationName = options.relationName;
-        this.ontology = options.ontology;
         this.summaryBlocks = [];
-
         this.collection.each(n => { this.initRelatedItem(n as Node); });
-
         return this;
     }
 
     initRelatedItem(item: Node): this {
         let view = new ItemSummaryBlockView({
-            model: item,
-            ontology: this.ontology
+            model: item
         });
         view.on('click', this.onSummaryBlockClicked, this);
         view.on('hover', this.onSummaryBlockedHover, this);

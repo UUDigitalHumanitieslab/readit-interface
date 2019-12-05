@@ -2,7 +2,7 @@ import { startStore, endStore } from '../../test-util';
 import Node from '../../jsonld/node';
 import { item, oa } from '../../jsonld/ns';
 import mockItems from '../../mock-data/mock-items';
-import { validateCompleteness, getEndSelector, getSelector } from './annotation-utilities';
+import { getEndSelector, getSelector } from './annotation-utilities';
 import Graph from '../../jsonld/graph';
 
 describe('annotation-utilities', function () {
@@ -18,18 +18,6 @@ describe('annotation-utilities', function () {
 
     beforeEach(function() {
         items = new Graph(mockItems);
-    });
-
-    describe('validateCompleteness', function () {
-        it('identifies complete annotations', function()  {
-            expect(validateCompleteness(getAnno1instance())).toEqual(undefined);
-        });
-
-        it('throws TypeError if parts are missing', function()  {
-            let anno = getAnno1instance();
-            anno.unset(oa.hasTarget);
-            expect(function() { validateCompleteness(anno) }).toThrowError(TypeError);
-        });
     });
 
     describe('getEndSelector', function () {

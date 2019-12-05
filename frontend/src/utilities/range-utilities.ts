@@ -1,3 +1,4 @@
+import { indexOf } from 'lodash';
 import { AnnotationPositionDetails } from "./annotation/annotation-utilities";
 
 
@@ -39,22 +40,10 @@ export function getPositionDetailsFromRange(textWrapper: JQuery<HTMLElement>, ra
 }
 
 /**
- * TODO: This is a quick and dirty implementation.
- * think of something nice when there is time.
  * @param container Note that this is not the type Node from jsonld/node.ts,
  * but a DOM type retrieved by rangeInstance.startContainer / rangeInstance.endContainer
  */
 function getNodeIndex(textWrapper: JQuery<HTMLElement>, container: Node): number {
-    let index = 0;
-
-    for (let child of <any>textWrapper.contents()) {
-        if (child === container) {
-            break;
-        }
-
-        index++;
-    }
-
-    return index;
+    // Ugly cast needed to stop Typescript complaining. Sigh.
+    return indexOf(<any>textWrapper.contents(), container);
 }
-

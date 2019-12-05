@@ -6,7 +6,7 @@ import { oa, schema, vocab, readit } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
 
-import { isType } from '../utilities/utilities';
+import { isType, isOntologyClass } from '../utilities/utilities';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import LabelView from '../utilities/label-view';
 
@@ -81,7 +81,7 @@ export default abstract class BaseAnnotationView extends View<Node> {
     }
 
     processBody(body: Node): this {
-        if ((body.id as string).includes('ontology')) {
+        if (isOntologyClass(body)) {
             this.trigger('body:ontologyClass', body);
         }
         else {

@@ -8,14 +8,13 @@ import Node from './../jsonld/node';
 import Graph from './../jsonld/graph';
 
 import { isType, getScrollTop } from './../utilities/utilities';
-import { validateCompleteness, getPositionDetails, getLinkedItems, getCssClassName, getSelector } from '../utilities/annotation/annotation-utilities';
-import { getAnonymousTextQuoteSelector } from './../utilities/annotation/annotation-creation-utilities';
+import { getLinkedItems, getCssClassName, getSelector } from '../utilities/annotation/annotation-utilities';
 import OverlappingHighlightsStrategy, { OverlappingHighlights } from './overlapping-highlights-strategy';
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
 import OverlappingHighlightsView from './overlapping-highlights-view';
 import OverlapDetailsView from './overlap-details-view';
-import { getRange, getPositionDetailsFromRange } from '../utilities/range-utilities';
+import { getPositionDetailsFromRange } from '../utilities/range-utilities';
 import ItemGraph from '../utilities/item-graph';
 
 export interface ViewOptions extends BaseOpt<Node> {
@@ -25,11 +24,6 @@ export interface ViewOptions extends BaseOpt<Node> {
      * Optional. A collection of oa:Annotation instances.
      */
     collection?: Graph;
-
-    /**
-     * The Read IT ontology.
-     */
-    ontology: Graph;
 
     /**
      * Specify whether the View should only display oa:Annotations, or if it allows editing
@@ -63,7 +57,6 @@ export default class HighlightableTextView extends View {
     textWrapper: JQuery<HTMLElement>;
     positionContainer: JQuery<HTMLElement>;
     collection: Graph;
-    ontology: Graph;
     showHighlightsInitially: boolean;
 
     /**
@@ -102,7 +95,6 @@ export default class HighlightableTextView extends View {
 
         this.scrollToNode = options.initialScrollTo;
         this.text = options.text;
-        this.ontology = options.ontology;
         this.isEditable = options.isEditable || false;
         this.showHighlightsInitially = options.showHighlightsInitially || false;
         this.highlightByModel = new Map();
@@ -262,8 +254,7 @@ export default class HighlightableTextView extends View {
     private addHighlight(node: Node): HighlightView {
         if (!isType(node, oa.Annotation)) return;
 
-        // Get styling here because HighlightViews shouldn't care about the ontology (nor should this view, but ok..)
-        let cssClass = getCssClassName(node, this.ontology);
+        let cssClass = getCssClassName(node);
 
         let hV = new HighlightView({
             model: node,
