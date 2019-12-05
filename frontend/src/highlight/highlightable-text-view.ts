@@ -16,8 +16,8 @@ import OverlappingHighlightsView from './overlapping-highlights-view';
 import OverlapDetailsView from './overlap-details-view';
 import { getPositionDetailsFromRange } from '../utilities/range-utilities';
 import ItemGraph from '../utilities/item-graph';
-import { BinarySearchStrategy } from './../utilities/binary-searchable-strategy/binary-search-strategy';
-import { singleNumber } from './../utilities/binary-searchable-strategy/binary-search-utilities';
+import { BinarySearchContainer } from '../utilities/binary-searchable-container/binary-search-container';
+import { singleNumber } from '../utilities/binary-searchable-container/binary-search-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
@@ -84,7 +84,7 @@ export default class HighlightableTextView extends View {
     /**
      * Store highlight views in a binary search strategy to enable quick searching
      */
-    searchStrategy: BinarySearchStrategy;
+    searchStrategy: BinarySearchContainer;
 
     isEditable: boolean;
 
@@ -115,7 +115,7 @@ export default class HighlightableTextView extends View {
 
         if (!options.collection) this.collection = new Graph();
         this.collection.on('add', this.addHighlight, this);
-        this.searchStrategy = new BinarySearchStrategy(this.getHighlightViewIndexValue);
+        this.searchStrategy = new BinarySearchContainer(this.getHighlightViewIndexValue);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
         this.$el.ready(bind(this.onReady, this));

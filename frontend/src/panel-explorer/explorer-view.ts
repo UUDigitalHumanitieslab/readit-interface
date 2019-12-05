@@ -7,7 +7,7 @@ import Graph from '../jsonld/graph';
 import PanelStackView from './explorer-panelstack-view';
 import EventController from './explorer-event-controller';
 import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
-import { BinarySearchStrategy } from './../utilities/binary-searchable-strategy/binary-search-strategy';
+import { BinarySearchContainer } from '../utilities/binary-searchable-container/binary-search-container';
 
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?
@@ -41,7 +41,7 @@ export default class ExplorerView extends View {
     /**
      *
      */
-    searchStrategy: BinarySearchStrategy;
+    searchStrategy: BinarySearchContainer;
 
     constructor(options?: ViewOptions) {
         super(options);
@@ -51,7 +51,7 @@ export default class ExplorerView extends View {
         this.stacks = [];
         this.eventController = new EventController(this);
         this.rltPanelStack = new Map();
-        this.searchStrategy = new BinarySearchStrategy(this.getStackIndexvalue);
+        this.searchStrategy = new BinarySearchContainer(this.getStackIndexvalue);
         this.push(options.first);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 500));

@@ -1,4 +1,4 @@
-import { BinarySearchStrategy } from './binary-search-strategy';
+import { BinarySearchContainer } from './binary-search-container';
 import View from '../../core/view';
 
 type TestView = {
@@ -8,7 +8,7 @@ type TestView = {
 
 describe('BinarySearchStrategy', function () {
     let testViews: TestView[];
-    let strategy: BinarySearchStrategy;
+    let strategy: BinarySearchContainer;
     let view1, view2, view3, view4;
 
     /**
@@ -35,7 +35,7 @@ describe('BinarySearchStrategy', function () {
         view3 = getView(6);
         view4 = getView(9);
 
-        strategy = new BinarySearchStrategy(getIndexValue);
+        strategy = new BinarySearchContainer(getIndexValue);
         strategy.add(view1);
         strategy.add(view2);
         strategy.add(view3);

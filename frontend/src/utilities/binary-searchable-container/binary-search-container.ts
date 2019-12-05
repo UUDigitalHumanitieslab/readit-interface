@@ -10,7 +10,7 @@ export class FakeView extends View {
     }
 }
 
-export class BinarySearchStrategy {
+export class BinarySearchContainer {
     views: View[];
     getIndexValue: (view: View) => number;
 
