@@ -69,7 +69,7 @@ export function getSpecificResource(annotation: Node): Node {
 }
 
 /**
-* Get the Selector associated with the oa:Annotation annotation or its associated oa:SpecificResource.
+* Get the Selector associated with the oa:Annotation or its associated oa:SpecificResource.
  */
 export function getSelector(node: Node): Node {
     let specificResource: Node;
