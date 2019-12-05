@@ -44,6 +44,7 @@ export default class ExplorerEventController {
             'sourceview:highlightClicked': this.sourceViewHighlightClicked,
             'sourceview:highlightSelected': this.sourceViewHighlightSelected,
             'sourceview:highlightUnselected': this.sourceViewHighlightUnselected,
+            'sourceview:highlightDeleted': this.sourceviewHighlightDeleted,
             'sourceview:showMetadata': this.sourceViewShowMetadata,
             'sourceview:hideMetadata': this.sourceViewHideMetadata,
             'sourceview:showAnnotations': (graph) => defer(this.sourceViewShowAnnotations.bind(this), graph),
@@ -200,6 +201,12 @@ export default class ExplorerEventController {
     sourceViewHighlightUnselected(sourceView: SourceView, annotation: Node): this {
         let annoListView = this.mapSourceAnnotationList.get(sourceView);
         this.explorerView.popUntil(annoListView);
+        return this;
+    }
+
+    sourceviewHighlightDeleted(sourceView: SourceView, annotation: Node): this {
+        let annoListView = this.mapSourceAnnotationList.get(sourceView);
+        annoListView.removeAnno(annotation);
         return this;
     }
 
