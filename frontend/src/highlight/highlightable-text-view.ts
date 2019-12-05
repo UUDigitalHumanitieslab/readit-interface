@@ -115,7 +115,7 @@ export default class HighlightableTextView extends View {
 
         if (!options.collection) this.collection = new Graph();
         this.collection.on('add', this.addHighlight, this);
-        this.searchStrategy = new BinarySearchStrategy();
+        this.searchStrategy = new BinarySearchStrategy(this.getHighlightViewIndexValue);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
         this.$el.ready(bind(this.onReady, this));
@@ -281,7 +281,7 @@ export default class HighlightableTextView extends View {
     deleteNode(node: Node): this {
         if (this.deleteFromCollection(node)) {
             let hV = this.getHighlightView(node);
-            this.searchStrategy.remove({ indexValue: singleNumber(hV.getTop(), hV.getBottom()), view: hV });
+            this.searchStrategy.remove(hV);
             this.initOverlaps();
             this.trigger('delete', node);
         }
@@ -474,7 +474,7 @@ export default class HighlightableTextView extends View {
         }
         else {
             // Get the view closest to the visible vertical middle
-            let view = this.searchStrategy.getClosestTo(
+            let view = this.searchStrategy.equalToOrLastLessThan(
                 singleNumber(scrollableVisibleMiddle, scrollableVisibleMiddle)
             );
             this.trigger('scroll', getSelector(view.model as Node));
@@ -482,14 +482,19 @@ export default class HighlightableTextView extends View {
     }
 
     /**
-     * Process the highlights positiondetails, i.e. add a BinarySearchableView to the search strategy.
+     * Process the highlights positiondetails, i.e. add the HighlightView to the search strategy.
      */
     private onHighlightPositionDetailsProcessed(hV: HighlightView): this {
-        this.searchStrategy.add({
-            indexValue: singleNumber(hV.getTop(), hV.getBottom()),
-            view: hV
-        });
+        this.searchStrategy.add(hV);
         return this;
+    }
+
+     /**
+     * Get a value to index highlightViews on.
+     * This is a helper function for binary searching.
+     */
+    getHighlightViewIndexValue(view: HighlightView): number {
+        return singleNumber(view.getTop(), view.getBottom());
     }
 }
 extend(HighlightableTextView.prototype, {
