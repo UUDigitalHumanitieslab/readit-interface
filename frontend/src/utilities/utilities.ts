@@ -116,7 +116,7 @@ export function getScrollTop(scrollableEl: JQuery<HTMLElement>, scrollToTop: num
  * @param item The linked data item to investigate.
  */
 export function isOntologyClass(item: Node): boolean {
-    return (item.id as string).startsWith(readit());
+    return (item.id as string).startsWith(readit()) && isRdfsClass(item);
 }
 
 
