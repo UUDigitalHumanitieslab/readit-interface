@@ -128,14 +128,14 @@ describe('BinarySearchStrategy', function () {
 
     describe('equalToOrLastLessThan', function () {
         it('finds a view at index if it exists', function () {
-            let actual = strategy.equalToOrLastLessThan(1);
+            let actual = strategy.firstEqualOrLastLessThan(1);
             expect(actual).toEqual(view1);
-            actual = strategy.equalToOrLastLessThan(3);
+            actual = strategy.firstEqualOrLastLessThan(3);
             expect(actual).toEqual(view2);
         });
 
         it('finds a view at index smaller than if indexValue does not exist', function () {
-            let actual = strategy.equalToOrLastLessThan(2);
+            let actual = strategy.firstEqualOrLastLessThan(2);
             expect(actual).toEqual(view1);
         });
     });

@@ -474,7 +474,7 @@ export default class HighlightableTextView extends View {
         }
         else {
             // Get the view closest to the visible vertical middle
-            let view = this.searchContainer.equalToOrLastLessThan(
+            let view = this.searchContainer.firstEqualOrLastLessThan(
                 singleNumber(scrollableVisibleMiddle, scrollableVisibleMiddle)
             );
             this.trigger('scroll', getSelector(view.model as Node));

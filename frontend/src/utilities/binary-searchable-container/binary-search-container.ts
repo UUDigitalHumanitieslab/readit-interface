@@ -12,11 +12,11 @@ class FakeView extends View {
 
 export class BinarySearchContainer {
     views: View[];
-    getIndexValue: (view: View) => number;
+    bareGetIndexValue: (view: View) => number;
 
     constructor(getIndexValue: (view: View) => number) {
         this.views = [];
-        this.getIndexValue = getIndexValue;
+        this.bareGetIndexValue = getIndexValue;
     }
 
     /**
@@ -26,7 +26,7 @@ export class BinarySearchContainer {
      * AFTER the existing one(s).
      */
     add(view: View): this {
-        let index = sortedLastIndexBy(this.views, view, this.getIndexValue);
+        let index = sortedLastIndexBy(this.views, view, this.bareGetIndexValue);
         this.views.splice(index, 0, view);
         return this;
     }
@@ -36,8 +36,8 @@ export class BinarySearchContainer {
      */
     remove(view: View): this {
         let index;
-        let lowerBound = sortedIndexBy(this.views, view, this.getIndexValue);
-        let upperBound = sortedLastIndexBy(this.views, view, this.getIndexValue);
+        let lowerBound = sortedIndexBy(this.views, view, this.bareGetIndexValue);
+        let upperBound = sortedLastIndexBy(this.views, view, this.bareGetIndexValue);
 
         for (index = lowerBound; index < upperBound; ++index) {
             if (this.views[index] === view) break;
@@ -50,11 +50,11 @@ export class BinarySearchContainer {
     /**
      * Helper function to fo find an index without having an instance of View. i.e. only an indexValue.
      */
-    getIndexValueWithFakeView(view: View): number {
+    getIndexValue(view: View): number {
         if (view instanceof FakeView) {
             return view.indexValue;
         }
-        else return this.getIndexValue(view);
+        else return this.bareGetIndexValue(view);
     }
 
     /**
@@ -62,7 +62,7 @@ export class BinarySearchContainer {
      * For example, given 5, from [ 1, 2, 3, 4, 5, 5, 7, 8] it returns 4.
      */
     lastLessThan(indexValue: number): View {
-        let index = sortedIndexBy(this.views, new FakeView(indexValue), this.getIndexValueWithFakeView.bind(this));
+        let index = sortedIndexBy(this.views, new FakeView(indexValue), this.getIndexValue.bind(this));
         return this.views[index - 1];
     }
 
@@ -70,9 +70,9 @@ export class BinarySearchContainer {
      * Returns the first View with the exact indexValue if it exists,
      * or the View with indexValue BEFORE the supplied indexValue, i.e. the nearest smaller one.
      */
-    equalToOrLastLessThan(indexValue: number): View {
+    firstEqualOrLastLessThan(indexValue: number): View {
         let view = this.firstNotLessThan(indexValue);
-        if (indexValue == this.getIndexValue(view)) return view;
+        if (indexValue == this.bareGetIndexValue(view)) return view;
         return this.lastLessThan(indexValue);
     }
 
@@ -81,7 +81,7 @@ export class BinarySearchContainer {
      * For example, given 5, from [ 1, 2, 3, 4, 5, 5, 7, 8] it returns the left 5.
      */
     firstNotLessThan(indexValue: number): View {
-        let index = sortedIndexBy(this.views, new FakeView(indexValue), this.getIndexValueWithFakeView.bind(this));
+        let index = sortedIndexBy(this.views, new FakeView(indexValue), this.getIndexValue.bind(this));
         return this.views[index];
     }
 
@@ -90,7 +90,7 @@ export class BinarySearchContainer {
      * For example, given 5, from [ 1, 2, 3, 4, 5, 5, 7, 8] it returns the right 5.
      */
     lastNotGreaterThan(indexValue: number): View {
-        let index = sortedLastIndexBy(this.views, new FakeView(indexValue), this.getIndexValueWithFakeView.bind(this));
+        let index = sortedLastIndexBy(this.views, new FakeView(indexValue), this.getIndexValue.bind(this));
         return this.views[index - 1];
     }
 
@@ -99,7 +99,7 @@ export class BinarySearchContainer {
      * For example, given 5, from [ 1, 2, 3, 4, 5, 5, 7, 8] it returns 6.
      */
     firstGreaterThan(indexValue: number): View {
-        let index = sortedLastIndexBy(this.views, new FakeView(indexValue), this.getIndexValueWithFakeView.bind(this));
+        let index = sortedLastIndexBy(this.views, new FakeView(indexValue), this.getIndexValue.bind(this));
         return this.views[index];
     }
 }
