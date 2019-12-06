@@ -11,7 +11,7 @@ import { isType, getScrollTop } from '../utilities/utilities';
 import annotationsTemplate from './panel-annotation-list-template';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import { getSource } from '../utilities/annotation/annotation-utilities';
-import { singleNumber } from './../utilities/binary-searchable-strategy/binary-search-utilities';
+import { singleNumber } from '../utilities/binary-searchable-container/binary-search-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     collection: Graph;
