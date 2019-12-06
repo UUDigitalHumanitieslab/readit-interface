@@ -82,9 +82,9 @@ export default class HighlightableTextView extends View {
     overlapDetailView: OverlapDetailsView;
 
     /**
-     * Store highlight views in a binary search strategy to enable quick searching
+     * Store highlight views in a binary search container to enable quick searching
      */
-    searchStrategy: BinarySearchContainer;
+    searchContainer: BinarySearchContainer;
 
     isEditable: boolean;
 
@@ -115,7 +115,7 @@ export default class HighlightableTextView extends View {
 
         if (!options.collection) this.collection = new Graph();
         this.collection.on('add', this.addHighlight, this);
-        this.searchStrategy = new BinarySearchContainer(this.getHighlightViewIndexValue);
+        this.searchContainer = new BinarySearchContainer(this.getHighlightViewIndexValue);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
         this.$el.ready(bind(this.onReady, this));
@@ -281,7 +281,7 @@ export default class HighlightableTextView extends View {
     deleteNode(node: Node): this {
         if (this.deleteFromCollection(node)) {
             let hV = this.getHighlightView(node);
-            this.searchStrategy.remove(hV);
+            this.searchContainer.remove(hV);
             this.initOverlaps();
             this.trigger('delete', node);
         }
@@ -474,7 +474,7 @@ export default class HighlightableTextView extends View {
         }
         else {
             // Get the view closest to the visible vertical middle
-            let view = this.searchStrategy.equalToOrLastLessThan(
+            let view = this.searchContainer.equalToOrLastLessThan(
                 singleNumber(scrollableVisibleMiddle, scrollableVisibleMiddle)
             );
             this.trigger('scroll', getSelector(view.model as Node));
@@ -485,7 +485,7 @@ export default class HighlightableTextView extends View {
      * Process the highlights positiondetails, i.e. add the HighlightView to the search strategy.
      */
     private onHighlightPositionDetailsProcessed(hV: HighlightView): this {
-        this.searchStrategy.add(hV);
+        this.searchContainer.add(hV);
         return this;
     }
 

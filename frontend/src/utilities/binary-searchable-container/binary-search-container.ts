@@ -2,7 +2,7 @@ import { sortedLastIndexBy, sortedIndexBy, bind } from 'lodash';
 import View from "../../core/view";
 
 
-export class FakeView extends View {
+class FakeView extends View {
     indexValue: number;
     constructor(indexValue: number) {
         super();
@@ -20,7 +20,7 @@ export class BinarySearchContainer {
     }
 
     /**
-     * Add a view to the strategy's list of views.
+     * Add a view to the container's list of views.
      * The new view will be added at the index corresponding to its indexValue.
      * Note that if an indexValue already exists, the new view will be added
      * AFTER the existing one(s).
@@ -32,7 +32,7 @@ export class BinarySearchContainer {
     }
 
     /**
-     * Remove a view from the strategy's list of views.
+     * Remove a view from the container's list of views.
      */
     remove(view: View): this {
         let index;
