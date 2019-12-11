@@ -40,6 +40,7 @@ export default class ExplorerEventController {
      */
     subscribeToPanelEvents(panel: View): void {
         panel.on({
+            'sourceView:noInitialHighlights': this.sourceViewNoInitialHighlights,
             'sourceview:highlightClicked': this.sourceViewHighlightClicked,
             'sourceview:highlightSelected': this.sourceViewHighlightSelected,
             'sourceview:highlightUnselected': this.sourceViewHighlightUnselected,
@@ -77,7 +78,7 @@ export default class ExplorerEventController {
             let self = this;
 
             this.explorerView.popUntil(searchResultList);
-            self.explorerView.push(createSourceView(source, self.explorerView.ontology, item));
+            self.explorerView.push(createSourceView(source, self.explorerView.ontology, undefined, undefined, item));
         }
     }
 
@@ -155,8 +156,8 @@ export default class ExplorerEventController {
 
         this.explorerView.removeOverlay(editView);
 
-        let listView = this.mapSourceAnnotationList.get(sourceView);
-        listView.collection.add(annotation);
+        // let listView = this.mapSourceAnnotationList.get(sourceView);
+        // listView.collection.add(annotation);
         return this;
     }
 
@@ -249,6 +250,12 @@ export default class ExplorerEventController {
         });
         this.mapAnnotationEditSource.set(annoEditView, sourceView);
         this.explorerView.overlay(annoEditView);
+        return this;
+    }
+
+    sourceViewNoInitialHighlights(sourceView: SourceView): this {
+        let listView = this.mapSourceAnnotationList.get(sourceView);
+        listView.processNoInitialHighlights();
         return this;
     }
 

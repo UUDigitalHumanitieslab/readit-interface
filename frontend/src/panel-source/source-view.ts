@@ -131,7 +131,7 @@ export default class SourceView extends View<Node> {
     }
 
     add(newItems: ItemGraph): this {
-        this.htv.add(newItems);
+        this.htv.addAnnotation(newItems);
         return this;
     }
 
@@ -140,6 +140,12 @@ export default class SourceView extends View<Node> {
      */
     processClick(annotation: Node): this {
         this.htv.processClick(annotation);
+        return this;
+    }
+
+    processNoInitialHighlights(): this {
+        this.htv.processNoInitialHighlights();
+        this.trigger('sourceView:noInitialHighlights', this);
         return this;
     }
 

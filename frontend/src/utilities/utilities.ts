@@ -163,7 +163,8 @@ export function createSourceView(
     getItems(source, function (error, items) {
         if (error) console.debug(error)
         else {
-            sourceItems.add(items.models);
+            if (items.length > 0) sourceItems.add(items.models);
+            else sourceView.processNoInitialHighlights();
         }
     });
 
