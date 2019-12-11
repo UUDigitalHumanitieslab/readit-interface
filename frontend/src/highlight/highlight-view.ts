@@ -183,6 +183,7 @@ export default class HighlightView extends BaseAnnotationView {
     }
 
     unSelect(): this {
+        if (!this.rectViews) return;
         this.rectViews.forEach(v => v.unSelect());
         return this;
     }
