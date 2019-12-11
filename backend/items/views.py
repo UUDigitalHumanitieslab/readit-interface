@@ -3,10 +3,11 @@ from datetime import datetime, timezone
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import *
+from rest_framework.exceptions import ValidationError, NotFound, PermissionDenied
 
 from rdflib import Graph, URIRef, BNode, Literal
 
-from rdf.views import RDFView, RDFResourceView, graph_from_request, error_response, DOES_NOT_EXIST_404
+from rdf.views import RDFView, RDFResourceView, graph_from_request
 from rdf.ns import *
 from rdf.utils import graph_from_triples, append_triples, traverse_forward, traverse_backward
 from vocab import namespace as vocab
@@ -100,7 +101,7 @@ class ItemsAPIRoot(RDFView):
         data = graph_from_request(request)
         subjects = set(data.subjects())
         if len(subjects) != 1 or not isinstance(subjects.pop(), BNode):
-            return error_response(request, HTTP_400_BAD_REQUEST, MUST_SINGLE_BLANK_400)
+            raise ValidationError(MUST_SINGLE_BLANK_400)
         user, now = submission_info(request)
         counter = ItemCounter.current
         counter.increment()
@@ -127,16 +128,16 @@ class ItemsAPISingular(RDFResourceView):
     def put(self, request, format=None, **kwargs):
         existing = self.get_graph(request, **kwargs)
         if len(existing) == 0:
-            return error_response(request, HTTP_404_NOT_FOUND, DOES_NOT_EXIST_404)
+            raise NotFound()
         user, now = submission_info(request)
         identifier = URIRef(self.get_resource_uri(request, **kwargs))
         creator = existing.value(identifier, DCTERMS.creator)
         if user != creator:
-            return error_response(request, HTTP_403_FORBIDDEN, MUST_BE_OWNER_403)
+            raise PermissionDenied(MUST_BE_OWNER_403)
         override = graph_from_request(request)
         subjects = set(override.subjects())
         if len(subjects) != 1 or subjects.pop() != identifier:
-            return error_response(request, HTTP_400_BAD_REQUEST, MUST_EQUAL_IDENTIFIER_400)
+            raise ValidationError(MUST_EQUAL_IDENTIFIER_400)
         added = sanitize(override - existing)
         removed = sanitize(existing - override)
         if len(added) == 0 and len(removed) == 0:
