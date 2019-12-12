@@ -95,9 +95,10 @@ export default class SnippetView extends View {
     setText(): this {
         // subtract 100 to compensate for ellipses
         let availableSpace = (3 * this.availableWidth) - 100;
-        let prefix = this.selector.get(oa.prefix)[0] as string;
+        let prefix, suffix;
+        if (this.selector.has(oa.prefix)) prefix = this.selector.get(oa.prefix)[0] as string;
         let exact = this.selector.get(oa.exact)[0] as string;
-        let suffix = this.selector.get(oa.suffix)[0] as string;
+        if (this.selector.has(oa.suffix)) suffix = this.selector.get(oa.suffix)[0] as string;
         let fullString = `${prefix}${exact}${suffix}`;
 
         if (this.getLengthInPixels(fullString) < availableSpace) {
