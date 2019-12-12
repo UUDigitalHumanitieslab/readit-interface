@@ -35,7 +35,7 @@ export default class OverlapDetailsView extends View<Node> {
             return {
                 cid: hV.cid,
                 cssClass: hV.cssClass,
-                text: hV.text,
+                text: hV.getText(),
             }
         });
     }
