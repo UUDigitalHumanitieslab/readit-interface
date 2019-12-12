@@ -240,7 +240,7 @@ export default class ExplorerEventController {
 
     sourceViewOnTextSelected(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): this {
         let listView = this.mapSourceAnnotationList.get(sourceView);
-        this.explorerView.popUntil(listView);
+        if (listView) this.explorerView.popUntil(listView);
         let annoEditView = new AnnotationEditView({
             range: range,
             positionDetails: positionDetails,
@@ -249,7 +249,8 @@ export default class ExplorerEventController {
             model: undefined,
         });
         this.mapAnnotationEditSource.set(annoEditView, sourceView);
-        this.explorerView.overlay(annoEditView);
+        if (listView) this.explorerView.overlay(annoEditView);
+        else this.explorerView.push(annoEditView);
         return this;
     }
 
