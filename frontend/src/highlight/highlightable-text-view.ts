@@ -82,7 +82,8 @@ export default class HighlightableTextView extends View {
 
     overlaps: OverlappingHighlightsView[] = [];
     /**
-     * Keep track of overlaps loading. Do not allow selecting text before they are.
+     * Keep track of overlapsloading, i.e. overlaps will always be initialized after all annotations are loaded.
+     * Do not allow users to select text before all loading is done.
      */
     hasOverlapsLoaded: boolean;
 
