@@ -50,6 +50,12 @@ export default class HighlightView extends BaseAnnotationView {
     rects: ClientRectList | DOMRectList;
     rectViews: HighlightRectView[];
     lastRect: HighlightRectView;
+    /**
+     * Store the text of this highlight immediately after loading the range,
+     * because Range would have to be recalculated after DOM manipulation
+     * (i.e. removal and reinsertion of current View).
+     */
+    text: string;
 
     startSelector: Node;
     endSelector: Node;
@@ -127,8 +133,9 @@ export default class HighlightView extends BaseAnnotationView {
     }
 
     processPositionDetails(): this {
-        this.range = getRange(this.textWrapper, this.positionDetails);
-        this.rects = this.range.getClientRects();
+        let range = getRange(this.textWrapper, this.positionDetails);
+        this.text = range.cloneContents().textContent;
+        this.rects = range.getClientRects();
         if (!this.rectViews && this.cssClass) this.initRectViews();
         this.render();
 
@@ -194,10 +201,6 @@ export default class HighlightView extends BaseAnnotationView {
 
     getHeight(): number {
         return sumBy(this.rectViews, (hrv) => { return hrv.$el.outerHeight() });
-    }
-
-    getText(): string {
-        return this.range.cloneContents().textContent;
     }
 
     onHover() {
