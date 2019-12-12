@@ -154,10 +154,15 @@ export default class ExplorerEventController {
         let sourceView = this.mapAnnotationEditSource.get(editView);
         sourceView.add(newItems);
 
-        this.explorerView.removeOverlay(editView);
+        let listView = this.mapSourceAnnotationList.get(sourceView);
+        if (listView) {
+            this.explorerView.removeOverlay(editView);
+            // listView.collection.add(annotation);
+        }
+        else {
+            this.explorerView.pop();
+        }
 
-        // let listView = this.mapSourceAnnotationList.get(sourceView);
-        // listView.collection.add(annotation);
         return this;
     }
 
