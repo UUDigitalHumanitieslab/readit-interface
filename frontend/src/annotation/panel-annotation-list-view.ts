@@ -104,15 +104,13 @@ export default class AnnotationListView extends View<Node> {
         this.$el.html(this.template(this));
 
         let summaryList = this.$('.summary-list');
-        // if (this.hasInitialHighlights && this.subviewBundle.views.length < 1) {
-        //     this.loadingSpinnerView.render().$el.appendTo(summaryList);
-        //     this.loadingSpinnerView.activate();
-        // }
-        // else {
-        //     this.subviewBundle.render().$el.appendTo(summaryList);
-        // }
-
-        this.subviewBundle.render().$el.appendTo(summaryList);
+        if (this.hasInitialHighlights && this.subviewBundle.views.length < 1) {
+            this.loadingSpinnerView.render().$el.appendTo(summaryList);
+            this.loadingSpinnerView.activate();
+        }
+        else {
+            this.subviewBundle.render().$el.appendTo(summaryList);
+        }
 
         return this;
     }
