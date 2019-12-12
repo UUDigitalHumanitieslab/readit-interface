@@ -122,9 +122,11 @@ export default class HighlightableTextView extends View {
 
     render(): this {
         let wasShowingHighlights = this.isShowingHighlights;
-        this.subviewBundle.$el.detach();
+        this.hideAll();
         this.$el.html(this.template({ text: this.text }));
-        if (wasShowingHighlights) this.subviewBundle.render().$el.appendTo(this.$('.position-container'));
+        this.textWrapper = this.$('.textWrapper');
+        this.positionContainer = this.$('.position-container');
+        if (wasShowingHighlights) this.showAll();
         return this;
     }
 
@@ -143,7 +145,7 @@ export default class HighlightableTextView extends View {
     }
 
     onHighlightViewsUpdated(): this {
-        // this.initOverlaps();
+        this.initOverlaps();
         this.render();
         return this;
     }
@@ -164,7 +166,7 @@ export default class HighlightableTextView extends View {
                 highlights: overlap.highlightViews
             });
 
-            ohv.on('click', this.onOverlapClicked, this);
+            this.listenTo(ohv, 'click', this.onOverlapClicked);
             this.overlaps.push(ohv);
         });
         this.hasOverlapsLoaded = true;
