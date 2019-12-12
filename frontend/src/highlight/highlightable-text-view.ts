@@ -124,9 +124,6 @@ export default class HighlightableTextView extends View {
     render(): this {
         let wasShowingHighlights = this.isShowingHighlights;
         this.hideAll();
-        this.$el.html(this.template({ text: this.text }));
-        this.textWrapper = this.$('.textWrapper');
-        this.positionContainer = this.$('.position-container');
         if (wasShowingHighlights) this.showAll();
         return this;
     }
@@ -139,8 +136,10 @@ export default class HighlightableTextView extends View {
      */
     onReady(): this {
         this.isInDOM = true;
-        this.textWrapper = this.$('.textWrapper');
-        this.positionContainer = this.$('.position-container');
+        this.textWrapper = $(`<div class="textWrapper">${this.text}</div>`);
+        this.positionContainer = $('<div class="position-container">');
+        this.textWrapper.appendTo(this.positionContainer);
+        this.positionContainer.appendTo(this.$el);
         if (this.text) this.initHighlights();
         return this;
     }
