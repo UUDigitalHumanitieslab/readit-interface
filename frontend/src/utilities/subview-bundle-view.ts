@@ -33,13 +33,18 @@ export class SubviewBundleView extends View {
         return view;
     }
 
+    /**
+     * Append a View into the children of the root element at a certain index.
+     */
     appendAt(index: number, view: View): this {
         if (index === 0) {
             this.$el.prepend(view.render().$el);
             return;
         }
         else {
-            this.$el.children().eq(index).before(view.render().$el);
+            let existingView = this.$el.children().eq(index);
+            if (existingView.length === 0) this.$el.append(view.render().$el);
+            else existingView.before(view.render().$el);
         }
 
         return this;
