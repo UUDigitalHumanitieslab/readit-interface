@@ -10,19 +10,40 @@ export class SubviewBundleView extends View {
      */
     viewByIdentifier: Map<string, View> = new Map();
 
+    bareGetIdentifier: (view: View) => string;
+    getIndexValue: (view: View) => number;
+
+    /**
+     * Create a new instance of SubviewBundleView
+     * @param getIdentifier Optional. A function that returns a unique identifier for the view supplied (e.g. view.model.cid).
+     * Defaults to view.cid.
+     * @param getIndexValue Optional. If you require binary searching through / sorting of the subviews,
+     * supply a function that returns the index of the supplied view. By default, new views are simply pushed
+     * at the end of the existing array.
+     */
+    constructor(getIdentifier?: (view) => string, getIndexValue?: (view: View) => number) {
+        super();
+        this.bareGetIdentifier = getIdentifier;
+        this.getIndexValue = getIndexValue;
+    }
+
+    /**
+     * Get a unique identifier for a View.
+     */
+    getIdentifier(view: View): string {
+        if (this.bareGetIdentifier) return this.bareGetIdentifier(view);
+        return view.cid;
+    }
+
     /**
      * Add a subview to the bundle by appending it to the View's element.
      * @param view The view to add.
-     * @param identifier Optional. Will default to the view's model's cid.
-     * @param indexValue Optional. If you require binary searching through the subview,
-     * supply the value to sort the subviews by here. By default, new views are simply pushed
-     * at the end of the existing array.
-     */
-    addSubview(view: View, identifier?: string, getIndexValue?: (view: View) => number): View {
-        if (!identifier) identifier = view.model.cid;
+     **/
+    addSubview(view: View): View {
+        let identifier = this.getIdentifier(view);
         this.viewByIdentifier.set(identifier, view);
-        if (getIndexValue) {
-            let index = sortedIndexBy(this.views, view, getIndexValue);
+        if (this.getIndexValue) {
+            let index = sortedIndexBy(this.views, view, this.getIndexValue);
             this.views.splice(index, 0, view);
             this.appendAt(index, view);
         }
@@ -52,26 +73,25 @@ export class SubviewBundleView extends View {
 
     /**
      * Remove or detach a view from the bundle.
-     * @param view The view to remove or detach.
-     * @param identifier Optional. Will default to the view's model's cid.
-     * @param detach Optional. Defaults to false.
+     * @param view The view to remove or detach. Should have a model.
+     * @param remove Optional. Defaults to false (i.e. subviews are detached).
      */
-    deleteSubview(view: View, identifier?: string, detach?: boolean): View {
-        if (!identifier) identifier = view.model.cid;
+    deleteSubview(view: View, remove?: boolean): View {
+        let identifier = this.getIdentifier(view);
         this.viewByIdentifier.delete(identifier);
-        if (detach) view.$el.detach();
-        else view.$el.remove();
+        if (remove) view.$el.remove();
+        else view.$el.detach();
         return view;
     }
 
     /**
      * Remove or detach a view from the bundle.
      * @param identifier The identifier of the View-to-be-deleted.
-     * @param detach Optional. Defaults to false.
+     * @param remove Optional. Defaults to false (i.e. subviews will be detached).
      */
-    deleteSubviewBy(identifier: string, detach?: boolean): View {
+    deleteSubviewBy(identifier: string, remove?: boolean): View {
         let view = this.getViewBy(identifier);
-        return this.deleteSubview(view, undefined, detach);
+        return this.deleteSubview(view, remove);
     }
 
     getViewBy(identifier: string): View {

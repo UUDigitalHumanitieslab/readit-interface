@@ -111,7 +111,7 @@ export default class HighlightableTextView extends View {
         this.ontology = options.ontology;
         this.isEditable = options.isEditable || false;
         this.isShowingHighlights = options.showHighlightsInitially || false;
-        this.subviewBundle = new SubviewBundleView();
+        this.subviewBundle = new SubviewBundleView((view) => { return view.model.cid });
 
         if (!options.collection) this.collection = new Graph();
         this.listenTo(this.collection, 'add', this.addHighlight);

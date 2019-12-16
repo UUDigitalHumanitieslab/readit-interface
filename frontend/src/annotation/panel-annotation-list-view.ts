@@ -53,7 +53,13 @@ export default class AnnotationListView extends View<Node> {
     initialize(options): this {
         if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
         this.ontology = options.ontology;
-        this.subviewBundle = new SubviewBundleView();
+        this.subviewBundle = new SubviewBundleView(
+            (view) => { return view.model.cid},
+            (view) => {
+                let block = view as ItemSummaryBlockView;
+                return singleNumber(block.positionDetails.startNodeIndex, block.positionDetails.startCharacterIndex);
+            }
+        );
 
         let initialSource;
 
@@ -130,10 +136,7 @@ export default class AnnotationListView extends View<Node> {
      * Will only work if the blocks have position details!
      */
     insertBlock(block: ItemSummaryBlockView): this {
-        this.subviewBundle.addSubview(block, undefined, (view) => {
-            let block = view as ItemSummaryBlockView;
-            return singleNumber(block.positionDetails.startNodeIndex, block.positionDetails.startCharacterIndex);
-        });
+        this.subviewBundle.addSubview(block);
         if (this.collection.length == this.subviewBundle.views.length) this.render();
         return this;
     }
