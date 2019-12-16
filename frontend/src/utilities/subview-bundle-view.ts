@@ -49,7 +49,7 @@ export class SubviewBundleView extends View {
         }
         else {
             this.views.push(view);
-            view.render().$el.appendTo(this.$el);
+            view.$el.appendTo(this.$el);
         }
         return view;
     }
@@ -59,13 +59,13 @@ export class SubviewBundleView extends View {
      */
     appendAt(index: number, view: View): this {
         if (index === 0) {
-            this.$el.prepend(view.render().$el);
+            this.$el.prepend(view.$el);
             return;
         }
         else {
             let existingView = this.$el.children().eq(index);
-            if (existingView.length === 0) this.$el.append(view.render().$el);
-            else existingView.before(view.render().$el);
+            if (existingView.length === 0) this.$el.append(view.$el);
+            else existingView.before(view.$el);
         }
 
         return this;
