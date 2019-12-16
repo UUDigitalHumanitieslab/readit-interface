@@ -103,7 +103,6 @@ export default class AnnotationListView extends View<Node> {
     }
 
     render(): this {
-        // TODO
         this.loadingSpinnerView.remove();
         this.subviewBundle.$el.detach();
 
@@ -170,6 +169,7 @@ export default class AnnotationListView extends View<Node> {
 
     /**
      * Process the fact that no initial highlights exist.
+     * This will re-render the current view in order to remove the loading spinner.
      */
     processNoInitialHighlights(): this {
         this.hasInitialHighlights = false;

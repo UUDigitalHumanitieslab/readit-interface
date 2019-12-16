@@ -55,7 +55,7 @@ export class SubviewBundleView extends View {
     }
 
     /**
-     * Append a View into the children of the root element at a certain index.
+     * Insert a View into the root element at a certain index.
      */
     appendAt(index: number, view: View): this {
         if (index === 0) {
