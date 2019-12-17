@@ -91,7 +91,7 @@ export class SubviewBundleView extends View {
      */
     deleteSubviewBy(identifier: string, remove?: boolean): View {
         let view = this.getViewBy(identifier);
-        return this.deleteSubview(view, remove);
+        return view && this.deleteSubview(view, remove);
     }
 
     getViewBy(identifier: string): View {
