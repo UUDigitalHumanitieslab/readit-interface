@@ -110,6 +110,15 @@ export function getScrollTop(scrollableEl: JQuery<HTMLElement>, scrollToTop: num
     return scrollTop;
 }
 
+/**
+ * Establish whether the item is in the ontology graph, i.e. is an ontology class
+ * (as opposed to an instance of one of the ontology's classes).
+ * @param item The linked data item to investigate.
+ */
+export function isOntologyClass(item: Node): boolean {
+    return (item.id as string).startsWith(readit()) && isRdfsClass(item);
+}
+
 
 export function getOntology(callback): void {
     let o = new Graph();
@@ -153,7 +162,6 @@ export function getSources(callback): void {
  */
 export function createSourceView(
     source: Node,
-    ontology: Graph,
     showHighlightsInitially?: boolean,
     isEditable?: boolean,
     initialScrollTo?: Node
@@ -171,7 +179,6 @@ export function createSourceView(
     let sourceView = new SourceView({
         collection: sourceItems,
         model: source,
-        ontology: ontology,
         showHighlightsInitially: showHighlightsInitially,
         isEditable: isEditable,
         initialScrollTo: initialScrollTo,

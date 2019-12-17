@@ -78,13 +78,13 @@ export default class ExplorerEventController {
             let self = this;
 
             this.explorerView.popUntil(searchResultList);
-            self.explorerView.push(createSourceView(source, self.explorerView.ontology, undefined, undefined, item));
+            self.explorerView.push(createSourceView(source, undefined, undefined, item));
         }
     }
 
     relItemsItemClicked(relView: RelatedItemsView, item: Node): this {
         this.explorerView.popUntil(relView);
-        let itemView = new LdItemView({ model: item, ontology: this.explorerView.ontology });
+        let itemView = new LdItemView({ model: item });
         this.explorerView.push(itemView);
         return this;
     }
@@ -192,7 +192,7 @@ export default class ExplorerEventController {
         let annoListView = this.mapSourceAnnotationList.get(sourceView);
         this.explorerView.popUntil(annoListView);
 
-        let itemView = new LdItemView({ model: annotation, ontology: this.explorerView.ontology });
+        let itemView = new LdItemView({ model: annotation });
         this.explorerView.push(itemView);
         return this;
     }
@@ -226,7 +226,7 @@ export default class ExplorerEventController {
 
     sourceViewShowAnnotations(sourceView: SourceView): this {
         let annotationListView = new AnnotationListView({
-            collection: sourceView.collection as Graph, ontology: this.explorerView.ontology
+            collection: sourceView.collection as Graph
         });
 
         this.mapSourceAnnotationList.set(sourceView, annotationListView);
@@ -261,7 +261,7 @@ export default class ExplorerEventController {
 
     sourceViewNoInitialHighlights(sourceView: SourceView): this {
         let listView = this.mapSourceAnnotationList.get(sourceView);
-        listView.processNoInitialHighlights();
+        listView.finalizeNoInitialHighlights();
         return this;
     }
 

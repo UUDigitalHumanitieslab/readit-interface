@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, bind, debounce, sortBy } from 'lodash';
+import { extend, bind, debounce } from 'lodash';
 import { each } from 'async';
 
 import View from './../core/view';
@@ -8,16 +8,16 @@ import Node from './../jsonld/node';
 import Graph from './../jsonld/graph';
 
 import { isType, getScrollTop } from './../utilities/utilities';
-import { validateCompleteness, getPositionDetails, getLinkedItems, getCssClassName, getSelector } from '../utilities/annotation/annotation-utilities';
-import { getAnonymousTextQuoteSelector } from './../utilities/annotation/annotation-creation-utilities';
+import { getLinkedItems, getCssClassName, getSelector } from '../utilities/annotation/annotation-utilities';
 import OverlappingHighlightsStrategy, { OverlappingHighlights } from './overlapping-highlights-strategy';
 import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
 import OverlappingHighlightsView from './overlapping-highlights-view';
 import OverlapDetailsView from './overlap-details-view';
-import { getRange, getPositionDetailsFromRange } from '../utilities/range-utilities';
+import { getPositionDetailsFromRange } from '../utilities/range-utilities';
 import ItemGraph from '../utilities/item-graph';
 import { SubviewBundleView } from '../utilities/subview-bundle-view';
+import { singleNumber } from '../utilities/binary-searchable-container/binary-search-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     text: string;
@@ -26,11 +26,6 @@ export interface ViewOptions extends BaseOpt<Node> {
      * Optional. A collection of oa:Annotation instances.
      */
     collection?: Graph;
-
-    /**
-     * The Read IT ontology.
-     */
-    ontology: Graph;
 
     /**
      * Specify whether the View should only display oa:Annotations, or if it allows editing
@@ -94,6 +89,7 @@ export default class HighlightableTextView extends View {
 
     /**
      * Smart view to process large numbers of highlights.
+     * Store highlight views in a binary search container to enable quick searching
      */
     subviewBundle: SubviewBundleView;
 
@@ -108,10 +104,12 @@ export default class HighlightableTextView extends View {
 
         this.scrollToNode = options.initialScrollTo;
         this.text = options.text;
-        this.ontology = options.ontology;
         this.isEditable = options.isEditable || false;
         this.isShowingHighlights = options.showHighlightsInitially || false;
-        this.subviewBundle = new SubviewBundleView((view) => { return view.model.cid });
+        this.subviewBundle = new SubviewBundleView(
+            (view) => { return view.model.cid },
+            (view: HighlightView) => { return singleNumber(view.getTop(), view.getBottom()) }
+        );
 
         if (!options.collection) this.collection = new Graph();
         this.listenTo(this.collection, 'add', this.addHighlight);
@@ -156,7 +154,7 @@ export default class HighlightableTextView extends View {
             this.overlaps = [];
         }
         let overlapStrategy = new OverlappingHighlightsStrategy();
-        let overlaps: OverlappingHighlights[] = overlapStrategy.getOverlaps(this.subviewBundle.views as HighlightView[]);
+        let overlaps: OverlappingHighlights[] = overlapStrategy.getOverlaps(this.subviewBundle.getSubviews() as HighlightView[]);
 
         overlaps.forEach(overlap => {
             let ohv = new OverlappingHighlightsView({
@@ -182,29 +180,6 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    /**
-     * Add a new highlight to the text based on an instance of oa:Annotation.
-     * @param newItems All items created when composing a new oa:Annotation.
-     */
-    addAnnotation(newItems: ItemGraph): this {
-        if (!this.isEditable) return;
-        this.collection.add(newItems.models, { merge: true });
-        return this;
-    }
-
-    /**
-     * Remove all highlights from the text.
-     */
-    removeAll(): this {
-        if (!this.isEditable) return;
-
-        this.collection.each((node) => {
-            if (isType(node, oa.Annotation)) {
-                this.deleteNode(node);
-            }
-        });
-        return this;
-    }
 
     /**
      * Show all annotations in the text.
@@ -237,17 +212,13 @@ export default class HighlightableTextView extends View {
     }
 
     /**
-     * Remove a single highlight.
-     * @param annotation The instance of oa:Annotation to remove.
+     * Add a new highlight to the text based on an instance of oa:Annotation.
+     * @param newItems All items created when composing a new oa:Annotation.
      */
-    removeHighlight(annotation: Node) {
-        this.deleteNode(annotation);
-    }
-
-    private deleteFromCollection(annotation: Node): boolean {
-        if (!isType(annotation, oa.Annotation)) return false;
-        this.collection.remove([annotation].concat(getLinkedItems(annotation)));
-        return true;
+    addAnnotation(newItems: ItemGraph): this {
+        if (!this.isEditable) return;
+        this.collection.add(newItems.models, { merge: true });
+        return this;
     }
 
     /**
@@ -255,12 +226,10 @@ export default class HighlightableTextView extends View {
      * @param node The Node to base the highlight on.
      */
     private addHighlight(node: Node): HighlightView {
-        // if (options && !options.merge) return;
         if (!isType(node, oa.Annotation)) return;
         if (!this.isInDOM) return;
 
-        // Get styling here because HighlightViews shouldn't care about the ontology (nor should this view, but ok..)
-        let cssClass = getCssClassName(node, this.ontology);
+        let cssClass = getCssClassName(node);
 
         let hV = new HighlightView({
             model: node,
@@ -271,9 +240,56 @@ export default class HighlightableTextView extends View {
         });
 
         this.bindEvents(hV);
-        this.subviewBundle.addSubview(hV);
+        if (hV.positionDetails) {
+            this.onHighlightPositionDetailsProcessed(hV);
+        }
+        else {
+            this.listenToOnce(hV, 'positionDetailsProcessed', this.onHighlightPositionDetailsProcessed);
+        }
+
         this.trigger('highlightAdded', node);
         return hV;
+    }
+
+    bindEvents(hV: HighlightView): this {
+        this.listenTo(hV, 'hover', this.onHover);
+        this.listenTo(hV, 'hoverEnd', this.onHoverEnd);
+        this.listenTo(hV, 'delete', this.deleteNode);
+        this.listenTo(hV, 'click', this.onClicked);
+        return this;
+    }
+
+    /**
+     * Remove a single highlight.
+     * @param annotation The instance of oa:Annotation to remove.
+     */
+    deleteNode(node: Node): this {
+        if (this.deleteFromCollection(node)) {
+            this.subviewBundle.deleteSubviewBy(node.cid);
+            this.initOverlaps();
+            this.trigger('delete', node);
+        }
+        return this;
+    }
+
+    /**
+    * Remove all highlights from the text.
+    */
+    removeAll(): this {
+        if (!this.isEditable) return;
+
+        this.collection.each((node) => {
+            if (isType(node, oa.Annotation)) {
+                this.deleteNode(node);
+            }
+        });
+        return this;
+    }
+
+    private deleteFromCollection(annotation: Node): boolean {
+        if (!isType(annotation, oa.Annotation)) return false;
+        this.collection.remove([annotation].concat(getLinkedItems(annotation)));
+        return true;
     }
 
     /**
@@ -309,22 +325,6 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    deleteNode(node: Node): this {
-        if (this.deleteFromCollection(node)) {
-            this.subviewBundle.deleteSubviewBy(node.cid);
-            this.initOverlaps();
-            this.trigger('delete', node);
-        }
-        return this;
-    }
-
-    bindEvents(hV: HighlightView): this {
-        this.listenTo(hV, 'hover', this.onHover);
-        this.listenTo(hV, 'hoverEnd', this.onHoverEnd);
-        this.listenTo(hV, 'delete', this.deleteNode);
-        this.listenTo(hV, 'click', this.onClicked);
-        return this;
-    }
 
     processNoInitialHighlights(): this {
         // Perhaps inform user of this?
@@ -458,26 +458,16 @@ export default class HighlightableTextView extends View {
      */
     onScroll(): void {
         let scrollableEl = this.$el;
-        let scrollableVisibleMiddle = scrollableEl.offset().top + (scrollableEl.height() / 2);
-        let resultAnnotation = undefined;
-        let visibleHighlights = this.getVisibleHighlightViews();
+        let scrollableVisibleMiddle = Math.round(scrollableEl.scrollTop() + (scrollableEl.height() / 2));
 
-        if (!this.subviewBundle.views || this.subviewBundle.views.length === 0) {
+        if (!this.subviewBundle.hasSubviews()) {
             this.trigger('scroll');
         }
-
-        if (!visibleHighlights || visibleHighlights.length === 0) {
-            resultAnnotation = this.getHighlightClosestTo(scrollableVisibleMiddle, this.subviewBundle.views as HighlightView[]).model;
-        }
-        else if (visibleHighlights.length === 1) {
-            resultAnnotation = visibleHighlights[0].model;
-        }
         else {
-            resultAnnotation = this.getHighlightClosestTo(scrollableVisibleMiddle, visibleHighlights).model;
+            // Get the view closest to the visible vertical middle
+            let view = this.subviewBundle.firstEqualOrLastLessThan(scrollableVisibleMiddle);
+            this.trigger('scroll', getSelector(view.model as Node));
         }
-
-        let selector = getSelector(resultAnnotation);
-        this.trigger('scroll', selector);
     }
 
     getVisibleHighlightViews(): HighlightView[] {
@@ -485,18 +475,21 @@ export default class HighlightableTextView extends View {
         let scrollableTop = scrollableEl.offset().top;
         let scrollableBottom = scrollableTop + scrollableEl.height();
 
-        let visibleHighlights = this.subviewBundle.views.filter((view) => {
-            let hV = view as HighlightView;
-            let top = hV.getTop();
-            let bottom = top + hV.getHeight();
+        let visibleHighlights = this.subviewBundle.getSubviews().filter((view: HighlightView) => {
+            let top = view.getTop();
+            let bottom = top + view.getHeight();
             return bottom > scrollableTop && top < scrollableBottom;
         });
 
         return visibleHighlights as HighlightView[];
     }
 
-    getHighlightClosestTo(referenceValue: number, highlightViews: HighlightView[]): HighlightView {
-        return sortBy(highlightViews, (h) => Math.abs(referenceValue - h.$el.offset().top))[0];
+    /**
+     * Process the highlights positiondetails, i.e. add the HighlightView to the bundle of subviews.
+     */
+    private onHighlightPositionDetailsProcessed(hV: HighlightView): this {
+        this.subviewBundle.addSubview(hV);
+        return this;
     }
 }
 extend(HighlightableTextView.prototype, {

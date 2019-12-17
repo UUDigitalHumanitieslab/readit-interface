@@ -1,17 +1,19 @@
 import { extend, sortedIndexBy } from 'lodash';
 import View from '../core/view';
+import { BinarySearchContainer } from './binary-searchable-container/binary-search-container';
 
 export class SubviewBundleView extends View {
-    views: View[] = [];
+    private views: View[] = [];
 
     /**
      * A simple lookup hash, where each view can be found by an identifier.
      * Identifier can by, for example, the cid of model, e.g. the instance of oa:Annotation.
      */
-    viewByIdentifier: Map<string, View> = new Map();
+    private viewByIdentifier: Map<string, View> = new Map();
+
+    private binarySearchContainer: BinarySearchContainer;
 
     bareGetIdentifier: (view: View) => string;
-    getIndexValue: (view: View) => number;
 
     /**
      * Create a new instance of SubviewBundleView
@@ -24,7 +26,7 @@ export class SubviewBundleView extends View {
     constructor(getIdentifier?: (view) => string, getIndexValue?: (view: View) => number) {
         super();
         this.bareGetIdentifier = getIdentifier;
-        this.getIndexValue = getIndexValue;
+        if (getIndexValue) this.binarySearchContainer = new BinarySearchContainer(getIndexValue);
     }
 
     /**
@@ -42,9 +44,8 @@ export class SubviewBundleView extends View {
     addSubview(view: View): View {
         let identifier = this.getIdentifier(view);
         this.viewByIdentifier.set(identifier, view);
-        if (this.getIndexValue) {
-            let index = sortedIndexBy(this.views, view, this.getIndexValue);
-            this.views.splice(index, 0, view);
+        if (this.binarySearchContainer) {
+            let index = this.binarySearchContainer.add(view);
             this.appendAt(index, view);
         }
         else {
@@ -79,6 +80,7 @@ export class SubviewBundleView extends View {
     deleteSubview(view: View, remove?: boolean): View {
         let identifier = this.getIdentifier(view);
         this.viewByIdentifier.delete(identifier);
+        this.binarySearchContainer.remove(view);
         if (remove) view.$el.remove();
         else view.$el.detach();
         return view;
@@ -96,6 +98,61 @@ export class SubviewBundleView extends View {
 
     getViewBy(identifier: string): View {
         return this.viewByIdentifier.get(identifier);
+    }
+
+    getSubviews(): View[] {
+        if (this.binarySearchContainer) return this.binarySearchContainer.views;
+        return this.views;
+    }
+
+    hasSubviews(): boolean {
+        if (this.binarySearchContainer) return this.binarySearchContainer.views.length > 0;
+        return this.views.length > 0;
+    }
+
+    countSubviews(): number {
+        if (this.binarySearchContainer) return this.binarySearchContainer.views.length;
+        return this.views.length;
+    }
+
+    /**
+     * Returns the last View with indexValue BEFORE the supplied indexValue, i.e. the nearest smaller one.
+     * For example, given 5, from [ 1, 2, 3, 4, 5, 5, 7, 8] it returns 4.
+     */
+    lastLessThan(indexValue: number): View {
+        return this.binarySearchContainer.lastLessThan(indexValue);
+    }
+
+    /**
+     * Returns the first View with the exact indexValue if it exists,
+     * or the View with indexValue BEFORE the supplied indexValue, i.e. the nearest smaller one.
+     */
+    firstEqualOrLastLessThan(indexValue: number): View {
+        return this.binarySearchContainer.firstEqualOrLastLessThan(indexValue);
+    }
+
+    /**
+     * Returns the first View with indexValue not smaller than the supplied indexValue.
+     * For example, given 5, from [ 1, 2, 3, 4, 5, 5, 7, 8] it returns the left 5.
+     */
+    firstNotLessThan(indexValue: number): View {
+        return this.binarySearchContainer.firstNotLessThan(indexValue);
+    }
+
+    /**
+     * Returns the last View with indexValue not greater than the supplied indexValue.
+     * For example, given 5, from [ 1, 2, 3, 4, 5, 5, 7, 8] it returns the right 5.
+     */
+    lastNotGreaterThan(indexValue: number): View {
+        return this.binarySearchContainer.lastNotGreaterThan(indexValue);
+    }
+
+    /**
+     * Returns the first View with indexValue greater than the supplied indexValue.
+     * For example, given 5, from [ 1, 2, 3, 4, 5, 5, 7, 8] it returns 6.
+     */
+    firstGreaterThan(indexValue: number): View {
+        return this.binarySearchContainer.firstGreaterThan(indexValue);
     }
 }
 extend(SubviewBundleView.prototype, {

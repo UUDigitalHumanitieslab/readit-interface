@@ -11,20 +11,16 @@ import { isType, getScrollTop } from '../utilities/utilities';
 import annotationsTemplate from './panel-annotation-list-template';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import { getSource } from '../utilities/annotation/annotation-utilities';
-import { singleNumber } from './../utilities/binary-searchable-strategy/binary-search-utilities';
 import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
 import { SubviewBundleView } from '../utilities/subview-bundle-view';
-
+import { singleNumber } from '../utilities/binary-searchable-container/binary-search-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
-    ontology: Graph;
     collection: Graph;
 }
 
 export default class AnnotationListView extends View<Node> {
     collection: Graph;
-    ontology: Graph;
-    // summaryBlocks: ItemSummaryBlockView[];
 
     /**
      * Keep track of the currently highlighted summary block
@@ -51,8 +47,6 @@ export default class AnnotationListView extends View<Node> {
     }
 
     initialize(options): this {
-        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
-        this.ontology = options.ontology;
         this.subviewBundle = new SubviewBundleView(
             (view) => { return view.model.cid},
             (view) => {
@@ -62,7 +56,6 @@ export default class AnnotationListView extends View<Node> {
         );
 
         let initialSource;
-
         this.collection.each(node => {
             if (isType(node, oa.Annotation)) {
                 let source = getSource(node);
@@ -75,6 +68,7 @@ export default class AnnotationListView extends View<Node> {
         this.listenTo(this.collection, 'update', this.render);
 
         this.loadingSpinnerView = new LoadingSpinnerView();
+        this.loadingSpinnerView.render();
         return this;
     }
 
@@ -87,8 +81,7 @@ export default class AnnotationListView extends View<Node> {
     initSummaryBlock(node: Node): this {
         if (isType(node, oa.Annotation)) {
             let view = new ItemSummaryBlockView({
-                model: node,
-                ontology: this.ontology
+                model: node
             });
             this.listenTo(view, 'click', this.onSummaryBlockClicked);
             this.listenTo(view, 'hover', this.onSummaryBlockedHover);
@@ -109,8 +102,8 @@ export default class AnnotationListView extends View<Node> {
         this.$el.html(this.template(this));
 
         let summaryList = this.$('.summary-list');
-        if (this.hasInitialHighlights && this.subviewBundle.views.length < 1) {
-            this.loadingSpinnerView.render().$el.appendTo(summaryList);
+        if (this.hasInitialHighlights && !this.subviewBundle.hasSubviews()) {
+            this.loadingSpinnerView.$el.appendTo(summaryList);
             this.loadingSpinnerView.activate();
         }
         else {
@@ -136,7 +129,7 @@ export default class AnnotationListView extends View<Node> {
      */
     insertBlock(block: ItemSummaryBlockView): this {
         this.subviewBundle.addSubview(block);
-        if (this.collection.length == this.subviewBundle.views.length) this.render();
+        if (this.collection.length == this.subviewBundle.countSubviews()) this.render();
         return this;
     }
 
@@ -171,7 +164,7 @@ export default class AnnotationListView extends View<Node> {
      * Process the fact that no initial highlights exist.
      * This will re-render the current view in order to remove the loading spinner.
      */
-    processNoInitialHighlights(): this {
+    finalizeNoInitialHighlights(): this {
         this.hasInitialHighlights = false;
         return this.render();
     }
