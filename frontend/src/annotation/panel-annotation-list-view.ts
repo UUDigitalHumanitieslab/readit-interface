@@ -1,4 +1,4 @@
-import { ViewOptions as BaseOpt } from 'backbone';
+import { ViewOptions as BaseOpt, AddOptions } from 'backbone';
 import { extend, sortedIndexBy } from 'lodash';
 import View from '../core/view';
 
@@ -11,6 +11,8 @@ import { isType, getScrollTop } from '../utilities/utilities';
 import annotationsTemplate from './panel-annotation-list-template';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import { getSource } from '../utilities/annotation/annotation-utilities';
+import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
+import { SubviewBundleView } from '../utilities/subview-bundle-view';
 import { singleNumber } from '../utilities/binary-searchable-container/binary-search-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
@@ -19,7 +21,6 @@ export interface ViewOptions extends BaseOpt<Node> {
 
 export default class AnnotationListView extends View<Node> {
     collection: Graph;
-    summaryBlocks: ItemSummaryBlockView[];
 
     /**
      * Keep track of the currently highlighted summary block
@@ -27,23 +28,34 @@ export default class AnnotationListView extends View<Node> {
     currentlySelected: ItemSummaryBlockView;
 
     /**
-     * A simple lookup hash with Annotation cid as key,
-     * and ItemSummaryBlock as value
+     * Smart view to process large numbers of summary blocks / annotations.
      */
-    blockByModel: Map<string, ItemSummaryBlockView>
+    subviewBundle: SubviewBundleView;
+
+    /**
+     * Have a loader ready to show when loading panels takes long.
+     */
+    loadingSpinnerView: LoadingSpinnerView;
+
+    /**
+     * Assume we will receive highlights
+     */
+    hasInitialHighlights: boolean = true;
 
     constructor(options: ViewOptions) {
         super(options);
     }
 
     initialize(options): this {
-        this.summaryBlocks = [];
-        this.blockByModel = new Map();
-
-        this.listenTo(this.collection, 'change', this.render);
+        this.subviewBundle = new SubviewBundleView(
+            (view) => { return view.model.cid},
+            (view) => {
+                let block = view as ItemSummaryBlockView;
+                return singleNumber(block.positionDetails.startNodeIndex, block.positionDetails.startCharacterIndex);
+            }
+        );
 
         let initialSource;
-
         this.collection.each(node => {
             if (isType(node, oa.Annotation)) {
                 let source = getSource(node);
@@ -53,6 +65,16 @@ export default class AnnotationListView extends View<Node> {
         });
 
         this.listenTo(this.collection, 'add', this.add);
+        this.listenTo(this.collection, 'update', this.render);
+
+        this.loadingSpinnerView = new LoadingSpinnerView();
+        this.loadingSpinnerView.render();
+        return this;
+    }
+
+    initSummaryBlocks(): this {
+        this.collection.forEach(node => this.initSummaryBlock(node));
+        this.render();
         return this;
     }
 
@@ -69,30 +91,36 @@ export default class AnnotationListView extends View<Node> {
             else {
                 this.listenToOnce(view, 'positionDetailsProcessed', this.onPositionDetailsProcessed);
             }
-            this.blockByModel.set(node.cid, view);
         }
         return this;
     }
 
     render(): this {
-        if (this.summaryBlocks) {
-            this.summaryBlocks.forEach(sb => {
-                sb.$el.detach();
-            });
-        }
-        this.$el.html(this.template(this));
-        let summaryList = this.$('.summary-list');
+        this.loadingSpinnerView.remove();
+        this.subviewBundle.$el.detach();
 
-        this.summaryBlocks.forEach(sb => {
-            sb.render().$el.appendTo(summaryList);
-        });
+        this.$el.html(this.template(this));
+
+        let summaryList = this.$('.summary-list');
+        if (this.hasInitialHighlights && !this.subviewBundle.hasSubviews()) {
+            this.loadingSpinnerView.$el.appendTo(summaryList);
+            this.loadingSpinnerView.activate();
+        }
+        else {
+            this.subviewBundle.render().$el.appendTo(summaryList);
+        }
 
         return this;
     }
 
-    add(annotation: Node): this {
-        this.initSummaryBlock(annotation);
-        return this.render();
+    /**
+     * Add a new block based on an annotation.
+     */
+    add(annotation: Node, collection: Graph): this {
+        if (isType(annotation, oa.Annotation)) {
+            this.initSummaryBlock(annotation);
+        }
+        return this;
     }
 
     /**
@@ -100,11 +128,8 @@ export default class AnnotationListView extends View<Node> {
      * Will only work if the blocks have position details!
      */
     insertBlock(block: ItemSummaryBlockView): this {
-        let index = sortedIndexBy(this.summaryBlocks, block, (block) => {
-            return singleNumber(block.positionDetails.startNodeIndex, block.positionDetails.startCharacterIndex);
-        });
-        this.summaryBlocks.splice(index, 0, block);
-        if (this.collection.length == this.summaryBlocks.length) this.render();
+        this.subviewBundle.addSubview(block);
+        if (this.collection.length == this.subviewBundle.countSubviews()) this.render();
         return this;
     }
 
@@ -122,7 +147,7 @@ export default class AnnotationListView extends View<Node> {
     }
 
     getSummaryBlock(annotation: Node): ItemSummaryBlockView {
-        return this.blockByModel.get(annotation.cid);
+        return this.subviewBundle.getViewBy(annotation.cid) as ItemSummaryBlockView;
     }
 
     /**
@@ -133,6 +158,15 @@ export default class AnnotationListView extends View<Node> {
         let block = this.getSummaryBlock(annotation);
         this.processSelection(block, annotation);
         return this;
+    }
+
+    /**
+     * Process the fact that no initial highlights exist.
+     * This will re-render the current view in order to remove the loading spinner.
+     */
+    finalizeNoInitialHighlights(): this {
+        this.hasInitialHighlights = false;
+        return this.render();
     }
 
     /**

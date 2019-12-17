@@ -10,7 +10,7 @@ import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
 import { item, readit, rdf, vocab } from '../jsonld/ns';
 
-import { getOntology, getSources, getItems } from './../utilities/utilities';
+import { getOntology, getSources, createSourceView } from './../utilities/utilities';
 
 import CategoryColorView from './../utilities/category-colors/category-colors-view';
 import SourceView from './../panel-source/source-view';
@@ -75,23 +75,7 @@ function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
     let height = Math.max(vh - 194, 555);
     exView.setHeight(height);
     exView.render().$el.appendTo('#main');
-    return exView
-}
-
-function createSourceView(source: Node, callback: any) {
-    getItems(source, function (error, items) {
-        if (error) console.debug(error)
-        else {
-            let sourceView = new SourceView({
-                collection: new Graph(items),
-                model: source,
-                showHighlightsInitially: true,
-                isEditable: true,
-                // initialScrollTo: annotation,
-            });
-            callback(null, sourceView);
-        }
-    });
+    return exView;
 }
 
 function initSourceList() {
@@ -110,14 +94,9 @@ function initSourceList() {
             let explorer = initExplorer(sourceListView, ontology);
 
             sourceListView.on('source-list:click', (listView: SourceListView, source: Node) => {
-                explorer.loadingSpinnerView.activate();
-                createSourceView(source, (error, sourceView) => {
-                    if (error) console.error(error);
-                    else {
-                        explorer.popUntil(sourceListView);
-                        explorer.push(sourceView);
-                    }
-                });
+                let sourceView = createSourceView(source, ontology, true, true);
+                explorer.popUntil(sourceListView);
+                explorer.push(sourceView);
             });
         }
     });
