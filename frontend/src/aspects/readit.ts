@@ -94,7 +94,7 @@ function initSourceList() {
             let explorer = initExplorer(sourceListView, ontology);
 
             sourceListView.on('source-list:click', (listView: SourceListView, source: Node) => {
-                let sourceView = createSourceView(source, ontology, true, true);
+                let sourceView = createSourceView(source, true, true);
                 explorer.popUntil(sourceListView);
                 explorer.push(sourceView);
             });
