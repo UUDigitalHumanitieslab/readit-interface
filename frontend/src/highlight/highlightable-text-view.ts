@@ -273,7 +273,8 @@ export default class HighlightableTextView extends View {
         if (this.deleteFromCollection(node)) {
             this.subviewBundle.deleteSubviewBy(node.cid);
             this.initOverlaps();
-            this.trigger('delete', node);
+            this.render();
+            this.trigger('highlightDeleted', node);
         }
         return this;
     }
