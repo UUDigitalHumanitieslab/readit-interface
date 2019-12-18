@@ -1,6 +1,6 @@
 import Node from '../../jsonld/node';
 
-import { oa, rdf } from '../../jsonld/ns';
+import { oa, rdf, vocab } from '../../jsonld/ns';
 import { isType, getCssClassName as getCssClass, isOntologyClass } from '../utilities';
 
 export type AnnotationPositionDetails = {
@@ -69,16 +69,23 @@ export function getSpecificResource(annotation: Node): Node {
 }
 
 /**
-* Get the Selector associated with the oa:Annotation or its associated oa:SpecificResource.
+* Get the a type of Selector associated an the oa:Annotation, or with its associated oa:SpecificResource.
  */
-export function getSelector(node: Node): Node {
+export function getSelector(node: Node, selectorType: string): Node {
     let specificResource: Node;
-    let selector = node.get(oa.hasSelector);
-    if (!selector || !selector.length) {
+    let selector = getSelectorByType(node, selectorType);
+    if (!selector) {
         specificResource = getSpecificResource(node);
-        selector = specificResource.get(oa.hasSelector);
+        selector = getSelectorByType(specificResource, selectorType);
     }
-    return selector && selector[0] as Node;
+    return selector;
+}
+
+function getSelectorByType(node: Node, selectorType: string): Node {
+    let selector;
+    let selectors = node.get(oa.hasSelector);
+    if (selectors) selector = selectors.find((s: Node) => isType(s, selectorType));
+    return selector;
 }
 
 /**
@@ -87,7 +94,7 @@ export function getSelector(node: Node): Node {
 export function getStartSelector(node: Node): Node {
     let selector: Node;
     let startSelector = node.get(oa.hasStartSelector);
-    if (!startSelector || !startSelector.length) selector = getSelector(node);
+    if (!startSelector || !startSelector.length) selector = getSelector(node, vocab('RangeSelector'));
     if (selector) startSelector = selector.get(oa.hasStartSelector);
     return startSelector && startSelector[0] as Node;
 }
@@ -98,7 +105,7 @@ export function getStartSelector(node: Node): Node {
 export function getEndSelector(node: Node): Node {
     let selector: Node;
     let endSelector = node.get(oa.hasEndSelector);
-    if (!endSelector || !endSelector.length) selector = getSelector(node);
+    if (!endSelector || !endSelector.length) selector = getSelector(node, vocab('RangeSelector'));
     if (selector) endSelector = selector.get(oa.hasEndSelector);
     return endSelector && endSelector[0] as Node;
 }
