@@ -27,8 +27,9 @@ def test_ItemCounter_current():
 
 @pytest.mark.django_db
 def test_ItemCounter_increment():
-    counter1 = ItemCounter(count=1)
+    counter1 = ItemCounter.current
     counter1.increment()
     counter2 = ItemCounter.objects.all().first()
     assert counter2.pk == counter1.pk
+    assert counter1.count == 2
     assert counter2.count == 2
