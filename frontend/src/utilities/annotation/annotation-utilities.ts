@@ -43,12 +43,18 @@ export function getPositionDetails(startSelector: Node, endSelector: Node): Anno
  */
 export function getLinkedItems(annotation: Node): Node[] {
     validateType(annotation);
-    let selector = getSelector(annotation);
-    return [
-        selector,
-        getStartSelector(selector),
-        getEndSelector(selector)
+    let specificResource = getSpecificResource(annotation);
+    let rangeSelector = getSelector(annotation, vocab('RangeSelector'));
+    let textQuoteSelector = getSelector(annotation, oa.TextQuoteSelector);
+
+    let items = [
+        specificResource,
+        rangeSelector,
+        getStartSelector(rangeSelector),
+        getEndSelector(rangeSelector)
     ]
+    if (textQuoteSelector) items.push(textQuoteSelector);
+    return items;
 }
 
 /**
