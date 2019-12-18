@@ -114,10 +114,15 @@ export default class HighlightableTextView extends View {
         if (!options.collection) this.collection = new Graph();
         this.listenTo(this.collection, 'add', this.addHighlight);
         this.listenTo(this.collection, 'update', this.onHighlightViewsUpdated);
-        this.listenTo(this.collection, 'remove', this.deleteNode);
+        this.listenTo(this.collection, 'remove', this.delete)
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
         this.$el.ready(bind(this.onReady, this));
+    }
+
+    delete(node: Node): this {
+        node.destroy();
+        return this;
     }
 
     render(): this {
