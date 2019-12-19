@@ -75,7 +75,7 @@ export function getSpecificResource(annotation: Node): Node {
 }
 
 /**
-* Get the a type of Selector associated an the oa:Annotation, or with its associated oa:SpecificResource.
+* Get a Selector of a certain type from an the oa:Annotation, or from its associated oa:SpecificResource.
  */
 export function getSelector(node: Node, selectorType: string): Node {
     let specificResource: Node;
@@ -87,6 +87,10 @@ export function getSelector(node: Node, selectorType: string): Node {
     return selector;
 }
 
+/**
+ * Get a Selector of a certain type from a Node instance
+ * (note that the Node should have an oa.hasSelector, so typically an oa.SpecificResource)
+ */
 function getSelectorByType(node: Node, selectorType: string): Node {
     let selector;
     let selectors = node.get(oa.hasSelector);
