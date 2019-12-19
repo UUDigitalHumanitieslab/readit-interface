@@ -118,6 +118,7 @@ export default class SourceView extends View<Node> {
         this.htv.on('highlightClicked', this.onHighlightClicked, this);
         this.htv.on('highlightSelected', this.onHighlightSelected, this);
         this.htv.on('highlightUnselected', this.onHighlightUnselected, this);
+        this.htv.on('highlightDeleted', this.onHighlightDeleted, this);
         this.htv.on('textSelected', this.onTextSelected, this);
         this.htv.on('scroll', this.onScroll, this);
         return htv;
@@ -182,6 +183,13 @@ export default class SourceView extends View<Node> {
      */
     onHighlightUnselected(node: Node): void {
         this.trigger('sourceview:highlightUnselected', this, node);
+    }
+
+    /**
+     * Pass events from HighlightableTextView
+     */
+    onHighlightDeleted(node: Node): void {
+        this.trigger('sourceview:highlightDeleted', this, node);
     }
 
     /**

@@ -114,6 +114,7 @@ export default class HighlightableTextView extends View {
         if (!options.collection) this.collection = new Graph();
         this.listenTo(this.collection, 'add', this.addHighlight);
         this.listenTo(this.collection, 'update', this.onHighlightViewsUpdated);
+        this.listenTo(this.collection, 'remove', this.destroyNode)
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
         this.$el.ready(bind(this.onReady, this));
@@ -260,15 +261,25 @@ export default class HighlightableTextView extends View {
     }
 
     /**
-     * Remove a single highlight.
+     * Remove a single highlight from the collection and the DOM.
      * @param annotation The instance of oa:Annotation to remove.
      */
     deleteNode(node: Node): this {
         if (this.deleteFromCollection(node)) {
             this.subviewBundle.deleteSubviewBy(node.cid);
             this.initOverlaps();
-            this.trigger('delete', node);
+            this.render();
+            this.trigger('highlightDeleted', node);
         }
+        return this;
+    }
+
+    /**
+     * Actually destroy a Node (as opposed to removing it from collection or DOM)
+     * @param node
+     */
+    destroyNode(node: Node): this {
+        node.destroy();
         return this;
     }
 
@@ -324,7 +335,6 @@ export default class HighlightableTextView extends View {
         if (this.isInDOM) this.scroll(node);
         return this;
     }
-
 
     processNoInitialHighlights(): this {
         // Perhaps inform user of this?
@@ -466,7 +476,7 @@ export default class HighlightableTextView extends View {
         else {
             // Get the view closest to the visible vertical middle
             let view = this.subviewBundle.firstEqualOrLastLessThan(scrollableVisibleMiddle);
-            this.trigger('scroll', getSelector(view.model as Node));
+            this.trigger('scroll', view.model);
         }
     }
 

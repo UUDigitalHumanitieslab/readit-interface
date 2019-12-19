@@ -64,17 +64,11 @@ export default class AnnotationListView extends View<Node> {
             }
         });
 
-        this.listenTo(this.collection, 'add', this.add);
         this.listenTo(this.collection, 'update', this.render);
+        this.listenTo(this.collection, 'add', this.addAnno);
 
         this.loadingSpinnerView = new LoadingSpinnerView();
         this.loadingSpinnerView.render();
-        return this;
-    }
-
-    initSummaryBlocks(): this {
-        this.collection.forEach(node => this.initSummaryBlock(node));
-        this.render();
         return this;
     }
 
@@ -113,13 +107,15 @@ export default class AnnotationListView extends View<Node> {
         return this;
     }
 
-    /**
-     * Add a new block based on an annotation.
-     */
-    add(annotation: Node, collection: Graph): this {
+    addAnno(annotation: Node): this {
         if (isType(annotation, oa.Annotation)) {
             this.initSummaryBlock(annotation);
+            return this.render();
         }
+    }
+
+    removeAnno(annotation: Node): this {
+        this.subviewBundle.deleteSubviewBy(annotation.cid);
         return this;
     }
 
@@ -154,7 +150,7 @@ export default class AnnotationListView extends View<Node> {
      * Process a click on an oa:Annotation in another view,
      * as if it were a click in the current view.
      */
-    processClick(annotation): this {
+    processClick(annotation: Node): this {
         let block = this.getSummaryBlock(annotation);
         this.processSelection(block, annotation);
         return this;

@@ -1,6 +1,6 @@
 import Node from '../../jsonld/node';
 
-import { oa, rdf } from '../../jsonld/ns';
+import { oa, rdf, vocab } from '../../jsonld/ns';
 import { isType, getCssClassName as getCssClass, isOntologyClass } from '../utilities';
 
 export type AnnotationPositionDetails = {
@@ -43,12 +43,18 @@ export function getPositionDetails(startSelector: Node, endSelector: Node): Anno
  */
 export function getLinkedItems(annotation: Node): Node[] {
     validateType(annotation);
-    let selector = getSelector(annotation);
-    return [
-        selector,
-        getStartSelector(selector),
-        getEndSelector(selector)
+    let specificResource = getSpecificResource(annotation);
+    let rangeSelector = getSelector(annotation, vocab('RangeSelector'));
+    let textQuoteSelector = getSelector(annotation, oa.TextQuoteSelector);
+
+    let items = [
+        specificResource,
+        rangeSelector,
+        getStartSelector(rangeSelector),
+        getEndSelector(rangeSelector)
     ]
+    if (textQuoteSelector) items.push(textQuoteSelector);
+    return items;
 }
 
 /**
@@ -69,16 +75,27 @@ export function getSpecificResource(annotation: Node): Node {
 }
 
 /**
-* Get the Selector associated with the oa:Annotation annotation or its associated oa:SpecificResource.
+* Get a Selector of a certain type from an the oa:Annotation, or from its associated oa:SpecificResource.
  */
-export function getSelector(node: Node): Node {
+export function getSelector(node: Node, selectorType: string): Node {
     let specificResource: Node;
-    let selector = node.get(oa.hasSelector);
-    if (!selector || !selector.length) {
+    let selector = getSelectorByType(node, selectorType);
+    if (!selector) {
         specificResource = getSpecificResource(node);
-        selector = specificResource.get(oa.hasSelector);
+        selector = getSelectorByType(specificResource, selectorType);
     }
-    return selector && selector[0] as Node;
+    return selector;
+}
+
+/**
+ * Get a Selector of a certain type from a Node instance
+ * (note that the Node should have an oa.hasSelector, so typically an oa.SpecificResource)
+ */
+function getSelectorByType(node: Node, selectorType: string): Node {
+    let selector;
+    let selectors = node.get(oa.hasSelector);
+    if (selectors) selector = selectors.find((s: Node) => isType(s, selectorType));
+    return selector;
 }
 
 /**
@@ -87,7 +104,7 @@ export function getSelector(node: Node): Node {
 export function getStartSelector(node: Node): Node {
     let selector: Node;
     let startSelector = node.get(oa.hasStartSelector);
-    if (!startSelector || !startSelector.length) selector = getSelector(node);
+    if (!startSelector || !startSelector.length) selector = getSelector(node, vocab('RangeSelector'));
     if (selector) startSelector = selector.get(oa.hasStartSelector);
     return startSelector && startSelector[0] as Node;
 }
@@ -98,7 +115,7 @@ export function getStartSelector(node: Node): Node {
 export function getEndSelector(node: Node): Node {
     let selector: Node;
     let endSelector = node.get(oa.hasEndSelector);
-    if (!endSelector || !endSelector.length) selector = getSelector(node);
+    if (!endSelector || !endSelector.length) selector = getSelector(node, vocab('RangeSelector'));
     if (selector) endSelector = selector.get(oa.hasEndSelector);
     return endSelector && endSelector[0] as Node;
 }
