@@ -25,12 +25,12 @@
     {{#libs}}
     <script src="{{{@root.nodeRoot}}}{{{path}}}"></script>
     {{/libs}}
-    <script src="{{{staticRoot}}}{{{jsBundleName}}}"></script>
     {{^production}}
     <script>
         window.DEBUGGING = true;
     </script>
     {{/production}}
+    <script src="{{{staticRoot}}}{{{jsBundleName}}}"></script>
 </body>
 
 </html>
