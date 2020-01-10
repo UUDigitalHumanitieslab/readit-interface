@@ -12,7 +12,7 @@ from rdf.ns import *
 from rdf.utils import graph_from_triples, append_triples, traverse_forward, traverse_backward
 from vocab import namespace as vocab
 from staff import namespace as staff
-from staff.views import get_user_uriref
+from staff.utils import submission_info
 from ontology import namespace as ontology
 from . import namespace as my
 from .graph import graph
@@ -47,13 +47,6 @@ def is_unreserved(triple):
 def sanitize(input):
     """ Return a subset of input that excludes the reserved predicates. """
     return graph_from_triples(filter(is_unreserved, input))
-
-
-def submission_info(request):
-    """ Return user and datetime of request as RDF terms. """
-    user = get_user_uriref(request)
-    now = Literal(datetime.now(timezone.utc))
-    return user, now
 
 
 def optional_int(text):
