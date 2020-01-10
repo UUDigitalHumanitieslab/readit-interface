@@ -31,6 +31,7 @@ import SearchResultBaseItemView from '../search/search-results/search-result-bas
 
 import SourceListView from '../panel-source-list/source-list-view';
 import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
+import UploadSourceFormView from '../source/upload-source-view';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -48,6 +49,32 @@ userFsm.on('enter:arriving', () => {
 
 userFsm.on('exit:arriving', () => {
     welcomeView.$el.detach();
+});
+
+directionRouter.on('route:upload', () => {
+    // userFsm.handle('upload');
+
+    welcomeView.$el.detach();
+    let view = new UploadSourceFormView();
+    view.setHeight(getViewportHeight());
+    view.render().$el.appendTo('#main');
+});
+
+userFsm.on('enter:uploading', () => {
+    welcomeView.$el.detach();
+    let view = new UploadSourceFormView();
+    view.setHeight(getViewportHeight());
+    view.render().$el.appendTo('#main');
+});
+
+userFsm.on('exit:uploading', () => {
+});
+
+userFsm.on('enter:exploring', () => {
+    initSourceList();
+});
+
+userFsm.on('exit:exploring', () => {
 });
 
 directionRouter.on('route:explore', () => {
@@ -68,12 +95,18 @@ directionRouter.on('route:leave', () => {
     userFsm.handle('leave');
 });
 
+/**
+ * Get the heigth of the available vertical space.
+ * Compensates for menu and footer, and 555 is min-height.
+ */
+function getViewportHeight(): number {
+    let vh = $(window).height();
+    return Math.max(vh - 194, 555);
+}
+
 function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
     let exView = new ExplorerView({ first: first, ontology: ontology });
-    let vh = $(window).height();
-    // compensates for menu and footer (555 is min-height)
-    let height = Math.max(vh - 194, 555);
-    exView.setHeight(height);
+    exView.setHeight(getViewportHeight());
     exView.render().$el.appendTo('#main');
     return exView
 }
