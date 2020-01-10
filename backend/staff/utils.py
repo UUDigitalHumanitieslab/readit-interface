@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from rdflib import Literal
 from rdflib import URIRef
 from . import namespace as my
-from .constants import UNKNOWN
+from rdf.ns import UNKNOWN
 
 
 def get_user_uriref(request):
