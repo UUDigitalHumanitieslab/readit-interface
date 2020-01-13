@@ -91,6 +91,12 @@ export default class UploadSourceFormView extends View {
 
         return this;
     }
+
+    onCancelClicked(event: JQueryEventObject): this {
+        event.preventDefault();
+        window.history.back();
+        return this;
+    }
 }
 extend(UploadSourceFormView.prototype, {
     tagName: 'form',
