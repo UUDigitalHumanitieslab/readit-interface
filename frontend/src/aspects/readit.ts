@@ -33,6 +33,11 @@ import SourceListView from '../panel-source-list/source-list-view';
 import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
 import UploadSourceFormView from '../source/upload-source-view';
 
+/**
+ * Simple lookup table to store views by name
+ */
+let viewByName: Map<string, View> = new Map();
+
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
     footerView.render().$el.appendTo('.footer');
@@ -58,11 +63,15 @@ directionRouter.on('route:upload', () => {
 userFsm.on('enter:uploading', () => {
     welcomeView.$el.detach();
     let view = new UploadSourceFormView();
+    viewByName.set('upload-source', view);
     view.setHeight(getViewportHeight());
     view.render().$el.appendTo('#main');
 });
 
 userFsm.on('exit:uploading', () => {
+    let view = viewByName.get('upload-source');
+    viewByName.delete('upload-source');
+    view.remove();
 });
 
 userFsm.on('enter:exploring', () => {
