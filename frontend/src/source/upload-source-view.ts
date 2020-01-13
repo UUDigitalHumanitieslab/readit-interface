@@ -1,23 +1,15 @@
-import { ViewOptions } from 'backbone';
 import { extend } from 'lodash';
 import View from './../core/view';
-import Model from './../core/model';
 
 import Node from './../jsonld/node';
-import Graph from './../jsonld/graph';
 import uploadSourceTemplate from './upload-source-template';
-
-import { schema, vocab, rdfs, skos } from './../jsonld/ns';
-import ItemGraph from '../utilities/item-graph';
-import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
-
 
 export default class UploadSourceFormView extends View {
     /**
      * Class to add to invalid inputs. Note that this is not
      * the same as the class added to the validate method by default:
      * that is for labels and includes the class 'help' as well.
-     * This is to integrate smoothly with Bulma.
+     * These two are separated to integrate smoothly with Bulma.
      */
     errorClassInputs: string = "is-danger";
 
@@ -99,22 +91,6 @@ export default class UploadSourceFormView extends View {
 
         return this;
     }
-
-    getDefaultAttributes(): any {
-        return {
-            "@type": [rdfs.Class],
-            [skos.prefLabel]: [
-                { '@value': 'Content' },
-            ],
-            [skos.altLabel]: [
-                { '@value': 'alternativeLabel' }
-            ],
-            [skos.definition]: [
-                { '@value': 'This is a test definition' }
-            ]
-        }
-    }
-
 }
 extend(UploadSourceFormView.prototype, {
     tagName: 'form',
