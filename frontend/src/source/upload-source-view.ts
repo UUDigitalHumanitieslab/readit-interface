@@ -100,7 +100,7 @@ export default class UploadSourceFormView extends View {
 }
 extend(UploadSourceFormView.prototype, {
     tagName: 'form',
-    className: 'section upload-source-form',
+    className: 'section upload-source-form page',
     template: uploadSourceTemplate,
     events: {
         'submit': 'onSaveClicked',
