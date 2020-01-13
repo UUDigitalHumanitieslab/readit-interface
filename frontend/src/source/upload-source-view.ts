@@ -75,6 +75,7 @@ export default class UploadSourceFormView extends View {
                 name.text(files[0].name);
                 label.text('Change file...');
             }
+            input.valid();
         });
 
         return this;
@@ -91,12 +92,11 @@ export default class UploadSourceFormView extends View {
     onSaveClicked(event: JQueryEventObject): this {
         event.preventDefault();
 
-        let form = event.currentTarget;
+        if (this.$el.valid()) {
+            let n = new Node();
+            n.save(this.$el.get(0), { url: "/source/add/" });
+        }
 
-        let n = new Node();
-        n.save(form, { url: "/source/add/" });
-
-        console.log('submit');
         return this;
     }
 
