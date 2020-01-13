@@ -52,12 +52,7 @@ userFsm.on('exit:arriving', () => {
 });
 
 directionRouter.on('route:upload', () => {
-    // userFsm.handle('upload');
-
-    welcomeView.$el.detach();
-    let view = new UploadSourceFormView();
-    view.setHeight(getViewportHeight());
-    view.render().$el.appendTo('#main');
+    userFsm.handle('upload');
 });
 
 userFsm.on('enter:uploading', () => {
