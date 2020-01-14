@@ -40,3 +40,7 @@ export function prefetch() {
     // globalGraph.import(ns).
     defaultGraphs.forEach(ns => globalGraph.importViaProxy(ns));
 }
+
+if (window['DEBUGGING']) {
+    window['globalGraph'] = globalGraph;
+}

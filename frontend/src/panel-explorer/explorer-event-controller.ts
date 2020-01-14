@@ -14,7 +14,7 @@ import RelatedItemsView from '../panel-related-items/related-items-view';
 import ItemGraph from '../utilities/item-graph';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { oa } from '../jsonld/ns';
-import { getItems } from './../utilities/utilities';
+import { createSourceView } from './../utilities/utilities';
 import SearchResultListView from '../search/search-results/panel-search-result-list-view';
 import { isType } from '../utilities/utilities';
 
@@ -40,9 +40,11 @@ export default class ExplorerEventController {
      */
     subscribeToPanelEvents(panel: View): void {
         panel.on({
+            'sourceView:noInitialHighlights': this.sourceViewNoInitialHighlights,
             'sourceview:highlightClicked': this.sourceViewHighlightClicked,
             'sourceview:highlightSelected': this.sourceViewHighlightSelected,
             'sourceview:highlightUnselected': this.sourceViewHighlightUnselected,
+            'sourceview:highlightDeleted': this.sourceviewHighlightDeleted,
             'sourceview:showMetadata': this.sourceViewShowMetadata,
             'sourceview:hideMetadata': this.sourceViewHideMetadata,
             'sourceview:showAnnotations': (graph) => defer(this.sourceViewShowAnnotations.bind(this), graph),
@@ -50,7 +52,6 @@ export default class ExplorerEventController {
             'sourceView:enlarge': this.sourceViewEnlarge,
             'sourceView:shrink': this.sourceViewShrink,
             'sourceview:textSelected': this.sourceViewOnTextSelected,
-            'sourceview:overlapsLoaded': this.sourceviewOnOverlapsLoaded,
             'annotation-listview:blockClicked': this.annotationListBlockClicked,
             'annotation-listview:edit': this.annotationListEdit,
             'annotationEditView:saveNew': this.annotationEditSaveNew,
@@ -78,19 +79,7 @@ export default class ExplorerEventController {
             let self = this;
 
             this.explorerView.popUntil(searchResultList);
-            this.explorerView.loadingSpinnerView.activate();
-
-            getItems(source, function (error, items) {
-                if (error) console.debug(error)
-                else {
-                    let sourceView = new SourceView({
-                        model: source,
-                        collection: new Graph(items),
-                        initialScrollTo: item
-                    });
-                    self.explorerView.push(sourceView);
-                }
-            });
+            self.explorerView.push(createSourceView(source, undefined, undefined, item));
         }
     }
 
@@ -166,10 +155,15 @@ export default class ExplorerEventController {
         let sourceView = this.mapAnnotationEditSource.get(editView);
         sourceView.add(newItems);
 
-        this.explorerView.removeOverlay(editView);
-
         let listView = this.mapSourceAnnotationList.get(sourceView);
-        listView.collection.add(annotation);
+        if (listView) {
+            this.explorerView.removeOverlay(editView);
+            // listView.collection.add(annotation);
+        }
+        else {
+            this.explorerView.pop();
+        }
+
         return this;
     }
 
@@ -207,6 +201,12 @@ export default class ExplorerEventController {
     sourceViewHighlightUnselected(sourceView: SourceView, annotation: Node): this {
         let annoListView = this.mapSourceAnnotationList.get(sourceView);
         this.explorerView.popUntil(annoListView);
+        return this;
+    }
+
+    sourceviewHighlightDeleted(sourceView: SourceView, annotation: Node): this {
+        let annoListView = this.mapSourceAnnotationList.get(sourceView);
+        annoListView.removeAnno(annotation);
         return this;
     }
 
@@ -252,7 +252,7 @@ export default class ExplorerEventController {
 
     sourceViewOnTextSelected(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): this {
         let listView = this.mapSourceAnnotationList.get(sourceView);
-        this.explorerView.popUntil(listView);
+        if (listView) this.explorerView.popUntil(listView);
         let annoEditView = new AnnotationEditView({
             range: range,
             positionDetails: positionDetails,
@@ -261,12 +261,14 @@ export default class ExplorerEventController {
             model: undefined,
         });
         this.mapAnnotationEditSource.set(annoEditView, sourceView);
-        this.explorerView.overlay(annoEditView);
+        if (listView) this.explorerView.overlay(annoEditView);
+        else this.explorerView.push(annoEditView);
         return this;
     }
 
-    sourceviewOnOverlapsLoaded(sourceView: SourceView): this {
-        this.explorerView.loadingSpinnerView.deActivate();
+    sourceViewNoInitialHighlights(sourceView: SourceView): this {
+        let listView = this.mapSourceAnnotationList.get(sourceView);
+        listView.finalizeNoInitialHighlights();
         return this;
     }
 

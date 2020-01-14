@@ -24,11 +24,12 @@ export class BinarySearchContainer {
      * The new view will be added at the index corresponding to its indexValue.
      * Note that if an indexValue already exists, the new view will be added
      * AFTER the existing one(s).
+     * Return the index at which view was inserted.
      */
-    add(view: View): this {
+    add(view: View): number {
         let index = sortedLastIndexBy(this.views, view, this.bareGetIndexValue);
         this.views.splice(index, 0, view);
-        return this;
+        return index;
     }
 
     /**
@@ -72,7 +73,7 @@ export class BinarySearchContainer {
      */
     firstEqualOrLastLessThan(indexValue: number): View {
         let view = this.firstNotLessThan(indexValue);
-        if (indexValue == this.bareGetIndexValue(view)) return view;
+        if (view && indexValue == this.bareGetIndexValue(view)) return view;
         return this.lastLessThan(indexValue);
     }
 

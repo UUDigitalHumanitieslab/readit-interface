@@ -118,14 +118,14 @@ export default class SourceView extends View<Node> {
         this.htv.on('highlightClicked', this.onHighlightClicked, this);
         this.htv.on('highlightSelected', this.onHighlightSelected, this);
         this.htv.on('highlightUnselected', this.onHighlightUnselected, this);
+        this.htv.on('highlightDeleted', this.onHighlightDeleted, this);
         this.htv.on('textSelected', this.onTextSelected, this);
         this.htv.on('scroll', this.onScroll, this);
-        this.htv.on('overlapsLoaded', this.onOverlapsLoaded, this);
         return htv;
     }
 
     add(newItems: ItemGraph): this {
-        this.htv.add(newItems);
+        this.htv.addAnnotation(newItems);
         return this;
     }
 
@@ -134,6 +134,12 @@ export default class SourceView extends View<Node> {
      */
     processClick(annotation: Node): this {
         this.htv.processClick(annotation);
+        return this;
+    }
+
+    processNoInitialHighlights(): this {
+        this.htv.processNoInitialHighlights();
+        this.trigger('sourceView:noInitialHighlights', this);
         return this;
     }
 
@@ -182,15 +188,15 @@ export default class SourceView extends View<Node> {
     /**
      * Pass events from HighlightableTextView
      */
-    onScroll(selector?: Node): void {
-        this.trigger('scroll', selector);
+    onHighlightDeleted(node: Node): void {
+        this.trigger('sourceview:highlightDeleted', this, node);
     }
 
     /**
      * Pass events from HighlightableTextView
      */
-    onOverlapsLoaded(): void {
-        this.trigger('sourceview:overlapsLoaded', this);
+    onScroll(selector?: Node): void {
+        this.trigger('scroll', selector);
     }
 
     /**

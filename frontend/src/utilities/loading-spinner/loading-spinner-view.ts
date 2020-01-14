@@ -21,12 +21,12 @@ export default class LoadingSpinnerView extends View {
     }
 
     render(): this {
-        this.$el.html(this.template({}));
+        this.$el.append('<div class="loader"></div>');
         return this;
     }
 }
 extend(LoadingSpinnerView.prototype, {
     tagName: 'div',
-    className: 'modal loading-spinner',
+    className: 'loading-spinner',
     template: loadingSpinnerTemplate
 });

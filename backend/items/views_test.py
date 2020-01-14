@@ -131,3 +131,10 @@ def test_put_item(auth_client, itemgraph_db):
     assert (ITEM['2'], RDF.value, Literal(before)) not in g
     assert (ITEM['2'], RDF.value, Literal(after)) in g
     assert (ITEM['2'], DCTERMS.modified, None) in g
+
+
+def test_delete_item(auth_client, itemgraph_db):
+    response, output_graph = submit_data(auth_client, Graph(), 'delete', 1)
+    assert len(output_graph) == 6
+    assert (ITEM['1'], RDF.type, OA.TextQuoteSelector) in output_graph
+    assert len(set(graph().triples((ITEM['1'], None, None)))) == 0

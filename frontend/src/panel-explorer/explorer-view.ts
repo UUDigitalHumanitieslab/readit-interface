@@ -6,7 +6,6 @@ import View from '../core/view';
 import Graph from '../jsonld/graph';
 import PanelStackView from './explorer-panelstack-view';
 import EventController from './explorer-event-controller';
-import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
 import { BinarySearchContainer } from '../utilities/binary-searchable-container/binary-search-container';
 
 export interface ViewOptions extends BaseOpt<Model> {
@@ -34,11 +33,6 @@ export default class ExplorerView extends View {
     mostRightFullyVisibleStack: PanelStackView;
 
     /**
-     * Have a loader ready to show when loading panels takes long.
-     */
-    loadingSpinnerView: LoadingSpinnerView;
-
-    /**
      * Store panels in a binary search container to enable quick searching
      */
     searchContainer: BinarySearchContainer;
@@ -55,9 +49,6 @@ export default class ExplorerView extends View {
         this.push(options.first);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 500));
-
-        this.loadingSpinnerView = new LoadingSpinnerView();
-        this.loadingSpinnerView.render().$el.appendTo(this.$el);
     }
 
     render(): View {
