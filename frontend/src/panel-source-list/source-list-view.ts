@@ -22,7 +22,7 @@ export default class SourceListView extends View<Node> {
     initialize(options: ViewOptions): this {
         this.subViews = [];
 
-        const languages = ["en", "fr", "de"];
+        const languages = ["en", "fr", "de", "other"];
 
         for (let language of languages) {
             let view = new SourceLanguageView({ collection: options.collection, language: language });
