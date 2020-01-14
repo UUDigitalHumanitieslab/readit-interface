@@ -87,6 +87,9 @@ export default class UploadSourceFormView extends View {
         if (this.$el.valid()) {
             let n = new Node();
             n.save(this.$el.get(0), { url: "/source/add/" });
+            n.once('sync', () => {
+                alert('jeuh!');
+            });
         }
 
         return this;
