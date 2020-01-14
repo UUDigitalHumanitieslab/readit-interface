@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED
+from rest_framework.parsers import MultiPartParser
 
 from rdflib import Graph, URIRef, BNode, Literal
 
@@ -57,8 +58,9 @@ class SourcesAPISingular(RDFResourceView):
         return inject_fulltext(super().get_graph(request, **kwargs))
 
 
-class AddSource(APIView):
-    permission_classes = [IsAuthenticated]
+class AddSource(RDFResourceView):
+    # permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser]
 
     def store(self, file, destination):
         with open(destination, 'wb+') as destination:
