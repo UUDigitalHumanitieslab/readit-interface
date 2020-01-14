@@ -59,7 +59,7 @@ class SourcesAPISingular(RDFResourceView):
 
 
 class AddSource(RDFResourceView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
 
     def store(self, file, destination):
