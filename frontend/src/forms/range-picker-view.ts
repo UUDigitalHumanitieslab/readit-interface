@@ -6,6 +6,7 @@ import {
 
 import View from '../core/view';
 import Node from '../jsonld/node';
+import Graph from '../jsonld/graph';
 import { getLabel } from '../utilities/utilities';
 
 const defaultOptionAttributes = {
@@ -25,11 +26,13 @@ extend(RangePickerOptionView.prototype, {
     tagName: 'select',
 });
 
-export interface RangePickerOptions extends BViewOptions {
+export interface RangePickerOptions extends BViewOptions<Node> {
+    collection: Graph;
     multiple?: boolean;
 }
 
-export default class RangePickerView extends View {
+export default class RangePickerView extends View<Node> {
+    collection: Graph;
     multiple: boolean;
 
     constructor(options?: RangePickerOptions) {
