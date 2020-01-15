@@ -32,10 +32,7 @@ import SearchResultBaseItemView from '../search/search-results/search-result-bas
 
 import SourceListView from '../panel-source-list/source-list-view';
 
-/**
- * Simple lookup table to store views by name
- */
-let viewByName: Map<string, View> = new Map();
+let explorerView;
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -73,13 +70,6 @@ userFsm.on('exit:uploading', () => {
     uploadSourceForm.$el.detach();
 });
 
-userFsm.on('enter:exploring', () => {
-    initSourceList();
-});
-
-userFsm.on('exit:exploring', () => {
-});
-
 directionRouter.on('route:explore', () => {
     // userFsm.handle('explore');
     welcomeView.$el.detach();
@@ -91,6 +81,7 @@ userFsm.on('enter:exploring', () => {
 });
 
 userFsm.on('exit:exploring', () => {
+    if (explorerView) explorerView.detach();
 });
 
 
@@ -108,10 +99,10 @@ function getViewportHeight(): number {
 }
 
 function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
-    let exView = new ExplorerView({ first: first, ontology: ontology });
-    exView.setHeight(getViewportHeight());
-    exView.render().$el.appendTo('#main');
-    return exView;
+    explorerView = new ExplorerView({ first: first, ontology: ontology });
+    explorerView.setHeight(getViewportHeight());
+    explorerView.render().$el.appendTo('#main');
+    return explorerView;
 }
 
 function initSourceList() {
