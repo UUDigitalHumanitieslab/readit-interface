@@ -14,9 +14,16 @@ const defaultOptionAttributes = {
 };
 
 export class RangePickerOptionView extends View<Node> {
-    preinitialize({attributes, model}): void {
+    preinitialize(options?: BViewOptions): void {
+        if (!options || !options.model) {
+            throw new Error('RangePickerOptionView requires a model');
+        }
+        let attributes = options.attributes;
+        if (!attributes) {
+            attributes = self.attributes = (self.attributes || {});
+        }
         defaults(attributes, defaultOptionAttributes, {
-            label: getLabel(model),
+            label: getLabel(options.model),
         });
         attributes.value = model.id;
     }
