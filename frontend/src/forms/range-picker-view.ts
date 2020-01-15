@@ -1,4 +1,4 @@
-import { extend, assign, defaults } from 'lodash';
+import { extend, assign, defaults, defaultsDeep } from 'lodash';
 import {
     View as BView,
     ViewOptions as BViewOptions,
@@ -40,9 +40,18 @@ export interface RangePickerOptions extends BViewOptions<Node> {
 
 export default class RangePickerView extends View<Node> {
     collection: Graph;
-    multiple: boolean;
 
     constructor(options?: RangePickerOptions) {
         super(options);
+    }
+
+    preinitialize(options?: RangePickerOptions): void {
+        if (!options) return;
+        if (!options.multiple) return;
+        defaultsDeep(options, {
+            attributes: {
+                multiple: true,
+            },
+        });
     }
 }
