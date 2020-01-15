@@ -71,9 +71,7 @@ userFsm.on('exit:uploading', () => {
 });
 
 directionRouter.on('route:explore', () => {
-    // userFsm.handle('explore');
-    welcomeView.$el.detach();
-    initSourceList();
+    userFsm.handle('explore');
 });
 
 userFsm.on('enter:exploring', () => {
@@ -81,7 +79,7 @@ userFsm.on('enter:exploring', () => {
 });
 
 userFsm.on('exit:exploring', () => {
-    if (explorerView) explorerView.detach();
+    if (explorerView) explorerView.$el.detach();
 });
 
 

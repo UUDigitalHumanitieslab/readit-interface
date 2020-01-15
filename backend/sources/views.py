@@ -59,7 +59,7 @@ class SourcesAPISingular(RDFResourceView):
 
 
 class AddSource(RDFResourceView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
 
     def store(self, file, destination):
@@ -145,6 +145,8 @@ class AddSource(RDFResourceView):
         return optionals
 
     def post(self, request, format=None):
+        permission_classes = [IsAuthenticated]
+
         data = request.data
         is_valid, missing_fields = self.is_valid(data)
         if not is_valid:
