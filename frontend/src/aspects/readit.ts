@@ -18,6 +18,7 @@ import SourceView from './../panel-source/source-view';
 import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
+import uploadSourceForm from './../global/upload-source-form';
 
 import { oa } from './../jsonld/ns';
 
@@ -30,8 +31,6 @@ import RelatedItemsView from '../panel-related-items/related-items-view';
 import SearchResultBaseItemView from '../search/search-results/search-result-base-view';
 
 import SourceListView from '../panel-source-list/source-list-view';
-import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
-import UploadSourceFormView from '../source/upload-source-view';
 
 /**
  * Simple lookup table to store views by name
@@ -57,21 +56,21 @@ userFsm.on('exit:arriving', () => {
 });
 
 directionRouter.on('route:upload', () => {
-    userFsm.handle('upload');
+    // userFsm.handle('upload');
+
+    welcomeView.$el.detach();
+    uploadSourceForm.setHeight(getViewportHeight());
+    uploadSourceForm.render().$el.appendTo('#main');
 });
 
 userFsm.on('enter:uploading', () => {
-    welcomeView.$el.detach();
-    let view = new UploadSourceFormView();
-    viewByName.set('upload-source', view);
-    view.setHeight(getViewportHeight());
-    view.render().$el.appendTo('#main');
+    uploadSourceForm.setHeight(getViewportHeight());
+    uploadSourceForm.render().$el.appendTo('#main');
 });
 
 userFsm.on('exit:uploading', () => {
-    let view = viewByName.get('upload-source');
-    viewByName.delete('upload-source');
-    view.remove();
+    uploadSourceForm.reset();
+    uploadSourceForm.$el.detach();
 });
 
 userFsm.on('enter:exploring', () => {
