@@ -40,8 +40,7 @@ history.once('route', () => {
 });
 
 directionRouter.on('route:arrive', () => {
-    // userFsm.handle('arrive');
-    welcomeView.render().$el.appendTo('#main');
+    userFsm.handle('arrive');
 });
 
 userFsm.on('enter:arriving', () => {
@@ -53,11 +52,7 @@ userFsm.on('exit:arriving', () => {
 });
 
 directionRouter.on('route:upload', () => {
-    // userFsm.handle('upload');
-
-    welcomeView.$el.detach();
-    uploadSourceForm.setHeight(getViewportHeight());
-    uploadSourceForm.render().$el.appendTo('#main');
+    userFsm.handle('upload');
 });
 
 userFsm.on('enter:uploading', () => {
@@ -75,6 +70,7 @@ directionRouter.on('route:explore', () => {
 });
 
 userFsm.on('enter:exploring', () => {
+    welcomeView.$el.detach();
     initSourceList();
 });
 
@@ -93,7 +89,7 @@ directionRouter.on('route:leave', () => {
  */
 function getViewportHeight(): number {
     let vh = $(window).height();
-    return Math.max(vh - 194, 555);
+    return Math.max(vh - 158, 555);
 }
 
 function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
