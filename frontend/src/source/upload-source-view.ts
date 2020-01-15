@@ -55,6 +55,8 @@ export default class UploadSourceFormView extends View {
     render(): this {
         this.$el.html(this.template({}));
 
+        this.$('.upload-success').hide();
+
         let input = this.$('.file-input');
         let label = this.$('.filelabel');
         let name = this.$('.filename');
@@ -84,20 +86,40 @@ export default class UploadSourceFormView extends View {
     onSaveClicked(event: JQueryEventObject): this {
         event.preventDefault();
 
-        if (this.$el.valid()) {
-            let n = new Node();
-            n.save(this.$el.get(0), { url: "/source/add/" });
-            n.once('sync', () => {
-                alert('jeuh!');
-            });
-        }
+        var self = this;
 
+
+        // if (this.$el.valid()) {
+        //     let n = new Node();
+        //     n.save(this.$el.get(0), { url: "/source/add/" });
+        //     n.once('sync', () => {
+        //         self.handleUploadSuccess();
+        //     });
+        // }
+
+        return this;
+    }
+
+    reset(): this {
+        this.$el.trigger('reset');
+        return this;
+    }
+
+    handleUploadSuccess(): this {
+        this.reset();
+        this.$('.upload-success').show();
         return this;
     }
 
     onCancelClicked(event: JQueryEventObject): this {
         event.preventDefault();
         window.history.back();
+        return this;
+    }
+
+    onToExplorerClicked(event: JQueryEventObject): this {
+        event.preventDefault();
+        this.trigger('toExplorerClicked', this);
         return this;
     }
 }
@@ -108,5 +130,6 @@ extend(UploadSourceFormView.prototype, {
     events: {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
+        'click .btn-to-explorer': 'onToExplorerClicked',
     }
 });
