@@ -3,21 +3,18 @@ from datetime import datetime, timezone
 from django.core.files.storage import default_storage
 from django.conf import settings
 
-from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED
 from rest_framework.parsers import MultiPartParser
 
-from rdflib import Graph, URIRef, BNode, Literal
+from rdflib import Graph, URIRef, Literal
 
 from rdf.ns import *
-from rdf.views import RDFView, RDFResourceView, graph_from_request
+from rdf.views import RDFView, RDFResourceView
 from rdf.utils import graph_from_triples
 from vocab import namespace as vocab
-from staff import namespace as staff
 from staff.utils import submission_info
-from . import namespace as my
 from .graph import graph
 from .utils import get_media_filename
 from .models import SourcesCounter
@@ -59,7 +56,7 @@ class SourcesAPISingular(RDFResourceView):
 
 
 class AddSource(RDFResourceView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
 
     def store(self, file, destination):
@@ -173,6 +170,7 @@ class AddSource(RDFResourceView):
 
         # add to store
         full_graph = graph()
+        # below stores result automagically
         full_graph += result
 
         return Response(result, HTTP_201_CREATED)
