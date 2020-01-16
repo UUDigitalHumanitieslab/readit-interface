@@ -209,7 +209,7 @@ export default class SourceView extends View<Node> {
         }
         else {
             this.showHighlights();
-            this.trigger('sourceview:showAnnotations', this);
+            this.trigger('sourceview:showAnnotations', this, true);
         }
         this.toggleToolbarItemSelected('annotations');
         this.isShowingHighlights = !this.isShowingHighlights;
