@@ -20,6 +20,8 @@ export function isGraph(candidate: any): candidate is Graph {
     return candidate instanceof Graph;
 }
 
+export type NodeLike = string | Identifier | Node;
+
 export type ReadOnlyCollection<M extends Model = Model> = Omit<Collection<M>,
     'preinitialize' | 'initialize' | 'sync' | 'add' | 'remove' | 'reset' |
     'set' | 'push' | 'pop' | 'unshift' | 'shift' | 'sort' | 'fetch' | 'create'

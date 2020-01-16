@@ -3,7 +3,12 @@ import { channel } from 'backbone.radio';
 
 import { proxyRoot } from 'config.json';
 
-import { isNode, isIdentifier, ReadOnlyGraph } from '../utilities/types';
+import {
+    isNode,
+    isIdentifier,
+    NodeLike,
+    ReadOnlyGraph,
+} from '../utilities/types';
 import { channelName } from './constants';
 import ldChannel from './radio';
 import { Identifier, FlatLdDocument, FlatLdGraph } from './json';
@@ -51,7 +56,7 @@ export default class Store extends Graph {
     /**
      * Main interface. Ensures every @id is represented by a single unique Node.
      */
-    obtain(id: string | Identifier | Node): Node {
+    obtain(id: NodeLike): Node {
         const initialResult = this.get(id as string | Node);
         if (isUndefined(initialResult)) {
             const placeholder = this.getPlaceholder(id);
@@ -64,7 +69,7 @@ export default class Store extends Graph {
     /**
      * Create, store and return a placeholder for a missing Node.
      */
-    getPlaceholder(id: string | Identifier | Node): Node {
+    getPlaceholder(id: NodeLike): Node {
         let placeholder;
         if (isNode(id)) {
             placeholder = id;
