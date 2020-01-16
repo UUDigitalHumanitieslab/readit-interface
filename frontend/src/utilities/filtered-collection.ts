@@ -3,7 +3,8 @@ import {
     defaultsDeep,
     omit,
     iteratee,
-    ListIterateeCustom,
+    isFunction,
+    ListIterator,
 } from 'lodash';
 import {
     Model as BModel,
@@ -18,7 +19,7 @@ type AnyFunction = (...args: any[]) => any;
 type IterateeParam = string | object | AnyFunction;
 
 export
-type FilterCriterion<M extends BModel> = ListIterateeCustom<M, boolean>;
+type FilterCriterion<M extends BModel> = ListIterator<M, boolean>;
 
 /**
  * Synchronized filtered read-only proxy to a Backbone.Collection.
@@ -44,10 +45,11 @@ export default class FilteredCollection<
     U extends BCollection<M> = Collection<M>
 > extends Collection<M> {
     underlying: U;
-    criterion: AnyFunction;
+    criterion: FilterCriterion<M>;
+    matches: AnyFunction;
 
-    constructor(underlying: U, criterion: FilterCriterion<M>, options?: any) {
-        criterion = iteratee(criterion as IterateeParam);
+    constructor(underlying: U, criterionArg: IterateeParam, options?: any) {
+        const criterion = criterionArg as FilterCriterion<M>;
         options = defaultsDeep(options || {}, {
             underlying,
             criterion,
@@ -65,7 +67,14 @@ export default class FilteredCollection<
     }
 
     preinitialize(models: M[], {underlying, criterion}): void {
-        extend(this, {underlying, criterion});
+        let matches: AnyFunction;
+        if (isFunction(criterion)) {
+            matches = criterion;
+        } else {
+            const wrappedIterator = iteratee(criterion as IterateeParam);
+            matches = model => wrappedIterator(model.attributes);
+        }
+        extend(this, {underlying, criterion, matches});
     }
 
     /**
@@ -73,8 +82,7 @@ export default class FilteredCollection<
      */
 
     proxyAdd(model: M, collection: U, options: any): void {
-        if (!this.criterion(model)) return;
-        this.add(model, omit(options, 'at'));
+        if (this.matches(model)) this.add(model, omit(options, 'at'));
     }
 
     proxyRemove(model: M, collection: U, options: any): void {
@@ -91,7 +99,7 @@ export default class FilteredCollection<
 
     proxyChange(model: M, options: any): void {
         // attributes changed, so we need to re-evaluate the filter criterion.
-        if (this.criterion(model)) {
+        if (this.matches(model)) {
             this.add(model, options);
         } else {
             this.remove(model, options);

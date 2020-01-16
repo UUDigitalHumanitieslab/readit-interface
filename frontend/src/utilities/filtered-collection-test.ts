@@ -3,7 +3,7 @@ import FilteredCollection from './filtered-collection';
 
 const testAddition = {
     id: 6,
-    x: 2,
+    x: 10,
     a: 1,
 };
 
@@ -161,5 +161,35 @@ describe('FilteredCollection', function() {
         raw.reset();
         expect(counter).toBe(1);
         expect(filtered.length).toBe(0);
+    });
+
+    it('works with the attribute name iteratee shorthand', function() {
+        let counter = 0;
+        const count = () => ++counter;
+        filtered = new FilteredCollection(raw, 'x');
+        filtered.on('add', count);
+        filtered.on('update', count);
+        filtered.on('remove', count);
+        raw.add(testAddition);
+        expect(counter).toBe(2);
+        expect(filtered.length).toBe(4);
+        raw.remove(exampleData[0]);
+        expect(counter).toBe(4);
+        expect(filtered.length).toBe(3);
+    });
+
+    it('works with the object matcher iteratee shorthand', function() {
+        let counter = 0;
+        const count = () => ++counter;
+        filtered = new FilteredCollection(raw, {x: 10});
+        filtered.on('add', count);
+        filtered.on('update', count);
+        filtered.on('remove', count);
+        raw.add(testAddition);
+        expect(counter).toBe(2);
+        expect(filtered.length).toBe(3);
+        raw.set(testUpdate, {merge: true, remove: false});
+        expect(counter).toBe(4);
+        expect(filtered.length).toBe(2);
     });
 });
