@@ -13,9 +13,9 @@ import {
 import Model from '../core/model';
 import Collection from '../core/collection';
 
-type anyFunction = (...args: any[]) => any;
+type AnyFunction = (...args: any[]) => any;
 // surprising inconsistency in @types/lodash
-type iterateeParam = string | object | anyFunction;
+type IterateeParam = string | object | AnyFunction;
 
 export
 type FilterCriterion<M extends BModel> = ListIterateeCustom<M, boolean>;
@@ -51,10 +51,10 @@ export default class FilteredCollection<
     U extends BCollection<M> = Collection<M>
 > extends Collection<M> {
     underlying: U;
-    criterion: anyFunction;
+    criterion: AnyFunction;
 
     constructor(underlying: U, criterion: FilterCriterion<M>, options?: any) {
-        criterion = iteratee(criterion as iterateeParam);
+        criterion = iteratee(criterion as IterateeParam);
         options = defaultsDeep(options || {}, {
             underlying,
             criterion,
