@@ -1,3 +1,5 @@
+import Model from '../core/model';
+import Collection from '../core/collection';
 import { Identifier } from '../jsonld/json';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
@@ -17,6 +19,17 @@ export function isNode(candidate: any): candidate is Node {
 export function isGraph(candidate: any): candidate is Graph {
     return candidate instanceof Graph;
 }
+
+export type ReadOnlyCollection<M extends Model = Model> = Omit<Collection<M>,
+    'preinitialize' | 'initialize' | 'sync' | 'add' | 'remove' | 'reset' |
+    'set' | 'push' | 'pop' | 'unshift' | 'shift' | 'sort' | 'fetch' | 'create'
+>;
+
+export type ReadOnlyGraph = Omit<Graph,
+    'preinitialize' | 'initialize' | 'sync' | 'add' | 'remove' | 'reset' |
+    'set' | 'push' | 'pop' | 'unshift' | 'shift' | 'sort' | 'fetch' | 'create' |
+    'context' | 'parse'
+>;
 
 /**
  * Self-documenting workaround for a common situation TypeScript
