@@ -3,12 +3,16 @@ import { channel } from 'backbone.radio';
 
 import { proxyRoot } from 'config.json';
 
-import { isNode, isIdentifier } from '../utilities/types';
+import { isNode, isIdentifier, ReadOnlyGraph } from '../utilities/types';
 import { channelName } from './constants';
 import ldChannel from './radio';
 import { Identifier, FlatLdDocument, FlatLdGraph } from './json';
 import Node from './node';
 import Graph from './graph';
+
+export interface StoreVisitor<T> {
+    (store: ReadOnlyGraph): T;
+}
 
 const fetchOptions = {
     remove: false,
@@ -28,12 +32,20 @@ export default class Store extends Graph {
         super(models, options);
         this.forEach(this._preventSelfReference.bind(this));
         this.on('add', this._preventSelfReference);
+        ldChannel.reply('visit', this.accept.bind(this));
         ldChannel.reply('obtain', this.obtain.bind(this));
         ldChannel.reply('merge', this.mergeExisting.bind(this));
         this.listenTo(ldChannel, 'register', this.register);
         this._forwardEventsToChannel([
             'request', 'sync', 'error', 'add',
         ]);
+    }
+
+    /**
+     * Generic interface for read-only access to the store contents.
+     */
+    accept<T>(visitor: StoreVisitor<T>): T {
+        return visitor(this as ReadOnlyGraph);
     }
 
     /**

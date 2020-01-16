@@ -32,6 +32,10 @@ function waitUntilRequest(store, done) {
     store.once('request', () => done());
 }
 
+function trivialVisitor(store) {
+    return store.length;
+}
+
 describe('Store', function() {
     beforeEach(function() {
         jasmine.Ajax.install();
@@ -64,6 +68,11 @@ describe('Store', function() {
     });
 
     describe('channel bindings ensure that...', function() {
+        it('"visit" is replied to with the accept method', function() {
+            const result = ldChannel.request('visit', trivialVisitor);
+            expect(result).toBe(1);
+        });
+
         it('"obtain" is replied to with the obtain method', function(done) {
             const result = ldChannel.request('obtain', partialHash);
             expect(result).toEqual(jasmine.any(Node));
@@ -106,6 +115,19 @@ describe('Store', function() {
             const result = ldChannel.request('obtain', partialHash);
             expect(result).toBeUndefined();
             expect(this.store.has(partialHash)).toBeFalsy();
+        });
+    });
+
+    describe('accept', function() {
+        it('invokes the passed function with the store', function() {
+            const spy = jasmine.createSpy();
+            this.store.accept(spy);
+            expect(spy).toHaveBeenCalledWith(this.store);
+        });
+
+        it('returns whatever the passed function returns', function() {
+            const spy = jasmine.createSpy().and.returnValue('banana');
+            expect(this.store.accept(spy)).toBe('banana');
         });
     });
 
