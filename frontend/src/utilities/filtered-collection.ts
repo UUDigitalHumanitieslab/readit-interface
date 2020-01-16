@@ -21,13 +21,6 @@ export
 type FilterCriterion<M extends BModel> = ListIterateeCustom<M, boolean>;
 
 /**
- * Helper function for the disabled methods in FilteredCollection.
- */
-function refuseModifications(method): never {
-    throw TypeError(`FilteredCollection is read-only. Invoke ${method} on the underlying collection instead.`)
-}
-
-/**
  * Synchronized filtered read-only proxy to a Backbone.Collection.
  *
  * Use this to keep a filtered subset of some other, pre-existing
@@ -68,7 +61,6 @@ export default class FilteredCollection<
             reset: this.proxyReset,
             sort: this.proxySort,
             change: this.proxyChange,
-            all: this.forwardUnderlyingEvent,
         }, this);
     }
 
@@ -78,84 +70,31 @@ export default class FilteredCollection<
 
     /**
      * Forwarding methods. You are not supposed to invoke these yourself.
-     *
-     * These methods invoke super methods because the corresponding
-     * methods on this have been overridden.
      */
 
     proxyAdd(model: M, collection: U, options: any): void {
         if (!this.criterion(model)) return;
-        super.add(model, omit(options, 'at'));
+        this.add(model, omit(options, 'at'));
     }
 
     proxyRemove(model: M, collection: U, options: any): void {
-        super.remove(model, options);
+        this.remove(model, options);
     }
 
     proxyReset(collection: U, options: any): void {
-        super.reset(this.underlying.filter(this.criterion), options);
+        this.reset(this.underlying.filter(this.criterion), options);
     }
 
     proxySort(collection: U, options: any): void {
-        super.sort(options);
+        this.sort(options);
     }
 
     proxyChange(model: M, options: any): void {
         // attributes changed, so we need to re-evaluate the filter criterion.
-        const metCriterion = this.includes(model);
-        const meetsCriterion = this.criterion(model);
-        if (!meetsCriterion) return super.remove(model, options), null;
-        if (!metCriterion) return super.add(model, options), null;
-        this.trigger('change', model, options);
-    }
-
-    forwardUnderlyingEvent(eventName: string, ...args: any[]): void {
-        let model, rest, collection, options;
-
-        switch (eventName) {
-        // events already forwarded by the above proxy methods
-        case 'add': case 'remove': case 'reset': case 'sort': case 'change':
-            break;
-        // events we simply ignore (xhr-related)
-        case 'destroy': case 'request': case 'sync': case 'error':
-            break;
-        // update
-        case 'update':
-            [collection, options] = args;
-            const filteredChanges = {
-                added: options.changes.added.filter(this.criterion),
-                removed: options.changes.removed.filter(this.criterion),
-                merged: options.changes.merged.filter(this.criterion),
-            };
-            if (filteredChanges.added.length || filteredChanges.removed.length || filteredChanges.merged.length) {
-                this.trigger(eventName, this, defaultsDeep({
-                    changes: filteredChanges,
-                }, options));
-            }
-            break;
-        // change:[attribute] and invalid
-        default:
-            [model, ...rest] = args;
-            if (this.criterion(model)) {
-                this.trigger(eventName, model, ...rest);
-            }
+        if (this.criterion(model)) {
+            this.add(model, options);
+        } else {
+            this.remove(model, options);
         }
     }
-
-    /**
-     * Disabled methods that should be invoked on the underlying
-     * collection instead.
-     */
-    sync()    { return refuseModifications('sync'); }
-    add()     { return refuseModifications('add'); }
-    remove()  { return refuseModifications('remove'); }
-    reset()   { return refuseModifications('reset'); }
-    set()     { return refuseModifications('set'); }
-    push()    { return refuseModifications('push'); }
-    pop()     { return refuseModifications('pop'); }
-    unshift() { return refuseModifications('unshift'); }
-    shift()   { return refuseModifications('shift'); }
-    sort()    { return refuseModifications('sort'); }
-    fetch()   { return refuseModifications('fetch'); }
-    create()  { return refuseModifications('create'); }
 }
