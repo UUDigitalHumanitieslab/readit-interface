@@ -1,10 +1,13 @@
-import { find, includes } from 'lodash';
+import { find, includes, map, compact, isString } from 'lodash';
 
+import ldChannel from '../jsonld/radio';
+import { Identifier } from '../jsonld/json';
 import Node from '../jsonld/node';
 import Graph from './../jsonld/graph';
 import ItemGraph from './item-graph';
 import { skos, rdfs, readit, dcterms } from './../jsonld/ns';
 import SourceView from '../panel-source/source-view';
+import { isIdentifier, isNode, NodeLike, ReadOnlyGraph } from './types';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -76,6 +79,79 @@ export function hasProperty(node: Node, property: string): boolean {
     if (!node.get(property)) return false;
     if (node.get(property).length == 0) return false;
     return true;
+}
+
+export interface GraphTraversal {
+    (node: Node): Node[];
+}
+
+/**
+ * Transitively collect all Nodes that are connected by a given relationship.
+ * For an example of usage, see the getRdfSuperClasses source code.
+ * @param seeds the Nodes from which to start following the relationship.
+ * @param traverse a function that, given a Node, returns its related Nodes.
+ * @return a deduplicated array of all related Nodes, including the seeds.
+ */
+export function transitiveClosure(
+    seeds: Node[],
+    traverse: GraphTraversal
+): Node[] {
+    const fringe = new Graph(seeds);
+    const newlyFound = new Graph();
+    const finished = new Graph();
+    const addRelated = node => (
+        node && newlyFound.add(compact(traverse(node)))
+    );
+
+    while (!fringe.isEmpty()) {
+        fringe.forEach(addRelated);
+        finished.add(fringe.models);
+        newlyFound.remove(finished.models);
+        fringe.reset(newlyFound.models);
+    }
+
+    return finished.models;
+}
+
+/**
+ * Get all known RDF classes that are ancestors of the passed class(es).
+ * "Known" here means that only the information that is synchronously
+ * available from the store is taken into account, although classes
+ * that were not previously in the store will be fetched as a side
+ * effect.
+ * @param clss (URIs of) RDF classes of which to obtain all ancestors.
+ * @return a deduplicated array of all ancestors of clss, including clss.
+ */
+export function getRdfSuperClasses(clss: NodeLike[]): Node[] {
+    const seed = map(clss, cls => ldChannel.request('obtain', cls));
+
+    function traverseParents(cls) {
+        const getDirectParents = store => store.get(cls).get(rdfs.subClassOf);
+        return ldChannel.request('visit', getDirectParents);
+    }
+
+    return transitiveClosure(seed, traverseParents);
+}
+
+/**
+ * Get all known RDF classes that are descendants of the passed class(es).
+ * "Known" here means that only the information that is synchronously
+ * available from the store is taken into account, although classes
+ * that were not previously in the store will be fetched as a side
+ * effect.
+ * @param clss (URIs of) RDF classes of which to obtain all descendants.
+ * @return a deduplicated array of all descendants of clss, including clss.
+ */
+export function getRdfSubClasses(clss: NodeLike[]): Node[] {
+    const seed = map(clss, cls => ldChannel.request('obtain', cls));
+
+    function traverseChildren(cls) {
+        return ldChannel.request('visit', store => store.filter({
+            [rdfs.subClassOf]: cls,
+        }));
+    }
+
+    return transitiveClosure(seed, traverseChildren);
 }
 
 /**
