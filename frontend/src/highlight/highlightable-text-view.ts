@@ -80,7 +80,7 @@ export default class HighlightableTextView extends View {
      * Keep track of overlapsloading, i.e. overlaps will always be initialized after all annotations are loaded.
      * Do not allow users to select text before all loading is done.
      */
-    hasOverlapsLoaded: boolean;
+    isFullyLoaded: boolean;
 
     /**
      * Store a reference to a OverlapDetailView
@@ -112,6 +112,7 @@ export default class HighlightableTextView extends View {
         );
 
         if (!options.collection) this.collection = new Graph();
+        if (options.collection.length == 0) this.isFullyLoaded = true;
         this.listenTo(this.collection, 'add', this.addHighlight);
         this.listenTo(this.collection, 'update', this.onHighlightViewsUpdated);
         this.listenTo(this.collection, 'remove', this.destroyNode)
@@ -135,7 +136,7 @@ export default class HighlightableTextView extends View {
      */
     onReady(): this {
         this.isInDOM = true;
-        this.textWrapper = $(`<div class="textWrapper">${this.text}</div>`);
+        this.textWrapper = $(`<pre class="textWrapper">${this.text}</pre>`);
         this.positionContainer = $('<div class="position-container">');
         this.textWrapper.appendTo(this.positionContainer);
         this.positionContainer.appendTo(this.$el);
@@ -168,7 +169,7 @@ export default class HighlightableTextView extends View {
             this.listenTo(ohv, 'click', this.onOverlapClicked);
             this.overlaps.push(ohv);
         });
-        this.hasOverlapsLoaded = true;
+        this.isFullyLoaded = true;
     }
 
     initHighlights(): this {
@@ -444,7 +445,7 @@ export default class HighlightableTextView extends View {
 
     onTextSelected(): void {
         if (!this.isEditable) return;
-        if (!this.hasOverlapsLoaded) return;
+        if (!this.isFullyLoaded) return;
 
         let selection = window.getSelection();
         let range = selection.getRangeAt(0).cloneRange();

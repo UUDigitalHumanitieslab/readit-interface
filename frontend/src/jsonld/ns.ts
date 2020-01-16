@@ -469,6 +469,23 @@ export const schemaTerms = [
 export const schema = Vocabulary(schemaPrefix, schemaTerms);
 
 /**
+ * ISO639-1
+ * http://id.loc.gov/vocabulary/iso639-1/
+ * Vocabulary with two letter codes for languages
+ */
+
+export const iso6391Prefix = 'http://id.loc.gov/vocabulary/iso639-1/';
+
+export const iso6391Terms = [
+    'en',
+    'de',
+    'fr',
+] as const;
+
+export const iso6391 = Vocabulary(iso6391Prefix, iso6391Terms);
+
+
+/**
  * READ-IT global prefix
  */
 
@@ -529,3 +546,10 @@ export const sourcePrefix = READIT + 'source/';
 const sourcesNotHardcoded = [] as const;
 
 export const source = Vocabulary(sourcePrefix, sourcesNotHardcoded);
+
+
+/**
+ *  URI for representing an unauthenticated visitor, a source with unknown/multiple languages, or unknown source type.
+ *  Probably not the best possible, but it will do for now.
+ */
+export const UNKNOWN = 'https://www.wikidata.org/wiki/Q24238356'

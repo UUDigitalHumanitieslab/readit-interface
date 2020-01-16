@@ -18,6 +18,7 @@ import SourceView from './../panel-source/source-view';
 import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
+import uploadSourceForm from './../global/upload-source-form';
 
 import { oa } from './../jsonld/ns';
 
@@ -30,7 +31,8 @@ import RelatedItemsView from '../panel-related-items/related-items-view';
 import SearchResultBaseItemView from '../search/search-results/search-result-base-view';
 
 import SourceListView from '../panel-source-list/source-list-view';
-import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
+
+let explorerView;
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -38,8 +40,7 @@ history.once('route', () => {
 });
 
 directionRouter.on('route:arrive', () => {
-    // userFsm.handle('arrive');
-    welcomeView.render().$el.appendTo('#main');
+    userFsm.handle('arrive');
 });
 
 userFsm.on('enter:arriving', () => {
@@ -50,17 +51,31 @@ userFsm.on('exit:arriving', () => {
     welcomeView.$el.detach();
 });
 
+directionRouter.on('route:upload', () => {
+    userFsm.handle('upload');
+});
+
+userFsm.on('enter:uploading', () => {
+    uploadSourceForm.setHeight(getViewportHeight());
+    uploadSourceForm.render().$el.appendTo('#main');
+});
+
+userFsm.on('exit:uploading', () => {
+    uploadSourceForm.reset();
+    uploadSourceForm.$el.detach();
+});
+
 directionRouter.on('route:explore', () => {
-    // userFsm.handle('explore');
+    userFsm.handle('explore');
+});
+
+userFsm.on('enter:exploring', () => {
     welcomeView.$el.detach();
     initSourceList();
 });
 
-userFsm.on('enter:exploring', () => {
-    initSourceList();
-});
-
 userFsm.on('exit:exploring', () => {
+    if (explorerView) explorerView.$el.detach();
 });
 
 
@@ -68,14 +83,20 @@ directionRouter.on('route:leave', () => {
     userFsm.handle('leave');
 });
 
-function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
-    let exView = new ExplorerView({ first: first, ontology: ontology });
+/**
+ * Get the heigth of the available vertical space.
+ * Compensates for menu and footer, and 555 is min-height.
+ */
+function getViewportHeight(): number {
     let vh = $(window).height();
-    // compensates for menu and footer (555 is min-height)
-    let height = Math.max(vh - 194, 555);
-    exView.setHeight(height);
-    exView.render().$el.appendTo('#main');
-    return exView;
+    return Math.max(vh - 158, 555);
+}
+
+function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
+    explorerView = new ExplorerView({ first: first, ontology: ontology });
+    explorerView.setHeight(getViewportHeight());
+    explorerView.render().$el.appendTo('#main');
+    return explorerView;
 }
 
 function initSourceList() {

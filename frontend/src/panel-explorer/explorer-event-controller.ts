@@ -47,7 +47,7 @@ export default class ExplorerEventController {
             'sourceview:highlightDeleted': this.sourceviewHighlightDeleted,
             'sourceview:showMetadata': this.sourceViewShowMetadata,
             'sourceview:hideMetadata': this.sourceViewHideMetadata,
-            'sourceview:showAnnotations': (graph) => defer(this.sourceViewShowAnnotations.bind(this), graph),
+            'sourceview:showAnnotations': (graph, finalizeNoInitialHighlights) => defer(this.sourceViewShowAnnotations.bind(this), graph, finalizeNoInitialHighlights),
             'sourceview:hideAnnotations': this.sourceViewHideAnnotations,
             'sourceView:enlarge': this.sourceViewEnlarge,
             'sourceView:shrink': this.sourceViewShrink,
@@ -231,10 +231,11 @@ export default class ExplorerEventController {
         return this;
     }
 
-    sourceViewShowAnnotations(sourceView: SourceView): this {
+    sourceViewShowAnnotations(sourceView: SourceView, finalizeNoInitialHighlights: boolean = false): this {
         let annotationListView = new AnnotationListView({
             collection: sourceView.collection as Graph
         });
+        if (finalizeNoInitialHighlights) annotationListView.finalizeNoInitialHighlights();
 
         this.mapSourceAnnotationList.set(sourceView, annotationListView);
         this.mapAnnotationListSource.set(annotationListView, sourceView);

@@ -204,6 +204,19 @@ export default class Node extends Model {
         if (isArray(data) && (data as [FlatLdObject]).length === 1) return data[0];
         throw TypeError('Object or singleton array expected.');
     }
+
+    save(attributes: any = {}, options = {}) {
+        if (attributes instanceof HTMLFormElement) {
+            extend(options, {
+                data: new FormData(attributes),
+                cache: false,
+                contentType: false
+            });
+            return super.save(null, options);
+        }
+
+        super.save(attributes, options);
+    }
 }
 
 extend(Node.prototype, {

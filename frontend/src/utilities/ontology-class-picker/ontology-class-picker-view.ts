@@ -8,6 +8,7 @@ import LabelView from './../label-view';
 
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 import ontologyClassPickerTemplate from './ontology-class-picker-template';
+import { isRdfsClass } from '../utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     collection: Graph;
@@ -45,10 +46,12 @@ export default class OntologyClassPickerView extends View<Node> {
     initDropdownItems(): this {
         this.dropdownItems = [];
         this.collection.each((node) => {
-            let view = new OntologyClassPickerItemView({ model: node as Node });
-            view.on('click', this.onItemClicked, this);
-            view.on('activated', this.onItemActivated, this);
-            this.dropdownItems.push(view);
+            if (isRdfsClass(node)) {
+                let view = new OntologyClassPickerItemView({ model: node as Node });
+                view.on('click', this.onItemClicked, this);
+                view.on('activated', this.onItemActivated, this);
+                this.dropdownItems.push(view);
+            }
         });
         return;
     }
