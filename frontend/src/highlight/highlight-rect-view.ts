@@ -32,7 +32,8 @@ export default class HighlightRectView extends View {
     }
 
     render(): this {
-        this.$el.html(this.template({ isLast: this.isLast }));
+        // TODO: what to do with the delete button?
+        // this.$el.html(this.template({ isLast: this.isLast }));
         this.$el.addClass(this.cssClass);
         return this;
     }
