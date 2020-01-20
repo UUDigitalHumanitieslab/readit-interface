@@ -7,6 +7,7 @@ const DirectionFsm = Fsm.extend({
             arrive: 'arriving',
             leave: 'leaving',
             explore: 'exploring',
+            register: 'registering',
         },
         arriving: {
             leave: 'leaving',
@@ -18,6 +19,9 @@ const DirectionFsm = Fsm.extend({
         exploring: {
             leave: 'leaving',
             arrive: 'arriving',
+        },
+        registering: {
+            leave: 'leaving',
         }
     },
 });
