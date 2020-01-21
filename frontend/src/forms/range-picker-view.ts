@@ -1,57 +1,105 @@
-import { extend, assign, defaults, defaultsDeep } from 'lodash';
+import { extend, assign, defaults, defaultsDeep, map } from 'lodash';
 import {
     View as BView,
     ViewOptions as BViewOptions,
 } from 'backbone';
 
-import View from '../core/view';
+import View, { CollectionView } from '../core/view';
+import { rdfs } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
-import { getLabel } from '../utilities/utilities';
+import { getLabel, getRdfSubClasses } from '../utilities/utilities';
+import FilteredCollection from '../utilities/filtered-collection';
+import pickerTemplate from './range-picker-template';
+
+export interface RangePickerOptionOptions extends BViewOptions<Node> {
+    selected?: boolean;
+    label?: string;
+}
 
 const defaultOptionAttributes = {
     selected: false,
 };
 
 export class RangePickerOptionView extends View<Node> {
-    preinitialize(options?: BViewOptions): void {
+    label: string;
+
+    constructor(options: RangePickerOptionOptions) {
+        super(options);
+    }
+
+    preinitialize(options: RangePickerOptionOptions): void {
         if (!options || !options.model) {
             throw new Error('RangePickerOptionView requires a model');
         }
         let attributes = options.attributes;
         if (!attributes) {
-            attributes = self.attributes = (self.attributes || {});
+            attributes = this.attributes = (this.attributes || {});
         }
-        defaults(attributes, defaultOptionAttributes, {
-            label: getLabel(options.model),
-        });
-        attributes.value = model.id;
+        attributes.value = options.model.id;
+    }
+
+    initialize({model, label}: RangePickerOptionOptions): void {
+        this.label = label || getLabel(model);
+        this.render();
+    }
+
+    render(): this {
+        this.$el.text(this.label);
+        return this;
     }
 }
 
 extend(RangePickerOptionView.prototype, {
-    tagName: 'select',
+    tagName: 'option',
 });
 
 export interface RangePickerOptions extends BViewOptions<Node> {
+    model: Node;
     collection: Graph;
     multiple?: boolean;
 }
 
-export default class RangePickerView extends View<Node> {
-    collection: Graph;
+export default class RangePickerView extends CollectionView<Node, RangePickerOptionView> {
+    collection: FilteredCollection<Node, Graph>;
+    admittedTypes: string[];
+    multiple: boolean;
 
-    constructor(options?: RangePickerOptions) {
+    constructor(options: RangePickerOptions) {
+        if (!options || !options.model || !options.collection) {
+            throw new Error('RangePickerView requires model and collection');
+        }
         super(options);
     }
 
-    preinitialize(options?: RangePickerOptions): void {
-        if (!options) return;
-        if (!options.multiple) return;
+    preinitialize(options: RangePickerOptions): void {
+        let multiple = options.multiple;
+        if (multiple == null) multiple = true;
         defaultsDeep(options, {
-            attributes: {
-                multiple: true,
-            },
+            multiple,
+            className: this.className + (multiple ? ' is-multiple' : ''),
         });
     }
+
+    initialize({model, collection, multiple}: RangePickerOptions): void {
+        this.multiple = multiple;
+        const rangeSubtypes = getRdfSubClasses(model.get(rdfs.range) as Node[]);
+        this.admittedTypes = map(rangeSubtypes, 'id');
+        this.collection = new FilteredCollection(collection, {
+            '@type': this.admittedTypes,
+        });
+        this.initItems().render().initCollectionEvents();
+    }
+
+    renderContainer(): this {
+        this.$el.html(this.template(this));
+        return this;
+    }
 }
+
+extend(RangePickerView.prototype, {
+    className: 'select readit-range-picker',
+    template: pickerTemplate,
+    subview: RangePickerOptionView,
+    container: 'select',
+});
