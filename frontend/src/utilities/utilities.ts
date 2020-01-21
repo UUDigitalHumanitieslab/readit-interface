@@ -36,6 +36,7 @@ export function getLabelFromId(id: string) {
  * Returns null if no label is found.
  */
 export function getCssClassName(node: Node): string {
+    if (!node) return undefined;
     let label = getLabel(node);
 
     if (label) {
