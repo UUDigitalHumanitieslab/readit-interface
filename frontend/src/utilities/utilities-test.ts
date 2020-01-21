@@ -137,7 +137,7 @@ describe('utilities', function () {
     describe('isRdfsClass', function () {
         it('recognizes type rdfs:Class', function () {
             let node = getDefaultNode();
-            expect(isRdfsClass(node)).toBe(true);
+            expect(isRdfsClass(node)).toBeTruthy();
         });
 
         it('recognizes type rdfs:subClassOf', function () {
@@ -146,7 +146,7 @@ describe('utilities', function () {
             attributes[rdfs.subClassOf] = [{ '@id': 'anything' }]
             let node = new Node(attributes);
 
-            expect(isRdfsClass(node)).toBe(true);
+            expect(isRdfsClass(node)).toBeTruthy();
         });
 
         it('ignores other types', function () {
@@ -154,7 +154,7 @@ describe('utilities', function () {
             attributes['@type'] = [rdf.Property];
             let node = new Node(attributes);
 
-            expect(isRdfsClass(node)).toBe(false);
+            expect(isRdfsClass(node)).toBeFalsy();
         });
     });
 

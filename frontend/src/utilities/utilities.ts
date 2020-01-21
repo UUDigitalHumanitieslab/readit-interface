@@ -55,30 +55,7 @@ export function getCssClassName(node: Node): string {
  * @param node The node to evaluate
  */
 export function isRdfsClass(node: Node): boolean {
-    const subclass = node.get(rdfs.subClassOf);
-    if (subclass && subclass.length > 0) {
-        return true;
-    }
-
-    const nodeType = node.get('@type');
-    if (nodeType && nodeType.length > 0) {
-        return includes(nodeType, rdfs.Class);
-    }
-
-    return false;
-}
-
-/**
- * Check if a node has a certain property (i.e. namespace#term).
- * If the property's value is an empty array, it will be considered non-existent (i.e. ignored),
- * unless otherwise specified.
- * @param node The node to evaluate.
- * @param property The property (i.e. namespace#term) we're looking for.
- */
-export function hasProperty(node: Node, property: string): boolean {
-    if (!node.get(property)) return false;
-    if (node.get(property).length == 0) return false;
-    return true;
+    return node.has(rdfs.subClassOf) || node.has('@type', rdfs.Class);
 }
 
 export interface GraphTraversal {
