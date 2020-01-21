@@ -134,15 +134,15 @@ const browserLibs: LibraryProps[] = [{
         global: 'jsonld',
         cdn: `${jsdelivrPattern}/dist/\${filenameMin}`,
     }, {
-        module: 'jquery-validation',
-        browser: 'jquery-validation/dist/jquery.validate.min',
-        global: 'jquery-validation',
-        cdn: `${cdnjsBase}/jquery-validate/\${version}/jquery.validate.min.js`,
-    }, {
         module: 'jquery-validation-addons',
         browser: 'jquery-validation/dist/additional-methods.min.js',
         global: 'jquery-validation-addons',
         cdn: `${cdnjsBase}/jquery-validate/\${version}/additional-methods.min.js`,
+    }, {
+        module: 'jquery-validation',
+        browser: 'jquery-validation/dist/jquery.validate.min',
+        global: 'jquery-validation',
+        cdn: `${cdnjsBase}/jquery-validate/\${version}/jquery.validate.min.js`,
     }, {
         module: 'bulma-accordion',
         browser: 'bulma-accordion/dist/js/bulma-accordion.min',
