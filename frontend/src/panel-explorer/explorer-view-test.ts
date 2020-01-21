@@ -1,4 +1,4 @@
-import { enableI18n } from '../test-util';
+import { enableI18n, startStore, endStore } from '../test-util';
 
 import ExplorerView from './explorer-view';
 import View from './../core/view';
@@ -8,6 +8,8 @@ import Graph from './../jsonld/graph';
 
 describe('ExplorerView', function () {
     beforeAll(enableI18n);
+    beforeEach(startStore);
+    afterEach(endStore);
 
     beforeEach(function () {
         let firstPanel = new View();

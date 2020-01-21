@@ -1,4 +1,4 @@
-import { onlyIf } from '../test-util';
+import { onlyIf, startStore, endStore } from '../test-util';
 
 import OverlappingHighlightsStrategy, { HighlightIndex, OverlappingHighlights } from './overlapping-highlights-strategy';
 import HighlightView from './highlight-view';
@@ -9,6 +9,9 @@ describe('OverlappingHighlightsStrategy', function () {
     const it = onlyIf(document.createRange, 'DOM Traversal and Selection APIs required.');
 
     let strategy = new OverlappingHighlightsStrategy();
+
+    beforeEach(startStore);
+    afterEach(endStore);
 
     beforeEach(function () {
         createSomeHtml();

@@ -1,4 +1,4 @@
-import { find, includes, map, compact, isString } from 'lodash';
+import { find, includes, map, compact, some, isString } from 'lodash';
 
 import ldChannel from '../jsonld/radio';
 import { Identifier } from '../jsonld/json';
@@ -132,14 +132,16 @@ export function getRdfSubClasses(clss: NodeLike[]): Node[] {
 }
 
 /**
- * Check if a Node is of a specific type.
- * TODO: strictly speaking, the type of a Node could be a subtype of the provided type,
- * making the Node an instance of that type as well. Implement a way to deal with this.
+ * Check if a Node is an instance of (a subclass of) a specific type.
  * @param node The node to inspect.
  * @param type The expected type, e.g. (schema.CreativeWork).
+ * @return true if node is an instance of type, false otherwise.
  */
-export function isType(node: Node, type: string) {
-    return includes(node.get('@type'), type);
+export function isType(node: Node, type: string): boolean {
+    const initialTypes = node.get('@type') as string[];
+    if (!initialTypes) return false;
+    const allTypes = getRdfSuperClasses(initialTypes);
+    return some(allTypes, {'id': type});
 }
 
 
