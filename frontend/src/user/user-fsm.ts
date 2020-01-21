@@ -11,6 +11,7 @@ const unprivilegedState = {
     arrive: requireAuthorization,
     leave: 'leaving',
     explore: requireAuthorization,
+    upload: requireAuthorization,
 };
 
 /**
@@ -21,6 +22,7 @@ const privilegedState = {
     arrive: 'arriving',
     leave: 'leaving',
     explore: 'exploring',
+    upload: 'uploading',
 };
 
 /**
@@ -41,6 +43,7 @@ export default AuthorizationFsm.extend({
         }, privilegedState),
         leaving: unprivilegedState,
         authorizationGranted: privilegedState,
-        exploring: privilegedState
+        exploring: privilegedState,
+        uploading: privilegedState,
     },
 });

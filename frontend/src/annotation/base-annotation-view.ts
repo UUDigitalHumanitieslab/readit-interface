@@ -6,7 +6,7 @@ import { oa, schema, vocab, readit } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
 
-import { isType } from '../utilities/utilities';
+import { isType, isOntologyClass } from '../utilities/utilities';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import LabelView from '../utilities/label-view';
 
@@ -33,49 +33,55 @@ export default abstract class BaseAnnotationView extends View<Node> {
         return this;
     }
 
-    baseProcessModel(annotation: Node): this {
+    processAnnotation(annotation: Node): this {
         let targets = annotation.get(oa.hasTarget);
 
         if (targets) {
             targets.forEach(n => {
-                this.baseProcessTarget(n as Node);
-                this.stopListening(n, 'change', this.baseProcessTarget);
-                this.listenTo(n, 'change', this.baseProcessTarget);
+                this.processTarget(n as Node);
+                // Stop listening in case we are already listening...
+                // ... and then listen afresh. (i.e. prevent double event handling)
+                this.stopListening(n, 'change', this.processTarget);
+                this.listenTo(n, 'change', this.processTarget);
             });
         }
 
         let bodies = annotation.get(oa.hasBody);
         if (bodies) {
             bodies.forEach(b => {
-                this.stopListening(b, 'change', this.baseProcessBody);
-                this.listenTo(b, 'change', this.baseProcessBody);
-                this.baseProcessBody(b as Node);
+                // Stop listening in case we are already listening...
+                // ... and then listen afresh. (i.e. to prevent double event handling)
+                this.stopListening(b, 'change', this.processBody);
+                this.listenTo(b, 'change', this.processBody);
+                this.processBody(b as Node);
             });
         }
 
         return this;
     }
 
-    baseProcessTarget(target: Node): this {
+    processTarget(target: Node): this {
         if (isType(target, oa.SpecificResource)) {
             let source = target.get(oa.hasSource)[0] as Node;
-            this.stopListening(source, 'change', this.baseProcessSource);
-            this.listenTo(source, 'change', this.baseProcessSource);
-            this.baseProcessSource(source);
+            // See comment above for explanation of stopListening/listenTo pattern.
+            this.stopListening(source, 'change', this.processSource);
+            this.listenTo(source, 'change', this.processSource);
+            this.processSource(source);
 
             let selectors: Node[] = target.get(oa.hasSelector) as Node[];
             for (let selector of selectors) {
-                this.stopListening(selector, 'change', this.baseProcessSelector);
-                this.listenTo(selector, 'change', this.baseProcessSelector);
-                this.baseProcessSelector(selector);
+                // See comment above for explanation of stopListening/listenTo pattern.
+                this.stopListening(selector, 'change', this.processSelector);
+                this.listenTo(selector, 'change', this.processSelector);
+                this.processSelector(selector);
             }
         }
 
         return this;
     }
 
-    baseProcessBody(body: Node): this {
-        if ((body.id as string).includes('ontology')) {
+    processBody(body: Node): this {
+        if (isOntologyClass(body)) {
             this.trigger('body:ontologyClass', body);
         }
         else {
@@ -85,37 +91,39 @@ export default abstract class BaseAnnotationView extends View<Node> {
         return this;
     }
 
-    baseProcessSource(source: Node): this {
+    processSource(source: Node): this {
         this.trigger('source', source);
         return this;
     }
 
-    baseProcessSelector(selector: Node): this {
+    processSelector(selector: Node): this {
         if (isType(selector, oa.TextQuoteSelector)) {
             this.trigger('textQuoteSelector', selector);
         }
 
         if (isType(selector, vocab('RangeSelector'))) {
             let startSelector = selector.get(oa.hasStartSelector)[0] as Node;
-            this.stopListening(startSelector, 'change', this.baseProcessStartSelector);
-            this.listenTo(startSelector, 'change', this.baseProcessStartSelector);
-            this.baseProcessStartSelector(startSelector);
+            // See comment above for explanation of stopListening/listenTo pattern.
+            this.stopListening(startSelector, 'change', this.processStartSelector);
+            this.listenTo(startSelector, 'change', this.processStartSelector);
+            this.processStartSelector(startSelector);
 
             let endSelector = selector.get(oa.hasEndSelector)[0] as Node;
-            this.stopListening(endSelector, 'change', this.baseProcessEndSelector);
-            this.listenTo(endSelector, 'change', this.baseProcessEndSelector);
-            this.baseProcessEndSelector(endSelector);
+            // See comment above for explanation of stopListening/listenTo pattern.
+            this.stopListening(endSelector, 'change', this.processEndSelector);
+            this.listenTo(endSelector, 'change', this.processEndSelector);
+            this.processEndSelector(endSelector);
         }
 
         return this;
     }
 
-    baseProcessStartSelector(selector: Node): this {
+    processStartSelector(selector: Node): this {
         this.trigger('startSelector', selector);
         return this;
     }
 
-    baseProcessEndSelector(selector: Node): this {
+    processEndSelector(selector: Node): this {
         this.trigger('endSelector', selector);
         return this;
     }

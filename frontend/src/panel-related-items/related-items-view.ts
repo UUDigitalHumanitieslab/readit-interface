@@ -34,8 +34,6 @@ export default class RelatedItemsView extends View<Node> {
         this.relations = [];
 
         this.initRelatedItems(this.model);
-        this.listenTo(this.model, 'change', this.initRelatedItems);
-
         return this;
     }
 
@@ -53,7 +51,7 @@ export default class RelatedItemsView extends View<Node> {
 
             if (items.length > 0) {
                 let view = new RelatedItemsRelationView({
-                    relationName: relationLabel, collection: new Graph(items), ontology: this.ontology
+                    relationName: relationLabel, collection: new Graph(items)
                 });
                 view.on('sumblock-clicked', this.onSummaryBlockClicked, this);
                 this.relations.push(view);

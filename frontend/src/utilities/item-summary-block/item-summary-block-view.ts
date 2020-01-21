@@ -1,25 +1,19 @@
-import { extend, defer } from 'lodash';
+import { extend } from 'lodash';
 
 import { oa, rdf } from './../../jsonld/ns';
 import Node from './../../jsonld/node';
-import Graph from './../../jsonld/graph';
 import ldChannel from './../../jsonld/radio';
-import { getCssClassName, getLabel, isType, getLabelFromId } from './../utilities';
-import { getOntologyInstance, getLabelText, AnnotationPositionDetails, getPositionDetails } from '../annotation/annotation-utilities';
+import { getCssClassName, getLabel, isType } from './../utilities';
+import { getLabelText, AnnotationPositionDetails, getPositionDetails } from '../annotation/annotation-utilities';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
-import BaseAnnotationView, { ViewOptions as BaseOpt } from '../../annotation/base-annotation-view';
+import BaseAnnotationView, { ViewOptions } from '../../annotation/base-annotation-view';
 
-
-export interface ViewOptions extends BaseOpt {
-    ontology: Graph;
-}
 
 export default class ItemSummaryBlockView extends BaseAnnotationView {
     instanceLabel: string;
     classLabel: string;
     cssClassName: string;
-    ontology: Graph;
 
     /**
      * Store if the current model is an instance of oa:Annotation
@@ -36,9 +30,6 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
     }
 
     initialize(options: ViewOptions): this {
-        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
-        this.ontology = options.ontology;
-
         this.listenTo(this, 'startSelector', this.processStartSelector);
         this.listenTo(this, 'endSelector', this.processEndSelector);
         this.listenTo(this, 'body:ontologyClass', this.processOntologyClass);
@@ -49,14 +40,14 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
     }
 
     processModel(model: Node): this {
-        this.baseProcessBody(this.model);
+        super.processBody(this.model);
 
         if (model.has('@type')) {
             this.modelIsAnnotation = isType(this.model, oa.Annotation);
             if (this.modelIsAnnotation) {
                 this.stopListening(this, 'textQuoteSelector', this.processTextQuoteSelector);
                 this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
-                this.baseProcessModel(this.model);
+                super.processAnnotation(this.model);
             }
             else {
                 this.stopListening(this.model, 'change', this.processItem);
@@ -118,19 +109,9 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
     processSelectors(): this {
         if (this.startSelector && this.endSelector) {
             this.positionDetails = getPositionDetails(this.startSelector, this.endSelector);
-            if (this.callbackFn) {
-                this.callbackFn();
-                delete this.callbackFn;
-            }
+            this.trigger('positionDetailsProcessed', this);
         }
         return this;
-    }
-
-    ensurePositionDetails(callback: any): void {
-        if (this.positionDetails) {
-            defer(callback);
-        }
-        this.callbackFn = callback;
     }
 
     render(): this {

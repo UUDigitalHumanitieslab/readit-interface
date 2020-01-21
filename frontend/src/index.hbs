@@ -25,6 +25,11 @@
     {{#libs}}
     <script src="{{{@root.nodeRoot}}}{{{path}}}"></script>
     {{/libs}}
+    {{^production}}
+    <script>
+        window.DEBUGGING = true;
+    </script>
+    {{/production}}
     <script src="{{{staticRoot}}}{{{jsBundleName}}}"></script>
 </body>
 

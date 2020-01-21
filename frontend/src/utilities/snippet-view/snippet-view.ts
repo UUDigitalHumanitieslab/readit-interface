@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend } from 'lodash';
+import { extend, bind } from 'lodash';
 import View from '../../core/view';
 
 import snippetTemplate from './snippet-template';
@@ -43,6 +43,7 @@ export default class SnippetView extends View {
         this.title = options.title;
         this.selector = options.selector;
         this.listenTo(this.selector, 'change', this.createContent);
+        this.$el.ready(bind(this.onReady, this));
         return this;
     }
 
@@ -51,19 +52,16 @@ export default class SnippetView extends View {
         return this;
     }
 
-    handleDOMMutation(isInDOM: boolean): this {
-        if (isInDOM) this.onInsertedIntoDOM();
-        else this.onRemovedFromDOM();
-        return this;
-    }
-
-    onInsertedIntoDOM(): any {
+    /**
+     * Handle the ready event.
+     * Ideal for working with (i.e. initializing HTML on the basis of) Javascript Range Objects (as SnippetViews do),
+     * because it is fired 'as soon as the page's Document Object Model (DOM) becomes safe to manipulate'
+     * (from: https://api.jquery.com/ready/). For the currrent View it guarantees that the View is in the DOM.
+     */
+    onReady(): this {
         this.isInDom = true;
         this.createContent();
-    }
-
-    onRemovedFromDOM(): any {
-        this.isInDom = false;
+        return this;
     }
 
     createContent(): this {
@@ -97,9 +95,10 @@ export default class SnippetView extends View {
     setText(): this {
         // subtract 100 to compensate for ellipses
         let availableSpace = (3 * this.availableWidth) - 100;
-        let prefix = this.selector.get(oa.prefix)[0] as string;
+        let prefix, suffix;
+        if (this.selector.has(oa.prefix)) prefix = this.selector.get(oa.prefix)[0] as string;
         let exact = this.selector.get(oa.exact)[0] as string;
-        let suffix = this.selector.get(oa.suffix)[0] as string;
+        if (this.selector.has(oa.suffix)) suffix = this.selector.get(oa.suffix)[0] as string;
         let fullString = `${prefix}${exact}${suffix}`;
 
         if (this.getLengthInPixels(fullString) < availableSpace) {

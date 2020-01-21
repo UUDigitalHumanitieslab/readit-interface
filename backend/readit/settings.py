@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'staff',
     'ontology',
     'items',
-    'annotation',
     'sources',
 ]
 

@@ -18,14 +18,20 @@ export default class OverlapDetailsView extends View<Node> {
     details = [];
     hVs: HighlightView[];
 
-    currentlySelectedDetail: JQuery<HTMLElement>;
+   /**
+     * A simple lookup hash with Annotation cid as key,
+     * and associated HighlightView as value
+     */
+    highlightByCid: Map<string, HighlightView>;
 
     constructor(options: ViewOptions) {
         super();
-
+        this.highlightByCid = new Map();
         this.hVs = options.highlightViews;
 
         this.details = options.highlightViews.map(hV => {
+            this.highlightByCid.set(hV.cid, hV);
+
             return {
                 cid: hV.cid,
                 cssClass: hV.cssClass,
@@ -46,26 +52,39 @@ export default class OverlapDetailsView extends View<Node> {
         return this;
     }
 
+    getHighlightView(cid: string): HighlightView {
+        return this.highlightByCid.get(cid);
+    }
+
     onDetailClicked(event: any) {
         let clickedDetail = $(event.currentTarget);
         let cid = clickedDetail.data('cid');
-        let hV = this.hVs.find(h => h.cid == cid);
-
-        if (this.currentlySelectedDetail && this.currentlySelectedDetail.data('cid') === cid) {
-            this.toggleSelection(clickedDetail);
-            this.currentlySelectedDetail = undefined;
-        }
-        else {
-            if (this.currentlySelectedDetail) this.toggleSelection(this.currentlySelectedDetail);
-            this.toggleSelection(clickedDetail);
-            this.currentlySelectedDetail = clickedDetail;
-        }
-
+        let hV = this.getHighlightView(cid);
         this.trigger('detailClicked', hV);
     }
 
-    toggleSelection(clickedDetail: JQuery<HTMLElement>) {
-        clickedDetail.toggleClass('is-selected');
+    getDetail(hV: HighlightView): JQuery<HTMLElement> {
+        return this.$(`.overlap-detail[data-cid='${hV.cid}']`);
+    }
+
+    select(hV: HighlightView): this {
+        let detail = this.getDetail(hV);
+        detail.addClass('is-selected');
+        return this;
+    }
+
+    unSelect(hV: HighlightView): this {
+        let detail = this.getDetail(hV);
+        detail.removeClass('is-selected');
+        return this;
+    }
+
+    /**
+     * Unselect all overlap details
+     */
+    resetSelection(): this {
+        this.$('.is-selected').removeClass('.is-selected');
+        return this;
     }
 
     onCloseClicked(event: any) {

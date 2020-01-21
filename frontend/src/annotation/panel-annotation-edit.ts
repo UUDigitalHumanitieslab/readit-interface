@@ -4,13 +4,12 @@ import { extend } from 'lodash';
 import { oa } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
-import ldChannel from '../jsonld/radio';
 
 import OntologyClassPickerView from '../utilities/ontology-class-picker/ontology-class-picker-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import { isType } from '../utilities/utilities';
-import { getOntologyInstance, AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
+import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { composeAnnotation, getAnonymousTextQuoteSelector } from './../utilities/annotation/annotation-creation-utilities';
 
 import BaseAnnotationView from './base-annotation-view';
@@ -21,7 +20,7 @@ import annotationEditTemplate from './panel-annotation-edit-template';
 export interface ViewOptions extends BaseOpt<Node> {
     /**
      * An instance of oa:Annotation that links to a oa:TextQuoteSelector,
-     * can be undefined if range and positionDetaisl are set (i.e. in case of a new annotation)
+     * can be undefined if range and positionDetails are set (i.e. in case of a new annotation)
      */
     model: Node;
     ontology: Graph;
@@ -54,9 +53,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
     modelIsAnnotion: boolean;
     selectedOntologyClass: Node;
 
-    snippetViewIsInDOM: boolean;
-    DOMMutationObserver: MutationObserver;
-
     constructor(options: ViewOptions) {
         super(options);
     }
@@ -85,24 +81,11 @@ export default class AnnotationEditView extends BaseAnnotationView {
             this.listenTo(this.model, 'change', this.processTextQuoteSelector);
         }
 
-        const config = { attributes: true, childList: true, subtree: true };
-        this.DOMMutationObserver = new MutationObserver(this.onDOMMutation.bind(this));
-        this.DOMMutationObserver.observe(this.$el.get(0), config);
-        return this;
-    }
-
-    onDOMMutation(mutationsList, observer): this {
-        for (let mutation of mutationsList) {
-            if (mutation.type === 'childList' && $(mutation.target).hasClass('snippet-container')) {
-                this.snippetViewIsInDOM = !this.snippetViewIsInDOM;
-                this.snippetView.handleDOMMutation(this.snippetViewIsInDOM);
-            }
-        }
         return this;
     }
 
     processModel(node: Node): this {
-        this.baseProcessModel(node);
+        super.processAnnotation(node);
 
         if (isType(node, oa.Annotation)) {
             this.metadataView = new ItemMetadataView({ model: this.model });
@@ -119,7 +102,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
     }
 
     processTextQuoteSelector(selector: Node): this {
-        if (this.snippetView) return;
+        if (this.snippetView) return this;
 
         this.snippetView = new SnippetView({
             selector: selector
@@ -154,7 +137,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
         this.$el.html(this.template(this));
         if (this.preselection) this.select(this.preselection);
 
-        this.$(".anno-edit-form").submit(function (e) { e.preventDefault(); })
         this.$(".anno-edit-form").validate({
             errorClass: "help is-danger",
             ignore: "",
@@ -189,8 +171,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
     }
 
     reset(): this {
-        this.model.previousAttributes();
-        // this.ontologyClassPicker.render();
         this.trigger('reset');
         return this;
     }
@@ -231,7 +211,7 @@ extend(AnnotationEditView.prototype, {
     className: 'annotation-edit-panel explorer-panel',
     template: annotationEditTemplate,
     events: {
-        'click .btn-save': 'onSaveClicked',
+        'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
         'click .btn-rel-items': 'onRelatedItemsClicked',
     }

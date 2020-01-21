@@ -1,10 +1,10 @@
 import { find, includes } from 'lodash';
-import { mapLimit } from 'async';
 
 import Node from '../jsonld/node';
 import Graph from './../jsonld/graph';
 import ItemGraph from './item-graph';
-import { skos, rdfs, readit, dcterms, oa } from './../jsonld/ns';
+import { skos, rdfs, readit, dcterms } from './../jsonld/ns';
+import SourceView from '../panel-source/source-view';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -110,8 +110,17 @@ export function getScrollTop(scrollableEl: JQuery<HTMLElement>, scrollToTop: num
     return scrollTop;
 }
 
+/**
+ * Establish whether the item is in the ontology graph, i.e. is an ontology class
+ * (as opposed to an instance of one of the ontology's classes).
+ * @param item The linked data item to investigate.
+ */
+export function isOntologyClass(item: Node): boolean {
+    return (item.id as string).startsWith(readit()) && isRdfsClass(item);
+}
 
-export function getOntology(callback) {
+
+export function getOntology(callback): void {
     let o = new Graph();
     o.fetch({ url: readit() }).then(
         function success() {
@@ -121,29 +130,22 @@ export function getOntology(callback) {
     );
 }
 
-export function getAnnotations(specificResource: Node, callback: any) {
+/**
+ * Get an ItemGraph with all oa:Annotations, oa:SpecificResources,
+ * oa:TextQuoteSelectors, vocab:RangeSelectors and oa:XPathSelectors
+ * associated with the specified source.
+ */
+export function getItems(source: Node, callback): void {
     const items = new ItemGraph();
-    items.query({ predicate: oa.hasTarget, object: specificResource as Node }).then(
+    items.query({ object: source, traverse: 2, revTraverse: 1 }).then(
         function success() {
-            callback(null, items.at(0));
+            callback(null, items);
         },
         /*error*/ callback
     );
 }
 
-export function getItems(source, itemCallback) {
-    const specificResources = new ItemGraph();
-    specificResources.query({ predicate: oa.hasSource, object: source }).then(
-        function success() {
-            mapLimit(specificResources.models, 4, (sr, cb) => getAnnotations(sr, cb), function (err, result) {
-                itemCallback(null, result);
-            });
-        },
-        /*error*/ itemCallback
-    );
-}
-
-export function getSources(callback) {
+export function getSources(callback): void {
     const sources = new Graph();
     sources.fetch({ url: '/source/' }).then(
         function succes() {
@@ -151,4 +153,36 @@ export function getSources(callback) {
         },
         /*error*/ callback
     );
+}
+
+/**
+ * Create an instance of SourceView for the specified source.
+ * Will collect the annotations associated with the source async, i.e.
+ * these will be added to the SourceView's collection when ready.
+ */
+export function createSourceView(
+    source: Node,
+    showHighlightsInitially?: boolean,
+    isEditable?: boolean,
+    initialScrollTo?: Node
+): SourceView {
+    let sourceItems = new Graph();
+
+    getItems(source, function (error, items) {
+        if (error) console.debug(error)
+        else {
+            if (items.length > 0) sourceItems.add(items.models);
+            else sourceView.processNoInitialHighlights();
+        }
+    });
+
+    let sourceView = new SourceView({
+        collection: sourceItems,
+        model: source,
+        showHighlightsInitially: showHighlightsInitially,
+        isEditable: isEditable,
+        initialScrollTo: initialScrollTo,
+    });
+
+    return sourceView;
 }

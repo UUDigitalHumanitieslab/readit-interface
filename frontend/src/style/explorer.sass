@@ -15,18 +15,36 @@
         border: 1px solid black
         border-radius: 3px
 
-    .panel-content
-        height: 100%
-        overflow-y: auto
+        .panel-header
+            header
+                $content-header-min-height: 36px
+                margin-bottom: $content-header-margin-bottom
 
-        &.source
-            overflow-y: unset
+                aside
+                    float: right
 
-        &.annotations-panel
-            overflow-y: unset
+        // If you need a form on a panel, structure it like this:
+        // <div class="panel-header"></div>
+        // <form class="panel-form">
+        //      <div class="panel-content">
+        //      <div class="panel-footer">
+        // </form>
+        // This way the buttons in the footer can trigger the form submit
+        .panel-form
+            display: flex
+            flex-direction: column
+            height: 100%
 
+        .panel-content
+            height: 100%
+            overflow-y: auto
 
-    .btn-edit
-        width: 100px
-        align-self: flex-end
-        margin-top: 0.5em
+            &.no-overflow
+                overflow-y: unset
+
+        .panel-footer
+            button
+                width: 100px
+                float: right
+                margin-top: 0.5em
+                margin-left: 0.3em

@@ -2,8 +2,6 @@ import { ViewOptions } from 'backbone';
 import { extend } from 'lodash';
 import View from '../../core/view';
 
-import loadingSpinnerTemplate from './loading-spinner-template';
-
 export default class LoadingSpinnerView extends View {
 
     constructor(options?: ViewOptions) {
@@ -21,12 +19,11 @@ export default class LoadingSpinnerView extends View {
     }
 
     render(): this {
-        this.$el.html(this.template({}));
+        this.$el.append('<div class="loader"></div>');
         return this;
     }
 }
 extend(LoadingSpinnerView.prototype, {
     tagName: 'div',
-    className: 'modal loading-spinner',
-    template: loadingSpinnerTemplate
+    className: 'loading-spinner',
 });

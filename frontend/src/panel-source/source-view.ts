@@ -26,11 +26,6 @@ export interface ViewOptions extends BaseOpt<Model> {
     collection: Graph;
 
     /**
-     * The Read IT ontology.
-     */
-    ontology: Graph;
-
-    /**
      * Specify whether the View should only display oa:Annotations, or if it allows editing
      * them. Defaults to false.
      */
@@ -51,7 +46,6 @@ export interface ViewOptions extends BaseOpt<Model> {
 
 export default class SourceView extends View<Node> {
     collection: Graph;
-    ontology: Graph;
     isEditable: boolean;
     showHighlightsInitially: boolean;
     initialScrollTo?: Node;
@@ -76,9 +70,6 @@ export default class SourceView extends View<Node> {
      */
     isInFullScreenViewMode: boolean;
 
-    htvIsInDOM: boolean;
-    DOMMutationObserver: MutationObserver;
-
     constructor(options?: ViewOptions) {
         super(options);
         this.validate();
@@ -92,25 +83,10 @@ export default class SourceView extends View<Node> {
             text: <string>this.model.get(schema.text)[0],
             showHighlightsInitially: this.showHighlightsInitially,
             collection: this.collection,
-            ontology: options.ontology,
             initialScrollTo: this.initialScrollTo,
             isEditable: this.isEditable
         });
         this.bindToEvents(this.htv);
-
-        const config = { attributes: true, childList: true, subtree: true };
-        this.DOMMutationObserver = new MutationObserver(this.onDOMMutation.bind(this));
-        this.DOMMutationObserver.observe(this.$el.get(0), config);
-    }
-
-    onDOMMutation(mutationsList, observer): this {
-        for (let mutation of mutationsList) {
-            if (mutation.type === 'childList' && $(mutation.target).hasClass('source-container')) {
-                this.htvIsInDOM = !this.htvIsInDOM;
-                this.htv.handleDOMMutation(this.htvIsInDOM);
-            }
-        }
-        return this;
     }
 
     validate() {
@@ -139,16 +115,31 @@ export default class SourceView extends View<Node> {
     bindToEvents(htv: HighlightableTextView): HighlightableTextView {
         this.htv.on('hover', this.onHover, this);
         this.htv.on('hoverEnd', this.onHoverEnd, this);
+        this.htv.on('highlightClicked', this.onHighlightClicked, this);
         this.htv.on('highlightSelected', this.onHighlightSelected, this);
         this.htv.on('highlightUnselected', this.onHighlightUnselected, this);
+        this.htv.on('highlightDeleted', this.onHighlightDeleted, this);
         this.htv.on('textSelected', this.onTextSelected, this);
         this.htv.on('scroll', this.onScroll, this);
-        this.htv.on('overlapsLoaded', this.onOverlapsLoaded, this);
         return htv;
     }
 
     add(newItems: ItemGraph): this {
-        this.htv.add(newItems);
+        this.htv.addAnnotation(newItems);
+        return this;
+    }
+
+    /**
+     * Pass request to HighlightableTextView
+     */
+    processClick(annotation: Node): this {
+        this.htv.processClick(annotation);
+        return this;
+    }
+
+    processNoInitialHighlights(): this {
+        this.htv.processNoInitialHighlights();
+        this.trigger('sourceView:noInitialHighlights', this);
         return this;
     }
 
@@ -176,6 +167,13 @@ export default class SourceView extends View<Node> {
     /**
      * Pass events from HighlightableTextView
      */
+    onHighlightClicked(node: Node): void {
+        this.trigger('sourceview:highlightClicked', this, node);
+    }
+
+    /**
+     * Pass events from HighlightableTextView
+     */
     onHighlightSelected(node: Node): void {
         this.trigger('sourceview:highlightSelected', this, node);
     }
@@ -190,15 +188,15 @@ export default class SourceView extends View<Node> {
     /**
      * Pass events from HighlightableTextView
      */
-    onScroll(selector?: Node): void {
-        this.trigger('scroll', selector);
+    onHighlightDeleted(node: Node): void {
+        this.trigger('sourceview:highlightDeleted', this, node);
     }
 
     /**
      * Pass events from HighlightableTextView
      */
-    onOverlapsLoaded(): void {
-        this.trigger('sourceview:overlapsLoaded', this);
+    onScroll(selector?: Node): void {
+        this.trigger('scroll', selector);
     }
 
     /**
@@ -211,7 +209,7 @@ export default class SourceView extends View<Node> {
         }
         else {
             this.showHighlights();
-            this.trigger('sourceview:showAnnotations', this);
+            this.trigger('sourceview:showAnnotations', this, true);
         }
         this.toggleToolbarItemSelected('annotations');
         this.isShowingHighlights = !this.isShowingHighlights;

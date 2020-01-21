@@ -10,7 +10,7 @@ import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
 import { item, readit, rdf, vocab } from '../jsonld/ns';
 
-import { getOntology, getSources, getItems } from './../utilities/utilities';
+import { getOntology, getSources, createSourceView } from './../utilities/utilities';
 
 import CategoryColorView from './../utilities/category-colors/category-colors-view';
 import SourceView from './../panel-source/source-view';
@@ -18,6 +18,7 @@ import SourceView from './../panel-source/source-view';
 import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
+import uploadSourceForm from './../global/upload-source-form';
 
 import { oa } from './../jsonld/ns';
 
@@ -30,7 +31,8 @@ import RelatedItemsView from '../panel-related-items/related-items-view';
 import SearchResultBaseItemView from '../search/search-results/search-result-base-view';
 
 import SourceListView from '../panel-source-list/source-list-view';
-import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
+
+let explorerView;
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -49,15 +51,31 @@ userFsm.on('exit:arriving', () => {
     welcomeView.$el.detach();
 });
 
+directionRouter.on('route:upload', () => {
+    userFsm.handle('upload');
+});
+
+userFsm.on('enter:uploading', () => {
+    uploadSourceForm.setHeight(getViewportHeight());
+    uploadSourceForm.render().$el.appendTo('#main');
+});
+
+userFsm.on('exit:uploading', () => {
+    uploadSourceForm.reset();
+    uploadSourceForm.$el.detach();
+});
+
 directionRouter.on('route:explore', () => {
     userFsm.handle('explore');
 });
 
 userFsm.on('enter:exploring', () => {
+    welcomeView.$el.detach();
     initSourceList();
 });
 
 userFsm.on('exit:exploring', () => {
+    if (explorerView) explorerView.$el.detach();
 });
 
 
@@ -65,31 +83,22 @@ directionRouter.on('route:leave', () => {
     userFsm.handle('leave');
 });
 
-function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
-    let exView = new ExplorerView({ first: first, ontology: ontology });
+/**
+ * Get the heigth of the available vertical space.
+ * Compensates for menu and footer, and 555 is min-height.
+ */
+function getViewportHeight(): number {
     let vh = $(window).height();
-    // compensates for menu and footer (555 is min-height)
-    let height = Math.max(vh - 194, 555);
-    exView.setHeight(height);
-    exView.render().$el.appendTo('#main');
-    return exView
+    // 133 is the height of the footer (got this number by manually testing)
+    // Note that the same number needs to be the height of the 'push' class in main.sass
+    return Math.max(vh - 160, 555);
 }
 
-function createSourceView(source: Node, ontology: Graph, callback: any) {
-    getItems(source, function (error, items) {
-        if (error) console.debug(error)
-        else {
-            let sourceView = new SourceView({
-                collection: new Graph(items),
-                model: source,
-                ontology: ontology,
-                showHighlightsInitially: true,
-                isEditable: true,
-                // initialScrollTo: annotation,
-            });
-            callback(null, sourceView);
-        }
-    });
+function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
+    explorerView = new ExplorerView({ first: first, ontology: ontology });
+    explorerView.setHeight(getViewportHeight());
+    explorerView.render().$el.appendTo('#main');
+    return explorerView;
 }
 
 function initSourceList() {
@@ -108,14 +117,9 @@ function initSourceList() {
             let explorer = initExplorer(sourceListView, ontology);
 
             sourceListView.on('source-list:click', (listView: SourceListView, source: Node) => {
-                explorer.loadingSpinnerView.activate();
-                createSourceView(source, ontology, (error, sourceView) => {
-                    if (error) console.error(error);
-                    else {
-                        explorer.popUntil(sourceListView);
-                        explorer.push(sourceView);
-                    }
-                });
+                let sourceView = createSourceView(source, true, true);
+                explorer.popUntil(sourceListView);
+                explorer.push(sourceView);
             });
         }
     });

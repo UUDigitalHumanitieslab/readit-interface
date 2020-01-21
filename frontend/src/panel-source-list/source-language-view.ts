@@ -1,8 +1,8 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, omit } from 'lodash';
+import { extend } from 'lodash';
 import View from '../core/view';
 
-import { schema } from '../jsonld/ns';
+import { schema, iso6391, UNKNOWN } from '../jsonld/ns';
 
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
@@ -29,10 +29,18 @@ export default class SourceLanguageView extends View<Node> {
         return this;
     }
 
+    vocabularizeLanguage(inputLanguage: string): string {
+        if (inputLanguage == "other") {
+            return UNKNOWN;
+        }
+        return iso6391(inputLanguage);
+    }
+
     processCollection(collection: Graph): this {
         this.sources = collection
             .map((s: Node) => {
-                if (s.get(schema.inLanguage)[0] == this.language) {
+                let inLanguage = s.get(schema.inLanguage)[0] as Node;
+                if (inLanguage.id == this.vocabularizeLanguage(this.language)) {
                     return {
                         name: s.get(schema('name'))[0],
                         author: s.get(schema.creator)[0],

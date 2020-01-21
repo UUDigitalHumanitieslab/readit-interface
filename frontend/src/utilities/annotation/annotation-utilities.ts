@@ -1,9 +1,7 @@
-
 import Node from '../../jsonld/node';
-import Graph from '../../jsonld/graph';
 
-import { oa, vocab, rdf } from '../../jsonld/ns';
-import { isType, getCssClassName as getCssClass } from '../utilities';
+import { oa, rdf, vocab } from '../../jsonld/ns';
+import { isType, getCssClassName as getCssClass, isOntologyClass } from '../utilities';
 
 export type AnnotationPositionDetails = {
     startNodeIndex: number;
@@ -45,46 +43,27 @@ export function getPositionDetails(startSelector: Node, endSelector: Node): Anno
  */
 export function getLinkedItems(annotation: Node): Node[] {
     validateType(annotation);
-    let selector = getSelector(annotation);
-    return [
-        selector,
-        getStartSelector(selector),
-        getEndSelector(selector)
+    let specificResource = getSpecificResource(annotation);
+    let rangeSelector = getSelector(annotation, vocab('RangeSelector'));
+    let textQuoteSelector = getSelector(annotation, oa.TextQuoteSelector);
+
+    let items = [
+        specificResource,
+        rangeSelector,
+        getStartSelector(rangeSelector),
+        getEndSelector(rangeSelector)
     ]
+    if (textQuoteSelector) items.push(textQuoteSelector);
+    return items;
 }
 
 /**
- * Get the cssclass associated with annotation (i.e. via ontology item / category).
+ * Get the cssclass associated with annotation (i.e. via ontology class in body).
  * Returns be null if a value cannot be found.
  */
-export function getCssClassName(annotation: Node, ontology: Graph): string {
+export function getCssClassName(annotation: Node): string {
     validateType(annotation);
-    let ontologyReferences = getOntologyReferencesFromBody(annotation, ontology);
-    if (ontologyReferences.length > 1) {
-        throw RangeError('This oa:Annotation is associated with multiple ontology items, henceforth a cssClassName cannot be established reliably');
-    }
-    if (ontologyReferences.length === 1) {
-        return getCssClass(ontologyReferences[0]);
-    }
-}
-
-/**
- * Get the ontology instances from an annotation (i.e. the item in 'oa.hasBody' that are not ontology items)
- */
-export function getOntologyInstances(annotation: Node, ontology: Graph): Node[] {
-    let bodies = annotation.get(oa.hasBody);
-    if (bodies) {
-        return bodies.filter(n => !ontology.get(n as Node)) as Node[];
-    }
-}
-
-/**
- * Get the item in oa.hasBody that is not in the ontology Graph.
- * Throws RangeError if none or multiple items are found.
- */
-export function getOntologyInstance(annotation: Node, ontology: Graph): Node {
-    let ontologyInstances = getOntologyInstances(annotation, ontology);
-    if (ontologyInstances && ontologyInstances.length > 0) return ontologyInstances[0];
+    return getCssClass(getOntologyClassFromBody(annotation));
 }
 
 /**
@@ -96,16 +75,27 @@ export function getSpecificResource(annotation: Node): Node {
 }
 
 /**
-* Get the Selector associated with the oa:Annotation annotation or its associated oa:SpecificResource.
+* Get a Selector of a certain type from an the oa:Annotation, or from its associated oa:SpecificResource.
  */
-export function getSelector(node: Node): Node {
+export function getSelector(node: Node, selectorType: string): Node {
     let specificResource: Node;
-    let selector = node.get(oa.hasSelector);
-    if (!selector || !selector.length) {
+    let selector = getSelectorByType(node, selectorType);
+    if (!selector) {
         specificResource = getSpecificResource(node);
-        selector = specificResource.get(oa.hasSelector);
+        selector = getSelectorByType(specificResource, selectorType);
     }
-    return selector && selector[0] as Node;
+    return selector;
+}
+
+/**
+ * Get a Selector of a certain type from a Node instance
+ * (note that the Node should have an oa.hasSelector, so typically an oa.SpecificResource)
+ */
+function getSelectorByType(node: Node, selectorType: string): Node {
+    let selector;
+    let selectors = node.get(oa.hasSelector);
+    if (selectors) selector = selectors.find((s: Node) => isType(s, selectorType));
+    return selector;
 }
 
 /**
@@ -114,7 +104,7 @@ export function getSelector(node: Node): Node {
 export function getStartSelector(node: Node): Node {
     let selector: Node;
     let startSelector = node.get(oa.hasStartSelector);
-    if (!startSelector || !startSelector.length) selector = getSelector(node);
+    if (!startSelector || !startSelector.length) selector = getSelector(node, vocab('RangeSelector'));
     if (selector) startSelector = selector.get(oa.hasStartSelector);
     return startSelector && startSelector[0] as Node;
 }
@@ -125,7 +115,7 @@ export function getStartSelector(node: Node): Node {
 export function getEndSelector(node: Node): Node {
     let selector: Node;
     let endSelector = node.get(oa.hasEndSelector);
-    if (!endSelector || !endSelector.length) selector = getSelector(node);
+    if (!endSelector || !endSelector.length) selector = getSelector(node, vocab('RangeSelector'));
     if (selector) endSelector = selector.get(oa.hasEndSelector);
     return endSelector && endSelector[0] as Node;
 }
@@ -144,29 +134,12 @@ export function getSource(node: Node): Node {
 }
 
 /**
- * Validate if all items associated to meaningfully display an oa:Annotation
- * are present in its collection.
- * Throws TypeError with appropriate message if they are not.
- * @param annotation The oa:Annotation instance to validate.
- * @param graph The Graph instance that should contain all related items
+ * Get the ontology class (not the instances of such classes!) from the annotation's body.
+ * Will return ths first one if multiple are found.
  */
-export function validateCompleteness(annotation: Node): void {
-    validateType(annotation);
-
-    let selector = getSelector(annotation);
-    if (!selector || !isType(selector, vocab('RangeSelector'))) {
-        throw new TypeError(getErrorMessage("Selector", selector, "vocab('RangeSelector')"));
-    }
-
-    let startSelector = getStartSelector(annotation);
-    if (!startSelector || !isType(startSelector, oa.XPathSelector)) {
-        throw new TypeError(getErrorMessage('StartSelector', startSelector, 'oa:XPathSelector'));
-    }
-
-    let endSelector = getEndSelector(annotation);
-    if (!endSelector || !isType(endSelector, oa.XPathSelector)) {
-        throw new TypeError(getErrorMessage('Endselector', endSelector, 'oa:XPathSelector'));
-    }
+function getOntologyClassFromBody(annotation: Node): Node {
+    let ontologyClass = annotation.get(oa.hasBody).filter(b => isOntologyClass(b as Node)) as Node[];
+    return ontologyClass && ontologyClass[0];
 }
 
 /**
@@ -179,26 +152,6 @@ function validateType(annotation: Node): void {
     }
 }
 
-/**
- * Get the ontology items associated with the annotation (via oa:hasBody).
- */
-function getOntologyReferencesFromBody(annotation: Node, ontology: Graph): Node[] {
-    return annotation.get(oa.hasBody).filter(
-        n => ontology.get(n as Node)
-    ) as Node[];
-}
-
-/**
- * Helper function for isCompleteAnnotation that constructs error message from variable parts.
- */
-function getErrorMessage(itemName: string, item?: Node, expectedType?: string): string {
-    if (item) {
-        return `${itemName} with id '${item.get('@id')}' should be of type ${expectedType}`;
-    }
-    else {
-        return `${itemName} cannot be empty or undefined.`
-    }
-}
 
 /**
  * Get the node index from an XPathSelector
@@ -221,5 +174,3 @@ function getCharacterIndex(selector: Node): number {
     let endIndex = xpath.length - 1;
     return +xpath.substring(startIndex, endIndex);
 }
-
-

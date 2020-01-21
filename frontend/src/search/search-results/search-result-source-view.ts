@@ -19,38 +19,19 @@ export default class SearchResultSourceView extends BaseAnnotationView {
     labelView: LabelView;
     title: string;
 
-    snippetViewIsInDOM: boolean;
-    DOMMutationObserver: MutationObserver;
-
     constructor(options: ViewOptions) {
         super(options);
     }
 
     initialize(options: ViewOptions): this {
         this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
-        this.listenTo(this, 'source', this.baseProcessSource);
-
-        this.baseProcessModel(this.model);
-        this.listenTo(this.model, 'change', this.baseProcessModel);
-
-        const config = { attributes: true, childList: true, subtree: true };
-        this.DOMMutationObserver = new MutationObserver(this.onDOMMutation.bind(this));
-        this.DOMMutationObserver.observe(this.$el.get(0), config);
-
+        this.listenTo(this.model, 'change', super.processAnnotation);
+        this.listenTo(this, 'source', super.processSource);
+        super.processAnnotation(this.model);
         return this;
     }
 
-    onDOMMutation(mutationsList, observer): this {
-        for (let mutation of mutationsList) {
-            if (mutation.type === 'childList' && $(mutation.target).hasClass('snippet-container')) {
-                this.snippetViewIsInDOM = !this.snippetViewIsInDOM;
-                this.snippetView.handleDOMMutation(this.snippetViewIsInDOM);
-            }
-        }
-        return this;
-    }
-
-    baseProcessSource(source: Node): this {
+    processSource(source: Node): this {
         this.title = source.get(schema('name'))[0] as string;
         let sourceOntologyInstance = ldChannel.request('obtain', source.get('@type')[0] as string);
         if (!this.labelView) {

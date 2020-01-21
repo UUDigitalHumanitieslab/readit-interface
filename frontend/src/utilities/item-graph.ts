@@ -16,7 +16,40 @@ export interface QueryParamsLiteral {
     objectLiteral?: string;
 }
 
-export type QueryParams = QueryParamsURI | QueryParamsLiteral;
+/**
+ * Pass these parameters to ItemGraph.query to fetch not only the
+ * Nodes that match the given predicate and/or object, but also
+ * related Nodes up to the given number of steps.
+ *
+ * Suppose that you fetch a Node, item:x, with the following triple.
+
+        item:x oa:hasSelector item:y
+
+ * If you pass traverse: 1, the response will not only include item:x,
+ * but also all Nodes that appear in the object position in item:x.
+ * In the above example, that includes at least item:y. Now suppose
+ * that item:y has the following triple.
+
+        item:y oa:hasStartSelector item:z
+
+ * The traverse: 1 option means that you perform this step only once,
+ * so item:z will not be included in the response. To repeat this step
+ * and also include item:z, simply pass traverse: 2 instead.
+ *
+ * The revTraverse option performs a similar lookup but in reverse
+ * direction. If you pass revTraverse: 1, the response will include
+ * item:w if it has the following triple.
+
+        item:w oa:hasTarget item:x
+
+ * Traversal always yields whole Nodes.
+ */
+export interface TraversalParams {
+    traverse?: number;
+    revTraverse?: number;
+}
+
+export type QueryParams = (QueryParamsURI | QueryParamsLiteral) & TraversalParams;
 
 function isURIQuery(params: QueryParams): params is QueryParamsURI {
     return (params as QueryParamsURI).object !== undefined;
@@ -58,6 +91,8 @@ export default class ItemGraph extends Graph {
         if (params.predicate) data.p = asURI(params.predicate);
         if (isURIQuery(params)) data.o = asURI(params.object);
         if (isLiteralQuery(params)) data.o_literal = params.objectLiteral;
+        if (params.traverse) data.t = params.traverse;
+        if (params.revTraverse) data.r = params.revTraverse;
         return this.fetch({data});
     }
 }
@@ -66,4 +101,6 @@ extend(ItemGraph.prototype, {
     url: item(),
 });
 
-window['whatever'] = ItemGraph;
+if (window['DEBUGGING']) {
+    window['ItemGraph'] = ItemGraph;
+}

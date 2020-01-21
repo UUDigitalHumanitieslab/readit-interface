@@ -1,6 +1,7 @@
 from rdflib import Graph, Literal
 
 from rdf.ns import *
+from rdf.utils import graph_from_triples
 
 from .constants import *
 from .fixture import *
@@ -8,15 +9,12 @@ from .fixture import *
 
 def graph_with_prefix(prefix):
     my = Namespace(prefix)
-    g = Graph()
     # Following triples for testing purposes only. URIs might not exist.
-    for t in (
+    return graph_from_triples((
         ( my.sandwich,    RDF.type,    SCHEMA.Food     ),
         ( DCTYPES.Series, RDFS.domain, my.TVChannel    ),
         ( SCHEMA.Cat,     my.meow,     Literal('loud') ),
-    ):
-        g.add(t)
-    return g
+    ))
 
 
 def test_replace_prefix():

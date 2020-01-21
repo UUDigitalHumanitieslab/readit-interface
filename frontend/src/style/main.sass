@@ -5,7 +5,6 @@
 @import footer
 @import explorer
 @import source
-@import ldItem
 @import highlight
 @import annotation
 @import forms
@@ -14,6 +13,7 @@
 @import item-sections
 @import related-items
 @import loading-spinner
+@import page
 
 html, body
     height: 100%
@@ -28,7 +28,9 @@ body
     width: 100%
 
 .push
-    height: 142px
+    // 133 is the height of the footer (got the number by testing manually)
+    // Note that the same number should be in the readit.ts aspect, in 'getViewportHeight'
+    // height: 105px
 
 .footer, .push
     clear: both

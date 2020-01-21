@@ -83,7 +83,7 @@ export default class HighlightView extends BaseAnnotationView {
     }
 
     processModel(model: Node): this {
-        this.baseProcessModel(model);
+        super.processAnnotation(model);
         return this;
     }
 
@@ -131,6 +131,7 @@ export default class HighlightView extends BaseAnnotationView {
         this.rects = this.range.getClientRects();
         if (!this.rectViews && this.cssClass) this.initRectViews();
         this.render();
+        this.trigger('positionDetailsProcessed', this);
 
         return this;
     }
@@ -183,6 +184,7 @@ export default class HighlightView extends BaseAnnotationView {
     }
 
     unSelect(): this {
+        if (!this.rectViews) return;
         this.rectViews.forEach(v => v.unSelect());
         return this;
     }
@@ -193,6 +195,10 @@ export default class HighlightView extends BaseAnnotationView {
 
     getHeight(): number {
         return sumBy(this.rectViews, (hrv) => { return hrv.$el.outerHeight() });
+    }
+
+    getBottom(): number {
+        return this.getTop() + this.getHeight();
     }
 
     getText(): string {
