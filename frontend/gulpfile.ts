@@ -140,7 +140,8 @@ const browserLibs: LibraryProps[] = [{
         cdn: `${cdnjsBase}/jquery-validate/\${version}/jquery.validate.min.js`,
     }, {
         module: 'jquery-validation-addons',
-        browser: 'jquery-validation/dist/additional-methods.min.js',
+        package: 'jquery-validation',
+        browser: 'jquery-validation/dist/additional-methods.min',
         global: 'jquery-validation-addons',
         cdn: `${cdnjsBase}/jquery-validate/\${version}/additional-methods.min.js`,
     }, {

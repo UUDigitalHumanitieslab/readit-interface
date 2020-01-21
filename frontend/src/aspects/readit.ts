@@ -89,7 +89,9 @@ directionRouter.on('route:leave', () => {
  */
 function getViewportHeight(): number {
     let vh = $(window).height();
-    return Math.max(vh - 158, 555);
+    // 133 is the height of the footer (got this number by manually testing)
+    // Note that the same number needs to be the height of the 'push' class in main.sass
+    return Math.max(vh - 160, 555);
 }
 
 function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
