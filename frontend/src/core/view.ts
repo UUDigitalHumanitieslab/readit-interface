@@ -1,8 +1,13 @@
-import { bind } from 'lodash'
+import { bind, assign } from 'lodash'
 import { View as BView } from 'backbone';
+import {
+    CompositeView as BCompositeView,
+    CollectionView as BCollectionView,
+} from 'backbone-fractal';
 import { TemplateDelegate } from 'handlebars';
 
 import Model from './model';
+import Collection from './collection';
 
 /**
  * This is the base view class that all views in the application
@@ -34,3 +39,28 @@ export default class View<M extends Model = Model> extends BView<M> {
         return this;
     }
 }
+
+export class CompositeView<M extends Model = Model> extends View<M> {}
+
+export interface CompositeView<M extends Model = Model> extends BCompositeView<M> {
+    render(): this;
+    remove(): this;
+}
+
+assign(CompositeView.prototype, BCompositeView.prototype);
+
+export class CollectionView<M extends Model = Model, SV extends BView = View> extends View<M> {}
+
+export interface CollectionView<M extends Model = Model, SV extends BView = View> extends BCollectionView<SV> {
+    model: M;
+    collection: Collection<M>;
+    initialize: View<M>['initialize'];
+    preinitialize: View<M>['preinitialize'];
+    render(): this;
+    remove(): this;
+    setElement: View<M>['setElement'];
+    delegate: View<M>['delegate'];
+    undelegate: View<M>['undelegate'];
+}
+
+assign(CollectionView.prototype, BCollectionView.prototype);
