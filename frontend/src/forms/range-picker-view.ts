@@ -1,4 +1,11 @@
-import { extend, assign, defaults, defaultsDeep, map, some } from 'lodash';
+import {
+    extend,
+    assign,
+    defaults,
+    defaultsDeep,
+    map,
+    some,
+} from 'lodash';
 import {
     View as BView,
     ViewOptions as BViewOptions,
@@ -98,6 +105,21 @@ export default class RangePickerView extends CollectionView<Node, RangePickerOpt
         this.$el.html(this.template(this));
         return this;
     }
+
+    val(): string | string[];
+    val(selection: string | string[]): void;
+    val(selection?) {
+        const field = this.$('select');
+        if (selection != null) {
+            field.val(selection);
+        } else {
+            return field.val();
+        }
+    }
+
+    forwardChange(event): void {
+        this.trigger('change', this, this.val(), event);
+    }
 }
 
 extend(RangePickerView.prototype, {
@@ -105,4 +127,11 @@ extend(RangePickerView.prototype, {
     template: pickerTemplate,
     subview: RangePickerOptionView,
     container: 'select',
+    events: {
+        'change': 'forwardChange',
+    },
 });
+
+if (window['DEBUGGING']) {
+    window['RangePickerView'] = RangePickerView;
+}

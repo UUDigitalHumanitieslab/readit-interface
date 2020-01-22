@@ -111,4 +111,23 @@ describe('RangePickerView', function() {
         });
         expect(omitWhite(picker.el.outerHTML)).toBe(expectedNonMultipleHTML);
     });
+
+    describe('val', function() {
+        it('gets and sets the value of the underlying <select>', function() {
+            const picker = new RangePickerView({
+                model: this.property,
+                collection: this.candidates,
+            });
+            const select = picker.$('select');
+            expect(select.length).toBe(1);
+            expect(select.val()).toEqual([]);
+            expect(picker.val() as string[]).toEqual(select.val() as string[]);
+            const value = ['1', '2'];
+            picker.val(value);
+            expect(select.val()).toEqual(value);
+            expect(picker.val()).toEqual(value);
+            select.val(['4']);
+            expect(picker.val()).toEqual(['4']);
+        });
+    });
 });
