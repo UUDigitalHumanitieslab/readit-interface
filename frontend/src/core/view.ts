@@ -49,13 +49,14 @@ export interface CompositeView<M extends Model = Model> extends BCompositeView<M
 
 assign(CompositeView.prototype, BCompositeView.prototype);
 
-export class CollectionView<M extends Model = Model, SV extends BView = View> extends View<M> {}
+export class CollectionView<M extends Model = Model, SV extends BView = View> extends View<M> {
+    initialize(options?): void {}
+    preinitialize(options?): void {}
+}
 
 export interface CollectionView<M extends Model = Model, SV extends BView = View> extends BCollectionView<SV> {
     model: M;
     collection: Collection<M>;
-    initialize: View<M>['initialize'];
-    preinitialize: View<M>['preinitialize'];
     render(): this;
     remove(): this;
     setElement: View<M>['setElement'];
