@@ -2,7 +2,7 @@ import { startStore, endStore } from '../test-util';
 import { rdf, rdfs } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
-import RangePickerView from './range-picker-view';
+import RangePickerView, { RangePickerOptionView } from './range-picker-view';
 
 const ontologyWithSubclasses = [{
     '@id': 'base',
@@ -75,12 +75,21 @@ const expectedNonMultipleHTML = omitWhite(`
 </div>
 `);
 
+describe('RangePickerOptionView', function() {
+    it('takes the label from the model by default', function() {
+        const node = new Node({'@id': 'x'});
+        const view = new RangePickerOptionView({model: node});
+        expect(view.$el.text()).toBe('x');
+    });
+});
+
 describe('RangePickerView', function() {
     beforeEach(startStore);
     beforeEach(function() {
         this.ontology = new Graph(ontologyWithSubclasses);
         this.property = new Node(property);
         this.candidates = new Graph(candidateOptions);
+        expect(this.candidates.length).toBe(7);
     });
     afterEach(endStore);
 
@@ -89,6 +98,8 @@ describe('RangePickerView', function() {
             model: this.property,
             collection: this.candidates,
         });
+        expect(picker.admittedTypes).toEqual(['base', 'derived']);
+        expect(picker.collection.length).toBe(5);
         expect(omitWhite(picker.el.outerHTML)).toBe(expectedMultipleHTML);
     });
 

@@ -97,6 +97,11 @@ describe('utilities', function () {
             let node = new Node(attributes);
             expect(getLabel(node)).toBe('alternativeLabel');
         });
+
+        it('falls back on the id when there is no explicit label', function() {
+            const node = new Node({'@id': 'x'});
+            expect(getLabel(node)).toBe('x');
+        });
     });
 
     describe('getLabelFromId', function () {
@@ -117,6 +122,10 @@ describe('utilities', function () {
                     expect(getLabelFromId(att)).toBe('altLabel')
                 }
             }
+        });
+
+        it('returns the whole string if it lacks structure', function() {
+            expect(getLabelFromId('1')).toBe('1');
         });
     });
 
