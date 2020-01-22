@@ -470,11 +470,11 @@ export const schema = Vocabulary(schemaPrefix, schemaTerms);
 
 /**
  * ISO639-1
- * http://id.loc.gov/vocabulary/iso639-1/
+ * https://id.loc.gov/vocabulary/iso639-1/
  * Vocabulary with two letter codes for languages
  */
 
-export const iso6391Prefix = 'http://id.loc.gov/vocabulary/iso639-1/';
+export const iso6391Prefix = 'https://id.loc.gov/vocabulary/iso639-1/';
 
 export const iso6391Terms = [
     'en',
