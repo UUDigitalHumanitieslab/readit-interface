@@ -29,8 +29,6 @@ export function getLabelFromId(id: string) {
     let index = id.lastIndexOf("#");
     if (index === -1) index = id.lastIndexOf("/");
     if (index) result = id.substring(index + 1);
-    // if result is a number we're dealing with an item
-    if (result && !isNaN(result)) return;
     return result;
 }
 
