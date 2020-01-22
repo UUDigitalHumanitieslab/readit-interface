@@ -1,4 +1,4 @@
-import { extend, assign, defaults, defaultsDeep, map } from 'lodash';
+import { extend, assign, defaults, defaultsDeep, map, some } from 'lodash';
 import {
     View as BView,
     ViewOptions as BViewOptions,
@@ -84,10 +84,13 @@ export default class RangePickerView extends CollectionView<Node, RangePickerOpt
     initialize({model, collection, multiple}: RangePickerOptions): void {
         this.multiple = multiple;
         const rangeSubtypes = getRdfSubClasses(model.get(rdfs.range) as Node[]);
-        this.admittedTypes = map(rangeSubtypes, 'id');
-        this.collection = new FilteredCollection(collection, {
-            '@type': this.admittedTypes,
-        });
+        const admittedTypes = map(rangeSubtypes, 'id');
+        this.collection = new FilteredCollection(
+            collection,
+            // Not the most efficient possible filter function.
+            n => some(admittedTypes, t => n.has('@type', t)),
+        );
+        this.admittedTypes = admittedTypes;
         this.initItems().render().initCollectionEvents();
     }
 
