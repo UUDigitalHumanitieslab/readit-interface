@@ -3,17 +3,11 @@ import { channel } from 'backbone.radio';
 
 import { proxyRoot } from 'config.json';
 
-import {
-    isNode,
-    isIdentifier,
-    NodeLike,
-    ReadOnlyGraph,
-} from '../utilities/types';
 import { channelName } from './constants';
 import ldChannel from './radio';
-import { Identifier, FlatLdDocument, FlatLdGraph } from './json';
-import Node from './node';
-import Graph from './graph';
+import { Identifier, isIdentifier, FlatLdDocument, FlatLdGraph } from './json';
+import Node, { isNode, NodeLike } from './node';
+import Graph, { ReadOnlyGraph } from './graph';
 
 export interface StoreVisitor<T> {
     (store: ReadOnlyGraph): T;

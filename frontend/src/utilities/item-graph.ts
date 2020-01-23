@@ -2,9 +2,8 @@ import { extend } from 'lodash';
 
 import { item } from '../jsonld/ns';
 import { FlatLdDocument } from '../jsonld/json';
-import Node from '../jsonld/node';
+import Node, { isNode } from '../jsonld/node';
 import Graph from '../jsonld/graph';
-import { isNode } from './types';
 
 export interface QueryParamsURI {
     predicate?: Node | string;

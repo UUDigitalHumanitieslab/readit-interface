@@ -1,13 +1,12 @@
 import { find, includes, map, compact, some, isString } from 'lodash';
 
 import ldChannel from '../jsonld/radio';
-import { Identifier } from '../jsonld/json';
-import Node from '../jsonld/node';
-import Graph from './../jsonld/graph';
+import { Identifier, isIdentifier } from '../jsonld/json';
+import Node, { isNode, NodeLike } from '../jsonld/node';
+import Graph, { ReadOnlyGraph } from './../jsonld/graph';
 import ItemGraph from './item-graph';
 import { skos, rdfs, readit, dcterms } from './../jsonld/ns';
 import SourceView from '../panel-source/source-view';
-import { isIdentifier, isNode, NodeLike, ReadOnlyGraph } from './types';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
