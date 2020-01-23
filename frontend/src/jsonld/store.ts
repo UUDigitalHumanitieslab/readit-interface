@@ -81,7 +81,7 @@ export default class Store extends Graph {
      * Like import, but send the request through our own proxy.
      */
     importViaProxy(url: string): this {
-        this.fetch(defaults({url: `${proxyRoot}${url}`}, fetchOptions));
+        this.fetch(defaults({url: `${proxyRoot}${encodeURIComponent(url)}`}, fetchOptions));
         return this;
     }
 
