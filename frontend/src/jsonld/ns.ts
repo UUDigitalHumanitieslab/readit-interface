@@ -474,7 +474,7 @@ export const schema = Vocabulary(schemaPrefix, schemaTerms);
  * Vocabulary with two letter codes for languages
  */
 
-export const iso6391Prefix = 'https://id.loc.gov/vocabulary/iso639-1/';
+export const iso6391Prefix = 'http://id.loc.gov/vocabulary/iso639-1/';
 
 export const iso6391Terms = [
     'en',
