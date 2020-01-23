@@ -14,7 +14,7 @@ import Graph from './graph';
 import Store from './store';
 
 const uri = contentInstance['@id'];
-const proxyUri = `${proxyRoot}${uri}`;
+const proxyUri = `${proxyRoot}${encodeURIComponent(uri)}`;
 
 const partialHash = {
     '@id': uri,
