@@ -98,7 +98,12 @@ export function transitiveClosure(
  * @return a deduplicated array of all ancestors of clss, including clss.
  */
 export function getRdfSuperClasses(clss: NodeLike[]): Node[] {
+    if (!clss || clss.length === 0) return clss as Node[];
     const seed = map(clss, cls => ldChannel.request('obtain', cls));
+    // Next lines handle test environments without a store.
+    if (seed[0] == null) return clss.map(cls =>
+        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : {'@id': cls})
+    );
 
     function traverseParents(cls) {
         const getDirectParents = store => store.get(cls).get(rdfs.subClassOf);
@@ -118,7 +123,12 @@ export function getRdfSuperClasses(clss: NodeLike[]): Node[] {
  * @return a deduplicated array of all descendants of clss, including clss.
  */
 export function getRdfSubClasses(clss: NodeLike[]): Node[] {
+    if (!clss || clss.length === 0) return clss as Node[];
     const seed = map(clss, cls => ldChannel.request('obtain', cls));
+    // Next lines handle test environments without a store.
+    if (seed[0] == null) return clss.map(cls =>
+        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : {'@id': cls})
+    );
 
     function traverseChildren(cls) {
         return ldChannel.request('visit', store => store.filter({
