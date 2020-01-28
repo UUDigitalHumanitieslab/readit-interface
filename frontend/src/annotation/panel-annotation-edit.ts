@@ -1,10 +1,12 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
-import { oa } from '../jsonld/ns';
+import { oa, rdf } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
 
+import PickerView from '../forms/base-picker-view';
+import ItemGraph from '../utilities/item-graph';
 import OntologyClassPickerView from '../utilities/ontology-class-picker/ontology-class-picker-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import SnippetView from '../utilities/snippet-view/snippet-view';
@@ -52,6 +54,8 @@ export default class AnnotationEditView extends BaseAnnotationView {
     snippetView: SnippetView;
     modelIsAnnotion: boolean;
     selectedOntologyClass: Node;
+    itemPicker: PickerView;
+    itemOptions: ItemGraph;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -59,6 +63,8 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     initialize(options: ViewOptions): this {
         this.ontology = options.ontology;
+        this.itemOptions = new ItemGraph();
+        this.itemPicker = new PickerView({collection: this.itemOptions});
 
         if (options.range) {
             this.source = options.source;
@@ -131,6 +137,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     render(): this {
         this.ontologyClassPicker.$el.detach();
+        this.itemPicker.$el.detach();
         if (this.snippetView) this.snippetView.$el.detach();
         if (this.metadataView) this.metadataView.$el.detach();
 
@@ -143,6 +150,8 @@ export default class AnnotationEditView extends BaseAnnotationView {
         });
 
         this.$('.ontology-class-picker-container').append(this.ontologyClassPicker.el);
+        this.$('.item-picker-container .field:first .control')
+            .append(this.itemPicker.el);
         if (this.snippetView) this.$('.snippet-container').append(this.snippetView.el);
         if (this.metadataView) this.$('.metadata-container').append(this.metadataView.el);
         return this;
@@ -178,6 +187,13 @@ export default class AnnotationEditView extends BaseAnnotationView {
     select(item: Node): this {
         this.$('.hidden-input').val(item.id).valid();
         this.selectedOntologyClass = item;
+        this.itemOptions.query({ predicate: rdf.type, object: item.id });
+        this.$('.item-picker-container').removeClass('is-hidden');
+        this.itemPicker.$el.addClass('is-loading');
+        this.itemOptions.once(
+            'update error',
+            () => this.itemPicker.$el.removeClass('is-loading')
+        );
         return this;
     }
 
