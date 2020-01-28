@@ -1,7 +1,9 @@
-import { find, includes } from 'lodash';
+import { find, includes, map, compact, some, isString } from 'lodash';
 
-import Node from '../jsonld/node';
-import Graph from './../jsonld/graph';
+import ldChannel from '../jsonld/radio';
+import { Identifier, isIdentifier } from '../jsonld/json';
+import Node, { isNode, NodeLike } from '../jsonld/node';
+import Graph, { ReadOnlyGraph } from './../jsonld/graph';
 import ItemGraph from './item-graph';
 import { skos, rdfs, readit, dcterms } from './../jsonld/ns';
 import SourceView from '../panel-source/source-view';
@@ -26,8 +28,6 @@ export function getLabelFromId(id: string) {
     let index = id.lastIndexOf("#");
     if (index === -1) index = id.lastIndexOf("/");
     if (index) result = id.substring(index + 1);
-    // if result is a number we're dealing with an item
-    if (result && !isNaN(result)) return;
     return result;
 }
 
@@ -53,41 +53,103 @@ export function getCssClassName(node: Node): string {
  * @param node The node to evaluate
  */
 export function isRdfsClass(node: Node): boolean {
-    const subclass = node.get(rdfs.subClassOf);
-    if (subclass && subclass.length > 0) {
-        return true;
-    }
+    return node.has(rdfs.subClassOf) || node.has('@type', rdfs.Class);
+}
 
-    const nodeType = node.get('@type');
-    if (nodeType && nodeType.length > 0) {
-        return includes(nodeType, rdfs.Class);
-    }
-
-    return false;
+export interface GraphTraversal {
+    (node: Node): Node[];
 }
 
 /**
- * Check if a node has a certain property (i.e. namespace#term).
- * If the property's value is an empty array, it will be considered non-existent (i.e. ignored),
- * unless otherwise specified.
- * @param node The node to evaluate.
- * @param property The property (i.e. namespace#term) we're looking for.
+ * Transitively collect all Nodes that are connected by a given relationship.
+ * For an example of usage, see the getRdfSuperClasses source code.
+ * @param seeds the Nodes from which to start following the relationship.
+ * @param traverse a function that, given a Node, returns its related Nodes.
+ * @return a deduplicated array of all related Nodes, including the seeds.
  */
-export function hasProperty(node: Node, property: string): boolean {
-    if (!node.get(property)) return false;
-    if (node.get(property).length == 0) return false;
-    return true;
+export function transitiveClosure(
+    seeds: Node[],
+    traverse: GraphTraversal
+): Node[] {
+    const fringe = new Graph(seeds);
+    const newlyFound = new Graph();
+    const finished = new Graph();
+    const addRelated = node => (
+        node && newlyFound.add(compact(traverse(node)))
+    );
+
+    while (!fringe.isEmpty()) {
+        fringe.forEach(addRelated);
+        finished.add(fringe.models);
+        newlyFound.remove(finished.models);
+        fringe.reset(newlyFound.models);
+    }
+
+    return finished.models;
 }
 
 /**
- * Check if a Node is of a specific type.
- * TODO: strictly speaking, the type of a Node could be a subtype of the provided type,
- * making the Node an instance of that type as well. Implement a way to deal with this.
+ * Get all known RDF classes that are ancestors of the passed class(es).
+ * "Known" here means that only the information that is synchronously
+ * available from the store is taken into account, although classes
+ * that were not previously in the store will be fetched as a side
+ * effect.
+ * @param clss (URIs of) RDF classes of which to obtain all ancestors.
+ * @return a deduplicated array of all ancestors of clss, including clss.
+ */
+export function getRdfSuperClasses(clss: NodeLike[]): Node[] {
+    if (!clss || clss.length === 0) return clss as Node[];
+    const seed = map(clss, cls => ldChannel.request('obtain', cls));
+    // Next lines handle test environments without a store.
+    if (seed[0] == null) return clss.map(cls =>
+        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : {'@id': cls})
+    );
+
+    function traverseParents(cls) {
+        const getDirectParents = store => store.get(cls).get(rdfs.subClassOf);
+        return ldChannel.request('visit', getDirectParents);
+    }
+
+    return transitiveClosure(seed, traverseParents);
+}
+
+/**
+ * Get all known RDF classes that are descendants of the passed class(es).
+ * "Known" here means that only the information that is synchronously
+ * available from the store is taken into account, although classes
+ * that were not previously in the store will be fetched as a side
+ * effect.
+ * @param clss (URIs of) RDF classes of which to obtain all descendants.
+ * @return a deduplicated array of all descendants of clss, including clss.
+ */
+export function getRdfSubClasses(clss: NodeLike[]): Node[] {
+    if (!clss || clss.length === 0) return clss as Node[];
+    const seed = map(clss, cls => ldChannel.request('obtain', cls));
+    // Next lines handle test environments without a store.
+    if (seed[0] == null) return clss.map(cls =>
+        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : {'@id': cls})
+    );
+
+    function traverseChildren(cls) {
+        return ldChannel.request('visit', store => store.filter({
+            [rdfs.subClassOf]: cls,
+        }));
+    }
+
+    return transitiveClosure(seed, traverseChildren);
+}
+
+/**
+ * Check if a Node is an instance of (a subclass of) a specific type.
  * @param node The node to inspect.
  * @param type The expected type, e.g. (schema.CreativeWork).
+ * @return true if node is an instance of type, false otherwise.
  */
-export function isType(node: Node, type: string) {
-    return includes(node.get('@type'), type);
+export function isType(node: Node, type: string): boolean {
+    const initialTypes = node.get('@type') as string[];
+    if (!initialTypes) return false;
+    const allTypes = getRdfSuperClasses(initialTypes);
+    return some(allTypes, {'id': type});
 }
 
 

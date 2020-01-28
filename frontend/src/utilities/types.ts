@@ -1,23 +1,3 @@
-import { Identifier } from '../jsonld/json';
-import Node from '../jsonld/node';
-import Graph from '../jsonld/graph';
-
-/**
- * Some type guards for common use.
- */
-
-export function isIdentifier(candidate: any): candidate is Identifier {
-    return !!candidate['@id'];
-}
-
-export function isNode(candidate: any): candidate is Node {
-    return candidate instanceof Node;
-}
-
-export function isGraph(candidate: any): candidate is Graph {
-    return candidate instanceof Graph;
-}
-
 /**
  * Self-documenting workaround for a common situation TypeScript
  * cannot handle. Damn you, TypeScript!

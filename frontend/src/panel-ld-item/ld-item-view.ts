@@ -2,10 +2,9 @@
 import { extend } from 'lodash';
 import * as bulmaAccordion from 'bulma-accordion';
 
-import Node from '../jsonld/node';
+import Node, { isNode } from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
 import { owl, oa, dcterms } from './../jsonld/ns';
-import { isNode } from '../utilities/types';
 import { getLabelText } from '../utilities/annotation/annotation-utilities';
 import LabelView from '../utilities/label-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';

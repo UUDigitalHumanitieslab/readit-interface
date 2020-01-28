@@ -100,6 +100,16 @@ extend(proto, {
     sync,
 });
 
+export type ReadOnlyGraph = Omit<Graph,
+    'preinitialize' | 'initialize' | 'sync' | 'add' | 'remove' | 'reset' |
+    'set' | 'push' | 'pop' | 'unshift' | 'shift' | 'sort' | 'fetch' | 'create' |
+    'context' | 'parse'
+>;
+
+export function isGraph(candidate: any): candidate is Graph {
+    return candidate instanceof Graph;
+}
+
 /**
  * The next few functions and function call are implementation
  * details that enable JSON-LD array-aware model matching.
