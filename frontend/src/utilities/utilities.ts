@@ -56,12 +56,26 @@ export function isRdfsClass(node: Node): boolean {
     return node.has(rdfs.subClassOf) || node.has('@type', rdfs.Class);
 }
 
+/**
+ * A GraphTraversal is a function that takes a single Node and
+ * returns an array of Nodes.
+ * (Most useful if the returned Nodes are somehow related to the
+ * input Node.)
+ */
 export interface GraphTraversal {
     (node: Node): Node[];
 }
 
 /**
- * Transitively collect all Nodes that are connected by a given relationship.
+ * Collect all Nodes that are connected by a given relationship.
+ * "Transitive" means that you follow a relationship repeatedly. For
+ * example, when you take the parents of your parents, you get your
+ * grandparents; this is transitively following the "parent-of"
+ * relationship.
+ * "Closure" is here meant in the set-theoretic sense: the complete
+ * set of all things that are connected by a given relationship.
+ * The transitive closure over parent-of, starting from you, is the
+ * complete set of all your ancestors.
  * For an example of usage, see the getRdfSuperClasses source code.
  * @param seeds the Nodes from which to start following the relationship.
  * @param traverse a function that, given a Node, returns its related Nodes.
