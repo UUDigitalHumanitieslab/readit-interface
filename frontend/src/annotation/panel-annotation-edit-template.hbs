@@ -24,6 +24,30 @@
             </div>
         </fieldset>
 
+        <fieldset class="item-picker-container">
+            <div class="field">
+                <label class="label">Which one?</label>
+                <div class="control">
+                    {{! Item picker will be inserted here }}
+                    <div class="select">
+                        <select></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label" for="{{cid}}-new-item">
+                    Doesn&rsquo;t exist yet?
+                </label>
+                <div class="control">
+                    <button type=button class="button" id="{{cid}}-new-item">
+                        Create new
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+        {{! Item editing form will be inserted here }}
+
         <div class="metadata-container">
             {{! metadata view inserted here}}
         </div>
