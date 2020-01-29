@@ -34,6 +34,14 @@ def replace_predicate(graph, before, before_rev, after):
     append_triples(graph, replacements)
 
 
+def delete_by_object(graph, _object):
+    """
+    Delete all triples with `_object` as object.
+    """
+    obsolete = list(graph.quads((None, None, _object)))
+    prune_triples(graph, obsolete)
+
+
 class Migration(RDFMigration):
     actual = staticmethod(graph)
     desired = staticmethod(canonical_graph)
@@ -67,3 +75,8 @@ class Migration(RDFMigration):
         before = READIT.state_of_mind
         after = READIT.reading_response
         replace_object(conjunctive, before, after)
+
+    @on_remove(READIT.reading_session)
+    def delete_READIT_reading_session(self, actual, conjunctive):
+        _object = READIT.reading_session
+        delete_by_object(conjunctive, _object)
