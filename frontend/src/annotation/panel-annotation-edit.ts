@@ -189,11 +189,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
         this.selectedOntologyClass = item;
         this.itemOptions.query({ predicate: rdf.type, object: item.id });
         this.$('.item-picker-container').removeClass('is-hidden');
-        this.itemPicker.$el.addClass('is-loading');
-        this.itemOptions.once(
-            'update error',
-            () => this.itemPicker.$el.removeClass('is-loading')
-        );
         return this;
     }
 

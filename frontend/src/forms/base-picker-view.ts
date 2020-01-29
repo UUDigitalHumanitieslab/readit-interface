@@ -79,6 +79,10 @@ export default class PickerView extends CollectionView<Node, PickerOptionView> {
 
     initialize(options: PickerOptions): void {
         this.initItems().render().initCollectionEvents();
+        this.listenTo(this.collection, {
+            'request': this.showSpinner,
+            'sync error': this.hideSpinner,
+        });
     }
 
     renderContainer(): this {
@@ -99,6 +103,14 @@ export default class PickerView extends CollectionView<Node, PickerOptionView> {
 
     forwardChange(event): void {
         this.trigger('change', this, this.val(), event);
+    }
+
+    showSpinner(): void {
+        this.$el.addClass('is-loading');
+    }
+
+    hideSpinner(): void {
+        this.$el.removeClass('is-loading');
     }
 }
 
