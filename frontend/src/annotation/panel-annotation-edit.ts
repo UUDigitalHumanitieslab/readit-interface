@@ -157,6 +157,14 @@ export default class AnnotationEditView extends BaseAnnotationView {
         return this;
     }
 
+    remove() {
+        this.metadataView && this.metadataView.remove();
+        this.ontologyClassPicker && this.ontologyClassPicker.remove();
+        this.snippetView && this.snippetView.remove();
+        this.itemPicker.remove();
+        return super.remove();
+    }
+
     submit(): this {
         if (this.model.isNew()) {
             composeAnnotation(
