@@ -36,11 +36,11 @@ def replace_predicate(graph, before, before_rev, after):
     append_triples(graph, replacements)
 
 
-def delete_by_object(graph, _object):
+def delete(graph, predicate, _object):
     """
-    Delete all triples in the item graph with `_object` as object.
+    Delete all triples in the item graph with the combination of `predicate` and `_object`.
     """
-    obsolete = list(graph.quads((None, OA.hasBody, _object)))
+    obsolete = list(graph.quads((None, predicate, _object)))
     prune_triples_cascade(graph, obsolete, [item_graph], [OA.hasBody])
 
 
@@ -81,4 +81,5 @@ class Migration(RDFMigration):
     @on_remove(READIT.reading_session)
     def delete_READIT_reading_session(self, actual, conjunctive):
         _object = READIT.reading_session
-        delete_by_object(conjunctive, _object)
+        delete(conjunctive, OA.hasBody, _object)
+        delete(conjunctive, RDF.type, _object)
