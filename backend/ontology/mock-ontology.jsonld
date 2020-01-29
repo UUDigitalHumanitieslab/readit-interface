@@ -273,6 +273,8 @@
             "@id": "http://readit.example/ontology/content"
         }, {
             "@id": "http://readit.example/ontology/medium"
+        }, {
+            "@id": "http://readit.example/ontology/reading_circumstances"
         }]
     },
     {
@@ -365,8 +367,6 @@
         "http://www.w3.org/2004/02/skos/core#prefLabel": "had outcome",
         "http://www.w3.org/2000/01/rdf-schema#domain": [{
             "@id": "http://readit.example/ontology/act_of_reading"
-        }, {
-            "@id": "http://readit.example/ontology/reading_circumstances"
         }],
         "http://www.w3.org/2000/01/rdf-schema#range": [{
             "@id": "http://readit.example/ontology/reading_response"
