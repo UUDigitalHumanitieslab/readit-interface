@@ -1,10 +1,12 @@
 from rdflib.namespace import Namespace
 
-from rdf.migrations import *
-from rdf.utils import append_triples, prune_triples
 from . import namespace as READIT
 from .graph import graph
 from .fixture import canonical_graph
+from rdf.migrations import *
+from rdf.utils import append_triples, prune_triples, prune_triples_cascade
+from rdf.ns import *
+from items.graph import graph as item_graph
 
 CIDOC = Namespace('http://www.cidoc-crm.org/cidoc-crm/')
 
@@ -36,10 +38,10 @@ def replace_predicate(graph, before, before_rev, after):
 
 def delete_by_object(graph, _object):
     """
-    Delete all triples with `_object` as object.
+    Delete all triples in the item graph with `_object` as object.
     """
-    obsolete = list(graph.quads((None, None, _object)))
-    prune_triples(graph, obsolete)
+    obsolete = list(graph.quads((None, OA.hasBody, _object)))
+    prune_triples_cascade(graph, obsolete, [item_graph], [OA.hasBody])
 
 
 class Migration(RDFMigration):
