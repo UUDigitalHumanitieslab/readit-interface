@@ -115,18 +115,18 @@
         ]
     },
     {
-        "@id": "http://readit.example/ontology/reading_session",
+        "@id": "http://readit.example/ontology/act_of_reading",
         "@type": [
             "http://www.w3.org/2000/01/rdf-schema#Class"
         ],
         "http://www.w3.org/2004/02/skos/core#prefLabel": [
             {
-                "@value": "Reading Session"
+                "@value": "Act of Reading"
             }
         ],
         "http://www.w3.org/2004/02/skos/core#definition": [
             {
-                "@value": "This is the definition of Reading Session"
+                "@value": "This is the definition of Act of Reading"
             }
         ],
         "http://schema.org/color": [
@@ -136,18 +136,39 @@
         ]
     },
     {
-        "@id": "http://readit.example/ontology/state_of_mind",
+        "@id": "http://readit.example/ontology/reading_circumstances",
         "@type": [
             "http://www.w3.org/2000/01/rdf-schema#Class"
         ],
         "http://www.w3.org/2004/02/skos/core#prefLabel": [
             {
-                "@value": "State of Mind"
+                "@value": "Reading Circumstances"
             }
         ],
         "http://www.w3.org/2004/02/skos/core#definition": [
             {
-                "@value": "This is the definition of Reader Properties"
+                "@value": "This is the definition of Reading Circumstances"
+            }
+        ],
+        "http://schema.org/color": [
+            {
+                "@value": "#add8e6"
+            }
+        ]
+    },
+    {
+        "@id": "http://readit.example/ontology/reading_response",
+        "@type": [
+            "http://www.w3.org/2000/01/rdf-schema#Class"
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "Reading Response"
+            }
+        ],
+        "http://www.w3.org/2004/02/skos/core#definition": [
+            {
+                "@value": "This is the definition of Reading Response"
             }
         ],
         "http://schema.org/color": [
@@ -225,9 +246,12 @@
             "@id": "http://readit.example/ontology/resource_properties"
         }, {
             "@id": "http://readit.example/ontology/medium"
+        },
+        {
+            "@id": "http://readit.example/ontology/reading_circumstances"
         }],
         "http://www.w3.org/2000/01/rdf-schema#range": [{
-            "@id": "http://readit.example/ontology/reading_session"
+            "@id": "http://readit.example/ontology/act_of_reading"
         }]
     },
     {
@@ -243,12 +267,14 @@
         "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property",
         "http://www.w3.org/2004/02/skos/core#prefLabel": "involved",
         "http://www.w3.org/2000/01/rdf-schema#domain": [{
-            "@id": "http://readit.example/ontology/state_of_mind"
+            "@id": "http://readit.example/ontology/reading_response"
         }],
         "http://www.w3.org/2000/01/rdf-schema#range": [{
             "@id": "http://readit.example/ontology/content"
         }, {
             "@id": "http://readit.example/ontology/medium"
+        }, {
+            "@id": "http://readit.example/ontology/reading_circumstances"
         }]
     },
     {
@@ -305,7 +331,7 @@
             "@id": "http://readit.example/ontology/reader"
         }],
         "http://www.w3.org/2000/01/rdf-schema#range": [{
-            "@id": "http://readit.example/ontology/reading_session"
+            "@id": "http://readit.example/ontology/act_of_reading"
         }]
     },
     {
@@ -317,33 +343,33 @@
         "http://www.w3.org/2004/02/skos/core#prefLabel": "was carried out by"
     },
     {
-        "@id": "http://readit.example/ontology/had_state",
+        "@id": "http://readit.example/ontology/had_response",
         "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property",
-        "http://www.w3.org/2004/02/skos/core#prefLabel": "had state",
+        "http://www.w3.org/2004/02/skos/core#prefLabel": "had response",
         "http://www.w3.org/2000/01/rdf-schema#domain": [{
             "@id": "http://readit.example/ontology/reader"
         }],
         "http://www.w3.org/2000/01/rdf-schema#range": [{
-            "@id": "http://readit.example/ontology/state_of_mind"
+            "@id": "http://readit.example/ontology/reading_response"
         }]
     },
     {
-        "@id": "http://readit.example/ontology/state_of",
+        "@id": "http://readit.example/ontology/response_of",
         "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property",
         "http://www.w3.org/2002/07/owl#inverseOf": {
-            "@id": "http://readit.example/ontology/had_state"
+            "@id": "http://readit.example/ontology/had_response"
         },
-        "http://www.w3.org/2004/02/skos/core#prefLabel": "was state of"
+        "http://www.w3.org/2004/02/skos/core#prefLabel": "response of"
     },
     {
         "@id": "http://readit.example/ontology/had_outcome",
         "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property",
         "http://www.w3.org/2004/02/skos/core#prefLabel": "had outcome",
         "http://www.w3.org/2000/01/rdf-schema#domain": [{
-            "@id": "http://readit.example/ontology/reading_session"
+            "@id": "http://readit.example/ontology/act_of_reading"
         }],
         "http://www.w3.org/2000/01/rdf-schema#range": [{
-            "@id": "http://readit.example/ontology/state_of_mind"
+            "@id": "http://readit.example/ontology/reading_response"
         }]
     },
     {
