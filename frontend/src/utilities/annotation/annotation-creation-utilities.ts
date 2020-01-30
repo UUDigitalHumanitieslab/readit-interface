@@ -61,16 +61,23 @@ function getSuffix(exactRange: Range): string {
  * Create an annotation, with all relevant Nodes (e.g. oa.Specificresource, oa.Selector, etc) to store the information.
  * @param source
  * @param posDetails
- * @param ontoClass
  * @param tQSelector
+ * @param ontoClass
  * @param done Callback function.
  */
-export function composeAnnotation(source: Node, posDetails: AnnotationPositionDetails, ontoClass: Node, tQSelector: Node, done?) {
+export function composeAnnotation(
+    source: Node,
+    posDetails: AnnotationPositionDetails,
+    tQSelector: Node,
+    ontoClass: Node,
+    ontoItem?: Node,
+    done?
+) {
     const { startNodeIndex, startCharacterIndex, endNodeIndex, endCharacterIndex } = posDetails;
 
     const inputs = {
         startNodeIndex, startCharacterIndex, endNodeIndex, endCharacterIndex,
-        source, ontoClass, tQSelector, items: new ItemGraph(),
+        source, ontoClass, ontoItem, tQSelector, items: new ItemGraph(),
     };
 
     const tasks = {
@@ -89,10 +96,10 @@ export function composeAnnotation(source: Node, posDetails: AnnotationPositionDe
         specificResource: ['items', 'source', 'rangeSelector', 'textQuoteSelector',
             createSpecificResource,
         ],
-        // instance: ['items', 'ontoClass',
-        //     createOntologyInstance
-        // ],
-        annotation: ['items', 'specificResource', 'ontoClass',
+        instance: ['items', 'ontoClass', 'ontoItem',
+            createOntologyInstance,
+        ],
+        annotation: ['items', 'specificResource', 'ontoClass', 'instance',
             createAnnotation,
         ],
     };
@@ -172,25 +179,15 @@ function createItem(items: ItemGraph, attributes: any, done?) {
     ], (error, results) => done(error, results));
 }
 
-// This is here for when linking to an item is implemented (but needs updating as well)
-function createOntologyInstance(items: ItemGraph, ontoClass: Node, done?) {
-    return;
-    const attributes = {
-        '@type': ontoClass.id,
-        // [skos.prefLabel]: getItemLabel(annotationText),
-        [dcterms.created]: [
-            {
-                "@type": xsd.dateTime,
-                "@value": "2085-12-31T04:33:16+0100"
-            }
-        ],
-        [dcterms.creator]: [
-            {
-                "@id": staff('JdeKruif')
-            }
-        ],
-    }
-    return createItem(items, attributes, done);
+function createOntologyInstance(
+    items: ItemGraph,
+    ontoClass: Node,
+    attributes?: Node,
+    done?
+) {
+    if (attributes) return createItem(items, attributes, done);
+    if (!done) return Promise.resolve(attributes);
+    a$.nextTick(done, null, attributes);
 }
 
 function createTextQuoteSelector(items: ItemGraph, textQuoteSelector: Node, done?) {
@@ -225,11 +222,18 @@ function createSpecificResource(items: ItemGraph, source: Node, rangeSelector: N
     return createItem(items, attributes, done);
 }
 
-function createAnnotation(items: ItemGraph, specificResource: Node, ontoClass: Node, done?) {
+function createAnnotation(
+    items: ItemGraph,
+    specificResource: Node,
+    ontoClass: Node,
+    ontoItem?: Node,
+    done?
+) {
     const attributes = {
         '@type': oa.Annotation,
         [oa.hasBody]: [ontoClass],
         [oa.hasTarget]: specificResource,
     };
+    if (ontoItem) attributes[oa.hasBody].push(ontoItem);
     return createItem(items, attributes, done);
 }

@@ -179,17 +179,18 @@ export default class AnnotationEditView extends BaseAnnotationView {
             composeAnnotation(
                 this.source,
                 this.positionDetails,
-                this.selectedClass,
                 this.snippetView.selector,
+                this.selectedClass,
+                this.selectedItem,
                 (error, results) => {
                     if (error) return console.debug(error);
                     this.trigger('annotationEditView:saveNew', this, results.annotation, results.items);
                 });
         }
         else {
-            let existingBodyClass = this.model.get(oa.hasBody);
-            if (existingBodyClass) this.model.unset(oa.hasBody, existingBodyClass);
-            this.model.set(oa.hasBody, (this.selectedClass));
+            this.model.unset(oa.hasBody);
+            this.model.set(oa.hasBody, this.selectedClass);
+            this.selectedItem && this.model.set(oa.hasBody, this.selectedItem);
             this.model.save();
             this.trigger('annotationEditView:save', this, this.model);
         }
