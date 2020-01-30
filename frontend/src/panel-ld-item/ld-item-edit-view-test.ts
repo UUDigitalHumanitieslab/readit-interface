@@ -20,6 +20,14 @@ describe('Item edit view', function() {
     });
     afterEach(endStore);
 
+    describe('initialize', function() {
+        it('also renders the label', function() {
+            const projectedLabel = this.view.$('span.tag.is-readit-content');
+            expect(projectedLabel.length).toBe(1);
+            expect(projectedLabel.text()).toBe('Content');
+        });
+    });
+
     describe('itemLabelFromModel', function() {
         it('fills the computed item label in the form field', function() {
             const formField = this.view.$(`#label-${this.view.cid}`);
