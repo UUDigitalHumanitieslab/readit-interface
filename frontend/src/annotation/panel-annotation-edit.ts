@@ -1,13 +1,14 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
-import { oa, rdf } from '../jsonld/ns';
+import { oa, rdf, skos } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
 
+import ItemEditor from '../panel-ld-item/ld-item-edit-view';
 import PickerView from '../forms/base-picker-view';
 import ItemGraph from '../utilities/item-graph';
-import OntologyClassPickerView from '../utilities/ontology-class-picker/ontology-class-picker-view';
+import ClassPickerView from '../utilities/ontology-class-picker/ontology-class-picker-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import { isType } from '../utilities/utilities';
@@ -54,8 +55,10 @@ export default class AnnotationEditView extends BaseAnnotationView {
     snippetView: SnippetView;
     modelIsAnnotion: boolean;
     selectedClass: Node;
+    selectedItem: Node;
     itemPicker: PickerView;
     itemOptions: ItemGraph;
+    itemEditor: ItemEditor;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -65,6 +68,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
         this.ontology = options.ontology;
         this.itemOptions = new ItemGraph();
         this.itemPicker = new PickerView({collection: this.itemOptions});
+        this.itemPicker.on('change', this.selectItem, this);
 
         if (options.range) {
             this.source = options.source;
@@ -140,6 +144,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
         this.itemPicker.$el.detach();
         if (this.snippetView) this.snippetView.$el.detach();
         if (this.metadataView) this.metadataView.$el.detach();
+        if (this.itemEditor) this.itemEditor.$el.detach();
 
         this.$el.html(this.template(this));
         if (this.preselection) this.selectClass(this.preselection);
@@ -154,6 +159,9 @@ export default class AnnotationEditView extends BaseAnnotationView {
             .append(this.itemPicker.el);
         if (this.snippetView) this.$('.snippet-container').append(this.snippetView.el);
         if (this.metadataView) this.$('.metadata-container').append(this.metadataView.el);
+        if (this.itemEditor) {
+            this.$('.item-picker-container').after(this.itemEditor.el);
+        }
         return this;
     }
 
@@ -161,6 +169,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
         this.metadataView && this.metadataView.remove();
         this.classPicker && this.classPicker.remove();
         this.snippetView && this.snippetView.remove();
+        this.itemEditor && this.itemEditor.remove();
         this.itemPicker.remove();
         return super.remove();
     }
@@ -196,7 +205,32 @@ export default class AnnotationEditView extends BaseAnnotationView {
         this.$('.hidden-input').val(cls.id).valid();
         this.selectedClass = cls;
         this.itemOptions.query({ predicate: rdf.type, object: cls.id });
+        this.removeEditor();
         this.$('.item-picker-container').removeClass('is-hidden');
+        return this;
+    }
+
+    selectItem(itemPicker: PickerView, id: string): void {
+        this.removeEditor();
+        this.selectedItem = this.itemOptions.get(id);
+    }
+
+    createItem(): this {
+        if (this.itemEditor) return this;
+        this.selectedItem = new Node({
+            '@type': this.selectedClass.id,
+            [skos.prefLabel]: '', // this prevents a failing getLabel
+        });
+        this.itemEditor = new ItemEditor({model: this.selectedItem});
+        this.$('.item-picker-container').after(this.itemEditor.el);
+        return this;
+    }
+
+    removeEditor(): this {
+        if (!this.itemEditor) return this;
+        this.itemEditor.remove();
+        delete this.itemEditor;
+        delete this.selectedItem;
         return this;
     }
 
@@ -233,5 +267,6 @@ extend(AnnotationEditView.prototype, {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
         'click .btn-rel-items': 'onRelatedItemsClicked',
+        'click .item-picker-container .field:last button': 'createItem',
     }
 });
