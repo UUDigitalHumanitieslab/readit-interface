@@ -70,7 +70,8 @@ export default class ItemEditor extends CompositeView<Node> {
         return this.$(`#label-${this.cid}`);
     }
 
-    submit(): void {
+    submit(event: JQuery.TriggeredEvent): void {
+        event.preventDefault();
         this.trigger('submit', this);
     }
 }
