@@ -164,7 +164,8 @@ export default class ExplorerEventController {
             this.explorerView.pop();
         }
 
-        return this;
+        this.sourceViewHighlightClicked(sourceView, annotation);
+        return this.sourceViewHighlightSelected(sourceView, annotation);
     }
 
     annotationEditClose(editView: AnnotationEditView): this {
