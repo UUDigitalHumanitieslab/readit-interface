@@ -1,5 +1,7 @@
 import { startStore, endStore } from '../test-util';
 
+import { debounce } from 'lodash';
+
 import { skos } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';

@@ -56,7 +56,7 @@ export default class ItemEditor extends CompositeView<Node> {
         if (existingLabels && existingLabels.length) {
             const obsoleteLabels = existingLabels.filter(hasLabelLanguage);
             obsoleteLabels.forEach(
-                label => this.model.unset(skos.prefLabel, label)
+                label => this.model.unset(skos.prefLabel, label, {silent: true})
             );
         }
         this.model.set(skos.prefLabel, {
