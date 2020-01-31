@@ -234,6 +234,6 @@ function createAnnotation(
         [oa.hasBody]: [ontoClass],
         [oa.hasTarget]: specificResource,
     };
-    if (ontoItem) attributes[oa.hasBody].push(ontoItem);
+    if (ontoItem) (attributes[oa.hasBody] as Node[]).push(ontoItem);
     return createItem(items, attributes, done);
 }
