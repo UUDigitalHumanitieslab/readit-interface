@@ -54,6 +54,7 @@ export default class FilteredCollection<
             underlying,
             criterion,
             comparator: underlying.comparator,
+            model: underlying.model,
         });
         const initialModels = underlying.filter(criterion);
         super(initialModels, options);
