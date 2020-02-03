@@ -196,11 +196,13 @@ export function isOntologyClass(item: Node): boolean {
     return (item.id as string).startsWith(readit()) && isRdfsClass(item);
 }
 
-
+/**
+ * Adapts the ontology promise from the ld radio channel to the async
+ * callback convention.
+ */
 export function getOntology(callback): void {
-    let o = new Graph();
-    o.fetch({ url: readit() }).then(
-        function success() {
+    ldChannel.request('ontology:promise').then(
+        function success(o) {
             callback(null, o);
         },
         /*error*/ callback
