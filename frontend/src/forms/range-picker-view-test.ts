@@ -27,6 +27,7 @@ function omitWhite(text) {
 const expectedMultipleHTML = omitWhite(`
 <div class="select readit-picker is-multiple">
 <select multiple="">
+    <option>—</option>
 <option value="1">apple</option>
 <option value="2">banana</option>
 <option value="4">4</option>
@@ -39,6 +40,7 @@ const expectedMultipleHTML = omitWhite(`
 const expectedNonMultipleHTML = omitWhite(`
 <div class="select readit-picker">
 <select>
+    <option>—</option>
 <option value="1">apple</option>
 <option value="2">banana</option>
 <option value="4">4</option>
