@@ -44,7 +44,9 @@ export default class RelationEditor extends CompositeView {
             this.objectPicker.remove();
         }
         this.objectPicker = this.createPicker(predicate);
-        ldChannel.trigger('cache:items', this.objectPicker.admittedTypes);
+        this.objectPicker.admittedTypes.forEach(
+            t => ldChannel.request('cache:items', t)
+        );
         this.objectPicker.on('change', this.updateObject, this);
         return this;
     }
