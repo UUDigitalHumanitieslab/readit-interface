@@ -4,6 +4,7 @@ import { item } from '../jsonld/ns';
 import { FlatLdDocument } from '../jsonld/json';
 import Node, { isNode } from '../jsonld/node';
 import Graph from '../jsonld/graph';
+import { asURI } from '../utilities/utilities';
 
 export interface QueryParamsURI {
     predicate?: Node | string;
@@ -56,10 +57,6 @@ function isURIQuery(params: QueryParams): params is QueryParamsURI {
 
 function isLiteralQuery(params: QueryParams): params is QueryParamsLiteral {
     return (params as QueryParamsLiteral).objectLiteral !== undefined;
-}
-
-function asURI(source: Node | string): string {
-    return isNode(source) ? source.id : source;
 }
 
 /**

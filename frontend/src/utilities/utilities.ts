@@ -48,6 +48,14 @@ export function getCssClassName(node: Node): string {
 }
 
 /**
+ * Helper to obtain the URI of something that may be either a Node or
+ * already a URI.
+ */
+export function asURI(source: Node | string): string {
+    return isNode(source) ? source.id : source;
+}
+
+/**
  * Check if a node is a rdfs:Class, i.e. has rdfs:Class as (one of its) type(s) or
  * has a non-empty rdfs:subClassOf property.
  * @param node The node to evaluate
