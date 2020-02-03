@@ -8,6 +8,7 @@ import './global/internalLinks';
 import './global/hbsHelpers';
 import user from './global/user';
 import { prefetch } from './global/ld-store';
+import './global/item-cache';
 import './aspects/readit';
 import './aspects/authentication';
 
