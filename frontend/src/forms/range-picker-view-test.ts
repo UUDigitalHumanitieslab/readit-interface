@@ -58,23 +58,23 @@ describe('RangePickerView', function() {
     });
     afterEach(endStore);
 
-    it('renders as a Bulma-enabled multiselect', function() {
+    it('renders as a Bulma-enabled <select>', function() {
         const picker = new RangePickerView({
             model: this.property,
             collection: this.candidates,
         });
         expect(picker.admittedTypes).toEqual(['base', 'derived']);
         expect(picker.collection.length).toBe(5);
-        expect(omitWhite(picker.el.outerHTML)).toBe(expectedMultipleHTML);
+        expect(omitWhite(picker.el.outerHTML)).toBe(expectedNonMultipleHTML);
     });
 
     it('is sensitive to the multiple option', function() {
         const picker = new RangePickerView({
             model: this.property,
             collection: this.candidates,
-            multiple: false,
+            multiple: true,
         });
-        expect(omitWhite(picker.el.outerHTML)).toBe(expectedNonMultipleHTML);
+        expect(omitWhite(picker.el.outerHTML)).toBe(expectedMultipleHTML);
     });
 
     describe('val', function() {
@@ -82,6 +82,7 @@ describe('RangePickerView', function() {
             const picker = new RangePickerView({
                 model: this.property,
                 collection: this.candidates,
+                multiple: true,
             });
             const select = picker.$('select');
             expect(select.length).toBe(1);
