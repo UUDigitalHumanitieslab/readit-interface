@@ -5,12 +5,14 @@ import { CompositeView } from '../core/view';
 import ldChannel from '../jsonld/radio';
 import { rdf } from '../jsonld/ns';
 import Node from '../jsonld/node';
+import Graph from '../jsonld/graph';
 import PickerView from '../forms/base-picker-view';
 import RangePicker from '../forms/range-picker-view';
 import ItemGraph from '../utilities/item-graph';
 import relationTemplate from './relation-editor-template';
 
 export default class RelationEditor extends CompositeView {
+    collection: Graph;
     predicatePicker: PickerView;
     objectPicker: RangePicker;
 
