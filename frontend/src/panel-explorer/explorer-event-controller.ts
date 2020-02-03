@@ -11,6 +11,7 @@ import AnnotationListView from '../annotation/panel-annotation-list-view';
 import HighlightView from '../highlight/highlight-view';
 import AnnotationEditView from '../annotation/panel-annotation-edit';
 import RelatedItemsView from '../panel-related-items/related-items-view';
+import RelatedItemsEditView from '../panel-related-items/related-items-edit-view';
 import ItemGraph from '../utilities/item-graph';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { oa } from '../jsonld/ns';
@@ -62,6 +63,7 @@ export default class ExplorerEventController {
             'lditem:showExternal': this.ldItemShowExternal,
             'lditem:editAnnotation': this.ldItemEditAnnotation,
             'relItems:itemClick': this.relItemsItemClicked,
+            'relItems:edit': this.relItemsEdit,
             'source-list:click': this.sourceListClick,
             'searchResultList:itemClicked': this.searchResultListItemClicked,
         }, this);
@@ -87,6 +89,12 @@ export default class ExplorerEventController {
         this.explorerView.popUntil(relView);
         let itemView = new LdItemView({ model: item });
         this.explorerView.push(itemView);
+        return this;
+    }
+
+    relItemsEdit(relView: RelatedItemsView, item: Node): this {
+        const editView = new RelatedItemsEditView({model: item});
+        this.explorerView.overlay(editView, relView);
         return this;
     }
 

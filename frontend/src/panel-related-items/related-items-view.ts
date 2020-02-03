@@ -85,11 +85,16 @@ export default class RelatedItemsView extends View<Node> {
         this.trigger('relItems:itemClick', this, annotation);
         return this;
     }
+
+    onEditButtonClicked(event: JQuery.TriggeredEvent): void {
+        this.trigger('relItems:edit', this, this.model);
+    }
 }
 extend(RelatedItemsView.prototype, {
     tagName: 'div',
     className: 'related-items explorer-panel',
     template: relatedItemsTemplate,
     events: {
-    }
+        'click .btn-edit': 'onEditButtonClicked',
+    },
 });
