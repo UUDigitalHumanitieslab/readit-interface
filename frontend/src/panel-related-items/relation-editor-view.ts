@@ -11,6 +11,9 @@ import RangePicker from '../forms/range-picker-view';
 import ItemGraph from '../utilities/item-graph';
 import relationTemplate from './relation-editor-template';
 
+// Selector of the control where the object picker is inserted.
+const objectControl = '.control:nth-child(2)';
+
 export default class RelationEditor extends CompositeView {
     collection: Graph;
     predicatePicker: PickerView;
@@ -50,6 +53,7 @@ export default class RelationEditor extends CompositeView {
             t => ldChannel.request('cache:items', t)
         );
         this.objectPicker.on('change', this.updateObject, this);
+        this.$(objectControl).append(this.objectPicker.el);
         return this;
     }
 
@@ -89,6 +93,6 @@ extend(RelationEditor.prototype, {
         selector: '.control:first-child',
     }, {
         view: 'objectPicker',
-        selector: '.control:nth-child(2)',
+        selector: objectControl,
     }],
 });
