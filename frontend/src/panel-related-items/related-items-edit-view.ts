@@ -19,6 +19,15 @@ const addField = '.rit-add-relation';
 const saveControl = '.panel-footer .control:first-child';
 
 /**
+ * Helper for filtering properties by matching type of domain or range.
+ */
+function matchRelatee(direction: string, types: Node[]) {
+    return function(property: Node): boolean {
+        return some(types, t => property.has(direction, t));
+    }
+}
+
+/**
  * Returns a Graph with all direct and inverse predicates applicable to model.
  * This function runs entirely sync.
  */
@@ -27,13 +36,9 @@ function applicablePredicates(model: Node): Graph {
     const predicates = new Graph();
     const ontology = ldChannel.request('ontology:graph') as Graph;
     // predicates that can have model in subject position
-    predicates.add(ontology.filter(
-        {[rdfs.domain]: allTypes} as unknown as ListIterator<Node, boolean>
-    ));
+    predicates.add(ontology.filter(matchRelatee(rdfs.domain, allTypes)));
     // predicates that can have model in object position (need inverse)
-    ontology.filter(
-        {[rdfs.range]: allTypes} as unknown as ListIterator<Node, boolean>
-    ).forEach(direct => {
+    ontology.filter(matchRelatee(rdfs.range, allTypes)).forEach(direct => {
         // inverse might have been added already
         if (predicates.find(
             {[owl.inverseOf]: direct} as unknown as ListIterator<Node, boolean>
