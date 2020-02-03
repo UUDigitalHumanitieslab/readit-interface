@@ -2,9 +2,10 @@
  * This module provides a caching service for client code that
  * requires a particular type of item from the backend store. The
  * service operates through the ld radio channel. All requests return
- * a Graph that will eventually contain the requested items. If the
- * Graph is still empty on return, client code can wait for the
- * 'update' event.
+ * an ItemGraph that will eventually contain the requested items. If
+ * client code must only run when the request is complete, it can
+ * pass a callback to the ItemGraph's .ready method or listen for the
+ * 'sync' or 'update' event.
 
     ldChannel.request('cache:items', rdfClass: Node | uri)
 

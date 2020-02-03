@@ -75,6 +75,9 @@ function isLiteralQuery(params: QueryParams): params is QueryParamsLiteral {
  * See also the query method below for querying the server.
  */
 export default class ItemGraph extends Graph {
+    // Only defined if a query has been issued.
+    promise: JQuery.jqXHR;
+
     /**
      * Replace the contents of this graph by all items at the backend
      * that match the given criteria.
@@ -89,7 +92,16 @@ export default class ItemGraph extends Graph {
         if (isLiteralQuery(params)) data.o_literal = params.objectLiteral;
         if (params.traverse) data.t = params.traverse;
         if (params.revTraverse) data.r = params.revTraverse;
-        return this.fetch({data});
+        return this.promise = this.fetch({data});
+    }
+
+    /**
+     * Invokes the given callback when the most recent query completes.
+     */
+    ready(callback: (ItemGraph) => any): this {
+        if (!this.promise) throw new Error('No query was issued.');
+        this.promise.then(callback);
+        return this;
     }
 }
 
