@@ -137,43 +137,41 @@ class RelatedItemsEditor extends CollectionView<Model, RelationEditor> {
     }
 
     resetIndicators(): this {
-        this.$(`${saveControl} .control`)
-            .removeClass('is-loading has-icons-right')
+        this.$(`${saveControl} button`)
+            .removeClass('is-loading is-success is-danger')
             .children('.icon').remove();
-        this.$(`${saveControl} button`).removeClass('is-success is-danger');
         this.$(`${addField} button`).prop('disabled', false);
         return this;
     }
 
     indicateProgress(): this {
         this.resetIndicators();
-        this.$(`${saveControl} .control`).addClass('is-loading');
+        this.$(`${saveControl} button`).addClass('is-loading');
         this.$(`${addField} button`).prop('disabled', true);
         return this;
     }
 
     indicateSuccess(): this {
         this.resetIndicators();
-        this.$(`${saveControl} .control`).addClass('has-icons-right').append(`
+        this.$(`${saveControl} button`).addClass('is-success').append(`
             <span class="icon is-right"><i class="fas fa-check"></i></span>
         `);
-        this.$(`${saveControl} button`).addClass('is-success');
         return this;
     }
 
     indicateError(): this {
         this.resetIndicators();
-        this.$(`${saveControl} .control`).addClass('has-icons-right').append(`
+        this.$(`${saveControl} button`).addClass('is-danger').append(`
             <span class="icon is-right">
                 <i class="fas fa-exclamation-triangle"></i>
             </span>
         `);
-        this.$(`${saveControl} button`).addClass('is-danger');
         return this;
     }
 
     submit(event: JQuery.TriggeredEvent): this {
         event.preventDefault();
+        if (this.changes.isEmpty()) return this;
         this.indicateProgress().commitChanges().then(
             this.indicateSuccess.bind(this),
             this.indicateError.bind(this),
