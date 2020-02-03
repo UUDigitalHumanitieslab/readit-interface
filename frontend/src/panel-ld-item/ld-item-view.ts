@@ -12,6 +12,14 @@ import { isType, getLabelFromId } from './../utilities/utilities';
 import ldItemTemplate from './ld-item-template';
 import BaseAnnotationView, { ViewOptions } from '../annotation/base-annotation-view';
 
+const excludedProperties = [
+    '@id',
+    '@type',
+    dcterms.creator,
+    dcterms.created,
+    dcterms.modified,
+];
+
 
 export default class LdItemView extends BaseAnnotationView {
     lblView: LabelView;
@@ -117,10 +125,8 @@ export default class LdItemView extends BaseAnnotationView {
     }
 
     collectDetails(): this {
-        const excluded = ['@id', '@type', dcterms.created, dcterms.creator];
-
         for (let attribute in this.currentItem.attributes) {
-            if (excluded.includes(attribute)) {
+            if (excludedProperties.includes(attribute)) {
                 continue;
             }
 
