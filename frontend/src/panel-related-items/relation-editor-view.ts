@@ -53,6 +53,7 @@ export default class RelationEditor extends CompositeView {
             t => ldChannel.request('cache:items', t)
         );
         this.objectPicker.on('change', this.updateObject, this);
+        this.objectPicker.$el.addClass('is-fullwidth');
         this.$(objectControl).append(this.objectPicker.el);
         return this;
     }
