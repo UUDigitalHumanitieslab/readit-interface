@@ -71,6 +71,7 @@ function relationsFromModel(model: Node, predicates: Graph) {
         'cache:inverse-related',
         model,
     ) as ItemGraph;
+    const ontology = ldChannel.request('ontology:graph') as Graph;
     // First, direct relations sourced from the model itself
     const relations = new Collection();
     const attributes = keys(model.attributes);
@@ -82,21 +83,27 @@ function relationsFromModel(model: Node, predicates: Graph) {
         );
     });
     // Next, inverse relations sourced from other Nodes
+    const inverseMap: {[id: string]: Node} = {};
+    const inversePredicates = new Graph(predicates.map(direct => {
+        let inverse: Node | Node[] = direct.get(owl.inverseOf) as Node[];
+        if (inverse) {
+            inverse = inverse[0];
+        } else {
+            inverse = ontology.find({
+                [owl.inverseOf]: direct,
+            } as unknown as ListIterator<Node, boolean>);
+        }
+        inverseMap[inverse.id] = direct;
+        return inverse;
+    }));
     inverseRelated.ready(() => inverseRelated.forEach(node => {
         const attributes = keys(node.attributes);
         attributes.forEach(a => {
-            const direct = predicates.get(a);
-            if (!direct || !node.has(a, model)) return;
-            let inverse: Node | Node[] = direct.get(owl.inverseOf) as Node[];
-            if (inverse) {
-                inverse = inverse[0];
-            } else {
-                inverse = predicates.find({
-                    [owl.inverseOf]: direct,
-                } as unknown as ListIterator<Node, boolean>);
-            }
-            relations.add({predicate: inverse, object: node});
-        })
+            const inverse = inversePredicates.get(a);
+            if (!inverse || !node.has(a, model)) return;
+            const direct = inverseMap[inverse.id];
+            relations.add({predicate: direct, object: node});
+        });
     }));
     return relations;
 }
