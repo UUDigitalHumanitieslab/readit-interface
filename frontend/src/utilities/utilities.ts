@@ -196,12 +196,14 @@ export function getScrollTop(scrollableEl: JQuery<HTMLElement>, scrollToTop: num
 }
 
 /**
- * Establish whether the item is in the ontology graph, i.e. is an ontology class
+ * Establish whether a node is in the ontology graph, i.e. is an ontology class
  * (as opposed to an instance of one of the ontology's classes).
- * @param item The linked data item to investigate.
+ * @param node The linked data item to investigate.
  */
-export function isOntologyClass(item: Node): boolean {
-    return (item.id as string).startsWith(readit()) && isRdfsClass(item);
+export function isOntologyClass(node: Node): boolean {
+    if (!isRdfsClass(node)) return false;
+    if (node.id) return (node.id as string).startsWith(readit());
+    return false;
 }
 
 /**
