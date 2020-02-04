@@ -41,7 +41,7 @@ export default class RelatedItemsView extends View<Node> {
 
     initRelationViews(relations: Collection): this {
         const byPredicate = relations.groupBy(r => r.get('predicate').id);
-        this.relations = map(byPredicate, this.makeRelationView.bind(this));
+        this.relations = map(byPredicate, this.makeRelationView.bind(this)) as any;
         return this;
     }
 
