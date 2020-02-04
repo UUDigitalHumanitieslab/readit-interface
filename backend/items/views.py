@@ -124,9 +124,6 @@ class ItemsAPISingular(RDFResourceView):
             raise NotFound()
         user, now = submission_info(request)
         identifier = URIRef(self.get_resource_uri(request, **kwargs))
-        creator = existing.value(identifier, DCTERMS.creator)
-        if user != creator:
-            raise PermissionDenied(MUST_BE_OWNER_403)
         override = graph_from_request(request)
         subjects = set(override.subjects())
         if len(subjects) != 1 or subjects.pop() != identifier:
