@@ -9,6 +9,21 @@ import ItemGraph from '../utilities/item-graph';
 import { getLabel, getRdfSuperClasses } from '../utilities/utilities';
 
 /**
+ * Returns the inverse property of `direct` within the context of `ontology`.
+ */
+export function getInverse(direct: Node, ontology: Graph): Node {
+    let inverse: Node | Node[] = direct.get(owl.inverseOf) as Node[];
+    if (inverse) {
+        inverse = inverse[0];
+    } else {
+        inverse = ontology.find({
+            [owl.inverseOf]: direct,
+        } as unknown as ListIterator<Node, boolean>);
+    }
+    return inverse;
+}
+
+/**
  * Helper for filtering properties by matching type of domain or range.
  */
 export function matchRelatee(direction: string, types: Node[]) {
@@ -29,23 +44,16 @@ export function applicablePredicates(model: Node): Graph {
     predicates.add(ontology.filter(matchRelatee(rdfs.domain, allTypes)));
     // predicates that can have model in object position (need inverse)
     ontology.filter(matchRelatee(rdfs.range, allTypes)).forEach(direct => {
-        // inverse might have been added already
-        if (predicates.find(
-            {[owl.inverseOf]: direct} as unknown as ListIterator<Node, boolean>
-        )) return;
-        // otherwise, look up or emulate
-        let inverse = ontology.find(
-            {[owl.inverseOf]: direct} as unknown as ListIterator<Node, boolean>
-        );
+        let inverse = getInverse(direct, ontology);
         if (!inverse) inverse = new Node({
             [rdfs.label]: `inverse of ${getLabel(direct)}`,
             [owl.inverseOf]: direct,
         });
         if (!inverse.has(rdfs.domain)) {
-            inverse.set(rdfs.domain, direct.get(rdfs.range))
+            inverse.set(rdfs.domain, direct.get(rdfs.range));
         }
         if (!inverse.has(rdfs.range)) {
-            inverse.set(rdfs.range, direct.get(rdfs.domain))
+            inverse.set(rdfs.range, direct.get(rdfs.domain));
         }
         predicates.add(inverse);
     });
@@ -75,14 +83,7 @@ export function relationsFromModel(model: Node, predicates: Graph) {
     // Next, inverse relations sourced from other Nodes
     const inverseMap: {[id: string]: Node} = {};
     const inversePredicates = new Graph(predicates.map(direct => {
-        let inverse: Node | Node[] = direct.get(owl.inverseOf) as Node[];
-        if (inverse) {
-            inverse = inverse[0];
-        } else {
-            inverse = ontology.find({
-                [owl.inverseOf]: direct,
-            } as unknown as ListIterator<Node, boolean>);
-        }
+        const inverse = getInverse(direct, ontology);
         inverseMap[inverse.id] = direct;
         return inverse;
     }));
