@@ -95,6 +95,7 @@ export function relationsFromModel(model: Node, predicates: Graph) {
             const direct = inverseMap[inverse.id];
             relations.add({predicate: direct, object: node});
         });
+        relations.trigger('complete', relations);
     }));
     return relations;
 }
