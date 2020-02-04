@@ -57,6 +57,31 @@ def optional_int(text):
         return None
 
 
+def save_snapshot(identifier, previous, request):
+    """ Keep track of the previous version of a changed item. """
+    g = graph()
+    user, now = submission_info(request)
+    counter = ItemCounter.current
+    counter.increment()
+    annotation = URIRef(str(counter))
+    body = BNode()
+    target = BNode()
+    state = BNode()
+    append_triples(g, (
+        (annotation, RDF.type, OA.Annotation),
+        (annotation, OA.hasBody, body),
+        (annotation, OA.hasTarget, target),
+        (annotation, OA.motivatedBy, OA.editing),
+        (annotation, DCTERMS.creator, user),
+        (target, RDF.type, OA.SpecificResource),
+        (target, OA.hasSource, identifier),
+        (target, OA.hasState, state),
+        (state, RDF.type, OA.TimeState),
+        (state, OA.sourceDate, now),
+    ))
+    append_triples(g, ((body, p, o) for (s, p, o) in previous))
+
+
 class ItemsAPIRoot(RDFView):
     """ By default, list an empty graph. """
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -122,7 +147,6 @@ class ItemsAPISingular(RDFResourceView):
         existing = self.get_graph(request, **kwargs)
         if len(existing) == 0:
             raise NotFound()
-        user, now = submission_info(request)
         identifier = URIRef(self.get_resource_uri(request, **kwargs))
         override = graph_from_request(request)
         subjects = set(override.subjects())
@@ -133,7 +157,7 @@ class ItemsAPISingular(RDFResourceView):
         if len(added) == 0 and len(removed) == 0:
             # No changes, skip database manipulations and attribution
             return Response(existing)
-        added.add((identifier, DCTERMS.modified, now))
+        save_snapshot(identifier, existing, request)
         full_graph = self.graph()
         full_graph -= removed
         full_graph += added
