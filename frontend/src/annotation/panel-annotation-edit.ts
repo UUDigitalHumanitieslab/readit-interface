@@ -176,25 +176,46 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     submit(): this {
         if (this.model.isNew()) {
-            composeAnnotation(
-                this.source,
-                this.positionDetails,
-                this.snippetView.selector,
-                this.selectedClass,
-                this.selectedItem,
-                (error, results) => {
-                    if (error) return console.debug(error);
-                    this.trigger('annotationEditView:saveNew', this, results.annotation, results.items);
-                });
-        }
-        else {
+            this.submitNewAnnotation();
+        } else {
             this.model.unset(oa.hasBody);
             this.model.set(oa.hasBody, this.selectedClass);
-            this.selectedItem && this.model.set(oa.hasBody, this.selectedItem);
-            this.model.save();
-            this.trigger('annotationEditView:save', this, this.model);
+            this.submitItem().then(this.submitOldAnnotation.bind(this));
         }
         return this;
+    }
+
+    submitItem(): Promise<void> {
+        if (!this.selectedItem) return Promise.resolve(null);
+        if (this.selectedItem.isNew()) {
+            const items = new ItemGraph();
+            items.add(this.selectedItem);
+        }
+        return new Promise((resolve, reject) => {
+            this.selectedItem.save();
+            this.selectedItem.once('sync', resolve);
+            this.selectedItem.once('error', reject);
+        });
+    }
+
+    submitNewAnnotation(): void {
+        composeAnnotation(
+            this.source,
+            this.positionDetails,
+            this.snippetView.selector,
+            this.selectedClass,
+            this.selectedItem,
+            (error, results) => {
+                if (error) return console.debug(error);
+                this.trigger('annotationEditView:saveNew', this, results.annotation, results.items);
+            }
+        );
+    }
+
+    submitOldAnnotation(): void {
+        this.selectedItem && this.model.set(oa.hasBody, this.selectedItem);
+        this.model.save();
+        this.trigger('annotationEditView:save', this, this.model);
     }
 
     reset(): this {
