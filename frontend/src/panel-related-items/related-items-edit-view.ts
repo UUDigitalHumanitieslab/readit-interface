@@ -98,7 +98,7 @@ class RelatedItemsEditor extends CollectionView<Model, RelationEditor> {
     }
 
     close(): this {
-        return this.trigger('close', this);
+        return this.trigger('relItems:edit-close', this);
     }
 
     addRelation(): this {

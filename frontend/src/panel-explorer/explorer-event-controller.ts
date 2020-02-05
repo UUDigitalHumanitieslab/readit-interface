@@ -64,6 +64,7 @@ export default class ExplorerEventController {
             'lditem:editAnnotation': this.ldItemEditAnnotation,
             'relItems:itemClick': this.relItemsItemClicked,
             'relItems:edit': this.relItemsEdit,
+            'relItems:edit-close': this.relItemsEditClose,
             'source-list:click': this.sourceListClick,
             'searchResultList:itemClicked': this.searchResultListItemClicked,
         }, this);
@@ -95,6 +96,11 @@ export default class ExplorerEventController {
     relItemsEdit(relView: RelatedItemsView, item: Node): this {
         const editView = new RelatedItemsEditView({model: item});
         this.explorerView.overlay(editView, relView);
+        return this;
+    }
+
+    relItemsEditClose(editView: RelatedItemsEditView): this {
+        this.explorerView.removeOverlay(editView);
         return this;
     }
 
