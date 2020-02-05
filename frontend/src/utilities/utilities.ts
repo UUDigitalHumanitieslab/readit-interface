@@ -174,6 +174,14 @@ export function isType(node: Node, type: string): boolean {
     return some(allTypes, {'id': type});
 }
 
+/**
+ * Check whether a Node is blank.
+ * A blank node is a node that is neither a literal nor a URI. Note that this is different from a Node without an @id; this occurs only if the Node in question was created on the client side and was never saved to a server. The latter situation can be checked using aNode.isNew(). Such a Node may become either a URI or a blank node after saving. Saved blank nodes get a temporary placeholder @id from the parser, which serves to distinguish it from other blank nodes but which is not a valid URI. Conventionally, these temporary @ids start with `_:`. This function detects the latter situation.
+ */
+export function isBlank(node: Node) {
+    if (!node.id) return false;
+    return node.id.startsWith('_:');
+}
 
 /**
  * Get the scroll top for a 'scrollTo' element that needs to scrolled to within a scrollable element.
