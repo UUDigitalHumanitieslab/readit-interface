@@ -5,6 +5,7 @@ import Node from './../jsonld/node';
 import ExplorerView from './explorer-view';
 import LdItemView from '../panel-ld-item/ld-item-view';
 import Graph from '../jsonld/graph';
+import SourceListView from '../panel-source-list/source-list-view';
 import SourceView from './../panel-source/source-view';
 import AnnotationListView from '../annotation/panel-annotation-list-view';
 
@@ -15,9 +16,12 @@ import RelatedItemsEditView from '../panel-related-items/related-items-edit-view
 import ItemGraph from '../utilities/item-graph';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { oa } from '../jsonld/ns';
-import { createSourceView } from './../utilities/utilities';
 import SearchResultListView from '../search/search-results/panel-search-result-list-view';
-import { isType, isOntologyClass } from '../utilities/utilities';
+import {
+    isType,
+    isOntologyClass,
+    createSourceView,
+} from '../utilities/utilities';
 
 export default class ExplorerEventController {
     /**
@@ -70,8 +74,10 @@ export default class ExplorerEventController {
         }, this);
     }
 
-    sourceListClick(source: Node): this {
-        // TODO
+    sourceListClick(listView: SourceListView, source: Node): this {
+        let sourceView = createSourceView(source, true, true);
+        this.explorerView.popUntil(listView);
+        this.explorerView.push(sourceView);
         return this;
     }
 
