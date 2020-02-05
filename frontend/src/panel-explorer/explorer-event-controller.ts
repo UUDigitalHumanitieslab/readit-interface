@@ -66,6 +66,7 @@ export default class ExplorerEventController {
             'lditem:showAnnotations': this.ldItemShowAnnotations,
             'lditem:showExternal': this.ldItemShowExternal,
             'lditem:editAnnotation': this.ldItemEditAnnotation,
+            'lditem:editItem': this.notImplemented,
             'relItems:itemClick': this.relItemsItemClicked,
             'relItems:edit': this.relItemsEdit,
             'relItems:edit-close': this.relItemsEditClose,

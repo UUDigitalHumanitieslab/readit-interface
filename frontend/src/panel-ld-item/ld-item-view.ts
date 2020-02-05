@@ -164,8 +164,11 @@ export default class LdItemView extends BaseAnnotationView {
     }
 
     onEditClicked(): void {
-        if (this.modelIsAnnotation) this.trigger('lditem:editAnnotation', this, this.model);
-        // else this.trigger('lditem:editItem', this, this.currentItem);
+        if (this.modelIsAnnotation) {
+            this.trigger('lditem:editAnnotation', this, this.model);
+        } else {
+            this.trigger('lditem:editItem', this, this.currentItem);
+        }
     }
 }
 extend(LdItemView.prototype, {
