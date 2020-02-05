@@ -17,7 +17,7 @@ import { AnnotationPositionDetails } from '../utilities/annotation/annotation-ut
 import { oa } from '../jsonld/ns';
 import { createSourceView } from './../utilities/utilities';
 import SearchResultListView from '../search/search-results/panel-search-result-list-view';
-import { isType } from '../utilities/utilities';
+import { isType, isOntologyClass } from '../utilities/utilities';
 
 export default class ExplorerEventController {
     /**
@@ -165,9 +165,9 @@ export default class ExplorerEventController {
         return this;
     }
 
-    annotationEditSaveNew(editView: AnnotationEditView, annotation: Node, newItems: ItemGraph): this {
+    annotationEditSaveNew(editView: AnnotationEditView, annotation: Node, created: ItemGraph): this {
         let sourceView = this.mapAnnotationEditSource.get(editView);
-        sourceView.add(newItems);
+        sourceView.add(created);
 
         let listView = this.mapSourceAnnotationList.get(sourceView);
         if (listView) {
@@ -179,7 +179,16 @@ export default class ExplorerEventController {
         }
 
         this.sourceViewHighlightClicked(sourceView, annotation);
-        return this.sourceViewHighlightSelected(sourceView, annotation);
+        this.sourceViewHighlightSelected(sourceView, annotation);
+        const newItems = (annotation.get(oa.hasBody) as Node[])
+            .filter(n => !isOntologyClass(n));
+        if (newItems.length) {
+            const item = newItems[0];
+            const relView = new RelatedItemsView({model: item});
+            this.explorerView.push(relView);
+            this.relItemsEdit(relView, item);
+        }
+        return this;
     }
 
     annotationEditClose(editView: AnnotationEditView): this {
