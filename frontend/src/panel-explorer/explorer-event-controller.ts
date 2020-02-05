@@ -112,7 +112,7 @@ export default class ExplorerEventController {
 
         this.explorerView.popUntil(view);
 
-        let relatedItems = new RelatedItemsView({ model: item, ontology: this.explorerView.ontology });
+        let relatedItems = new RelatedItemsView({model: item});
         this.explorerView.push(relatedItems);
         return this;
     }

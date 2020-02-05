@@ -17,11 +17,9 @@ import { applicablePredicates, relationsFromModel } from './relation-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     model: Node;
-    ontology: Graph;
 }
 
 export default class RelatedItemsView extends View<Node> {
-    ontology: Graph;
     predicates: Graph;
     relations: RelatedItemsRelationView[];
     /**
