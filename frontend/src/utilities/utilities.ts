@@ -5,7 +5,8 @@ import { Identifier, isIdentifier } from '../jsonld/json';
 import Node, { isNode, NodeLike } from '../jsonld/node';
 import Graph, { ReadOnlyGraph } from './../jsonld/graph';
 import ItemGraph from './item-graph';
-import { skos, rdfs, readit, dcterms } from './../jsonld/ns';
+import FilteredCollection from './filtered-collection';
+import { skos, rdfs, readit, dcterms, oa } from './../jsonld/ns';
 import SourceView from '../panel-source/source-view';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
@@ -232,7 +233,7 @@ export function getOntology(callback): void {
  * oa:TextQuoteSelectors, vocab:RangeSelectors and oa:XPathSelectors
  * associated with the specified source.
  */
-export function getItems(source: Node, callback): void {
+export function getItems(source: Node, callback): ItemGraph {
     const items = new ItemGraph();
     items.query({ object: source, traverse: 2, revTraverse: 1 }).then(
         function success() {
@@ -240,6 +241,7 @@ export function getItems(source: Node, callback): void {
         },
         /*error*/ callback
     );
+    return items;
 }
 
 export function getSources(callback): void {
@@ -263,18 +265,20 @@ export function createSourceView(
     isEditable?: boolean,
     initialScrollTo?: Node
 ): SourceView {
-    let sourceItems = new Graph();
-
-    getItems(source, function (error, items) {
-        if (error) console.debug(error)
-        else {
-            if (items.length > 0) sourceItems.add(items.models);
-            else sourceView.processNoInitialHighlights();
+    let sourceItems = getItems(source, function (error, items) {
+        if (error) {
+            console.debug(error);
+        } else if (!items.length) {
+            sourceView.processNoInitialHighlights();
         }
     });
 
+    let annotations = new FilteredCollection<Node>(sourceItems, item =>
+        !isBlank(item) && isType(item, oa.Annotation)
+    );
+
     let sourceView = new SourceView({
-        collection: sourceItems,
+        collection: annotations,
         model: source,
         showHighlightsInitially: showHighlightsInitially,
         isEditable: isEditable,

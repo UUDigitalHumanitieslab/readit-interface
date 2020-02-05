@@ -202,7 +202,7 @@ export default class ExplorerEventController {
         return this;
     }
 
-    annotationListEdit(view: AnnotationListView, annotationList: Graph): this {
+    annotationListEdit(view: AnnotationListView, annotationList): this {
         this.notImplemented();
         return this;
     }
@@ -257,7 +257,7 @@ export default class ExplorerEventController {
 
     sourceViewShowAnnotations(sourceView: SourceView, finalizeNoInitialHighlights: boolean = false): this {
         let annotationListView = new AnnotationListView({
-            collection: sourceView.collection as Graph
+            collection: sourceView.collection
         });
         if (finalizeNoInitialHighlights) annotationListView.finalizeNoInitialHighlights();
 
