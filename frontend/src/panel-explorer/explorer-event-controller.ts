@@ -160,8 +160,9 @@ export default class ExplorerEventController {
         return this;
     }
 
-    annotationEditSave(editView: AnnotationEditView, annotation: Node): this {
+    annotationEditSave(editView: AnnotationEditView, annotation: Node, newItem: boolean): this {
         this.explorerView.removeOverlay(editView);
+        if (newItem) this.autoOpenRelationEditor(annotation);
         return this;
     }
 
@@ -180,6 +181,11 @@ export default class ExplorerEventController {
 
         this.sourceViewHighlightClicked(sourceView, annotation);
         this.sourceViewHighlightSelected(sourceView, annotation);
+        this.autoOpenRelationEditor(annotation);
+        return this;
+    }
+
+    autoOpenRelationEditor(annotation: Node): this {
         const newItems = (annotation.get(oa.hasBody) as Node[])
             .filter(n => !isOntologyClass(n));
         if (newItems.length) {

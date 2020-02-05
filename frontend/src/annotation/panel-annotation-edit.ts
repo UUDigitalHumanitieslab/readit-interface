@@ -185,15 +185,17 @@ export default class AnnotationEditView extends BaseAnnotationView {
         return this;
     }
 
-    submitItem(): Promise<void> {
-        if (!this.selectedItem) return Promise.resolve(null);
+    submitItem(): Promise<boolean> {
+        let newItem = false;
+        if (!this.selectedItem) return Promise.resolve(newItem);
         if (this.selectedItem.isNew()) {
             const items = new ItemGraph();
             items.add(this.selectedItem);
+            newItem = true;
         }
         return new Promise((resolve, reject) => {
             this.selectedItem.save();
-            this.selectedItem.once('sync', resolve);
+            this.selectedItem.once('sync', () => resolve(newItem));
             this.selectedItem.once('error', reject);
         });
     }
@@ -212,10 +214,10 @@ export default class AnnotationEditView extends BaseAnnotationView {
         );
     }
 
-    submitOldAnnotation(): void {
+    submitOldAnnotation(newItem: boolean): void {
         this.selectedItem && this.model.set(oa.hasBody, this.selectedItem);
         this.model.save();
-        this.trigger('annotationEditView:save', this, this.model);
+        this.trigger('annotationEditView:save', this, this.model, newItem);
     }
 
     reset(): this {
