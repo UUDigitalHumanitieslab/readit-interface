@@ -50,12 +50,12 @@ export default class FilteredCollection<
 
     constructor(underlying: U, criterionArg: IterateeParam, options?: any) {
         const criterion = criterionArg as FilterCriterion<M>;
+        const comparator = underlying.comparator;
         options = defaultsDeep(options || {}, {
             underlying,
             criterion,
-            comparator: underlying.comparator,
             model: underlying.model,
-        });
+        }, comparator && { comparator } || {});
         const initialModels = underlying.filter(criterion);
         super(initialModels, options);
         underlying.on({
@@ -95,7 +95,7 @@ export default class FilteredCollection<
     }
 
     proxySort(collection: U, options: any): void {
-        this.sort(options);
+        if (this.comparator) this.sort(options);
     }
 
     proxyChange(model: M, options: any): void {
