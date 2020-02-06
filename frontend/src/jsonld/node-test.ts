@@ -211,7 +211,7 @@ describe('Node', function() {
 
     describe('has', function() {
         const node = new Node({
-            '@type': [],
+            '@type': ['y'],
             [dcterms.creator]: [{
                 '@id': staff('JdeKruif'),
             }, {
@@ -221,6 +221,7 @@ describe('Node', function() {
                 '@value': '2085-12-31T03:33:16.000Z',
                 '@type': xsd.dateTime,
             }],
+            [dcterms.coverage]: [],
         });
 
         it('finds a property', function() {
@@ -229,7 +230,7 @@ describe('Node', function() {
         });
 
         it('ignores empty values', function() {
-            expect(node.has('@type')).toBeFalsy();
+            expect(node.has(dcterms.coverage)).toBeFalsy();
             expect(node.has(dcterms.title)).toBeFalsy();
         });
 
@@ -244,6 +245,7 @@ describe('Node', function() {
             aDate['@type'] = xsd.dateTime;
             expect(node.has(dcterms.created, aDate)).toBeTruthy();
             expect(node.has('@type', 'x')).toBeFalsy();
+            expect(node.has('@type', 'y')).toBeTruthy();
             expect(node.has(dcterms.title, {'@value': 'x'})).toBeFalsy();
         });
     });

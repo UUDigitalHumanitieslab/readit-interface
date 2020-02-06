@@ -17,6 +17,10 @@ export interface Identifier {
     ['@id']: string;
 }
 
+export function isIdentifier(candidate: any): candidate is Identifier {
+    return !!candidate['@id'];
+}
+
 // Compacted JSON-LD
 export type JsonLdContext = null | string | ContextContainer | ContextArray;
 export interface ContextArray extends Array<JsonLdContext> { }

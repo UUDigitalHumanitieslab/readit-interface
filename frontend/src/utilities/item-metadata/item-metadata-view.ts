@@ -49,6 +49,9 @@ export default class ItemMetadataView extends View<Node> {
         if (this.model.has(dcterms.created)) {
             this.metadata['created'] = this.model.get(dcterms.created)[0];
         }
+        if (this.model.has(dcterms.modified)) {
+            this.metadata['modified'] = this.model.get(dcterms.modified)[0];
+        }
         return this;
     }
 

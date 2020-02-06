@@ -1,7 +1,19 @@
 import { rdf, rdfs, skos, item } from './../jsonld/ns';
-import { getLabel, getLabelFromId, getCssClassName, isRdfsClass } from './utilities';
-import { FlatLdObject } from '../jsonld/json';
+import {
+    getLabel,
+    getLabelFromId,
+    getCssClassName,
+    isRdfsClass,
+    isOntologyClass,
+    isBlank,
+    transitiveClosure,
+    getRdfSuperClasses,
+    getRdfSubClasses,
+} from './utilities';
+import { FlatLdObject, FlatLdGraph } from '../jsonld/json';
 import Node from '../jsonld/node';
+import Graph from '../jsonld/graph';
+import { startStore, endStore } from '../test-util';
 
 function getDefaultNode(): Node {
     return new Node(getDefaultAttributes());
@@ -22,6 +34,52 @@ function getDefaultAttributes(): FlatLdObject {
     }
 }
 
+const connectedTestGraph: FlatLdGraph = [{
+    '@id': 'cat',
+    [rdfs.subClassOf]: [{'@id': 'carnivore'}, {'@id': 'hydrophobic'}],
+    likes: [{'@id': 'fish'}, {'@id': 'bird'}, {'@id': 'mouse'}],
+}, {
+    '@id': 'carnivore',
+    [rdfs.subClassOf]: [{'@id': 'animal'}],
+}, {
+    '@id': 'fish',
+    [rdfs.subClassOf]: [{'@id': 'animal'}, {'@id': 'hydrophilic'}],
+}, {
+    '@id': 'bird',
+    [rdfs.subClassOf]: [{'@id': 'animal'}],
+}, {
+    '@id': 'mouse',
+    [rdfs.subClassOf]: [{'@id': 'omnivore'}],
+    likes: [{'@id': 'cheese'}],
+}, {
+    '@id': 'cheese',
+    [rdfs.subClassOf]: [{'@id': 'hydrophobic'}],
+}, {
+    '@id': 'dog',
+    [rdfs.subClassOf]: [{'@id': 'carnivore'}, {'@id': 'hydrophilic'}],
+    likes: [{'@id': 'mouse'}, {'@id': 'bird'}, {'@id': 'ball'}],
+}, {
+    '@id': 'carnivore',
+    [rdfs.subClassOf]: [{'@id': 'animal'}],
+}, {
+    '@id': 'omnivore',
+    [rdfs.subClassOf]: [{'@id': 'animal'}],
+}, {
+    '@id': 'herbivore',
+    [rdfs.subClassOf]: [{'@id': 'animal'}],
+}, {
+    '@id': 'animal',
+    [rdfs.subClassOf]: [{'@id': 'organism'}],
+}, {
+    '@id': 'organism',
+}, {
+    '@id': 'tiger',
+    [rdfs.subClassOf]: [{'@id': 'cat'}],
+}, {
+    '@id': 'chihuahua',
+    [rdfs.subClassOf]: [{'@id': 'dog'}],
+}];
+
 describe('utilities', function () {
     describe('getLabel', function () {
 
@@ -40,6 +98,11 @@ describe('utilities', function () {
             delete attributes[skos.prefLabel];
             let node = new Node(attributes);
             expect(getLabel(node)).toBe('alternativeLabel');
+        });
+
+        it('falls back on the id when there is no explicit label', function() {
+            const node = new Node({'@id': 'x'});
+            expect(getLabel(node)).toBe('x');
         });
     });
 
@@ -62,6 +125,10 @@ describe('utilities', function () {
                 }
             }
         });
+
+        it('returns the whole string if it lacks structure', function() {
+            expect(getLabelFromId('1')).toBe('1');
+        });
     });
 
     describe('getCssClassName', function () {
@@ -81,7 +148,7 @@ describe('utilities', function () {
     describe('isRdfsClass', function () {
         it('recognizes type rdfs:Class', function () {
             let node = getDefaultNode();
-            expect(isRdfsClass(node)).toBe(true);
+            expect(isRdfsClass(node)).toBeTruthy();
         });
 
         it('recognizes type rdfs:subClassOf', function () {
@@ -90,7 +157,7 @@ describe('utilities', function () {
             attributes[rdfs.subClassOf] = [{ '@id': 'anything' }]
             let node = new Node(attributes);
 
-            expect(isRdfsClass(node)).toBe(true);
+            expect(isRdfsClass(node)).toBeTruthy();
         });
 
         it('ignores other types', function () {
@@ -98,7 +165,86 @@ describe('utilities', function () {
             attributes['@type'] = [rdf.Property];
             let node = new Node(attributes);
 
-            expect(isRdfsClass(node)).toBe(false);
+            expect(isRdfsClass(node)).toBeFalsy();
+        });
+    });
+
+    describe('isOntologyClass', function() {
+        it('is robust against nodes without an id', function() {
+            const node = new Node();
+            expect(isOntologyClass(node)).toBeFalsy();
+        });
+    });
+
+    describe('isBlank', function() {
+        it('detects blank nodes', function() {
+            const node = new Node({'@id': '_:b0'});
+            expect(isBlank(node)).toBeTruthy();
+        });
+
+        it('passes URI nodes', function() {
+            const node = new Node({'@id': 'http://example.com/'});
+            expect(isBlank(node)).toBeFalsy();
+        });
+
+        it('does not replace .isNew()', function() {
+            const node = new Node();
+            expect(isBlank(node)).toBeFalsy();
+        });
+    });
+
+    describe('traversion algorithms', function() {
+        beforeEach(function() {
+            this.graph = new Graph();
+            this.select = n => this.graph.get(n);
+        });
+
+        function init() {
+            this.graph.reset(connectedTestGraph);
+        }
+
+        function expectIds(closure, ids) {
+            expect(closure.map(n => n.id).sort()).toEqual(ids);
+        }
+
+        describe('transitiveClosure', function() {
+            beforeEach(init);
+            beforeEach(function() {
+                this.traverseLikes = node => {
+                    return (node.get('likes') || []).map(this.select) as Node[];
+                };
+            });
+
+            it('finds all Nodes connected by a given relation', function() {
+                const seed = ['cat', 'dog'].map(this.select) as Node[];
+                expectIds(transitiveClosure(seed, this.traverseLikes), [
+                    'bird', 'cat', 'cheese', 'dog', 'fish', 'mouse',
+                ]);
+            });
+        });
+
+        describe('getRdfSuperClasses', function() {
+            beforeEach(startStore);
+            beforeEach(init);
+            afterEach(endStore);
+
+            it('finds all known ancestors for given classes', function() {
+                expectIds(getRdfSuperClasses(['carnivore']), [
+                    'animal', 'carnivore', 'organism',
+                ]);
+            });
+        });
+
+        describe('getRdfSubClasses', function() {
+            beforeEach(startStore);
+            beforeEach(init);
+            afterEach(endStore);
+
+            it('finds all known descendants for given classes', function() {
+                expectIds(getRdfSubClasses(['carnivore']), [
+                    'carnivore', 'cat', 'chihuahua', 'dog', 'tiger',
+                ]);
+            });
         });
     });
 });

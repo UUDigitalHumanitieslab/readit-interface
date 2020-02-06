@@ -5,11 +5,10 @@ import View from './../../core/view';
 import ldChannel from './../../jsonld/radio';
 import searchResultItemTemplate from './search-result-item-template';
 
-import Node from '../../jsonld/node';
+import Node, { isNode } from '../../jsonld/node';
 import LabelView from '../../utilities/label-view';
 import { getLabel, getLabelFromId } from '../../utilities/utilities';
 import { dcterms, owl, skos } from '../../jsonld/ns';
-import { isNode } from '../../utilities/types';
 
 export interface ViewOptions extends BaseOpt<Node> {
     model: Node;

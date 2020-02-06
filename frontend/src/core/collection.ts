@@ -16,3 +16,8 @@ extend(Collection.prototype, {
     model: Model,
     sync: syncWithCSRF,
 });
+
+export type ReadOnlyCollection<M extends Model = Model> = Omit<Collection<M>,
+    'preinitialize' | 'initialize' | 'sync' | 'add' | 'remove' | 'reset' |
+    'set' | 'push' | 'pop' | 'unshift' | 'shift' | 'sort' | 'fetch' | 'create'
+>;

@@ -16,6 +16,7 @@ import OverlappingHighlightsView from './overlapping-highlights-view';
 import OverlapDetailsView from './overlap-details-view';
 import { getPositionDetailsFromRange } from '../utilities/range-utilities';
 import ItemGraph from '../utilities/item-graph';
+import FilteredCollection from '../utilities/filtered-collection';
 import { SubviewBundleView } from '../utilities/subview-bundle-view';
 import { singleNumber } from '../utilities/binary-searchable-container/binary-search-utilities';
 
@@ -23,9 +24,9 @@ export interface ViewOptions extends BaseOpt<Node> {
     text: string;
 
     /**
-     * Optional. A collection of oa:Annotation instances.
+     * A collection of oa:Annotation instances.
      */
-    collection?: Graph;
+    collection: FilteredCollection<Node>;
 
     /**
      * Specify whether the View should only display oa:Annotations, or if it allows editing
@@ -58,7 +59,7 @@ export default class HighlightableTextView extends View {
     text: string;
     textWrapper: JQuery<HTMLElement>;
     positionContainer: JQuery<HTMLElement>;
-    collection: Graph;
+    collection: FilteredCollection<Node>;
     ontology: Graph;
 
     /**
@@ -111,7 +112,6 @@ export default class HighlightableTextView extends View {
             (view: HighlightView) => { return singleNumber(view.getTop(), view.getBottom()) }
         );
 
-        if (!options.collection) this.collection = new Graph();
         if (options.collection.length == 0) this.isFullyLoaded = true;
         this.listenTo(this.collection, 'add', this.addHighlight);
         this.listenTo(this.collection, 'update', this.onHighlightViewsUpdated);
@@ -173,12 +173,7 @@ export default class HighlightableTextView extends View {
     }
 
     initHighlights(): this {
-        this.collection.each((node) => {
-            if (isType(node, oa.Annotation)) {
-                this.addHighlight(node);
-            }
-        });
-
+        this.collection.each((node) => this.addHighlight(node));
         return this;
     }
 
@@ -219,7 +214,7 @@ export default class HighlightableTextView extends View {
      */
     addAnnotation(newItems: ItemGraph): this {
         if (!this.isEditable) return;
-        this.collection.add(newItems.models, { merge: true });
+        this.collection.underlying.add(newItems.models, { merge: true });
         return this;
     }
 
@@ -290,17 +285,14 @@ export default class HighlightableTextView extends View {
     removeAll(): this {
         if (!this.isEditable) return;
 
-        this.collection.each((node) => {
-            if (isType(node, oa.Annotation)) {
-                this.deleteNode(node);
-            }
-        });
+        this.collection.each((node) => this.deleteNode(node));
         return this;
     }
 
     private deleteFromCollection(annotation: Node): boolean {
         if (!isType(annotation, oa.Annotation)) return false;
-        this.collection.remove([annotation].concat(getLinkedItems(annotation)));
+        const toRemove = [annotation].concat(getLinkedItems(annotation));
+        this.collection.underlying.remove(toRemove);
         return true;
     }
 

@@ -7,7 +7,9 @@ import {
     staff,
     readit,
 } from '../jsonld/ns';
+import ldChannel from '../jsonld/radio';
 import Store from '../jsonld/store';
+import './ontology';
 
 const defaultGraphs = [
     rdf(),
@@ -26,13 +28,14 @@ const defaultGraphs = [
 const inhouseGraphs = [
     vocab(),
     staff(),
-    readit(),
+    // readit(), // using the ontology module from now on instead
 ];
 
 export const globalGraph = new Store();
 
 export function prefetch() {
     inhouseGraphs.forEach(ns => globalGraph.import(ns));
+    ldChannel.trigger('cache:ontology');
     // For the time being, we skip the attempt to import directly,
     // because most of our defaultGraphs don't support CORS and
     // because it saves a bunch of error messages in the dev console.
