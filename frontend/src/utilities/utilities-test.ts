@@ -4,6 +4,8 @@ import {
     getLabelFromId,
     getCssClassName,
     isRdfsClass,
+    isOntologyClass,
+    isBlank,
     transitiveClosure,
     getRdfSuperClasses,
     getRdfSubClasses,
@@ -164,6 +166,30 @@ describe('utilities', function () {
             let node = new Node(attributes);
 
             expect(isRdfsClass(node)).toBeFalsy();
+        });
+    });
+
+    describe('isOntologyClass', function() {
+        it('is robust against nodes without an id', function() {
+            const node = new Node();
+            expect(isOntologyClass(node)).toBeFalsy();
+        });
+    });
+
+    describe('isBlank', function() {
+        it('detects blank nodes', function() {
+            const node = new Node({'@id': '_:b0'});
+            expect(isBlank(node)).toBeTruthy();
+        });
+
+        it('passes URI nodes', function() {
+            const node = new Node({'@id': 'http://example.com/'});
+            expect(isBlank(node)).toBeFalsy();
+        });
+
+        it('does not replace .isNew()', function() {
+            const node = new Node();
+            expect(isBlank(node)).toBeFalsy();
         });
     });
 

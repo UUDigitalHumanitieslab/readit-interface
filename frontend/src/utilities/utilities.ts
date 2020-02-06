@@ -5,7 +5,8 @@ import { Identifier, isIdentifier } from '../jsonld/json';
 import Node, { isNode, NodeLike } from '../jsonld/node';
 import Graph, { ReadOnlyGraph } from './../jsonld/graph';
 import ItemGraph from './item-graph';
-import { skos, rdfs, readit, dcterms } from './../jsonld/ns';
+import FilteredCollection from './filtered-collection';
+import { skos, rdfs, readit, dcterms, oa } from './../jsonld/ns';
 import SourceView from '../panel-source/source-view';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
@@ -45,6 +46,14 @@ export function getCssClassName(node: Node): string {
     }
 
     return null;
+}
+
+/**
+ * Helper to obtain the URI of something that may be either a Node or
+ * already a URI.
+ */
+export function asURI(source: Node | string): string {
+    return isNode(source) ? source.id : source;
 }
 
 /**
@@ -166,6 +175,14 @@ export function isType(node: Node, type: string): boolean {
     return some(allTypes, {'id': type});
 }
 
+/**
+ * Check whether a Node is blank.
+ * A blank node is a node that is neither a literal nor a URI. Note that this is different from a Node without an @id; this occurs only if the Node in question was created on the client side and was never saved to a server. The latter situation can be checked using aNode.isNew(). Such a Node may become either a URI or a blank node after saving. Saved blank nodes get a temporary placeholder @id from the parser, which serves to distinguish it from other blank nodes but which is not a valid URI. Conventionally, these temporary @ids start with `_:`. This function detects the latter situation.
+ */
+export function isBlank(node: Node) {
+    if (!node.id) return false;
+    return node.id.startsWith('_:');
+}
 
 /**
  * Get the scroll top for a 'scrollTo' element that needs to scrolled to within a scrollable element.
@@ -188,19 +205,23 @@ export function getScrollTop(scrollableEl: JQuery<HTMLElement>, scrollToTop: num
 }
 
 /**
- * Establish whether the item is in the ontology graph, i.e. is an ontology class
+ * Establish whether a node is in the ontology graph, i.e. is an ontology class
  * (as opposed to an instance of one of the ontology's classes).
- * @param item The linked data item to investigate.
+ * @param node The linked data item to investigate.
  */
-export function isOntologyClass(item: Node): boolean {
-    return (item.id as string).startsWith(readit()) && isRdfsClass(item);
+export function isOntologyClass(node: Node): boolean {
+    if (!isRdfsClass(node)) return false;
+    if (node.id) return (node.id as string).startsWith(readit());
+    return false;
 }
 
-
+/**
+ * Adapts the ontology promise from the ld radio channel to the async
+ * callback convention.
+ */
 export function getOntology(callback): void {
-    let o = new Graph();
-    o.fetch({ url: readit() }).then(
-        function success() {
+    ldChannel.request('ontology:promise').then(
+        function success(o) {
             callback(null, o);
         },
         /*error*/ callback
@@ -212,7 +233,7 @@ export function getOntology(callback): void {
  * oa:TextQuoteSelectors, vocab:RangeSelectors and oa:XPathSelectors
  * associated with the specified source.
  */
-export function getItems(source: Node, callback): void {
+export function getItems(source: Node, callback): ItemGraph {
     const items = new ItemGraph();
     items.query({ object: source, traverse: 2, revTraverse: 1 }).then(
         function success() {
@@ -220,6 +241,7 @@ export function getItems(source: Node, callback): void {
         },
         /*error*/ callback
     );
+    return items;
 }
 
 export function getSources(callback): void {
@@ -243,18 +265,20 @@ export function createSourceView(
     isEditable?: boolean,
     initialScrollTo?: Node
 ): SourceView {
-    let sourceItems = new Graph();
-
-    getItems(source, function (error, items) {
-        if (error) console.debug(error)
-        else {
-            if (items.length > 0) sourceItems.add(items.models);
-            else sourceView.processNoInitialHighlights();
+    let sourceItems = getItems(source, function (error, items) {
+        if (error) {
+            console.debug(error);
+        } else if (!items.length) {
+            sourceView.processNoInitialHighlights();
         }
     });
 
+    let annotations = new FilteredCollection<Node>(sourceItems, item =>
+        isType(item, oa.Annotation)
+    );
+
     let sourceView = new SourceView({
-        collection: sourceItems,
+        collection: annotations,
         model: source,
         showHighlightsInitially: showHighlightsInitially,
         isEditable: isEditable,

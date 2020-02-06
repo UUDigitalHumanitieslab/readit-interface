@@ -124,13 +124,11 @@ def test_put_item(auth_client, itemgraph_db):
     assert (ITEM['2'], RDF.value, Literal(before)) in g
     assert (ITEM['2'], RDF.value, Literal(after)) not in g
     response, output_graph = submit_data(auth_client, input_graph, 'put', 2)
-    assert len(output_graph) == 5
+    assert len(output_graph) == 4
     assert (ITEM['2'], RDF.value, Literal(before)) not in output_graph
     assert (ITEM['2'], RDF.value, Literal(after)) in output_graph
-    assert (ITEM['2'], DCTERMS.modified, None) in output_graph
     assert (ITEM['2'], RDF.value, Literal(before)) not in g
     assert (ITEM['2'], RDF.value, Literal(after)) in g
-    assert (ITEM['2'], DCTERMS.modified, None) in g
 
 
 def test_delete_item(auth_client, itemgraph_db):

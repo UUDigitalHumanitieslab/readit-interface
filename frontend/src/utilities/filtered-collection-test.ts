@@ -1,3 +1,5 @@
+import { Model } from 'backbone';
+
 import Collection from '../core/collection';
 import FilteredCollection from './filtered-collection';
 
@@ -191,5 +193,11 @@ describe('FilteredCollection', function() {
         raw.set(testUpdate, {merge: true, remove: false});
         expect(counter).toBe(4);
         expect(filtered.length).toBe(2);
+    });
+
+    it('adopts the .model from the underlying collection', function() {
+        const raw = new Collection([], { model: Model });
+        filtered = new FilteredCollection(raw, 'x');
+        expect(filtered.model).toBe(raw.model);
     });
 });

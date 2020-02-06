@@ -4,6 +4,7 @@ import { item } from '../jsonld/ns';
 import { FlatLdDocument } from '../jsonld/json';
 import Node, { isNode } from '../jsonld/node';
 import Graph from '../jsonld/graph';
+import { asURI } from '../utilities/utilities';
 
 export interface QueryParamsURI {
     predicate?: Node | string;
@@ -58,10 +59,6 @@ function isLiteralQuery(params: QueryParams): params is QueryParamsLiteral {
     return (params as QueryParamsLiteral).objectLiteral !== undefined;
 }
 
-function asURI(source: Node | string): string {
-    return isNode(source) ? source.id : source;
-}
-
 /**
  * Useful Collection subclass for interacting with the backend item
  * store.
@@ -78,6 +75,9 @@ function asURI(source: Node | string): string {
  * See also the query method below for querying the server.
  */
 export default class ItemGraph extends Graph {
+    // Only defined if a query has been issued.
+    promise: JQuery.jqXHR;
+
     /**
      * Replace the contents of this graph by all items at the backend
      * that match the given criteria.
@@ -92,7 +92,16 @@ export default class ItemGraph extends Graph {
         if (isLiteralQuery(params)) data.o_literal = params.objectLiteral;
         if (params.traverse) data.t = params.traverse;
         if (params.revTraverse) data.r = params.revTraverse;
-        return this.fetch({data});
+        return this.promise = this.fetch({data});
+    }
+
+    /**
+     * Invokes the given callback when the most recent query completes.
+     */
+    ready(callback: (ItemGraph) => any): this {
+        if (!this.promise) throw new Error('No query was issued.');
+        this.promise.then(callback);
+        return this;
     }
 }
 

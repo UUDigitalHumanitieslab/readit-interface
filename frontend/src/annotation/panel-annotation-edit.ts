@@ -1,11 +1,14 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
-import { oa } from '../jsonld/ns';
+import { oa, rdf, skos } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
 
-import OntologyClassPickerView from '../utilities/ontology-class-picker/ontology-class-picker-view';
+import ItemEditor from '../panel-ld-item/ld-item-edit-view';
+import PickerView from '../forms/base-picker-view';
+import ItemGraph from '../utilities/item-graph';
+import ClassPickerView from '../utilities/ontology-class-picker/ontology-class-picker-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import { isType } from '../utilities/utilities';
@@ -48,10 +51,14 @@ export default class AnnotationEditView extends BaseAnnotationView {
     positionDetails: AnnotationPositionDetails;
     preselection: Node;
     metadataView: ItemMetadataView;
-    ontologyClassPicker: OntologyClassPickerView;
+    classPicker: ClassPickerView;
     snippetView: SnippetView;
     modelIsAnnotion: boolean;
-    selectedOntologyClass: Node;
+    selectedClass: Node;
+    selectedItem: Node;
+    itemPicker: PickerView;
+    itemOptions: ItemGraph;
+    itemEditor: ItemEditor;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -59,6 +66,9 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     initialize(options: ViewOptions): this {
         this.ontology = options.ontology;
+        this.itemOptions = new ItemGraph();
+        this.itemPicker = new PickerView({collection: this.itemOptions});
+        this.itemPicker.on('change', this.selectItem, this);
 
         if (options.range) {
             this.source = options.source;
@@ -71,7 +81,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
         if (this.modelIsAnnotion) {
             this.listenTo(this, 'source', this.processSource);
-            this.listenTo(this, 'body:ontologyClass', this.processOntologyClass)
+            this.listenTo(this, 'body:ontologyClass', this.processClass)
             this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
             this.processModel(options.model);
             this.listenTo(this.model, 'change', this.processModel);
@@ -90,7 +100,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
         if (isType(node, oa.Annotation)) {
             this.metadataView = new ItemMetadataView({ model: this.model });
             this.metadataView.render();
-            this.initOntologyClassPicker();
+            this.initClassPicker();
         }
 
         return this;
@@ -109,65 +119,105 @@ export default class AnnotationEditView extends BaseAnnotationView {
         });
         this.snippetView.render();
 
-        if (!this.modelIsAnnotion) this.initOntologyClassPicker();
+        if (!this.modelIsAnnotion) this.initClassPicker();
         return this;
     }
 
-    processOntologyClass(ontologyClass: Node): this {
-        this.preselection = ontologyClass;
+    processClass(cls: Node): this {
+        this.preselection = cls;
         return this;
     }
 
-    initOntologyClassPicker(): this {
-        this.ontologyClassPicker = new OntologyClassPickerView({
+    initClassPicker(): this {
+        this.classPicker = new ClassPickerView({
             collection: this.ontology,
             preselection: this.preselection
         });
 
-        this.ontologyClassPicker.render();
-        this.listenTo(this.ontologyClassPicker, 'select', this.onOntologyItemSelected);
+        this.classPicker.render();
+        this.listenTo(this.classPicker, 'select', this.onClassSelected);
         return this;
     }
 
     render(): this {
-        this.ontologyClassPicker.$el.detach();
+        this.classPicker.$el.detach();
+        this.itemPicker.$el.detach();
         if (this.snippetView) this.snippetView.$el.detach();
         if (this.metadataView) this.metadataView.$el.detach();
+        if (this.itemEditor) this.itemEditor.$el.detach();
 
         this.$el.html(this.template(this));
-        if (this.preselection) this.select(this.preselection);
+        if (this.preselection) this.selectClass(this.preselection);
 
         this.$(".anno-edit-form").validate({
             errorClass: "help is-danger",
             ignore: "",
         });
 
-        this.$('.ontology-class-picker-container').append(this.ontologyClassPicker.el);
+        this.$('.ontology-class-picker-container').append(this.classPicker.el);
+        this.$('.item-picker-container .field:first .control')
+            .append(this.itemPicker.el);
         if (this.snippetView) this.$('.snippet-container').append(this.snippetView.el);
         if (this.metadataView) this.$('.metadata-container').append(this.metadataView.el);
+        if (this.itemEditor) {
+            this.$('.item-picker-container').after(this.itemEditor.el);
+        }
         return this;
+    }
+
+    remove() {
+        this.metadataView && this.metadataView.remove();
+        this.classPicker && this.classPicker.remove();
+        this.snippetView && this.snippetView.remove();
+        this.itemEditor && this.itemEditor.remove();
+        this.itemPicker.remove();
+        return super.remove();
     }
 
     submit(): this {
         if (this.model.isNew()) {
-            composeAnnotation(
-                this.source,
-                this.positionDetails,
-                this.selectedOntologyClass,
-                this.snippetView.selector,
-                (error, results) => {
-                    if (error) return console.debug(error);
-                    this.trigger('annotationEditView:saveNew', this, results.annotation, results.items);
-                });
-        }
-        else {
-            let existingBodyOntologyClass = this.model.get(oa.hasBody);
-            if (existingBodyOntologyClass) this.model.unset(oa.hasBody, existingBodyOntologyClass);
-            this.model.set(oa.hasBody, (this.selectedOntologyClass));
-            this.model.save();
-            this.trigger('annotationEditView:save', this, this.model);
+            this.submitNewAnnotation();
+        } else {
+            this.model.unset(oa.hasBody);
+            this.model.set(oa.hasBody, this.selectedClass);
+            this.submitItem().then(this.submitOldAnnotation.bind(this));
         }
         return this;
+    }
+
+    submitItem(): Promise<boolean> {
+        let newItem = false;
+        if (!this.selectedItem) return Promise.resolve(newItem);
+        if (this.selectedItem.isNew()) {
+            const items = new ItemGraph();
+            items.add(this.selectedItem);
+            newItem = true;
+        }
+        return new Promise((resolve, reject) => {
+            this.selectedItem.save();
+            this.selectedItem.once('sync', () => resolve(newItem));
+            this.selectedItem.once('error', reject);
+        });
+    }
+
+    submitNewAnnotation(): void {
+        composeAnnotation(
+            this.source,
+            this.positionDetails,
+            this.snippetView.selector,
+            this.selectedClass,
+            this.selectedItem,
+            (error, results) => {
+                if (error) return console.debug(error);
+                this.trigger('annotationEditView:saveNew', this, results.annotation, results.items);
+            }
+        );
+    }
+
+    submitOldAnnotation(newItem: boolean): void {
+        this.selectedItem && this.model.set(oa.hasBody, this.selectedItem);
+        this.model.save();
+        this.trigger('annotationEditView:save', this, this.model, newItem);
     }
 
     reset(): this {
@@ -175,14 +225,41 @@ export default class AnnotationEditView extends BaseAnnotationView {
         return this;
     }
 
-    select(item: Node): this {
-        this.$('.hidden-input').val(item.id).valid();
-        this.selectedOntologyClass = item;
+    selectClass(cls: Node): this {
+        this.$('.hidden-input').val(cls.id).valid();
+        this.selectedClass = cls;
+        this.itemOptions.query({ predicate: rdf.type, object: cls.id });
+        this.removeEditor();
+        this.$('.item-picker-container').removeClass('is-hidden');
         return this;
     }
 
-    onOntologyItemSelected(item: Node): this {
-        this.select(item);
+    selectItem(itemPicker: PickerView, id: string): void {
+        this.removeEditor();
+        this.selectedItem = this.itemOptions.get(id);
+    }
+
+    createItem(): this {
+        if (this.itemEditor) return this;
+        this.selectedItem = new Node({
+            '@type': this.selectedClass.id,
+            [skos.prefLabel]: '', // this prevents a failing getLabel
+        });
+        this.itemEditor = new ItemEditor({model: this.selectedItem});
+        this.$('.item-picker-container').after(this.itemEditor.el);
+        return this;
+    }
+
+    removeEditor(): this {
+        if (!this.itemEditor) return this;
+        this.itemEditor.remove();
+        delete this.itemEditor;
+        delete this.selectedItem;
+        return this;
+    }
+
+    onClassSelected(cls: Node): this {
+        this.selectClass(cls);
         return this;
     }
 
@@ -202,7 +279,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
     }
 
     onRelatedItemsClicked(event: JQueryEventObject): this {
-        this.trigger('add-related-item', this.ontologyClassPicker.getSelected());
+        this.trigger('add-related-item', this.classPicker.getSelected());
         return this;
     }
 }
@@ -214,5 +291,6 @@ extend(AnnotationEditView.prototype, {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
         'click .btn-rel-items': 'onRelatedItemsClicked',
+        'click .item-picker-container .field:last button': 'createItem',
     }
 });

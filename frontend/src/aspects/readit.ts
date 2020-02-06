@@ -10,7 +10,7 @@ import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
 import { item, readit, rdf, vocab } from '../jsonld/ns';
 
-import { getOntology, getSources, createSourceView } from './../utilities/utilities';
+import { getOntology, getSources } from './../utilities/utilities';
 
 import CategoryColorView from './../utilities/category-colors/category-colors-view';
 import SourceView from './../panel-source/source-view';
@@ -115,12 +115,6 @@ function initSourceList() {
                 collection: sources,
             });
             let explorer = initExplorer(sourceListView, ontology);
-
-            sourceListView.on('source-list:click', (listView: SourceListView, source: Node) => {
-                let sourceView = createSourceView(source, true, true);
-                explorer.popUntil(sourceListView);
-                explorer.push(sourceView);
-            });
         }
     });
 }

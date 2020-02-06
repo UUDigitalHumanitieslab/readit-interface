@@ -19,7 +19,6 @@ export default class RangePickerView extends PickerView {
         if (!options || !options.model || !options.collection) {
             throw new Error('RangePickerView requires model and collection');
         }
-        defaults(options, { multiple: true });
         super(options);
     }
 
