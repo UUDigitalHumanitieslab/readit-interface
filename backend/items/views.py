@@ -15,8 +15,8 @@ from staff import namespace as staff
 from staff.utils import submission_info
 from ontology import namespace as ontology
 from . import namespace as my
-from .graph import graph
-from .models import ItemCounter
+from .graph import graph, history
+from .models import ItemCounter, EditCounter
 
 MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank node.'
 MUST_EQUAL_IDENTIFIER_400 = 'PUT must affect exactly the resource URI.'
@@ -59,9 +59,9 @@ def optional_int(text):
 
 def save_snapshot(identifier, previous, request):
     """ Keep track of the previous version of a changed item. """
-    g = graph()
+    g = history()
     user, now = submission_info(request)
-    counter = ItemCounter.current
+    counter = EditCounter.current
     counter.increment()
     annotation = URIRef(str(counter))
     body = BNode()

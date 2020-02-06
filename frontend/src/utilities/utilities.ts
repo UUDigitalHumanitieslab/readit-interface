@@ -274,7 +274,7 @@ export function createSourceView(
     });
 
     let annotations = new FilteredCollection<Node>(sourceItems, item =>
-        !isBlank(item) && isType(item, oa.Annotation)
+        isType(item, oa.Annotation)
     );
 
     let sourceView = new SourceView({
