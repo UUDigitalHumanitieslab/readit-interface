@@ -87,15 +87,17 @@ export function relationsFromModel(model: Node, predicates: Graph) {
         inverseMap[inverse.id] = direct;
         return inverse;
     }));
-    inverseRelated.ready(() => inverseRelated.forEach(node => {
-        const attributes = keys(node.attributes);
-        attributes.forEach(a => {
-            const inverse = inversePredicates.get(a);
-            if (!inverse || !node.has(a, model)) return;
-            const direct = inverseMap[inverse.id];
-            relations.add({predicate: direct, object: node});
+    inverseRelated.ready(() => {
+        inverseRelated.forEach(node => {
+            const attributes = keys(node.attributes);
+            attributes.forEach(a => {
+                const inverse = inversePredicates.get(a);
+                if (!inverse || !node.has(a, model)) return;
+                const direct = inverseMap[inverse.id];
+                relations.add({predicate: direct, object: node});
+            });
         });
         relations.trigger('complete', relations);
-    }));
+    });
     return relations;
 }
