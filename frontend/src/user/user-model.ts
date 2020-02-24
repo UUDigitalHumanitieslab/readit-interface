@@ -19,6 +19,7 @@ export interface RegisterDetails {
 export default class User extends Model {
     loginUrl: string;
     logoutUrl: string;
+    registerUrl: string;
 
     login(credentials: UserCredentials): JQuery.jqXHR {
         return this.save(null, {
@@ -49,6 +50,24 @@ export default class User extends Model {
         }
         return response;
     }
+
+    register(details: RegisterDetails): JQuery.jqXHR {
+        return this.save(details, {
+            url: this.registerUrl,
+            method: 'POST',
+            success: (model, response, options) => {
+                this.trigger('registration:success', response.responseJSON);
+            },
+            error: (model, response, options) => {
+                if (response.status == 400) {
+                    this.trigger('registration:invalid', response.responseJSON);
+                }
+                else {
+                    this.trigger('registration:error', response);
+                }
+            }
+        } as ModelSaveOptions);
+    }
 }
 
 extend(User.prototype, {
@@ -56,4 +75,5 @@ extend(User.prototype, {
     url: authRoot + 'user/',
     loginUrl: authRoot + 'login/',
     logoutUrl: authRoot + 'logout/',
+    registerUrl: authRoot + 'registration/',
 });
