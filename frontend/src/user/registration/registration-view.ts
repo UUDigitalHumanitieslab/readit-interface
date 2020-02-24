@@ -7,7 +7,7 @@ export default class RegistrationFormView extends View {
 
     render(): this {
         this.$el.html(this.template({}));
-        this.$el.validate({
+        this.$('form').validate({
             errorClass: "help is-danger",
             rules: {
                 password: "required",
@@ -15,7 +15,7 @@ export default class RegistrationFormView extends View {
                     equalTo: "#password"
                 }
             },
-        })
+        });
         return this;
     }
 
@@ -25,8 +25,7 @@ export default class RegistrationFormView extends View {
     }
 }
 extend(RegistrationFormView.prototype, {
-    tagName: 'form',
-    className: 'registration-form section page',
+    className: 'modal is-active',
     events: {
         'submit': 'onRegisterClicked',
     },

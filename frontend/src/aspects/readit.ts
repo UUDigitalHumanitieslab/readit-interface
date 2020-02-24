@@ -45,7 +45,7 @@ directionRouter.on('route:register', () => {
 });
 
 directionFsm.on('enter:registering', () => {
-    registrationFormView.render().$el.appendTo("#main");
+    registrationFormView.render().$el.appendTo('body');
 });
 
 directionFsm.on('exit:registering', () => {
