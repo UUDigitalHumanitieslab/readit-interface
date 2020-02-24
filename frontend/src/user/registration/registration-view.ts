@@ -10,6 +10,10 @@ export default class RegistrationFormView extends View {
         this.$('form').validate({
             errorClass: "help is-danger",
             rules: {
+                email: {
+                    required: true,
+                    email: true
+                },
                 password: "required",
                 password_again: {
                     equalTo: "#password"
