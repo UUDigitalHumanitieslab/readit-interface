@@ -5,6 +5,8 @@ import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
 import ExplorerView from '../panel-explorer/explorer-view';
 
+import user from './../global/user';
+
 import Graph from './../jsonld/graph';
 import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
@@ -46,6 +48,9 @@ directionRouter.on('route:register', () => {
 
 directionFsm.on('enter:registering', () => {
     registrationFormView.render().$el.appendTo('body');
+    user.on('registration:success', () => registrationFormView.success());
+    user.on('registration:error', (response) => registrationFormView.error(response));
+    user.on('registration:invalid', (errors) => registrationFormView.invalid(errors));
 });
 
 directionFsm.on('exit:registering', () => {
