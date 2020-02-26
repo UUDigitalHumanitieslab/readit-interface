@@ -59,7 +59,7 @@ export default class ConfirmRegistrationView extends View {
 }
 extend(ConfirmRegistrationView.prototype, {
     tagName: 'section',
-    className: 'section page has-text-centered',
+    className: 'modal is-active',
     template: confirmRegistrationTemplate
 });
 
