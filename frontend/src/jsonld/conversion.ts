@@ -12,7 +12,7 @@ import {
     isObject,
 } from 'lodash';
 
-import { isNode } from '../utilities/types';
+import { isNode } from './node';
 import {
     FlatSingleValue,
     FlatTypedLiteral,
@@ -20,7 +20,6 @@ import {
     Identifier,
 } from './json';
 import { xsd } from './ns';
-import Node from './node';
 
 // Native includes Identifier as an optimization.
 export type Native = number | boolean | null | string |

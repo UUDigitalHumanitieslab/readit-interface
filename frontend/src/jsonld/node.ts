@@ -228,6 +228,12 @@ extend(Node.prototype, {
     },
 });
 
+export type NodeLike = string | Identifier | Node;
+
+export function isNode(candidate: any): candidate is Node {
+    return candidate instanceof Node;
+}
+
 /**
  * Implementation details of the Node class.
  */

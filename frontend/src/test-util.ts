@@ -1,4 +1,5 @@
 import '@dhl-uu/jquery-promise';
+import 'jasmine-ajax';
 
 import { extend } from 'lodash';
 import { Events } from 'backbone';
@@ -12,11 +13,13 @@ import { i18nPromise } from './global/i18n';
  * respectively, to use a store in all tests of a suite.
  */
 export function startStore() {
+    jasmine.Ajax.install();
     this._globalGraph = new Store();
 }
 export function endStore() {
     this._globalGraph.off().stopListening().stopReplying().reset();
     delete this._globalGraph;
+    jasmine.Ajax.uninstall();
 }
 
 /**

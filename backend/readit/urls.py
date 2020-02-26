@@ -19,14 +19,13 @@ from django.conf import settings
 
 from rest_framework import routers
 
-from proxy.views import proxy_view
-
 from vocab import VOCAB_ROUTE
 from staff import STAFF_ROUTE
 from ontology import ONTOLOGY_ROUTE
 from sources import SOURCES_ROUTE
 from items import ITEMS_ROUTE
 from .index import index, specRunner
+from .utils import decode_and_proxy
 
 api_router = routers.DefaultRouter()  # register viewsets with this router
 
@@ -39,7 +38,7 @@ urlpatterns = [
     )),
     path('rest-auth/', include('rest_auth.urls')),
     path('rest-auth/registration/', include('register.urls')),
-    re_path(r'proxy/(?P<url>.*)', proxy_view),
+    re_path(r'proxy/(?P<url>.*)', decode_and_proxy),
     path(VOCAB_ROUTE, include('vocab.urls')),
     path(STAFF_ROUTE, include('staff.urls')),
     path(ONTOLOGY_ROUTE, include('ontology.urls')),

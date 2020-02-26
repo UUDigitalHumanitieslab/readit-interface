@@ -12,7 +12,7 @@ import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
 import { item, readit, rdf, vocab } from '../jsonld/ns';
 
-import { getOntology, getSources, createSourceView } from './../utilities/utilities';
+import { getOntology, getSources } from './../utilities/utilities';
 
 import CategoryColorView from './../utilities/category-colors/category-colors-view';
 import SourceView from './../panel-source/source-view';
@@ -125,7 +125,9 @@ directionRouter.on('route:leave', () => {
  */
 function getViewportHeight(): number {
     let vh = $(window).height();
-    return Math.max(vh - 158, 555);
+    // 133 is the height of the footer (got this number by manually testing)
+    // Note that the same number needs to be the height of the 'push' class in main.sass
+    return Math.max(vh - 160, 555);
 }
 
 function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
@@ -149,12 +151,6 @@ function initSourceList() {
                 collection: sources,
             });
             let explorer = initExplorer(sourceListView, ontology);
-
-            sourceListView.on('source-list:click', (listView: SourceListView, source: Node) => {
-                let sourceView = createSourceView(source, true, true);
-                explorer.popUntil(sourceListView);
-                explorer.push(sourceView);
-            });
         }
     });
 }

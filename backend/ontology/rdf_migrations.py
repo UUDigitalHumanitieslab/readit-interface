@@ -1,12 +1,24 @@
 from rdflib.namespace import Namespace
 
-from rdf.migrations import *
-from rdf.utils import append_triples, prune_triples
 from . import namespace as READIT
 from .graph import graph
 from .fixture import canonical_graph
+from rdf.migrations import *
+from rdf.utils import append_triples, prune_triples, prune_triples_cascade, graph_from_triples
+from rdf.ns import *
+from items.graph import graph as item_graph
 
 CIDOC = Namespace('http://www.cidoc-crm.org/cidoc-crm/')
+
+
+def replace_object(graph, before, after):
+    """
+    Replace all triples with `before` as object by one with `after`.
+    """
+    obsolete = list(graph.quads((None, None, before)))
+    prune_triples(graph, obsolete)
+    replacements = ((s, p, after, c) for (s, p, o, c) in obsolete)
+    append_triples(graph, replacements)
 
 
 def replace_predicate(graph, before, before_rev, after):
@@ -22,6 +34,29 @@ def replace_predicate(graph, before, before_rev, after):
         prune_triples(graph, graph.quads((None, before_rev, None)))
     replacements = ((s, after, o, c) for (s, p, o, c) in obsolete)
     append_triples(graph, replacements)
+
+
+def delete_cascade(graph, predicate, _object):
+    """
+    Delete all triples in the item graph with the combination of `predicate` and `_object`.
+    """
+    obsolete = list(graph.quads((None, predicate, _object)))
+    prune_triples_cascade(graph, obsolete, [item_graph], [OA.hasBody])
+
+
+def delete_predicate(graph, predicate):
+    """ Remove all occurrences of `predicate` from `graph`. """
+    prune_triples(graph, graph.quads((None, predicate, None)))
+
+
+def delete_subjects(graph, pattern):
+    """ Delete all subjects in `graph` with a triple matching `pattern`. """
+    if pattern == (None, None, None):
+        raise ValueError('Why don\'t you just drop your database?')
+    matching = graph_from_triples(graph.triples(pattern))
+    subjects = set(matching.subjects())
+    for s in subjects:
+        prune_triples(graph, graph.triples((s, None, None)))
 
 
 class Migration(RDFMigration):
@@ -51,3 +86,18 @@ class Migration(RDFMigration):
         before_rev = CIDOC.was_influenced_by
         after = READIT.influenced
         replace_predicate(conjunctive, before, before_rev, after)
+
+    @on_remove(READIT.state_of_mind)
+    def replace_READIT_state_of_mind(self, actual, conjunctive):
+        before = READIT.state_of_mind
+        after = READIT.reading_response
+        replace_object(conjunctive, before, after)
+        replace_predicate(conjunctive, READIT.had_state, None, READIT.had_response)
+
+    @on_remove(READIT.reading_session)
+    def delete_READIT_reading_session(self, actual, conjunctive):
+        _object = READIT.reading_session
+        delete_cascade(conjunctive, OA.hasBody, _object)
+        delete_subjects(conjunctive, (None, RDF.type, _object))
+        delete_predicate(conjunctive, READIT.carried_out)
+        delete_predicate(conjunctive, READIT.influenced)
