@@ -22,6 +22,7 @@ import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
 import uploadSourceForm from './../global/upload-source-form';
 import registrationFormView from './../global/registration-view';
+import confirmRegistrationView from './../global/confirm-registration-view';
 
 import { oa } from './../jsonld/ns';
 
@@ -55,6 +56,18 @@ directionFsm.on('enter:registering', () => {
 
 directionFsm.on('exit:registering', () => {
     registrationFormView.$el.detach();
+});
+
+directionRouter.on('route:confirm-registration', () => {
+    directionFsm.handle('confirm');
+});
+
+directionFsm.on('enter:confirming', () => {
+    confirmRegistrationView.render().$el.appendTo('#main');
+});
+
+directionFsm.on('exit:confirming', () => {
+    confirmRegistrationView.$el.detach();
 });
 
 directionRouter.on('route:arrive', () => {

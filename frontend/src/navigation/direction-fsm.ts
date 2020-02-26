@@ -8,10 +8,12 @@ const DirectionFsm = Fsm.extend({
             leave: 'leaving',
             explore: 'exploring',
             register: 'registering',
+            confirm: 'confirming',
         },
         arriving: {
             leave: 'leaving',
             explore: 'exploring',
+            confirm: 'confirming',
         },
         leaving: {
             arrive: 'arriving',
@@ -21,6 +23,9 @@ const DirectionFsm = Fsm.extend({
             arrive: 'arriving',
         },
         registering: {
+            leave: 'leaving',
+        },
+        confirming: {
             leave: 'leaving',
         }
     },

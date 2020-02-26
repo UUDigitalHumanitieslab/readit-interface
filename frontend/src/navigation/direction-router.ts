@@ -11,5 +11,6 @@ extend(DirectionRouter.prototype, {
         'explore': 'explore',
         'upload': 'upload',
         'register': 'register',
+        'confirm-registration': 'confirm-registration',
     },
 });
