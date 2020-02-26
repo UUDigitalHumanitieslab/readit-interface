@@ -20,6 +20,7 @@ export default class User extends Model {
     loginUrl: string;
     logoutUrl: string;
     registerUrl: string;
+    confirmRegistrationUrl: string;
 
     login(credentials: UserCredentials): JQuery.jqXHR {
         return this.save(null, {
@@ -68,6 +69,24 @@ export default class User extends Model {
             }
         } as ModelSaveOptions);
     }
+
+    confirmRegistration(key: string): JQuery.jqXHR {
+        return this.save({ "key": key }, {
+            url: this.confirmRegistrationUrl,
+            method: 'POST',
+            success: (model, response, options) => {
+                this.trigger('confirm-registration:success');
+            },
+            error: (model, response, options) => {
+                if (response.status === 404) {
+                    this.trigger('confirm-registration:notfound');
+                }
+                else {
+                    this.trigger('confirm-registration:error', response);
+                }
+            }
+        } as ModelSaveOptions);
+    }
 }
 
 extend(User.prototype, {
@@ -76,4 +95,5 @@ extend(User.prototype, {
     loginUrl: authRoot + 'login/',
     logoutUrl: authRoot + 'logout/',
     registerUrl: authRoot + 'registration/',
+    confirmRegistrationUrl: authRoot + 'registration/verify-email/',
 });
