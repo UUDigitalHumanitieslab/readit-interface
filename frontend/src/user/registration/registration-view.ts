@@ -28,7 +28,6 @@ export default class RegistrationFormView extends View {
 
     submit(event?: JQuery.TriggeredEvent): this {
         if (event) event.preventDefault();
-        this.render();
         if (this.$('form').valid()) {
             let username = this.$('input[name="username"]').val() as string,
                 password1 = this.$('input[name="password1"]').val() as string,

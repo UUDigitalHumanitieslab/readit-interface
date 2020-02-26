@@ -2,31 +2,64 @@ import { extend } from 'lodash';
 import View from './../../core/view';
 
 import user from './../../global/user';
+import LoadingSpinnerView from './../../utilities/loading-spinner/loading-spinner-view';
 import confirmRegistrationTemplate from './confirm-registration-template';
 
-export default class RegistrationFormView extends View {
+export default class ConfirmRegistrationView extends View {
+    loadingSpinnerView: LoadingSpinnerView;
+    awaitingConfirmation: boolean;
+    isConfirmed: boolean;
+    wasNotFound: boolean;
+    hasError: boolean;
 
-    render(): this {
-        this.$el.html(this.template({}));
+    initialize(): this {
+        this.loadingSpinnerView = new LoadingSpinnerView();
+        this.loadingSpinnerView.render();
+        this.awaitingConfirmation = true;
         return this;
     }
 
+    render(): this {
+        this.loadingSpinnerView.remove();
+        if (this.awaitingConfirmation) {
+            this.loadingSpinnerView.$el.appendTo(this.$el);
+            this.loadingSpinnerView.activate();
+        }
+        else {
+            this.$el.html(this.template(this));
+        }
+        return this;
+    }
 
+    processKey(key: string): this {
+        user.confirmRegistration(key);
+        return this;
+    }
+
+    notFound(): this {
+        this.awaitingConfirmation = false;
+        this.wasNotFound = true;
+        this.render();
+        return this;
+    }
 
     error(response: any): this {
-        // TODO: give user some feedback
-        console.error(response);
+        this.awaitingConfirmation = false;
+        this.hasError = true;
+        this.render();
         return this;
     }
 
     success(): this {
-        // TODO: give user some feedback
+        this.awaitingConfirmation = false;
+        this.isConfirmed = true;
+        this.render();
         return this;
     }
 }
-extend(RegistrationFormView.prototype, {
+extend(ConfirmRegistrationView.prototype, {
     tagName: 'section',
-    className: 'section',
+    className: 'section page has-text-centered',
     template: confirmRegistrationTemplate
 });
 

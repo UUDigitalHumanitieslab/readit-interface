@@ -58,7 +58,11 @@ directionFsm.on('exit:registering', () => {
     registrationFormView.$el.detach();
 });
 
-directionRouter.on('route:confirm-registration', () => {
+directionRouter.on('route:confirm-registration', (key) => {
+    user.on('confirm-registration:success', () => confirmRegistrationView.success());
+    user.on('confirm-registration:notfound', () => confirmRegistrationView.notFound());
+    user.on('confirm-registration:error', (response) => confirmRegistrationView.error(response));
+    confirmRegistrationView.processKey(key);
     directionFsm.handle('confirm');
 });
 
