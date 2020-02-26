@@ -38,7 +38,7 @@ urlpatterns = [
         namespace='rest_framework',
     )),
     path('rest-auth/', include('rest_auth.urls')),
-    path('rest-auth/registration/', include('rest_auth.registration.urls')),
+    path('rest-auth/registration/', include('register.urls')),
     re_path(r'proxy/(?P<url>.*)', proxy_view),
     path(VOCAB_ROUTE, include('vocab.urls')),
     path(STAFF_ROUTE, include('staff.urls')),
