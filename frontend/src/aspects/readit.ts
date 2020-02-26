@@ -75,6 +75,7 @@ directionFsm.on('exit:confirming', () => {
 });
 
 directionRouter.on('route:arrive', () => {
+    directionFsm.handle('arrive');
     userFsm.handle('arrive');
 });
 

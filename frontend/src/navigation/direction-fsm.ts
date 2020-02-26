@@ -27,6 +27,7 @@ const DirectionFsm = Fsm.extend({
         },
         confirming: {
             leave: 'leaving',
+            arrive: 'arriving',
         }
     },
 });
