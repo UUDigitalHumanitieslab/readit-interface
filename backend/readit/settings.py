@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'items',
     'sources',
     'register',
+    'feedback',
 ]
 
 # This is required by rest-auth registration
