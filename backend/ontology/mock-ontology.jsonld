@@ -379,5 +379,26 @@
             "@id": "http://readit.example/ontology/had_outcome"
         },
         "http://www.w3.org/2004/02/skos/core#prefLabel": "was outcome of"
+    },
+    {
+        "@id": "http://readit.example/ontology/reading_testimony",
+        "@type": [
+            "http://www.w3.org/2000/01/rdf-schema#Class"
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "Reading Testimony"
+            }
+        ],
+        "http://www.w3.org/2004/02/skos/core#definition": [
+            {
+                "@value": "This is the definition of reading testimony"
+            }
+        ],
+        "http://schema.org/color": [
+            {
+                "@value": "#4d94ff"
+            }
+        ]
     }
 ]
