@@ -80,7 +80,8 @@ class AddSource(RDFResourceView):
         known_languages = {
             'en': ISO6391.en,
             'de': ISO6391.de,
-            'nl': ISO6391.nl
+            'nl': ISO6391.nl,
+            'fr': ISO6391.fr,
         }
         result = known_languages.get(input_language)
         if result:
