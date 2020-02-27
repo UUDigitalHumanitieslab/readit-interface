@@ -47,6 +47,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_auth',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'rest_auth.registration',
     'rdflib_django',
     'corsheaders',
     'rdf',
@@ -55,7 +60,11 @@ INSTALLED_APPS = [
     'ontology',
     'items',
     'sources',
+    'register',
 ]
+
+# This is required by rest-auth registration
+SITE_ID = 1
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -157,3 +166,11 @@ STATICFILES_DIRS = []
 # https://docs.djangoproject.com/en/2.2/topics/files/
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Settings for (email) registration
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_CONFIRMATION_URL = "http://localhost:8000/confirm-registration"
+
+ACCOUNT_ADAPTER = 'register.allauth.CustomAccountAdapter'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"

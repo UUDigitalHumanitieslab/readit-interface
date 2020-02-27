@@ -37,6 +37,7 @@ urlpatterns = [
         namespace='rest_framework',
     )),
     path('rest-auth/', include('rest_auth.urls')),
+    path('rest-auth/registration/', include('register.urls')),
     re_path(r'proxy/(?P<url>.*)', decode_and_proxy),
     path(VOCAB_ROUTE, include('vocab.urls')),
     path(STAFF_ROUTE, include('staff.urls')),
@@ -44,6 +45,7 @@ urlpatterns = [
     path(SOURCES_ROUTE, include('sources.urls')),
     path(ITEMS_ROUTE, include('items.urls')),
 ]
+
 
 # Inject any Jasmine testing page from a frontend during development.
 if settings.DEBUG:

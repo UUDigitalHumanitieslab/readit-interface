@@ -5,6 +5,8 @@ import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
 import ExplorerView from '../panel-explorer/explorer-view';
 
+import user from './../global/user';
+
 import Graph from './../jsonld/graph';
 import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
@@ -19,6 +21,8 @@ import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
 import uploadSourceForm from './../global/upload-source-form';
+import registrationFormView from './../global/registration-view';
+import confirmRegistrationView from './../global/confirm-registration-view';
 
 import { oa } from './../jsonld/ns';
 
@@ -39,7 +43,39 @@ history.once('route', () => {
     footerView.render().$el.appendTo('.footer');
 });
 
+directionRouter.on('route:register', () => {
+    directionFsm.handle('register');
+});
+
+directionFsm.on('enter:registering', () => {
+    registrationFormView.render().$el.appendTo('body');
+    user.on('registration:success', () => registrationFormView.success());
+    user.on('registration:error', (response) => registrationFormView.error(response));
+    user.on('registration:invalid', (errors) => registrationFormView.invalid(errors));
+});
+
+directionFsm.on('exit:registering', () => {
+    registrationFormView.$el.detach();
+});
+
+directionRouter.on('route:confirm-registration', (key) => {
+    user.on('confirm-registration:success', () => confirmRegistrationView.success());
+    user.on('confirm-registration:notfound', () => confirmRegistrationView.notFound());
+    user.on('confirm-registration:error', (response) => confirmRegistrationView.error(response));
+    confirmRegistrationView.processKey(key);
+    directionFsm.handle('confirm');
+});
+
+directionFsm.on('enter:confirming', () => {
+    confirmRegistrationView.render().$el.appendTo('#main');
+});
+
+directionFsm.on('exit:confirming', () => {
+    confirmRegistrationView.$el.detach();
+});
+
 directionRouter.on('route:arrive', () => {
+    directionFsm.handle('arrive');
     userFsm.handle('arrive');
 });
 

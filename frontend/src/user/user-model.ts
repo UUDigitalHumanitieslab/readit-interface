@@ -9,9 +9,18 @@ export interface UserCredentials {
     password: string;
 }
 
+export interface RegisterDetails {
+    username: string;
+    password1: string;
+    password2: string;
+    email: string;
+}
+
 export default class User extends Model {
     loginUrl: string;
     logoutUrl: string;
+    registerUrl: string;
+    confirmRegistrationUrl: string;
 
     login(credentials: UserCredentials): JQuery.jqXHR {
         return this.save(null, {
@@ -42,6 +51,42 @@ export default class User extends Model {
         }
         return response;
     }
+
+    register(details: RegisterDetails): JQuery.jqXHR {
+        return this.save(details, {
+            url: this.registerUrl,
+            method: 'POST',
+            success: (model, response, options) => {
+                this.trigger('registration:success', response.responseJSON);
+            },
+            error: (model, response, options) => {
+                if (response.status == 400) {
+                    this.trigger('registration:invalid', response.responseJSON);
+                }
+                else {
+                    this.trigger('registration:error', response);
+                }
+            }
+        } as ModelSaveOptions);
+    }
+
+    confirmRegistration(key: string): JQuery.jqXHR {
+        return this.save({ "key": key }, {
+            url: this.confirmRegistrationUrl,
+            method: 'POST',
+            success: (model, response, options) => {
+                this.trigger('confirm-registration:success');
+            },
+            error: (model, response, options) => {
+                if (response.status === 404) {
+                    this.trigger('confirm-registration:notfound');
+                }
+                else {
+                    this.trigger('confirm-registration:error', response);
+                }
+            }
+        } as ModelSaveOptions);
+    }
 }
 
 extend(User.prototype, {
@@ -49,4 +94,6 @@ extend(User.prototype, {
     url: authRoot + 'user/',
     loginUrl: authRoot + 'login/',
     logoutUrl: authRoot + 'logout/',
+    registerUrl: authRoot + 'registration/',
+    confirmRegistrationUrl: authRoot + 'registration/verify-email/',
 });

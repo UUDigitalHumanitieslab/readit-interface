@@ -10,5 +10,7 @@ extend(DirectionRouter.prototype, {
         'leave': 'leave',
         'explore': 'explore',
         'upload': 'upload',
+        'register': 'register',
+        'confirm-registration/:key': 'confirm-registration',
     },
 });
