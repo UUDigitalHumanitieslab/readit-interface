@@ -1,0 +1,55 @@
+<div class="modal-background"></div>
+<div class="modal-content">
+    <form class="box register-form is-narrow-modal-form">
+        {{#if wasSentSuccessfully}}
+        <header>
+            <h3 class="title is-3 page-header">Feedback submitted</h3>
+        </header>
+        <div class="field">
+            <p>Thank you very much for your feedback, it is highly appreciated!</p>
+        </div>
+        <div class="field is-grouped">
+            <div class="control">
+                <button class="button btn-close" type="button">Close</button>
+            </div>
+        </div>
+        {{else}}
+        <header>
+            <h3 class="title is-3 page-header">Feedback</h3>
+        </header>
+        <div class="field">
+            <label class="label">Subject</label>
+            <div class="control">
+                <input name="subject" class="input" type="text" name="title" placeholder="About READ-IT">
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="control">
+                <label class="label">Feedback</label>
+                <textarea name="feedback" class="textarea" placeholder="e.g. I love READ-IT!"></textarea>
+            </div>
+        </div>
+
+        {{#if hasError}}
+        <div class="field form-feedback-bar has-background-danger has-text-white">
+            <p class="help">Feedback submission failed. Please try again and if this error keeps occuring, contact the
+                site administrator.</p>
+        </div>
+        {{/if}}
+
+        <div class="field is-grouped">
+            <div class="control">
+                <button class="button is-link btn-submit">Submit</button>
+            </div>
+
+            <div class="control">
+                <button class="button btn-close" type="button">Close</button>
+            </div>
+        </div>
+        {{/if}}
+
+    </form>
+
+</div>
+<button class="modal-close is-large" aria-label="close"></button>
