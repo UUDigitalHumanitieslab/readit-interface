@@ -173,5 +173,4 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_CONFIRMATION_URL = "http://localhost:8000/confirm-registration"
 
 ACCOUNT_ADAPTER = 'register.allauth.CustomAccountAdapter'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_VERIFICATION = "optional"
