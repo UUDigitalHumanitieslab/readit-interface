@@ -129,9 +129,9 @@ class Migration(RDFMigration):
         after_resource = READIT.property_of_resource
         after_reader = READIT.property_of_reader
 
-        obsolote = list(conjunctive.quads((None, before, None)))
+        obsolete = list(conjunctive.quads((None, before, None)))
 
-        for (s, p, o, c) in obsolote:
+        for (s, p, o, c) in obsolete:
             object_is_reader = is_type(conjunctive, o, READIT.reader)
 
             if (is_type(conjunctive, s, READIT.resource_properties)):
