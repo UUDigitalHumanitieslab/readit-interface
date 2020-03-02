@@ -36,6 +36,20 @@ def replace_predicate(graph, before, before_rev, after):
     append_triples(graph, replacements)
 
 
+def replace_predicate_by_pattern(graph, pattern, pattern_rev, after):
+    """
+    Find all triples by `pattern`, and replace predicate by `after`.
+
+    Optionally also deletes old triples with `pattern_rev` (i.e. with a rev predicate).
+    """
+    obsolete = list(graph.quads(pattern))
+    prune_triples(graph, obsolete)
+    if pattern_rev:
+        prune_triples(graph, graph.quads(pattern_rev))
+    replacements = ((s, after, o, c) for (s, p, o, c) in obsolete)
+    append_triples(graph, replacements)
+
+
 def delete_cascade(graph, predicate, _object):
     """
     Delete all triples in the item graph with the combination of `predicate` and `_object`.
@@ -58,6 +72,12 @@ def delete_subjects(graph, pattern):
     for s in subjects:
         prune_triples(graph, graph.triples((s, None, None)))
 
+
+def is_type(graph, subject, _type):
+    '''
+    Check whether `subject` is known as `_type` in graph
+    '''
+    return len(list(graph.quads((subject, RDF.type, _type)))) > 0
 
 class Migration(RDFMigration):
     actual = staticmethod(graph)
@@ -101,3 +121,37 @@ class Migration(RDFMigration):
         delete_subjects(conjunctive, (None, RDF.type, _object))
         delete_predicate(conjunctive, READIT.carried_out)
         delete_predicate(conjunctive, READIT.influenced)
+
+    @on_remove(READIT.property_of)
+    def replace_property_of(self, actual, conjunctive):
+        before = READIT.property_of
+        before_rev = READIT.had_property
+        after_resource = READIT.property_of_resource
+        after_reader = READIT.property_of_reader
+
+        obsolote = list(conjunctive.quads((None, before, None)))
+
+        for (s, p, o, c) in obsolote:
+            object_is_reader = is_type(conjunctive, o, READIT.reader)
+
+            if (is_type(conjunctive, s, READIT.resource_properties)):
+                if object_is_reader:
+                    prune_triples(conjunctive, conjunctive.triples((s,p,o)))
+                else:
+                    replace_predicate_by_pattern(
+                        conjunctive,
+                        (s, p, o),
+                        (None, before_rev, s),
+                        after_resource
+                    )
+
+            if (is_type(conjunctive, s, READIT.reader_properties)):
+                if object_is_reader:
+                    replace_predicate_by_pattern(
+                        conjunctive,
+                        (s, p, o),
+                        (None, before_rev, s),
+                        after_reader
+                    )
+                else:
+                    prune_triples(conjunctive, conjunctive.triples((s,p,o)))

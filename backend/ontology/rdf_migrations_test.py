@@ -42,3 +42,26 @@ def test_replace_predicate():
         READIT.carried_out,
     )
     assert len(BEFORE ^ AFTER) == 0
+
+def test_replace_property_of():
+    BALD = BNode()
+    BOOK = BNode()
+    HOTPINK = BNode()
+
+    conjunctive = graph_from_triples((
+        (BLESSINGTON, RDF.type, READIT.reader),
+        (BALD, RDF.type, READIT.reader_properties),
+        (BALD, READIT.property_of, BLESSINGTON),
+        (BOOK, RDF.type, READIT.medium),
+        (HOTPINK, RDF.type, READIT.resource_properties),
+        (HOTPINK, READIT.property_of, BOOK),
+        (HOTPINK, READIT.property_of, BLESSINGTON), # should be deleted
+        (BALD, READIT.property_of, BOOK), # should be deleted
+    ), ConjunctiveGraph)
+
+    m = Migration()
+    m.replace_property_of(graph_from_triples(()), conjunctive)
+
+    assert len(list(conjunctive.quads((None, READIT.property_of, None)))) == 0
+    assert len(list(conjunctive.quads((None, READIT.property_of_reader, None)))) == 1
+    assert len(list(conjunctive.quads((None, READIT.property_of_resource, None)))) == 1
