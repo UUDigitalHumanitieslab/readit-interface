@@ -10,6 +10,9 @@ class Feedback(models.Model):
     date_created = models.DateTimeField()
     provided_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
+    class Meta:
+        verbose_name_plural = "feedback"
+
     def save(self, *args, **kwargs):
         ''' If new, set the created date '''
         if self.pk is None:
