@@ -21,16 +21,22 @@
                 </a>
             </div>
             <div class="navbar-end">
+                {{#if username}}
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">
                         {{#i18n 'greeting'}}Hello, {{username}}!{{/i18n}}
                     </a>
                     <div class="navbar-dropdown">
+                        <a class="navbar-item" id="feedback">
+                            Feedback
+                        </a>
+                        <hr class="navbar-divider">
                         <a class="navbar-item" id="logout" href="leave">
                             Log out
                         </a>
                     </div>
                 </div>
+                {{/if}}
             </div>
         </div>
     </div>

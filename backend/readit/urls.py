@@ -26,8 +26,10 @@ from sources import SOURCES_ROUTE
 from items import ITEMS_ROUTE
 from .index import index, specRunner
 from .utils import decode_and_proxy
+from feedback.views import FeedbackViewSet
 
 api_router = routers.DefaultRouter()  # register viewsets with this router
+api_router.register(r'feedback', FeedbackViewSet,basename='feedback')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

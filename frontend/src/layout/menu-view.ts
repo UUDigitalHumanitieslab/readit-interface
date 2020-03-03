@@ -22,6 +22,10 @@ export default class MenuView extends View {
         return this.trigger('logout');
     }
 
+    feedback() {
+        return this.trigger('feedback');
+    }
+
     annotate(): void {
         console.log('annotate clicked! (not implemented yet)');
     }
@@ -37,5 +41,6 @@ extend(MenuView.prototype, {
     events: {
         "click .navbar-burger": "toggleHamburger",
         "click #logout": "logout",
+        "click #feedback": "feedback",
     }
 });

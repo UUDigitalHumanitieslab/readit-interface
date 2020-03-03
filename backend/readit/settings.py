@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'items',
     'sources',
     'register',
+    'feedback',
 ]
 
 # This is required by rest-auth registration
@@ -173,5 +174,4 @@ EMAIL_CONFIRMATION_URL = "http://localhost:8000/confirm-registration"
 DEFAULT_FROM_EMAIL = "donotreply@read-it.hum.uu.nl"
 
 ACCOUNT_ADAPTER = 'register.allauth.CustomAccountAdapter'
-ACCOUNT_EMAIL_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "optional"

@@ -3,7 +3,7 @@ import { parallel } from 'async';
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
-import loginView from './../global/login-view';
+import feedbackView from './../global/feedback-view';
 import ExplorerView from '../panel-explorer/explorer-view';
 
 import user from './../global/user';
@@ -41,6 +41,8 @@ let explorerView;
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
+    menuView.on('feedback', () => { feedbackView.render().$el.appendTo('body'); });
+    feedbackView.on('close', () => feedbackView.$el.detach());
     footerView.render().$el.appendTo('.footer');
 });
 
