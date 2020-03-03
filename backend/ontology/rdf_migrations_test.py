@@ -46,16 +46,16 @@ def test_replace_predicate():
 def test_replace_property_of():
     BALD = BNode()
     BOOK = BNode()
-    HOTPINK = BNode()
+    HEAVY = BNode()
 
     conjunctive = graph_from_triples((
         (BLESSINGTON, RDF.type, READIT.reader),
         (BALD, RDF.type, READIT.reader_properties),
         (BALD, READIT.property_of, BLESSINGTON),
         (BOOK, RDF.type, READIT.medium),
-        (HOTPINK, RDF.type, READIT.resource_properties),
-        (HOTPINK, READIT.property_of, BOOK),
-        (HOTPINK, READIT.property_of, BLESSINGTON), # should be deleted
+        (HEAVY, RDF.type, READIT.resource_properties),
+        (HEAVY, READIT.property_of, BOOK),
+        (HEAVY, READIT.property_of, BLESSINGTON), # should be deleted
         (BALD, READIT.property_of, BOOK), # should be deleted
     ), ConjunctiveGraph)
 

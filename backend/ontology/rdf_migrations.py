@@ -79,6 +79,7 @@ def is_type(graph, subject, _type):
     '''
     return len(list(graph.quads((subject, RDF.type, _type)))) > 0
 
+
 class Migration(RDFMigration):
     actual = staticmethod(graph)
     desired = staticmethod(canonical_graph)
@@ -112,7 +113,8 @@ class Migration(RDFMigration):
         before = READIT.state_of_mind
         after = READIT.reading_response
         replace_object(conjunctive, before, after)
-        replace_predicate(conjunctive, READIT.had_state, None, READIT.had_response)
+        replace_predicate(conjunctive, READIT.had_state,
+                          None, READIT.had_response)
 
     @on_remove(READIT.reading_session)
     def delete_READIT_reading_session(self, actual, conjunctive):
@@ -135,23 +137,13 @@ class Migration(RDFMigration):
             object_is_reader = is_type(conjunctive, o, READIT.reader)
 
             if (is_type(conjunctive, s, READIT.resource_properties)):
-                if object_is_reader:
-                    prune_triples(conjunctive, conjunctive.triples((s,p,o)))
-                else:
-                    replace_predicate_by_pattern(
-                        conjunctive,
-                        (s, p, o),
-                        (None, before_rev, s),
-                        after_resource
-                    )
+                if not object_is_reader:
+                    conjunctive.add((s, after_resource, o, c))
 
             if (is_type(conjunctive, s, READIT.reader_properties)):
                 if object_is_reader:
-                    replace_predicate_by_pattern(
-                        conjunctive,
-                        (s, p, o),
-                        (None, before_rev, s),
-                        after_reader
-                    )
-                else:
-                    prune_triples(conjunctive, conjunctive.triples((s,p,o)))
+                    conjunctive.add((s, after_reader, o, c))
+
+            conjunctive.remove((s, p, o, c))
+
+        delete_predicate(conjunctive, before_rev)
