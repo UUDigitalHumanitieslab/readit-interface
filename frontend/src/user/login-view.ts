@@ -21,6 +21,9 @@ export default class LoginForm extends View {
         (this.$('form').get(0) as HTMLFormElement).reset();
         return this;
     }
+    register() {
+        return this.trigger('register');
+    }
 
     onLoginFailed(): this {
         this.$('.login-failed').removeClass('is-hidden');
@@ -34,5 +37,6 @@ extend(LoginForm.prototype, {
     events: {
         reset: 'cancel',
         submit: 'submit',
+        'click #register': 'register',
     },
 });

@@ -2,7 +2,9 @@ import user from '../global/user';
 import userFsm from '../global/user-fsm';
 import authFsm from '../global/authentication-fsm';
 import loginForm from '../global/login-view';
+import registrationForm from '../global/registration-view';
 import menuView from '../global/menu-view';
+
 
 /**
  * In this module, we work our magic to ensure that the user is shown
@@ -69,13 +71,27 @@ userFsm.on('enter:requestAuthorization', (fsm, action) => {
     authFsm.handle('login');
 });
 
+userFsm.on('enter:registering', () => {
+    authFsm.handle('register');
+});
+
 authFsm.on('enter:unauthenticated', () => userFsm.handle('denied'));
 authFsm.on('enter:attemptLogin', () => loginForm.render().$el.appendTo('body'));
 authFsm.on('exit:attemptLogin', () => loginForm.$el.detach());
 authFsm.on('enter:authenticated', () => userFsm.handle('granted'));
 authFsm.on('exit:authenticated', () => userFsm.handle('logout'));
+authFsm.on('enter:registering', () => {
+    registrationForm.render().$el.appendTo('body');
+    user.on('registration:success', () => registrationForm.success());
+    user.on('registration:error', (response) => registrationForm.error(response));
+    user.on('registration:invalid', (errors) => registrationForm.invalid(errors));
+});
+authFsm.on('exit:registering', () => {
+    registrationForm.$el.detach();
+});
 
 loginForm.on('submit', credentials => user.login(credentials));
 loginForm.on('cancel', () => authFsm.handle('loginCancel'));
+loginForm.on('register', () => authFsm.handle('register'));
 
 menuView.on('logout', () => user.logout());

@@ -171,6 +171,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Settings for (email) registration
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_CONFIRMATION_URL = "http://localhost:8000/confirm-registration"
+DEFAULT_FROM_EMAIL = "donotreply@read-it.hum.uu.nl"
 
 ACCOUNT_ADAPTER = 'register.allauth.CustomAccountAdapter'
 ACCOUNT_EMAIL_VERIFICATION = "optional"

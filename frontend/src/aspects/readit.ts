@@ -47,18 +47,7 @@ history.once('route', () => {
 });
 
 directionRouter.on('route:register', () => {
-    directionFsm.handle('register');
-});
-
-directionFsm.on('enter:registering', () => {
-    registrationFormView.render().$el.appendTo('body');
-    user.on('registration:success', () => registrationFormView.success());
-    user.on('registration:error', (response) => registrationFormView.error(response));
-    user.on('registration:invalid', (errors) => registrationFormView.invalid(errors));
-});
-
-directionFsm.on('exit:registering', () => {
-    registrationFormView.$el.detach();
+    userFsm.handle('register');
 });
 
 directionRouter.on('route:confirm-registration', (key) => {
