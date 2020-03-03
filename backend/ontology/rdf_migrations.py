@@ -136,13 +136,11 @@ class Migration(RDFMigration):
         for (s, p, o, c) in obsolete:
             object_is_reader = is_type(conjunctive, o, READIT.reader)
 
-            if (is_type(conjunctive, s, READIT.resource_properties)):
-                if not object_is_reader:
-                    conjunctive.add((s, after_resource, o, c))
+            if is_type(conjunctive, s, READIT.resource_properties) and not object_is_reader:
+                conjunctive.add((s, after_resource, o, c))
 
-            if (is_type(conjunctive, s, READIT.reader_properties)):
-                if object_is_reader:
-                    conjunctive.add((s, after_reader, o, c))
+            if is_type(conjunctive, s, READIT.reader_properties) and object_is_reader:
+                conjunctive.add((s, after_reader, o, c))
 
             conjunctive.remove((s, p, o, c))
 
