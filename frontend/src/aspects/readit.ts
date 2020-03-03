@@ -3,6 +3,7 @@ import { parallel } from 'async';
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
+import loginView from './../global/login-view';
 import ExplorerView from '../panel-explorer/explorer-view';
 
 import user from './../global/user';
@@ -44,18 +45,7 @@ history.once('route', () => {
 });
 
 directionRouter.on('route:register', () => {
-    directionFsm.handle('register');
-});
-
-directionFsm.on('enter:registering', () => {
-    registrationFormView.render().$el.appendTo('body');
-    user.on('registration:success', () => registrationFormView.success());
-    user.on('registration:error', (response) => registrationFormView.error(response));
-    user.on('registration:invalid', (errors) => registrationFormView.invalid(errors));
-});
-
-directionFsm.on('exit:registering', () => {
-    registrationFormView.$el.detach();
+    userFsm.handle('register');
 });
 
 directionRouter.on('route:confirm-registration', (key) => {
