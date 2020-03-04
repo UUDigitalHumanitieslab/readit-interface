@@ -14,13 +14,14 @@ import { getSource } from '../utilities/annotation/annotation-utilities';
 import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
 import { SubviewBundleView } from '../utilities/subview-bundle-view';
 import { singleNumber } from '../utilities/binary-searchable-container/binary-search-utilities';
+import FilteredCollection from '../utilities/filtered-collection';
 
 export interface ViewOptions extends BaseOpt<Node> {
-    collection: Graph;
+    collection: FilteredCollection<Node>;
 }
 
 export default class AnnotationListView extends View<Node> {
-    collection: Graph;
+    collection: FilteredCollection<Node>;
 
     /**
      * Keep track of the currently highlighted summary block
@@ -57,11 +58,9 @@ export default class AnnotationListView extends View<Node> {
 
         let initialSource;
         this.collection.each(node => {
-            if (isType(node, oa.Annotation)) {
-                let source = getSource(node);
-                if (!initialSource) initialSource = source;
-                if (source === initialSource) this.initSummaryBlock(node);
-            }
+            let source = getSource(node);
+            if (!initialSource) initialSource = source;
+            if (source === initialSource) this.initSummaryBlock(node);
         });
 
         this.listenTo(this.collection, 'update', this.render);

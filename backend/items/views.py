@@ -14,9 +14,10 @@ from vocab import namespace as vocab
 from staff import namespace as staff
 from staff.utils import submission_info
 from ontology import namespace as ontology
+from sources import namespace as source
 from . import namespace as my
-from .graph import graph
-from .models import ItemCounter
+from .graph import graph, history
+from .models import ItemCounter, EditCounter
 
 MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank node.'
 MUST_EQUAL_IDENTIFIER_400 = 'PUT must affect exactly the resource URI.'
@@ -57,6 +58,31 @@ def optional_int(text):
         return None
 
 
+def save_snapshot(identifier, previous, request):
+    """ Keep track of the previous version of a changed item. """
+    g = history()
+    user, now = submission_info(request)
+    counter = EditCounter.current
+    counter.increment()
+    annotation = URIRef(str(counter))
+    body = BNode()
+    target = BNode()
+    state = BNode()
+    append_triples(g, (
+        (annotation, RDF.type, OA.Annotation),
+        (annotation, OA.hasBody, body),
+        (annotation, OA.hasTarget, target),
+        (annotation, OA.motivatedBy, OA.editing),
+        (annotation, DCTERMS.creator, user),
+        (target, RDF.type, OA.SpecificResource),
+        (target, OA.hasSource, identifier),
+        (target, OA.hasState, state),
+        (state, RDF.type, OA.TimeState),
+        (state, OA.sourceDate, now),
+    ))
+    append_triples(g, ((body, p, o) for (s, p, o) in previous))
+
+
 class ItemsAPIRoot(RDFView):
     """ By default, list an empty graph. """
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -80,10 +106,22 @@ class ItemsAPIRoot(RDFView):
             o = o and Literal(o)
         t = optional_int(params.get('t')) or 0
         r = optional_int(params.get('r')) or 0
+        # Heuristic to recognize requests for annotations. Facilitates special
+        # case in loop below. TODO: remove this again.
+        is_annotations_request = p is None and t == 2 and r == 1 and isinstance(o, URIRef) and str(o).startswith(str(source))
+        # Submission info is only used for the special case. TODO: remove
+        # together with is_annotations_request.
+        user, now = submission_info(request)
         # get the initial graph based on p, o, o_literal params
         full_graph = super().get_graph(request)
         subjects = set(full_graph.subjects(p, o))
         for s in subjects:
+            # Temporary special case: show users only their own annotations.
+            # TODO: remove again.
+            if is_annotations_request:
+                creator = full_graph.value(s, DCTERMS.creator)
+                if creator != user:
+                    continue
             append_triples(core, full_graph.triples((s, None, None)))
         # traverse from here based on t, r params
         children = traverse_forward(full_graph, core, t)
@@ -122,11 +160,7 @@ class ItemsAPISingular(RDFResourceView):
         existing = self.get_graph(request, **kwargs)
         if len(existing) == 0:
             raise NotFound()
-        user, now = submission_info(request)
         identifier = URIRef(self.get_resource_uri(request, **kwargs))
-        creator = existing.value(identifier, DCTERMS.creator)
-        if user != creator:
-            raise PermissionDenied(MUST_BE_OWNER_403)
         override = graph_from_request(request)
         subjects = set(override.subjects())
         if len(subjects) != 1 or subjects.pop() != identifier:
@@ -136,7 +170,7 @@ class ItemsAPISingular(RDFResourceView):
         if len(added) == 0 and len(removed) == 0:
             # No changes, skip database manipulations and attribution
             return Response(existing)
-        added.add((identifier, DCTERMS.modified, now))
+        save_snapshot(identifier, existing, request)
         full_graph = self.graph()
         full_graph -= removed
         full_graph += added

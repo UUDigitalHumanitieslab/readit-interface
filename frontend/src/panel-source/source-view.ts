@@ -12,6 +12,7 @@ import { schema, vocab } from './../jsonld/ns';
 import { isType } from './../utilities/utilities';
 import HighlightView from '../highlight/highlight-view';
 import ItemGraph from '../utilities/item-graph';
+import FilteredCollection from '../utilities/filtered-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 
 export interface ViewOptions extends BaseOpt<Model> {
@@ -23,7 +24,7 @@ export interface ViewOptions extends BaseOpt<Model> {
     /**
      * The collection of oa:Annotations (and the items representing their details) associated with the source.
      */
-    collection: Graph;
+    collection: FilteredCollection<Node>;
 
     /**
      * Specify whether the View should only display oa:Annotations, or if it allows editing
@@ -45,7 +46,7 @@ export interface ViewOptions extends BaseOpt<Model> {
 }
 
 export default class SourceView extends View<Node> {
-    collection: Graph;
+    collection: FilteredCollection<Node>;
     isEditable: boolean;
     showHighlightsInitially: boolean;
     initialScrollTo?: Node;

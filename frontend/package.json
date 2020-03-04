@@ -14,6 +14,7 @@
     "@rdfjs/serializer-jsonld-ext": "^2.0.0",
     "async": "^3.1.0",
     "backbone": "^1.4.0",
+    "backbone-fractal": "^1.1.0",
     "backbone.radio": "^2.0.0",
     "bulma": "^0.7.1",
     "bulma-accordion": "^2.0.1",

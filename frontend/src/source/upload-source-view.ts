@@ -5,6 +5,9 @@ import Node from './../jsonld/node';
 import uploadSourceTemplate from './upload-source-template';
 
 export default class UploadSourceFormView extends View {
+    isSuccess: boolean;
+    hasError: boolean;
+
     /**
      * Class to add to invalid inputs. Note that this is not
      * the same as the class added to the validate method by default:
@@ -53,8 +56,8 @@ export default class UploadSourceFormView extends View {
     }
 
     render(): this {
-        this.$el.html(this.template({}));
-        this.$('.upload-success').hide();
+        this.$el.html(this.template(this));
+        this.hideFeedback();
         let input = this.$('.file-input');
         let label = this.$('.filelabel');
         let name = this.$('.filename');
@@ -80,7 +83,6 @@ export default class UploadSourceFormView extends View {
         this.$el.css('height', height);
     }
 
-
     onSaveClicked(event: JQueryEventObject): this {
         event.preventDefault();
         var self = this;
@@ -91,7 +93,7 @@ export default class UploadSourceFormView extends View {
                 self.handleUploadSuccess();
             });
             n.once('error', () => {
-                alert('Something went wrong, please try again later');
+                this.$('.form-feedback-bar.has-background-danger').show();
             });
         }
         return this;
@@ -104,13 +106,18 @@ export default class UploadSourceFormView extends View {
 
     handleUploadSuccess(): this {
         this.reset();
-        this.$('.upload-success').show();
+        this.$('.form-feedback-bar.has-background-success').show();
         return this;
     }
 
     onCancelClicked(event: JQueryEventObject): this {
         event.preventDefault();
         window.history.back();
+        return this;
+    }
+
+    hideFeedback(event?: JQueryEventObject): this {
+        this.$('.form-feedback-bar').hide();
         return this;
     }
 }
@@ -121,5 +128,6 @@ extend(UploadSourceFormView.prototype, {
     events: {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
+        'click .input': 'hideFeedback',
     }
 });

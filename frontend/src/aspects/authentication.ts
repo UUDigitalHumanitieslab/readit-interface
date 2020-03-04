@@ -2,7 +2,9 @@ import user from '../global/user';
 import userFsm from '../global/user-fsm';
 import authFsm from '../global/authentication-fsm';
 import loginForm from '../global/login-view';
+import registrationForm from '../global/registration-view';
 import menuView from '../global/menu-view';
+
 
 /**
  * In this module, we work our magic to ensure that the user is shown
@@ -43,13 +45,16 @@ import menuView from '../global/menu-view';
 // to it when authentication fails.
 let formerUserState: string = userFsm.state;
 
-user.on('login:success', () => authFsm.handle('loginSuccess'));
+user.on('login:success sync', () => authFsm.handle('loginSuccess'));
 user.on('login:error', () => {
     authFsm.handle('loginFail');
     loginForm.onLoginFailed();
 
 });
 user.on('logout:success', () => authFsm.handle('logout'));
+user.on('registration:success', () => registrationForm.success());
+user.on('registration:error', (response) => registrationForm.error(response));
+user.on('registration:invalid', (errors) => registrationForm.invalid(errors));
 
 // When authorization fails, just return to the last unprivileged state.
 userFsm.on('enter:authorizationDenied', () => {
@@ -69,13 +74,24 @@ userFsm.on('enter:requestAuthorization', (fsm, action) => {
     authFsm.handle('login');
 });
 
+userFsm.on('enter:registering', () => {
+    authFsm.handle('register');
+});
+
 authFsm.on('enter:unauthenticated', () => userFsm.handle('denied'));
 authFsm.on('enter:attemptLogin', () => loginForm.render().$el.appendTo('body'));
 authFsm.on('exit:attemptLogin', () => loginForm.$el.detach());
 authFsm.on('enter:authenticated', () => userFsm.handle('granted'));
 authFsm.on('exit:authenticated', () => userFsm.handle('logout'));
+authFsm.on('enter:registering', () => {
+    registrationForm.render().$el.appendTo('body');
+});
+authFsm.on('exit:registering', () => {
+    registrationForm.$el.detach();
+});
 
 loginForm.on('submit', credentials => user.login(credentials));
 loginForm.on('cancel', () => authFsm.handle('loginCancel'));
+loginForm.on('register', () => authFsm.handle('register'));
 
 menuView.on('logout', () => user.logout());

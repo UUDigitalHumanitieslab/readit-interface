@@ -19,16 +19,17 @@ from django.conf import settings
 
 from rest_framework import routers
 
-from proxy.views import proxy_view
-
 from vocab import VOCAB_ROUTE
 from staff import STAFF_ROUTE
 from ontology import ONTOLOGY_ROUTE
 from sources import SOURCES_ROUTE
 from items import ITEMS_ROUTE
 from .index import index, specRunner
+from .utils import decode_and_proxy
+from feedback.views import FeedbackViewSet
 
 api_router = routers.DefaultRouter()  # register viewsets with this router
+api_router.register(r'feedback', FeedbackViewSet,basename='feedback')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -38,13 +39,15 @@ urlpatterns = [
         namespace='rest_framework',
     )),
     path('rest-auth/', include('rest_auth.urls')),
-    re_path(r'proxy/(?P<url>.*)', proxy_view),
+    path('rest-auth/registration/', include('register.urls')),
+    re_path(r'proxy/(?P<url>.*)', decode_and_proxy),
     path(VOCAB_ROUTE, include('vocab.urls')),
     path(STAFF_ROUTE, include('staff.urls')),
     path(ONTOLOGY_ROUTE, include('ontology.urls')),
     path(SOURCES_ROUTE, include('sources.urls')),
     path(ITEMS_ROUTE, include('items.urls')),
 ]
+
 
 # Inject any Jasmine testing page from a frontend during development.
 if settings.DEBUG:

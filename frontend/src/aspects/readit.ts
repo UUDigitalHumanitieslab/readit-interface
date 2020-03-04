@@ -3,14 +3,17 @@ import { parallel } from 'async';
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
+import feedbackView from './../global/feedback-view';
 import ExplorerView from '../panel-explorer/explorer-view';
+
+import user from './../global/user';
 
 import Graph from './../jsonld/graph';
 import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
 import { item, readit, rdf, vocab } from '../jsonld/ns';
 
-import { getOntology, getSources, createSourceView } from './../utilities/utilities';
+import { getOntology, getSources } from './../utilities/utilities';
 
 import CategoryColorView from './../utilities/category-colors/category-colors-view';
 import SourceView from './../panel-source/source-view';
@@ -19,6 +22,8 @@ import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
 import uploadSourceForm from './../global/upload-source-form';
+import registrationFormView from './../global/registration-view';
+import confirmRegistrationView from './../global/confirm-registration-view';
 
 import { oa } from './../jsonld/ns';
 
@@ -36,10 +41,33 @@ let explorerView;
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
+    menuView.on('feedback', () => { feedbackView.render().$el.appendTo('body'); });
+    feedbackView.on('close', () => feedbackView.$el.detach());
     footerView.render().$el.appendTo('.footer');
 });
 
+directionRouter.on('route:register', () => {
+    userFsm.handle('register');
+});
+
+directionRouter.on('route:confirm-registration', (key) => {
+    user.on('confirm-registration:success', () => confirmRegistrationView.success());
+    user.on('confirm-registration:notfound', () => confirmRegistrationView.notFound());
+    user.on('confirm-registration:error', (response) => confirmRegistrationView.error(response));
+    confirmRegistrationView.processKey(key);
+    directionFsm.handle('confirm');
+});
+
+directionFsm.on('enter:confirming', () => {
+    confirmRegistrationView.render().$el.appendTo('#main');
+});
+
+directionFsm.on('exit:confirming', () => {
+    confirmRegistrationView.$el.detach();
+});
+
 directionRouter.on('route:arrive', () => {
+    directionFsm.handle('arrive');
     userFsm.handle('arrive');
 });
 
@@ -115,12 +143,6 @@ function initSourceList() {
                 collection: sources,
             });
             let explorer = initExplorer(sourceListView, ontology);
-
-            sourceListView.on('source-list:click', (listView: SourceListView, source: Node) => {
-                let sourceView = createSourceView(source, true, true);
-                explorer.popUntil(sourceListView);
-                explorer.push(sourceView);
-            });
         }
     });
 }

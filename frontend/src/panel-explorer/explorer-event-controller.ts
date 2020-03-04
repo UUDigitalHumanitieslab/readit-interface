@@ -5,18 +5,23 @@ import Node from './../jsonld/node';
 import ExplorerView from './explorer-view';
 import LdItemView from '../panel-ld-item/ld-item-view';
 import Graph from '../jsonld/graph';
+import SourceListView from '../panel-source-list/source-list-view';
 import SourceView from './../panel-source/source-view';
 import AnnotationListView from '../annotation/panel-annotation-list-view';
 
 import HighlightView from '../highlight/highlight-view';
 import AnnotationEditView from '../annotation/panel-annotation-edit';
 import RelatedItemsView from '../panel-related-items/related-items-view';
+import RelatedItemsEditView from '../panel-related-items/related-items-edit-view';
 import ItemGraph from '../utilities/item-graph';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { oa } from '../jsonld/ns';
-import { createSourceView } from './../utilities/utilities';
 import SearchResultListView from '../search/search-results/panel-search-result-list-view';
-import { isType } from '../utilities/utilities';
+import {
+    isType,
+    isOntologyClass,
+    createSourceView,
+} from '../utilities/utilities';
 
 export default class ExplorerEventController {
     /**
@@ -61,14 +66,19 @@ export default class ExplorerEventController {
             'lditem:showAnnotations': this.ldItemShowAnnotations,
             'lditem:showExternal': this.ldItemShowExternal,
             'lditem:editAnnotation': this.ldItemEditAnnotation,
+            'lditem:editItem': this.notImplemented,
             'relItems:itemClick': this.relItemsItemClicked,
+            'relItems:edit': this.relItemsEdit,
+            'relItems:edit-close': this.relItemsEditClose,
             'source-list:click': this.sourceListClick,
             'searchResultList:itemClicked': this.searchResultListItemClicked,
         }, this);
     }
 
-    sourceListClick(source: Node): this {
-        // TODO
+    sourceListClick(listView: SourceListView, source: Node): this {
+        let sourceView = createSourceView(source, true, true);
+        this.explorerView.popUntil(listView);
+        this.explorerView.push(sourceView);
         return this;
     }
 
@@ -90,6 +100,17 @@ export default class ExplorerEventController {
         return this;
     }
 
+    relItemsEdit(relView: RelatedItemsView, item: Node): this {
+        const editView = new RelatedItemsEditView({model: item});
+        this.explorerView.overlay(editView, relView);
+        return this;
+    }
+
+    relItemsEditClose(editView: RelatedItemsEditView): this {
+        this.explorerView.removeOverlay(editView);
+        return this;
+    }
+
     ldItemShowRelated(view: LdItemView, item: Node): this {
         if (!item) {
             alert('no related items!');
@@ -98,7 +119,7 @@ export default class ExplorerEventController {
 
         this.explorerView.popUntil(view);
 
-        let relatedItems = new RelatedItemsView({ model: item, ontology: this.explorerView.ontology });
+        let relatedItems = new RelatedItemsView({model: item});
         this.explorerView.push(relatedItems);
         return this;
     }
@@ -132,28 +153,23 @@ export default class ExplorerEventController {
     }
 
     ldItemEditAnnotation(ldItemview: LdItemView, annotation: Node): this {
-        this.explorerView.popUntil(ldItemview);
-        this.notImplemented();
-
-        // TODO: this opens an edit panel for an annotation,
-        // but this doesn't currently make sense, because users can only edit their own annotations.
-        // let annoEditView = new AnnotationEditView({
-        //     ontology: this.explorerView.ontology,
-        //     model: annotation,
-        // });
-        // this.explorerView.overlay(annoEditView, ldItemview);
-
+        let annoEditView = new AnnotationEditView({
+            ontology: this.explorerView.ontology,
+            model: annotation,
+        });
+        this.explorerView.overlay(annoEditView, ldItemview);
         return this;
     }
 
-    annotationEditSave(editView: AnnotationEditView, annotation: Node): this {
+    annotationEditSave(editView: AnnotationEditView, annotation: Node, newItem: boolean): this {
         this.explorerView.removeOverlay(editView);
+        if (newItem) this.autoOpenRelationEditor(annotation);
         return this;
     }
 
-    annotationEditSaveNew(editView: AnnotationEditView, annotation: Node, newItems: ItemGraph): this {
+    annotationEditSaveNew(editView: AnnotationEditView, annotation: Node, created: ItemGraph): this {
         let sourceView = this.mapAnnotationEditSource.get(editView);
-        sourceView.add(newItems);
+        sourceView.add(created);
 
         let listView = this.mapSourceAnnotationList.get(sourceView);
         if (listView) {
@@ -164,6 +180,21 @@ export default class ExplorerEventController {
             this.explorerView.pop();
         }
 
+        this.sourceViewHighlightClicked(sourceView, annotation);
+        this.sourceViewHighlightSelected(sourceView, annotation);
+        this.autoOpenRelationEditor(annotation);
+        return this;
+    }
+
+    autoOpenRelationEditor(annotation: Node): this {
+        const newItems = (annotation.get(oa.hasBody) as Node[])
+            .filter(n => !isOntologyClass(n));
+        if (newItems.length) {
+            const item = newItems[0];
+            const relView = new RelatedItemsView({model: item});
+            this.explorerView.push(relView);
+            this.relItemsEdit(relView, item);
+        }
         return this;
     }
 
@@ -178,7 +209,7 @@ export default class ExplorerEventController {
         return this;
     }
 
-    annotationListEdit(view: AnnotationListView, annotationList: Graph): this {
+    annotationListEdit(view: AnnotationListView, annotationList): this {
         this.notImplemented();
         return this;
     }
@@ -233,7 +264,7 @@ export default class ExplorerEventController {
 
     sourceViewShowAnnotations(sourceView: SourceView, finalizeNoInitialHighlights: boolean = false): this {
         let annotationListView = new AnnotationListView({
-            collection: sourceView.collection as Graph
+            collection: sourceView.collection
         });
         if (finalizeNoInitialHighlights) annotationListView.finalizeNoInitialHighlights();
 

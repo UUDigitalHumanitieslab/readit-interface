@@ -6,7 +6,7 @@ import menuTemplate from './menu-template';
 
 export default class MenuView extends View {
     render() {
-        this.$el.html(this.template({ username: this.model.get('username')}));
+        this.$el.html(this.template({ username: this.model.get('username'), isStaff: this.model.get('is_staff') }));
         return this;
     }
 
@@ -20,6 +20,10 @@ export default class MenuView extends View {
 
     logout() {
         return this.trigger('logout');
+    }
+
+    feedback() {
+        return this.trigger('feedback');
     }
 
     annotate(): void {
@@ -37,5 +41,6 @@ extend(MenuView.prototype, {
     events: {
         "click .navbar-burger": "toggleHamburger",
         "click #logout": "logout",
+        "click #feedback": "feedback",
     }
 });

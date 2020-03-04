@@ -3,12 +3,15 @@ import { channel } from 'backbone.radio';
 
 import { proxyRoot } from 'config.json';
 
-import { isNode, isIdentifier } from '../utilities/types';
 import { channelName } from './constants';
 import ldChannel from './radio';
-import { Identifier, FlatLdDocument, FlatLdGraph } from './json';
-import Node from './node';
-import Graph from './graph';
+import { Identifier, isIdentifier, FlatLdDocument, FlatLdGraph } from './json';
+import Node, { isNode, NodeLike } from './node';
+import Graph, { ReadOnlyGraph } from './graph';
+
+export interface StoreVisitor<T> {
+    (store: ReadOnlyGraph): T;
+}
 
 const fetchOptions = {
     remove: false,
@@ -28,6 +31,7 @@ export default class Store extends Graph {
         super(models, options);
         this.forEach(this._preventSelfReference.bind(this));
         this.on('add', this._preventSelfReference);
+        ldChannel.reply('visit', this.accept.bind(this));
         ldChannel.reply('obtain', this.obtain.bind(this));
         ldChannel.reply('merge', this.mergeExisting.bind(this));
         this.listenTo(ldChannel, 'register', this.register);
@@ -37,9 +41,16 @@ export default class Store extends Graph {
     }
 
     /**
+     * Generic interface for read-only access to the store contents.
+     */
+    accept<T>(visitor: StoreVisitor<T>): T {
+        return visitor(this as ReadOnlyGraph);
+    }
+
+    /**
      * Main interface. Ensures every @id is represented by a single unique Node.
      */
-    obtain(id: string | Identifier | Node): Node {
+    obtain(id: NodeLike): Node {
         const initialResult = this.get(id as string | Node);
         if (isUndefined(initialResult)) {
             const placeholder = this.getPlaceholder(id);
@@ -52,7 +63,7 @@ export default class Store extends Graph {
     /**
      * Create, store and return a placeholder for a missing Node.
      */
-    getPlaceholder(id: string | Identifier | Node): Node {
+    getPlaceholder(id: NodeLike): Node {
         let placeholder;
         if (isNode(id)) {
             placeholder = id;
@@ -81,7 +92,7 @@ export default class Store extends Graph {
      * Like import, but send the request through our own proxy.
      */
     importViaProxy(url: string): this {
-        this.fetch(defaults({url: `${proxyRoot}${url}`}, fetchOptions));
+        this.fetch(defaults({url: `${proxyRoot}${encodeURIComponent(url)}`}, fetchOptions));
         return this;
     }
 
