@@ -16,9 +16,11 @@
                 <a class="navbar-item" href="explore">
                     Explorer
                 </a>
+                {{#if isStaff}}
                 <a class="navbar-item" href="upload">
                     Upload
                 </a>
+                {{/if}}
             </div>
             <div class="navbar-end">
                 {{#if username}}

@@ -54,7 +54,7 @@ export default class UploadSourceFormView extends View {
 
     render(): this {
         this.$el.html(this.template({}));
-        this.$('.upload-success').hide();
+        this.$('.form-feedback-bar').hide();
         let input = this.$('.file-input');
         let label = this.$('.filelabel');
         let name = this.$('.filename');
@@ -91,7 +91,7 @@ export default class UploadSourceFormView extends View {
                 self.handleUploadSuccess();
             });
             n.once('error', () => {
-                alert('Something went wrong, please try again later');
+                alert('Something went wrong, please try again later. Do you have permission to upload sources?');
             });
         }
         return this;
@@ -104,7 +104,7 @@ export default class UploadSourceFormView extends View {
 
     handleUploadSuccess(): this {
         this.reset();
-        this.$('.upload-success').show();
+        this.$('.form-feedback-bar').show();
         return this;
     }
 

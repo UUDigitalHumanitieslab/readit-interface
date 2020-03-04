@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from django.core.files.storage import default_storage
 from django.conf import settings
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED
 from rest_framework.parsers import MultiPartParser
@@ -56,7 +56,7 @@ class SourcesAPISingular(RDFResourceView):
 
 
 class AddSource(RDFResourceView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = [MultiPartParser]
 
     def store(self, file, destination):
@@ -143,8 +143,6 @@ class AddSource(RDFResourceView):
         return optionals
 
     def post(self, request, format=None):
-        permission_classes = [IsAuthenticated]
-
         data = request.data
         is_valid, missing_fields = self.is_valid(data)
         if not is_valid:

@@ -29,9 +29,6 @@ export default class User extends Model {
             attrs: credentials,
             success: (model, response, options) => {
                 this.trigger('login:success', this).fetch();
-                console.log('success');
-                console.log(model);
-                console.log(response);
             },
             error: () => this.trigger('login:error', this),
         } as ModelSaveOptions);
