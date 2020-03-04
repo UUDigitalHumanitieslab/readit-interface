@@ -6,6 +6,7 @@ import menuTemplate from './menu-template';
 
 export default class MenuView extends View {
     render() {
+        console.log(this.model);
         this.$el.html(this.template({ username: this.model.get('username')}));
         return this;
     }
