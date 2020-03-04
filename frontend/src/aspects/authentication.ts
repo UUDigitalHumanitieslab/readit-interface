@@ -52,6 +52,9 @@ user.on('login:error', () => {
 
 });
 user.on('logout:success', () => authFsm.handle('logout'));
+user.on('registration:success', () => registrationForm.success());
+user.on('registration:error', (response) => registrationForm.error(response));
+user.on('registration:invalid', (errors) => registrationForm.invalid(errors));
 
 // When authorization fails, just return to the last unprivileged state.
 userFsm.on('enter:authorizationDenied', () => {
@@ -82,9 +85,6 @@ authFsm.on('enter:authenticated', () => userFsm.handle('granted'));
 authFsm.on('exit:authenticated', () => userFsm.handle('logout'));
 authFsm.on('enter:registering', () => {
     registrationForm.render().$el.appendTo('body');
-    user.on('registration:success', () => registrationForm.success());
-    user.on('registration:error', (response) => registrationForm.error(response));
-    user.on('registration:invalid', (errors) => registrationForm.invalid(errors));
 });
 authFsm.on('exit:registering', () => {
     registrationForm.$el.detach();
