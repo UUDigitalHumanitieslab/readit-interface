@@ -163,7 +163,8 @@ export default class ExplorerEventController {
 
     annotationEditSave(editView: AnnotationEditView, annotation: Node, newItem: boolean): this {
         this.explorerView.removeOverlay(editView);
-        if (newItem) this.autoOpenRelationEditor(annotation);
+        // TODO: re-enable the next line.
+        // if (newItem) this.autoOpenRelationEditor(annotation);
         return this;
     }
 
@@ -182,7 +183,8 @@ export default class ExplorerEventController {
 
         this.sourceViewHighlightClicked(sourceView, annotation);
         this.sourceViewHighlightSelected(sourceView, annotation);
-        this.autoOpenRelationEditor(annotation);
+        // TODO: re-enable the next line.
+        // this.autoOpenRelationEditor(annotation);
         return this;
     }
 
