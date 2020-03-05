@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED
 from rest_framework.parsers import MultiPartParser
+from rest_framework.exceptions import ValidationError
 
 from rdflib import Graph, URIRef, Literal
 
@@ -146,7 +147,7 @@ class AddSource(RDFResourceView):
         data = request.data
         is_valid, missing_fields = self.is_valid(data)
         if not is_valid:
-            return Response("Missing fields: {}".format(", ".join(missing_fields)), HTTP_400_BAD_REQUEST)
+            raise ValidationError(detail="Missing fields: {}".format(", ".join(missing_fields)))
 
         # get unique URI for source
         counter = SourcesCounter.current
