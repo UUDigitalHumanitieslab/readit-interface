@@ -55,6 +55,11 @@ export default class HighlightView extends BaseAnnotationView {
     endSelector: Node;
     callbackFn: any;
 
+    /**
+     * Keep track of mousedown to enable detection of (partial) test selection.
+     */
+    hasMouseDown: boolean;
+
     constructor(options?: ViewOptions) {
         if (!options.textWrapper) throw TypeError("textWrapper cannot be null or undefined");
         if (!options.relativeParent) throw TypeError("relativeParent cannot be null or empty");
@@ -218,6 +223,19 @@ export default class HighlightView extends BaseAnnotationView {
         this.trigger('hoverEnd', this.model);
     }
 
+    onMouseDown(event: JQueryEventObject): this {
+        this.hasMouseDown = true;
+        this.trigger('mouseDown', event);
+        return this;
+    }
+
+    onMouseMove(): this {
+        if (this.hasMouseDown) {
+            this.trigger('textSelected', this);
+        }
+        return this;
+    }
+
     onDelete() {
         // TODO: add proper screen for this
         var really = confirm("Really?");
@@ -234,4 +252,9 @@ export default class HighlightView extends BaseAnnotationView {
 extend(HighlightView.prototype, {
     tagName: 'div',
     className: 'highlight',
+    events: {
+        'mousedown': 'onMouseDown',
+        'mouseup': 'onMouseUp',
+        'mousemove': 'onMouseMove',
+    }
 });

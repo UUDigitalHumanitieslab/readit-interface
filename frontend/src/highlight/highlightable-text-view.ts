@@ -76,6 +76,13 @@ export default class HighlightableTextView extends View {
 
     selectedHighlight: HighlightView;
 
+    /**
+     * Store reference to HighlightView in which text is being selected.
+     * Should be undefined if the user is not selecting (i.e. moving mouse with mousedown)
+     * at this very moment;
+     */
+    textSelectionHighlight: HighlightView;
+
     overlaps: OverlappingHighlightsView[] = [];
     /**
      * Keep track of overlapsloading, i.e. overlaps will always be initialized after all annotations are loaded.
@@ -136,7 +143,7 @@ export default class HighlightableTextView extends View {
      */
     onReady(): this {
         this.isInDOM = true;
-        this.textWrapper = $(`<pre class="textWrapper">${this.text}</pre>`);
+        this.textWrapper = $(`<pre class="textWrapper no-pointer-events">${this.text}</pre>`);
         this.positionContainer = $('<div class="position-container">');
         this.textWrapper.appendTo(this.positionContainer);
         this.positionContainer.appendTo(this.$el);
@@ -253,6 +260,8 @@ export default class HighlightableTextView extends View {
         this.listenTo(hV, 'hoverEnd', this.onHoverEnd);
         this.listenTo(hV, 'delete', this.deleteNode);
         this.listenTo(hV, 'click', this.onClicked);
+        this.listenTo(hV, 'textSelected', this.onHighlightTextSelected);
+        this.listenTo(hV, 'mouseDown', this.onHighlightMouseDown)
         return this;
     }
 
@@ -334,10 +343,10 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-     /**
-     * Process a click on an oa:Annotation in another view,
-     * as if it were a click in the current view.
-     */
+    /**
+    * Process a click on an oa:Annotation in another view,
+    * as if it were a click in the current view.
+    */
     processClick(annotation): this {
         let hV = this.getHighlightView(annotation);
         this.processSelection(hV, annotation);
@@ -394,6 +403,50 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
+    /**
+     * Enable pointer events on the 'textWrapper'.
+     * While pointer events are enabled, the HighlightViews in the text
+     * do not trigger any mouse events (click, hover, etc), whereas the
+     * textWrapper does. This allows selecting (sub)text from a highlight,
+     * as opposed to the highlight in its entirety.
+     */
+    enablePointerEvents(): this {
+        console.log('enabling');
+        this.$('.textWrapper').removeClass('no-pointer-events');
+        return this;
+    }
+
+    /**
+     * Disable pointer events on the 'textWrapper'.
+     * The effect is the opposite of enabling them: highlightViews in the text
+     * will trigger mouse event (and thus be clickable), whereas the textWrapper
+     * does not.
+     */
+    disablePointerEvents(): this {
+        console.log('disabling');
+        this.$('.textWrapper').addClass('no-pointer-events');
+        return this;
+    }
+
+    /**
+     * Store reference to the HighlightView text is currently selected in.
+     * Also enable pointer events to prevent selection of the highlight in its entirety.
+     */
+    onHighlightTextSelected(hV: HighlightView): this {
+        this.textSelectionHighlight = hV;
+        this.enablePointerEvents();
+        return this;
+    }
+
+    /**
+     * On mousedown on a highlight, prevent trigger mousedown on current view / element,
+     * as it would influence pointer events when we don't want that.
+     */
+    onHighlightMouseDown(event: JQueryEventObject): this {
+        event.stopPropagation();
+        return this;
+    }
+
     onOverlapClicked(hVs: HighlightView[], ovh: OverlappingHighlightsView): this {
         if (this.overlapDetailView) {
             this.onCloseOverlapDetail();
@@ -438,6 +491,15 @@ export default class HighlightableTextView extends View {
     onTextSelected(): void {
         if (!this.isEditable) return;
         if (!this.isFullyLoaded) return;
+
+        // On text selection, make sure highlights can be clicked again.
+        // If the text selection overlaps an existing highlight, update its
+        // MouseDown state (for the same reason) and remove reference to it.
+        this.disablePointerEvents();
+        if (this.textSelectionHighlight) {
+            this.textSelectionHighlight.hasMouseDown = false;
+            this.textSelectionHighlight = undefined;
+        }
 
         let selection = window.getSelection();
         let range = selection.getRangeAt(0).cloneRange();
@@ -501,5 +563,6 @@ extend(HighlightableTextView.prototype, {
     template: HighlightableTextTemplate,
     events: {
         'mouseup': 'onTextSelected',
+        'mousedown': 'enablePointerEvents',
     }
 });
