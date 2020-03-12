@@ -411,7 +411,6 @@ export default class HighlightableTextView extends View {
      * as opposed to the highlight in its entirety.
      */
     enablePointerEvents(): this {
-        console.log('enabling');
         this.$('.textWrapper').removeClass('no-pointer-events');
         return this;
     }
@@ -423,7 +422,6 @@ export default class HighlightableTextView extends View {
      * does not.
      */
     disablePointerEvents(): this {
-        console.log('disabling');
         this.$('.textWrapper').addClass('no-pointer-events');
         return this;
     }
