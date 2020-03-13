@@ -101,6 +101,12 @@ export default class HighlightableTextView extends View {
      */
     subviewBundle: SubviewBundleView;
 
+    /**
+     * Keep track of mouse actions to enable detection of (partial) text selection.
+     */
+    userIsSelectingText: boolean;
+    hasMouseDown: boolean;
+
     constructor(options?: ViewOptions) {
         super(options);
         if (options.initialScrollTo) {
@@ -125,6 +131,7 @@ export default class HighlightableTextView extends View {
         this.listenTo(this.collection, 'remove', this.destroyNode)
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
+        this.$el.on('mousemove', debounce(bind(this.onMouseMove, this), 100, { 'leading': true }));
         this.$el.ready(bind(this.onReady, this));
     }
 
@@ -260,8 +267,9 @@ export default class HighlightableTextView extends View {
         this.listenTo(hV, 'hoverEnd', this.onHoverEnd);
         this.listenTo(hV, 'delete', this.deleteNode);
         this.listenTo(hV, 'click', this.onClicked);
-        this.listenTo(hV, 'textSelected', this.onHighlightTextSelected);
-        this.listenTo(hV, 'mouseDown', this.onHighlightMouseDown)
+        this.listenTo(hV, 'mouseUp', this.onMouseUp);
+        this.listenTo(hV, 'mouseDown', this.onMouseDown)
+        this.listenTo(hV, 'mouseMove', this.onMouseMove)
         return this;
     }
 
@@ -426,25 +434,6 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    /**
-     * Store reference to the HighlightView text is currently selected in.
-     * Also enable pointer events to prevent selection of the highlight in its entirety.
-     */
-    onHighlightTextSelected(hV: HighlightView): this {
-        this.textSelectionHighlight = hV;
-        this.enablePointerEvents();
-        return this;
-    }
-
-    /**
-     * On mousedown on a highlight, prevent trigger mousedown on current view / element,
-     * as it would influence pointer events when we don't want that.
-     */
-    onHighlightMouseDown(event: JQueryEventObject): this {
-        event.stopPropagation();
-        return this;
-    }
-
     onOverlapClicked(hVs: HighlightView[], ovh: OverlappingHighlightsView): this {
         if (this.overlapDetailView) {
             this.onCloseOverlapDetail();
@@ -486,18 +475,36 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
+    onMouseDown(): this {
+        this.hasMouseDown = true;
+        return this;
+    }
+
+    onMouseUp(): this {
+        this.disablePointerEvents();
+        if (this.hasMouseDown) {
+            this.hasMouseDown = false;
+        }
+
+        if (this.userIsSelectingText) {
+            this.userIsSelectingText = false;
+            this.onTextSelected();
+        }
+
+        return this;
+    }
+
+    onMouseMove(): this {
+        if (this.hasMouseDown) {
+            this.enablePointerEvents();
+            this.userIsSelectingText = true;
+        }
+        return this;
+    }
+
     onTextSelected(): void {
         if (!this.isEditable) return;
         if (!this.isFullyLoaded) return;
-
-        // On text selection, make sure highlights can be clicked again.
-        // If the text selection overlaps an existing highlight, update its
-        // MouseDown state (for the same reason) and remove reference to it.
-        this.disablePointerEvents();
-        if (this.textSelectionHighlight) {
-            this.textSelectionHighlight.hasMouseDown = false;
-            this.textSelectionHighlight = undefined;
-        }
 
         let selection = window.getSelection();
         let range = selection.getRangeAt(0).cloneRange();
@@ -560,7 +567,7 @@ extend(HighlightableTextView.prototype, {
     className: 'highlightable-text',
     template: HighlightableTextTemplate,
     events: {
-        'mouseup': 'onTextSelected',
-        'mousedown': 'enablePointerEvents',
+        'mouseup': 'onMouseUp',
+        'mousedown': 'onMouseDown',
     }
 });

@@ -1,5 +1,5 @@
 
-import { extend, minBy, sumBy, initial, last, defer } from 'lodash';
+import { extend, minBy, sumBy, initial, last, defer, debounce, bind } from 'lodash';
 
 import { rdf } from './../jsonld/ns';
 import Node from '../jsonld/node';
@@ -55,16 +55,13 @@ export default class HighlightView extends BaseAnnotationView {
     endSelector: Node;
     callbackFn: any;
 
-    /**
-     * Keep track of mousedown to enable detection of (partial) test selection.
-     */
-    hasMouseDown: boolean;
-
     constructor(options?: ViewOptions) {
         if (!options.textWrapper) throw TypeError("textWrapper cannot be null or undefined");
         if (!options.relativeParent) throw TypeError("relativeParent cannot be null or empty");
         if (!options.model && !options.positionDetails) throw TypeError("positionDetails and model cannot both be undefined");
         super(options);
+        this.$el.on('mousemove', debounce(bind(this.onMouseMove, this), 100, { 'leading': true }));
+        this.$el.on('mousemove', bind(this.onMouseMove, this));
     }
 
     initialize(options: ViewOptions): this {
@@ -223,16 +220,18 @@ export default class HighlightView extends BaseAnnotationView {
         this.trigger('hoverEnd', this.model);
     }
 
-    onMouseDown(event: JQueryEventObject): this {
-        this.hasMouseDown = true;
-        this.trigger('mouseDown', event);
+    onMouseUp(): this {
+        this.trigger('mouseUp');
+        return this;
+    }
+
+    onMouseDown(): this {
+        this.trigger('mouseDown');
         return this;
     }
 
     onMouseMove(): this {
-        if (this.hasMouseDown) {
-            this.trigger('textSelected', this);
-        }
+        this.trigger('mouseMove');
         return this;
     }
 
@@ -255,6 +254,5 @@ extend(HighlightView.prototype, {
     events: {
         'mousedown': 'onMouseDown',
         'mouseup': 'onMouseUp',
-        'mousemove': 'onMouseMove',
     }
 });
