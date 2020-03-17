@@ -5,10 +5,10 @@
 
     .position-container
         position: relative // required for positioning of highlights
+        width: 99%
 
     .textWrapper
         position: relative // required for z-index to work
-        pointer-events: none // required to correctly receive .highlight events
         z-index: 2
         white-space: pre-wrap
         white-space: -moz-pre-wrap
@@ -16,6 +16,12 @@
         background-color: unset
         padding: unset
         font-family: inherit
+
+    // using this class disables all pointer (i.e. mouse) events on the element.
+    // this is useful for allowing mouse events on absolutely positioned elements
+    // that are 'behind' the current element (i.e. lower z-index).
+    .no-pointer-events
+        pointer-events: none // required to correctly receive .highlight events
 
     .highlight
         cursor: pointer

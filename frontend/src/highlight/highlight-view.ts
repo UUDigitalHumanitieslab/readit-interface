@@ -1,5 +1,5 @@
 
-import { extend, minBy, sumBy, initial, last, defer } from 'lodash';
+import { extend, minBy, sumBy, initial, last, defer, debounce, bind } from 'lodash';
 
 import { rdf } from './../jsonld/ns';
 import Node from '../jsonld/node';
@@ -234,4 +234,6 @@ export default class HighlightView extends BaseAnnotationView {
 extend(HighlightView.prototype, {
     tagName: 'div',
     className: 'highlight',
+    events: {
+    }
 });

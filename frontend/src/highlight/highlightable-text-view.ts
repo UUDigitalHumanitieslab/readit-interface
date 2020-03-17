@@ -76,6 +76,13 @@ export default class HighlightableTextView extends View {
 
     selectedHighlight: HighlightView;
 
+    /**
+     * Store reference to HighlightView in which text is being selected.
+     * Should be undefined if the user is not selecting (i.e. moving mouse with mousedown)
+     * at this very moment;
+     */
+    textSelectionHighlight: HighlightView;
+
     overlaps: OverlappingHighlightsView[] = [];
     /**
      * Keep track of overlapsloading, i.e. overlaps will always be initialized after all annotations are loaded.
@@ -93,6 +100,7 @@ export default class HighlightableTextView extends View {
      * Store highlight views in a binary search container to enable quick searching
      */
     subviewBundle: SubviewBundleView;
+
 
     constructor(options?: ViewOptions) {
         super(options);
@@ -334,10 +342,10 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-     /**
-     * Process a click on an oa:Annotation in another view,
-     * as if it were a click in the current view.
-     */
+    /**
+    * Process a click on an oa:Annotation in another view,
+    * as if it were a click in the current view.
+    */
     processClick(annotation): this {
         let hV = this.getHighlightView(annotation);
         this.processSelection(hV, annotation);
@@ -391,6 +399,29 @@ export default class HighlightableTextView extends View {
             this.overlapDetailView.unSelect(hV);
         }
         this.trigger('highlightUnselected', annotation);
+        return this;
+    }
+
+    /**
+     * Enable pointer events on the 'textWrapper'.
+     * While pointer events are enabled, the HighlightViews in the text
+     * do not trigger any mouse events (click, hover, etc), whereas the
+     * textWrapper does. This allows selecting (sub)text from a highlight,
+     * as opposed to the highlight in its entirety.
+     */
+    enablePointerEvents(): this {
+        this.$('.textWrapper').removeClass('no-pointer-events');
+        return this;
+    }
+
+    /**
+     * Disable pointer events on the 'textWrapper'.
+     * The effect is the opposite of enabling them: highlightViews in the text
+     * will trigger mouse event (and thus be clickable), whereas the textWrapper
+     * does not.
+     */
+    disablePointerEvents(): this {
+        this.$('.textWrapper').addClass('no-pointer-events');
         return this;
     }
 
@@ -500,6 +531,5 @@ extend(HighlightableTextView.prototype, {
     className: 'highlightable-text',
     template: HighlightableTextTemplate,
     events: {
-        'mouseup': 'onTextSelected',
     }
 });
