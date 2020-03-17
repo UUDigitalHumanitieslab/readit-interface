@@ -290,7 +290,5 @@ extend(SourceView.prototype, {
         'click .toolbar-metadata': 'toggleMetadata',
         'click .toolbar-annotations': 'toggleHighlights',
         'click .toolbar-viewmode': 'toggleViewMode',
-        'click .toolbar-highlight-text-selection': 'toggleHighlightMode',
-        'click .toolbar-highlight-clicking': 'toggleHighlightMode'
     }
 });
