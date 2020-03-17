@@ -101,11 +101,6 @@ export default class HighlightableTextView extends View {
      */
     subviewBundle: SubviewBundleView;
 
-    /**
-     * Keep track of mouse actions to enable detection of (partial) text selection.
-     */
-    userIsSelectingText: boolean;
-    hasMouseDown: boolean;
 
     constructor(options?: ViewOptions) {
         super(options);
@@ -131,7 +126,6 @@ export default class HighlightableTextView extends View {
         this.listenTo(this.collection, 'remove', this.destroyNode)
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
-        this.$el.on('mousemove', debounce(bind(this.onMouseMove, this), 100, { 'leading': true }));
         this.$el.ready(bind(this.onReady, this));
     }
 
@@ -150,7 +144,7 @@ export default class HighlightableTextView extends View {
      */
     onReady(): this {
         this.isInDOM = true;
-        this.textWrapper = $(`<pre class="textWrapper no-pointer-events">${this.text}</pre>`);
+        this.textWrapper = $(`<pre class="textWrapper">${this.text}</pre>`);
         this.positionContainer = $('<div class="position-container">');
         this.textWrapper.appendTo(this.positionContainer);
         this.positionContainer.appendTo(this.$el);
@@ -267,9 +261,6 @@ export default class HighlightableTextView extends View {
         this.listenTo(hV, 'hoverEnd', this.onHoverEnd);
         this.listenTo(hV, 'delete', this.deleteNode);
         this.listenTo(hV, 'click', this.onClicked);
-        this.listenTo(hV, 'mouseUp', this.onMouseUp);
-        this.listenTo(hV, 'mouseDown', this.onMouseDown)
-        this.listenTo(hV, 'mouseMove', this.onMouseMove)
         return this;
     }
 
@@ -475,33 +466,6 @@ export default class HighlightableTextView extends View {
         return this;
     }
 
-    onMouseDown(): this {
-        this.hasMouseDown = true;
-        return this;
-    }
-
-    onMouseUp(): this {
-        this.disablePointerEvents();
-        if (this.hasMouseDown) {
-            this.hasMouseDown = false;
-        }
-
-        if (this.userIsSelectingText) {
-            this.userIsSelectingText = false;
-            this.onTextSelected();
-        }
-
-        return this;
-    }
-
-    onMouseMove(): this {
-        if (this.hasMouseDown) {
-            this.enablePointerEvents();
-            this.userIsSelectingText = true;
-        }
-        return this;
-    }
-
     onTextSelected(): void {
         if (!this.isEditable) return;
         if (!this.isFullyLoaded) return;
@@ -567,7 +531,5 @@ extend(HighlightableTextView.prototype, {
     className: 'highlightable-text',
     template: HighlightableTextTemplate,
     events: {
-        'mouseup': 'onMouseUp',
-        'mousedown': 'onMouseDown',
     }
 });

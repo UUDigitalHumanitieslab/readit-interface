@@ -60,8 +60,6 @@ export default class HighlightView extends BaseAnnotationView {
         if (!options.relativeParent) throw TypeError("relativeParent cannot be null or empty");
         if (!options.model && !options.positionDetails) throw TypeError("positionDetails and model cannot both be undefined");
         super(options);
-        this.$el.on('mousemove', debounce(bind(this.onMouseMove, this), 100, { 'leading': true }));
-        this.$el.on('mousemove', bind(this.onMouseMove, this));
     }
 
     initialize(options: ViewOptions): this {
@@ -220,21 +218,6 @@ export default class HighlightView extends BaseAnnotationView {
         this.trigger('hoverEnd', this.model);
     }
 
-    onMouseUp(): this {
-        this.trigger('mouseUp');
-        return this;
-    }
-
-    onMouseDown(): this {
-        this.trigger('mouseDown');
-        return this;
-    }
-
-    onMouseMove(): this {
-        this.trigger('mouseMove');
-        return this;
-    }
-
     onDelete() {
         // TODO: add proper screen for this
         var really = confirm("Really?");
@@ -252,7 +235,5 @@ extend(HighlightView.prototype, {
     tagName: 'div',
     className: 'highlight',
     events: {
-        'mousedown': 'onMouseDown',
-        'mouseup': 'onMouseUp',
     }
 });
