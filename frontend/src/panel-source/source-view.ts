@@ -14,6 +14,7 @@ import HighlightView from '../highlight/highlight-view';
 import ItemGraph from '../utilities/item-graph';
 import FilteredCollection from '../utilities/filtered-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
+import SourceToolbarView from './toolbar/source-toolbar-view';
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
@@ -71,6 +72,15 @@ export default class SourceView extends View<Node> {
      */
     isInFullScreenViewMode: boolean;
 
+    /**
+     * Highlight clicking mode allows the user to click highlights and see their details.
+     * If this is false, we're in highlight text selection mode, which allows users to select text in highlights.
+     * Defaults to false, i.e. text selection mode.
+     */
+    isInHighlightClickingMode: boolean;
+
+    toolbar: SourceToolbarView;
+
     constructor(options?: ViewOptions) {
         super(options);
         this.validate();
@@ -88,6 +98,9 @@ export default class SourceView extends View<Node> {
             isEditable: this.isEditable
         });
         this.bindToEvents(this.htv);
+
+        this.toolbar = new SourceToolbarView();
+        this.bindToToolbarEvents(this.toolbar);
     }
 
     validate() {
@@ -104,6 +117,7 @@ export default class SourceView extends View<Node> {
         this.$el.html(this.template({ title: this.model.get(schema('name'))[0] }));
 
         this.$('highlightable-text-view').replaceWith(this.htv.render().$el);
+        this.$('toolbar').replaceWith(this.toolbar.render().$el);
 
         if (this.showHighlightsInitially) {
             this.trigger('sourceview:showAnnotations', this);
@@ -123,6 +137,12 @@ export default class SourceView extends View<Node> {
         this.htv.on('textSelected', this.onTextSelected, this);
         this.htv.on('scroll', this.onScroll, this);
         return htv;
+    }
+
+    bindToToolbarEvents(toolbar: SourceToolbarView): SourceToolbarView {
+        this.listenTo(toolbar, 'highlightClickingMode', this.htv.disablePointerEvents);
+        this.listenTo(toolbar, 'highlightTextSelectionMode', this.htv.enablePointerEvents);
+        return toolbar;
     }
 
     add(newItems: ItemGraph): this {
@@ -253,6 +273,11 @@ export default class SourceView extends View<Node> {
         return this;
     }
 
+    toggleHighlightMode(): this {
+        this.isInHighlightClickingMode = !this.isInHighlightClickingMode;
+        return this;
+    }
+
     scrollTo(annotation: Node): void {
         this.htv.scrollTo(annotation);
     }
@@ -265,5 +290,7 @@ extend(SourceView.prototype, {
         'click .toolbar-metadata': 'toggleMetadata',
         'click .toolbar-annotations': 'toggleHighlights',
         'click .toolbar-viewmode': 'toggleViewMode',
+        'click .toolbar-highlight-text-selection': 'toggleHighlightMode',
+        'click .toolbar-highlight-clicking': 'toggleHighlightMode'
     }
 });
