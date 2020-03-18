@@ -205,6 +205,18 @@ export function getScrollTop(scrollableEl: JQuery<HTMLElement>, scrollToTop: num
 }
 
 /**
+ * Calculate a duration for a scroll based on the distance to be travelled.
+ * Max duration: 900.
+ */
+export function getScrollDuration(initialScrollLeft: number, targetScrollLeft: number): number {
+    let duration = Math.max(initialScrollLeft, targetScrollLeft) - Math.min(initialScrollLeft, targetScrollLeft);
+    if (duration > 900) {
+        duration = 900;
+    }
+    return duration;
+}
+
+/**
  * Establish whether a node is in the ontology graph, i.e. is an ontology class
  * (as opposed to an instance of one of the ontology's classes).
  * @param node The linked data item to investigate.
