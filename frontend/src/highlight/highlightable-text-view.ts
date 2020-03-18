@@ -531,5 +531,6 @@ extend(HighlightableTextView.prototype, {
     className: 'highlightable-text',
     template: HighlightableTextTemplate,
     events: {
+        'mouseup': 'onTextSelected'
     }
 });
