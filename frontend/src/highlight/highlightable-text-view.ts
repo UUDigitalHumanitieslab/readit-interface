@@ -10,7 +10,6 @@ import Graph from './../jsonld/graph';
 import { isType, getScrollTop } from './../utilities/utilities';
 import { getLinkedItems, getCssClassName, getSelector } from '../utilities/annotation/annotation-utilities';
 import OverlappingHighlightsStrategy, { OverlappingHighlights } from './overlapping-highlights-strategy';
-import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
 import OverlappingHighlightsView from './overlapping-highlights-view';
 import OverlapDetailsView from './overlap-details-view';
@@ -529,7 +528,6 @@ export default class HighlightableTextView extends View {
 extend(HighlightableTextView.prototype, {
     tagName: 'div',
     className: 'highlightable-text',
-    template: HighlightableTextTemplate,
     events: {
         'mouseup': 'onTextSelected'
     }
