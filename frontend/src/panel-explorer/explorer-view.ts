@@ -62,11 +62,17 @@ export default class ExplorerView extends View {
     }
 
     /**
-     * Animated scroll to the outer right of the explorer.
+     * Animated scroll to put a stack in focus (i.e. at the right of the screen).
+     * By default scrolls to the rightmost stack.
+     * @param stack: Optional. The stack to focus on / scroll to.
      */
-    scroll(): this {
-        let totalWidth = sumBy(this.stacks, method('getWidth'));
-        this.$el.animate({ scrollLeft: totalWidth }, 800);
+    scroll(stack?: PanelStackView): this {
+        if (!stack) {
+            stack = this.getRightMostStack();
+        }
+
+        let scrollLeft = stack.getRightBorderOffset() - $(window).width();
+        this.$el.animate({ scrollLeft: scrollLeft }, 800);
         return this;
     }
 
@@ -123,7 +129,7 @@ export default class ExplorerView extends View {
 
         this.eventController.subscribeToPanelEvents(panel);
         this.trigger('overlay', panel, ontoPanel, position, (position - this.stacks.length));
-        this.scroll();
+        this.scroll(stack);
         return this;
     }
 
