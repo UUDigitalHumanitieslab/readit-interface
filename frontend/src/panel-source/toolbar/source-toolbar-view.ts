@@ -40,6 +40,11 @@ export default class SourceToolbarView extends View {
         this.$('toolbar-highlight-mode').replaceWith(this.highlightModeToolbarItem.render().$el);
         return this
     }
+
+    remove(): this {
+        this.highlightModeToolbarItem.remove();
+        return this;
+    }
 }
 extend(SourceToolbarView.prototype, {
     tagName: 'div',
