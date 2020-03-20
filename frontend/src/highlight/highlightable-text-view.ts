@@ -364,7 +364,7 @@ export default class HighlightableTextView extends View {
 
         if (this.selectedHighlight) {
             isNew = this.selectedHighlight.cid !== hV.cid;
-            this.unSelect(this.selectedHighlight, this.selectedHighlight.model);
+            this.unSelect(this.selectedHighlight, this.selectedHighlight.model, isNew);
             this.selectedHighlight = undefined;
             if (!isOverlapDetailClick && this.overlapDetailView) this.onCloseOverlapDetail();
         }
@@ -393,12 +393,12 @@ export default class HighlightableTextView extends View {
     /**
      * Unselect a certain highlight view. Will also be unselected on an active OverlapDetailView.
      */
-    unSelect(hV: HighlightView, annotation: Node): this {
+    unSelect(hV: HighlightView, annotation: Node, newHighlightSelected: boolean): this {
         hV.unSelect();
         if (this.overlapDetailView) {
             this.overlapDetailView.unSelect(hV);
         }
-        this.trigger('highlightUnselected', annotation);
+        this.trigger('highlightUnselected', annotation, newHighlightSelected);
         return this;
     }
 

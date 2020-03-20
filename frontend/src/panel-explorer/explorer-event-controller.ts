@@ -32,6 +32,7 @@ export default class ExplorerEventController {
     mapSourceAnnotationList: Map<SourceView, AnnotationListView> = new Map();
     mapAnnotationListSource: Map<AnnotationListView, SourceView> = new Map();
     mapAnnotationEditSource: Map<AnnotationEditView, SourceView> = new Map();
+    mapAnnotationListAnnotationDetail: Map<AnnotationListView, LdItemView> = new Map();
 
     constructor(explorerView: ExplorerView) {
         this.explorerView = explorerView;
@@ -224,16 +225,27 @@ export default class ExplorerEventController {
 
     sourceViewHighlightSelected(sourceView: SourceView, annotation: Node): this {
         let annoListView = this.mapSourceAnnotationList.get(sourceView);
-        this.explorerView.popUntil(annoListView);
+        let existingDetailView = this.mapAnnotationListAnnotationDetail.get(annoListView);
+        let newDetailView = new LdItemView({ model: annotation });
+        this.mapAnnotationListAnnotationDetail.set(annoListView, newDetailView);
 
-        let itemView = new LdItemView({ model: annotation });
-        this.explorerView.push(itemView);
+        if (existingDetailView) {
+            this.explorerView.popUntil(existingDetailView);
+            this.explorerView.replace(existingDetailView, newDetailView);
+        }
+        else {
+            this.explorerView.push(newDetailView);
+        }
+
         return this;
     }
 
-    sourceViewHighlightUnselected(sourceView: SourceView, annotation: Node): this {
+    sourceViewHighlightUnselected(sourceView: SourceView, annotation: Node, newHighlightSelected: boolean): this {
         let annoListView = this.mapSourceAnnotationList.get(sourceView);
-        this.explorerView.popUntil(annoListView);
+        if (!newHighlightSelected) {
+            this.mapAnnotationListAnnotationDetail.delete(annoListView);
+            this.explorerView.popUntil(annoListView);
+        }
         return this;
     }
 

@@ -208,8 +208,8 @@ export default class SourceView extends View<Node> {
     /**
      * Pass events from HighlightableTextView
      */
-    onHighlightUnselected(node: Node): void {
-        this.trigger('sourceview:highlightUnselected', this, node);
+    onHighlightUnselected(node: Node, newHighlightSelected: boolean): void {
+        this.trigger('sourceview:highlightUnselected', this, node, newHighlightSelected);
     }
 
     /**
