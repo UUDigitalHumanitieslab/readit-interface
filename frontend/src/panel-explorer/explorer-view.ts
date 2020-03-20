@@ -7,6 +7,7 @@ import Graph from '../jsonld/graph';
 import PanelStackView from './explorer-panelstack-view';
 import EventController from './explorer-event-controller';
 import { BinarySearchContainer } from '../utilities/binary-searchable-container/binary-search-container';
+import { getScrollDuration } from './../utilities/scrolling-utilities';
 
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?

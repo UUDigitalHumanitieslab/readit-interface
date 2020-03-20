@@ -11,12 +11,15 @@ import { prefetch } from './global/ld-store';
 import './global/item-cache';
 import './aspects/readit';
 import './aspects/authentication';
+import { initScrollEasing } from './utilities/scrolling-utilities';
 
-when(ready, i18nPromise).done(function() {
+when(ready, i18nPromise).done(function () {
+    initScrollEasing();
     user.fetch();
     let success = history.start({
         root: baseUrl,
         pushState: true,
     });
+
     prefetch();
 });

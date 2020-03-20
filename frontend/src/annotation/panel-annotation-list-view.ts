@@ -6,7 +6,8 @@ import { oa } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
 
-import { isType, getScrollTop } from '../utilities/utilities';
+import { isType } from '../utilities/utilities';
+import { getScrollTop } from './../utilities/scrolling-utilities';
 
 import annotationsTemplate from './panel-annotation-list-template';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';

@@ -185,38 +185,6 @@ export function isBlank(node: Node) {
 }
 
 /**
- * Get the scroll top for a 'scrollTo' element that needs to scrolled to within a scrollable element.
- * Will position scrollTo at the top of the scrollable if scrollTo is heigher than scrollable, and center
- * it vertically otherwise.
- * @param scrollableEl The element that is scrollable, i.e. has overflow-y: scroll (or similar)
- * @param scrollToTop The top of the scrollTo element.
- * @param scrollToHeight The height of the scrollTo element.
- */
-export function getScrollTop(scrollableEl: JQuery<HTMLElement>, scrollToTop: number, scrollToHeight: number) {
-    // base position: show start at the top
-    let scrollTop = scrollToTop - scrollableEl.offset().top + scrollableEl.scrollTop();
-
-    if (scrollToHeight < scrollableEl.height()) {
-        // center it
-        let centerOffset = (scrollableEl.height() - scrollToHeight) / 2;
-        scrollTop = scrollTop - centerOffset;
-    }
-    return scrollTop;
-}
-
-/**
- * Calculate a duration for a scroll based on the distance to be travelled.
- * Max duration: 900.
- */
-export function getScrollDuration(initialScrollLeft: number, targetScrollLeft: number): number {
-    let duration = Math.max(initialScrollLeft, targetScrollLeft) - Math.min(initialScrollLeft, targetScrollLeft);
-    if (duration > 900) {
-        duration = 900;
-    }
-    return duration;
-}
-
-/**
  * Establish whether a node is in the ontology graph, i.e. is an ontology class
  * (as opposed to an instance of one of the ontology's classes).
  * @param node The linked data item to investigate.
