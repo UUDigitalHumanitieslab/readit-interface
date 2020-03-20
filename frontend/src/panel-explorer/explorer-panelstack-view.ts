@@ -40,6 +40,18 @@ export default class PanelStackView extends View {
         return this;
     }
 
+    /**
+     * Make `panel` the new top panel on the stack, and remove the old top panel after that.
+     * Returns the old top panel.
+     */
+    replace(panel: View): View {
+        let oldTop = this.panels.pop();
+        oldTop.remove();
+        panel.render().$el.appendTo(this.$el);
+        this.panels.push(panel);
+        return oldTop;
+    }
+
     hasOnlyOnePanel(): boolean {
         return this.panels.length == 1;
     }

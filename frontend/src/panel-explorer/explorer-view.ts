@@ -171,6 +171,28 @@ export default class ExplorerView extends View {
     }
 
     /**
+     * Replace `existingPanel` with `newPanel`.
+     * Note that replacement happens in place, i.e. not via a pop and a push.
+     * @param existingPanel The panel to replace, must be a top panel.
+     * @param newPanel The panel to put in `existingPanel`'s place.
+     */
+    replace(existingPanel, newPanel): View {
+        this.eventController.subscribeToPanelEvents(newPanel);
+        let position = this.rltPanelStack.get(existingPanel.cid);
+        let stackTop = this.stacks[position].getTopPanel();
+        if (existingPanel.cid !== stackTop.cid) {
+            throw new RangeError(`Cannot replace: panel with cid '${existingPanel.cid}' is not a topmost panel`);
+        }
+        let stack = this.stacks[position];
+        stack.replace(newPanel);
+        this.rltPanelStack.delete(existingPanel.cid);
+        this.rltPanelStack.set(newPanel.cid, position);
+
+        this.trigger('replace', existingPanel, newPanel, position);
+        return this;
+    }
+
+    /**
      * Remove all panels and stacks until the desired panel is the rightmost panel in the explorer.
      * @param panel The panel that needs to become rightmost.
      */
