@@ -8,7 +8,7 @@ import Node from './../jsonld/node';
 import Graph from './../jsonld/graph';
 
 import { isType } from './../utilities/utilities';
-import { getScrollTop } from './../utilities/scrolling-utilities';
+import { getScrollTop, getScrollDuration, DEFAULT_EASING } from './../utilities/scrolling-utilities';
 import { getLinkedItems, getCssClassName, getSelector } from '../utilities/annotation/annotation-utilities';
 import OverlappingHighlightsStrategy, { OverlappingHighlights } from './overlapping-highlights-strategy';
 import HighlightableTextTemplate from './highlightable-text-template';
@@ -317,7 +317,7 @@ export default class HighlightableTextView extends View {
         if (scrollToHv) {
             let scrollableEl = this.$el;
             let scrollTop = getScrollTop(scrollableEl, scrollToHv.getTop(), scrollToHv.getHeight());
-            scrollableEl.animate({ scrollTop: scrollTop }, 800);
+            scrollableEl.animate({ scrollTop: scrollTop }, getScrollDuration(scrollableEl.scrollTop(), scrollTop), DEFAULT_EASING);
         }
         return this;
     }
