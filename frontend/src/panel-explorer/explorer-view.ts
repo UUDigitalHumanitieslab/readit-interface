@@ -142,6 +142,7 @@ export default class ExplorerView extends View {
         let stack = this.stacks[position];
         let nextStack = this.stacks[position - 1];
         let poppedPanel = this.getRightMostStack().getTopPanel();
+        this.rltPanelStack.delete(poppedPanel.cid);
 
         if (stack.getLeftBorderOffset() < this.getMostRight() && this.$el.scrollLeft() > 0) {
             this.scroll(nextStack, () => {
@@ -194,21 +195,23 @@ export default class ExplorerView extends View {
 
     /**
      * Replace `existingPanel` with `newPanel`.
-     * Note that replacement happens in place, i.e. not via a pop and a push.
+     * Executes a `popUntil` to the panel left of `existingPanel` and after that `push`es `newPanel`.
      * @param existingPanel The panel to replace, must be a top panel.
      * @param newPanel The panel to put in `existingPanel`'s place.
      */
-    replace(existingPanel, newPanel): View {
-        this.eventController.subscribeToPanelEvents(newPanel);
+    replace(existingPanel: View, newPanel: View): View {
         let position = this.rltPanelStack.get(existingPanel.cid);
         let stackTop = this.stacks[position].getTopPanel();
         if (existingPanel.cid !== stackTop.cid) {
             throw new RangeError(`Cannot replace: panel with cid '${existingPanel.cid}' is not a topmost panel`);
         }
-        let stack = this.stacks[position];
-        stack.replace(newPanel);
-        this.rltPanelStack.delete(existingPanel.cid);
-        this.rltPanelStack.set(newPanel.cid, position);
+
+        let nextStack = this.stacks[position - 1];
+        let self = this;
+        this.popUntilAsync(nextStack.getTopPanel()).then(function () {
+            self.push(newPanel);
+            self.rltPanelStack.set(newPanel.cid, position);
+        });
 
         this.trigger('replace', existingPanel, newPanel, position);
         return this;
