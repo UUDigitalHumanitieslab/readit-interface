@@ -65,6 +65,13 @@ export default class PanelStackView extends View {
     }
 
     /**
+     * Get the offset for the left border of the stack.
+     */
+    getLeftBorderOffset(): number {
+        return this.$el.parent().scrollLeft() + this.$el.position().left;
+    }
+
+    /**
      * Get the offset for the outer edge of the right border of the stack.
      * Note that this visual boundary might be different from the actual left offset + outerWidth,
      * because of margins.
@@ -72,7 +79,7 @@ export default class PanelStackView extends View {
     getRightBorderOffset(): number {
         let width = this.getWidth();
         let widthWithoutRightMargin = width - ((width - this.getTopPanel().$el.outerWidth()) / 2);
-        return this.$el.parent().scrollLeft() + this.$el.position().left + widthWithoutRightMargin;
+        return this.getLeftBorderOffset() + widthWithoutRightMargin;
     }
 }
 extend(PanelStackView.prototype, {
