@@ -121,19 +121,20 @@ export default class ExplorerEventController {
             return;
         }
 
-        this.explorerView.popUntil(view);
-
         let self = this;
         let items = new ItemGraph();
-        items.query({ predicate: oa.hasBody, object: item }).then(
-            function success() {
-                let resultView = new SearchResultListView({ collection: new Graph(items.models), selectable: false });
-                self.explorerView.push(resultView);
-            },
-            function error(error) {
-                console.error(error);
-            }
-        );
+        this.explorerView.popUntilAsync(view).then(() => {
+            items.query({ predicate: oa.hasBody, object: item }).then(
+                function success() {
+                    let resultView = new SearchResultListView({ collection: new Graph(items.models), selectable: false });
+                    self.explorerView.push(resultView);
+                },
+                function error(error) {
+                    console.error(error);
+                }
+            );
+        });
+
         return this;
     }
 
@@ -192,7 +193,10 @@ export default class ExplorerEventController {
     }
 
     annotationEditClose(editView: AnnotationEditView): this {
-        this.explorerView.removeOverlay(editView);
+        let source = this.mapAnnotationEditSource.get(editView);
+        let annoList = this.mapSourceAnnotationList.get(source);
+        if (annoList) this.explorerView.removeOverlay(editView);
+        else this.explorerView.pop();
         return this;
     }
 
@@ -279,7 +283,6 @@ export default class ExplorerEventController {
 
     sourceViewOnTextSelected(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): this {
         let listView = this.mapSourceAnnotationList.get(sourceView);
-        if (listView) this.explorerView.popUntil(listView);
         let annoEditView = new AnnotationEditView({
             range: range,
             positionDetails: positionDetails,
@@ -288,8 +291,15 @@ export default class ExplorerEventController {
             model: undefined,
         });
         this.mapAnnotationEditSource.set(annoEditView, sourceView);
-        if (listView) this.explorerView.overlay(annoEditView);
-        else this.explorerView.push(annoEditView);
+
+        if (listView) {
+            this.explorerView.popUntilAsync(listView).then( () => {
+                this.explorerView.overlay(annoEditView);
+            });
+        }
+        else {
+            this.explorerView.push(annoEditView);
+        }
         return this;
     }
 
