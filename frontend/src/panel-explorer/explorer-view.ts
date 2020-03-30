@@ -220,6 +220,7 @@ export default class ExplorerView extends View {
 
     /**
     * Remove all panels and stacks until the desired panel is the rightmost panel in the explorer.
+    * Will work async: if you need to do anything AFTER the last pop, don't use this version of popUntil.
     * @param panel The panel that needs to become rightmost.
     */
     popUntil(panel: View): this {
