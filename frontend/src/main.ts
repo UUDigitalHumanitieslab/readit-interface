@@ -9,12 +9,11 @@ import './global/hbsHelpers';
 import user from './global/user';
 import { prefetch } from './global/ld-store';
 import './global/item-cache';
+import './global/scroll-easings';
 import './aspects/readit';
 import './aspects/authentication';
-import { initScrollEasing } from './utilities/scrolling-utilities';
 
 when(ready, i18nPromise).done(function () {
-    initScrollEasing();
     user.fetch();
     let success = history.start({
         root: baseUrl,
