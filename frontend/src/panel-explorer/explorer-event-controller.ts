@@ -77,9 +77,7 @@ export default class ExplorerEventController {
     }
 
     sourceListClick(listView: SourceListView, source: Node): this {
-        let sourceView = createSourceView(source, true, true);
-        this.explorerView.popUntil(listView);
-        this.explorerView.push(sourceView);
+        this.explorerView.popUntilCreateAndPush(listView, () => createSourceView(source, true, true));
         return this;
     }
 
@@ -87,22 +85,17 @@ export default class ExplorerEventController {
         if (isType(item, oa.Annotation)) {
             const specificResource = item.get(oa.hasTarget)[0] as Node;
             let source = specificResource.get(oa.hasSource)[0] as Node;
-            let self = this;
-
-            this.explorerView.popUntil(searchResultList);
-            self.explorerView.push(createSourceView(source, undefined, undefined, item));
+            this.explorerView.popUntilCreateAndPush(searchResultList, () => createSourceView(source, undefined, undefined, item));
         }
     }
 
     relItemsItemClicked(relView: RelatedItemsView, item: Node): this {
-        this.explorerView.popUntil(relView);
-        let itemView = new LdItemView({ model: item });
-        this.explorerView.push(itemView);
+        this.explorerView.popUntilAndPush(relView, new LdItemView({ model: item }));
         return this;
     }
 
     relItemsEdit(relView: RelatedItemsView, item: Node): this {
-        const editView = new RelatedItemsEditView({model: item});
+        const editView = new RelatedItemsEditView({ model: item });
         this.explorerView.overlay(editView, relView);
         return this;
     }
@@ -118,10 +111,7 @@ export default class ExplorerEventController {
             return;
         }
 
-        this.explorerView.popUntil(view);
-
-        let relatedItems = new RelatedItemsView({model: item});
-        this.explorerView.push(relatedItems);
+        this.explorerView.popUntilAndPush(view, new RelatedItemsView({ model: item }));
         return this;
     }
 
@@ -194,7 +184,7 @@ export default class ExplorerEventController {
             .filter(n => !isOntologyClass(n));
         if (newItems.length) {
             const item = newItems[0];
-            const relView = new RelatedItemsView({model: item});
+            const relView = new RelatedItemsView({ model: item });
             this.explorerView.push(relView);
             this.relItemsEdit(relView, item);
         }
@@ -225,18 +215,9 @@ export default class ExplorerEventController {
 
     sourceViewHighlightSelected(sourceView: SourceView, annotation: Node): this {
         let annoListView = this.mapSourceAnnotationList.get(sourceView);
-        let existingDetailView = this.mapAnnotationListAnnotationDetail.get(annoListView);
         let newDetailView = new LdItemView({ model: annotation });
         this.mapAnnotationListAnnotationDetail.set(annoListView, newDetailView);
-
-        if (existingDetailView) {
-            this.explorerView.popUntil(existingDetailView);
-            this.explorerView.replace(existingDetailView, newDetailView);
-        }
-        else {
-            this.explorerView.push(newDetailView);
-        }
-
+        this.explorerView.popUntilAndPush(annoListView, newDetailView);
         return this;
     }
 
