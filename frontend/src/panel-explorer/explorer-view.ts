@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, sumBy, method, bind, debounce, findLast } from 'lodash';
+import { extend, sumBy, method, bind, debounce, findLast, defer } from 'lodash';
 import Model from '../core/model';
 import View from '../core/view';
 
@@ -7,7 +7,7 @@ import Graph from '../jsonld/graph';
 import PanelStackView from './explorer-panelstack-view';
 import EventController from './explorer-event-controller';
 import { BinarySearchContainer } from '../utilities/binary-searchable-container/binary-search-container';
-import { getScrollDuration } from './../utilities/scrolling-utilities';
+import { animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
 
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?
@@ -67,13 +67,10 @@ export default class ExplorerView extends View {
      * By default scrolls to the rightmost stack.
      * @param stack: Optional. The stack to focus on / scroll to.
      */
-    scroll(stack?: PanelStackView): this {
-        if (!stack) {
-            stack = this.getRightMostStack();
-        }
-
-        let scrollLeft = stack.getRightBorderOffset() - $(window).width();
-        this.$el.animate({ scrollLeft: scrollLeft }, 800);
+    scroll(stack?: PanelStackView, callback?: any): this {
+        if (!stack) stack = this.getRightMostStack();
+        let scrollTarget = stack.getRightBorderOffset() - $(window).width();
+        animatedScroll(ScrollType.Left, this.$el, scrollTarget, callback);
         return this;
     }
 
@@ -142,9 +139,33 @@ export default class ExplorerView extends View {
     pop(): View {
         if (this.stacks.length == 0) return;
         let position = this.stacks.length - 1;
-        let poppedPanel = this.deletePanel(position);
-        this.trigger('pop', poppedPanel, position);
+        let stack = this.stacks[position];
+        let nextStack = this.stacks[position - 1];
+        let poppedPanel = this.getRightMostStack().getTopPanel();
+
+        if (stack.getLeftBorderOffset() < this.getMostRight() && this.$el.scrollLeft() > 0) {
+            this.scroll(nextStack, () => {
+                this.deletePanel(position);
+                this.trigger('pop', poppedPanel, position);
+            });
+        }
+        else {
+            this.deletePanel(position);
+            defer(this.trigger.bind(this), 'pop', poppedPanel, position);
+        }
+
         return poppedPanel;
+    }
+
+    popAsync(): Promise<View> {
+        return new Promise(resolve => {
+            const poppedPanel = this.pop();
+            if (poppedPanel) {
+                this.once('pop', resolve);
+            } else {
+                resolve(poppedPanel);
+            }
+        });
     }
 
     /**
@@ -194,14 +215,19 @@ export default class ExplorerView extends View {
     }
 
     /**
-     * Remove all panels and stacks until the desired panel is the rightmost panel in the explorer.
-     * @param panel The panel that needs to become rightmost.
-     */
-    popUntil(panel: View): View {
-        while (this.getRightMostStack().getTopPanel().cid !== panel.cid) {
-            this.pop();
-        }
+    * Remove all panels and stacks until the desired panel is the rightmost panel in the explorer.
+    * @param panel The panel that needs to become rightmost.
+    */
+    popUntil(panel: View): this {
+        this.popUntilAsync(panel);
+        return this;
+    }
 
+    async popUntilAsync(panel: View): Promise<this> {
+        while (this.getRightMostStack().getTopPanel().cid !== panel.cid) {
+            await this.popAsync();
+        }
+        this.trigger('pop:until', panel);
         return this;
     }
 
@@ -260,9 +286,16 @@ export default class ExplorerView extends View {
         }
     }
 
+    /**
+     * Get a number that represents the most right visible pixel(s)
+     * of the explorer. Ideal for evaluating if a panel / stack is visible.
+     */
+    getMostRight(): number {
+        return this.$el.scrollLeft() + this.$el.innerWidth();
+    }
+
     getMostRightFullyVisibleStack(): PanelStackView {
-        let explorerMostRight = this.$el.scrollLeft() + this.$el.innerWidth();
-        return this.searchContainer.lastLessThan(explorerMostRight) as PanelStackView;
+        return this.searchContainer.lastLessThan(this.getMostRight()) as PanelStackView;
     }
 }
 extend(ExplorerView.prototype, {

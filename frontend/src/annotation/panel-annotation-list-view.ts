@@ -7,7 +7,7 @@ import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
 
 import { isType } from '../utilities/utilities';
-import { getScrollTop, getScrollDuration, DEFAULT_EASING } from './../utilities/scrolling-utilities';
+import { getScrollTop, animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
 
 import annotationsTemplate from './panel-annotation-list-template';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
@@ -135,9 +135,9 @@ export default class AnnotationListView extends View<Node> {
 
         if (scrollToBlock) {
             let scrollableEl = this.$('.panel-content');
-            let scrollTop = getScrollTop(scrollableEl, scrollToBlock.getTop(), scrollToBlock.getHeight());
+            let scrollTarget = getScrollTop(scrollableEl, scrollToBlock.getTop(), scrollToBlock.getHeight());
             this.select(scrollToBlock);
-            scrollableEl.animate({ scrollTop: scrollTop }, getScrollDuration(scrollableEl.scrollTop(), scrollTop), DEFAULT_EASING);
+            animatedScroll(ScrollType.Top, scrollableEl, scrollTarget);
         }
         return this;
     }
