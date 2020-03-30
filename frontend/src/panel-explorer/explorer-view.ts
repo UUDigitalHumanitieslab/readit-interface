@@ -194,26 +194,27 @@ export default class ExplorerView extends View {
     }
 
     /**
-     * Replace `existingPanel` with `newPanel`.
-     * Executes a `popUntil` to the panel left of `existingPanel` and after that `push`es `newPanel`.
-     * @param existingPanel The panel to replace, must be a top panel.
-     * @param newPanel The panel to put in `existingPanel`'s place.
+     * Pop (async, because of scrolling) until `popUntilPanel` is the rightmost panel.
+     * When the scroll is done, push `newPanel`.
      */
-    replace(existingPanel: View, newPanel: View): View {
-        let position = this.rltPanelStack.get(existingPanel.cid);
-        let stackTop = this.stacks[position].getTopPanel();
-        if (existingPanel.cid !== stackTop.cid) {
-            throw new RangeError(`Cannot replace: panel with cid '${existingPanel.cid}' is not a topmost panel`);
-        }
-
-        let nextStack = this.stacks[position - 1];
+    popUntilAndPush(popUntilPanel: View, newPanel: View): this {
         let self = this;
-        this.popUntilAsync(nextStack.getTopPanel()).then(function () {
+        this.popUntilAsync(popUntilPanel).then(() => {
             self.push(newPanel);
-            self.rltPanelStack.set(newPanel.cid, position);
         });
+        return this;
+    }
 
-        this.trigger('replace', existingPanel, newPanel, position);
+    /**
+     * Pop (async, because of scrolling) until `popUntilPanel` is the rightmost panel.
+     * When the scroll is done, call `create` and push the resulting View, i.e. panel.
+     */
+    popUntilCreateAndPush(popUntilPanel: View, create: () => View): this {
+        let self = this;
+        this.popUntilAsync(popUntilPanel).then(() => {
+            let newPanel = create();
+            self.push(newPanel);
+        });
         return this;
     }
 
