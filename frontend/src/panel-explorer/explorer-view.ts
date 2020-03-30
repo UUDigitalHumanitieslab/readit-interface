@@ -234,7 +234,7 @@ export default class ExplorerView extends View {
             await this.popAsync();
             i++;
         }
-        if (i === 1000) {
+        if (i === 999) {
             alert('Cannot find panel to pop until. Do you need to async?')
         }
         this.trigger('pop:until', panel);
