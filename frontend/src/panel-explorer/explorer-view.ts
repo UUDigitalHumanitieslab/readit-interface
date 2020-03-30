@@ -228,8 +228,13 @@ export default class ExplorerView extends View {
     }
 
     async popUntilAsync(panel: View): Promise<this> {
-        while (this.getRightMostStack().getTopPanel().cid !== panel.cid) {
+        let i = 0;
+        while (this.getRightMostStack().getTopPanel().cid !== panel.cid && i < 1000) {
             await this.popAsync();
+            i++;
+        }
+        if (i === 1000) {
+            alert('Cannot find panel to pop until. Do you need to async?')
         }
         this.trigger('pop:until', panel);
         return this;
