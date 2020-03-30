@@ -1,3 +1,4 @@
+import './../global/scroll-easings';
 import { enableI18n } from '../test-util';
 
 import ExplorerView from './explorer-view';
@@ -204,11 +205,13 @@ describe('ExplorerView', function () {
         expect(this.view.stacks[2].panels.length).toEqual(2);
 
         // pop until we're back at stack 1, panel 2
-        this.view.popUntil(stack1Panel2);
+        this.view.popUntilAsync(stack1Panel2).then(()=>{
+            expect(this.view.stacks.length).toEqual(2);
+            expect(this.view.stacks[0].panels.length).toEqual(1);
+            expect(this.view.stacks[1].panels.length).toEqual(2);
+        });
 
-        expect(this.view.stacks.length).toEqual(2);
-        expect(this.view.stacks[0].panels.length).toEqual(1);
-        expect(this.view.stacks[1].panels.length).toEqual(2);
+
     });
 
     it('will not pop (until) if provided panel is the rightmost', function () {
