@@ -1,7 +1,7 @@
 import * as $ from 'jquery';
 
 /**
- * Extend jQuery with a number the easing functions we use.
+ * Extend jQuery with the easing functions we use.
  * These can be added to (scroll) animations, for example: `element.animate({ scrollLeft: 100 }, <duration>, 'easeInOutQuart');`
  *
  * The code below is borrowed from https://gist.github.com/slig/145d7333052b7b2532f90d9f47e20d8e.

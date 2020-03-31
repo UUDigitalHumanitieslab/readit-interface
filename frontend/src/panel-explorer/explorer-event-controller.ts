@@ -77,7 +77,7 @@ export default class ExplorerEventController {
     }
 
     sourceListClick(listView: SourceListView, source: Node): this {
-        this.explorerView.popUntilCreateAndPush(listView, () => createSourceView(source, true, true));
+        this.explorerView.popUntilAndPush(listView, () => createSourceView(source, true, true));
         return this;
     }
 
@@ -85,7 +85,7 @@ export default class ExplorerEventController {
         if (isType(item, oa.Annotation)) {
             const specificResource = item.get(oa.hasTarget)[0] as Node;
             let source = specificResource.get(oa.hasSource)[0] as Node;
-            this.explorerView.popUntilCreateAndPush(searchResultList, () => createSourceView(source, undefined, undefined, item));
+            this.explorerView.popUntilAndPush(searchResultList, () => createSourceView(source, undefined, undefined, item));
         }
     }
 
@@ -123,17 +123,17 @@ export default class ExplorerEventController {
 
         let self = this;
         let items = new ItemGraph();
-        this.explorerView.popUntilAsync(view).then(() => {
-            items.query({ predicate: oa.hasBody, object: item }).then(
-                function success() {
-                    let resultView = new SearchResultListView({ collection: new Graph(items.models), selectable: false });
-                    self.explorerView.push(resultView);
-                },
-                function error(error) {
-                    console.error(error);
-                }
-            );
-        });
+        this.explorerView.popUntilAsync(view).then(
+            () => items.query({ predicate: oa.hasBody, object: item })
+        ).then(
+            function success() {
+                let resultView = new SearchResultListView({ collection: new Graph(items.models), selectable: false });
+                self.explorerView.push(resultView);
+            },
+            function error(error) {
+                console.error(error);
+            }
+        );
 
         return this;
     }
@@ -293,7 +293,7 @@ export default class ExplorerEventController {
         this.mapAnnotationEditSource.set(annoEditView, sourceView);
 
         if (listView) {
-            this.explorerView.popUntilAsync(listView).then( () => {
+            this.explorerView.popUntilAsync(listView).then(() => {
                 this.explorerView.overlay(annoEditView);
             });
         }

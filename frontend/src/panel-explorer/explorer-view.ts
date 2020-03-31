@@ -8,6 +8,7 @@ import PanelStackView from './explorer-panelstack-view';
 import EventController from './explorer-event-controller';
 import { BinarySearchContainer } from '../utilities/binary-searchable-container/binary-search-container';
 import { animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
+import { isFunction } from 'util';
 
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?
@@ -140,21 +141,19 @@ export default class ExplorerView extends View {
         if (this.stacks.length == 0) return;
         let position = this.stacks.length - 1;
         let stack = this.stacks[position];
-        let nextStack = this.stacks[position - 1];
+        let scrollToStack = stack;
+        if (stack.hasOnlyOnePanel()) scrollToStack = this.stacks[position - 1];
         let poppedPanel = this.getRightMostStack().getTopPanel();
         this.rltPanelStack.delete(poppedPanel.cid);
 
-        if (stack.getLeftBorderOffset() < this.getMostRight() && this.$el.scrollLeft() > 0) {
-            this.scroll(nextStack, () => {
-                this.deletePanel(position);
-                this.trigger('pop', poppedPanel, position);
-            });
-        }
-        else {
+        const deleteAndTrigger = () => {
             this.deletePanel(position);
-            defer(this.trigger.bind(this), 'pop', poppedPanel, position);
+            this.trigger('pop', poppedPanel, position);
+        };
+        if (stack.getLeftBorderOffset() < this.getMostRight() && this.$el.scrollLeft() > 0) {
+            this.scroll(scrollToStack, deleteAndTrigger);
         }
-
+        else defer(deleteAndTrigger);
         return poppedPanel;
     }
 
@@ -196,31 +195,22 @@ export default class ExplorerView extends View {
     /**
      * Pop (async, because of scrolling) until `popUntilPanel` is the rightmost panel.
      * When the scroll is done, push `newPanel`.
+     * @param popUntilPanel Pop until this panel is the rightmost panel
+     * @param newPanel Either a panel or a function that returns a panel. If the latter,
+     * the function will be called after all the `pop`s are completed.
      */
-    popUntilAndPush(popUntilPanel: View, newPanel: View): this {
-        let self = this;
+    popUntilAndPush(popUntilPanel: View, newPanel: View | (() => View)) : this {
         this.popUntilAsync(popUntilPanel).then(() => {
-            self.push(newPanel);
+            if (!(newPanel instanceof View)) newPanel = newPanel();
+            this.push(newPanel);
         });
         return this;
     }
 
     /**
-     * Pop (async, because of scrolling) until `popUntilPanel` is the rightmost panel.
-     * When the scroll is done, call `create` and push the resulting View, i.e. panel.
-     */
-    popUntilCreateAndPush(popUntilPanel: View, create: () => View): this {
-        let self = this;
-        this.popUntilAsync(popUntilPanel).then(() => {
-            let newPanel = create();
-            self.push(newPanel);
-        });
-        return this;
-    }
-
-    /**
-    * Remove all panels and stacks until the desired panel is the rightmost panel in the explorer.
-    * Will work async: if you need to do anything AFTER the last pop, don't use this version of popUntil.
+    * Returns `this` immediately, but the actual `pop`s are performed async. If
+    * you need to do anything AFTER the last pop, listen once for the
+    * `pop:until` event or use `popUntilAsync` instead.
     * @param panel The panel that needs to become rightmost.
     */
     popUntil(panel: View): this {
@@ -235,7 +225,11 @@ export default class ExplorerView extends View {
             i++;
         }
         if (i === 999) {
-            alert('Cannot find panel to pop until. Do you need to async?')
+            // Note that this check exists only to protect developers.
+            // If one consumes `popUntil` without being aware it will async,
+            // `panel` might be replaced while the popping is not completed yet,
+            // resulting inan infinite loop.
+            throw new RangeError('Cannot find panel to pop until. Do you need to async?');
         }
         this.trigger('pop:until', panel);
         return this;

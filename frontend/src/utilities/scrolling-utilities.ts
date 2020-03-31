@@ -20,7 +20,8 @@ export function animatedScroll(
     scrollableElement: JQuery<HTMLElement>,
     targetScrollPosition: number,
     callback?: any,
-    durationFactor: number = 1) {
+    durationFactor: number = 1
+){
     let scrollTypeSetting, initialScrollPosition;
     if (scrollType == ScrollType.Top) {
         scrollTypeSetting = { scrollTop: targetScrollPosition };
