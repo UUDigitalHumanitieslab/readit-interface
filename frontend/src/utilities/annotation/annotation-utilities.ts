@@ -168,7 +168,7 @@ function getNodeIndex(selector: Node): number {
  * Get the character index from an XPathSelector
  * @param selector XPathSelector with a rdf:Value like 'substring(.//*[${nodeIndex}]/text(),${characterIndex})'
  */
-function getCharacterIndex(selector: Node): number {
+export function getCharacterIndex(selector: Node): number {
     let xpath = <string>selector.get(rdf.value)[0];
     let startIndex = xpath.indexOf(',') + 1;
     let endIndex = xpath.length - 1;
