@@ -81,7 +81,7 @@ describe('ExplorerView', function () {
         expect(actual).toThrow(expected);
     });
 
-    it('pops overlayed panels from the rightmost stack', function () {
+    it('pops overlayed panels from the rightmost stack', function (done) {
         let stack1Panel1 = new View();
         this.view.push(stack1Panel1);
 
@@ -93,13 +93,15 @@ describe('ExplorerView', function () {
         expect(this.view.stacks[1].panels.length).toEqual(2);
 
         this.view.pop();
-
-        expect(this.view.stacks.length).toEqual(2);
-        expect(this.view.stacks[0].panels.length).toEqual(1);
-        expect(this.view.stacks[1].panels.length).toEqual(1);
+        this.view.once('pop', () => {
+            expect(this.view.stacks.length).toEqual(2);
+            expect(this.view.stacks[0].panels.length).toEqual(1);
+            expect(this.view.stacks[1].panels.length).toEqual(1);
+            done();
+        });
     });
 
-    it('pops panels and removes stacks if their last panel is popped', function () {
+    it('pops panels and removes stacks if their last panel is popped', function (done) {
         let stack1Panel1 = new View();
         this.view.push(stack1Panel1);
 
@@ -107,10 +109,12 @@ describe('ExplorerView', function () {
         expect(this.view.stacks[0].panels.length).toEqual(1);
         expect(this.view.stacks[1].panels.length).toEqual(1);
 
+        this.view.once('pop', () => {
+            expect(this.view.stacks.length).toEqual(1);
+            expect(this.view.stacks[0].panels.length).toEqual(1);
+            done();
+        });
         this.view.pop();
-
-        expect(this.view.stacks.length).toEqual(1);
-        expect(this.view.stacks[0].panels.length).toEqual(1);
     });
 
     it('removes topmost panels that are not on rightmost stack', function () {
