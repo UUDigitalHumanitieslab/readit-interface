@@ -9,7 +9,6 @@ import SourceListView from '../panel-source-list/source-list-view';
 import SourceView from './../panel-source/source-view';
 import AnnotationListView from '../annotation/panel-annotation-list-view';
 
-import HighlightView from '../highlight/highlight-view';
 import AnnotationEditView from '../annotation/panel-annotation-edit';
 import RelatedItemsView from '../panel-related-items/related-items-view';
 import RelatedItemsEditView from '../panel-related-items/related-items-edit-view';
@@ -269,7 +268,6 @@ export default class ExplorerEventController {
             collection: sourceView.collection
         });
         if (finalizeNoInitialHighlights) annotationListView.finalizeNoInitialHighlights();
-
         this.mapSourceAnnotationList.set(sourceView, annotationListView);
         this.mapAnnotationListSource.set(annotationListView, sourceView);
         this.explorerView.push(annotationListView);

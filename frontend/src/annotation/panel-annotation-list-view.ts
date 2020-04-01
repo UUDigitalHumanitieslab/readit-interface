@@ -89,7 +89,6 @@ export default class AnnotationListView extends View<Node> {
     }
 
     render(): this {
-        this.loadingSpinnerView.remove();
         this.subviewBundle.$el.detach();
 
         this.$el.html(this.template(this));
