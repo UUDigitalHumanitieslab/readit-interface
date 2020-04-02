@@ -1,7 +1,7 @@
 import { mapValues, invert, pick, assign, omit, each, delay } from 'lodash';
 import { Events } from 'backbone';
 
-import { startStore, endStore } from '../test-util';
+import { event, timeout, startStore, endStore } from '../test-util';
 import { contentClass, readerClass } from '../mock-data/mock-ontology';
 import mockItems from '../mock-data/mock-items';
 import { skos, dcterms, oa, readit, item } from '../jsonld/ns';
@@ -34,7 +34,7 @@ const expectedFlatAttributes = {
     created: jasmine.any(Date),
 };
 
-function createPlaceholder(attributes): Node {
+export function createPlaceholder(attributes): Node {
     return new Node(pick(attributes, '@id'));
 }
 
@@ -46,21 +46,10 @@ function getFullItems(): NodeMap {
     return mapValues(itemIndex, idx => new Node(itemAttributes[idx]));
 }
 
-// Helper to make the `name` event on `emitter` `await`-able.
-// Caveat: only resolves if the event triggers *after* you call this function.
-function event(emitter: Events, name: string): Promise<void> {
-    return new Promise(resolve => emitter.once(name, resolve));
-}
-
 // Helper to make a `FlatAnnotation`'s `'complete'` event `await`-able.
 // As a special case, this one also works if the event already triggered.
-function completion(anno: FlatAnnotation): Promise<void> {
+export function completion(anno: FlatAnnotation): Promise<void> {
     return (anno.complete) ? Promise.resolve() : event(anno, 'complete');
-}
-
-// Helper to make a timeout `await`-able.
-function timeout(milliseconds): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
 describe('FlatAnnotationModel', function() {
