@@ -59,7 +59,7 @@ interface Processor {
  * For further processing convenience, the model triggers a `'complete'` event
  * when all of the following attributes have been collected: `id`, `cssClass`,
  * `label`, `source`, `startPosition`, `endPosition`, `text`. It also exposes a
- * read-only `completed` property which evaluates to `false` before the event
+ * read-only `complete` property which evaluates to `false` before the event
  * and `true` after the event.
  */
 export default class FlatAnnotationModel extends Model {
@@ -67,14 +67,14 @@ export default class FlatAnnotationModel extends Model {
     _completionFlags: number;
 
     // Public read-only property to check for completion.
-    get completed(): boolean {
+    get complete(): boolean {
         return this._completionFlags === F_COMPLETE;
     }
 
     // Private method for updating the completion bitfield.
     _setCompletionFlag(flag: number): void {
         this._completionFlags |= flag;
-        if (this.completed) {
+        if (this.complete) {
             this.trigger('complete', this, this.get('annotation'));
             // After this, we never need to check the flags or trigger the
             // `'complete'` event again.

@@ -55,7 +55,7 @@ function event(emitter: Events, name: string): Promise<void> {
 // Helper to make a `FlatAnnotation`'s `'complete'` event `await`-able.
 // As a special case, this one also works if the event already triggered.
 function completion(anno: FlatAnnotation): Promise<void> {
-    return (anno.completed) ? Promise.resolve() : event(anno, 'complete');
+    return (anno.complete) ? Promise.resolve() : event(anno, 'complete');
 }
 
 // Helper to make a timeout `await`-able.
@@ -74,7 +74,7 @@ describe('FlatAnnotationModel', function() {
         flatAnno.once('complete', spy);
         await timeout(50);
         expect(spy).not.toHaveBeenCalled();
-        expect(flatAnno.completed).toBe(false);
+        expect(flatAnno.complete).toBe(false);
         expect(flatAnno.attributes).toEqual({});
     });
 
@@ -85,7 +85,7 @@ describe('FlatAnnotationModel', function() {
         const flatAnno = new FlatAnnotation(items.annotation);
         flatAnno.on('complete', spy);
         await completion(flatAnno);
-        expect(flatAnno.completed).toBe(true);
+        expect(flatAnno.complete).toBe(true);
         expect(flatAnno.attributes).toEqual(expectedFlatAttributes);
         await timeout(50);
         expect(spy).toHaveBeenCalledTimes(1);
@@ -98,7 +98,7 @@ describe('FlatAnnotationModel', function() {
         items.item.clear();
         const flatAnno = new FlatAnnotation(items.annotation);
         await completion(flatAnno);
-        expect(flatAnno.completed).toBe(true);
+        expect(flatAnno.complete).toBe(true);
         expect(flatAnno.attributes).toEqual(
             omit(expectedFlatAttributes, ['item', 'label'])
         );
@@ -113,10 +113,10 @@ describe('FlatAnnotationModel', function() {
             (index + 1) * 10
         ));
         await timeout(80);
-        expect(flatAnno.completed).toBe(false);
+        expect(flatAnno.complete).toBe(false);
         ontologyClass.set(contentClass);
         await completion(flatAnno);
-        expect(flatAnno.completed).toBe(true);
+        expect(flatAnno.complete).toBe(true);
         expect(flatAnno.attributes).toEqual(expectedFlatAttributes);
     });
 
