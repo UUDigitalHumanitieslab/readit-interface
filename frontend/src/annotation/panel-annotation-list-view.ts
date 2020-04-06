@@ -57,6 +57,10 @@ export default class AnnotationListView extends View<Node> {
         );
 
         let initialSource;
+
+        this.loadingSpinnerView = new LoadingSpinnerView();
+        this.loadingSpinnerView.render();
+        
         this.collection.each(node => {
             let source = getSource(node);
             if (!initialSource) initialSource = source;
@@ -66,8 +70,6 @@ export default class AnnotationListView extends View<Node> {
         this.listenTo(this.collection, 'update', this.render);
         this.listenTo(this.collection, 'add', this.addAnno);
 
-        this.loadingSpinnerView = new LoadingSpinnerView();
-        this.loadingSpinnerView.render();
         return this;
     }
 
@@ -89,6 +91,7 @@ export default class AnnotationListView extends View<Node> {
     }
 
     render(): this {
+        this.loadingSpinnerView.remove();
         this.subviewBundle.$el.detach();
 
         this.$el.html(this.template(this));
