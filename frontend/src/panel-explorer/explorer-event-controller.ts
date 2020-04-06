@@ -11,6 +11,7 @@ import AnnotationListView from '../annotation/panel-annotation-list-view';
 
 import AnnotationEditView from '../annotation/panel-annotation-edit';
 import RelatedItemsView from '../panel-related-items/related-items-view';
+import MetadataView from '../panel-metadata/panel-metadata-view';
 import RelatedItemsEditView from '../panel-related-items/related-items-edit-view';
 import ItemGraph from '../utilities/item-graph';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
@@ -241,6 +242,10 @@ export default class ExplorerEventController {
 
     sourceViewShowMetadata(sourceView: View, node: Node): this {
         this.explorerView.popUntil(sourceView);
+        // let view = new PanelMetadataView({
+        //     model: sourceView.model
+        // });
+        console.log(sourceView.model);
         this.notImplemented();
         return this;
     }
