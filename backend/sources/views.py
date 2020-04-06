@@ -5,21 +5,23 @@ from django.conf import settings
 
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED
+from rest_framework.status import *
 from rest_framework.parsers import MultiPartParser
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotFound
 
 from rdflib import Graph, URIRef, Literal
+from rdflib_django.utils import get_conjunctive_graph
 
 from rdf.ns import *
 from rdf.views import RDFView, RDFResourceView
-from rdf.utils import graph_from_triples
+from rdf.utils import graph_from_triples, prune_triples_cascade
 from vocab import namespace as vocab
 from staff.utils import submission_info
-from .graph import graph
+from items.graph import graph as items_graph
+from .graph import graph as sources_graph
 from .utils import get_media_filename
 from .models import SourcesCounter
-from .permissions import UploadSourcePermission
+from .permissions import UploadSourcePermission, DeleteSourcePermission
 
 
 def inject_fulltext(input):
@@ -41,7 +43,7 @@ class SourcesAPIRoot(RDFView):
     """ For now, simply lists all sources. """
 
     def graph(self):
-        return graph()
+        return sources_graph()
 
     def get_graph(self, request, **kwargs):
         return inject_fulltext(super().get_graph(request, **kwargs))
@@ -49,12 +51,26 @@ class SourcesAPIRoot(RDFView):
 
 class SourcesAPISingular(RDFResourceView):
     """ API endpoint for fetching individual subjects. """
+    permission_classes = [IsAuthenticated, DeleteSourcePermission]
 
     def graph(self):
-        return graph()
+        return sources_graph()
 
     def get_graph(self, request, **kwargs):
         return inject_fulltext(super().get_graph(request, **kwargs))
+
+    def delete(self, request, format=None, **kwargs):
+        source_uri = request.build_absolute_uri(request.path)
+        existing = self.get_graph(request, **kwargs)
+        if len(existing) == 0:
+            raise NotFound('Source \'{}\' not found'.format(source_uri))
+        conjunctive = get_conjunctive_graph()
+        prune_triples_cascade(conjunctive, existing, [sources_graph])
+        annotations = conjunctive.triples((None, OA.hasSource, URIRef(source_uri)))
+        for s, p, o in annotations:
+            prune_triples_cascade(conjunctive, ((s, p, o),), [items_graph])
+        return Response(existing)
+
 
 
 class AddSource(RDFResourceView):
@@ -170,7 +186,7 @@ class AddSource(RDFResourceView):
         result.add((new_subject, DCTERMS.created, now))
 
         # add to store
-        full_graph = graph()
+        full_graph = sources_graph()
         # below stores result automagically
         full_graph += result
 
