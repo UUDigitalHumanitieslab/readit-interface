@@ -28,6 +28,8 @@ class UploadSourcePermission(permissions.BasePermission):
     message = 'Uploading sources not allowed.'
 
     def has_permission(self, request, view):
+        if not request.method == 'POST':
+            return True
         return request.user.has_perm('rdflib_django.{}'.format(UPLOAD_SOURCE))
 
 
@@ -39,4 +41,6 @@ class DeleteSourcePermission(permissions.BasePermission):
     message = 'Deleting sources not allowed.'
 
     def has_permission(self, request, view):
+        if not request.method == 'DELETE':
+            return True
         return request.user.has_perm('rdflib_django.{}'.format(DELETE_SOURCE))
