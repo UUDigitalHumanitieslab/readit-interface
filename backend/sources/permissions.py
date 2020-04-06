@@ -2,22 +2,16 @@ from rest_framework import permissions
 from rdf.utils import create_custom_permissions
 
 '''
-Constant(s) with the code name for custom permissions.
+Custom permissions are added to the database via migrations.
+See '0003_init_permissions.py' for an example.
+In this file, store the code name of the permission,
+to allow re-use throughout the application.
+
 Note: if a permission needs to be passed to the frontend,
 do not forget to add this value to the UserDetailsSerializer in readit.serializers
 '''
 UPLOAD_SOURCE = 'upload_source'
 DELETE_SOURCE = 'delete_source'
-
-custom_permissions = [
-    {'name': 'Can upload Source', 'codename': UPLOAD_SOURCE},
-    {'name': 'Can delete Source', 'codename': DELETE_SOURCE}
-]
-
-'''
-Make sure the required custom permissions exist.
-'''
-create_custom_permissions(custom_permissions)
 
 
 class UploadSourcePermission(permissions.BasePermission):
