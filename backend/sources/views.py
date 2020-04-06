@@ -19,6 +19,7 @@ from staff.utils import submission_info
 from .graph import graph
 from .utils import get_media_filename
 from .models import SourcesCounter
+from .permissions import UploadSourcePermission
 
 
 def inject_fulltext(input):
@@ -57,7 +58,7 @@ class SourcesAPISingular(RDFResourceView):
 
 
 class AddSource(RDFResourceView):
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, UploadSourcePermission]
     parser_classes = [MultiPartParser]
 
     def store(self, file, destination):
