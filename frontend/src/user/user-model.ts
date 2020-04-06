@@ -21,6 +21,7 @@ export default class User extends Model {
     logoutUrl: string;
     registerUrl: string;
     confirmRegistrationUrl: string;
+    permissions: string[];
 
     login(credentials: UserCredentials): JQuery.jqXHR {
         return this.save(null, {
@@ -88,6 +89,12 @@ export default class User extends Model {
                 }
             }
         } as ModelSaveOptions);
+    }
+
+    hasPermission(permission): boolean {
+        let permissions = this.get('permissions');
+        if (!permissions) return false;
+        return permissions.includes(permission);
     }
 }
 
