@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.status import *
 from rest_framework.parsers import MultiPartParser
 from rest_framework.exceptions import ValidationError, NotFound
+from rest_framework.reverse import reverse
 
 from rdflib import Graph, URIRef, Literal
 from rdflib_django.utils import get_conjunctive_graph
@@ -26,14 +27,21 @@ from .models import SourcesCounter
 from .permissions import UploadSourcePermission, DeleteSourcePermission
 
 
-def inject_fulltext(input):
+def inject_fulltext(input, inline, request):
     """ Return a copy of input that has the fulltext for each source. """
     subjects = set(input.subjects())
     text_triples = Graph()
     for s in subjects:
         serial = get_serial_from_subject(s)
-        with default_storage.open(get_media_filename(serial)) as f:
-            text_triples.add((s, SCHEMA.text, Literal(f.read())))
+        if inline:
+            with default_storage.open(get_media_filename(serial)) as f:
+                text_triples.add((s, SCHEMA.text, Literal(f.read())))
+        else:
+            text_triples.add((s, vocab.fullText, URIRef(reverse(
+                'sources:fulltext',
+                kwargs={'serial': serial},
+                request=request,
+            ))))
     return input + text_triples
 
 
@@ -48,7 +56,7 @@ class SourcesAPIRoot(RDFView):
         return sources_graph()
 
     def get_graph(self, request, **kwargs):
-        return inject_fulltext(super().get_graph(request, **kwargs))
+        return inject_fulltext(super().get_graph(request, **kwargs), False, request)
 
 
 class SourcesAPISingular(RDFResourceView):
@@ -59,7 +67,7 @@ class SourcesAPISingular(RDFResourceView):
         return sources_graph()
 
     def get_graph(self, request, **kwargs):
-        return inject_fulltext(super().get_graph(request, **kwargs))
+        return inject_fulltext(super().get_graph(request, **kwargs), True, request)
 
     def delete(self, request, format=None, **kwargs):
         source_uri = request.build_absolute_uri(request.path)
