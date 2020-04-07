@@ -1,5 +1,7 @@
 import os
 from datetime import datetime, timezone
+
+from django.http import HttpResponse
 from django.core.files.storage import default_storage
 from django.conf import settings
 
@@ -71,6 +73,11 @@ class SourcesAPISingular(RDFResourceView):
             prune_triples_cascade(conjunctive, ((s, p, o),), [items_graph])
         return Response(existing)
 
+
+def source_fulltext(request, serial):
+    """ API endpoint for fetching the full text of a single source. """
+    with default_storage.open(get_media_filename(serial)) as f:
+        return HttpResponse(f, content_type='text/plain; charset=utf-8')
 
 
 class AddSource(RDFResourceView):
