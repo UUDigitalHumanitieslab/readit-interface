@@ -36,6 +36,10 @@ def triples():
         ( my.hasEndSelector,   subPropertyOf, OA.hasEndSelector ),
         ( my.hasEndSelector,   hasDomain,     my.RangeSelector ),
         ( my.hasEndSelector,   hasRange,      XPathSelector ),
+
+        ( my.fullText,         is_a,          Property ),
+        ( my.fullText,         hasDomain,     my.Source ),
+        ( my.fullText,         hasRange,      SCHEMA.Text ),
     ]
 
 def canonical_graph():
