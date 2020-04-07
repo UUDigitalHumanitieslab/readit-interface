@@ -173,6 +173,7 @@ export default class FlatAnnotationCollection extends Collection<FlatAnnotation>
 }
 
 extend(FlatAnnotationCollection.prototype, {
+    model: FlatAnnotation,
     // Sort first by `startPosition`, then by `endPosition`.
     comparator(left, right) {
         return left.get('startPosition') - right.get('startPosition') ||
