@@ -1,5 +1,4 @@
 from rest_framework import permissions
-from rdf.utils import create_custom_permissions
 
 '''
 Custom permissions are added to the database via migrations.
