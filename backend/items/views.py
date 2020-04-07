@@ -18,6 +18,7 @@ from sources import namespace as source
 from . import namespace as my
 from .graph import graph, history
 from .models import ItemCounter, EditCounter
+from .permissions import *
 
 MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank node.'
 MUST_EQUAL_IDENTIFIER_400 = 'PUT must affect exactly the resource URI.'
@@ -116,9 +117,10 @@ class ItemsAPIRoot(RDFView):
         full_graph = super().get_graph(request)
         subjects = set(full_graph.subjects(p, o))
         for s in subjects:
-            # Temporary special case: show users only their own annotations.
+            # Temporary special case: show users only their own annotations,
+            # unless they have special permission to see all.
             # TODO: remove again.
-            if is_annotations_request:
+            if is_annotations_request and not request.user.has_perm('rdflib_django.view_all_annotations'):
                 creator = full_graph.value(s, DCTERMS.creator)
                 if creator != user:
                     continue

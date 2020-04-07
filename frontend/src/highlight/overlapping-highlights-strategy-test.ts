@@ -29,7 +29,7 @@ describe('OverlappingHighlightsStrategy', function () {
         range.setEnd(endContainer, endCharacterIndex);
 
         return new HighlightView({
-            model: new Node(),
+            model: undefined,
             textWrapper: textWrapper,
             cssClass: 'irrelevant',
             relativeParent: relativeParent,

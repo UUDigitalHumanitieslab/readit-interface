@@ -7,10 +7,10 @@ import { oa } from './../jsonld/ns';
 import Node from './../jsonld/node';
 import Graph from './../jsonld/graph';
 
-import { isType, getScrollTop } from './../utilities/utilities';
+import { isType } from './../utilities/utilities';
+import { getScrollTop, animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
 import { getLinkedItems, getCssClassName, getSelector } from '../utilities/annotation/annotation-utilities';
 import OverlappingHighlightsStrategy, { OverlappingHighlights } from './overlapping-highlights-strategy';
-import HighlightableTextTemplate from './highlightable-text-template';
 import HighlightView from './highlight-view';
 import OverlappingHighlightsView from './overlapping-highlights-view';
 import OverlapDetailsView from './overlap-details-view';
@@ -314,9 +314,8 @@ export default class HighlightableTextView extends View {
 
         let scrollToHv = this.getHighlightView(scrollToNode);
         if (scrollToHv) {
-            let scrollableEl = this.$el;
-            let scrollTop = getScrollTop(scrollableEl, scrollToHv.getTop(), scrollToHv.getHeight());
-            scrollableEl.animate({ scrollTop: scrollTop }, 800);
+            let scrollTarget = getScrollTop(this.$el, scrollToHv.getTop(), scrollToHv.getHeight());
+            animatedScroll(ScrollType.Top, this.$el, scrollTarget, undefined, 1.5);
         }
         return this;
     }
@@ -364,7 +363,7 @@ export default class HighlightableTextView extends View {
 
         if (this.selectedHighlight) {
             isNew = this.selectedHighlight.cid !== hV.cid;
-            this.unSelect(this.selectedHighlight, this.selectedHighlight.model);
+            this.unSelect(this.selectedHighlight, this.selectedHighlight.model, isNew);
             this.selectedHighlight = undefined;
             if (!isOverlapDetailClick && this.overlapDetailView) this.onCloseOverlapDetail();
         }
@@ -393,12 +392,12 @@ export default class HighlightableTextView extends View {
     /**
      * Unselect a certain highlight view. Will also be unselected on an active OverlapDetailView.
      */
-    unSelect(hV: HighlightView, annotation: Node): this {
+    unSelect(hV: HighlightView, annotation: Node, newHighlightSelected: boolean): this {
         hV.unSelect();
         if (this.overlapDetailView) {
             this.overlapDetailView.unSelect(hV);
         }
-        this.trigger('highlightUnselected', annotation);
+        this.trigger('highlightUnselected', annotation, newHighlightSelected);
         return this;
     }
 
@@ -529,7 +528,6 @@ export default class HighlightableTextView extends View {
 extend(HighlightableTextView.prototype, {
     tagName: 'div',
     className: 'highlightable-text',
-    template: HighlightableTextTemplate,
     events: {
         'mouseup': 'onTextSelected'
     }

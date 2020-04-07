@@ -2,11 +2,14 @@ import { extend } from 'lodash';
 
 import View from '../core/view';
 import menuTemplate from './menu-template';
-
+import User from './../user/user-model';
 
 export default class MenuView extends View {
     render() {
-        this.$el.html(this.template({ username: this.model.get('username'), isStaff: this.model.get('is_staff') }));
+        this.$el.html(this.template({
+            username: this.model.get('username'),
+            uploadSources: (this.model as User).hasPermission('upload_source')
+        }));
         return this;
     }
 
@@ -30,7 +33,7 @@ export default class MenuView extends View {
         console.log('annotate clicked! (not implemented yet)');
     }
 
-    toggleHamburger(){
+    toggleHamburger() {
         this.$('.navbar-burger, #navbarMenu').toggleClass('is-active');
     }
 }
