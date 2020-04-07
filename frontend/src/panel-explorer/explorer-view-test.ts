@@ -1,3 +1,4 @@
+import './../global/scroll-easings';
 import { enableI18n } from '../test-util';
 
 import ExplorerView from './explorer-view';
@@ -80,7 +81,7 @@ describe('ExplorerView', function () {
         expect(actual).toThrow(expected);
     });
 
-    it('pops overlayed panels from the rightmost stack', function () {
+    it('pops overlayed panels from the rightmost stack', function (done) {
         let stack1Panel1 = new View();
         this.view.push(stack1Panel1);
 
@@ -92,13 +93,15 @@ describe('ExplorerView', function () {
         expect(this.view.stacks[1].panels.length).toEqual(2);
 
         this.view.pop();
-
-        expect(this.view.stacks.length).toEqual(2);
-        expect(this.view.stacks[0].panels.length).toEqual(1);
-        expect(this.view.stacks[1].panels.length).toEqual(1);
+        this.view.once('pop', () => {
+            expect(this.view.stacks.length).toEqual(2);
+            expect(this.view.stacks[0].panels.length).toEqual(1);
+            expect(this.view.stacks[1].panels.length).toEqual(1);
+            done();
+        });
     });
 
-    it('pops panels and removes stacks if their last panel is popped', function () {
+    it('pops panels and removes stacks if their last panel is popped', function (done) {
         let stack1Panel1 = new View();
         this.view.push(stack1Panel1);
 
@@ -106,10 +109,12 @@ describe('ExplorerView', function () {
         expect(this.view.stacks[0].panels.length).toEqual(1);
         expect(this.view.stacks[1].panels.length).toEqual(1);
 
+        this.view.once('pop', () => {
+            expect(this.view.stacks.length).toEqual(1);
+            expect(this.view.stacks[0].panels.length).toEqual(1);
+            done();
+        });
         this.view.pop();
-
-        expect(this.view.stacks.length).toEqual(1);
-        expect(this.view.stacks[0].panels.length).toEqual(1);
     });
 
     it('removes topmost panels that are not on rightmost stack', function () {
@@ -181,7 +186,7 @@ describe('ExplorerView', function () {
         expect(actual).toThrow(expected);
     });
 
-    it('pops until a certain panel is the rightmost', function () {
+    it('pops until a certain panel is the rightmost', async function () {
         // create two stacks (one with 3 and one with 2 panels)
         let stack1Panel1 = new View();
         this.view.push(stack1Panel1);
@@ -204,8 +209,7 @@ describe('ExplorerView', function () {
         expect(this.view.stacks[2].panels.length).toEqual(2);
 
         // pop until we're back at stack 1, panel 2
-        this.view.popUntil(stack1Panel2);
-
+        await this.view.popUntilAsync(stack1Panel2)
         expect(this.view.stacks.length).toEqual(2);
         expect(this.view.stacks[0].panels.length).toEqual(1);
         expect(this.view.stacks[1].panels.length).toEqual(2);

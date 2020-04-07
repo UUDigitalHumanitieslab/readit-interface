@@ -1,4 +1,7 @@
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from rdflib import Graph, Literal, URIRef
+from rdflib_django.models import Store
 from items import namespace as ITEM
 
 
@@ -95,6 +98,3 @@ def traverse_backward(full_graph, fringe, plys):
         subjects = set(fringe.subjects()) - visited_subjects
         plys -= 1
     return result
-
-
-

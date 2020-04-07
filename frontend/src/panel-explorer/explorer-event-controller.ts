@@ -9,7 +9,6 @@ import SourceListView from '../panel-source-list/source-list-view';
 import SourceView from './../panel-source/source-view';
 import AnnotationListView from '../annotation/panel-annotation-list-view';
 
-import HighlightView from '../highlight/highlight-view';
 import AnnotationEditView from '../annotation/panel-annotation-edit';
 import RelatedItemsView from '../panel-related-items/related-items-view';
 import RelatedItemsEditView from '../panel-related-items/related-items-edit-view';
@@ -32,6 +31,7 @@ export default class ExplorerEventController {
     mapSourceAnnotationList: Map<SourceView, AnnotationListView> = new Map();
     mapAnnotationListSource: Map<AnnotationListView, SourceView> = new Map();
     mapAnnotationEditSource: Map<AnnotationEditView, SourceView> = new Map();
+    mapAnnotationListAnnotationDetail: Map<AnnotationListView, LdItemView> = new Map();
 
     constructor(explorerView: ExplorerView) {
         this.explorerView = explorerView;
@@ -76,9 +76,7 @@ export default class ExplorerEventController {
     }
 
     sourceListClick(listView: SourceListView, source: Node): this {
-        let sourceView = createSourceView(source, true, true);
-        this.explorerView.popUntil(listView);
-        this.explorerView.push(sourceView);
+        this.explorerView.popUntilAndPush(listView, () => createSourceView(source, true, true));
         return this;
     }
 
@@ -86,22 +84,17 @@ export default class ExplorerEventController {
         if (isType(item, oa.Annotation)) {
             const specificResource = item.get(oa.hasTarget)[0] as Node;
             let source = specificResource.get(oa.hasSource)[0] as Node;
-            let self = this;
-
-            this.explorerView.popUntil(searchResultList);
-            self.explorerView.push(createSourceView(source, undefined, undefined, item));
+            this.explorerView.popUntilAndPush(searchResultList, () => createSourceView(source, undefined, undefined, item));
         }
     }
 
     relItemsItemClicked(relView: RelatedItemsView, item: Node): this {
-        this.explorerView.popUntil(relView);
-        let itemView = new LdItemView({ model: item });
-        this.explorerView.push(itemView);
+        this.explorerView.popUntilAndPush(relView, new LdItemView({ model: item }));
         return this;
     }
 
     relItemsEdit(relView: RelatedItemsView, item: Node): this {
-        const editView = new RelatedItemsEditView({model: item});
+        const editView = new RelatedItemsEditView({ model: item });
         this.explorerView.overlay(editView, relView);
         return this;
     }
@@ -117,10 +110,7 @@ export default class ExplorerEventController {
             return;
         }
 
-        this.explorerView.popUntil(view);
-
-        let relatedItems = new RelatedItemsView({model: item});
-        this.explorerView.push(relatedItems);
+        this.explorerView.popUntilAndPush(view, new RelatedItemsView({ model: item }));
         return this;
     }
 
@@ -130,11 +120,11 @@ export default class ExplorerEventController {
             return;
         }
 
-        this.explorerView.popUntil(view);
-
         let self = this;
         let items = new ItemGraph();
-        items.query({ predicate: oa.hasBody, object: item }).then(
+        this.explorerView.popUntilAsync(view).then(
+            () => items.query({ predicate: oa.hasBody, object: item })
+        ).then(
             function success() {
                 let resultView = new SearchResultListView({ collection: new Graph(items.models), selectable: false });
                 self.explorerView.push(resultView);
@@ -143,6 +133,7 @@ export default class ExplorerEventController {
                 console.error(error);
             }
         );
+
         return this;
     }
 
@@ -193,7 +184,7 @@ export default class ExplorerEventController {
             .filter(n => !isOntologyClass(n));
         if (newItems.length) {
             const item = newItems[0];
-            const relView = new RelatedItemsView({model: item});
+            const relView = new RelatedItemsView({ model: item });
             this.explorerView.push(relView);
             this.relItemsEdit(relView, item);
         }
@@ -201,7 +192,10 @@ export default class ExplorerEventController {
     }
 
     annotationEditClose(editView: AnnotationEditView): this {
-        this.explorerView.removeOverlay(editView);
+        let source = this.mapAnnotationEditSource.get(editView);
+        let annoList = this.mapSourceAnnotationList.get(source);
+        if (annoList) this.explorerView.removeOverlay(editView);
+        else this.explorerView.pop();
         return this;
     }
 
@@ -224,16 +218,18 @@ export default class ExplorerEventController {
 
     sourceViewHighlightSelected(sourceView: SourceView, annotation: Node): this {
         let annoListView = this.mapSourceAnnotationList.get(sourceView);
-        this.explorerView.popUntil(annoListView);
-
-        let itemView = new LdItemView({ model: annotation });
-        this.explorerView.push(itemView);
+        let newDetailView = new LdItemView({ model: annotation });
+        this.mapAnnotationListAnnotationDetail.set(annoListView, newDetailView);
+        this.explorerView.popUntilAndPush(annoListView, newDetailView);
         return this;
     }
 
-    sourceViewHighlightUnselected(sourceView: SourceView, annotation: Node): this {
+    sourceViewHighlightUnselected(sourceView: SourceView, annotation: Node, newHighlightSelected: boolean): this {
         let annoListView = this.mapSourceAnnotationList.get(sourceView);
-        this.explorerView.popUntil(annoListView);
+        if (!newHighlightSelected) {
+            this.mapAnnotationListAnnotationDetail.delete(annoListView);
+            this.explorerView.popUntil(annoListView);
+        }
         return this;
     }
 
@@ -269,7 +265,6 @@ export default class ExplorerEventController {
             collection: sourceView.collection
         });
         if (finalizeNoInitialHighlights) annotationListView.finalizeNoInitialHighlights();
-
         this.mapSourceAnnotationList.set(sourceView, annotationListView);
         this.mapAnnotationListSource.set(annotationListView, sourceView);
         this.explorerView.push(annotationListView);
@@ -286,7 +281,6 @@ export default class ExplorerEventController {
 
     sourceViewOnTextSelected(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): this {
         let listView = this.mapSourceAnnotationList.get(sourceView);
-        if (listView) this.explorerView.popUntil(listView);
         let annoEditView = new AnnotationEditView({
             range: range,
             positionDetails: positionDetails,
@@ -295,8 +289,15 @@ export default class ExplorerEventController {
             model: undefined,
         });
         this.mapAnnotationEditSource.set(annoEditView, sourceView);
-        if (listView) this.explorerView.overlay(annoEditView);
-        else this.explorerView.push(annoEditView);
+
+        if (listView) {
+            this.explorerView.popUntilAsync(listView).then(() => {
+                this.explorerView.overlay(annoEditView);
+            });
+        }
+        else {
+            this.explorerView.push(annoEditView);
+        }
         return this;
     }
 

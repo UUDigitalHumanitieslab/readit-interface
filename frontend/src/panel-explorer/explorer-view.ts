@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, sumBy, method, bind, debounce, findLast } from 'lodash';
+import { extend, sumBy, method, bind, debounce, findLast, defer } from 'lodash';
 import Model from '../core/model';
 import View from '../core/view';
 
@@ -7,6 +7,8 @@ import Graph from '../jsonld/graph';
 import PanelStackView from './explorer-panelstack-view';
 import EventController from './explorer-event-controller';
 import { BinarySearchContainer } from '../utilities/binary-searchable-container/binary-search-container';
+import { animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
+import { isFunction } from 'util';
 
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?
@@ -62,11 +64,14 @@ export default class ExplorerView extends View {
     }
 
     /**
-     * Animated scroll to the outer right of the explorer.
+     * Animated scroll to put a stack in focus (i.e. at the right of the screen).
+     * By default scrolls to the rightmost stack.
+     * @param stack: Optional. The stack to focus on / scroll to.
      */
-    scroll(): this {
-        let totalWidth = sumBy(this.stacks, method('getWidth'));
-        this.$el.animate({ scrollLeft: totalWidth }, 800);
+    scroll(stack?: PanelStackView, callback?: any): this {
+        if (!stack) stack = this.getRightMostStack();
+        let scrollTarget = stack.getRightBorderOffset() - $(window).width();
+        animatedScroll(ScrollType.Left, this.$el, scrollTarget, callback);
         return this;
     }
 
@@ -123,7 +128,7 @@ export default class ExplorerView extends View {
 
         this.eventController.subscribeToPanelEvents(panel);
         this.trigger('overlay', panel, ontoPanel, position, (position - this.stacks.length));
-        this.scroll();
+        this.scroll(stack);
         return this;
     }
 
@@ -135,9 +140,32 @@ export default class ExplorerView extends View {
     pop(): View {
         if (this.stacks.length == 0) return;
         let position = this.stacks.length - 1;
-        let poppedPanel = this.deletePanel(position);
-        this.trigger('pop', poppedPanel, position);
+        let stack = this.stacks[position];
+        let scrollToStack = stack;
+        if (stack.hasOnlyOnePanel()) scrollToStack = this.stacks[position - 1];
+        let poppedPanel = this.getRightMostStack().getTopPanel();
+        this.rltPanelStack.delete(poppedPanel.cid);
+
+        const deleteAndTrigger = () => {
+            this.deletePanel(position);
+            this.trigger('pop', poppedPanel, position);
+        };
+        if (stack.getLeftBorderOffset() < this.getMostRight() && this.$el.scrollLeft() > 0) {
+            this.scroll(scrollToStack, deleteAndTrigger);
+        }
+        else defer(deleteAndTrigger);
         return poppedPanel;
+    }
+
+    popAsync(): Promise<View> {
+        return new Promise(resolve => {
+            const poppedPanel = this.pop();
+            if (poppedPanel) {
+                this.once('pop', resolve);
+            } else {
+                resolve(poppedPanel);
+            }
+        });
     }
 
     /**
@@ -165,14 +193,45 @@ export default class ExplorerView extends View {
     }
 
     /**
-     * Remove all panels and stacks until the desired panel is the rightmost panel in the explorer.
-     * @param panel The panel that needs to become rightmost.
+     * Pop (async, because of scrolling) until `popUntilPanel` is the rightmost panel.
+     * When the scroll is done, push `newPanel`.
+     * @param popUntilPanel Pop until this panel is the rightmost panel
+     * @param newPanel Either a panel or a function that returns a panel. If the latter,
+     * the function will be called after all the `pop`s are completed.
      */
-    popUntil(panel: View): View {
-        while (this.getRightMostStack().getTopPanel().cid !== panel.cid) {
-            this.pop();
-        }
+    popUntilAndPush(popUntilPanel: View, newPanel: View | (() => View)) : this {
+        this.popUntilAsync(popUntilPanel).then(() => {
+            if (!(newPanel instanceof View)) newPanel = newPanel();
+            this.push(newPanel);
+        });
+        return this;
+    }
 
+    /**
+    * Returns `this` immediately, but the actual `pop`s are performed async. If
+    * you need to do anything AFTER the last pop, listen once for the
+    * `pop:until` event or use `popUntilAsync` instead.
+    * @param panel The panel that needs to become rightmost.
+    */
+    popUntil(panel: View): this {
+        this.popUntilAsync(panel);
+        return this;
+    }
+
+    async popUntilAsync(panel: View): Promise<this> {
+        let i = 0;
+        while (this.getRightMostStack().getTopPanel().cid !== panel.cid && i < 1000) {
+            await this.popAsync();
+            i++;
+        }
+        if (i === 999) {
+            // Note that this check exists only to protect developers.
+            // If one consumes `popUntil` without being aware it will async,
+            // `panel` might be replaced while the popping is not completed yet,
+            // resulting inan infinite loop.
+            throw new RangeError('Cannot find panel to pop until. Do you need to async?');
+        }
+        this.trigger('pop:until', panel);
         return this;
     }
 
@@ -231,9 +290,16 @@ export default class ExplorerView extends View {
         }
     }
 
+    /**
+     * Get a number that represents the most right visible pixel(s)
+     * of the explorer. Ideal for evaluating if a panel / stack is visible.
+     */
+    getMostRight(): number {
+        return this.$el.scrollLeft() + this.$el.innerWidth();
+    }
+
     getMostRightFullyVisibleStack(): PanelStackView {
-        let explorerMostRight = this.$el.scrollLeft() + this.$el.innerWidth();
-        return this.searchContainer.lastLessThan(explorerMostRight) as PanelStackView;
+        return this.searchContainer.lastLessThan(this.getMostRight()) as PanelStackView;
     }
 }
 extend(ExplorerView.prototype, {

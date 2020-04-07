@@ -7,7 +7,8 @@ import { oa } from './../jsonld/ns';
 import Node from './../jsonld/node';
 import Graph from './../jsonld/graph';
 
-import { isType, getScrollTop } from './../utilities/utilities';
+import { isType } from './../utilities/utilities';
+import { getScrollTop, animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
 import { getLinkedItems, getCssClassName, getSelector } from '../utilities/annotation/annotation-utilities';
 import OverlappingHighlightsStrategy, { OverlappingHighlights } from './overlapping-highlights-strategy';
 import HighlightView from './highlight-view';
@@ -20,7 +21,7 @@ import { SubviewBundleView } from '../utilities/subview-bundle-view';
 import { singleNumber } from '../utilities/binary-searchable-container/binary-search-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
-    text: string;
+    text: JQuery.jqXHR;
 
     /**
      * A collection of oa:Annotation instances.
@@ -55,7 +56,7 @@ export interface ViewOptions extends BaseOpt<Node> {
  * is inserted into the DOM. It listens for that event itself, but keep it in mind.
  */
 export default class HighlightableTextView extends View {
-    text: string;
+    text: JQuery.jqXHR;
     textWrapper: JQuery<HTMLElement>;
     positionContainer: JQuery<HTMLElement>;
     collection: FilteredCollection<Node>;
@@ -120,12 +121,9 @@ export default class HighlightableTextView extends View {
         );
 
         if (options.collection.length == 0) this.isFullyLoaded = true;
-        this.listenTo(this.collection, 'add', this.addHighlight);
-        this.listenTo(this.collection, 'update', this.onHighlightViewsUpdated);
-        this.listenTo(this.collection, 'remove', this.destroyNode)
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
-        this.$el.ready(bind(this.onReady, this));
+        this.$el.ready(() => this.text.then(bind(this.onReady, this)));
     }
 
     render(): this {
@@ -142,12 +140,16 @@ export default class HighlightableTextView extends View {
      * (from: https://api.jquery.com/ready/). For the currrent View it guarantees that the View is in the DOM.
      */
     onReady(): this {
+        const text = this.text.responseText;
         this.isInDOM = true;
-        this.textWrapper = $(`<pre class="textWrapper">${this.text}</pre>`);
+        this.textWrapper = $(`<pre class="textWrapper">${text}</pre>`);
         this.positionContainer = $('<div class="position-container">');
         this.textWrapper.appendTo(this.positionContainer);
         this.positionContainer.appendTo(this.$el);
-        if (this.text) this.initHighlights();
+        this.listenTo(this.collection, 'add', this.addHighlight);
+        this.listenTo(this.collection, 'update', this.onHighlightViewsUpdated);
+        this.listenTo(this.collection, 'remove', this.destroyNode)
+        if (text) this.initHighlights();
         return this;
     }
 
@@ -313,9 +315,8 @@ export default class HighlightableTextView extends View {
 
         let scrollToHv = this.getHighlightView(scrollToNode);
         if (scrollToHv) {
-            let scrollableEl = this.$el;
-            let scrollTop = getScrollTop(scrollableEl, scrollToHv.getTop(), scrollToHv.getHeight());
-            scrollableEl.animate({ scrollTop: scrollTop }, 800);
+            let scrollTarget = getScrollTop(this.$el, scrollToHv.getTop(), scrollToHv.getHeight());
+            animatedScroll(ScrollType.Top, this.$el, scrollTarget, undefined, 1.5);
         }
         return this;
     }
@@ -363,7 +364,7 @@ export default class HighlightableTextView extends View {
 
         if (this.selectedHighlight) {
             isNew = this.selectedHighlight.cid !== hV.cid;
-            this.unSelect(this.selectedHighlight, this.selectedHighlight.model);
+            this.unSelect(this.selectedHighlight, this.selectedHighlight.model, isNew);
             this.selectedHighlight = undefined;
             if (!isOverlapDetailClick && this.overlapDetailView) this.onCloseOverlapDetail();
         }
@@ -392,12 +393,12 @@ export default class HighlightableTextView extends View {
     /**
      * Unselect a certain highlight view. Will also be unselected on an active OverlapDetailView.
      */
-    unSelect(hV: HighlightView, annotation: Node): this {
+    unSelect(hV: HighlightView, annotation: Node, newHighlightSelected: boolean): this {
         hV.unSelect();
         if (this.overlapDetailView) {
             this.overlapDetailView.unSelect(hV);
         }
-        this.trigger('highlightUnselected', annotation);
+        this.trigger('highlightUnselected', annotation, newHighlightSelected);
         return this;
     }
 

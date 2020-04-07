@@ -1,4 +1,4 @@
-import { ViewOptions as BaseOpt } from 'backbone';
+import { ViewOptions as BaseOpt, $ } from 'backbone';
 import { extend } from 'lodash';
 import View from './../core/view';
 import Model from './../core/model';
@@ -91,7 +91,12 @@ export default class SourceView extends View<Node> {
         this.isShowingHighlights = this.showHighlightsInitially;
 
         this.htv = new HighlightableTextView({
-            text: <string>this.model.get(schema.text)[0],
+            // Traversing the JSON serialization, instead of a regular
+            // `model.get`, because the URI dereferences to plain text instead
+            // of a RDF-formatted resource and this would trip up the
+            // `Store.obtain()` call. TODO: replace this with a nicer API,
+            // perhaps `model.getRaw()`.
+            text: $.get(this.model.toJSON()[vocab('fullText')][0]['@id'] as string),
             showHighlightsInitially: this.showHighlightsInitially,
             collection: this.collection,
             initialScrollTo: this.initialScrollTo,
@@ -208,8 +213,8 @@ export default class SourceView extends View<Node> {
     /**
      * Pass events from HighlightableTextView
      */
-    onHighlightUnselected(node: Node): void {
-        this.trigger('sourceview:highlightUnselected', this, node);
+    onHighlightUnselected(node: Node, newHighlightSelected: boolean): void {
+        this.trigger('sourceview:highlightUnselected', this, node, newHighlightSelected);
     }
 
     /**

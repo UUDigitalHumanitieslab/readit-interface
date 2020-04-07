@@ -14,9 +14,11 @@ from vocab import namespace as vocab
 from staff import namespace as staff
 from staff.utils import submission_info
 from ontology import namespace as ontology
+from sources import namespace as source
 from . import namespace as my
 from .graph import graph, history
 from .models import ItemCounter, EditCounter
+from .permissions import *
 
 MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank node.'
 MUST_EQUAL_IDENTIFIER_400 = 'PUT must affect exactly the resource URI.'
@@ -105,10 +107,23 @@ class ItemsAPIRoot(RDFView):
             o = o and Literal(o)
         t = optional_int(params.get('t')) or 0
         r = optional_int(params.get('r')) or 0
+        # Heuristic to recognize requests for annotations. Facilitates special
+        # case in loop below. TODO: remove this again.
+        is_annotations_request = p is None and t == 2 and r == 1 and isinstance(o, URIRef) and str(o).startswith(str(source))
+        # Submission info is only used for the special case. TODO: remove
+        # together with is_annotations_request.
+        user, now = submission_info(request)
         # get the initial graph based on p, o, o_literal params
         full_graph = super().get_graph(request)
         subjects = set(full_graph.subjects(p, o))
         for s in subjects:
+            # Temporary special case: show users only their own annotations,
+            # unless they have special permission to see all.
+            # TODO: remove again.
+            if is_annotations_request and not request.user.has_perm('rdflib_django.view_all_annotations'):
+                creator = full_graph.value(s, DCTERMS.creator)
+                if creator != user:
+                    continue
             append_triples(core, full_graph.triples((s, None, None)))
         # traverse from here based on t, r params
         children = traverse_forward(full_graph, core, t)

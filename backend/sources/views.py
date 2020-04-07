@@ -1,34 +1,47 @@
 import os
 from datetime import datetime, timezone
+
+from django.http import HttpResponse
 from django.core.files.storage import default_storage
 from django.conf import settings
 
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED
+from rest_framework.status import *
 from rest_framework.parsers import MultiPartParser
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotFound
+from rest_framework.reverse import reverse
 
 from rdflib import Graph, URIRef, Literal
+from rdflib_django.utils import get_conjunctive_graph
 
 from rdf.ns import *
 from rdf.views import RDFView, RDFResourceView
-from rdf.utils import graph_from_triples
+from rdf.utils import graph_from_triples, prune_triples_cascade
 from vocab import namespace as vocab
 from staff.utils import submission_info
-from .graph import graph
+from items.graph import graph as items_graph
+from .graph import graph as sources_graph
 from .utils import get_media_filename
 from .models import SourcesCounter
+from .permissions import UploadSourcePermission, DeleteSourcePermission
 
 
-def inject_fulltext(input):
+def inject_fulltext(input, inline, request):
     """ Return a copy of input that has the fulltext for each source. """
     subjects = set(input.subjects())
     text_triples = Graph()
     for s in subjects:
         serial = get_serial_from_subject(s)
-        with default_storage.open(get_media_filename(serial)) as f:
-            text_triples.add((s, SCHEMA.text, Literal(f.read())))
+        if inline:
+            with default_storage.open(get_media_filename(serial)) as f:
+                text_triples.add((s, SCHEMA.text, Literal(f.read())))
+        else:
+            text_triples.add((s, vocab.fullText, URIRef(reverse(
+                'sources:fulltext',
+                kwargs={'serial': serial},
+                request=request,
+            ))))
     return input + text_triples
 
 
@@ -40,24 +53,43 @@ class SourcesAPIRoot(RDFView):
     """ For now, simply lists all sources. """
 
     def graph(self):
-        return graph()
+        return sources_graph()
 
     def get_graph(self, request, **kwargs):
-        return inject_fulltext(super().get_graph(request, **kwargs))
+        return inject_fulltext(super().get_graph(request, **kwargs), False, request)
 
 
 class SourcesAPISingular(RDFResourceView):
     """ API endpoint for fetching individual subjects. """
+    permission_classes = [IsAuthenticated, DeleteSourcePermission]
 
     def graph(self):
-        return graph()
+        return sources_graph()
 
     def get_graph(self, request, **kwargs):
-        return inject_fulltext(super().get_graph(request, **kwargs))
+        return inject_fulltext(super().get_graph(request, **kwargs), True, request)
+
+    def delete(self, request, format=None, **kwargs):
+        source_uri = request.build_absolute_uri(request.path)
+        existing = self.get_graph(request, **kwargs)
+        if len(existing) == 0:
+            raise NotFound('Source \'{}\' not found'.format(source_uri))
+        conjunctive = get_conjunctive_graph()
+        prune_triples_cascade(conjunctive, existing, [sources_graph])
+        annotations = conjunctive.triples((None, OA.hasSource, URIRef(source_uri)))
+        for s, p, o in annotations:
+            prune_triples_cascade(conjunctive, ((s, p, o),), [items_graph])
+        return Response(existing)
+
+
+def source_fulltext(request, serial):
+    """ API endpoint for fetching the full text of a single source. """
+    with default_storage.open(get_media_filename(serial)) as f:
+        return HttpResponse(f, content_type='text/plain; charset=utf-8')
 
 
 class AddSource(RDFResourceView):
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, UploadSourcePermission]
     parser_classes = [MultiPartParser]
 
     def store(self, file, destination):
@@ -169,7 +201,7 @@ class AddSource(RDFResourceView):
         result.add((new_subject, DCTERMS.created, now))
 
         # add to store
-        full_graph = graph()
+        full_graph = sources_graph()
         # below stores result automagically
         full_graph += result
 
