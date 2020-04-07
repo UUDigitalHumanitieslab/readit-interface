@@ -17,6 +17,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('items', '0002_editcounter'),
+        ('rdflib_django', '0002_auto_20181112_1317'),
     ]
 
     operations = [
