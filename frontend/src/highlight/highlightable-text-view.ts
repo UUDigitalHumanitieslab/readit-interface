@@ -21,7 +21,7 @@ import { SubviewBundleView } from '../utilities/subview-bundle-view';
 import { singleNumber } from '../utilities/binary-searchable-container/binary-search-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
-    text: string;
+    text: JQuery.jqXHR;
 
     /**
      * A collection of oa:Annotation instances.
@@ -56,7 +56,7 @@ export interface ViewOptions extends BaseOpt<Node> {
  * is inserted into the DOM. It listens for that event itself, but keep it in mind.
  */
 export default class HighlightableTextView extends View {
-    text: string;
+    text: JQuery.jqXHR;
     textWrapper: JQuery<HTMLElement>;
     positionContainer: JQuery<HTMLElement>;
     collection: FilteredCollection<Node>;
@@ -121,12 +121,9 @@ export default class HighlightableTextView extends View {
         );
 
         if (options.collection.length == 0) this.isFullyLoaded = true;
-        this.listenTo(this.collection, 'add', this.addHighlight);
-        this.listenTo(this.collection, 'update', this.onHighlightViewsUpdated);
-        this.listenTo(this.collection, 'remove', this.destroyNode)
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 100));
-        this.$el.ready(bind(this.onReady, this));
+        this.$el.ready(() => this.text.then(bind(this.onReady, this)));
     }
 
     render(): this {
@@ -143,12 +140,16 @@ export default class HighlightableTextView extends View {
      * (from: https://api.jquery.com/ready/). For the currrent View it guarantees that the View is in the DOM.
      */
     onReady(): this {
+        const text = this.text.responseText;
         this.isInDOM = true;
-        this.textWrapper = $(`<pre class="textWrapper">${this.text}</pre>`);
+        this.textWrapper = $(`<pre class="textWrapper">${text}</pre>`);
         this.positionContainer = $('<div class="position-container">');
         this.textWrapper.appendTo(this.positionContainer);
         this.positionContainer.appendTo(this.$el);
-        if (this.text) this.initHighlights();
+        this.listenTo(this.collection, 'add', this.addHighlight);
+        this.listenTo(this.collection, 'update', this.onHighlightViewsUpdated);
+        this.listenTo(this.collection, 'remove', this.destroyNode)
+        if (text) this.initHighlights();
         return this;
     }
 
