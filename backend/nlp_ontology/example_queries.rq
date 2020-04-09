@@ -1,0 +1,13 @@
+prefix ns3: <http://schema.org/>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+prefix lh: <http://localhost:8000/nlp-ontology#> 
+SELECT ?s ?p ?o WHERE { lh:reading_circumstances ns3:color ?o }
+
+prefix ns3: <http://schema.org/>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+prefix lh: <http://localhost:8000/nlp-ontology#> 
+DELETE { lh:reading_circumstances ns3:color ?o } 
+INSERT { lh:reading_circumstances ns3:color "#b2b2b2" } 
+WHERE { lh:reading_circumstances ns3:color ?o }

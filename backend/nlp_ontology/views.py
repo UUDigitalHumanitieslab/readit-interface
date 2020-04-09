@@ -23,6 +23,7 @@ def render_query_results(query_results, accepted_renderer=None):
 
 class NlpOntologyApiView(APIView):
     """ Query or update the NLP ontology using SPARQL """
+
     renderer_classes = (JSONRenderer, TurtleRenderer)
 
     def get(self, request, **kwargs):
@@ -30,7 +31,7 @@ class NlpOntologyApiView(APIView):
 
         if not sparql:
             # GET without parameters: full ontology
-            # Ignores 'Accept' header, only renders txt/turtle
+            # Ignores 'Accept' header, only renders text/turtle
             # TODO: see if this can be serialized to JSON
             request.accepted_renderer = TurtleRenderer()
             return Response(graph())
@@ -54,6 +55,18 @@ class NlpOntologyApiView(APIView):
             # try if update is a valid operation for this query and succeeds
             query = rdf_sparql.prepareQuery(sparql)
             query_results = graph().update(query)
+            return render_query_results(query_results, request.accepted_renderer)
+        except ParseException as p_e:
+            return Response("Invalid SPARQL query {}: {}".format(sparql, p_e.msg),
+                            status=HTTP_400_BAD_REQUEST)
+        except TypeError as t_e:
+            # Update fails: try query
+            pass
+
+        try:
+            # Otherwise, query
+            query = rdf_sparql.prepareQuery(sparql)
+            query_results = graph().query(query)
             return render_query_results(query_results, request.accepted_renderer)
         except ParseException as p_e:
             return Response("Invalid SPARQL query {}: {}".format(sparql, p_e.msg),
