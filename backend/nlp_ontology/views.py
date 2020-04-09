@@ -4,6 +4,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from rdf.renderers import TurtleRenderer
 from rdf.utils import graph_from_triples
@@ -12,8 +13,14 @@ from .graph import graph
 
 
 def render_query_results(query_results, accepted_renderer=None):
-    """ Render queryresults based on 'Accept': application/json (default) or txt/turtle"""
-    if isinstance(accepted_renderer, TurtleRenderer):
+
+
+<< << << < HEAD
+   """ Render queryresults based on 'Accept': application/json (default) or txt/turtle"""
+== == == =
+   ''' Render results bases on 'Accept' header: application/json (default) or txt/turtle '''
+>>>>>> > daf905d... Separate Query and Update endpoints
+   if isinstance(accepted_renderer, TurtleRenderer):
         return Response(graph_from_triples(query_results))
     if isinstance(accepted_renderer, JSONRenderer):
         return Response(query_results)
@@ -21,15 +28,30 @@ def render_query_results(query_results, accepted_renderer=None):
                     status=HTTP_406_NOT_ACCEPTABLE)
 
 
-class NlpOntologyApiView(APIView):
-    """ Query or update the NLP ontology using SPARQL """
+def execute_query(querystring):
+    prepared_query = rdf_sparql.prepareQuery(querystring)
+    return graph().query(prepared_query)
 
+
+def execute_update(updatestring):
+    return graph().update(updatestring)
+
+
+class SparqlView(APIView):
+    pass
+
+
+class NlpOntologyQueryView(APIView):
+    """ Query the NLP ontology through SPARQL-Query """
     renderer_classes = (JSONRenderer, TurtleRenderer)
 
     def get(self, request, **kwargs):
-        sparql = request.query_params.get('query')
+        ''' Accepts SPARQL-Query in query paramter 'query'
+            Outputs application/json or text/turtle based on header 'Accept'
+        '''
+        sparql_string = request.query_params.get('query')
 
-        if not sparql:
+        if not sparql_string:
             # GET without parameters: full ontology
             # Ignores 'Accept' header, only renders text/turtle
             # TODO: see if this can be serialized to JSON
@@ -37,36 +59,50 @@ class NlpOntologyApiView(APIView):
             return Response(graph())
 
         try:
-            query = rdf_sparql.prepareQuery(sparql)
-        except ParseException as p_e:
-            return Response("Invalid query {}: {}".format(sparql, p_e.msg),
-                            status=HTTP_400_BAD_REQUEST)
-
-        query_results = graph().query(query)
-        return render_query_results(query_results, request.accepted_renderer)
-
-    def post(self, request, **kwargs):
-        sparql = request.data.get('query')
-        if not sparql:
-            return Response("No SPARQL query provided in request body",
-                            status=HTTP_400_BAD_REQUEST)
-
-        try:
-            # try if update is a valid operation for this query and succeeds
-            query = rdf_sparql.prepareQuery(sparql)
-            query_results = graph().update(query)
+            query_results = execute_query(sparql_string)
             return render_query_results(query_results, request.accepted_renderer)
         except ParseException as p_e:
-            return Response("Invalid SPARQL query {}: {}".format(sparql, p_e.msg),
+            return Response("Invalid query {}: {}".format(sparql_string, p_e.msg),
                             status=HTTP_400_BAD_REQUEST)
-        except TypeError as t_e:
-            # Update fails: try query
-            pass
+
+    def post(self, request, **kwargs):
+        ''' Accepts POST request with SPARQL-Query in body parameter 'query'
+            TODO: Optionally provide namespaces in one or more body paramters 'prefix'
+            Outputs application/json or text/turtle based on  header 'Accept'
+        '''
+        sparql_string = request.data.get('query')
+
+        if not sparql_string:
+            return Response('No SPARQL-Query in request body parameter "query"',
+                            status=HTTP_400_BAD_REQUEST)
 
         try:
-            # Otherwise, query
-            query = rdf_sparql.prepareQuery(sparql)
-            query_results = graph().query(query)
+            query_results = execute_query(sparql_string)
+            return render_query_results(query_results, request.accepted_renderer)
+        except ParseException as p_e:
+            # Raised when SPARQL syntax is not valid, or parsing fails
+            return Response(p_e.msg)
+
+
+class NlpOntologyUpdateView(APIView):
+    """ Update the NLP ontology through SPARQL-Update """
+    renderer_classes = (JSONRenderer, TurtleRenderer)
+    # permission_classes = (IsAuthenticatedOrReadOnly, )
+
+    def post(self, request, **kwargs):
+        ''' Accepts POST request with SPARQL-Query in body parameter 'query'
+            TODO: Optionally provide namespaces in one or more body paramters 'prefix'
+            Outputs application/json or text/turtle based on  header 'Accept'
+        '''
+        sparql_string = request.data.get('update')
+
+        if not sparql_string:
+            # POST must contain an update
+            return Response("No SPARQL-Update in body parameter 'update'",
+                            status=HTTP_400_BAD_REQUEST)
+
+        try:
+            query_results = execute_update(sparql_string)
             return render_query_results(query_results, request.accepted_renderer)
         except ParseException as p_e:
             return Response("Invalid SPARQL query {}: {}".format(sparql, p_e.msg),

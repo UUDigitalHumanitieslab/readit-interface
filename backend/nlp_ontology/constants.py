@@ -1,9 +1,9 @@
 from django.conf import settings
 import os.path as op
 
-NLP_ONTOLOGY_ROUTE = 'nlp-ontology'
+NLP_ONTOLOGY_ROUTE = 'nlp-ontology/'
 NLP_ONTOLOGY_NS = '{}{}#'.format(
-    settings.RDF_NAMESPACE_ROOT, NLP_ONTOLOGY_ROUTE)
+    settings.RDF_NAMESPACE_ROOT, 'nlp-ontology')
 
 # External file or URL from which we're loading the RDF-encoded ontology.
 # This is hardcoded, i.e., not a setting, because migrations depend

@@ -1,8 +1,9 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from .views import NlpOntologyApiView
+from .views import NlpOntologyQueryView, NlpOntologyUpdateView
 
 urlpatterns = format_suffix_patterns([
-    path('', NlpOntologyApiView.as_view())
+    path('update', NlpOntologyUpdateView.as_view()),
+    path('', NlpOntologyQueryView.as_view()),
 ])
