@@ -16,6 +16,10 @@ describe('ExplorerView', function () {
         this.view = new ExplorerView({ first: firstPanel, ontology: ontology });
     });
 
+    afterEach(function() {
+        this.view.remove();
+    });
+
     it('adds a stack with first panel on init', function () {
         expect(this.view.stacks.length).toEqual(1);
         expect(this.view.stacks[0].panels.length).toEqual(1);
