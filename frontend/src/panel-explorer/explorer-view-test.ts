@@ -215,22 +215,27 @@ describe('ExplorerView', function () {
         expect(this.view.stacks[1].panels.length).toEqual(2);
     });
 
-    it('will not pop (until) if provided panel is the rightmost', function () {
+    it('will not pop (until) if provided panel is the rightmost', function(cb) {
         let stack1Panel1 = new View();
         this.view.push(stack1Panel1);
 
         let stack1Panel2 = new View();
         this.view.overlay(stack1Panel2, stack1Panel1);
 
-        expect(this.view.stacks.length).toEqual(2);
-        expect(this.view.stacks[0].panels.length).toEqual(1);
-        expect(this.view.stacks[1].panels.length).toEqual(2);
+        const expectSame = () => {
+            expect(this.view.stacks.length).toEqual(2);
+            expect(this.view.stacks[0].panels.length).toEqual(1);
+            expect(this.view.stacks[1].panels.length).toEqual(2);
+        };
+
+        expectSame();
+
+        this.view.once('pop:until', () => {
+            expectSame();
+            cb();
+        });
 
         // this will not pop any panels
         this.view.popUntil(stack1Panel2);
-
-        expect(this.view.stacks.length).toEqual(2);
-        expect(this.view.stacks[0].panels.length).toEqual(1);
-        expect(this.view.stacks[1].panels.length).toEqual(2);
     });
 });
