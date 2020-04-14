@@ -7,6 +7,7 @@ import {
     debounce,
     findLast,
     defer,
+    isFunction,
     sortedIndexBy,
     constant,
 } from 'lodash';
@@ -17,7 +18,6 @@ import Graph from '../jsonld/graph';
 import PanelStackView from './explorer-panelstack-view';
 import EventController from './explorer-event-controller';
 import { animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
-import { isFunction } from 'util';
 
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?
@@ -201,8 +201,8 @@ export default class ExplorerView extends View {
      */
     popUntilAndPush(popUntilPanel: View, newPanel: View | (() => View)) : this {
         this.popUntilAsync(popUntilPanel).then(() => {
-            if (!(newPanel instanceof View)) newPanel = newPanel();
-            this.push(newPanel);
+            if (isFunction(newPanel)) newPanel = (newPanel as () => View)();
+            this.push(newPanel as View);
         });
         return this;
     }
