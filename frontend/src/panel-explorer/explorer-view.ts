@@ -1,11 +1,8 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import {
     extend,
-    sumBy,
-    method,
     bind,
     debounce,
-    findLast,
     defer,
     isFunction,
     sortedIndexBy,
