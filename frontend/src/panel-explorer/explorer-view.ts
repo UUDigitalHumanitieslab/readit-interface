@@ -33,7 +33,7 @@ export default class ExplorerView extends View {
      * and the position of the stack as the value. Perfect for finding
      * the stack that a panel is in/on.
      */
-    rltPanelStack: Map<string, number>;
+    rltPanelStack: { [cid: string]: number };
 
     /**
      * Keep track of currently fully visible stack (for scroll event purposes)
@@ -47,7 +47,7 @@ export default class ExplorerView extends View {
         this.ontology = options.ontology;
         this.stacks = [];
         this.eventController = new EventController(this);
-        this.rltPanelStack = new Map();
+        this.rltPanelStack = {};
         this.push(options.first);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 500));
@@ -86,7 +86,7 @@ export default class ExplorerView extends View {
         let position = this.stacks.length;
         this.stacks.push(new PanelStackView({ first: panel }));
         let stack = this.stacks[position];
-        this.rltPanelStack.set(panel.cid, position);
+        this.rltPanelStack[panel.cid] = position;
         stack.render().$el.appendTo(this.$el);
         this.trigger('push', panel, position);
         this.scroll();
@@ -107,7 +107,7 @@ export default class ExplorerView extends View {
         let position = this.stacks.length - 1;
 
         if (ontoPanel) {
-            position = this.rltPanelStack.get(ontoPanel.cid);
+            position = this.rltPanelStack[ontoPanel.cid];
 
             // validate that the ontoPanel is on top of its stack
             let stackTop = this.stacks[position].getTopPanel();
@@ -121,7 +121,7 @@ export default class ExplorerView extends View {
         let stack = this.stacks[position];
         // remove the old panel for this stack from search container, new one may have different width
         stack.push(panel);
-        this.rltPanelStack.set(panel.cid, position);
+        this.rltPanelStack[panel.cid] = position;
 
         this.eventController.subscribeToPanelEvents(panel);
         this.trigger('overlay', panel, ontoPanel, position, (position - this.stacks.length));
@@ -141,7 +141,7 @@ export default class ExplorerView extends View {
         let scrollToStack = stack;
         if (stack.hasOnlyOnePanel()) scrollToStack = this.stacks[position - 1];
         let poppedPanel = this.getRightMostStack().getTopPanel();
-        this.rltPanelStack.delete(poppedPanel.cid);
+        delete this.rltPanelStack[poppedPanel.cid];
 
         const deleteAndTrigger = () => {
             this.deletePanel(position);
@@ -175,7 +175,7 @@ export default class ExplorerView extends View {
      */
     removeOverlay(panel: View): View {
         // validate that the panel is on top of its stack
-        let position = this.rltPanelStack.get(panel.cid);
+        let position = this.rltPanelStack[panel.cid];
         let stackTop = this.stacks[position].getTopPanel();
         if (panel.cid !== stackTop.cid) {
             throw new RangeError(`panel with cid '${panel.cid}' is not a topmost panel`);
@@ -245,7 +245,7 @@ export default class ExplorerView extends View {
             this.stacks.splice(position, 1);
         }
 
-        this.rltPanelStack.delete(panel.cid);
+        delete this.rltPanelStack[panel.cid];
 
         return panel;
     }
@@ -278,7 +278,7 @@ export default class ExplorerView extends View {
         if (mostRightFullyVisibleStack !== this.mostRightFullyVisibleStack) {
             this.mostRightFullyVisibleStack = mostRightFullyVisibleStack;
             let topPanel = mostRightFullyVisibleStack.getTopPanel();
-            let position = this.rltPanelStack.get(topPanel.cid);
+            let position = this.rltPanelStack[topPanel.cid];
             this.trigger('scrollTo', topPanel, position, (position - this.stacks.length));
         }
     }
