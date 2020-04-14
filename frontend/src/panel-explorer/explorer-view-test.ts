@@ -1,3 +1,6 @@
+import { $ } from 'backbone';
+import { times, after } from 'lodash';
+
 import './../global/scroll-easings';
 import { enableI18n } from '../test-util';
 
@@ -6,6 +9,8 @@ import View from './../core/view';
 
 import mockOntology from './../mock-data/mock-ontology';
 import Graph from './../jsonld/graph';
+
+import fastTimeout from '../utilities/fastTimeout';
 
 describe('ExplorerView', function () {
     beforeAll(enableI18n);
@@ -241,5 +246,43 @@ describe('ExplorerView', function () {
 
         // this will not pop any panels
         this.view.popUntil(stack1Panel2);
+    });
+
+    it('does not push prematurely with popUntilAndPush', function(done) {
+        // Fake the scroll method in order to save time.
+        spyOn(this.view, 'scroll').and.callFake(function(stack, callback) {
+            callback && fastTimeout(callback);
+            return this;
+        });
+
+        const firstPanel = this.view.getRightMostStack().getTopPanel();
+
+        // Push lots of panels, should give ample opportunity for bugs. Ideally
+        // 1000 as this enables the infinite loop detection, but since
+        // fastTimeout isn't any faster than regular setTimeout in JSDOM, only
+        // 100 in JSDOM.
+        const numPanels = document.hidden ? 100 : 1000;
+        times(numPanels, () => this.view.push(new View()));
+
+        // The panel that we'll push after popping all of the above.
+        const pushee = new View();
+
+        // We're going to handle two events, after that we're done.
+        const advanceProgress = after(2, done);
+        spyOn(this.view, 'push').and.callThrough();
+
+        this.view.once('pop:until', () => {
+            expect(this.view.push).not.toHaveBeenCalled();
+            advanceProgress();
+        });
+
+        // This should run after the previous event.
+        this.view.once('push', () => {
+            expect(this.view.push).toHaveBeenCalledWith(pushee);
+            advanceProgress();
+        });
+
+        // Set everything in motion.
+        this.view.popUntilAndPush(firstPanel, pushee);
     });
 });

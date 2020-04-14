@@ -3,7 +3,6 @@ import {
     extend,
     bind,
     debounce,
-    defer,
     isFunction,
     sortedIndexBy,
     constant,
@@ -15,6 +14,7 @@ import Graph from '../jsonld/graph';
 import PanelStackView from './explorer-panelstack-view';
 import EventController from './explorer-event-controller';
 import { animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
+import fastTimeout from '../utilities/fastTimeout';
 
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?
@@ -150,7 +150,7 @@ export default class ExplorerView extends View {
         if (stack.getLeftBorderOffset() < this.getMostRight() && this.$el.scrollLeft() > 0) {
             this.scroll(scrollToStack, deleteAndTrigger);
         }
-        else defer(deleteAndTrigger);
+        else fastTimeout(deleteAndTrigger);
         return poppedPanel;
     }
 
