@@ -241,17 +241,17 @@ export default class ExplorerEventController {
     }
 
     sourceViewShowMetadata(sourceView: View, node: Node): this {
-        this.explorerView.popUntil(sourceView);
-        // let view = new PanelMetadataView({
-        //     model: sourceView.model
-        // });
-        console.log(sourceView.model);
-        this.notImplemented();
+        //this.explorerView.popUntil(sourceView);
+        let self = this;
+        let metaView = new MetadataView({
+            model: sourceView.model
+        });
+        self.explorerView.push(metaView);
         return this;
     }
 
     sourceViewHideMetadata(sourceView: View): this {
-        // this.explorerView.popUntil(sourceView);
+        this.explorerView.pop();
         return this;
     }
 
