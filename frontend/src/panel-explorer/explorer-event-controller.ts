@@ -281,24 +281,22 @@ export default class ExplorerEventController {
 
     sourceViewOnTextSelected(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): this {
         let listView = this.mapSourceAnnotationList.get(sourceView);
-        const createEditView = () => {
-            let annoEditView = new AnnotationEditView({
-                range: range,
-                positionDetails: positionDetails,
-                source: source,
-                ontology: this.explorerView.ontology,
-                model: undefined,
-            });
-            this.mapAnnotationEditSource.set(annoEditView, sourceView);
-            return annoEditView;
-        }
+        let annoEditView = new AnnotationEditView({
+            range: range,
+            positionDetails: positionDetails,
+            source: source,
+            ontology: this.explorerView.ontology,
+            model: undefined,
+        });
+        this.mapAnnotationEditSource.set(annoEditView, sourceView);
 
         if (listView) {
             this.explorerView.popUntilAsync(listView).then(() => {
-                this.explorerView.overlay(createEditView());
+                this.explorerView.overlay(annoEditView);
             });
-        } else {
-            this.explorerView.push(createEditView());
+        }
+        else {
+            this.explorerView.push(annoEditView);
         }
         return this;
     }
