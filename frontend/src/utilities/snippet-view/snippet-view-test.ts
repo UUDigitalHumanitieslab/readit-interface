@@ -14,7 +14,7 @@ const selectorAttributes = {
     [oa.suffix]: '.',
 };
 
-fdescribe('SnippetView', function() {
+describe('SnippetView', function() {
     const it = onlyIf(document.createElement('canvas').getContext('2d'), 'This suite depends on the <canvas> element.');
 
     beforeEach(function() {

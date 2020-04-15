@@ -8,7 +8,7 @@ import AnnotationEditView from './panel-annotation-edit-view';
 
 const text = 'This is a text.'
 
-fdescribe('AnnotationEditView', function() {
+describe('AnnotationEditView', function() {
     beforeEach(function() {
         this.textContainer = $(`<p>${text}</p>`);
         this.positionDetails = {
