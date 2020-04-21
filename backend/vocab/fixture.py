@@ -40,6 +40,9 @@ def triples():
         ( my.fullText,         is_a,          Property ),
         ( my.fullText,         hasDomain,     my.Source ),
         ( my.fullText,         hasRange,      SCHEMA.Text ),
+
+        # Temporary marker in order to trigger the bugfix migration for #283.
+        ( my.chunkMarker,      RDF.value,     Literal('this will be removed') ),
     ]
 
 def canonical_graph():
