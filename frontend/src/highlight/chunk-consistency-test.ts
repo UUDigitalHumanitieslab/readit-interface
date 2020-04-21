@@ -6,7 +6,7 @@ import loremIpsum from '../lorem-ipsum';
 const WebKitChunkSize = 65536;
 const minimum = 10 * WebKitChunkSize;
 const repeats = Math.ceil(minimum / loremIpsum.length);
-const bigText = times(repeats, () => loremIpsum).join('');
+export const bigText = times(repeats, () => loremIpsum).join('');
 
 describe('the WebKit chunking issue', function() {
     it('can be reproduced in a unittest', function() {
