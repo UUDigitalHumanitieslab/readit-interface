@@ -142,7 +142,7 @@ export default class HighlightableTextView extends View {
     onReady(): this {
         const text = this.text.responseText;
         this.isInDOM = true;
-        this.textWrapper = $(`<pre class="textWrapper">${text}</pre>`);
+        this.textWrapper = $('<pre class="textWrapper">').text(text);
         this.positionContainer = $('<div class="position-container">');
         this.textWrapper.appendTo(this.positionContainer);
         this.positionContainer.appendTo(this.$el);
