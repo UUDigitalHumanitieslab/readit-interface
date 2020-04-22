@@ -48,9 +48,6 @@ def triples():
 
         ( my.self,             is_a,          AS.Application ),
         ( my.self,             FOAF.homepage, APP_URI ),
-
-        # Temporary marker in order to trigger the bugfix migration for #283.
-        ( my.chunkMarker,      RDF.value,     Literal('this will be removed') ),
     ]
 
 
