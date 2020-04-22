@@ -28,13 +28,18 @@ export function getLabelText(selector: Node): string {
  * Get the annotation's position details (i.e. node and character indices).
  * @param annotation The node to extract the details from.
  */
-export function getPositionDetails(startSelector: Node, endSelector: Node): AnnotationPositionDetails {
-    return {
+export function getPositionDetails(startSelector: Node, endSelector?: Node): AnnotationPositionDetails {
+    if (endSelector) return {
         startNodeIndex: getNodeIndex(startSelector),
         startCharacterIndex: getCharacterIndex(startSelector),
         endNodeIndex: getNodeIndex(endSelector),
         endCharacterIndex: getCharacterIndex(endSelector)
-    }
+    }; else return {
+        startNodeIndex: 0,
+        startCharacterIndex: startSelector.get(oa.start)[0] as number,
+        endNodeIndex: 0,
+        endCharacterIndex: startSelector.get(oa.end)[0] as number,
+    };
 }
 
 /**

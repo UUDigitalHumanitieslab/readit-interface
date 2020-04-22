@@ -1,7 +1,7 @@
 
 import { extend, minBy, sumBy, initial, last, defer, debounce, bind } from 'lodash';
 
-import { rdf } from './../jsonld/ns';
+import { rdf, oa } from './../jsonld/ns';
 import Node from '../jsonld/node';
 import HighlightRectView from './highlight-rect-view';
 import { getCssClassName } from './../utilities/utilities';
@@ -53,6 +53,7 @@ export default class HighlightView extends BaseAnnotationView {
 
     startSelector: Node;
     endSelector: Node;
+    selector: Node;
     callbackFn: any;
 
     constructor(options?: ViewOptions) {
@@ -69,9 +70,12 @@ export default class HighlightView extends BaseAnnotationView {
         this.isDeletable = options.isDeletable || false;
 
         if (this.model) {
-            this.listenTo(this, 'startSelector', this.processStartSelector);
-            this.listenTo(this, 'endSelector', this.processEndSelector);
-            this.listenTo(this, 'body:ontologyClass', this.processOntologyClass);
+            this.on({
+                startSelector: this.processStartSelector,
+                endSelector: this.processEndSelector,
+                positionSelector: this.processPositionSelector,
+                'body:ontologyClass': this.processOntologyClass,
+            });
             this.listenTo(this.model, 'change', this.processModel);
             this.processModel(this.model);
         }
@@ -114,9 +118,22 @@ export default class HighlightView extends BaseAnnotationView {
         return this;
     }
 
+    processPositionSelector(selector: Node): this {
+        if (selector.has(oa.start)) {
+            this.selector = selector;
+            this.processSelectors();
+        }
+        return this;
+    }
+
     processSelectors(): this {
-        if (this.startSelector && this.endSelector) {
+        if (this.selector) {
+            this.positionDetails = getPositionDetails(this.selector);
+        } else if (this.startSelector && this.endSelector) {
             this.positionDetails = getPositionDetails(this.startSelector, this.endSelector);
+        }
+
+        if (this.positionDetails) {
             this.processPositionDetails();
             if (this.callbackFn) {
                 this.callbackFn();

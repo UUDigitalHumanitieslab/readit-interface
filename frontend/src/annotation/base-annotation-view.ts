@@ -101,6 +101,10 @@ export default abstract class BaseAnnotationView extends View<Node> {
             this.trigger('textQuoteSelector', selector);
         }
 
+        if (isType(selector, oa.TextPositionSelector)) {
+            this.trigger('positionSelector', selector);
+        }
+
         if (isType(selector, vocab('RangeSelector'))) {
             let startSelector = selector.get(oa.hasStartSelector)[0] as Node;
             // See comment above for explanation of stopListening/listenTo pattern.
