@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as a$ from 'async';
 
 import Node  from './../../jsonld/node';
-import { oa, vocab, rdf, xsd, staff, dcterms, } from './../../jsonld/ns';
+import { oa, as, vocab, rdf, xsd, staff, dcterms, } from './../../jsonld/ns';
 
 import ItemGraph from './../../utilities/item-graph';
 import { AnnotationPositionDetails } from './annotation-utilities';
@@ -217,6 +217,7 @@ function createAnnotation(
         '@type': oa.Annotation,
         [oa.hasBody]: [ontoClass],
         [oa.hasTarget]: specificResource,
+        [as.generator]: vocab('self'),
     };
     if (ontoItem) (attributes[oa.hasBody] as Node[]).push(ontoItem);
     return createItem(items, attributes, done);
