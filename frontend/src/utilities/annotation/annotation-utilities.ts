@@ -46,14 +46,16 @@ export function getLinkedItems(annotation: Node): Node[] {
     let specificResource = getSpecificResource(annotation);
     let rangeSelector = getSelector(annotation, vocab('RangeSelector'));
     let textQuoteSelector = getSelector(annotation, oa.TextQuoteSelector);
+    let positionSelector = getSelector(annotation, oa.TextPositionSelector);
 
-    let items = [
-        specificResource,
+    let items = [specificResource];
+    if (rangeSelector) items.push(
         rangeSelector,
         getStartSelector(rangeSelector),
         getEndSelector(rangeSelector)
-    ]
+    );
     if (textQuoteSelector) items.push(textQuoteSelector);
+    if (positionSelector) items.push(positionSelector);
     return items;
 }
 

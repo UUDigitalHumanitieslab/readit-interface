@@ -73,27 +73,21 @@ export function composeAnnotation(
     ontoItem?: Node,
     done?
 ) {
-    const { startNodeIndex, startCharacterIndex, endNodeIndex, endCharacterIndex } = posDetails;
+    const { startCharacterIndex, endCharacterIndex } = posDetails;
 
     const inputs = {
-        startNodeIndex, startCharacterIndex, endNodeIndex, endCharacterIndex,
+        startCharacterIndex, endCharacterIndex,
         source, ontoClass, ontoItem, tQSelector, items: new ItemGraph(),
     };
 
     const tasks = {
-        startSelector: ['items', 'startNodeIndex', 'startCharacterIndex',
-            createXPathSelector,
-        ],
-        endSelector: ['items', 'endNodeIndex', 'endCharacterIndex',
-            createXPathSelector,
-        ],
-        rangeSelector: ['items', 'startSelector', 'endSelector',
-            createRangeSelector,
+        positionSelector: ['items', 'startCharacterIndex', 'endCharacterIndex',
+            createPositionSelector,
         ],
         textQuoteSelector: ['items', 'tQSelector',
             createTextQuoteSelector,
         ],
-        specificResource: ['items', 'source', 'rangeSelector', 'textQuoteSelector',
+        specificResource: ['items', 'source', 'positionSelector', 'textQuoteSelector',
             createSpecificResource,
         ],
         instance: ['items', 'ontoClass', 'ontoItem',
@@ -194,30 +188,20 @@ function createTextQuoteSelector(items: ItemGraph, textQuoteSelector: Node, done
     return createItem(items, textQuoteSelector.attributes, done);
 }
 
-function createXPathSelector(items: ItemGraph, container: number, offset: number, done?) {
-    const xPath = `substring(.//*[${container}]/text(), ${offset})`;
+function createPositionSelector(items: ItemGraph, start: number, end: number, done?) {
     const attributes = {
-        '@type': oa.XPathSelector,
-        [rdf.value]: xPath,
-    };
-
-    return createItem(items, attributes, done);
-}
-
-function createRangeSelector(items: ItemGraph, start: number, end: number, done?) {
-    const attributes = {
-        '@type': vocab('RangeSelector'),
-        [oa.hasStartSelector]: start,
-        [oa.hasEndSelector]: end,
+        '@type': oa.TextPositionSelector,
+        [oa.start]: start,
+        [oa.end]: end,
     };
     return createItem(items, attributes, done);
 }
 
-function createSpecificResource(items: ItemGraph, source: Node, rangeSelector: Node, textQuoteSelector: Node, done?) {
+function createSpecificResource(items: ItemGraph, source: Node, positionSelector: Node, textQuoteSelector: Node, done?) {
     const attributes = {
         '@type': oa.SpecificResource,
         [oa.hasSource]: source,
-        [oa.hasSelector]: [rangeSelector, textQuoteSelector],
+        [oa.hasSelector]: [positionSelector, textQuoteSelector],
     };
     return createItem(items, attributes, done);
 }
