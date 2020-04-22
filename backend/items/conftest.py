@@ -22,19 +22,12 @@ TRIPLES = (
     ( ITEM['1'], DCTERMS.creator,       STAFF.tester                       ),
     ( ITEM['1'], DCTERMS.created,       CREATION_DATE                      ),
 
-    ( ITEM['2'], RDF.type,              OA.XPathSelector                   ),
-    ( ITEM['2'], RDF.value,             Literal('substring(.//*[0]/text(), 22)') ),
-    ( ITEM['2'], DCTERMS.creator,       STAFF.tester                       ),
-    ( ITEM['2'], DCTERMS.created,       CREATION_DATE                      ),
+    # Items 2 and 3 dropped out because we once used a custom range selector
+    # with two OA.XPathSelectors.
 
-    ( ITEM['3'], RDF.type,              OA.XPathSelector                   ),
-    ( ITEM['3'], RDF.value,             Literal('substring(.//*[0]/text(), 41)') ),
-    ( ITEM['3'], DCTERMS.creator,       STAFF.tester                       ),
-    ( ITEM['3'], DCTERMS.created,       CREATION_DATE                      ),
-
-    ( ITEM['4'], RDF.type,              VOCAB.RangeSelector                ),
-    ( ITEM['4'], OA.hasStartSelector,   ITEM['2']                          ),
-    ( ITEM['4'], OA.hasEndSelector,     ITEM['3']                          ),
+    ( ITEM['4'], RDF.type,              OA.TextPositionSelector            ),
+    ( ITEM['4'], OA.start,              Literal(22)                        ),
+    ( ITEM['4'], OA.end,                Literal(41)                        ),
     ( ITEM['4'], DCTERMS.creator,       STAFF.tester                       ),
     ( ITEM['4'], DCTERMS.created,       CREATION_DATE                      ),
 
