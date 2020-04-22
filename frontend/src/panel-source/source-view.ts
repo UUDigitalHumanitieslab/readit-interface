@@ -15,6 +15,7 @@ import ItemGraph from '../utilities/item-graph';
 import FilteredCollection from '../utilities/filtered-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import SourceToolbarView from './toolbar/source-toolbar-view';
+import MetadataView from '../panel-metadata/panel-metadata-view';
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
@@ -106,6 +107,7 @@ export default class SourceView extends View<Node> {
 
         this.toolbar = new SourceToolbarView();
         this.bindToToolbarEvents(this.toolbar);
+        this.listenTo(this, 'metadata:hide', this.toggleMetadata);
     }
 
     validate() {
@@ -292,6 +294,7 @@ export default class SourceView extends View<Node> {
     scrollTo(annotation: Node): void {
         this.htv.scrollTo(annotation);
     }
+
 }
 extend(SourceView.prototype, {
     tagName: 'div',

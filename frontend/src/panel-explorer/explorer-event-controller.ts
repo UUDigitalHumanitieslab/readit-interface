@@ -28,6 +28,7 @@ export default class ExplorerEventController {
      * The explorer view instance to manage events for
      */
     explorerView: ExplorerView;
+    metaView: MetadataView;
 
     mapSourceAnnotationList: Map<SourceView, AnnotationListView> = new Map();
     mapAnnotationListSource: Map<AnnotationListView, SourceView> = new Map();
@@ -73,6 +74,7 @@ export default class ExplorerEventController {
             'relItems:edit-close': this.relItemsEditClose,
             'source-list:click': this.sourceListClick,
             'searchResultList:itemClicked': this.searchResultListItemClicked,
+            // 'metadata:hide': this.sourceViewCloseMetadata
         }, this);
     }
 
@@ -240,18 +242,25 @@ export default class ExplorerEventController {
         return this;
     }
 
-    sourceViewShowMetadata(sourceView: View, node: Node): this {
-        //this.explorerView.popUntil(sourceView);
+    sourceViewShowMetadata(sourceView: SourceView): this {
         let self = this;
-        let metaView = new MetadataView({
+        this.metaView = new MetadataView({
             model: sourceView.model
         });
-        self.explorerView.push(metaView);
+        self.explorerView.overlay(this.metaView);
         return this;
     }
 
-    sourceViewHideMetadata(sourceView: View): this {
-        this.explorerView.pop();
+    sourceViewHideMetadata(): this {
+        this.explorerView.removeOverlay(this.metaView);
+        return this;
+    }
+
+    sourceViewCloseMetadata(sourceView: SourceView): this {
+        console.log("close meta panel!");
+        this.explorerView.removeOverlay(this.metaView);
+        sourceView.isShowingMetadata = false;
+        sourceView.toggleToolbarItemSelected('metadata');
         return this;
     }
 

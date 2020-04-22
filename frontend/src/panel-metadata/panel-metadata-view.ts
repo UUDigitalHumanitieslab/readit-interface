@@ -3,8 +3,7 @@ import View from './../core/view';
 import metadataTemplate from './panel-metadata-template';
 import { owl, oa, dcterms } from './../jsonld/ns';
 import Node, { isNode } from '../jsonld/node';
-import { getLabelText } from '../utilities/annotation/annotation-utilities';
-import { isType, getLabelFromId } from './../utilities/utilities';
+import { isType, getLabelFromId, getLabel } from './../utilities/utilities';
 
 const excludedProperties = [
     '@id',
@@ -18,7 +17,8 @@ export default class MetadataView extends View {
     properties: any;
 
     initialize(): this {
-        this.properties = this.model.attributes;
+        this.properties = new Object();
+        this.formatAttributes();
         return this;
     }
 
@@ -28,25 +28,33 @@ export default class MetadataView extends View {
     }
 
     formatAttributes(): this {
-    for (let attribute in this.model.attributes) {
-        if (excludedProperties.includes(attribute)) {
-            continue;
-        }
-
-        let attributeLabel = getLabelFromId(attribute);
-
-        let valueArray = this.model.attributes.get(attribute);
-        valueArray.forEach(value => {
-            if (isNode(value)) {
-                console.log(value);
-                // this.relatedItems.push(value as Node);
+        console.log(this.model.attributes)
+        for (let attribute in this.model.attributes) {
+            if (excludedProperties.includes(attribute)) {
+                continue;
             }
-            else {
+            let attributeLabel = getLabelFromId(attribute);
+            if (attributeLabel==='fullText') {
+                continue;
+            }
+            if (attributeLabel==='inLanguage') {
+                // console.log(getSources(attribute));
+            }
+            let valueArray = this.model.get(attribute);
+            valueArray.forEach(value => {     
                 this.properties[attributeLabel] = value;
-            }
-        });
-        return this;
+
+            });
+        }
+            return this;
     }
+
+    onCloseClicked() {
+        this.trigger('metadata:hide', this);
+    }
+
+    onEditClicked() {
+        this.trigger('metadata:edit', this);
     }
 
 }
@@ -57,5 +65,6 @@ extend(MetadataView.prototype, {
     template: metadataTemplate,
     events: {
         'click .btn-edit': 'onEditClicked',
+        'click .btn-close': 'onCloseClicked'
     }
 });
