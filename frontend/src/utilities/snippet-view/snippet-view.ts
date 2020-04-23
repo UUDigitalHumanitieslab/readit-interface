@@ -136,6 +136,7 @@ export default class SnippetView extends View {
      */
     trimToFit(text: string, width: number, fromStart: boolean = false): string {
         let trimmed: string = text;
+        width = Math.max(width, 1);
         while (this.getLengthInPixels(trimmed) > width) {
             trimmed = this.trimCharacter(trimmed, fromStart);
         }

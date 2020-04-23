@@ -9,7 +9,7 @@ import SourceListView from '../panel-source-list/source-list-view';
 import SourceView from './../panel-source/source-view';
 import AnnotationListView from '../annotation/panel-annotation-list-view';
 
-import AnnotationEditView from '../annotation/panel-annotation-edit';
+import AnnotationEditView from '../annotation/panel-annotation-edit-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
 import RelatedItemsEditView from '../panel-related-items/related-items-edit-view';
 import ItemGraph from '../utilities/item-graph';
@@ -281,24 +281,22 @@ export default class ExplorerEventController {
 
     sourceViewOnTextSelected(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): this {
         let listView = this.mapSourceAnnotationList.get(sourceView);
-        const createEditView = () => {
-            let annoEditView = new AnnotationEditView({
-                range: range,
-                positionDetails: positionDetails,
-                source: source,
-                ontology: this.explorerView.ontology,
-                model: undefined,
-            });
-            this.mapAnnotationEditSource.set(annoEditView, sourceView);
-            return annoEditView;
-        }
+        let annoEditView = new AnnotationEditView({
+            range: range,
+            positionDetails: positionDetails,
+            source: source,
+            ontology: this.explorerView.ontology,
+            model: undefined,
+        });
+        this.mapAnnotationEditSource.set(annoEditView, sourceView);
 
         if (listView) {
             this.explorerView.popUntilAsync(listView).then(() => {
-                this.explorerView.overlay(createEditView());
+                this.explorerView.overlay(annoEditView);
             });
-        } else {
-            this.explorerView.push(createEditView());
+        }
+        else {
+            this.explorerView.push(annoEditView);
         }
         return this;
     }
