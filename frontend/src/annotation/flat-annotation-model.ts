@@ -1,9 +1,10 @@
-import { noop, defer, each, includes } from 'lodash';
+import { noop, each, includes } from 'lodash';
 
 import Model from '../core/model';
 import { rdf, dcterms, oa, vocab, readit, item } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import { getLabel, getCssClassName } from '../utilities/utilities';
+import fastTimeout from '../utilities/fastTimeout';
 
 /**
  * Flag bitmasks for tracking completion of a flat annotation. For a quick
@@ -99,7 +100,7 @@ export default class FlatAnnotationModel extends Model {
      */
     handleWhenReady(node: Node, attribute: string, handler: Processor): void {
         if (node.has(attribute)) {
-            defer(handler.bind(this), node);
+            fastTimeout(handler.bind(this), node);
         } else {
             this.listenToOnce(node, `change:${attribute}`, handler);
         }
