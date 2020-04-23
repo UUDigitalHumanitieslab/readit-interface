@@ -13,8 +13,8 @@ interface NodeMap {
     [key: string]: Node;
 }
 
-const itemAttributes = mockItems.slice(0, 7);
-const itemKeys = 'annotation item target range start end text'.split(' ');
+const itemAttributes = mockItems.slice(0, 5);
+const itemKeys = 'annotation item target position text'.split(' ');
 const itemIndex = invert(itemKeys);
 
 const expectedFlatAttributes = {
@@ -150,7 +150,7 @@ describe('FlatAnnotationModel', function() {
         flatAnno._setCompletionFlag(32);
         // unset and reset all flags
         flatAnno._completionFlags = 0;
-        flatAnno._setCompletionFlag(127);
+        flatAnno._setCompletionFlag(63);
         await timeout(50);
         expect(spy).not.toHaveBeenCalled();
     });

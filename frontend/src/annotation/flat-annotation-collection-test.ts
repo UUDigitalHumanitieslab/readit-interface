@@ -94,12 +94,12 @@ describe('FlatAnnotationCollection', function() {
         // data of the third annotation up to the target.
         this.ontology.set(ontologyData);
         const next2completions = completions(this.flat, 2);
-        this.items.set(itemData.slice(0, 18), {remove: false});
+        this.items.set(itemData.slice(0, 13), {remove: false});
         await next2completions;
         expect(this.flat.length).toBe(3);
         // Complete the rest of the annotation data.
         const remainingCompletions = completions(this.flat, numAnnotations - 2);
-        this.items.set(itemData.slice(18), {remove: false});
+        this.items.set(itemData.slice(13), {remove: false});
         expect(this.flat.length).toBe(numAnnotations);
         await remainingCompletions;
         this.flat.each(anno => expect(anno.complete).toBe(true));

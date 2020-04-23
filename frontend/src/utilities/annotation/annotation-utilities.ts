@@ -4,10 +4,8 @@ import { oa, rdf, vocab } from '../../jsonld/ns';
 import { isType, getCssClassName as getCssClass, isOntologyClass } from '../utilities';
 
 export type AnnotationPositionDetails = {
-    startNodeIndex: number;
-    startCharacterIndex: number;
-    endNodeIndex: number;
-    endCharacterIndex: number;
+    startIndex: number;
+    endIndex: number;
 }
 
 /**
@@ -25,35 +23,30 @@ export function getLabelText(selector: Node): string {
 }
 
 /**
- * Get the annotation's position details (i.e. node and character indices).
- * @param annotation The node to extract the details from.
+ * Get a selector's position details (i.e. node and character indices).
+ * @param selector The node to extract the details from.
  */
-export function getPositionDetails(startSelector: Node, endSelector: Node): AnnotationPositionDetails {
+export function getPositionDetails(selector: Node): AnnotationPositionDetails {
     return {
-        startNodeIndex: getNodeIndex(startSelector),
-        startCharacterIndex: getCharacterIndex(startSelector),
-        endNodeIndex: getNodeIndex(endSelector),
-        endCharacterIndex: getCharacterIndex(endSelector)
-    }
+        startIndex: selector.get(oa.start)[0] as number,
+        endIndex: selector.get(oa.end)[0] as number,
+    };
 }
 
 /**
- * Get an array of the items linked to the annotation that should be included when deleting or adding
- * the annotation from/to a Graph. Will not include the annotation itself.
+ * Get an array of the items linked to the annotation that should be included
+ * when deleting or adding the annotation from/to a Graph. Will not include the
+ * annotation itself.
  */
 export function getLinkedItems(annotation: Node): Node[] {
     validateType(annotation);
     let specificResource = getSpecificResource(annotation);
-    let rangeSelector = getSelector(annotation, vocab('RangeSelector'));
     let textQuoteSelector = getSelector(annotation, oa.TextQuoteSelector);
+    let positionSelector = getSelector(annotation, oa.TextPositionSelector);
 
-    let items = [
-        specificResource,
-        rangeSelector,
-        getStartSelector(rangeSelector),
-        getEndSelector(rangeSelector)
-    ]
+    let items = [specificResource];
     if (textQuoteSelector) items.push(textQuoteSelector);
+    if (positionSelector) items.push(positionSelector);
     return items;
 }
 
@@ -99,28 +92,6 @@ function getSelectorByType(node: Node, selectorType: string): Node {
 }
 
 /**
- * Get the StartSelector associated with an oa:Annotation or its associated oa:Selector.
- */
-export function getStartSelector(node: Node): Node {
-    let selector: Node;
-    let startSelector = node.get(oa.hasStartSelector);
-    if (!startSelector || !startSelector.length) selector = getSelector(node, vocab('RangeSelector'));
-    if (selector) startSelector = selector.get(oa.hasStartSelector);
-    return startSelector && startSelector[0] as Node;
-}
-
-/**
- * Get the EndSelector associated with an oa:Annotation or its associated oa:Selector.
- */
-export function getEndSelector(node: Node): Node {
-    let selector: Node;
-    let endSelector = node.get(oa.hasEndSelector);
-    if (!endSelector || !endSelector.length) selector = getSelector(node, vocab('RangeSelector'));
-    if (selector) endSelector = selector.get(oa.hasEndSelector);
-    return endSelector && endSelector[0] as Node;
-}
-
-/**
  * Get the oa:hasSource associated with an oa:Annotation or its associated oa:SpecificResource.
  */
 export function getSource(node: Node): Node {
@@ -150,27 +121,4 @@ function validateType(annotation: Node): void {
         throw new TypeError(
             `Node ${annotation.get('@id')} is not an instance of oa:Annotation`);
     }
-}
-
-
-/**
- * Get the node index from an XPathSelector
- * @param selector XPathSelector with a rdf:Value like 'substring(.//*[${nodeIndex}]/text(),${characterIndex})'
- */
-function getNodeIndex(selector: Node): number {
-    let xpath = <string>selector.get(rdf.value)[0];
-    let index = xpath.indexOf('[') + 1;
-    let endIndex = xpath.indexOf(']');
-    return +xpath.substring(index, endIndex);
-}
-
-/**
- * Get the character index from an XPathSelector
- * @param selector XPathSelector with a rdf:Value like 'substring(.//*[${nodeIndex}]/text(),${characterIndex})'
- */
-export function getCharacterIndex(selector: Node): number {
-    let xpath = <string>selector.get(rdf.value)[0];
-    let startIndex = xpath.indexOf(',') + 1;
-    let endIndex = xpath.length - 1;
-    return +xpath.substring(startIndex, endIndex);
 }

@@ -4,7 +4,6 @@ import Model from '../core/model';
 import { rdf, dcterms, oa, vocab, readit, item } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import { getLabel, getCssClassName } from '../utilities/utilities';
-import { getCharacterIndex } from '../utilities/annotation/annotation-utilities';
 
 /**
  * Flag bitmasks for tracking completion of a flat annotation. For a quick
@@ -17,10 +16,9 @@ const F_ID       = 1;
 const F_CSSCLASS = 1 << 1;
 const F_LABEL    = 1 << 2;
 const F_SOURCE   = 1 << 3;
-const F_STARTPOS = 1 << 4;
-const F_ENDPOS   = 1 << 5;
-const F_TEXT     = 1 << 6;
-const F_COMPLETE = F_ID | F_CSSCLASS | F_LABEL | F_SOURCE | F_STARTPOS | F_ENDPOS | F_TEXT;
+const F_POS      = 1 << 4;
+const F_TEXT     = 1 << 5;
+const F_COMPLETE = F_ID | F_CSSCLASS | F_LABEL | F_SOURCE | F_POS | F_TEXT;
 
 /**
  * Name for the type of function that takes a `Node` as its first parameter.
@@ -48,8 +46,8 @@ interface Processor {
     item          = oa.hasBody (if item)
     label         = oa.hasBody (if item) -> getLabel()
     source        = oa.hasTarget -> oa.hasSource
-    startPosition = oa.hasTarget -> oa.hasSelector (if vocab.RangeSelector) -> oa.hasStartSelector -> rdf.value -> parsed numeric value
-    endPosition   = oa.hasTarget -> oa.hasSelector (if vocab.RangeSelector) -> oa.hasEndSelector -> rdf.value -> parsed numeric value
+    startPosition = oa.hasTarget -> oa.hasSelector (if vocab.TextPositionSelector) -> oa.start
+    endPosition   = oa.hasTarget -> oa.hasSelector (if vocab.TextPositionSelector) -> oa.end
     text          = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.exact
     prefix        = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.prefix
     suffix        = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.suffix
@@ -191,8 +189,8 @@ export default class FlatAnnotationModel extends Model {
      */
     receiveSelector(selector: Node): void {
         const type = selector.get('@type') as string[];
-        if (includes(type, vocab('RangeSelector'))) {
-            return this.receiveRange(selector);
+        if (includes(type, oa.TextPositionSelector)) {
+            return this.receivePosition(selector);
         }
         if (includes(type, oa.TextQuoteSelector)) {
             return this.receiveText(selector);
@@ -200,29 +198,13 @@ export default class FlatAnnotationModel extends Model {
     }
 
     /**
-     * Invoked once when the RangeSelector is more than just a placeholder.
+     * Invoked once when the TextPositionSelector is more than just a
+     * placeholder.
      */
-    receiveRange(selector: Node): void {
-        const startSelector = selector.get(oa.hasStartSelector)[0] as Node;
-        const endSelector = selector.get(oa.hasEndSelector)[0] as Node;
-        this.handleWhenReady(startSelector, rdf.value, this.receiveStart);
-        this.handleWhenReady(endSelector, rdf.value, this.receiveEnd);
-    }
-
-    /**
-     * Invoked once when the start selector is more than just a placeholder.
-     */
-    receiveStart(selector: Node): void {
-        this.set('startPosition', getCharacterIndex(selector));
-        this._setCompletionFlag(F_STARTPOS);
-    }
-
-    /**
-     * Invoked once when the end selector is more than just a placeholder.
-     */
-    receiveEnd(selector: Node): void {
-        this.set('endPosition', getCharacterIndex(selector));
-        this._setCompletionFlag(F_ENDPOS);
+    receivePosition(selector: Node): void {
+        this.set('startPosition', selector.get(oa.start)[0] as number);
+        this.set('endPosition', selector.get(oa.end)[0] as number);
+        this._setCompletionFlag(F_POS);
     }
 
     /**

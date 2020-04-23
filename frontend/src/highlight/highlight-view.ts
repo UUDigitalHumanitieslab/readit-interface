@@ -1,7 +1,7 @@
 
 import { extend, minBy, sumBy, initial, last, defer, debounce, bind } from 'lodash';
 
-import { rdf } from './../jsonld/ns';
+import { rdf, oa } from './../jsonld/ns';
 import Node from '../jsonld/node';
 import HighlightRectView from './highlight-rect-view';
 import { getCssClassName } from './../utilities/utilities';
@@ -51,8 +51,7 @@ export default class HighlightView extends BaseAnnotationView {
     rectViews: HighlightRectView[];
     lastRect: HighlightRectView;
 
-    startSelector: Node;
-    endSelector: Node;
+    selector: Node;
     callbackFn: any;
 
     constructor(options?: ViewOptions) {
@@ -69,9 +68,10 @@ export default class HighlightView extends BaseAnnotationView {
         this.isDeletable = options.isDeletable || false;
 
         if (this.model) {
-            this.listenTo(this, 'startSelector', this.processStartSelector);
-            this.listenTo(this, 'endSelector', this.processEndSelector);
-            this.listenTo(this, 'body:ontologyClass', this.processOntologyClass);
+            this.on({
+                positionSelector: this.processPositionSelector,
+                'body:ontologyClass': this.processOntologyClass,
+            });
             this.listenTo(this.model, 'change', this.processModel);
             this.processModel(this.model);
         }
@@ -98,25 +98,10 @@ export default class HighlightView extends BaseAnnotationView {
         return this;
     }
 
-    processStartSelector(selector: Node): this {
-        if (selector.has(rdf.value)) {
-            this.startSelector = selector;
-            this.processSelectors();
-        }
-        return this;
-    }
-
-    processEndSelector(selector: Node): this {
-        if (selector.has(rdf.value)) {
-            this.endSelector = selector;
-            this.processSelectors();
-        }
-        return this;
-    }
-
-    processSelectors(): this {
-        if (this.startSelector && this.endSelector) {
-            this.positionDetails = getPositionDetails(this.startSelector, this.endSelector);
+    processPositionSelector(selector: Node): this {
+        if (selector.has(oa.start)) {
+            this.selector = selector;
+            this.positionDetails = getPositionDetails(selector);
             this.processPositionDetails();
             if (this.callbackFn) {
                 this.callbackFn();

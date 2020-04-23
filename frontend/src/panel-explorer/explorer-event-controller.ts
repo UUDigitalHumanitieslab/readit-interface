@@ -9,7 +9,7 @@ import SourceListView from '../panel-source-list/source-list-view';
 import SourceView from './../panel-source/source-view';
 import AnnotationListView from '../annotation/panel-annotation-list-view';
 
-import AnnotationEditView from '../annotation/panel-annotation-edit';
+import AnnotationEditView from '../annotation/panel-annotation-edit-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
 import RelatedItemsEditView from '../panel-related-items/related-items-edit-view';
 import ItemGraph from '../utilities/item-graph';
