@@ -210,12 +210,12 @@ export function getOntology(callback): void {
 
 /**
  * Get an ItemGraph with all oa:Annotations, oa:SpecificResources,
- * oa:TextQuoteSelectors, vocab:RangeSelectors and oa:XPathSelectors
- * associated with the specified source.
+ * oa:TextQuoteSelectors and oa:TextPositionSelectors associated with the
+ * specified source.
  */
 export function getItems(source: Node, callback): ItemGraph {
     const items = new ItemGraph();
-    items.query({ object: source, traverse: 2, revTraverse: 1 }).then(
+    items.query({ object: source, traverse: 1, revTraverse: 1 }).then(
         function success() {
             callback(null, items);
         },

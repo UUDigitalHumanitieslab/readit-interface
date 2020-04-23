@@ -1,11 +1,9 @@
-
 import { orderBy, remove, clone, reduce } from 'lodash';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import HighlightView from './highlight-view';
 
 export type HighlightIndex = {
     highlightView: HighlightView,
-    nodeIndex: number,
     characterIndex: number,
     isStart: boolean
 }
@@ -40,7 +38,7 @@ export default class OverlappingHighlightsStrategy {
     getOverlaps(highlightViews: HighlightView[]): OverlappingHighlights[] {
         let status: OverlapCalculationStatus = { results: [], active: [], overlapping: [], overlapPositionDetails: {} }
         let highlightIndices = this.getHighlightIndices(highlightViews);
-        let orderedIndices = orderBy(highlightIndices, ['nodeIndex', 'characterIndex', 'isStart'], ['asc', 'asc', 'desc']);
+        let orderedIndices = orderBy(highlightIndices, ['characterIndex', 'isStart'], ['asc', 'desc']);
 
         return reduce(orderedIndices, this.processIndex.bind(this), status).results;
     }
@@ -63,8 +61,7 @@ export default class OverlappingHighlightsStrategy {
         status.overlapping.push(index.highlightView);
 
         if (status.active.length === 2) {
-            status.overlapPositionDetails.startNodeIndex = index.nodeIndex;
-            status.overlapPositionDetails.startCharacterIndex = index.characterIndex;
+            status.overlapPositionDetails.startIndex = index.characterIndex;
         }
     }
 
@@ -75,8 +72,7 @@ export default class OverlappingHighlightsStrategy {
         remove(status.active, (c) => { return c.cid === index.highlightView.cid });
 
         if (status.active.length === 1) {
-            status.overlapPositionDetails.endNodeIndex = index.nodeIndex;
-            status.overlapPositionDetails.endCharacterIndex = index.characterIndex;
+            status.overlapPositionDetails.endIndex = index.characterIndex;
 
             status.results.push({
                 highlightViews: status.overlapping,
@@ -98,15 +94,13 @@ export default class OverlappingHighlightsStrategy {
         highlightViews.forEach(hV => {
             indices.push({
                 highlightView: hV,
-                nodeIndex: hV.positionDetails.startNodeIndex,
-                characterIndex: hV.positionDetails.startCharacterIndex,
+                characterIndex: hV.positionDetails.startIndex,
                 isStart: true
             });
 
             indices.push({
                 highlightView: hV,
-                nodeIndex: hV.positionDetails.endNodeIndex,
-                characterIndex: hV.positionDetails.endCharacterIndex,
+                characterIndex: hV.positionDetails.endIndex,
                 isStart: false
             });
         });

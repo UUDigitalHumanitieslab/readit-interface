@@ -21,8 +21,7 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
     modelIsAnnotation: boolean;
 
     positionDetails: AnnotationPositionDetails;
-    startSelector: Node;
-    endSelector: Node;
+    selector: Node;
     callbackFn: any;
 
     constructor(options: ViewOptions) {
@@ -30,10 +29,11 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
     }
 
     initialize(options: ViewOptions): this {
-        this.listenTo(this, 'startSelector', this.processStartSelector);
-        this.listenTo(this, 'endSelector', this.processEndSelector);
-        this.listenTo(this, 'body:ontologyClass', this.processOntologyClass);
-        this.listenTo(this, 'body:ontologyInstance', this.processOntologyInstance);
+        this.on({
+            positionSelector: this.processPositionSelector,
+            'body:ontologyClass': this.processOntologyClass,
+            'body:ontologyInstance': this.processOntologyInstance,
+        });
         this.listenTo(this.model, 'change', this.processModel);
         this.processModel(this.model);
         return this;
@@ -90,25 +90,10 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
         return this;
     }
 
-    processStartSelector(selector: Node): this {
-        if (selector.has(rdf.value)) {
-            this.startSelector = selector;
-            this.processSelectors();
-        }
-        return this;
-    }
-
-    processEndSelector(selector: Node): this {
-        if (selector.has(rdf.value)) {
-            this.endSelector = selector;
-            this.processSelectors();
-        }
-        return this;
-    }
-
-    processSelectors(): this {
-        if (this.startSelector && this.endSelector) {
-            this.positionDetails = getPositionDetails(this.startSelector, this.endSelector);
+    processPositionSelector(selector: Node): this {
+        if (selector.has(oa.start)) {
+            this.selector = selector;
+            this.positionDetails = getPositionDetails(selector);
             this.trigger('positionDetailsProcessed', this);
         }
         return this;

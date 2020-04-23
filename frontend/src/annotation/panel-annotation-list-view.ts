@@ -14,7 +14,6 @@ import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-b
 import { getSource } from '../utilities/annotation/annotation-utilities';
 import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
 import { SubviewBundleView } from '../utilities/subview-bundle-view';
-import { singleNumber } from '../utilities/binary-searchable-container/binary-search-utilities';
 import FilteredCollection from '../utilities/filtered-collection';
 
 export interface ViewOptions extends BaseOpt<Node> {
@@ -53,7 +52,7 @@ export default class AnnotationListView extends View<Node> {
             (view) => { return view.model.cid},
             (view) => {
                 let block = view as ItemSummaryBlockView;
-                return singleNumber(block.positionDetails.startNodeIndex, block.positionDetails.startCharacterIndex);
+                return block.positionDetails.startIndex;
             }
         );
 

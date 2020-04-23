@@ -101,30 +101,10 @@ export default abstract class BaseAnnotationView extends View<Node> {
             this.trigger('textQuoteSelector', selector);
         }
 
-        if (isType(selector, vocab('RangeSelector'))) {
-            let startSelector = selector.get(oa.hasStartSelector)[0] as Node;
-            // See comment above for explanation of stopListening/listenTo pattern.
-            this.stopListening(startSelector, 'change', this.processStartSelector);
-            this.listenTo(startSelector, 'change', this.processStartSelector);
-            this.processStartSelector(startSelector);
-
-            let endSelector = selector.get(oa.hasEndSelector)[0] as Node;
-            // See comment above for explanation of stopListening/listenTo pattern.
-            this.stopListening(endSelector, 'change', this.processEndSelector);
-            this.listenTo(endSelector, 'change', this.processEndSelector);
-            this.processEndSelector(endSelector);
+        if (isType(selector, oa.TextPositionSelector)) {
+            this.trigger('positionSelector', selector);
         }
 
-        return this;
-    }
-
-    processStartSelector(selector: Node): this {
-        this.trigger('startSelector', selector);
-        return this;
-    }
-
-    processEndSelector(selector: Node): this {
-        this.trigger('endSelector', selector);
         return this;
     }
 }
