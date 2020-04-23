@@ -34,10 +34,10 @@ export function getAnonymousTextQuoteSelector(range: Range): Node {
 }
 
 function getPrefix(exactRange: Range): string {
-    let startCharacterIndex = exactRange.startOffset - prefixLength;
-    if (startCharacterIndex < 0) startCharacterIndex = 0;
+    let startIndex = exactRange.startOffset - prefixLength;
+    if (startIndex < 0) startIndex = 0;
     let prefixRange = document.createRange();
-    prefixRange.setStart(exactRange.startContainer, startCharacterIndex);
+    prefixRange.setStart(exactRange.startContainer, startIndex);
     prefixRange.setEnd(exactRange.startContainer, exactRange.startOffset);
     let result = prefixRange.toString();
     prefixRange.detach();
@@ -45,13 +45,13 @@ function getPrefix(exactRange: Range): string {
 }
 
 function getSuffix(exactRange: Range): string {
-    let endCharacterIndex = exactRange.endOffset + suffixLength;
-    if (endCharacterIndex > exactRange.endContainer.textContent.length) {
-        endCharacterIndex = exactRange.endContainer.textContent.length;
+    let endIndex = exactRange.endOffset + suffixLength;
+    if (endIndex > exactRange.endContainer.textContent.length) {
+        endIndex = exactRange.endContainer.textContent.length;
     }
     let suffixRange = document.createRange();
     suffixRange.setStart(exactRange.endContainer, exactRange.endOffset);
-    suffixRange.setEnd(exactRange.endContainer, endCharacterIndex);
+    suffixRange.setEnd(exactRange.endContainer, endIndex);
     let result = suffixRange.toString();
     suffixRange.detach();
     return result;
@@ -73,15 +73,15 @@ export function composeAnnotation(
     ontoItem?: Node,
     done?
 ) {
-    const { startCharacterIndex, endCharacterIndex } = posDetails;
+    const { startIndex, endIndex } = posDetails;
 
     const inputs = {
-        startCharacterIndex, endCharacterIndex,
+        startIndex, endIndex,
         source, ontoClass, ontoItem, tQSelector, items: new ItemGraph(),
     };
 
     const tasks = {
-        positionSelector: ['items', 'startCharacterIndex', 'endCharacterIndex',
+        positionSelector: ['items', 'startIndex', 'endIndex',
             createPositionSelector,
         ],
         textQuoteSelector: ['items', 'tQSelector',

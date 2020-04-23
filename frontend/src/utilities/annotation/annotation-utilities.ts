@@ -4,10 +4,8 @@ import { oa, rdf, vocab } from '../../jsonld/ns';
 import { isType, getCssClassName as getCssClass, isOntologyClass } from '../utilities';
 
 export type AnnotationPositionDetails = {
-    startNodeIndex: number;
-    startCharacterIndex: number;
-    endNodeIndex: number;
-    endCharacterIndex: number;
+    startIndex: number;
+    endIndex: number;
 }
 
 /**
@@ -30,10 +28,8 @@ export function getLabelText(selector: Node): string {
  */
 export function getPositionDetails(selector: Node): AnnotationPositionDetails {
     return {
-        startNodeIndex: 0,
-        startCharacterIndex: selector.get(oa.start)[0] as number,
-        endNodeIndex: 0,
-        endCharacterIndex: selector.get(oa.end)[0] as number,
+        startIndex: selector.get(oa.start)[0] as number,
+        endIndex: selector.get(oa.end)[0] as number,
     };
 }
 
