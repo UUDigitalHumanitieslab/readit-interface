@@ -215,7 +215,7 @@ export function getOntology(callback): void {
  */
 export function getItems(source: Node, callback): ItemGraph {
     const items = new ItemGraph();
-    items.query({ object: source, traverse: 2, revTraverse: 1 }).then(
+    items.query({ object: source, traverse: 1, revTraverse: 1 }).then(
         function success() {
             callback(null, items);
         },
