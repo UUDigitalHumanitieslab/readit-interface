@@ -2,7 +2,7 @@ import { startStore, endStore } from '../../test-util';
 import Node from '../../jsonld/node';
 import { item, vocab, oa } from '../../jsonld/ns';
 import mockItems from '../../mock-data/mock-items';
-import { getEndSelector, getSelector } from './annotation-utilities';
+import { getSelector } from './annotation-utilities';
 import Graph from '../../jsonld/graph';
 
 describe('annotation-utilities', function () {
@@ -22,15 +22,15 @@ describe('annotation-utilities', function () {
 
     describe('getSelector', function () {
         it('correctly retrieves TextQuoteSelectors from oa:Annotations', function()  {
-            let endSelector = getSelector(getAnno1instance(), oa.TextQuoteSelector);
-            expect(endSelector).toBeTruthy();
-            expect(endSelector.get('@id')).toEqual(item('700'));
+            let selector = getSelector(getAnno1instance(), oa.TextQuoteSelector);
+            expect(selector).toBeTruthy();
+            expect(selector.get('@id')).toEqual(item('700'));
         });
 
         it('correctly retrieves TextPositionSelectors from oa:Annotations', function()  {
-            let endSelector = getSelector(getAnno1instance(), oa.TextPositionSelector);
-            expect(endSelector).toBeTruthy();
-            expect(endSelector.get('@id')).toEqual(item('400'));
+            let selector = getSelector(getAnno1instance(), oa.TextPositionSelector);
+            expect(selector).toBeTruthy();
+            expect(selector.get('@id')).toEqual(item('400'));
         });
     });
 });

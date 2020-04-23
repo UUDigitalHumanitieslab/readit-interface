@@ -51,8 +51,6 @@ export default class HighlightView extends BaseAnnotationView {
     rectViews: HighlightRectView[];
     lastRect: HighlightRectView;
 
-    startSelector: Node;
-    endSelector: Node;
     selector: Node;
     callbackFn: any;
 
@@ -71,8 +69,6 @@ export default class HighlightView extends BaseAnnotationView {
 
         if (this.model) {
             this.on({
-                startSelector: this.processStartSelector,
-                endSelector: this.processEndSelector,
                 positionSelector: this.processPositionSelector,
                 'body:ontologyClass': this.processOntologyClass,
             });
@@ -102,38 +98,10 @@ export default class HighlightView extends BaseAnnotationView {
         return this;
     }
 
-    processStartSelector(selector: Node): this {
-        if (selector.has(rdf.value)) {
-            this.startSelector = selector;
-            this.processSelectors();
-        }
-        return this;
-    }
-
-    processEndSelector(selector: Node): this {
-        if (selector.has(rdf.value)) {
-            this.endSelector = selector;
-            this.processSelectors();
-        }
-        return this;
-    }
-
     processPositionSelector(selector: Node): this {
         if (selector.has(oa.start)) {
             this.selector = selector;
-            this.processSelectors();
-        }
-        return this;
-    }
-
-    processSelectors(): this {
-        if (this.selector) {
-            this.positionDetails = getPositionDetails(this.selector);
-        } else if (this.startSelector && this.endSelector) {
-            this.positionDetails = getPositionDetails(this.startSelector, this.endSelector);
-        }
-
-        if (this.positionDetails) {
+            this.positionDetails = getPositionDetails(selector);
             this.processPositionDetails();
             if (this.callbackFn) {
                 this.callbackFn();
