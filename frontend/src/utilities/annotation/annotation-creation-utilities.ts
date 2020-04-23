@@ -217,7 +217,7 @@ function createAnnotation(
         '@type': oa.Annotation,
         [oa.hasBody]: [ontoClass],
         [oa.hasTarget]: specificResource,
-        [as.generator]: vocab('self'),
+        [as.generator]: {'@id': vocab('self')},
     };
     if (ontoItem) (attributes[oa.hasBody] as Node[]).push(ontoItem);
     return createItem(items, attributes, done);
