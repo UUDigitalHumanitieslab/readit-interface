@@ -51,7 +51,7 @@ describe('CategoryColorsView', function() {
         let html = this.view.render().$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
 
-        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important}');
+        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}');
     });
 
     it('renders a style tag with multiple CSS classes in it', function() {
@@ -69,7 +69,7 @@ describe('CategoryColorsView', function() {
         let html = view.render().$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
 
-        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important}');
+        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}');
     });
 
     it('excludes linked data items that are irrelevant', function() {
@@ -87,7 +87,7 @@ describe('CategoryColorsView', function() {
         let html = view.render().$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
 
-        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important}.is-readit-test2{background-color:aliceblue!important}');
+        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}.is-readit-test2{background-color:aliceblue!important;}.hide-is-readit-test2.is-readit-test2,.hide-rit-any:not(.unhide-is-readit-test2).is-readit-test2{display:none!important;}');
     });
 
     function replaceNewLinesAndWhitespace(text: string) {
