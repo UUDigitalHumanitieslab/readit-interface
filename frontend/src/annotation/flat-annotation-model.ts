@@ -87,7 +87,7 @@ export default class FlatAnnotationModel extends Model {
      * must be an instance of `oa.Annotation`.
      */
     constructor(annotation: Node, options?: any) {
-        super(null, options);
+        super({ id: annotation.id }, options);
         this._completionFlags = 0;
         this.handleWhenReady(annotation, oa.hasBody, this.receiveAnnotation);
     }

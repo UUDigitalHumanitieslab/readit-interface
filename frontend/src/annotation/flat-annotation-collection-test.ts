@@ -134,6 +134,21 @@ describe('FlatAnnotationCollection', function() {
         expect(spy).toHaveBeenCalledTimes(2);
     });
 
+    it('is not fooled when removing incomplete annotations', async function() {
+        const completion = completions(this.flat, 5);
+        const spy = jasmine.createSpy();
+        this.flat.on('complete:all', spy);
+        this.items.set(itemData);
+        expect(spy).toHaveBeenCalledTimes(0);
+        this.items.remove(map(itemData, '@id'));
+        expect(this.flat.length).toBe(0);
+        expect(spy).toHaveBeenCalledTimes(1);
+        this.items.set(itemData);
+        this.ontology.set(ontologyData);
+        await event(this.flat, 'complete:all');
+        expect(spy).toHaveBeenCalledTimes(2);
+    });
+
     it('keeps the annotations sorted by position', async function() {
         const completion = event(this.flat, 'complete:all');
         this.ontology.set(ontologyData);

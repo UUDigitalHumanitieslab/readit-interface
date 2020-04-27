@@ -64,7 +64,7 @@ describe('FlatAnnotationModel', function() {
         await timeout(50);
         expect(spy).not.toHaveBeenCalled();
         expect(flatAnno.complete).toBe(false);
-        expect(flatAnno.attributes).toEqual({});
+        expect(flatAnno.attributes).toEqual({ id: items.annotation.id });
     });
 
     it('flattens data that are there from the start', async function() {

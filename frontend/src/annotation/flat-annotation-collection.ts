@@ -44,7 +44,9 @@ export default class FlatAnnotationCollection extends Collection<FlatAnnotation>
     // Some event handlers that update `_complete`. Note that `_tracking` is
     // updated in `flatten` and `flattenPost`.
     _addComplete() { ++this._complete; this._checkCompletion(); }
-    _removeComplete() { --this._complete; }
+    _removeComplete(annotation) {
+        annotation.complete && --this._complete || this._checkCompletion();
+    }
 
     // Trigger the `'complete:all'` event if appropriate.
     _checkCompletion(): void {
