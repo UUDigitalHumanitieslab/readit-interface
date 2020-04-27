@@ -147,4 +147,41 @@ describe('FlatAnnotationCollection', function() {
             map('103 100 101 102 104'.split(' '), item)
         );
     });
+
+    it('keeps track of which annotation has focus', async function() {
+        const completion = event(this.flat, 'complete:all');
+        this.ontology.set(ontologyData);
+        this.items.set(itemData);
+        await completion;
+        const [first, second] = [this.flat.at(0), this.flat.at(1)];
+        const blurSpy = jasmine.createSpy('blurSpy');
+        this.flat.on('blur', blurSpy);
+        // We start without focus.
+        expect(this.flat.focus).toBeUndefined();
+        // Focus shifts to the first annotation.
+        first.trigger('focus', first);
+        expect(blurSpy).not.toHaveBeenCalled();
+        expect(this.flat.focus).toBe(first);
+        // Shift focus to the second.
+        second.trigger('focus', second);
+        expect(blurSpy).toHaveBeenCalledWith(first);
+        expect(this.flat.focus).toBe(second);
+        // Focusing an annotation that is already in focus has no effect.
+        second.trigger('focus', second);
+        expect(blurSpy).toHaveBeenCalledTimes(1);
+        expect(this.flat.focus).toBe(second);
+        // Blurring an annotation that is already out of focus has no effect.
+        first.trigger('blur', first);
+        expect(blurSpy).toHaveBeenCalledTimes(2);
+        expect(blurSpy).not.toHaveBeenCalledWith(second);
+        expect(this.flat.focus).toBe(second);
+        // Focus can shift back and forth.
+        first.trigger('focus', first);
+        expect(blurSpy).toHaveBeenCalledWith(second);
+        expect(this.flat.focus).toBe(first);
+        // Focus can be removed altogether.
+        first.trigger('blur', first);
+        expect(blurSpy).toHaveBeenCalledTimes(4);
+        expect(this.flat.focus).toBeUndefined();
+    });
 });

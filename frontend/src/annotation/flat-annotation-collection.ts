@@ -21,6 +21,15 @@ import FlatAnnotation from './flat-annotation-model';
  *
  * The flat annotations are ordered first by the `startPosition` attribute and
  * then by the `endPosition` attribute.
+ *
+ * At any one time, at most one flat annotation in the collection may be "in
+ * focus". At the model layer, this is an abstract notion; views may use the
+ * information in order to emphasize the presentation of the focused annotation
+ * over other annotations. Focus can be shifted by triggering a `'focus'` event
+ * on any individual flat annotation and removed by triggering `'blur'` on the
+ * annotation that is currently in focus. The collection propagates these
+ * events and ensures that the previous focused annotation blurs automatically
+ * when a different annotation receives focus.
  */
 export default class FlatAnnotationCollection extends Collection<FlatAnnotation> {
     // We keep hold of the underlying `Graph`, mostly as a service to the user.
@@ -44,6 +53,22 @@ export default class FlatAnnotationCollection extends Collection<FlatAnnotation>
         }
     }
 
+    // The annotation that is currently in focus, if any.
+    focus: FlatAnnotation;
+
+    // Handlers for `'focus'` and `'blur'` events to maintain the invariant that
+    // only one annotation can be in focus at the same time.
+    _onFocus(newFocus: FlatAnnotation): void {
+        const oldFocus = this.focus;
+        if (oldFocus && oldFocus !== newFocus) {
+            oldFocus.trigger('blur', oldFocus);
+        }
+        this.focus = newFocus;
+    }
+    _onBlur(annotation: FlatAnnotation): void {
+        if (annotation === this.focus) delete this.focus;
+    }
+
     /**
      * Contrary to most Collection subclasses, this one requires a Graph
      * instead of an optional array of models or model attributes.
@@ -61,6 +86,8 @@ export default class FlatAnnotationCollection extends Collection<FlatAnnotation>
             complete: this._addComplete,
             remove: this._removeComplete,
             'complete:all': this.sort,
+            focus: this._onFocus,
+            blur: this._onBlur,
         });
         // Set the initial models. This would otherwise be done by `super`, but
         // we passed `null`.
@@ -166,6 +193,8 @@ export default class FlatAnnotationCollection extends Collection<FlatAnnotation>
         this.stopListening(null, 'change:@type');
         // Reset our tallies.
         this._complete = this._tracking = 0;
+        // Reset focus.
+        delete this.focus;
         // Reset with the known annotations and silently add the unknown
         // annotations later.
         this.reset(compact(this.underlying.map(this.flattenSilent.bind(this))));
