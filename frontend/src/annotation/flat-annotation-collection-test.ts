@@ -35,7 +35,6 @@ describe('FlatAnnotationCollection', function() {
         this.ontology = new Graph(ontologyData.map(createPlaceholder));
         this.items = new Graph(itemData.map(createPlaceholder));
         this.flat = new FlatCollection(this.items);
-        this.completionTrigger
     });
 
     afterEach(endStore);
