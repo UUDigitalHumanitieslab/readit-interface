@@ -1,7 +1,7 @@
 from rdflib import Graph
 
-QUERY_URL = '/nlp-ontology/'
-UPDATE_URL = QUERY_URL + 'update'
+QUERY_URL = '/nlp-ontology'
+UPDATE_URL = QUERY_URL + '/update'
 
 INSERT_QUERY = '''
     PREFIX dc: <http://purl.org/dc/elements/1.1/>

@@ -6,7 +6,7 @@ class SPARQLPermission(BasePermission):
     ''' Custom permission for SPARQL update endpoint.
         Only users in group 'sparql' or admin users are allowed acces.'''
 
-    message = 'Only user in "SPARQL" group or admin can access SPARQL update endpoint'
+    message = 'Only user in "sparql" group or admin can access SPARQL update endpoint'
 
     group_name = "sparql"
 
