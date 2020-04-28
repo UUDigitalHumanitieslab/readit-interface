@@ -1,5 +1,4 @@
 from django.conf import settings
-import os.path as op
 
 NLP_ONTOLOGY_ROUTE = 'nlp-ontology/'
 NLP_ONTOLOGY_NS = '{}{}#'.format(

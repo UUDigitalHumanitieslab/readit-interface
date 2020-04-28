@@ -1,5 +1,8 @@
 import rdflib.plugins.sparql as rdf_sparql
 from pyparsing import ParseException
+from rest_framework.authentication import (BasicAuthentication,
+                                           SessionAuthentication)
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE
@@ -34,10 +37,6 @@ def execute_update(updatestring):
     return graph().update(updatestring)
 
 
-class SparqlView(APIView):
-    pass
-
-
 class NlpOntologyQueryView(APIView):
     """ Query the NLP ontology through SPARQL-Query """
     renderer_classes = (JSONRenderer, TurtleRenderer)
@@ -70,6 +69,7 @@ class NlpOntologyQueryView(APIView):
             Outputs application/json or text/turtle based on  header 'Accept'
         '''
         sparql_string = request.data.get('query')
+        print(sparql_string)
 
         if not sparql_string:
             return Response('No SPARQL-Query in body parameter "query"',
@@ -81,7 +81,7 @@ class NlpOntologyQueryView(APIView):
                                         request.accepted_renderer)
         except ParseException as p_e:
             # Raised when SPARQL syntax is not valid, or parsing fails
-            return Response(p_e.msg)
+            return Response(p_e.msg, status=HTTP_400_BAD_REQUEST)
 
 
 class NlpOntologyUpdateView(APIView):
