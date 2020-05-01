@@ -21,6 +21,7 @@ const expectedFlatAttributes = {
     annotation: jasmine.any(Node),
     id: item('100'),
     class: jasmine.any(Node),
+    classLabel: 'Content',
     cssClass: 'is-readit-content',
     item: jasmine.any(Node),
     label: 'The Idler in France',

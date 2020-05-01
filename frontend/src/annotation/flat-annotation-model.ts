@@ -43,6 +43,7 @@ interface Processor {
     annotation    = (original annotation)
     id            = @id
     class         = oa.hasBody (if ontology class)
+    classLabel    = oa.hasBody (if ontology class) -> getLabel()
     cssClass      = oa.hasBody (if ontology class) -> getCssClassName()
     item          = oa.hasBody (if item)
     label         = oa.hasBody (if item) -> getLabel()
@@ -154,6 +155,7 @@ export default class FlatAnnotationModel extends Model {
     receiveClass(body: Node): void {
         this.set({
             class: body,
+            classLabel: getLabel(body),
             cssClass: getCssClassName(body),
         });
         this._setCompletionFlag(F_CSSCLASS);
