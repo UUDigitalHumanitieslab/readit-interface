@@ -34,7 +34,7 @@ export interface ViewOptions extends BaseOpt<Model> {
     showHighlightsInitially?: boolean;
 
     // An annotation that will be scrolled to once the view is visible.
-    initialScrollTo?: FlatModel;
+    initialScrollTo?: Node | FlatModel;
 }
 
 /**
@@ -50,7 +50,7 @@ class SourcePanel extends CompositeView {
     model: Node;
     collection: FlatCollection;
     isEditable: boolean;
-    initialScrollTo?: FlatModel;
+    initialScrollTo?: Node | FlatModel;
 
     // Store reference to the instance of HighlightableTextView utilized by this
     // view.

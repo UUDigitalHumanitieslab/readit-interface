@@ -4,6 +4,7 @@ import { SubViewDescription } from 'backbone-fractal/dist/composite-view';
 
 import Model from '../core/model';
 import { CompositeView } from './../core/view';
+import Node from '../jsonld/node';
 import FlatAnnoModel from '../annotation/flat-annotation-model';
 import SegmentModel from '../highlight/text-segment-model';
 import SegmentCollection from '../highlight/text-segment-collection';
@@ -26,7 +27,7 @@ export interface ViewOptions extends BaseOpt {
     /**
      * Optional. The flat annotation, present in the collection, that you want to scroll to after the annotation's highlight is added to the DOM.
      */
-    initialScrollTo?: FlatAnnoModel;
+    initialScrollTo?: Node | FlatAnnoModel;
 }
 
 /**
@@ -97,6 +98,9 @@ export default class HighlightableTextView extends CompositeView {
     }
 
     getRectangle(target: Model): DOMRect | ClientRect {
+        if (target instanceof Node) {
+            target = this.collection.underlying.get(target.id);
+        }
         const pos = {
             startIndex: target.get('startPosition'),
             endIndex: target.get('endPosition'),

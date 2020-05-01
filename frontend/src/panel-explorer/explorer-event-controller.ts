@@ -13,13 +13,14 @@ import AnnotationEditView from '../annotation/panel-annotation-edit-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
 import RelatedItemsEditView from '../panel-related-items/related-items-edit-view';
 import ItemGraph from '../utilities/item-graph';
+import FlatModel from '../annotation/flat-annotation-model';
+import FlatCollection from '../annotation/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { oa } from '../jsonld/ns';
 import SearchResultListView from '../search/search-results/panel-search-result-list-view';
 import {
     isType,
     isOntologyClass,
-    createSourceView,
 } from '../utilities/utilities';
 
 export default class ExplorerEventController {
@@ -45,20 +46,15 @@ export default class ExplorerEventController {
      */
     subscribeToPanelEvents(panel: View): void {
         panel.on({
-            'sourceView:noInitialHighlights': this.sourceViewNoInitialHighlights,
-            'sourceview:highlightClicked': this.sourceViewHighlightClicked,
-            'sourceview:highlightSelected': this.sourceViewHighlightSelected,
-            'sourceview:highlightUnselected': this.sourceViewHighlightUnselected,
-            'sourceview:highlightDeleted': this.sourceviewHighlightDeleted,
             'sourceview:showMetadata': this.sourceViewShowMetadata,
             'sourceview:hideMetadata': this.sourceViewHideMetadata,
-            'sourceview:showAnnotations': (graph, finalizeNoInitialHighlights) => defer(this.sourceViewShowAnnotations.bind(this), graph, finalizeNoInitialHighlights),
+            'sourceview:showAnnotations': graph => defer(this.sourceViewShowAnnotations.bind(this), graph),
             'sourceview:hideAnnotations': this.sourceViewHideAnnotations,
             'sourceView:enlarge': this.sourceViewEnlarge,
             'sourceView:shrink': this.sourceViewShrink,
             'sourceview:textSelected': this.sourceViewOnTextSelected,
-            'annotation-listview:blockClicked': this.annotationListBlockClicked,
-            'annotation-listview:edit': this.annotationListEdit,
+            'annotationList:showAnnotation': this.openAnnotationPanel,
+            'annotationList:hideAnnotation': this.closeAnnotationPanel,
             'annotationEditView:saveNew': this.annotationEditSaveNew,
             'annotationEditView:save': this.annotationEditSave,
             'annotationEditView:close': this.annotationEditClose,
@@ -75,16 +71,29 @@ export default class ExplorerEventController {
         }, this);
     }
 
-    sourceListClick(listView: SourceListView, source: Node): this {
-        this.explorerView.popUntilAndPush(listView, () => createSourceView(source, true, true));
-        return this;
+    sourceListClick(listView: SourceListView, source: Node): void {
+        const popPromise = this.explorerView.popUntilAsync(listView);
+        const sourcePanel = createSourceView(source, true, true);
+        const listPanel = new AnnotationListView({
+            collection: sourcePanel.collection,
+        });
+        this.mapSourceAnnotationList.set(sourcePanel, listPanel);
+        this.mapAnnotationListSource.set(listPanel, sourcePanel);
+        popPromise.then(() => {
+            this.explorerView.push(sourcePanel).push(listPanel);
+            sourcePanel.activate();
+        });
     }
 
     searchResultListItemClicked(searchResultList: SearchResultListView, item: Node) {
         if (isType(item, oa.Annotation)) {
             const specificResource = item.get(oa.hasTarget)[0] as Node;
-            let source = specificResource.get(oa.hasSource)[0] as Node;
-            this.explorerView.popUntilAndPush(searchResultList, () => createSourceView(source, undefined, undefined, item));
+            const source = specificResource.get(oa.hasSource)[0] as Node;
+            const sourcePanel = createSourceView(source, undefined, undefined, item);
+            this.explorerView.popUntilAsync(searchResultList).then(() => {
+                this.explorerView.push(sourcePanel);
+                sourcePanel.activate();
+            });
         }
     }
 
@@ -159,24 +168,18 @@ export default class ExplorerEventController {
         return this;
     }
 
-    annotationEditSaveNew(editView: AnnotationEditView, annotation: Node, created: ItemGraph): this {
-        let sourceView = this.mapAnnotationEditSource.get(editView);
-        sourceView.add(created);
-
-        let listView = this.mapSourceAnnotationList.get(sourceView);
+    annotationEditSaveNew(editView: AnnotationEditView, annotation: FlatModel, created: ItemGraph): void {
+        const listView = editView['_listview'];
         if (listView) {
             this.explorerView.removeOverlay(editView);
-            // listView.collection.add(annotation);
-        }
-        else {
+        } else {
             this.explorerView.pop();
         }
-
-        this.sourceViewHighlightClicked(sourceView, annotation);
-        this.sourceViewHighlightSelected(sourceView, annotation);
+        editView.collection.once('sort', () => {
+            annotation.trigger('focus', annotation);
+        });
         // TODO: re-enable the next line.
-        // this.autoOpenRelationEditor(annotation);
-        return this;
+        // this.autoOpenRelationEditor(annotation.get('annotation'));
     }
 
     autoOpenRelationEditor(annotation: Node): this {
@@ -199,44 +202,21 @@ export default class ExplorerEventController {
         return this;
     }
 
-    annotationListBlockClicked(annotationList: AnnotationListView, annotation: Node): this {
-        let sourceView = this.mapAnnotationListSource.get(annotationList);
-        sourceView.processClick(annotation);
-        return this;
-    }
-
     annotationListEdit(view: AnnotationListView, annotationList): this {
         this.notImplemented();
         return this;
     }
 
-    sourceViewHighlightClicked(sourceView: SourceView, annotation: Node): this {
-        let annoListView = this.mapSourceAnnotationList.get(sourceView);
-        annoListView.processClick(annotation);
-        return this;
+    openAnnotationPanel(listView: AnnotationListView, anno: FlatModel): void {
+        const annoRDF = anno.get('annotation');
+        let newDetailView = new LdItemView({ model: annoRDF });
+        this.mapAnnotationListAnnotationDetail.set(listView, newDetailView);
+        this.explorerView.popUntilAndPush(listView, newDetailView);
     }
 
-    sourceViewHighlightSelected(sourceView: SourceView, annotation: Node): this {
-        let annoListView = this.mapSourceAnnotationList.get(sourceView);
-        let newDetailView = new LdItemView({ model: annotation });
-        this.mapAnnotationListAnnotationDetail.set(annoListView, newDetailView);
-        this.explorerView.popUntilAndPush(annoListView, newDetailView);
-        return this;
-    }
-
-    sourceViewHighlightUnselected(sourceView: SourceView, annotation: Node, newHighlightSelected: boolean): this {
-        let annoListView = this.mapSourceAnnotationList.get(sourceView);
-        if (!newHighlightSelected) {
-            this.mapAnnotationListAnnotationDetail.delete(annoListView);
-            this.explorerView.popUntil(annoListView);
-        }
-        return this;
-    }
-
-    sourceviewHighlightDeleted(sourceView: SourceView, annotation: Node): this {
-        let annoListView = this.mapSourceAnnotationList.get(sourceView);
-        annoListView.removeAnno(annotation);
-        return this;
+    closeAnnotationPanel(listView: AnnotationListView, annotation: FlatModel): void {
+        this.mapAnnotationListAnnotationDetail.delete(listView);
+        this.explorerView.popUntil(listView);
     }
 
     sourceViewShowMetadata(sourceView: View, node: Node): this {
@@ -260,11 +240,10 @@ export default class ExplorerEventController {
         return this;
     }
 
-    sourceViewShowAnnotations(sourceView: SourceView, finalizeNoInitialHighlights: boolean = false): this {
+    sourceViewShowAnnotations(sourceView: SourceView): this {
         let annotationListView = new AnnotationListView({
             collection: sourceView.collection
         });
-        if (finalizeNoInitialHighlights) annotationListView.finalizeNoInitialHighlights();
         this.mapSourceAnnotationList.set(sourceView, annotationListView);
         this.mapAnnotationListSource.set(annotationListView, sourceView);
         this.explorerView.push(annotationListView);
@@ -287,10 +266,12 @@ export default class ExplorerEventController {
             source: source,
             ontology: this.explorerView.ontology,
             model: undefined,
+            collection: sourceView.collection,
         });
         this.mapAnnotationEditSource.set(annoEditView, sourceView);
 
         if (listView) {
+            annoEditView['_listview'] = listView;
             this.explorerView.popUntilAsync(listView).then(() => {
                 this.explorerView.overlay(annoEditView);
             });
@@ -301,13 +282,51 @@ export default class ExplorerEventController {
         return this;
     }
 
-    sourceViewNoInitialHighlights(sourceView: SourceView): this {
-        let listView = this.mapSourceAnnotationList.get(sourceView);
-        listView.finalizeNoInitialHighlights();
-        return this;
-    }
-
     notImplemented() {
         alert('Sorry, not implemented yet!');
     }
+}
+
+/**
+ * Get an ItemGraph with all oa:Annotations, oa:SpecificResources,
+ * oa:TextQuoteSelectors and oa:TextPositionSelectors associated with the
+ * specified source.
+ */
+export function getItems(source: Node, callback): ItemGraph {
+    const items = new ItemGraph();
+    items.query({ object: source, traverse: 1, revTraverse: 1 }).then(
+        function success() {
+            callback(null, items);
+        },
+        /*error*/ callback
+    );
+    return items;
+}
+
+/**
+ * Create an instance of SourceView for the specified source.
+ * Will collect the annotations associated with the source async, i.e.
+ * these will be added to the SourceView's collection when ready.
+ */
+function createSourceView(
+    source: Node,
+    showHighlightsInitially?: boolean,
+    isEditable?: boolean,
+    initialScrollTo?: Node | FlatModel
+): SourceView {
+    let sourceItems = getItems(source, function(error, items) {
+        if (error) console.debug(error);
+    });
+
+    let annotations = new FlatCollection(sourceItems);
+
+    let sourceView = new SourceView({
+        collection: annotations,
+        model: source,
+        showHighlightsInitially: showHighlightsInitially,
+        isEditable: isEditable,
+        initialScrollTo: initialScrollTo,
+    });
+
+    return sourceView;
 }
