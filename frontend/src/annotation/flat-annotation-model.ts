@@ -107,6 +107,12 @@ export default class FlatAnnotationModel extends Model {
         }
     }
 
+    setOptionalFirst(source: Node, sourceAttr: string, targetAttr: string): this {
+        const value = source.get(sourceAttr);
+        if (value) this.set(targetAttr, value[0]);
+        return this;
+    }
+
     /**
      * Invoked once when the annotation is more than just a placeholder.
      */
@@ -114,9 +120,9 @@ export default class FlatAnnotationModel extends Model {
         this.set({
             annotation,
             id: annotation.id,
-            creator: annotation.get(dcterms.creator)[0],
-            created: annotation.get(dcterms.created)[0],
         });
+        this.setOptionalFirst(annotation, dcterms.creator, 'creator');
+        this.setOptionalFirst(annotation, dcterms.created, 'created');
         this.updateBodies(annotation);
         this.listenTo(annotation, `change:${oa.hasBody}`, this.updateBodies);
         const target = annotation.get(oa.hasTarget)[0] as Node;
@@ -135,7 +141,7 @@ export default class FlatAnnotationModel extends Model {
             this.receiveBody
         ));
         // An annotation can be complete without an item.
-        if (bodies.length < 2) this._setCompletionFlag(F_LABEL);
+        if (bodies && bodies.length < 2) this._setCompletionFlag(F_LABEL);
     }
 
     /**
@@ -176,14 +182,17 @@ export default class FlatAnnotationModel extends Model {
      * Invoked once when the target is more than just a placeholder.
      */
     receiveTarget(target: Node): void {
-        this.set('source', target.get(oa.hasSource)[0]);
+        const sources = target.get(oa.hasSource);
+        if (sources && sources.length) {
+            this.set('source', sources[0]);
+            this._setCompletionFlag(F_SOURCE);
+        }
         const selectors = target.get(oa.hasSelector);
         each(selectors, selector => this.handleWhenReady(
             selector as Node,
             '@type',
             this.receiveSelector
         ));
-        this._setCompletionFlag(F_SOURCE);
     }
 
     /**
@@ -205,20 +214,27 @@ export default class FlatAnnotationModel extends Model {
      * placeholder.
      */
     receivePosition(selector: Node): void {
-        this.set('startPosition', selector.get(oa.start)[0] as number);
-        this.set('endPosition', selector.get(oa.end)[0] as number);
-        this._setCompletionFlag(F_POS);
+        const start = selector.get(oa.start);
+        const end = selector.get(oa.end);
+        if (start && start.length && end && end.length) {
+            this.set({
+                startPosition: start[0],
+                endPosition: end[0]
+            });
+            this._setCompletionFlag(F_POS);
+        }
     }
 
     /**
      * Invoked once when the TextQuoteSelector is more than just a placeholder.
      */
     receiveText(selector: Node): void {
-        this.set({
-            text: selector.get(oa.exact)[0],
-            prefix: selector.get(oa.prefix)[0],
-            suffix: selector.get(oa.suffix)[0],
-        });
-        this._setCompletionFlag(F_TEXT);
+        this.setOptionalFirst(selector, oa.prefix, 'prefix');
+        this.setOptionalFirst(selector, oa.suffix, 'suffix');
+        const text = selector.get(oa.exact);
+        if (text && text.length) {
+            this.set({ text: text[0] });
+            this._setCompletionFlag(F_TEXT);
+        }
     }
 }

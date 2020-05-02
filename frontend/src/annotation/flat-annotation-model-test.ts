@@ -155,4 +155,13 @@ describe('FlatAnnotationModel', function() {
         await timeout(50);
         expect(spy).not.toHaveBeenCalled();
     });
+
+    it('deals with missing optional attributes', async function() {
+        const items = getFullItems();
+        const ontologyClass = new Node(contentClass);
+        items.text.unset(oa.suffix);
+        const flatAnno = new FlatAnnotation(items.annotation);
+        await completion(flatAnno);
+        expect(flatAnno.attributes).toEqual(omit(expectedFlatAttributes, 'suffix'));
+    });
 });
