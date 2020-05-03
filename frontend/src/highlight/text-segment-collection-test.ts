@@ -1,16 +1,73 @@
-import { map } from 'lodash';
+import { map, each } from 'lodash';
 
 import { startStore, endStore, event } from '../test-util';
 import mockOntology from '../mock-data/mock-ontology';
 import mockItems from '../mock-data/mock-items';
 
 import { item } from '../jsonld/ns';
+import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
 import FlatCollection from '../annotation/flat-annotation-collection';
 import Segment from './text-segment-model';
 import SegmentCollection from './text-segment-collection';
 
 const edges = [0, 15, 16, 34, 77, 98, 107, 355, 391, Infinity];
+
+const challenging = [
+    {startPosition: 39, endPosition: 98, id: "http://localhost:8000/item/14"},
+    {startPosition: 100, endPosition: 101, id: "http://localhost:8000/item/86"},
+    {startPosition: 100, endPosition: 404, id: "http://localhost:8000/item/68"},
+    {startPosition: 102, endPosition: 110, id: "http://localhost:8000/item/27"},
+    {startPosition: 111, endPosition: 118, id: "http://localhost:8000/item/62"},
+    {startPosition: 129, endPosition: 176, id: "http://localhost:8000/item/21"},
+    {startPosition: 406, endPosition: 407, id: "http://localhost:8000/item/80"},
+    {startPosition: 406, endPosition: 437, id: "http://localhost:8000/item/41"},
+    {startPosition: 406, endPosition: 917, id: "http://localhost:8000/item/74"},
+    {startPosition: 441, endPosition: 477, id: "http://localhost:8000/item/55"},
+    {startPosition: 622, endPosition: 698, id: "http://localhost:8000/item/48"},
+    {startPosition: 868, endPosition: 883, id: "http://localhost:8000/item/93"},
+    {startPosition: 890, endPosition: 894, id: "http://localhost:8000/item/99"},
+    {startPosition: 895, endPosition: 899, id: "http://localhost:8000/item/105"},
+];
+
+const insertionOrder = [
+    'http://localhost:8000/item/105', 'http://localhost:8000/item/68',
+    'http://localhost:8000/item/74', 'http://localhost:8000/item/99',
+    'http://localhost:8000/item/62', 'http://localhost:8000/item/55',
+    'http://localhost:8000/item/48', 'http://localhost:8000/item/21',
+    'http://localhost:8000/item/27', 'http://localhost:8000/item/41',
+    'http://localhost:8000/item/14', 'http://localhost:8000/item/80',
+    'http://localhost:8000/item/86', 'http://localhost:8000/item/93',
+];
+
+const expectedSegments = [
+    {startPosition: 0, endPosition: 39, length: 0},
+    {startPosition: 39, endPosition: 98, length: 1},
+    {startPosition: 98, endPosition: 100, length: 0},
+    {startPosition: 100, endPosition: 101, length: 2},
+    {startPosition: 101, endPosition: 102, length: 1},
+    {startPosition: 102, endPosition: 110, length: 2},
+    {startPosition: 110, endPosition: 111, length: 1},
+    {startPosition: 111, endPosition: 118, length: 2},
+    {startPosition: 118, endPosition: 129, length: 1},
+    {startPosition: 129, endPosition: 176, length: 2},
+    {startPosition: 176, endPosition: 404, length: 1},
+    {startPosition: 404, endPosition: 406, length: 0},
+    {startPosition: 406, endPosition: 407, length: 3},
+    {startPosition: 407, endPosition: 437, length: 2},
+    {startPosition: 437, endPosition: 441, length: 1},
+    {startPosition: 441, endPosition: 477, length: 2},
+    {startPosition: 477, endPosition: 622, length: 1},
+    {startPosition: 622, endPosition: 698, length: 2},
+    {startPosition: 698, endPosition: 868, length: 1},
+    {startPosition: 868, endPosition: 883, length: 2},
+    {startPosition: 883, endPosition: 890, length: 1},
+    {startPosition: 890, endPosition: 894, length: 2},
+    {startPosition: 894, endPosition: 895, length: 1},
+    {startPosition: 895, endPosition: 899, length: 2},
+    {startPosition: 899, endPosition: 917, length: 1},
+    {startPosition: 917, endPosition: Infinity, length: 0},
+];
 
 describe('TextSegmentCollection', function() {
     beforeEach(startStore);
@@ -66,6 +123,19 @@ describe('TextSegmentCollection', function() {
             [item('104')],
             [],
         ]);
+    });
+
+    it('is coherent and complete for challenging cases', function() {
+        this.flat.add(map(challenging, surrogate => {
+            const node = new Node();
+            const added = new FlatCollection.prototype.model(node);
+            return added.set(surrogate);
+        }));
+        each(insertionOrder, id => {
+            const flat = this.flat.get(id);
+            flat.trigger('complete', flat);
+        });
+        expect(this.segments.toJSON()).toEqual(expectedSegments);
     });
 
     it('removes annotations automatically', async function() {

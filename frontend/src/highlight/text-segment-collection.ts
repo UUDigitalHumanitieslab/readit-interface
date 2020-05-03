@@ -168,7 +168,7 @@ export default class TextSegmentCollection extends Collection<Segment> {
         const index = sortedIndexBy(this.models, annotation, getStart);
         if (index === this.length) return index - 1;
         const segment = this.at(index);
-        return getStart(segment) === getStart(annotation) ? index : index + 1;
+        return getStart(segment) === getStart(annotation) ? index : index - 1;
     }
 
     /**
