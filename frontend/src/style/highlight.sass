@@ -23,21 +23,20 @@
     .no-pointer-events
         pointer-events: none // required to correctly receive .highlight events
 
-    .highlight
+    .rit-text-segment
         cursor: pointer
 
-        .highlight-rect
+        & > div
             z-index: 1
             position: absolute
+            display: flex
+            flex-direction: column
+
+            & > div
+                flex: 1
 
             &.is-selected
                 border: 2px solid rgba(0,0,0, 0.4)
-                z-index: 2
-
-        .highlight-rect.is-overlap
-            z-index: 2
-            background-color: white !important
-            background: repeating-linear-gradient(135deg,white,white 6px,#d9d9d9 0px,#d9d9d9 12px)
 
         .delete-highlight
             display: none
