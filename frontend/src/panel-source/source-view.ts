@@ -89,6 +89,7 @@ class SourcePanel extends CompositeView {
             this.initialScrollTo != null ||
             false
         );
+        this.render();
 
         if (this.isShowingHighlights) {
             this.toggleToolbarItemSelected('annotations');
