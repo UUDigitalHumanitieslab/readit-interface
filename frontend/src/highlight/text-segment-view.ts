@@ -15,8 +15,8 @@ import { getRange } from '../utilities/range-utilities';
 export interface ViewOptions extends BViewOptions<SegmentModel> {
     model: SegmentModel;
     textContainer: JQuery<HTMLElement>;
-    // $.offset() of the (future) $.offsetParent() of the view.$el.
-    offset: JQuery.Coordinates;
+    // Element to position relative to.
+    offset: HTMLElement;
 }
 
 /**
@@ -41,8 +41,8 @@ export interface ViewOptions extends BViewOptions<SegmentModel> {
 interface TextSegmentView extends ToggleMixin {}
 class TextSegmentView extends CollectionView<SegmentModel, LineSegment> {
     textContainer: JQuery<HTMLElement>;
-    // $.offset() of the (future) $.offsetParent() of this.$el.
-    offset: JQuery.Coordinates;
+    // Element to position relative to.
+    offset: HTMLElement;
 
     // Constructor just to inform TypeScript about the options type.
     constructor(options: ViewOptions) { super(options); }
@@ -129,12 +129,11 @@ class TextSegmentView extends CollectionView<SegmentModel, LineSegment> {
         };
         const range = getRange(this.textContainer, positionDetails);
         const rectangles = range.getClientRects();
-        const { top, left } = this.offset;
-        const scrollTop = $(document).scrollTop().valueOf() || 0;
+        const { top, left } = this.offset.getBoundingClientRect();
         // We reset `this.collection` with the positioning data. The
         // `CollectionView` parent class takes care of updating the subviews.
         this.collection.reset(map(rectangles, rect => ({
-            top: rect.top - top + scrollTop,
+            top: rect.top - top,
             left: rect.left - left,
             width: rect.width,
             height: rect.height,

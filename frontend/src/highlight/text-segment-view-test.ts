@@ -35,7 +35,7 @@ describe('TextSegmentView', function() {
             'z-index': -2,
             width: 'auto',
         });
-        this.offset = this.wrapper.offset();
+        this.offset = this.wrapper.get(0);
     });
 
     beforeEach(function() {

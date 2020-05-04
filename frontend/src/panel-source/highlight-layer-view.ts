@@ -21,7 +21,7 @@ export interface ViewOptions extends BViewOptions {
  */
 export default class HighlightLayerView extends CollectionView<Model, SegmentView> {
     textContainer: JQuery<HTMLElement>;
-    offset: JQuery.Coordinates;
+    // offset: JQuery.Coordinates;
     collection: SegmentCollection;
 
     constructor(options: ViewOptions) { super(options); }
@@ -32,7 +32,7 @@ export default class HighlightLayerView extends CollectionView<Model, SegmentVie
     }
 
     beforeRender(): this {
-        this.offset = this.$el.offset();
+        // this.offset = this.$el.offset();
         this.initItems().initCollectionEvents();
         this.beforeRender = constant(this);
         return this;
@@ -42,7 +42,7 @@ export default class HighlightLayerView extends CollectionView<Model, SegmentVie
         return new SegmentView({
             model,
             textContainer: this.textContainer,
-            offset: this.offset,
+            offset: this.el,
         }).activate().on('all', this.trigger, this);
     }
 }
