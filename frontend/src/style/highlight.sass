@@ -34,9 +34,19 @@
 
             & > div
                 flex: 1
+                opacity: 0.8
 
-            &.is-selected
+        &.is-selected
+            & > div
                 border: 2px solid rgba(0,0,0, 0.4)
+                & > div
+                    opacity: 1
+
+            &:not(.is-selected:first-of-type) > div:first-child
+                border-left: none
+
+            &:not(.is-selected:last-of-type) > div:last-child
+                border-right: none
 
         .delete-highlight
             display: none
@@ -55,10 +65,12 @@
 
         .overlap-detail
             margin-top: 6px
+            span
+                background-opacity: 0.8
 
-            &.is-selected
-                border: 2px solid rgba(0,0,0, 0.4)
-
+        .is-selected .overlap-detail span
+            border: 2px solid rgba(0,0,0, 0.4)
+            background-opacity: 1
 
         .close
             float: right
