@@ -66,39 +66,31 @@ export default class ExplorerEventController {
             'relItems:itemClick': this.relItemsItemClicked,
             'relItems:edit': this.relItemsEdit,
             'relItems:edit-close': this.relItemsEditClose,
-            'source-list:click': this.sourceListClick,
+            'source-list:click': this.pushSourcePair,
             'searchResultList:itemClicked': this.searchResultListItemClicked,
         }, this);
     }
 
-    sourceListClick(listView: SourceListView, source: Node): void {
-        const popPromise = this.explorerView.popUntilAsync(listView);
+    pushSourcePair(basePanel: View, source: Node): [SourceView, AnnotationListView, Promise<void>] {
         const sourcePanel = createSourceView(source, true, true);
         const listPanel = new AnnotationListView({
             collection: sourcePanel.collection,
         });
         this.mapSourceAnnotationList.set(sourcePanel, listPanel);
         this.mapAnnotationListSource.set(listPanel, sourcePanel);
-        popPromise.then(() => {
+        const ready = this.explorerView.popUntilAsync(basePanel).then(() => {
             this.explorerView.push(sourcePanel).push(listPanel);
             sourcePanel.activate();
         });
+        return [sourcePanel, listPanel, ready];
     }
 
-    searchResultListItemClicked(searchResultList: SearchResultListView, item: Node) {
+    searchResultListItemClicked(searchResults: SearchResultListView, item: Node) {
         if (isType(item, oa.Annotation)) {
-            const popPromise = this.explorerView.popUntilAsync(searchResultList);
             const specificResource = item.get(oa.hasTarget)[0] as Node;
             const source = specificResource.get(oa.hasSource)[0] as Node;
-            const sourcePanel = createSourceView(source, undefined, undefined);
+            const [sourcePanel,,] = this.pushSourcePair(searchResults, source);
             const collection = sourcePanel.collection;
-            const listPanel = new AnnotationListView({ collection });
-            this.mapSourceAnnotationList.set(sourcePanel, listPanel);
-            this.mapAnnotationListSource.set(listPanel, sourcePanel);
-            const pushPromise = popPromise.then(() => {
-                this.explorerView.push(sourcePanel).push(listPanel);
-                sourcePanel.activate();
-            });
             collection.underlying.add(item);
             const flat = collection.get(item.id);
             sourcePanel.once('ready', () => flat.trigger('focus', flat));
