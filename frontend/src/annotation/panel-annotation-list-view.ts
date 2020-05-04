@@ -26,12 +26,11 @@ export default class AnnotationListView extends CollectionView<FlatModel, ItemSu
 
     initialize(): void {
         this._byId = {};
+        this.loadingSpinnerView = new LoadingSpinnerView().render();
         this.initItems().render();
-        this.listenToOnce(this.collection, {
-            // 'add' event is evidence that the annotations are still loading
-            // and also guarantees that there will be a 'complete' event later.
-            add: this._showLoadingSpinner,
-            'complete:all': this._hideLoadingSpinner,
+        this.loadingSpinnerView.activate();
+        this.listenToOnce(this.collection.underlying, {
+            'sync': this._hideLoadingSpinner,
         }).listenTo(this.collection, {
             focus: this._handleFocus,
             blur: this._handleBlur,
@@ -42,13 +41,6 @@ export default class AnnotationListView extends CollectionView<FlatModel, ItemSu
             sort: this.placeItems,
             reset: this.resetItems,
         });
-    }
-
-    _showLoadingSpinner(): void {
-        this.detachItems();
-        this.loadingSpinnerView = new LoadingSpinnerView().render();
-        this.placeItems();
-        this.loadingSpinnerView.activate();
     }
 
     _hideLoadingSpinner(): void {
