@@ -100,7 +100,7 @@ describe('TextSegmentView', function() {
             const lineSegments = this.view.$el.children();
             expect(lineSegments.length).toBeGreaterThan(1);
             expect(lineSegments.length).toBe(this.view.items.length);
-            const { top, left } = this.offset;
+            const { top, left } = this.offset.getBoundingClientRect();
             const right = this.wrapper.width() + left;
             lineSegments.each((index, el) => {
                 const $el = $(el);
