@@ -160,6 +160,7 @@ class SourcePanel extends CompositeView {
     // they are visible is independently controlled by the toggle mixin.
     _activateHighlights(): void {
         this.htv.render().activate();
+        this.trigger('ready', this);
     }
 
     /**
