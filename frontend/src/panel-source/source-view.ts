@@ -58,6 +58,8 @@ export default class SourceView extends View<Node> {
      */
     htv: HighlightableTextView;
 
+    metaView: MetadataView;
+
     /**
      * Keep track of visiblility of the highlights;
      */
@@ -81,6 +83,7 @@ export default class SourceView extends View<Node> {
     isInHighlightClickingMode: boolean;
 
     toolbar: SourceToolbarView;
+    sourceContainer: any;
 
     constructor(options?: ViewOptions) {
         super(options);
@@ -107,7 +110,12 @@ export default class SourceView extends View<Node> {
 
         this.toolbar = new SourceToolbarView();
         this.bindToToolbarEvents(this.toolbar);
-        this.listenTo(this, 'metadata:hide', this.toggleMetadata);
+
+        this.metaView = new MetadataView({
+            model: this.model
+        });
+        this.metaView.on('metadata:hide', this.toggleMetadata, this);
+        this.metaView.on('metadata:edit', this.editMetadata, this);
     }
 
     validate() {
@@ -265,10 +273,20 @@ export default class SourceView extends View<Node> {
         return this;
     }
 
+    editMetadata(): this {
+        // TO DO
+        return this;
+    }
+
     toggleMetadata(): this {
         if (this.isShowingMetadata) {
             this.trigger('sourceview:hideMetadata', this, this.model);
+            this.metaView.el.remove();
+            this.$el.find('.source-content').append(this.sourceContainer);
         } else {
+            this.sourceContainer = this.$el.find('.source-container');
+            this.sourceContainer.remove();
+            this.$el.find('.source-content').append(this.metaView.render().el);
             this.trigger('sourceview:showMetadata', this, this.model);
         }
         this.isShowingMetadata = !this.isShowingMetadata;

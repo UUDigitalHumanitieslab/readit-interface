@@ -1,9 +1,8 @@
 import { extend } from 'lodash';
 import View from './../core/view';
 import metadataTemplate from './panel-metadata-template';
-import { owl, oa, dcterms } from './../jsonld/ns';
-import Node, { isNode } from '../jsonld/node';
-import { isType, getLabelFromId, getLabel } from './../utilities/utilities';
+import ldChannel from '../jsonld/radio';
+import { getLabel, getLabelFromId } from './../utilities/utilities';
 
 const excludedProperties = [
     '@id',
@@ -28,7 +27,6 @@ export default class MetadataView extends View {
     }
 
     formatAttributes(): this {
-        console.log(this.model.attributes)
         for (let attribute in this.model.attributes) {
             if (excludedProperties.includes(attribute)) {
                 continue;
@@ -37,11 +35,14 @@ export default class MetadataView extends View {
             if (attributeLabel==='fullText') {
                 continue;
             }
-            if (attributeLabel==='inLanguage') {
-                // console.log(getSources(attribute));
-            }
             let valueArray = this.model.get(attribute);
-            valueArray.forEach(value => {     
+            valueArray.forEach(value => {
+                if (typeof value==="object"){
+                    const uri = value.id;
+                    // const nodeFromUri = ldChannel.request('obtain', uri);
+                    // const label = getLabel(nodeFromUri);
+                    // console.log(label);
+                };    
                 this.properties[attributeLabel] = value;
 
             });

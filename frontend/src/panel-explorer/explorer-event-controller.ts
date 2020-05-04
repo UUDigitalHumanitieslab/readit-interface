@@ -243,26 +243,19 @@ export default class ExplorerEventController {
     }
 
     sourceViewShowMetadata(sourceView: SourceView): this {
-        let self = this;
-        this.metaView = new MetadataView({
-            model: sourceView.model
-        });
-        self.explorerView.overlay(this.metaView);
+        // let self = this;
+        // this.metaView = new MetadataView({
+        //     model: sourceView.model
+        // });
+        // self.explorerView.overlay(this.metaView);
         return this;
     }
 
     sourceViewHideMetadata(): this {
-        this.explorerView.removeOverlay(this.metaView);
+        // this.explorerView.removeOverlay(this.metaView);
         return this;
     }
 
-    sourceViewCloseMetadata(sourceView: SourceView): this {
-        console.log("close meta panel!");
-        this.explorerView.removeOverlay(this.metaView);
-        sourceView.isShowingMetadata = false;
-        sourceView.toggleToolbarItemSelected('metadata');
-        return this;
-    }
 
     sourceViewEnlarge(sourceView: View): this {
         this.explorerView.popUntil(sourceView);
