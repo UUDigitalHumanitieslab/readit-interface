@@ -63,7 +63,7 @@ export default class FlatAnnotationCollection extends Collection<FlatAnnotation>
     _onFocus(newFocus: FlatAnnotation): void {
         const oldFocus = this.focus;
         if (oldFocus && oldFocus !== newFocus) {
-            oldFocus.trigger('blur', oldFocus);
+            oldFocus.trigger('blur', oldFocus, newFocus);
         }
         this.focus = newFocus;
     }

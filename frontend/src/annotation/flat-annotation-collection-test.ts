@@ -179,7 +179,7 @@ describe('FlatAnnotationCollection', function() {
         expect(this.flat.focus).toBe(first);
         // Shift focus to the second.
         second.trigger('focus', second);
-        expect(blurSpy).toHaveBeenCalledWith(first);
+        expect(blurSpy).toHaveBeenCalledWith(first, second);
         expect(this.flat.focus).toBe(second);
         // Focusing an annotation that is already in focus has no effect.
         second.trigger('focus', second);
@@ -188,11 +188,11 @@ describe('FlatAnnotationCollection', function() {
         // Blurring an annotation that is already out of focus has no effect.
         first.trigger('blur', first);
         expect(blurSpy).toHaveBeenCalledTimes(2);
-        expect(blurSpy).not.toHaveBeenCalledWith(second);
+        expect(blurSpy).not.toHaveBeenCalledWith(second, first);
         expect(this.flat.focus).toBe(second);
         // Focus can shift back and forth.
         first.trigger('focus', first);
-        expect(blurSpy).toHaveBeenCalledWith(second);
+        expect(blurSpy).toHaveBeenCalledWith(second, first);
         expect(this.flat.focus).toBe(first);
         // Focus can be removed altogether.
         first.trigger('blur', first);
