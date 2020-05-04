@@ -62,9 +62,9 @@ export default class AnnotationListView extends CollectionView<FlatModel, ItemSu
         this.trigger('annotationList:showAnnotation', this, model);
     }
 
-    _handleBlur(model: FlatModel): void {
-        if (!this.collection.focus) {
-            this.trigger('annotationList:hideAnnotation', this, model);
+    _handleBlur(lostFocus: FlatModel, gainedFocus?: FlatModel): void {
+        if (!gainedFocus) {
+            this.trigger('annotationList:hideAnnotation', this, lostFocus);
         }
     }
 
