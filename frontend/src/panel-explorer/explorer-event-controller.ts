@@ -90,8 +90,12 @@ export default class ExplorerEventController {
             const specificResource = item.get(oa.hasTarget)[0] as Node;
             const source = specificResource.get(oa.hasSource)[0] as Node;
             const sourcePanel = createSourceView(source, undefined, undefined, item);
+            const collection = sourcePanel.collection;
+            const listPanel = new AnnotationListView({ collection });
+            this.mapSourceAnnotationList.set(sourcePanel, listPanel);
+            this.mapAnnotationListSource.set(listPanel, sourcePanel);
             this.explorerView.popUntilAsync(searchResultList).then(() => {
-                this.explorerView.push(sourcePanel);
+                this.explorerView.push(sourcePanel).push(listPanel);
                 sourcePanel.activate();
             });
         }
