@@ -32,9 +32,6 @@ export interface ViewOptions extends BaseOpt<Model> {
     // Specify whether highlights should be displayed when the view becomes
     // visible. Defaults to false.
     showHighlightsInitially?: boolean;
-
-    // An annotation that will be scrolled to once the view is visible.
-    initialScrollTo?: Node | FlatModel;
 }
 
 /**
@@ -50,7 +47,6 @@ class SourcePanel extends CompositeView {
     model: Node;
     collection: FlatCollection;
     isEditable: boolean;
-    initialScrollTo?: Node | FlatModel;
 
     // Store reference to the instance of HighlightableTextView utilized by this
     // view.
@@ -82,13 +78,8 @@ class SourcePanel extends CompositeView {
         this.validate();
 
         this.toolbar = new SourceToolbarView().render();
-        this.initialScrollTo = options.initialScrollTo;
         this.isEditable = options.isEditable || false;
-        this.isShowingHighlights = (
-            options.showHighlightsInitially ||
-            this.initialScrollTo != null ||
-            false
-        );
+        this.isShowingHighlights = options.showHighlightsInitially || false;
         this.render();
 
         if (this.isShowingHighlights) {
@@ -140,7 +131,6 @@ class SourcePanel extends CompositeView {
         this.htv = new HighlightableTextView({
             text,
             collection: new SegmentCollection(this.collection),
-            initialScrollTo: this.initialScrollTo,
             isEditable: this.isEditable
         }).on('textSelected', this.onTextSelected, this);
         this.bindToToolbarEvents(this.toolbar);

@@ -23,11 +23,6 @@ export interface ViewOptions extends BaseOpt {
      * Specify whether the View should only display annotations, or if it allows editing them. Defaults to false.
      */
     isEditable?: boolean;
-
-    /**
-     * Optional. The flat annotation, present in the collection, that you want to scroll to after the annotation's highlight is added to the DOM.
-     */
-    initialScrollTo?: Node | FlatAnnoModel;
 }
 
 /**
@@ -50,11 +45,9 @@ export default class HighlightableTextView extends CompositeView {
      */
     isEditable: boolean;
     isInDOM: boolean;
-    scrollToAnno: Model;
 
     constructor(options: ViewOptions) {
         super(options);
-        this.scrollToAnno = options.initialScrollTo;
         this.isEditable = options.isEditable || false;
         this.isInDOM = false;
         this.prepareText(options.text);
@@ -81,7 +74,6 @@ export default class HighlightableTextView extends CompositeView {
     activate(): this {
         this.isInDOM = true;
         this.highlightLayer.render();
-        if (this.scrollToAnno) this.scroll(this.scrollToAnno);
         this.activate = constant(this);
         return this;
     }
@@ -114,7 +106,6 @@ export default class HighlightableTextView extends CompositeView {
      * Scroll to the part of the text associated with an annotation or segment.
      */
     scrollTo(target: Model): this {
-        this.scrollToAnno = target;
         if (this.isInDOM) this.scroll(target);
         return this;
     }

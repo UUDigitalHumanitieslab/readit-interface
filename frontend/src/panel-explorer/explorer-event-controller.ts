@@ -312,7 +312,6 @@ function createSourceView(
     source: Node,
     showHighlightsInitially?: boolean,
     isEditable?: boolean,
-    initialScrollTo?: Node | FlatModel
 ): SourceView {
     let sourceItems = getItems(source, function(error, items) {
         if (error) console.debug(error);
@@ -325,7 +324,6 @@ function createSourceView(
         model: source,
         showHighlightsInitially: showHighlightsInitially,
         isEditable: isEditable,
-        initialScrollTo: initialScrollTo,
     });
 
     return sourceView;
