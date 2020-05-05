@@ -9,6 +9,21 @@ import './global/hbsHelpers';
 import { i18nPromise } from './global/i18n';
 
 /**
+ * Helper to make the `name` event on `emitter` `await`-able.
+ * Caveat: only resolves if the event triggers *after* you call this function.
+ */
+export function event(emitter: Events, name: string): Promise<void> {
+    return new Promise(resolve => emitter.once(name, resolve));
+}
+
+/**
+ * Helper to make a timeout `await`-able.
+ */
+export function timeout(milliseconds): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+/**
  * Wrap the following functions in beforeEach() and afterEach(),
  * respectively, to use a store in all tests of a suite.
  */

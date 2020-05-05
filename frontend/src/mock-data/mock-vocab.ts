@@ -55,7 +55,9 @@ export const sourceClass = {
     ],
 }
 
-// This is the class definition of our RangeSelector
+// This is the class definition of our RangeSelector.
+// It is obsolete, but we are not removing the mock yet because the definition
+// is also still present in the backend.
 export const readitRangeSelectorClass = {
     "@id": vocab('RangeSelector'),
     "@type": [rdfs.Class],

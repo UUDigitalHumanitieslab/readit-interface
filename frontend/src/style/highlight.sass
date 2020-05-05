@@ -23,21 +23,30 @@
     .no-pointer-events
         pointer-events: none // required to correctly receive .highlight events
 
-    .highlight
+    .rit-text-segment
         cursor: pointer
 
-        .highlight-rect
+        & > div
             z-index: 1
             position: absolute
+            display: flex
+            flex-direction: column
 
-            &.is-selected
+            & > div
+                flex: 1
+                opacity: 0.8
+
+        &.is-selected
+            & > div
                 border: 2px solid rgba(0,0,0, 0.4)
-                z-index: 2
+                & > div
+                    opacity: 1
 
-        .highlight-rect.is-overlap
-            z-index: 2
-            background-color: white !important
-            background: repeating-linear-gradient(135deg,white,white 6px,#d9d9d9 0px,#d9d9d9 12px)
+            &:not(.is-selected:first-of-type) > div:first-child
+                border-left: none
+
+            &:not(.is-selected:last-of-type) > div:last-child
+                border-right: none
 
         .delete-highlight
             display: none
@@ -56,10 +65,12 @@
 
         .overlap-detail
             margin-top: 6px
+            span
+                background-opacity: 0.8
 
-            &.is-selected
-                border: 2px solid rgba(0,0,0, 0.4)
-
+        .is-selected .overlap-detail span
+            border: 2px solid rgba(0,0,0, 0.4)
+            background-opacity: 1
 
         .close
             float: right

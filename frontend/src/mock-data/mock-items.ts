@@ -108,59 +108,17 @@ export const anno1SpecificResource = {
 };
 
 // the (Range)Selector belonging (via item('300') / specificResource) to anno1
-export const anno1RangeSelector = {
+export const anno1PositionSelector = {
     "@id": item('400'),
-    "@type": [vocab('RangeSelector')],
-    [oa.hasStartSelector]: [
+    "@type": [oa.TextPositionSelector],
+    [oa.start]: [
         {
-            "@id": item('500')
+            "@value": 15
         }
     ],
-    [oa.hasEndSelector]: [
+    [oa.end]: [
         {
-            "@id": item('501')
-        }
-    ],
-    [dcterms.created]: [
-        {
-            "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:15+0100"
-        }
-    ],
-    [dcterms.creator]: [
-        {
-            "@id": staff('JdeKruif')
-        }
-    ],
-}
-
-export const anno1StartSelector = {
-    "@id": item('500'),
-    "@type": [oa.XPathSelector],
-    [rdf.value]: [
-        {
-            '@value': 'substring(.//*[3]/text(), 15)'
-        }
-    ],
-    [dcterms.created]: [
-        {
-            "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:15+0100"
-        }
-    ],
-    [dcterms.creator]: [
-        {
-            "@id": staff('JdeKruif')
-        }
-    ],
-}
-
-export const anno1EndSelector = {
-    "@id": item('501'),
-    "@type": [oa.XPathSelector],
-    [rdf.value]: [
-        {
-            '@value': 'substring(.//*[3]/text(), 34)'
+            "@value": 34
         }
     ],
     [dcterms.created]: [
@@ -287,59 +245,17 @@ export const anno2SpecificResource = {
     ]
 };
 
-export const anno2RangeSelector = {
+export const anno2PositionSelector = {
     "@id": item('401'),
-    "@type": [vocab('RangeSelector')],
-    [oa.hasStartSelector]: [
+    "@type": [oa.TextPositionSelector],
+    [oa.start]: [
         {
-            "@id": item('502')
+            "@value": 77
         }
     ],
-    [oa.hasEndSelector]: [
+    [oa.end]: [
         {
-            "@id": item('503')
-        }
-    ],
-    [dcterms.created]: [
-        {
-            "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:15+0100"
-        }
-    ],
-    [dcterms.creator]: [
-        {
-            "@id": staff('JdeKruif')
-        }
-    ],
-}
-
-export const anno2StartSelector = {
-    "@id": item('502'),
-    "@type": [oa.XPathSelector],
-    [rdf.value]: [
-        {
-            '@value': 'substring(.//*[3]/text(), 77)'
-        }
-    ],
-    [dcterms.created]: [
-        {
-            "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:15+0100"
-        }
-    ],
-    [dcterms.creator]: [
-        {
-            "@id": staff('JdeKruif')
-        }
-    ],
-}
-
-export const anno2EndSelector = {
-    "@id": item('503'),
-    "@type": [oa.XPathSelector],
-    [rdf.value]: [
-        {
-            '@value': 'substring(.//*[3]/text(), 98)'
+            "@value": 98
         }
     ],
     [dcterms.created]: [
@@ -525,59 +441,17 @@ export const anno3SpecificResource = {
     ]
 };
 
-export const anno3RangeSelector = {
+export const anno3PositionSelector = {
     "@id": item('402'),
-    "@type": [vocab('RangeSelector')],
-    [oa.hasStartSelector]: [
+    "@type": [oa.TextPositionSelector],
+    [oa.start]: [
         {
-            "@id": item('504')
+            "@value": 77
         }
     ],
-    [oa.hasEndSelector]: [
+    [oa.end]: [
         {
-            "@id": item('505')
-        }
-    ],
-    [dcterms.created]: [
-        {
-            "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:15+0100"
-        }
-    ],
-    [dcterms.creator]: [
-        {
-            "@id": staff('JdeKruif')
-        }
-    ],
-}
-
-export const anno3StartSelector = {
-    "@id": item('504'),
-    "@type": [oa.XPathSelector],
-    [rdf.value]: [
-        {
-            '@value': 'substring(.//*[3]/text(), 77)'
-        }
-    ],
-    [dcterms.created]: [
-        {
-            "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:15+0100"
-        }
-    ],
-    [dcterms.creator]: [
-        {
-            "@id": staff('JdeKruif')
-        }
-    ],
-}
-
-export const anno3EndSelector = {
-    "@id": item('505'),
-    "@type": [oa.XPathSelector],
-    [rdf.value]: [
-        {
-            '@value': 'substring(.//*[3]/text(), 107)'
+            "@value": 107
         }
     ],
     [dcterms.created]: [
@@ -704,38 +578,17 @@ export const anno4SpecificResource = {
     ]
 };
 
-export const anno4RangeSelector = {
+export const anno4PositionSelector = {
     "@id": item('403'),
-    "@type": [vocab('RangeSelector')],
-    [oa.hasStartSelector]: [
+    "@type": [oa.TextPositionSelector],
+    [oa.start]: [
         {
-            "@id": item('506')
+            "@value": 15
         }
     ],
-    [oa.hasEndSelector]: [
+    [oa.end]: [
         {
-            "@id": item('507')
-        }
-    ],
-    [dcterms.created]: [
-        {
-            "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:15+0100"
-        }
-    ],
-    [dcterms.creator]: [
-        {
-            "@id": staff('JdeKruif')
-        }
-    ],
-}
-
-export const anno4StartSelector = {
-    "@id": item('506'),
-    "@type": [oa.XPathSelector],
-    [rdf.value]: [
-        {
-            '@value': 'substring(.//*[6]/text(), 15)'
+            "@value": 16
         }
     ],
     [dcterms.created]: [
@@ -749,27 +602,6 @@ export const anno4StartSelector = {
             "@id": staff('JdeKruif')
         }
     ],
-}
-
-export const anno4EndSelector = {
-    "@id": item('507'),
-    "@type": [oa.XPathSelector],
-    [rdf.value]: [
-        {
-            '@value': 'substring(.//*[6]/text(), 16)'
-        }
-    ],
-    [dcterms.created]: [
-        {
-            "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:15+0100"
-        }
-    ],
-    [dcterms.creator]: [
-        {
-            "@id": staff('JdeKruif')
-        }
-    ]
 }
 
 export const anno4TextQuoteSelector = {
@@ -879,59 +711,17 @@ export const anno5SpecificResource = {
     ]
 };
 
-export const anno5RangeSelector = {
+export const anno5PositionSelector = {
     "@id": item('404'),
-    "@type": [vocab('RangeSelector')],
-    [oa.hasStartSelector]: [
+    "@type": [oa.TextPositionSelector],
+    [oa.start]: [
         {
-            "@id": item('508')
+            "@value": 355
         }
     ],
-    [oa.hasEndSelector]: [
+    [oa.end]: [
         {
-            "@id": item('509')
-        }
-    ],
-    [dcterms.created]: [
-        {
-            "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:15+0100"
-        }
-    ],
-    [dcterms.creator]: [
-        {
-            "@id": staff('JdeKruif')
-        }
-    ],
-}
-
-export const anno5StartSelector = {
-    "@id": item('508'),
-    "@type": [oa.XPathSelector],
-    [rdf.value]: [
-        {
-            '@value': 'substring(.//*[6]/text(), 355)'
-        }
-    ],
-    [dcterms.created]: [
-        {
-            "@type": xsd.dateTime,
-            "@value": "2085-12-31T04:33:15+0100"
-        }
-    ],
-    [dcterms.creator]: [
-        {
-            "@id": staff('JdeKruif')
-        }
-    ],
-}
-
-export const anno5EndSelector = {
-    "@id": item('509'),
-    "@type": [oa.XPathSelector],
-    [rdf.value]: [
-        {
-            '@value': 'substring(.//*[6]/text(), 391)'
+            "@value": 391
         }
     ],
     [dcterms.created]: [
@@ -973,38 +763,28 @@ export default [
     anno1Instance,
     anno1ContentInstance,
     anno1SpecificResource,
-    anno1RangeSelector,
-    anno1StartSelector,
-    anno1EndSelector,
+    anno1PositionSelector,
     anno1TextQuoteSelector,
     anno2Instance,
     anno2ReaderInstance,
     anno2SpecificResource,
-    anno2RangeSelector,
-    anno2StartSelector,
-    anno2EndSelector,
+    anno2PositionSelector,
     anno2TextQuoteSelector,
     anno3Instance,
     anno3ReaderInstance,
     anno3Person2Instance,
     anno3SpecificResource,
-    anno3RangeSelector,
-    anno3StartSelector,
-    anno3EndSelector,
+    anno3PositionSelector,
     anno3TextQuoteSelector,
     BlessingtonPersonInstance,
     anno4Instance,
     anno4ReaderInstance,
     anno4SpecificResource,
-    anno4RangeSelector,
-    anno4StartSelector,
-    anno4EndSelector,
+    anno4PositionSelector,
     anno4TextQuoteSelector,
     anno5Instance,
     anno5MediumInstance,
     anno5SpecificResource,
-    anno5RangeSelector,
-    anno5StartSelector,
-    anno5EndSelector,
+    anno5PositionSelector,
     anno5TextQuoteSelector
 ];

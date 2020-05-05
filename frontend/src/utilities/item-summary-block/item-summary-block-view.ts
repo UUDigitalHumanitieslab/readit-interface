@@ -1,123 +1,96 @@
-import { extend } from 'lodash';
+import { once, includes, extend } from 'lodash';
+import { ViewOptions as BViewOptions } from 'backbone';
 
-import { oa, rdf } from './../../jsonld/ns';
-import Node from './../../jsonld/node';
-import ldChannel from './../../jsonld/radio';
-import { getCssClassName, getLabel, isType } from './../utilities';
-import { getLabelText, AnnotationPositionDetails, getPositionDetails } from '../annotation/annotation-utilities';
+import Model from '../../core/model';
+import View from '../../core/view';
+import { oa } from '../../jsonld/ns';
+import Node from '../../jsonld/node';
+import ldChannel from '../../jsonld/radio';
+import FlatModel from '../../annotation/flat-annotation-model';
+import { getCssClassName, getLabel } from '../utilities';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
-import BaseAnnotationView, { ViewOptions } from '../../annotation/base-annotation-view';
 
+// Internal function to wrap an item as a surrogate FlatAnnotation so we can
+// assume the same attributes when rendering.
+function wrapItem(item: Node): Model {
+    const cls = ldChannel.request('obtain', item.get('@type')[0] as string);
+    return new Model({
+        item: item,
+        label: getLabel(item),
+        class: cls,
+        classLabel: getLabel(cls),
+        cssClass: getCssClassName(cls),
+    });
+}
 
-export default class ItemSummaryBlockView extends BaseAnnotationView {
-    instanceLabel: string;
-    classLabel: string;
-    cssClassName: string;
+export interface ViewOptions extends BViewOptions {
+    // The model is required. It should be either an annotation that has an item
+    // body or just a bare item. In the first case, it should preferably be a
+    // flattened annotation, but it also works with a bare Node.
+    model: FlatModel | Node;
+}
 
-    /**
-     * Store if the current model is an instance of oa:Annotation
-     */
-    modelIsAnnotation: boolean;
-
-    positionDetails: AnnotationPositionDetails;
-    startSelector: Node;
-    endSelector: Node;
-    callbackFn: any;
-
+/**
+ * Present an item (optionally as part of an annotation) as a colored block
+ * with focus/blur interaction. This view is self-rendering.
+ */
+export default class ItemSummaryBlockView extends View {
     constructor(options: ViewOptions) {
         super(options);
     }
 
     initialize(options: ViewOptions): this {
-        this.listenTo(this, 'startSelector', this.processStartSelector);
-        this.listenTo(this, 'endSelector', this.processEndSelector);
-        this.listenTo(this, 'body:ontologyClass', this.processOntologyClass);
-        this.listenTo(this, 'body:ontologyInstance', this.processOntologyInstance);
-        this.listenTo(this.model, 'change', this.processModel);
-        this.processModel(this.model);
-        return this;
-    }
-
-    processModel(model: Node): this {
-        super.processBody(this.model);
-
-        if (model.has('@type')) {
-            this.modelIsAnnotation = isType(this.model, oa.Annotation);
-            if (this.modelIsAnnotation) {
-                this.stopListening(this, 'textQuoteSelector', this.processTextQuoteSelector);
-                this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
-                super.processAnnotation(this.model);
-            }
-            else {
-                this.stopListening(this.model, 'change', this.processItem);
-                this.listenTo(this.model, 'change', this.processItem);
-                this.processItem(this.model);
+        if (this.model instanceof FlatModel) {
+            this._renderWhenComplete();
+        } else {
+            if (this.model.has('@type')) {
+                this._wrapModel();
+            } else {
+                this.listenToOnce(this.model, 'change:@type', this._wrapModel);
             }
         }
-
+        // This is called inside `render` because `render` itself is called when
+        // the model is definitive. We want it take effect only once, however.
+        this._bindModelEvents = once(this._bindModelEvents);
         return this;
     }
 
-    processOntologyClass(ontologyClass: Node): this {
-        if (ontologyClass.has('@type')) {
-            this.classLabel = getLabel(ontologyClass);
-            this.$el.removeClass(this.cssClassName);
-            this.cssClassName = getCssClassName(ontologyClass);
+    // Internal method, only appropriate when the model is a flat annotation.
+    _renderWhenComplete(): void {
+        if (this.model['complete']) {
+            this.render();
+        } else {
+            this.listenToOnce(this.model, 'complete', this.render);
         }
-        return this.render();
     }
 
-    processOntologyInstance(ontologyInstance): this {
-        this.instanceLabel = getLabel(ontologyInstance);
-        this.render();
-        return this;
-    }
-
-    processItem(item: Node): this {
-        this.instanceLabel = getLabel(item);
-        if (item.has('@type')) {
-            let ontologyClass = ldChannel.request('obtain', item.get('@type')[0] as string);
-            this.processOntologyClass(ontologyClass);
+    // Internal method, called once the `@type` is known if `this.model` starts
+    // out as a `Node`.
+    _wrapModel(): void {
+        const type = this.model.get('@type') as string[];
+        if (includes(type, oa.Annotation)) {
+            this.model = new FlatModel(this.model as Node);
+            this._renderWhenComplete();
+        } else {
+            this.model = wrapItem(this.model as Node);
+            this.render();
         }
-        this.render();
-        return this;
-    }
-
-    processTextQuoteSelector(selector: Node): this {
-        this.instanceLabel = getLabelText(selector);
-        this.render();
-        return this;
-    }
-
-    processStartSelector(selector: Node): this {
-        if (selector.has(rdf.value)) {
-            this.startSelector = selector;
-            this.processSelectors();
-        }
-        return this;
-    }
-
-    processEndSelector(selector: Node): this {
-        if (selector.has(rdf.value)) {
-            this.endSelector = selector;
-            this.processSelectors();
-        }
-        return this;
-    }
-
-    processSelectors(): this {
-        if (this.startSelector && this.endSelector) {
-            this.positionDetails = getPositionDetails(this.startSelector, this.endSelector);
-            this.trigger('positionDetailsProcessed', this);
-        }
-        return this;
     }
 
     render(): this {
-        this.$el.html(this.template(this));
-        this.$el.addClass(this.cssClassName);
+        this.$el.html(this.template(this.model.attributes));
+        this.$el.addClass(this.model.get('cssClass'));
+        this._bindModelEvents();
         return this;
+    }
+
+    _bindModelEvents(): void {
+        this.listenTo(this.model, {
+            change: this.render,
+            focus: this.select,
+            blur: this.unSelect,
+        });
     }
 
     select(): this {
@@ -130,11 +103,6 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
         return this;
     }
 
-    toggleHighlight(): this {
-        this.$el.toggleClass('is-highlighted');
-        return this;
-    }
-
     getTop(): number {
         return this.$el.offset().top;
     }
@@ -144,6 +112,8 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
     }
 
     onClick(): this {
+        const event = this.$el.hasClass('is-highlighted') ? 'blur' : 'focus';
+        this.model.trigger(event, this.model);
         this.trigger('click', this, this.model);
         return this;
     }
@@ -158,6 +128,7 @@ export default class ItemSummaryBlockView extends BaseAnnotationView {
         return this;
     }
 }
+
 extend(ItemSummaryBlockView.prototype, {
     tagName: 'span',
     className: 'item-sum-block',

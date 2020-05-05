@@ -1,5 +1,8 @@
 {{#each categoryColors}}
 .{{class}} {
-   background-color: {{color}} !important
+    background-color: {{color}} !important;
+}
+.hide-{{class}} .{{class}}, .hide-rit-any:not(.unhide-{{class}}) .{{class}} {
+    display: none !important;
 }
 {{/each}}

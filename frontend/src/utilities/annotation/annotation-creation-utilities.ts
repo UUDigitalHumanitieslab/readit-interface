@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as a$ from 'async';
 
 import Node  from './../../jsonld/node';
-import { oa, vocab, rdf, xsd, staff, dcterms, } from './../../jsonld/ns';
+import { oa, as, vocab, rdf, xsd, staff, dcterms, } from './../../jsonld/ns';
 
 import ItemGraph from './../../utilities/item-graph';
 import { AnnotationPositionDetails } from './annotation-utilities';
@@ -34,10 +34,10 @@ export function getAnonymousTextQuoteSelector(range: Range): Node {
 }
 
 function getPrefix(exactRange: Range): string {
-    let startCharacterIndex = exactRange.startOffset - prefixLength;
-    if (startCharacterIndex < 0) startCharacterIndex = 0;
+    let startIndex = exactRange.startOffset - prefixLength;
+    if (startIndex < 0) startIndex = 0;
     let prefixRange = document.createRange();
-    prefixRange.setStart(exactRange.startContainer, startCharacterIndex);
+    prefixRange.setStart(exactRange.startContainer, startIndex);
     prefixRange.setEnd(exactRange.startContainer, exactRange.startOffset);
     let result = prefixRange.toString();
     prefixRange.detach();
@@ -45,13 +45,13 @@ function getPrefix(exactRange: Range): string {
 }
 
 function getSuffix(exactRange: Range): string {
-    let endCharacterIndex = exactRange.endOffset + suffixLength;
-    if (endCharacterIndex > exactRange.endContainer.textContent.length) {
-        endCharacterIndex = exactRange.endContainer.textContent.length;
+    let endIndex = exactRange.endOffset + suffixLength;
+    if (endIndex > exactRange.endContainer.textContent.length) {
+        endIndex = exactRange.endContainer.textContent.length;
     }
     let suffixRange = document.createRange();
     suffixRange.setStart(exactRange.endContainer, exactRange.endOffset);
-    suffixRange.setEnd(exactRange.endContainer, endCharacterIndex);
+    suffixRange.setEnd(exactRange.endContainer, endIndex);
     let result = suffixRange.toString();
     suffixRange.detach();
     return result;
@@ -73,27 +73,21 @@ export function composeAnnotation(
     ontoItem?: Node,
     done?
 ) {
-    const { startNodeIndex, startCharacterIndex, endNodeIndex, endCharacterIndex } = posDetails;
+    const { startIndex, endIndex } = posDetails;
 
     const inputs = {
-        startNodeIndex, startCharacterIndex, endNodeIndex, endCharacterIndex,
+        startIndex, endIndex,
         source, ontoClass, ontoItem, tQSelector, items: new ItemGraph(),
     };
 
     const tasks = {
-        startSelector: ['items', 'startNodeIndex', 'startCharacterIndex',
-            createXPathSelector,
-        ],
-        endSelector: ['items', 'endNodeIndex', 'endCharacterIndex',
-            createXPathSelector,
-        ],
-        rangeSelector: ['items', 'startSelector', 'endSelector',
-            createRangeSelector,
+        positionSelector: ['items', 'startIndex', 'endIndex',
+            createPositionSelector,
         ],
         textQuoteSelector: ['items', 'tQSelector',
             createTextQuoteSelector,
         ],
-        specificResource: ['items', 'source', 'rangeSelector', 'textQuoteSelector',
+        specificResource: ['items', 'source', 'positionSelector', 'textQuoteSelector',
             createSpecificResource,
         ],
         instance: ['items', 'ontoClass', 'ontoItem',
@@ -194,30 +188,20 @@ function createTextQuoteSelector(items: ItemGraph, textQuoteSelector: Node, done
     return createItem(items, textQuoteSelector.attributes, done);
 }
 
-function createXPathSelector(items: ItemGraph, container: number, offset: number, done?) {
-    const xPath = `substring(.//*[${container}]/text(), ${offset})`;
+function createPositionSelector(items: ItemGraph, start: number, end: number, done?) {
     const attributes = {
-        '@type': oa.XPathSelector,
-        [rdf.value]: xPath,
-    };
-
-    return createItem(items, attributes, done);
-}
-
-function createRangeSelector(items: ItemGraph, start: number, end: number, done?) {
-    const attributes = {
-        '@type': vocab('RangeSelector'),
-        [oa.hasStartSelector]: start,
-        [oa.hasEndSelector]: end,
+        '@type': oa.TextPositionSelector,
+        [oa.start]: (start || ('' + start)),
+        [oa.end]: end,
     };
     return createItem(items, attributes, done);
 }
 
-function createSpecificResource(items: ItemGraph, source: Node, rangeSelector: Node, textQuoteSelector: Node, done?) {
+function createSpecificResource(items: ItemGraph, source: Node, positionSelector: Node, textQuoteSelector: Node, done?) {
     const attributes = {
         '@type': oa.SpecificResource,
         [oa.hasSource]: source,
-        [oa.hasSelector]: [rangeSelector, textQuoteSelector],
+        [oa.hasSelector]: [positionSelector, textQuoteSelector],
     };
     return createItem(items, attributes, done);
 }
@@ -233,6 +217,7 @@ function createAnnotation(
         '@type': oa.Annotation,
         [oa.hasBody]: [ontoClass],
         [oa.hasTarget]: specificResource,
+        [as.generator]: {'@id': vocab('self')},
     };
     if (ontoItem) (attributes[oa.hasBody] as Node[]).push(ontoItem);
     return createItem(items, attributes, done);
