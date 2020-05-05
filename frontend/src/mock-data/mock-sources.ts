@@ -18,7 +18,7 @@ import mockSourceText from './mock-source-text';
 export const source1instance = {
     "@id": source('1'),
     "@type": vocab('Source'),
-    [schema.name]: [
+    [schema('name')]: [
         {
             "@type": xsd.string,
             "@value": "Corpus_50_exp_lectures_interligne1.5 (1).pdf"

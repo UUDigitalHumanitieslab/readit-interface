@@ -1,7 +1,8 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from '../core/view';
 
+import Model from '../core/model';
+import View from '../core/view';
 import { oa, schema, vocab, readit } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
@@ -10,7 +11,7 @@ import { isType, isOntologyClass } from '../utilities/utilities';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import LabelView from '../utilities/label-view';
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt<Model> {
     model: Node;
 }
 
@@ -24,7 +25,9 @@ export interface ViewOptions extends BaseOpt<Node> {
  * This view subscribes itself to change events in all intermediate items,
  * and processes them accordingly.
  */
-export default abstract class BaseAnnotationView extends View<Node> {
+export default abstract class BaseAnnotationView extends View<Model> {
+    model: Node;
+    
     constructor(options: ViewOptions) {
         super(options);
     }

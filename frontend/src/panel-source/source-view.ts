@@ -1,111 +1,118 @@
+import { after, once, extend } from 'lodash';
 import { ViewOptions as BaseOpt, $ } from 'backbone';
-import { extend } from 'lodash';
-import View from './../core/view';
+import { SubViewDescription } from 'backbone-fractal/dist/composite-view';
+
 import Model from './../core/model';
-
-import Node from './../jsonld/node';
-import Graph from './../jsonld/graph';
-import sourceTemplate from './source-template';
-import HighlightableTextView from '../highlight/highlightable-text-view';
-
+import { CompositeView } from './../core/view';
 import { schema, vocab } from './../jsonld/ns';
+import Node from './../jsonld/node';
+import FlatModel from '../annotation/flat-annotation-model';
+import FlatCollection from '../annotation/flat-annotation-collection';
+import ToggleMixin from '../utilities/category-colors/category-toggle-mixin';
+import SegmentCollection from '../highlight/text-segment-collection';
 import { isType } from './../utilities/utilities';
-import HighlightView from '../highlight/highlight-view';
-import ItemGraph from '../utilities/item-graph';
-import FilteredCollection from '../utilities/filtered-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
+
+import HighlightableTextView from './highlightable-text-view';
 import SourceToolbarView from './toolbar/source-toolbar-view';
+import sourceTemplate from './source-template';
 
 export interface ViewOptions extends BaseOpt<Model> {
-    /**
-     * An instance of vocab('Source).
-     */
+    // An instance of vocab('Source').
     model: Node;
 
-    /**
-     * The collection of oa:Annotations (and the items representing their details) associated with the source.
-     */
-    collection: FilteredCollection<Node>;
+    // The collection of annotations (and the items representing their details)
+    // associated with the source.
+    collection: FlatCollection;
 
-    /**
-     * Specify whether the View should only display oa:Annotations, or if it allows editing
-     * them. Defaults to false.
-     */
+    // Specify whether the View should only display annotations, or if it allows
+    // editing them. Defaults to false.
     isEditable?: boolean;
 
-    /**
-     * Specify whether highlights should be displayed when the view becomes visible.
-     * Defaults to false.
-     */
+    // Specify whether highlights should be displayed when the view becomes
+    // visible. Defaults to false.
     showHighlightsInitially?: boolean;
-
-    /**
-     * Optional. An oa:Annotation instance, present in the items Graph, that
-     * will be scrolled to once the view is visible.
-     */
-    initialScrollTo?: Node;
 }
 
-export default class SourceView extends View<Node> {
-    collection: FilteredCollection<Node>;
+/**
+ * The panel that displays a single source, with buttons and highlights. It is
+ * self-rendering, i.e., calling `.render()` on it is not necessary.
+ *
+ * It has the CategoryToggleMixin to implement showing and hiding highlights.
+ * For now, it is just show all/hide all, but in the future, we can use this to
+ * selectively show only specific types of annotations as well.
+ */
+interface SourcePanel extends ToggleMixin {}
+class SourcePanel extends CompositeView {
+    model: Node;
+    collection: FlatCollection;
     isEditable: boolean;
-    showHighlightsInitially: boolean;
-    initialScrollTo?: Node;
 
-    /**
-     * Store reference to the instance of HighlightableTextView utilized by this view.
-     */
+    // Store reference to the instance of HighlightableTextView utilized by this
+    // view.
     htv: HighlightableTextView;
 
-    /**
-     * Keep track of visiblility of the highlights;
-     */
+    // Keep track of visiblility of the highlights.
     isShowingHighlights: boolean;
 
-    /**
-     * Keep track of visiblility of the metadata;
-     */
+    // Keep track of visiblility of the metadata.
     isShowingMetadata: boolean;
 
-    /**
-     * Keep track of visiblility of the view mode.
-     */
+    // Keep track of visiblility of the view mode.
     isInFullScreenViewMode: boolean;
 
-    /**
-     * Highlight clicking mode allows the user to click highlights and see their details.
-     * If this is false, we're in highlight text selection mode, which allows users to select text in highlights.
-     * Defaults to false, i.e. text selection mode.
-     */
+    // Highlight clicking mode allows the user to click highlights and see their
+    // details. If this is false, we're in highlight text selection mode, which
+    // allows users to select text in highlights. Defaults to false, i.e. text
+    // selection mode.
     isInHighlightClickingMode: boolean;
 
     toolbar: SourceToolbarView;
+
+    // Method that is repeatedly invoked to track whether we can already safely
+    // render highlights. Dynamically generated inside the constructor.
+    _triggerHighlighting: () => void;
 
     constructor(options?: ViewOptions) {
         super(options);
         this.validate();
 
-        this.initialScrollTo = options.initialScrollTo;
+        this.toolbar = new SourceToolbarView().render();
         this.isEditable = options.isEditable || false;
-        this.showHighlightsInitially = options.showHighlightsInitially || this.initialScrollTo != null || false;
-        this.isShowingHighlights = this.showHighlightsInitially;
+        this.isShowingHighlights = options.showHighlightsInitially || false;
+        this.render();
 
-        this.htv = new HighlightableTextView({
+        if (this.isShowingHighlights) {
+            this.toggleToolbarItemSelected('annotations');
+        } else {
+            this.hideHighlights();
+        }
+
+        // Will be called three times: once when the annotations are complete,
+        // once when this view is activated, and once when the text is complete.
+        // On the third call, regardless of the order, we get to business.
+        this._triggerHighlighting = after(3, this._activateHighlights);
+        // Trigger #1.
+        this.listenToOnce(
+            this.collection, 'complete:all', this._triggerHighlighting
+        );
+        // Trigger #2.
+        this.activate = once(this.activate);
+
+        // Trigger #3. Might be sync or async.
+        const text = this.model.get(schema.text);
+        if (text && text.length) {
+            this._createHtv(text[0] as string);
+        } else {
             // Traversing the JSON serialization, instead of a regular
             // `model.get`, because the URI dereferences to plain text instead
             // of a RDF-formatted resource and this would trip up the
             // `Store.obtain()` call. TODO: replace this with a nicer API,
             // perhaps `model.getRaw()`.
-            text: $.get(this.model.toJSON()[vocab('fullText')][0]['@id'] as string),
-            showHighlightsInitially: this.showHighlightsInitially,
-            collection: this.collection,
-            initialScrollTo: this.initialScrollTo,
-            isEditable: this.isEditable
-        });
-        this.bindToEvents(this.htv);
-
-        this.toolbar = new SourceToolbarView();
-        this.bindToToolbarEvents(this.toolbar);
+            $.get(
+                this.model.toJSON()[vocab('fullText')][0]['@id'] as string
+            ).then(this._createHtv.bind(this));
+        }
     }
 
     validate() {
@@ -117,76 +124,66 @@ export default class SourceView extends View<Node> {
         }
     }
 
-    render(): this {
-        this.htv.$el.detach();
-        this.$el.html(this.template({ title: this.model.get(schema('name'))[0] }));
+    // Internal method that creates `this.htv` and then sets some other things
+    // in motion that depend on it. This should be invoked only once; the
+    // constructor ensures this.
+    _createHtv(text: string): void {
+        this.htv = new HighlightableTextView({
+            text,
+            collection: new SegmentCollection(this.collection),
+            isEditable: this.isEditable
+        }).on('textSelected', this.onTextSelected, this);
+        this.bindToToolbarEvents(this.toolbar);
+        this.render()._triggerHighlighting();
+    }
 
-        this.$('highlightable-text-view').replaceWith(this.htv.render().$el);
-        this.$('toolbar').replaceWith(this.toolbar.render().$el);
-
-        if (this.showHighlightsInitially) {
-            this.trigger('sourceview:showAnnotations', this);
-            this.toggleToolbarItemSelected('annotations');
-        }
-
+    /**
+     * Public method to inform the view that it is attached to the `document`.
+     */
+    activate(): this {
+        this._triggerHighlighting();
         return this;
     }
 
-    bindToEvents(htv: HighlightableTextView): HighlightableTextView {
-        this.htv.on('hover', this.onHover, this);
-        this.htv.on('hoverEnd', this.onHoverEnd, this);
-        this.htv.on('highlightClicked', this.onHighlightClicked, this);
-        this.htv.on('highlightSelected', this.onHighlightSelected, this);
-        this.htv.on('highlightUnselected', this.onHighlightUnselected, this);
-        this.htv.on('highlightDeleted', this.onHighlightDeleted, this);
-        this.htv.on('textSelected', this.onTextSelected, this);
-        this.htv.on('scroll', this.onScroll, this);
-        return htv;
+    // Internal method that is invoked when `this._triggerHighlighting` has been
+    // called three times. This causes the higlights to be rendered. Whether
+    // they are visible is independently controlled by the toggle mixin.
+    _activateHighlights(): void {
+        this.htv.render().activate();
+        this.trigger('ready', this);
     }
 
+    /**
+     * List of subviews required by CompositeView. We generate it dynamically because `this.htv` might not exist when `.render()` or `.remove()` is invoked.
+     */
+    subviews(): SubViewDescription[] {
+        const list: SubViewDescription[] = [{
+            view: this.toolbar,
+            selector: 'source-toolbar',
+            method: 'replaceWith',
+        }];
+        if (this.htv) list.push({
+            view: this.htv,
+            selector: 'highlightable-text-view',
+            method: 'replaceWith',
+        });
+        return list;
+    }
+
+    renderContainer(): this {
+        this.$el.html(this.template({
+            title: this.model.get(schema('name'))[0]
+        }));
+        return this;
+    }
+
+    // TODO: share information between the panel and the toolbar using a model
+    // and move all responsibility for the appearance and behaviour of the
+    // toolbar to the toolbar.
     bindToToolbarEvents(toolbar: SourceToolbarView): SourceToolbarView {
         this.listenTo(toolbar, 'highlightClickingMode', this.htv.disablePointerEvents);
         this.listenTo(toolbar, 'highlightTextSelectionMode', this.htv.enablePointerEvents);
         return toolbar;
-    }
-
-    remove(): this {
-        this.htv.remove();
-        this.toolbar.remove();
-        return this;
-    }
-
-    add(newItems: ItemGraph): this {
-        this.htv.addAnnotation(newItems);
-        return this;
-    }
-
-    /**
-     * Pass request to HighlightableTextView
-     */
-    processClick(annotation: Node): this {
-        this.htv.processClick(annotation);
-        return this;
-    }
-
-    processNoInitialHighlights(): this {
-        this.htv.processNoInitialHighlights();
-        this.trigger('sourceView:noInitialHighlights', this);
-        return this;
-    }
-
-    /**
-     * Pass events from HighlightableTextView
-     */
-    onHover(node: Node): void {
-        this.trigger('hover', node);
-    }
-
-    /**
-     * Pass events from HighlightableTextView
-     */
-    onHoverEnd(node: Node): void {
-        this.trigger('hoverEnd', node);
     }
 
     /**
@@ -194,41 +191,6 @@ export default class SourceView extends View<Node> {
      */
     onTextSelected(range: Range, posDetails: AnnotationPositionDetails): void {
         this.trigger('sourceview:textSelected', this, this.model, range, posDetails);
-    }
-
-    /**
-     * Pass events from HighlightableTextView
-     */
-    onHighlightClicked(node: Node): void {
-        this.trigger('sourceview:highlightClicked', this, node);
-    }
-
-    /**
-     * Pass events from HighlightableTextView
-     */
-    onHighlightSelected(node: Node): void {
-        this.trigger('sourceview:highlightSelected', this, node);
-    }
-
-    /**
-     * Pass events from HighlightableTextView
-     */
-    onHighlightUnselected(node: Node, newHighlightSelected: boolean): void {
-        this.trigger('sourceview:highlightUnselected', this, node, newHighlightSelected);
-    }
-
-    /**
-     * Pass events from HighlightableTextView
-     */
-    onHighlightDeleted(node: Node): void {
-        this.trigger('sourceview:highlightDeleted', this, node);
-    }
-
-    /**
-     * Pass events from HighlightableTextView
-     */
-    onScroll(selector?: Node): void {
-        this.trigger('scroll', selector);
     }
 
     /**
@@ -248,18 +210,21 @@ export default class SourceView extends View<Node> {
         return this;
     }
 
+    // TODO: share information between the panel and the toolbar using a model
+    // and move all responsibility for the appearance and behaviour of the
+    // toolbar to the toolbar.
     toggleToolbarItemSelected(name: string): this {
         this.$(`.toolbar-${name}`).toggleClass("is-active");
         return this;
     }
 
     showHighlights(): this {
-        this.htv.showAll();
+        this.toggleCategories();
         return this;
     }
 
     hideHighlights(): this {
-        this.htv.hideAll();
+        this.toggleCategories([]);
         return this;
     }
 
@@ -289,12 +254,13 @@ export default class SourceView extends View<Node> {
         return this;
     }
 
-    scrollTo(annotation: Node): void {
+    scrollTo(annotation: FlatModel): void {
         this.htv.scrollTo(annotation);
     }
 }
-extend(SourceView.prototype, {
-    tagName: 'div',
+export default SourcePanel;
+
+extend(SourcePanel.prototype, ToggleMixin.prototype, {
     className: 'source explorer-panel',
     template: sourceTemplate,
     events: {

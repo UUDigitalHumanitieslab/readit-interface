@@ -70,13 +70,11 @@ export default class RelatedItemsView extends View<Node> {
         return this;
     }
 
-    onSummaryBlockClicked(summaryBlock: ItemSummaryBlockView, annotation: Node): this {
+    onSummaryBlockClicked(summaryBlock: ItemSummaryBlockView, model: Model): this {
         if (this.currentlyHighlighted && summaryBlock !== this.currentlyHighlighted) {
-            this.currentlyHighlighted.toggleHighlight();
         }
         this.currentlyHighlighted = summaryBlock;
-        summaryBlock.toggleHighlight();
-        this.trigger('relItems:itemClick', this, annotation);
+        this.trigger('relItems:itemClick', this, model.get('item'));
         return this;
     }
 
