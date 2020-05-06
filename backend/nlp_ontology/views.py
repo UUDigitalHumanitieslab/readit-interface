@@ -83,7 +83,7 @@ class NlpOntologyQueryView(APIView):
 class NlpOntologyUpdateView(APIView):
     """ Update the NLP ontology through SPARQL-Update """
     renderer_classes = (JSONRenderer, TurtleRenderer)
-    permission_classes = (SPARQLPermission, IsAuthenticated)
+    permission_classes = (SPARQLPermission,)
     authentication_classes = (SessionAuthentication, BasicAuthentication)
 
     def post(self, request, **kwargs):
