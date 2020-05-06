@@ -59,17 +59,16 @@ def test_get_item_root(client, itemgraph_db):
 def test_get_item_query(client, itemgraph_db):
     query = urlencode({
         'p': str(RDF.type),
-        'o': str(OA.XPathSelector),
+        'o': str(OA.TextPositionSelector),
     })
     response = client.get(QUERY_PATTERN.format(query))
     data = Graph()
     data.parse(data=response.content, format='turtle')
-    assert len(data) == 8
+    assert len(data) == 5
     subjects = set(data.subjects())
     assert ITEM['1'] not in subjects
-    assert ITEM['2']     in subjects
-    assert ITEM['3']     in subjects
-    for serial in range(4, 8):
+    assert ITEM['4']     in subjects
+    for serial in range(5, 8):
         assert ITEM[str(serial)] not in subjects
 
 
@@ -112,23 +111,24 @@ def test_post_item(auth_client):
 
 def test_put_item(auth_client, itemgraph_db):
     g = graph()
-    before = 'substring(.//*[0]/text(), 22)'
-    after = 'substring(.//*[0]/text(), 21)'
+    before = 22
+    after = 21
     triples = (
-        ( ITEM['2'], RDF.type,  OA.XPathSelector ),
-        ( ITEM['2'], RDF.value, Literal(after)   ),
+        ( ITEM['4'], RDF.type, OA.TextPositionSelector ),
+        ( ITEM['4'], OA.start, Literal(after)          ),
+        ( ITEM['4'], OA.end,   Literal(41)             ),
     )
     input_graph = Graph()
     for t in triples:
         input_graph.add(t)
-    assert (ITEM['2'], RDF.value, Literal(before)) in g
-    assert (ITEM['2'], RDF.value, Literal(after)) not in g
-    response, output_graph = submit_data(auth_client, input_graph, 'put', 2)
-    assert len(output_graph) == 4
-    assert (ITEM['2'], RDF.value, Literal(before)) not in output_graph
-    assert (ITEM['2'], RDF.value, Literal(after)) in output_graph
-    assert (ITEM['2'], RDF.value, Literal(before)) not in g
-    assert (ITEM['2'], RDF.value, Literal(after)) in g
+    assert (ITEM['4'], OA.start, Literal(before)) in g
+    assert (ITEM['4'], OA.start, Literal(after)) not in g
+    response, output_graph = submit_data(auth_client, input_graph, 'put', 4)
+    assert len(output_graph) == 5
+    assert (ITEM['4'], OA.start, Literal(before)) not in output_graph
+    assert (ITEM['4'], OA.start, Literal(after)) in output_graph
+    assert (ITEM['4'], OA.start, Literal(before)) not in g
+    assert (ITEM['4'], OA.start, Literal(after)) in g
 
 
 def test_delete_item(auth_client, itemgraph_db):

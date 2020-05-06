@@ -4,10 +4,7 @@ import ldChannel from '../jsonld/radio';
 import { Identifier, isIdentifier } from '../jsonld/json';
 import Node, { isNode, NodeLike } from '../jsonld/node';
 import Graph, { ReadOnlyGraph } from './../jsonld/graph';
-import ItemGraph from './item-graph';
-import FilteredCollection from './filtered-collection';
-import { skos, rdfs, readit, dcterms, oa } from './../jsonld/ns';
-import SourceView from '../panel-source/source-view';
+import { skos, rdfs, readit, dcterms } from './../jsonld/ns';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -208,22 +205,6 @@ export function getOntology(callback): void {
     );
 }
 
-/**
- * Get an ItemGraph with all oa:Annotations, oa:SpecificResources,
- * oa:TextQuoteSelectors, vocab:RangeSelectors and oa:XPathSelectors
- * associated with the specified source.
- */
-export function getItems(source: Node, callback): ItemGraph {
-    const items = new ItemGraph();
-    items.query({ object: source, traverse: 2, revTraverse: 1 }).then(
-        function success() {
-            callback(null, items);
-        },
-        /*error*/ callback
-    );
-    return items;
-}
-
 export function getSources(callback): void {
     const sources = new Graph();
     sources.fetch({ url: '/source/' }).then(
@@ -232,38 +213,4 @@ export function getSources(callback): void {
         },
         /*error*/ callback
     );
-}
-
-/**
- * Create an instance of SourceView for the specified source.
- * Will collect the annotations associated with the source async, i.e.
- * these will be added to the SourceView's collection when ready.
- */
-export function createSourceView(
-    source: Node,
-    showHighlightsInitially?: boolean,
-    isEditable?: boolean,
-    initialScrollTo?: Node
-): SourceView {
-    let sourceItems = getItems(source, function (error, items) {
-        if (error) {
-            console.debug(error);
-        } else if (!items.length) {
-            sourceView.processNoInitialHighlights();
-        }
-    });
-
-    let annotations = new FilteredCollection<Node>(sourceItems, item =>
-        isType(item, oa.Annotation)
-    );
-
-    let sourceView = new SourceView({
-        collection: annotations,
-        model: source,
-        showHighlightsInitially: showHighlightsInitially,
-        isEditable: isEditable,
-        initialScrollTo: initialScrollTo,
-    });
-
-    return sourceView;
 }

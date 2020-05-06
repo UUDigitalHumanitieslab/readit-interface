@@ -1,6 +1,7 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
+import Model from '../core/model';
 import { oa, rdf, skos } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
@@ -16,17 +17,19 @@ import { AnnotationPositionDetails } from '../utilities/annotation/annotation-ut
 import { composeAnnotation, getAnonymousTextQuoteSelector } from './../utilities/annotation/annotation-creation-utilities';
 
 import BaseAnnotationView from './base-annotation-view';
+import FlatCollection from './flat-annotation-collection';
 
 import annotationEditTemplate from './panel-annotation-edit-template';
 
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt<Model> {
     /**
      * An instance of oa:Annotation that links to a oa:TextQuoteSelector,
      * can be undefined if range and positionDetails are set (i.e. in case of a new annotation)
      */
     model: Node;
     ontology: Graph;
+    collection?: FlatCollection;
 
     /**
      * Should be set in case of a new annotation (i.e. when model is undefined).
@@ -45,6 +48,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 }
 
 export default class AnnotationEditView extends BaseAnnotationView {
+    collection: FlatCollection;
     ontology: Graph;
     source: Node;
     range: Range;
@@ -209,7 +213,10 @@ export default class AnnotationEditView extends BaseAnnotationView {
             this.selectedItem,
             (error, results) => {
                 if (error) return console.debug(error);
-                this.trigger('annotationEditView:saveNew', this, results.annotation, results.items);
+                const anno = results.annotation;
+                this.collection.underlying.add(anno);
+                const flat = this.collection.get(anno.id);
+                this.trigger('annotationEditView:saveNew', this, flat, results.items);
             }
         );
     }

@@ -109,7 +109,7 @@ class ItemsAPIRoot(RDFView):
         r = optional_int(params.get('r')) or 0
         # Heuristic to recognize requests for annotations. Facilitates special
         # case in loop below. TODO: remove this again.
-        is_annotations_request = p is None and t == 2 and r == 1 and isinstance(o, URIRef) and str(o).startswith(str(source))
+        is_annotations_request = p is None and t == 1 and r == 1 and isinstance(o, URIRef) and str(o).startswith(str(source))
         # Submission info is only used for the special case. TODO: remove
         # together with is_annotations_request.
         user, now = submission_info(request)

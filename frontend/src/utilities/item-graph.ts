@@ -23,14 +23,14 @@ export interface QueryParamsLiteral {
  *
  * Suppose that you fetch a Node, item:x, with the following triple.
 
-        item:x oa:hasSelector item:y
+        item:x oa:hasTarget item:y
 
  * If you pass traverse: 1, the response will not only include item:x,
  * but also all Nodes that appear in the object position in item:x.
  * In the above example, that includes at least item:y. Now suppose
  * that item:y has the following triple.
 
-        item:y oa:hasStartSelector item:z
+        item:y oa:hasSelector item:z
 
  * The traverse: 1 option means that you perform this step only once,
  * so item:z will not be included in the response. To repeat this step
@@ -40,7 +40,7 @@ export interface QueryParamsLiteral {
  * direction. If you pass revTraverse: 1, the response will include
  * item:w if it has the following triple.
 
-        item:w oa:hasTarget item:x
+        item:w oa:hasBody item:x
 
  * Traversal always yields whole Nodes.
  */

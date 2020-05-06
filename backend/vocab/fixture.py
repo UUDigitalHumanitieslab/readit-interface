@@ -2,12 +2,17 @@
 This module represents what we believe *should* be in .graph.graph().
 """
 
+from django.conf import settings
+
 from rdflib import Graph, URIRef, Literal
 
 from rdf.ns import *
 from rdf.utils import graph_from_triples
 
 from . import namespace as my
+
+APP_URI = URIRef(settings.RDF_NAMESPACE_ROOT)
+
 
 def triples():
     """ Returns the triples that should be in the graph. """
@@ -40,7 +45,11 @@ def triples():
         ( my.fullText,         is_a,          Property ),
         ( my.fullText,         hasDomain,     my.Source ),
         ( my.fullText,         hasRange,      SCHEMA.Text ),
+
+        ( my.self,             is_a,          AS.Application ),
+        ( my.self,             FOAF.homepage, APP_URI ),
     ]
+
 
 def canonical_graph():
     """ Returns a Graph with correct contents. """
