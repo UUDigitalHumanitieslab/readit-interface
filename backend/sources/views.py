@@ -28,7 +28,13 @@ from .permissions import UploadSourcePermission, DeleteSourcePermission
 
 
 def inject_fulltext(input, inline, request):
-    """ Return a copy of input that has the fulltext for each source. """
+    """
+    Return a copy of graph `input` that has the fulltext for each source.
+
+    If `inline` is true, add a `SCHEMA.text` property with the text verbatim.
+    Otherwise, add a `vocab.fullText` property with a URI that dereferences to
+    the text.
+    """
     subjects = set(input.subjects())
     text_triples = Graph()
     for s in subjects:
