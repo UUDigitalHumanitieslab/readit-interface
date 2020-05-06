@@ -14,6 +14,10 @@ const excludedAttributes = [
     'sameAs'
 ]
 
+const externalAttributes = [
+    'inLanguage'
+]
+
 export default class MetadataView extends View {
     /**
      * Class to show source's metadata
@@ -33,25 +37,20 @@ export default class MetadataView extends View {
 
     formatAttributes(): this {
         for (let attribute in this.model.attributes) {
+            // don't include @id, @value, fullText or sameAs info
             if (excludedProperties.includes(attribute)) {
                 continue;
             }
             let attributeLabel = getLabelFromId(attribute);
-            if (attributeLabel==='fullText') {
+            if (excludedAttributes.includes(attributeLabel)) {
                 continue;
             }
-            let valueArray = this.model.get(attribute);
-            valueArray.forEach(value => {
-                if (attributeLabel==='inLanguage') {
-                    const nodeFromUri = ldChannel.request('obtain', value.id);
-                    value = getLabel(nodeFromUri);
-                }
-                else if (attributeLabel==='sameAs') {
-                    console.log(value);
-                }
-                this.properties[attributeLabel] = value;
-
-            });
+            let value = this.model.get(attribute)[0];
+            if (externalAttributes.includes(attributeLabel)) {
+                const nodeFromUri = ldChannel.request('obtain', value.id);
+                value = getLabel(nodeFromUri);
+            }          
+            this.properties[attributeLabel] = value;
         }
             return this;
     }
