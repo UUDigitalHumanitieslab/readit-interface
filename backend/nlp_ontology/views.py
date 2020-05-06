@@ -1,8 +1,5 @@
 import rdflib.plugins.sparql as rdf_sparql
 from pyparsing import ParseException
-from rest_framework.authentication import (BasicAuthentication,
-                                           SessionAuthentication)
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE
@@ -38,7 +35,6 @@ def execute_update(updatestring):
 class NlpOntologyQueryView(APIView):
     """ Query the NLP ontology through SPARQL-Query """
     renderer_classes = (JSONRenderer, TurtleRenderer)
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
 
     def get(self, request, **kwargs):
         ''' Accepts SPARQL-Query in query paramter 'query'
@@ -62,7 +58,6 @@ class NlpOntologyQueryView(APIView):
 
     def post(self, request, **kwargs):
         ''' Accepts POST request with SPARQL-Query in body parameter 'query'
-            TODO: Optionally provide namespaces in body parameters 'prefix'
             Outputs application/json or text/turtle based on  header 'Accept'
         '''
         sparql_string = request.data.get('query')
@@ -84,16 +79,12 @@ class NlpOntologyUpdateView(APIView):
     """ Update the NLP ontology through SPARQL-Update """
     renderer_classes = (JSONRenderer, TurtleRenderer)
     permission_classes = (SPARQLPermission,)
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
 
     def post(self, request, **kwargs):
         ''' Accepts POST request with SPARQL-Query in body parameter 'query'
             Outputs application/json or text/turtle based on  header 'Accept'
-            TODO:
-            Optionally provide namespaces in body parameters 'prefix'
         '''
         sparql_string = request.data.get('update')
-
         if not sparql_string:
             # POST must contain an update
             return Response("No SPARQL-Update in body parameter 'update'",
