@@ -1,7 +1,8 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from '../core/view';
 
+import Model from '../core/model';
+import View from '../core/view';
 import { oa, schema, vocab, readit } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
@@ -10,7 +11,7 @@ import { isType, isOntologyClass } from '../utilities/utilities';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import LabelView from '../utilities/label-view';
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt<Model> {
     model: Node;
 }
 
@@ -24,7 +25,9 @@ export interface ViewOptions extends BaseOpt<Node> {
  * This view subscribes itself to change events in all intermediate items,
  * and processes them accordingly.
  */
-export default abstract class BaseAnnotationView extends View<Node> {
+export default abstract class BaseAnnotationView extends View<Model> {
+    model: Node;
+    
     constructor(options: ViewOptions) {
         super(options);
     }
@@ -101,30 +104,10 @@ export default abstract class BaseAnnotationView extends View<Node> {
             this.trigger('textQuoteSelector', selector);
         }
 
-        if (isType(selector, vocab('RangeSelector'))) {
-            let startSelector = selector.get(oa.hasStartSelector)[0] as Node;
-            // See comment above for explanation of stopListening/listenTo pattern.
-            this.stopListening(startSelector, 'change', this.processStartSelector);
-            this.listenTo(startSelector, 'change', this.processStartSelector);
-            this.processStartSelector(startSelector);
-
-            let endSelector = selector.get(oa.hasEndSelector)[0] as Node;
-            // See comment above for explanation of stopListening/listenTo pattern.
-            this.stopListening(endSelector, 'change', this.processEndSelector);
-            this.listenTo(endSelector, 'change', this.processEndSelector);
-            this.processEndSelector(endSelector);
+        if (isType(selector, oa.TextPositionSelector)) {
+            this.trigger('positionSelector', selector);
         }
 
-        return this;
-    }
-
-    processStartSelector(selector: Node): this {
-        this.trigger('startSelector', selector);
-        return this;
-    }
-
-    processEndSelector(selector: Node): this {
-        this.trigger('endSelector', selector);
         return this;
     }
 }
