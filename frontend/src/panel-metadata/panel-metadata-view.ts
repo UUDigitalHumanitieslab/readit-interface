@@ -9,6 +9,11 @@ const excludedProperties = [
     '@type'
 ];
 
+const excludedAttributes = [
+    'fullText',
+    'sameAs'
+]
+
 export default class MetadataView extends View {
     /**
      * Class to show source's metadata
@@ -37,12 +42,13 @@ export default class MetadataView extends View {
             }
             let valueArray = this.model.get(attribute);
             valueArray.forEach(value => {
-                if (typeof value==="object"){
-                    const uri = value.id;
-                    // const nodeFromUri = ldChannel.request('obtain', uri);
-                    // const label = getLabel(nodeFromUri);
-                    // console.log(label);
-                };    
+                if (attributeLabel==='inLanguage') {
+                    const nodeFromUri = ldChannel.request('obtain', value.id);
+                    value = getLabel(nodeFromUri);
+                }
+                else if (attributeLabel==='sameAs') {
+                    console.log(value);
+                }
                 this.properties[attributeLabel] = value;
 
             });
