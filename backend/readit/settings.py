@@ -105,7 +105,7 @@ WSGI_APPLICATION = 'readit.wsgi.application'
 # https://github.com/adamchainz/django-cors-headers
 
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_URLS_REGEX = r'^/((vocab|staff|ontology|nlp_ontology)|(source|item)/.*)$'
+CORS_URLS_REGEX = r'^/((vocab|staff|ontology|nlp-ontology)|(source|item|nlp-ontology)/.*)$'
 CORS_ALLOW_METHODS = ('GET', 'HEAD', 'OPTIONS')
 
 
