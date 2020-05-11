@@ -11,7 +11,6 @@ import AnnotationListView from '../annotation/panel-annotation-list-view';
 
 import AnnotationEditView from '../annotation/panel-annotation-edit-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
-import MetadataView from '../panel-metadata/panel-metadata-view';
 import RelatedItemsEditView from '../panel-related-items/related-items-edit-view';
 import ItemGraph from '../utilities/item-graph';
 import FlatModel from '../annotation/flat-annotation-model';
@@ -29,7 +28,6 @@ export default class ExplorerEventController {
      * The explorer view instance to manage events for
      */
     explorerView: ExplorerView;
-    metaView: MetadataView;
 
     mapSourceAnnotationList: Map<SourceView, AnnotationListView> = new Map();
     mapAnnotationListSource: Map<AnnotationListView, SourceView> = new Map();
@@ -70,7 +68,6 @@ export default class ExplorerEventController {
             'relItems:edit-close': this.relItemsEditClose,
             'source-list:click': this.pushSourcePair,
             'searchResultList:itemClicked': this.searchResultListItemClicked,
-            // 'metadata:hide': this.sourceViewCloseMetadata
         }, this);
     }
 
@@ -222,20 +219,13 @@ export default class ExplorerEventController {
         this.explorerView.popUntil(listView);
     }
 
-    sourceViewShowMetadata(sourceView: SourceView): this {
-        // let self = this;
-        // this.metaView = new MetadataView({
-        //     model: sourceView.model
-        // });
-        // self.explorerView.overlay(this.metaView);
+    sourceViewShowMetadata(sourceView: View, node: Node): this {
         return this;
     }
 
-    sourceViewHideMetadata(): this {
-        // this.explorerView.removeOverlay(this.metaView);
+    sourceViewHideMetadata(sourceView: View): this {
         return this;
     }
-
 
     sourceViewEnlarge(sourceView: View): this {
         this.explorerView.popUntil(sourceView);

@@ -15,7 +15,7 @@ import { AnnotationPositionDetails } from '../utilities/annotation/annotation-ut
 
 import HighlightableTextView from './highlightable-text-view';
 import SourceToolbarView from './toolbar/source-toolbar-view';
-import MetadataView from '../panel-metadata/panel-metadata-view';
+import MetadataView from './metadata/panel-metadata-view';
 import sourceTemplate from './source-template';
 
 export interface ViewOptions extends BaseOpt<Model> {
@@ -86,6 +86,9 @@ class SourcePanel extends CompositeView {
         this.toolbar = new SourceToolbarView().render();
         this.isEditable = options.isEditable || false;
         this.isShowingHighlights = options.showHighlightsInitially || false;
+        this.metaView = new MetadataView({
+            model: this.model
+        });
         this.render();
 
         if (this.isShowingHighlights) {
@@ -93,6 +96,8 @@ class SourcePanel extends CompositeView {
         } else {
             this.hideHighlights();
         }
+
+        this.metaView.$el.hide();
 
         // Will be called three times: once when the annotations are complete,
         // once when this view is activated, and once when the text is complete.
@@ -119,9 +124,6 @@ class SourcePanel extends CompositeView {
                 this.model.toJSON()[vocab('fullText')][0]['@id'] as string
             ).then(this._createHtv.bind(this));
 
-            this.metaView = new MetadataView({
-                model: this.model
-            });
             this.metaView.on('metadata:hide', this.toggleMetadata, this);
             this.metaView.on('metadata:edit', this.editMetadata, this);
         }
@@ -177,6 +179,11 @@ class SourcePanel extends CompositeView {
         if (this.htv) list.push({
             view: this.htv,
             selector: 'highlightable-text-view',
+            method: 'replaceWith',
+        });
+        if (this.metaView) list.push({
+            view: this.metaView,
+            selector: 'metadata-view',
             method: 'replaceWith',
         });
         return list;
@@ -247,13 +254,12 @@ class SourcePanel extends CompositeView {
 
     toggleMetadata(): this {
         if (this.isShowingMetadata) {
+            this.metaView.$el.hide();
+            this.htv.$el.show();
             this.trigger('sourceview:hideMetadata', this, this.model);
-            this.metaView.el.remove();
-            this.$el.find('.source-content').append(this.sourceContainer);
         } else {
-            this.sourceContainer = this.$el.find('.source-container');
-            this.sourceContainer.remove();
-            this.$el.find('.source-content').append(this.metaView.render().el);
+            this.htv.$el.hide();
+            this.metaView.$el.show();
             this.trigger('sourceview:showMetadata', this, this.model);
         }
         this.isShowingMetadata = !this.isShowingMetadata;

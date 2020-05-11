@@ -1,8 +1,8 @@
 import { extend } from 'lodash';
-import View from './../core/view';
+import View from '../../core/view';
 import metadataTemplate from './panel-metadata-template';
-import ldChannel from '../jsonld/radio';
-import { getLabel, getLabelFromId } from './../utilities/utilities';
+import ldChannel from '../../jsonld/radio';
+import { getLabel, getLabelFromId } from '../../utilities/utilities';
 
 const excludedProperties = [
     '@id',
@@ -27,6 +27,8 @@ export default class MetadataView extends View {
     initialize(): this {
         this.properties = new Object();
         this.formatAttributes();
+        this.render();
+        this.listenTo(this.model, 'change', this.render);
         return this;
     }
 
@@ -41,7 +43,7 @@ export default class MetadataView extends View {
             if (excludedProperties.includes(attribute)) {
                 continue;
             }
-            let attributeLabel = getLabelFromId(attribute);
+            let attributeLabel = getLabel(ldChannel.request('obtain', attribute));
             if (excludedAttributes.includes(attributeLabel)) {
                 continue;
             }
