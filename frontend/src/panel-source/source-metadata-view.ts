@@ -1,8 +1,8 @@
 import { extend } from 'lodash';
-import View from '../../core/view';
-import metadataTemplate from './panel-metadata-template';
-import ldChannel from '../../jsonld/radio';
-import { getLabel, getLabelFromId } from '../../utilities/utilities';
+import View from '../core/view';
+import metadataTemplate from './source-metadata-template';
+import ldChannel from '../jsonld/radio';
+import { getLabel, getLabelFromId } from '../utilities/utilities';
 
 const excludedProperties = [
     '@id',

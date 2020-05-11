@@ -15,7 +15,7 @@ import { AnnotationPositionDetails } from '../utilities/annotation/annotation-ut
 
 import HighlightableTextView from './highlightable-text-view';
 import SourceToolbarView from './toolbar/source-toolbar-view';
-import MetadataView from './metadata/panel-metadata-view';
+import MetadataView from './source-metadata-view';
 import sourceTemplate from './source-template';
 
 export interface ViewOptions extends BaseOpt<Model> {
@@ -123,10 +123,9 @@ class SourcePanel extends CompositeView {
             $.get(
                 this.model.toJSON()[vocab('fullText')][0]['@id'] as string
             ).then(this._createHtv.bind(this));
-
-            this.metaView.on('metadata:hide', this.toggleMetadata, this);
-            this.metaView.on('metadata:edit', this.editMetadata, this);
         }
+        this.metaView.on('metadata:hide', this.toggleMetadata, this);
+        this.metaView.on('metadata:edit', this.editMetadata, this);
     }
 
     validate() {
@@ -256,11 +255,9 @@ class SourcePanel extends CompositeView {
         if (this.isShowingMetadata) {
             this.metaView.$el.hide();
             this.htv.$el.show();
-            this.trigger('sourceview:hideMetadata', this, this.model);
         } else {
             this.htv.$el.hide();
             this.metaView.$el.show();
-            this.trigger('sourceview:showMetadata', this, this.model);
         }
         this.isShowingMetadata = !this.isShowingMetadata;
         this.toggleToolbarItemSelected('metadata');
