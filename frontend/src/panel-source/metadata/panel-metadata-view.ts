@@ -25,7 +25,7 @@ export default class MetadataView extends View {
     properties: any;
 
     initialize(): this {
-        this.properties = new Object();
+        this.properties = {};
         this.formatAttributes();
         this.render();
         this.listenTo(this.model, 'change', this.render);
@@ -43,7 +43,7 @@ export default class MetadataView extends View {
             if (excludedProperties.includes(attribute)) {
                 continue;
             }
-            let attributeLabel = getLabel(ldChannel.request('obtain', attribute));
+            let attributeLabel = getLabelFromId(attribute);
             if (excludedAttributes.includes(attributeLabel)) {
                 continue;
             }
