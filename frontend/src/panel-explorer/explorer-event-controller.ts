@@ -46,8 +46,6 @@ export default class ExplorerEventController {
      */
     subscribeToPanelEvents(panel: View): void {
         panel.on({
-            'sourceview:showMetadata': this.sourceViewShowMetadata,
-            'sourceview:hideMetadata': this.sourceViewHideMetadata,
             'sourceview:showAnnotations': graph => defer(this.sourceViewShowAnnotations.bind(this), graph),
             'sourceview:hideAnnotations': this.sourceViewHideAnnotations,
             'sourceView:enlarge': this.sourceViewEnlarge,
@@ -217,17 +215,6 @@ export default class ExplorerEventController {
     closeAnnotationPanel(listView: AnnotationListView, annotation: FlatModel): void {
         this.mapAnnotationListAnnotationDetail.delete(listView);
         this.explorerView.popUntil(listView);
-    }
-
-    sourceViewShowMetadata(sourceView: View, node: Node): this {
-        this.explorerView.popUntil(sourceView);
-        this.notImplemented();
-        return this;
-    }
-
-    sourceViewHideMetadata(sourceView: View): this {
-        // this.explorerView.popUntil(sourceView);
-        return this;
     }
 
     sourceViewEnlarge(sourceView: View): this {

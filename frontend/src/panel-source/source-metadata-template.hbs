@@ -1,0 +1,35 @@
+<div class="panel-header">
+    <button class="button btn-close"><i class="fas fa-times"></i></button>
+    <header>
+        <h1 class="title is-3">Source metadata</h3>
+    </header>
+</div>
+<div class="panel-content">
+    <section class="item-sections">
+        <article class="item-section">
+            <div class="item-section-header">
+                <p>Properties</p>
+            </div>
+            <table class="table is-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each properties}}
+                    <tr>
+                        <td>{{@key}}</td>
+                        <td>{{this}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </article>
+    </section>
+
+</div>
+{{!-- <div class="panel-footer">
+    <button class="button btn-edit">Edit</button>
+</div> --}}
