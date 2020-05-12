@@ -1,7 +1,8 @@
 import pytest
-from rdflib import Graph, Literal
+from rdflib import Literal
 
-from rdf.ns import DCTYPES, RDF, RDFS, SCHEMA
+from rdf.ns import RDF, SCHEMA
+from rdf.utils import graph_from_triples
 
 from . import namespace as my
 
