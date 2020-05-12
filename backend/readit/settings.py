@@ -186,3 +186,6 @@ DEFAULT_FROM_EMAIL = "donotreply@read-it.hum.uu.nl"
 
 ACCOUNT_ADAPTER = 'register.allauth.CustomAccountAdapter'
 ACCOUNT_EMAIL_VERIFICATION = "optional"
+
+# Suppress warnings
+SILENCED_SYSTEM_CHECKS = ['urls.W002']
