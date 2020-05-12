@@ -1,15 +1,17 @@
 import rdflib.plugins.sparql as rdf_sparql
 from pyparsing import ParseException
+from rest_framework.authentication import (BasicAuthentication,
+                                           SessionAuthentication)
 from rest_framework.exceptions import APIException, ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView, exception_handler
-from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 
 from rdf.renderers import TurtleRenderer
 from rdf.utils import graph_from_triples
 from rdf.views import custom_exception_handler as turtle_exception_handler
 
+from .exceptions import NoParamError, ParseSPARQLError
 from .graph import graph
 from .permissions import SPARQLPermission
 
@@ -21,17 +23,6 @@ class QueryResultsTurtleRenderer(TurtleRenderer):
         results_graph = graph_from_triples(query_results)
         return super(QueryResultsTurtleRenderer,
                      self).render(results_graph, media_type, renderer_context)
-
-
-class NoParamError(APIException):
-    status_code = 400
-    default_detail = 'No SPARQL-Query or SPARQL-Update in query or update body parameters.'
-    default_code = 'sparql_no_param_error'
-
-
-class ParseSPARQLError(ParseError):
-    default_detail = 'Error parsing SPARQL.'
-    default_code = 'sparql_parse_error'
 
 
 def execute_query(querystring):
