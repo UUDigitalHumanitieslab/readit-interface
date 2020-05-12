@@ -14,7 +14,5 @@ TRIPLES = (
 
 @pytest.fixture
 def ontologygraph():
-    g = Graph()
-    for t in TRIPLES:
-        g.add(t)
+    g = graph_from_triples(TRIPLES)
     return g
