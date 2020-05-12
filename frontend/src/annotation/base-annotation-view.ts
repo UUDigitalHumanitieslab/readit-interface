@@ -5,11 +5,8 @@ import Model from '../core/model';
 import View from '../core/view';
 import { oa, schema, vocab, readit } from '../jsonld/ns';
 import Node from '../jsonld/node';
-import ldChannel from '../jsonld/radio';
 
 import { isType, isOntologyClass } from '../utilities/utilities';
-import SnippetView from '../utilities/snippet-view/snippet-view';
-import LabelView from '../utilities/label-view';
 
 export interface ViewOptions extends BaseOpt<Model> {
     model: Node;
