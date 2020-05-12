@@ -3,7 +3,6 @@ from pyparsing import ParseException
 from rest_framework.exceptions import APIException, ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_406_NOT_ACCEPTABLE
 from rest_framework.views import APIView, exception_handler
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 
@@ -15,27 +14,24 @@ from .graph import graph
 from .permissions import SPARQLPermission
 
 
+class QueryResultsTurtleRenderer(TurtleRenderer):
+    ''' Renders turtle from rdflib SPARQL query results'''
+
+    def render(self, query_results, media_type=None, renderer_context=None):
+        results_graph = graph_from_triples(query_results)
+        return super(QueryResultsTurtleRenderer,
+                     self).render(results_graph, media_type, renderer_context)
+
+
 class NoParamError(APIException):
     status_code = 400
     default_detail = 'No SPARQL-Query or SPARQL-Update in query or update body parameters.'
     default_code = 'sparql_no_param_error'
 
 
-class ParseSPARQLError(APIException):
-    status_code = 400
+class ParseSPARQLError(ParseError):
     default_detail = 'Error parsing SPARQL.'
     default_code = 'sparql_parse_error'
-
-
-def render_query_results(query_results, accepted_renderer=None):
-    ''' Render results bases on 'Accept' header:
-        application/json (default) or txt/turtle '''
-    if isinstance(accepted_renderer, TurtleRenderer):
-        return Response(graph_from_triples(query_results))
-    if isinstance(accepted_renderer, JSONRenderer):
-        return Response(query_results)
-    return Response('Accepted media types: application/json; txt/turtle',
-                    status=HTTP_406_NOT_ACCEPTABLE)
 
 
 def execute_query(querystring):
@@ -56,6 +52,10 @@ def execute_update(updatestring):
 
 
 def sparql_exception_handler(error, context):
+    accepted_renderer = getattr(context['request'], 'accepted_renderer', None)
+    if isinstance(accepted_renderer, QueryResultsTurtleRenderer):
+        return turtle_exception_handler
+
     response = exception_handler(error, context)
     if response is not None:
         response.data['status_code'] = response.status_code
@@ -64,11 +64,9 @@ def sparql_exception_handler(error, context):
 
 class NlpOntologyQueryView(APIView):
     """ Query the NLP ontology through SPARQL-Query """
-    renderer_classes = (JSONRenderer, TurtleRenderer)
+    renderer_classes = (JSONRenderer, QueryResultsTurtleRenderer)
 
     def get_exception_handler(self):
-        if isinstance(self.request.accepted_renderer, TurtleRenderer):
-            return turtle_exception_handler
         return sparql_exception_handler
 
     def get(self, request, **kwargs):
@@ -83,8 +81,7 @@ class NlpOntologyQueryView(APIView):
             return Response(graph())
 
         query_results = execute_query(sparql_string)
-        return render_query_results(query_results,
-                                    request.accepted_renderer)
+        return Response(query_results)
 
     def post(self, request, **kwargs):
         ''' Accepts POST request with SPARQL-Query in body parameter 'query'
@@ -95,17 +92,13 @@ class NlpOntologyQueryView(APIView):
             raise NoParamError()
 
         query_results = execute_query(sparql_string)
-        return render_query_results(query_results, request.accepted_renderer)
+        return Response(query_results)
 
 
 class NlpOntologyUpdateView(APIView):
     """ Update the NLP ontology through SPARQL-Update """
-    renderer_classes = (TurtleRenderer,)
     permission_classes = (SPARQLPermission,)
     authentication_classes = (SessionAuthentication, BasicAuthentication)
-
-    def get_exception_handler(self):
-        return turtle_exception_handler
 
     def post(self, request, **kwargs):
         ''' Accepts POST request with SPARQL-Query in body parameter 'query'
@@ -117,4 +110,4 @@ class NlpOntologyUpdateView(APIView):
             raise NoParamError()
 
         execute_update(sparql_string)
-        return Response(graph())
+        return Response({'message': 'Updated successfully.', 'status': True})

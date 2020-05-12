@@ -17,20 +17,24 @@ INSERT_QUERY = '''
     }
 '''
 
+SELECT_QUERY = '''
+    SELECT ?s ?p ?o
+    WHERE {
+        ?s ?p ?o .
+    }
+'''
+
 
 def test_insert(admin_client, ontologygraph):
     post_response = admin_client.post(UPDATE_URL, {'update': INSERT_QUERY})
     assert post_response.status_code == 200
-    post_data = Graph()
-    post_data.parse(data=post_response.content, format='turtle')
 
     get_response = admin_client.get(QUERY_URL)
     assert post_response.status_code == 200
     get_data = Graph()
     get_data.parse(data=get_response.content, format='turtle')
 
-    assert len(post_data ^ get_data) == 0
-    assert len(post_data ^ ontologygraph) == 0
+    assert len(ontologygraph ^ get_data) == 0
 
 
 def test_authorized(admin_client):
