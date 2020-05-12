@@ -45,7 +45,7 @@ def test_unauthorized(client):
 
 def test_malformed_update(admin_client):
     response = admin_client.post(
-        UPDATE_URL, {'update': 'this is no SPARQL query!'})
+        UPDATE_URL, {'update': 'this is no SPARQL update!'})
     assert response.status_code == 400
 
 
