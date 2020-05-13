@@ -29,9 +29,25 @@ export function timeout(milliseconds): Promise<void> {
  */
 export function startStore() {
     jasmine.Ajax.install();
-    this._globalGraph = new Store();
+    this._pendingRequests = 0;
+    this._globalGraph = new Store().on({
+        prerequest: () => ++this._pendingRequests,
+        request: () => --this._pendingRequests,
+    });
 }
-export function endStore() {
+export async function endStore() {
+    const requestTracker = jasmine.Ajax.requests;
+    while (this._pendingRequests) await event(this._globalGraph, 'request');
+    let finalizedRequests = 0;
+    while (finalizedRequests < requestTracker.count()) {
+        const request = requestTracker.at(finalizedRequests++);
+        if (
+            request.readyState === XMLHttpRequest.DONE ||
+            request.statusText === 'abort'
+        ) continue;
+        request.abort();
+        await timeout(1);
+    }
     this._globalGraph.off().stopListening().stopReplying().reset();
     delete this._globalGraph;
     jasmine.Ajax.uninstall();
