@@ -1,8 +1,12 @@
+import json
+from io import StringIO
+
 import rdflib.plugins.sparql as rdf_sparql
 from pyparsing import ParseException
+from rdflib.plugins.sparql.results.jsonresults import JSONResultSerializer
 from rest_framework.authentication import (BasicAuthentication,
                                            SessionAuthentication)
-from rest_framework.exceptions import APIException, ParseError
+from rest_framework.exceptions import APIException
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView, exception_handler
@@ -28,10 +32,17 @@ class QueryResultsTurtleRenderer(TurtleRenderer):
 def execute_query(querystring):
     try:
         prepared_query = rdf_sparql.prepareQuery(querystring)
-        return graph().query(prepared_query)
+        query_results = graph().query(prepared_query)
+
+        stream = StringIO()
+        JSONResultSerializer(query_results).serialize(stream)
+        json_str = stream.getvalue()
+        stream.close()
+        return json.loads(json_str)
+
     except ParseException as p_e:
         # Raised when SPARQL syntax is not valid, or parsing fails
-        raise ParseError(p_e)
+        raise ParseSPARQLError(p_e)
 
 
 def execute_update(updatestring):
@@ -39,7 +50,7 @@ def execute_update(updatestring):
         return graph().update(updatestring)
     except ParseException as p_e:
         # Raised when SPARQL syntax is not valid, or parsing fails
-        raise ParseError(p_e)
+        raise ParseSPARQLError(p_e)
 
 
 def sparql_exception_handler(error, context):
@@ -70,6 +81,8 @@ class NlpOntologyQueryView(APIView):
             # Ignores 'Accept' header, only renders text/turtle
             request.accepted_renderer = TurtleRenderer()
             return Response(graph())
+
+        stream = StringIO()
 
         query_results = execute_query(sparql_string)
         return Response(query_results)
