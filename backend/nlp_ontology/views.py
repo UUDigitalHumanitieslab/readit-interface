@@ -6,7 +6,6 @@ from pyparsing import ParseException
 from rdflib.plugins.sparql.results.jsonresults import JSONResultSerializer
 from rest_framework.authentication import (BasicAuthentication,
                                            SessionAuthentication)
-from rest_framework.exceptions import APIException
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView, exception_handler
@@ -81,8 +80,6 @@ class NlpOntologyQueryView(APIView):
             # Ignores 'Accept' header, only renders text/turtle
             request.accepted_renderer = TurtleRenderer()
             return Response(graph())
-
-        stream = StringIO()
 
         query_results = execute_query(sparql_string)
         return Response(query_results)
