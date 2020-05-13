@@ -50,6 +50,7 @@ const defaultSyncOptions = (function() {
 export default async function syncLD(
     method: string, model: Node | Graph, options: any
 ): Promise<FlatLdDocument> {
+    model.trigger('prerequest', model, options);
     let { success, error, attrs } = options;
     options = omit(options, 'success', 'error');
     options = defaultsDeep(options, await defaultSyncOptions());
