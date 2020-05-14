@@ -12,6 +12,7 @@ import {
     schema,
     xsd,
     oa,
+    iso6391,
 } from '../jsonld/ns';
 import mockSourceText from './mock-source-text';
 
@@ -44,8 +45,7 @@ export const source1instance = {
     ],
     [schema.inLanguage]: [
         {
-            "@type": "Language",
-            "@value": "en"
+            "@id": iso6391.en
         },
     ],
     [dcterms.created]: [
