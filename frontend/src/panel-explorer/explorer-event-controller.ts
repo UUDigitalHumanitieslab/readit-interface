@@ -5,7 +5,6 @@ import Node from './../jsonld/node';
 import ExplorerView from './explorer-view';
 import LdItemView from '../panel-ld-item/ld-item-view';
 import Graph from '../jsonld/graph';
-import SourceListView from '../panel-source-list/source-list-view';
 import SourceView from './../panel-source/source-view';
 import AnnotationListView from '../annotation/panel-annotation-list-view';
 
@@ -16,13 +15,12 @@ import ItemGraph from '../utilities/item-graph';
 import FlatModel from '../annotation/flat-annotation-model';
 import FlatCollection from '../annotation/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
-import { oa, source } from '../jsonld/ns';
+import { oa } from '../jsonld/ns';
 import SearchResultListView from '../search/search-results/panel-search-result-list-view';
 import {
     isType,
     isOntologyClass,
 } from '../utilities/utilities';
-import SourceLanguageView from '../panel-source-list/source-language-view';
 
 export default class ExplorerEventController {
     /**
