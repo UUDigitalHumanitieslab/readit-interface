@@ -230,7 +230,7 @@ export default class ExplorerEventController {
         let annotationListView = new AnnotationListView({
             collection: sourceView.collection
         });
-        sourceView.collection.underlying.sync();
+        sourceView.collection.underlying.trigger('sync');
         this.mapSourceAnnotationList.set(sourceView, annotationListView);
         this.mapAnnotationListSource.set(annotationListView, sourceView);
         this.explorerView.push(annotationListView);
