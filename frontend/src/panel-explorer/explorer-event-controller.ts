@@ -5,7 +5,6 @@ import Node from './../jsonld/node';
 import ExplorerView from './explorer-view';
 import LdItemView from '../panel-ld-item/ld-item-view';
 import Graph from '../jsonld/graph';
-import SourceListView from '../panel-source-list/source-list-view';
 import SourceView from './../panel-source/source-view';
 import AnnotationListView from '../annotation/panel-annotation-list-view';
 
@@ -231,6 +230,7 @@ export default class ExplorerEventController {
         let annotationListView = new AnnotationListView({
             collection: sourceView.collection
         });
+        sourceView.collection.underlying.trigger('sync');
         this.mapSourceAnnotationList.set(sourceView, annotationListView);
         this.mapAnnotationListSource.set(annotationListView, sourceView);
         this.explorerView.push(annotationListView);
