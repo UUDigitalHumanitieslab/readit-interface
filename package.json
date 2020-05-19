@@ -38,5 +38,8 @@
     "serve-back-p": "yarn django runserver --settings production --pythonpath ..",
     "serve-p": "yarn serve-front-p & yarn serve-back-p",
     "start-p": "yarn static-p && yarn serve-p"
+  },
+  "dependencies": {
+    "back": "^1.0.2"
   }
 }

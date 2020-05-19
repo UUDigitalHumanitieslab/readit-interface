@@ -228,6 +228,7 @@ export default class ExplorerEventController {
     }
 
     sourceViewShowAnnotations(sourceView: SourceView): this {
+        console.log(sourceView.collection);
         let annotationListView = new AnnotationListView({
             collection: sourceView.collection
         });
