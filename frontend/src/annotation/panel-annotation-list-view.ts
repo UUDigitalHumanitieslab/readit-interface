@@ -30,7 +30,8 @@ export default class AnnotationListView extends CollectionView<FlatModel, ItemSu
         this.initItems().render();
         this.loadingSpinnerView.activate();
         this.listenToOnce(this.collection.underlying, {
-            'sync': this._hideLoadingSpinner,
+            sync: this._hideLoadingSpinner,
+            error: this._hideLoadingSpinner,
         }).listenTo(this.collection, {
             focus: this._handleFocus,
             blur: this._handleBlur,

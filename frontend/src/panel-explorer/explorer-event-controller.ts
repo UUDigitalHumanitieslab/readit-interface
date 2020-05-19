@@ -16,12 +16,13 @@ import ItemGraph from '../utilities/item-graph';
 import FlatModel from '../annotation/flat-annotation-model';
 import FlatCollection from '../annotation/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
-import { oa } from '../jsonld/ns';
+import { oa, source } from '../jsonld/ns';
 import SearchResultListView from '../search/search-results/panel-search-result-list-view';
 import {
     isType,
     isOntologyClass,
 } from '../utilities/utilities';
+import SourceLanguageView from '../panel-source-list/source-language-view';
 
 export default class ExplorerEventController {
     /**
@@ -231,6 +232,7 @@ export default class ExplorerEventController {
         let annotationListView = new AnnotationListView({
             collection: sourceView.collection
         });
+        sourceView.collection.underlying.sync();
         this.mapSourceAnnotationList.set(sourceView, annotationListView);
         this.mapAnnotationListSource.set(annotationListView, sourceView);
         this.explorerView.push(annotationListView);
