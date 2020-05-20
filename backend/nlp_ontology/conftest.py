@@ -41,7 +41,9 @@ ASK_QUERY_FALSE = '''PREFIX my: <http://testserver/nlp-ontology#>
 ASK { ?x my:meow  "silent" }'''
 
 CONSTRUCT_QUERY = '''
-
+    PREFIX my: <http://testserver/nlp-ontology#>
+    PREFIX ns3: <http://schema.org/>
+    CONSTRUCT WHERE { ?x my:meow ?name } 
 '''
 
 DESCRIBE_QUERY = '''PREFIX ns3: <http://schema.org/>

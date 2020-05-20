@@ -31,9 +31,15 @@ def test_ask(client, test_queries, ontologygraph_db):
 
 
 def test_describe(client, test_queries, ontologygraph_db):
-    # DESCRIBE queries are not implemented
+    # DESCRIBE queries are not implemented in rdflib
     response = client.get(QUERY_URL, {'query': test_queries.DESCRIBE})
     assert response.status_code == 500
+
+
+def test_construct(client, test_queries, ontologygraph_db):
+    # TODO: proper test
+    response = client.get(QUERY_URL, {'query': test_queries.CONSTRUCT})
+    assert response.status_code == 200
 
 
 def test_authorized(admin_client, test_queries):

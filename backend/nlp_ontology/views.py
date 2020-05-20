@@ -41,8 +41,9 @@ def execute_query(querystring):
     try:
         prepared_query = rdf_sparql.prepareQuery(querystring)
         query_results = graph().query(prepared_query)
-
-        return serialize_sparql_json
+        if query_results.type in ('ASK', 'SELECT'):
+            return serialize_sparql_json(query_results)
+        return query_results
 
     except ParseException as p_e:
         # Raised when SPARQL syntax is not valid, or parsing fails
