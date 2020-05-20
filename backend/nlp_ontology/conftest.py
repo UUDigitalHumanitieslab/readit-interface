@@ -35,18 +35,17 @@ SELECT_QUERY = '''
     }
 '''
 
-ASK_QUERY = '''PREFIX my:<http://testserver/nlp-ontology#> 
+ASK_QUERY = '''PREFIX my: <http://testserver/nlp-ontology#> 
 ASK { ?x my:meow  "loud" }'''
-ASK_QUERY_FALSE = '''PREFIX my:<http://testserver/nlp-ontology#> 
+ASK_QUERY_FALSE = '''PREFIX my: <http://testserver/nlp-ontology#> 
 ASK { ?x my:meow  "silent" }'''
 
 CONSTRUCT_QUERY = '''
 
 '''
 
-DESCRIBE_QUERY = '''
-
-'''
+DESCRIBE_QUERY = '''PREFIX ns3: <http://schema.org/>
+DESCRIBE ?x WHERE { ?x ns3:color "#f9e5bc" }'''
 
 
 @pytest.fixture

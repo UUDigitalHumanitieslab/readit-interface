@@ -18,16 +18,22 @@ def test_insert(admin_client, ontologygraph, test_queries):
     assert len(ontologygraph ^ get_data) == 0
 
 
-def test_ask(admin_client, test_queries, ontologygraph_db):
-    true_response = admin_client.get(
+def test_ask(client, test_queries, ontologygraph_db):
+    true_response = client.get(
         QUERY_URL, {'query': test_queries.ASK_TRUE})
     assert true_response.status_code == 200
     assert json.loads(true_response.content)['boolean']
 
-    false_response = admin_client.get(
+    false_response = client.get(
         QUERY_URL, {'query': test_queries.ASK_FALSE})
     assert false_response.status_code == 200
     assert not json.loads(false_response.content)['boolean']
+
+
+def test_describe(client, test_queries, ontologygraph_db):
+    # DESCRIBE queries are not implemented
+    response = client.get(QUERY_URL, {'query': test_queries.DESCRIBE})
+    assert response.status_code == 500
 
 
 def test_authorized(admin_client, test_queries):

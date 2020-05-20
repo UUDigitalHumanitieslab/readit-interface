@@ -9,6 +9,7 @@ from rest_framework.authentication import (BasicAuthentication,
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView, exception_handler
+from rest_framework.exceptions import APIException
 
 from rdf.renderers import TurtleRenderer
 from rdf.utils import graph_from_triples
@@ -28,20 +29,26 @@ class QueryResultsTurtleRenderer(TurtleRenderer):
                      self).render(results_graph, media_type, renderer_context)
 
 
+def serialize_sparql_json(query_results):
+    stream = StringIO()
+    JSONResultSerializer(query_results).serialize(stream)
+    json_str = stream.getvalue()
+    stream.close()
+    return json.loads(json_str)
+
+
 def execute_query(querystring):
     try:
         prepared_query = rdf_sparql.prepareQuery(querystring)
         query_results = graph().query(prepared_query)
 
-        stream = StringIO()
-        JSONResultSerializer(query_results).serialize(stream)
-        json_str = stream.getvalue()
-        stream.close()
-        return json.loads(json_str)
+        return serialize_sparql_json
 
     except ParseException as p_e:
         # Raised when SPARQL syntax is not valid, or parsing fails
         raise ParseSPARQLError(p_e)
+    except Exception as n_e:
+        raise APIException(n_e)
 
 
 def execute_update(updatestring):
