@@ -1,32 +1,13 @@
 from rdflib import Graph
+import json
 
 QUERY_URL = '/nlp-ontology'
 UPDATE_URL = QUERY_URL + '/update'
 
-INSERT_QUERY = '''
-    PREFIX dc: <http://purl.org/dc/elements/1.1/>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX my: <http://testserver/nlp-ontology#>
-    PREFIX dctypes: <http://purl.org/dc/dcmitype/>
-    PREFIX ns3: <http://schema.org/>
 
-    INSERT DATA { 
-        my:icecream         a               ns3:Food        ;
-                            ns3:color       "#f9e5bc"       .
-        ns3:Cat             my:meow         "loud"          .
-    }
-'''
-
-SELECT_QUERY = '''
-    SELECT ?s ?p ?o
-    WHERE {
-        ?s ?p ?o .
-    }
-'''
-
-
-def test_insert(admin_client, ontologygraph):
-    post_response = admin_client.post(UPDATE_URL, {'update': INSERT_QUERY})
+def test_insert(admin_client, ontologygraph, test_queries):
+    post_response = admin_client.post(
+        UPDATE_URL, {'update': test_queries.INSERT})
     assert post_response.status_code == 200
 
     get_response = admin_client.get(QUERY_URL)
@@ -37,8 +18,20 @@ def test_insert(admin_client, ontologygraph):
     assert len(ontologygraph ^ get_data) == 0
 
 
-def test_authorized(admin_client):
-    response = admin_client.post(UPDATE_URL, {'update': INSERT_QUERY})
+def test_ask(admin_client, test_queries, ontologygraph_db):
+    true_response = admin_client.get(
+        QUERY_URL, {'query': test_queries.ASK_TRUE})
+    assert true_response.status_code == 200
+    assert json.loads(true_response.content)['boolean']
+
+    false_response = admin_client.get(
+        QUERY_URL, {'query': test_queries.ASK_FALSE})
+    assert false_response.status_code == 200
+    assert not json.loads(false_response.content)['boolean']
+
+
+def test_authorized(admin_client, test_queries):
+    response = admin_client.post(UPDATE_URL, {'update': test_queries.INSERT})
     assert response.status_code == 200
 
 
