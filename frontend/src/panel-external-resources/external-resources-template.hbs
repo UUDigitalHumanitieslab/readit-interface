@@ -1,13 +1,20 @@
 <div class="panel-header">
     <header>
-        <h3 class="title is-3">Related items</h3>
+        <h3 class="title is-3">External resources</h3>
     </header>
 </div>
-<div class="panel-content relations"></div>
+<div class="panel-content external">
+    {{#each externalResources}}
+        <h5 class="title is-5">{{label}}</h5>
+        <a href="{{url}}" target="_blank" rel="noopener noreferrer">
+            {{url}}
+        </a>
+    {{/each}}
+</div>
 <div class="panel-footer field is-grouped is-grouped-right">
     <div class="control">
         <button
-            type="button"
+            type=button
             class="button btn-edit"
         >Edit</button>
     </div>
