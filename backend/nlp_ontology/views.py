@@ -1,113 +1,32 @@
-import json
-from io import StringIO
-
 import rdflib.plugins.sparql as rdf_sparql
+from django.http.response import HttpResponseBase
 from pyparsing import ParseException
-from rdflib.plugins.sparql.results.jsonresults import JSONResultSerializer
 from rest_framework.authentication import (BasicAuthentication,
                                            SessionAuthentication)
-from rest_framework.renderers import JSONRenderer
-from rest_framework.response import Response
-from rest_framework.views import APIView, exception_handler
 from rest_framework.exceptions import APIException
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from rdf.renderers import TurtleRenderer
-from rdf.utils import graph_from_triples
+
 from rdf.views import custom_exception_handler as turtle_exception_handler
 
 from .exceptions import NoParamError, ParseSPARQLError
 from .graph import graph
+from .negotiation import SPARQLContentNegotiator
 from .permissions import SPARQLPermission
 
 
-class QueryResultsTurtleRenderer(TurtleRenderer):
-    ''' Renders turtle from rdflib SPARQL query results'''
-
-    def render(self, query_results, media_type=None, renderer_context=None):
-        results_graph = graph_from_triples(query_results)
-        return super(QueryResultsTurtleRenderer,
-                     self).render(results_graph, media_type, renderer_context)
-
-
-def serialize_sparql_json(query_results):
-    stream = StringIO()
-    JSONResultSerializer(query_results).serialize(stream)
-    json_str = stream.getvalue()
-    stream.close()
-    return json.loads(json_str)
-
-
-def execute_query(querystring):
-    try:
-        prepared_query = rdf_sparql.prepareQuery(querystring)
-        query_results = graph().query(prepared_query)
-        if query_results.type in ('ASK', 'SELECT'):
-            return serialize_sparql_json(query_results)
-        return query_results
-
-    except ParseException as p_e:
-        # Raised when SPARQL syntax is not valid, or parsing fails
-        raise ParseSPARQLError(p_e)
-    except Exception as n_e:
-        raise APIException(n_e)
-
-
-def execute_update(updatestring):
-    try:
-        return graph().update(updatestring)
-    except ParseException as p_e:
-        # Raised when SPARQL syntax is not valid, or parsing fails
-        raise ParseSPARQLError(p_e)
-
-
-def sparql_exception_handler(error, context):
-    accepted_renderer = getattr(context['request'], 'accepted_renderer', None)
-    if isinstance(accepted_renderer, QueryResultsTurtleRenderer):
+class SPARQLUpdateAPIView(APIView):
+    def get_exception_handler(self):
         return turtle_exception_handler
 
-    response = exception_handler(error, context)
-    if response is not None:
-        response.data['status_code'] = response.status_code
-    return response
-
-
-class NlpOntologyQueryView(APIView):
-    """ Query the NLP ontology through SPARQL-Query """
-    renderer_classes = (JSONRenderer, QueryResultsTurtleRenderer)
-
-    def get_exception_handler(self):
-        return sparql_exception_handler
-
-    def get(self, request, **kwargs):
-        ''' Accepts SPARQL-Query in query paramter 'query'
-            Renders application/json or text/turtle based on header 'Accept'
-        '''
-        sparql_string = request.query_params.get('query')
-        if not sparql_string:
-            # GET without parameters: full ontology
-            # Ignores 'Accept' header, only renders text/turtle
-            request.accepted_renderer = TurtleRenderer()
-            return Response(graph())
-
-        query_results = execute_query(sparql_string)
-        return Response(query_results)
-
-    def post(self, request, **kwargs):
-        ''' Accepts POST request with SPARQL-Query in body parameter 'query'
-            Renders application/json or text/turtle based on  header 'Accept'
-        '''
-        sparql_string = request.data.get('query')
-        if not sparql_string:
-            raise NoParamError()
-
-        query_results = execute_query(sparql_string)
-        return Response(query_results)
-
-
-class NlpOntologyUpdateView(APIView):
-    """ Update the NLP ontology through SPARQL-Update """
-    permission_classes = (SPARQLPermission,)
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    def execute_update(self, updatestring):
+        try:
+            return graph().update(updatestring)
+        except ParseException as p_e:
+            # Raised when SPARQL syntax is not valid, or parsing fails
+            raise ParseSPARQLError(p_e)
 
     def post(self, request, **kwargs):
         ''' Accepts POST request with SPARQL-Query in body parameter 'query'
@@ -118,5 +37,97 @@ class NlpOntologyUpdateView(APIView):
             # POST must contain an update
             raise NoParamError()
 
-        execute_update(sparql_string)
+        self.execute_update(sparql_string)
         return Response({'message': 'Updated successfully.', 'status': True})
+
+
+class SPARQLQueryAPIView(APIView):
+    renderer_classes = (TurtleRenderer,)
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    content_negotiation_class = SPARQLContentNegotiator
+
+    def get_exception_handler(self):
+        return turtle_exception_handler
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        """
+        Adapts APIView method to additionaly perform content negotation
+        when a query type was set
+        """
+        assert isinstance(response, HttpResponseBase), (
+            'Expected a `Response`, `HttpResponse` or `HttpStreamingResponse` '
+            'to be returned from the view, but received a `%s`'
+            % type(response)
+        )
+
+        if isinstance(response, Response):
+            # re-perform content negotiation if a query type was set
+            if (not getattr(request, 'accepted_renderer', None) or
+                    self.request.data.get('query_type', None)):
+                neg = self.perform_content_negotiation(request, force=True)
+                request.accepted_renderer, request.accepted_media_type = neg
+
+            response.accepted_renderer = request.accepted_renderer
+            response.accepted_media_type = request.accepted_media_type
+            response.renderer_context = self.get_renderer_context()
+
+        for key, value in self.headers.items():
+            response[key] = value
+
+        return response
+
+    def execute_query(self, querystring):
+        ''' Attempt to query a graph with a SPARQL-Query string
+            Sets query type on succes
+        '''
+        try:
+            if not querystring:
+                query_results = graph()
+                query_type = 'EMPTY'
+            else:
+                prepared_query = rdf_sparql.prepareQuery(querystring)
+                query_results = graph().query(prepared_query)
+                query_type = query_results.type
+            self.request.data['query_type'] = query_type
+            return query_results
+
+        except ParseException as p_e:
+            # Raised when SPARQL syntax is not valid, or parsing fails
+            raise ParseSPARQLError(p_e)
+        except Exception as n_e:
+            raise APIException(n_e)
+
+    def get(self, request, **kwargs):
+        ''' Accepts GET request with optional SPARQL-Query in query parameter 'query'
+            Without 'query' parameter, returns the entire graph as text/turtle
+            Renders application/json or text/turtle based on query type and header 'Accept
+        '''
+        sparql_string = request.query_params.get('query')
+        query_results = self.execute_query(sparql_string)
+        return Response(query_results)
+
+    def post(self, request, **kwargs):
+        ''' Accepts POST request with SPARQL-Query in body parameter 'query'
+            Renders application/json or text/turtle based on query type and header 'Accept'
+        '''
+        sparql_string = request.data.get('query')
+        if not sparql_string:
+            raise NoParamError()
+        request.data._mutable = True  # request.data is immutable for POST requests
+        query_results = self.execute_query(sparql_string)
+
+        return Response(query_results)
+
+
+class NlpOntologyQueryView(SPARQLQueryAPIView):
+    """ Query the NLP ontology through SPARQL-Query """
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+
+    def graph(self):
+        return graph()
+
+
+class NlpOntologyUpdateView(APIView):
+    """ Update the NLP ontology through SPARQL-Update """
+    permission_classes = (SPARQLPermission,)
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
