@@ -24,7 +24,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 }
 
 export default class ExternalResourcesView extends CompositeView<Node> {
-    externalResources: {label: string, urls: string[]}[];
+    externalResources: ExternalResource[];
     /**
      * Keep track of the currently highlighted summary block
      */
@@ -47,8 +47,6 @@ export default class ExternalResourcesView extends CompositeView<Node> {
         return this;
     }
 
-
-
     render(): this {
         this.$el.html(this.template(this));
         if (!this.model) return;
@@ -56,7 +54,8 @@ export default class ExternalResourcesView extends CompositeView<Node> {
     }
 
     onEditButtonClicked(event: JQuery.TriggeredEvent): void {
-        this.trigger('externalItems:edit', this, this.externalResources);
+        const resourceCollection = new Collection(this.externalResources)
+        this.trigger('externalItems:edit', this, resourceCollection);
     }
 }
 extend(ExternalResourcesView.prototype, {
@@ -67,3 +66,8 @@ extend(ExternalResourcesView.prototype, {
         'click .btn-edit': 'onEditButtonClicked',
     },
 });
+
+interface ExternalResource {
+    label: string,
+    urls: string[]
+};

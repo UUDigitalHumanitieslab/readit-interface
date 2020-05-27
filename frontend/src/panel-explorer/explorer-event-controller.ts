@@ -24,6 +24,7 @@ import {
     isType,
     isOntologyClass,
 } from '../utilities/utilities';
+import { Collection } from 'backbone';
 
 export default class ExplorerEventController {
     /**
@@ -115,8 +116,7 @@ export default class ExplorerEventController {
         return this;
     }
 
-    externalItemsEdit(exView: ExternalResourcesView, items: any): this {
-        console.log(exView);
+    externalItemsEdit(exView: ExternalResourcesView, items: Collection): this {
         const editView = new ExternalResourcesEditView({ model: exView.model, collection: items });
         this.explorerView.overlay(editView, exView);
         return this;

@@ -42,7 +42,6 @@ class ExternalResourcesEditView extends CollectionView<Node> {
 
     makeItem(model: Model): this {
         const itemEditor = new ExternalResourceEditItem({model});
-        console.log(this.container, itemEditor.$el);
         return this;
     }
 
