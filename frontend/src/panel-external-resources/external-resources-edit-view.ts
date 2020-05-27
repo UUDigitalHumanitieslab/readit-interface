@@ -11,6 +11,8 @@ import ItemGraph from '../utilities/item-graph';
 import CompositeView from '../core/view';
 
 import externalResourcesEditTemplate from './external-resources-edit-template';
+import { applicablePredicates } from '../panel-related-items/relation-utilities';
+import ExternalResourceEditItem from './external-resource-edit-item-view';
 
 // Selector of the .field that contains the add button.
 const addField = '.rit-add-relation';
@@ -23,17 +25,24 @@ const commitCallback = a$.asyncify(n => n.save());
  * View class that displays a RelationEditor for each related item.
  */
 export default
-class ExternalResourcesEditView extends CompositeView<Model> {
+class ExternalResourcesEditView extends CollectionView<Node> {
     model: Node;
     predicates: Graph;
     changes: Collection;
 
     initialize(): void {
-        this.render();
+        console.log(this.model, this.collection);
+        this.initItems().render();
     }
 
-    render(): this {
+    renderContainer(): this {
         this.$el.html(this.template(this));
+        return this;
+    }
+
+    makeItem(model: Model): this {
+        const itemEditor = new ExternalResourceEditItem({model});
+        console.log(this.container, itemEditor.$el);
         return this;
     }
 
@@ -44,51 +53,59 @@ class ExternalResourcesEditView extends CompositeView<Model> {
     //     return this;
     // }
 
-    resetIndicators(): this {
-        this.$(`${saveControl} button`)
-            .removeClass('is-loading is-success is-danger')
-            .children('.icon').remove();
-        this.$(`${addField} button`).prop('disabled', false);
-        return this;
-    }
+    // resetIndicators(): this {
+    //     this.$(`${saveControl} button`)
+    //         .removeClass('is-loading is-success is-danger')
+    //         .children('.icon').remove();
+    //     this.$(`${addField} button`).prop('disabled', false);
+    //     return this;
+    // }
 
-    indicateProgress(): this {
-        this.resetIndicators();
-        this.$(`${saveControl} button`).addClass('is-loading');
-        this.$(`${addField} button`).prop('disabled', true);
-        return this;
-    }
+    // indicateProgress(): this {
+    //     this.resetIndicators();
+    //     this.$(`${saveControl} button`).addClass('is-loading');
+    //     this.$(`${addField} button`).prop('disabled', true);
+    //     return this;
+    // }
 
-    indicateSuccess(): this {
-        this.resetIndicators();
-        this.$(`${saveControl} button`).addClass('is-success').append(`
-            <span class="icon is-right"><i class="fas fa-check"></i></span>
-        `);
-        return this;
-    }
+    // indicateSuccess(): this {
+    //     this.resetIndicators();
+    //     this.$(`${saveControl} button`).addClass('is-success').append(`
+    //         <span class="icon is-right"><i class="fas fa-check"></i></span>
+    //     `);
+    //     return this;
+    // }
 
-    indicateError(): this {
-        this.resetIndicators();
-        this.$(`${saveControl} button`).addClass('is-danger').append(`
-            <span class="icon is-right">
-                <i class="fas fa-exclamation-triangle"></i>
-            </span>
-        `);
-        return this;
-    }
+    // indicateError(): this {
+    //     this.resetIndicators();
+    //     this.$(`${saveControl} button`).addClass('is-danger').append(`
+    //         <span class="icon is-right">
+    //             <i class="fas fa-exclamation-triangle"></i>
+    //         </span>
+    //     `);
+    //     return this;
+    // }
 
-    submit(event: JQuery.TriggeredEvent): this {
-        event.preventDefault();
-        if (this.changes.isEmpty()) return this;
-        this.indicateProgress().commitChanges().then(
-            this.indicateSuccess.bind(this),
-            this.indicateError.bind(this),
-        );
-        return this;
-    }
+    // submit(event: JQuery.TriggeredEvent): this {
+    //     event.preventDefault();
+    //     if (this.changes.isEmpty()) return this;
+    //     this.indicateProgress().commitChanges().then(
+    //         this.indicateSuccess.bind(this),
+    //         this.indicateError.bind(this),
+    //     );
+    //     return this;
+    // }
 
     close(): this {
         return this.trigger('externalItems:edit-close', this);
+    }
+
+    addExternalResource(): void {
+        console.log(this.model);
+    }
+
+    removeExternalResource(item): void {
+        console.log(item);
     }
 
     addRelation(): this {
@@ -96,22 +113,22 @@ class ExternalResourcesEditView extends CompositeView<Model> {
         return this;
     }
 
-    updateRelation(relation: Model): void {
-        this.registerUnset(relation.previousAttributes());
-        this.registerSet(relation.attributes);
-    }
+    // updateRelation(relation: Model): void {
+    //     this.registerUnset(relation.previousAttributes());
+    //     this.registerSet(relation.attributes);
+    // }
 
-    registerSet(attributes): void {
-        if (!attributes.object) return;
-        this.changes.push(extend({action: 'set'}, attributes));
-        this.resetIndicators();
-    }
+    // registerSet(attributes): void {
+    //     if (!attributes.object) return;
+    //     this.changes.push(extend({action: 'set'}, attributes));
+    //     this.resetIndicators();
+    // }
 
-    registerUnset(attributes): void {
-        if (!attributes.object) return;
-        this.changes.push(extend({action: 'unset'}, attributes));
-        this.resetIndicators();
-    }
+    // registerUnset(attributes): void {
+    //     if (!attributes.object) return;
+    //     this.changes.push(extend({action: 'unset'}, attributes));
+    //     this.resetIndicators();
+    // }
 
     commitChanges(): PromiseLike<void> {
         const affectedItems = new ItemGraph();
@@ -141,6 +158,5 @@ extend(ExternalResourcesEditView.prototype, {
     events: {
         reset: 'close',
         submit: 'submit',
-        [`click ${addField}`]: 'addRelation',
     },
 });

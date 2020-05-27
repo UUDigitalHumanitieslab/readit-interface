@@ -6,9 +6,11 @@
 <div class="panel-content external">
     {{#each externalResources}}
         <h5 class="title is-5">{{label}}</h5>
-        <a href="{{url}}" target="_blank" rel="noopener noreferrer">
-            {{url}}
-        </a>
+        {{#each urls}}
+            <a href="{{this}}" target="_blank" rel="noopener noreferrer">
+                {{this}}
+            </a>
+        {{/each}}
     {{/each}}
 </div>
 <div class="panel-footer field is-grouped is-grouped-right">

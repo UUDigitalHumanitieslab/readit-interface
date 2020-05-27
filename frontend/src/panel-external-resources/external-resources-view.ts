@@ -12,10 +12,11 @@ import externalResourcesTemplate from './external-resources-template';
 import { dcterms, owl } from '../jsonld/ns';
 import { getLabel, getLabelFromId } from '../utilities/utilities';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
+import sourceLanguageTemplate from '../panel-source-list/source-language-template';
 
 const externalAttributes = [
-    'sameAs',
-    'seeAlso'
+    'seeAlso',
+    'sameAs'
 ];
 
 export interface ViewOptions extends BaseOpt<Node> {
@@ -23,7 +24,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 }
 
 export default class ExternalResourcesView extends CompositeView<Node> {
-    externalResources: {label: string, url: string}[];
+    externalResources: {label: string, urls: string[]}[];
     /**
      * Keep track of the currently highlighted summary block
      */
@@ -34,14 +35,14 @@ export default class ExternalResourcesView extends CompositeView<Node> {
     }
 
     initialize(): this {
-        this.externalResources = Object.keys(this.model.attributes).map(attribute => {
-            const label = getLabelFromId(attribute);
-            if (externalAttributes.includes(label)) {
-                return {
-                    'label': label, 'url': attribute
-                }
+        this.externalResources = externalAttributes.map( attribute => {
+            const urls = this.model.attributes[Object.keys(this.model.attributes).find( 
+                    attr => getLabelFromId(attr)==attribute)];
+            return {
+                'label': attribute,
+                'urls': urls === undefined? [] : urls.map(item => Object.values(item)[0])
             }
-        }).filter( item => item!==undefined );
+        });
         this.render();
         return this;
     }
@@ -55,7 +56,7 @@ export default class ExternalResourcesView extends CompositeView<Node> {
     }
 
     onEditButtonClicked(event: JQuery.TriggeredEvent): void {
-        this.trigger('externalItems:edit', this, this.model);
+        this.trigger('externalItems:edit', this, this.externalResources);
     }
 }
 extend(ExternalResourcesView.prototype, {

@@ -115,8 +115,9 @@ export default class ExplorerEventController {
         return this;
     }
 
-    externalItemsEdit(exView: ExternalResourcesView, item: Node): this {
-        const editView = new ExternalResourcesEditView({ model: item });
+    externalItemsEdit(exView: ExternalResourcesView, items: any): this {
+        console.log(exView);
+        const editView = new ExternalResourcesEditView({ model: exView.model, collection: items });
         this.explorerView.overlay(editView, exView);
         return this;
     }
@@ -246,7 +247,6 @@ export default class ExplorerEventController {
     }
 
     sourceViewShowAnnotations(sourceView: SourceView): this {
-        console.log(sourceView.collection);
         let annotationListView = new AnnotationListView({
             collection: sourceView.collection
         });
