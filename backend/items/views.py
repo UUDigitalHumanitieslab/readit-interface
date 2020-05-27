@@ -6,6 +6,7 @@ from rest_framework.status import *
 from rest_framework.exceptions import ValidationError, NotFound, PermissionDenied
 
 from rdflib import Graph, URIRef, BNode, Literal
+from rdflib.plugins.sparql import prepareQuery
 
 from rdf.views import RDFView, RDFResourceView, graph_from_request
 from rdf.ns import *
@@ -38,6 +39,18 @@ dateSubmitted hasVersion identifier isReplacedBy issued isVersionOf license
 modified provenance publisher relation replaces rights rightsHolder source type
 valid
 '''.split())
+
+ANNO_QUERY = prepareQuery('''
+CONSTRUCT WHERE {
+    ?annotation oa:hasBody ?body;
+                oa:hasTarget ?target;
+                ?a ?b.
+    ?target oa:hasSource ?source;
+            oa:hasSelector ?selector;
+            ?e ?f.
+    ?selector ?g ?h.
+}
+''', initNs={'oa': OA})
 
 
 def is_unreserved(triple):
@@ -110,6 +123,8 @@ class ItemsAPIRoot(RDFView):
         # Heuristic to recognize requests for annotations. Facilitates special
         # case in loop below. TODO: remove this again.
         is_annotations_request = p is None and t == 1 and r == 1 and isinstance(o, URIRef) and str(o).startswith(str(source))
+        if is_annotations_request:
+            return graph_from_triples(self.graph().query(ANNO_QUERY, initBindings={'source': o}))
         # Submission info is only used for the special case. TODO: remove
         # together with is_annotations_request.
         user, now = submission_info(request)
