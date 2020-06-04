@@ -77,11 +77,11 @@ def save_snapshot(identifier, previous, request):
     g = history()
     user, now = submission_info(request)
     counter = EditCounter.current
-    counter.increment()
-    annotation = URIRef(str(counter))
-    body = BNode()
-    target = BNode()
-    state = BNode()
+    uris = []
+    for i in range(4):
+        counter.increment()
+        uris.append(URIRef(str(counter)))
+    annotation, body, target, state = uris
     append_triples(g, (
         (annotation, RDF.type, OA.Annotation),
         (annotation, OA.hasBody, body),
