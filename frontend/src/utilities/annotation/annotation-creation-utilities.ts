@@ -191,7 +191,7 @@ function createTextQuoteSelector(items: ItemGraph, textQuoteSelector: Node, done
 function createPositionSelector(items: ItemGraph, start: number, end: number, done?) {
     const attributes = {
         '@type': oa.TextPositionSelector,
-        [oa.start]: (start || ('' + start)),
+        [oa.start]: start,
         [oa.end]: end,
     };
     return createItem(items, attributes, done);
