@@ -1,6 +1,9 @@
-from rdflib_django.utils import get_named_graph
+from django.conf import settings
+
+from rdflib import Graph
 
 from .constants import ONTOLOGY_NS
 
+
 def graph():
-    return get_named_graph(ONTOLOGY_NS)
+    return Graph(settings.RDFLIB_STORE, ONTOLOGY_NS)

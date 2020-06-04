@@ -7,6 +7,8 @@ django-proxy
 django-cors-headers
 rdflib-django3
 rdflib-jsonld
+sparqlwrapper
+keepalive
 psycopg2 --no-binary psycopg2
 pytest
 pytest-django

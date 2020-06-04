@@ -40,7 +40,7 @@ modified provenance publisher relation replaces rights rightsHolder source type
 valid
 '''.split())
 
-ANNO_QUERY = prepareQuery('''
+ANNO_QUERY = '''
 CONSTRUCT WHERE {
     ?annotation oa:hasBody ?body;
                 oa:hasTarget ?target;
@@ -50,7 +50,7 @@ CONSTRUCT WHERE {
             ?e ?f.
     ?selector ?g ?h.
 }
-''', initNs={'oa': OA})
+'''
 
 
 def is_unreserved(triple):
@@ -124,7 +124,7 @@ class ItemsAPIRoot(RDFView):
         # case in loop below. TODO: remove this again.
         is_annotations_request = p is None and t == 1 and r == 1 and isinstance(o, URIRef) and str(o).startswith(str(source))
         if is_annotations_request:
-            return graph_from_triples(self.graph().query(ANNO_QUERY, initBindings={'source': o}))
+            return graph_from_triples(self.graph().query(ANNO_QUERY, initBindings={'source': o}, initNs={'oa': OA}))
         # Submission info is only used for the special case. TODO: remove
         # together with is_annotations_request.
         user, now = submission_info(request)
