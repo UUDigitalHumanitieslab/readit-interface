@@ -4,11 +4,11 @@
     </header>
 </div>
 <div class="panel-content external">
-    {{#each externalResources}}
-        <h5 class="title is-5">{{label}}</h5>
-        {{#each urls}}
-            <a href="{{this}}" target="_blank" rel="noopener noreferrer">
-                {{this}}
+    {{#each externalResources.models}}
+        <h5 class="title is-5">{{attributes.label}}</h5>
+        {{#each attributes.urls.models}}
+            <a href="{{this.attributes.url}}" target="_blank" rel="noopener noreferrer">
+                {{this.attributes.url}}
             </a>
         {{/each}}
     {{/each}}

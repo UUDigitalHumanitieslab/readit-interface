@@ -24,7 +24,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 }
 
 export default class ExternalResourcesView extends CompositeView<Node> {
-    externalResources: ExternalResource[];
+    externalResources: Collection;
     /**
      * Keep track of the currently highlighted summary block
      */
@@ -35,14 +35,14 @@ export default class ExternalResourcesView extends CompositeView<Node> {
     }
 
     initialize(): this {
-        this.externalResources = externalAttributes.map( attribute => {
+        this.externalResources = new Collection(externalAttributes.map( attribute => {
             const urls = this.model.attributes[Object.keys(this.model.attributes).find( 
                     attr => getLabelFromId(attr)==attribute)];
-            return {
+            return new Model({
                 'label': attribute,
-                'urls': urls === undefined? [] : urls.map(item => Object.values(item)[0])
-            }
-        });
+                'urls': urls === undefined? new Collection() : new Collection(urls.map(item => new Model({url: Object.values(item)[0]})))
+            })
+        }));
         this.render();
         return this;
     }
@@ -54,8 +54,7 @@ export default class ExternalResourcesView extends CompositeView<Node> {
     }
 
     onEditButtonClicked(event: JQuery.TriggeredEvent): void {
-        const resourceCollection = new Collection(this.externalResources)
-        this.trigger('externalItems:edit', this, resourceCollection);
+        this.trigger('externalItems:edit', this, this.externalResources);
     }
 }
 extend(ExternalResourcesView.prototype, {
