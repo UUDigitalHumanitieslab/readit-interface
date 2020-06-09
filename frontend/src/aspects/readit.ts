@@ -130,13 +130,12 @@ function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
 }
 
 function initSourceList() {
-    let sources: Node[] = [];
-    let ontology: Node[] = [];
+    let sources =  new Graph();
+    let ontology = new Graph();
     let sourceListView = new SourceListView({
-        collection: new Graph(sources),
+        collection: sources
     });
-    let ccView = new CategoryColorView({ collection: new Graph(ontology) });
-    ccView.$el.appendTo('body');
+    
     let explorerView = initExplorer(sourceListView, new Graph(ontology));
 
     parallel([getOntology, getSources], function (error, results) {
@@ -144,11 +143,10 @@ function initSourceList() {
         else {
             ontology = results[0];
             sources = results[1];
-            console.log(sources);
-            sourceListView.collection.reset(sources);
-            ccView.collection.reset(ontology);
-            ccView.render();
-            explorerView.ontology.reset(ontology);
+            sourceListView.collection.reset(sources.models);
+            let ccView = new CategoryColorView({ collection: ontology});
+            ccView.render().$el.appendTo('body');
+            explorerView.ontology.reset(ontology.models);
             explorerView.render();
         }
     });

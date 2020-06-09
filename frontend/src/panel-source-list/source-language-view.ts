@@ -14,9 +14,16 @@ export default class SourceLanguageView extends View<Node> {
     sources: any;
 
     initialize(): this {
-        // this.language = options.language;
-        // this.processCollection(options.collection);
-        // this.listenTo(this.collection, 'change', this.processCollection);
+        this.language = this.model.attributes.language;
+        this.sources = this.model.attributes.sources.map( source => {
+            return {
+                name: source.get(schema('name'))[0],
+                author: source.get(schema.creator)[0],
+                cid: source.cid
+        }});
+        if (this.sources.length > 0) {
+            this.render();
+        }
         return this;
     }
 

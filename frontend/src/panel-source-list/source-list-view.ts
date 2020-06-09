@@ -1,4 +1,4 @@
-import { ViewOptions as BaseOpt } from 'backbone';
+import { ViewOptions as BaseOpt, Model } from 'backbone';
 import { extend } from 'lodash';
 import { CollectionView } from '../core/view';
 
@@ -17,7 +17,7 @@ export interface ViewOptions extends BaseOpt<Node> {
     collection: Graph;
 }
 
-export default class SourceListView extends CollectionView<Node, SourceLanguageView> {
+export default class SourceListView extends CollectionView<Model, SourceLanguageView> {
     unorderedSources: Graph;
 
     constructor(options?: ViewOptions) {
@@ -26,12 +26,12 @@ export default class SourceListView extends CollectionView<Node, SourceLanguageV
 
     initialize(): this {
         this.processCollection(this.collection as Graph, languages);
-        this.initItems().render().initCollectionEvents();
+        this.initItems().initCollectionEvents();
         return this;
     }
 
     processCollection(collection: Graph, languages: string[]): this {
-        console.log(collection);
+        this.unorderedSources = collection;
         this.collection = new Graph(languages.map(lang => {
             let sources = [];
             if (collection.models.length > 1) {
@@ -40,7 +40,7 @@ export default class SourceListView extends CollectionView<Node, SourceLanguageV
                     return inLanguage.id == this.vocabularizeLanguage(lang);
                 })
             }
-            return new Node({
+            return new Model({
                 language: lang,
                 sources: sources
             })
@@ -55,14 +55,14 @@ export default class SourceListView extends CollectionView<Node, SourceLanguageV
         return iso6391(inputLanguage);
     }
 
-    makeItem(model: Node): SourceLanguageView {
+    makeItem(model: Model): SourceLanguageView {
         let view = new SourceLanguageView({model});
+        this.listenTo(view, 'click', this.onSourceClicked);
         return view;
     }
 
     resetItems(): this {
         this.processCollection(this.collection as Graph, languages);
-        console.log(this.collection);
         this.clearItems().initItems().placeItems().render();
         return this;
     }
@@ -73,7 +73,7 @@ export default class SourceListView extends CollectionView<Node, SourceLanguageV
     }
 
     onSourceClicked(sourceCid: string): this {
-        this.trigger('source-list:click', this, this.collection.get(sourceCid));
+        this.trigger('source-list:click', this, this.unorderedSources.get(sourceCid));
         return this;
     }
 }
