@@ -10,6 +10,7 @@ You need to install the following software:
  - PostgreSQL >= 9.3, client, server and C libraries
  - Python >= 3.4, <= 3.6
  - virtualenv
+ - [Apache Jena Fuseki][fuseki] (see [notes in the backend README](backend/README.md#notes-for-setting-up-fuseki))
  - WSGI-compatible webserver (deployment only)
  - [Visual C++ for Python][1] (Windows only)
  - Node.js >= 8
@@ -18,6 +19,7 @@ You need to install the following software:
 
 [1]: https://wiki.python.org/moin/WindowsCompilers
 [2]: https://pypi.org/project/selenium/#drivers
+[fuseki]: https://jena.apache.org/documentation/fuseki2/
 
 
 ## How it works

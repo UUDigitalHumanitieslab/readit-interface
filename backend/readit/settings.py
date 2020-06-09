@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -33,6 +35,12 @@ RDF_NAMESPACE_ROOT = 'http://{}:8000/'.format(RDF_NAMESPACE_HOST)
 
 ALLOWED_HOSTS = []
 
+# Default store for our graphs.
+RDFLIB_STORE_PREFIX = 'http://localhost:3030/readit'
+RDFLIB_STORE = SPARQLUpdateStore(
+    queryEndpoint='{}/query'.format(RDFLIB_STORE_PREFIX),
+    update_endpoint='{}/update'.format(RDFLIB_STORE_PREFIX),
+)
 
 # Application definition
 
