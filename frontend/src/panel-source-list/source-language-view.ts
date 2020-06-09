@@ -9,23 +9,14 @@ import Node from '../jsonld/node';
 
 import sourceLanguageTemplate from './source-language-template';
 
-export interface ViewOptions extends BaseOpt<Node> {
-    collection: Graph;
-    language: string;
-}
-
 export default class SourceLanguageView extends View<Node> {
     language: string;
     sources: any;
 
-    constructor(options?: ViewOptions) {
-        super(options);
-    }
-
-    initialize(options: ViewOptions): this {
-        this.language = options.language;
-        this.processCollection(options.collection);
-        this.listenTo(this.collection, 'change', this.processCollection);
+    initialize(): this {
+        // this.language = options.language;
+        // this.processCollection(options.collection);
+        // this.listenTo(this.collection, 'change', this.processCollection);
         return this;
     }
 
@@ -34,23 +25,7 @@ export default class SourceLanguageView extends View<Node> {
             return UNKNOWN;
         }
         return iso6391(inputLanguage);
-    }
-
-    processCollection(collection: Graph): this {
-        this.sources = collection
-            .map((s: Node) => {
-                let inLanguage = s.get(schema.inLanguage)[0] as Node;
-                if (inLanguage.id == this.vocabularizeLanguage(this.language)) {
-                    return {
-                        name: s.get(schema('name'))[0],
-                        author: s.get(schema.creator)[0],
-                        cid: s.cid
-                    }
-                }
-            })
-            .filter(s => s !== undefined);
-        return this;
-    }
+    } 
 
     render(): this {
         this.$el.html(this.template(this));
