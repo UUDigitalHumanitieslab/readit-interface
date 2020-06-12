@@ -1,14 +1,17 @@
 import rdflib.plugins.sparql as rdf_sparql
 from django.http.response import HttpResponseBase
 from pyparsing import ParseException
+from rdflib import BNode, Literal
 from rest_framework.authentication import (BasicAuthentication,
                                            SessionAuthentication)
 from rest_framework.exceptions import APIException
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from rdf.ns import HTTP, HTTPSC, RDF
 from rdf.renderers import TurtleRenderer
-
+from rdf.utils import graph_from_triples
 from rdf.views import custom_exception_handler as turtle_exception_handler
 
 from .exceptions import NoParamError, ParseSPARQLError
@@ -18,6 +21,8 @@ from .permissions import SPARQLPermission
 
 
 class SPARQLUpdateAPIView(APIView):
+    renderer_classes = (TurtleRenderer, JSONRenderer)
+
     def get_exception_handler(self):
         return turtle_exception_handler
 
@@ -27,6 +32,8 @@ class SPARQLUpdateAPIView(APIView):
         except ParseException as p_e:
             # Raised when SPARQL syntax is not valid, or parsing fails
             raise ParseSPARQLError(p_e)
+        except Exception as e:
+            raise APIException(e)
 
     def post(self, request, **kwargs):
         ''' Accepts POST request with SPARQL-Query in body parameter 'query'
@@ -37,13 +44,21 @@ class SPARQLUpdateAPIView(APIView):
             # POST must contain an update
             raise NoParamError()
 
+        blank = BNode()
+        status = 200
+        response = graph_from_triples((
+            (blank, RDF.type, HTTP.Response),
+            (blank, HTTP.statusCodeValue, Literal(status)),
+            (blank, HTTP.reasonPhrase, Literal('Updated successfully')),
+            (blank, HTTP.sc, HTTPSC.OK),
+        ))
+
         self.execute_update(sparql_string)
-        return Response({'message': 'Updated successfully.', 'status': True})
+        return Response(response)
 
 
 class SPARQLQueryAPIView(APIView):
     renderer_classes = (TurtleRenderer,)
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
     content_negotiation_class = SPARQLContentNegotiator
 
     def get_exception_handler(self):
@@ -121,13 +136,13 @@ class SPARQLQueryAPIView(APIView):
 
 class NlpOntologyQueryView(SPARQLQueryAPIView):
     """ Query the NLP ontology through SPARQL-Query """
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    # authentication_classes = (SessionAuthentication, BasicAuthentication)
 
     def graph(self):
         return graph()
 
 
-class NlpOntologyUpdateView(APIView):
+class NlpOntologyUpdateView(SPARQLUpdateAPIView):
     """ Update the NLP ontology through SPARQL-Update """
     permission_classes = (SPARQLPermission,)
     authentication_classes = (SessionAuthentication, BasicAuthentication)
