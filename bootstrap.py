@@ -71,10 +71,11 @@ def main(argv):
         funcpack = install_functest_packages()
     frontpack = install_frontend_packages()
     db, create_db = prepare_db()
-    migrate = superuser = False
+    migrate = rdfmigrate = superuser = False
     if db and backpack:
         migrate = run_migrations()
         if migrate:
+            rdfmigrate = run_rdf_migrations()
             superuser = create_superuser()
     master = track_master()
     gitflow = False
@@ -89,6 +90,7 @@ def main(argv):
     if not (pip_tools and backpack and frontpack and funcpack): print(install_all_packages)
     if not db: print(create_db)
     if not migrate: print(run_migrations)
+    if not rdfmigrate: print(run_rdf_migrations)
     if not superuser: print(create_superuser)
     if not master: print(track_master)
     if not gitflow: print(setup_gitflow)
@@ -189,6 +191,11 @@ install_all_packages = Command('Install all packages', ['yarn'])
 run_migrations = Command(
     'Run the initial migrations',
     ['yarn', 'django', 'migrate'],
+)
+
+run_rdf_migrations = Command(
+    'Run the RDF migrations',
+    ['yarn', 'django', 'rdfmigrate'],
 )
 
 create_superuser = Command(
