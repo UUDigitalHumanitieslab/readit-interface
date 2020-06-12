@@ -21,7 +21,7 @@ from .permissions import SPARQLPermission
 
 
 class SPARQLUpdateAPIView(APIView):
-    renderer_classes = (TurtleRenderer, JSONRenderer)
+    renderer_classes = (TurtleRenderer,)
 
     def get_exception_handler(self):
         return turtle_exception_handler
