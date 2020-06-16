@@ -32,7 +32,6 @@ describe('AnnotationEditView', function() {
             range,
             positionDetails: this.positionDetails,
             source: new Node({'@id': 'x'}),
-            ontology: new Graph(),
             model: undefined,
         })).not.toThrow();
     });

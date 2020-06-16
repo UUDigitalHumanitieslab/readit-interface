@@ -7,9 +7,6 @@ import { enableI18n } from '../test-util';
 import ExplorerView from './explorer-view';
 import View from './../core/view';
 
-import mockOntology from './../mock-data/mock-ontology';
-import Graph from './../jsonld/graph';
-
 import fastTimeout from '../utilities/fastTimeout';
 
 describe('ExplorerView', function () {
@@ -17,8 +14,7 @@ describe('ExplorerView', function () {
 
     beforeEach(function () {
         let firstPanel = new View();
-        let ontology = new Graph(mockOntology);
-        this.view = new ExplorerView({ first: firstPanel, ontology: ontology });
+        this.view = new ExplorerView({ first: firstPanel });
     });
 
     afterEach(function() {

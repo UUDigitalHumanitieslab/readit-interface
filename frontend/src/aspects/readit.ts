@@ -1,5 +1,4 @@
 import { history, View } from 'backbone';
-import { parallel } from 'async';
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
@@ -11,7 +10,8 @@ import user from './../global/user';
 import Graph from './../jsonld/graph';
 import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
-import { item, readit, rdf, vocab } from '../jsonld/ns';
+import { item, readit, rdf, vocab, oa } from '../jsonld/ns';
+import ldChannel from '../jsonld/radio';
 
 import { getOntology, getSources } from './../utilities/utilities';
 
@@ -24,8 +24,6 @@ import directionFsm from '../global/direction-fsm';
 import uploadSourceForm from './../global/upload-source-form';
 import registrationFormView from './../global/registration-view';
 import confirmRegistrationView from './../global/confirm-registration-view';
-
-import { oa } from './../jsonld/ns';
 
 import mockOntology from './../mock-data/mock-ontology';
 import mockItems from './../mock-data/mock-items';
@@ -122,31 +120,29 @@ function getViewportHeight(): number {
     return Math.max(vh - 160, 555);
 }
 
-function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
-    explorerView = new ExplorerView({ first: first, ontology: ontology });
+function initExplorer(first: SourceListView): ExplorerView {
+    explorerView = new ExplorerView({ first });
     explorerView.setHeight(getViewportHeight());
     explorerView.$el.appendTo('#main');
     return explorerView;
 }
 
 function initSourceList() {
+    let ontology = ldChannel.request('ontology:graph');
     let sources =  new Graph();
-    let ontology = new Graph();
     let sourceListView = new SourceListView({
         collection: sources
     });
-    
-    let explorerView = initExplorer(sourceListView, ontology);
 
-    parallel([getOntology, getSources], function (error, results) {
+    let explorerView = initExplorer(sourceListView);
+
+    getSources(function (error, results) {
         if (error) console.debug(error);
         else {
-            ontology = results[0];
-            sources = results[1];
+            sources = results;
             sourceListView.collection.reset(sources.models);
             let ccView = new CategoryColorView({ collection: ontology});
             ccView.render().$el.appendTo('body');
-            explorerView.ontology.reset(ontology.models);
             explorerView.render();
         }
     });

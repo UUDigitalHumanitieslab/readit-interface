@@ -151,7 +151,6 @@ export default class ExplorerEventController {
 
     ldItemEditAnnotation(ldItemview: LdItemView, annotation: Node): this {
         let annoEditView = new AnnotationEditView({
-            ontology: this.explorerView.ontology,
             model: annotation,
         });
         this.explorerView.overlay(annoEditView, ldItemview);
@@ -251,7 +250,6 @@ export default class ExplorerEventController {
             range: range,
             positionDetails: positionDetails,
             source: source,
-            ontology: this.explorerView.ontology,
             model: undefined,
             collection: sourceView.collection,
         });

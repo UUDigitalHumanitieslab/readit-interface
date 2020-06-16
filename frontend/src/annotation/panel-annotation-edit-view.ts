@@ -3,6 +3,7 @@ import { extend } from 'lodash';
 
 import Model from '../core/model';
 import { oa, rdf, skos } from '../jsonld/ns';
+import ldChannel from '../jsonld/radio';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
 
@@ -22,6 +23,13 @@ import FlatCollection from './flat-annotation-collection';
 
 import annotationEditTemplate from './panel-annotation-edit-template';
 
+/**
+ * Helper function in order to pass the right classes to the classPicker.
+ */
+function getOntologyClasses() {
+    const ontology = ldChannel.request('ontology:graph') || new Graph();
+    return new FilteredCollection<Node, Graph>(ontology, isRdfsClass);
+}
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
@@ -29,7 +37,6 @@ export interface ViewOptions extends BaseOpt<Model> {
      * can be undefined if range and positionDetails are set (i.e. in case of a new annotation)
      */
     model: Node;
-    ontology: Graph;
     collection?: FlatCollection;
 
     /**
@@ -50,7 +57,6 @@ export interface ViewOptions extends BaseOpt<Model> {
 
 export default class AnnotationEditView extends BaseAnnotationView {
     collection: FlatCollection;
-    ontology: Graph;
     source: Node;
     range: Range;
     positionDetails: AnnotationPositionDetails;
@@ -70,7 +76,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
     }
 
     initialize(options: ViewOptions): this {
-        this.ontology = options.ontology;
         this.itemOptions = new ItemGraph();
         this.itemPicker = new PickerView({collection: this.itemOptions});
         this.itemPicker.on('change', this.selectItem, this);
@@ -135,7 +140,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     initClassPicker(): this {
         this.classPicker = new ClassPickerView({
-            collection: new FilteredCollection<Node, Graph>(this.ontology, isRdfsClass),
+            collection: getOntologyClasses(),
             preselection: this.preselection
         });
 
