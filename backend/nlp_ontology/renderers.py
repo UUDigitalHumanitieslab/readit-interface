@@ -19,8 +19,7 @@ class QueryResultsTurtleRenderer(TurtleRenderer):
 
 class QueryResultsJSONRenderer(JSONRenderer):
     ''' Renders SPARQL Query Results JSON Format from rdflib query results'''
-    # media_type = 'application/sparql-results+json'
-    media_type = 'application/json'
+    media_type = 'application/sparql-results+json'
     format = 'srj'
 
     def render(self, query_results, media_type=None, renderer_context=None):
