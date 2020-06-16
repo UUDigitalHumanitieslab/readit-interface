@@ -11,6 +11,7 @@ import ItemGraph from '../utilities/item-graph';
 
 import externalResourcesEditTemplate from './external-resources-edit-template';
 import ExternalResourceEditItem from './external-resource-edit-item-view';
+import { helpers } from 'handlebars';
 
 const commitCallback = a$.asyncify(n => n.save());
 
@@ -91,21 +92,22 @@ class ExternalResourcesEditView extends CollectionView<Node> {
         return this.trigger('externalItems:edit-close', this);
     }
 
-    updateExternalResource(resource): void {
-        this.changes.push(resource);
+    updateExternalResource(resource, url): void {
+        this.registerUnset(resource.previousAttributes());
+        this.registerSet(resource.attributes);
     }
 
-    // registerSet(attributes): void {
-    //     if (!attributes.object) return;
-    //     this.changes.push(extend({action: 'set'}, attributes));
-    //     this.resetIndicators();
-    // }
+    registerSet(attributes): void {
+        if (!attributes.object) return;
+        this.changes.push(extend({action: 'set'}, attributes));
+        this.resetIndicators();
+    }
 
-    // registerUnset(attributes): void {
-    //     if (!attributes.object) return;
-    //     this.changes.push(extend({action: 'unset'}, attributes));
-    //     this.resetIndicators();
-    // }
+    registerUnset(attributes): void {
+        if (!attributes.object) return;
+        this.changes.push(extend({action: 'unset'}, attributes));
+        this.resetIndicators();
+    }
 
     commitChanges(): PromiseLike<void> {
         const affectedItems = new ItemGraph();

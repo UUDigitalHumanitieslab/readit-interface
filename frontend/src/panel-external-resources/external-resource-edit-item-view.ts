@@ -37,14 +37,14 @@ export default class ExternalResourceEditItem extends CollectionView {
         return this;
     }
 
-    updateUrls(url: Model, urlValue: string): this {
-        url.attributes.url = urlValue;
+    updateUrls(url: Model, urlText: string): this {
         this.changeUrls();
         return this;
     }
 
     changeUrls(): this {
-        this.trigger('change', this.collection)
+        this.model.set('urls', this.collection);
+        this.trigger('change', this.model);
         return this;
     }
 }

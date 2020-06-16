@@ -9,14 +9,14 @@ import Node from '../jsonld/node';
 
 import externalResourcesTemplate from './external-resources-template';
 
-import { dcterms, owl } from '../jsonld/ns';
+import { rdfs, owl } from '../jsonld/ns';
 import { getLabel, getLabelFromId } from '../utilities/utilities';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import sourceLanguageTemplate from '../panel-source-list/source-language-template';
 
 const externalAttributes = [
-    'seeAlso',
-    'sameAs'
+    rdfs.seeAlso,
+    owl.sameAs
 ];
 
 export interface ViewOptions extends BaseOpt<Node> {
@@ -36,11 +36,12 @@ export default class ExternalResourcesView extends CompositeView<Node> {
 
     initialize(): this {
         this.externalResources = new Collection(externalAttributes.map( attribute => {
-            const urls = this.model.attributes[Object.keys(this.model.attributes).find( 
-                    attr => getLabelFromId(attr)==attribute)];
+            const urls = this.model.get(attribute) as Node[];
             return new Model({
-                'label': attribute,
-                'urls': urls === undefined? new Collection() : new Collection(urls.map(item => new Model({url: Object.values(item)[0]})))
+                '@id': this.model.id,
+                'predicate': attribute,
+                'label': getLabelFromId(attribute),
+                'urls': urls === undefined? new Collection() : new Collection(urls.map( url => { return {'url': url.get('@id')}}))
             })
         }));
         this.render();
