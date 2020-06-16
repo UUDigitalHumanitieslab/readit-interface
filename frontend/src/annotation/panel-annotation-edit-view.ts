@@ -8,11 +8,12 @@ import Graph from '../jsonld/graph';
 
 import ItemEditor from '../panel-ld-item/ld-item-edit-view';
 import PickerView from '../forms/base-picker-view';
+import FilteredCollection from '../utilities/filtered-collection';
 import ItemGraph from '../utilities/item-graph';
 import ClassPickerView from '../utilities/ontology-class-picker/ontology-class-picker-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import SnippetView from '../utilities/snippet-view/snippet-view';
-import { isType } from '../utilities/utilities';
+import { isRdfsClass, isType } from '../utilities/utilities';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { composeAnnotation, getAnonymousTextQuoteSelector } from './../utilities/annotation/annotation-creation-utilities';
 
@@ -134,7 +135,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     initClassPicker(): this {
         this.classPicker = new ClassPickerView({
-            collection: this.ontology,
+            collection: new FilteredCollection<Node, Graph>(this.ontology, isRdfsClass),
             preselection: this.preselection
         });
 

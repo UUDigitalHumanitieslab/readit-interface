@@ -1,22 +1,21 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from '../../core/view';
 
+import { CollectionView } from '../../core/view';
 import Node from '../../jsonld/node';
-import Graph from '../../jsonld/graph';
 import LabelView from './../label-view';
 
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 import ontologyClassPickerTemplate from './ontology-class-picker-template';
-import { isRdfsClass } from '../utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
-    collection: Graph;
     preselection?: Node;
 }
 
-export default class OntologyClassPickerView extends View<Node> {
-    dropdownItems: OntologyClassPickerItemView[];
+export default class OntologyClassPickerView extends CollectionView<
+    Node,
+    OntologyClassPickerItemView
+> {
     selected: Node;
     preselection: Node;
     label: any;
@@ -27,60 +26,46 @@ export default class OntologyClassPickerView extends View<Node> {
     }
 
     initialize(options: ViewOptions): this {
-        if (!options.collection) throw new TypeError('collection cannot be null or undefined');
-        this.initDropdownItems();
-
+        this.initItems().initCollectionEvents();
         this.externalCloseHandler = $(document).click(() => this.hideDropdown());
-
         this.preselection = options.preselection;
-        this.listenTo(this.preselection, 'change', this.processPreselection);
         return this;
     }
 
-    processPreselection(ontologyClass: Node): this {
-        this.preselection = ontologyClass;
-        this.render();
-        return this;
+    makeItem(model: Node): OntologyClassPickerItemView {
+        return new OntologyClassPickerItemView({ model }).on({
+            click: this.onItemClicked,
+            activated: this.onItemActivated,
+        }, this);
     }
 
-    initDropdownItems(): this {
-        this.dropdownItems = [];
-        this.collection.each((node) => {
-            if (isRdfsClass(node)) {
-                let view = new OntologyClassPickerItemView({ model: node as Node });
-                view.on('click', this.onItemClicked, this);
-                view.on('activated', this.onItemActivated, this);
-                this.dropdownItems.push(view);
-            }
-        });
-        return;
-    }
-
-    render(): this {
-        this.dropdownItems.forEach((item) => item.$el.detach());
+    renderContainer(): this {
         this.$el.html(this.template(this));
-        this.dropdownItems.forEach((item) => item.render().$el.appendTo(this.$('.dropdown-content')));
+        return this;
+    }
+
+    afterRender(): this {
         if (this.preselection) this.select(this.preselection);
         return this;
     }
 
     remove(): this {
         this.externalCloseHandler.off();
+        if (this.label) this.label.remove();
         super.remove();
         return this;
     }
 
     getSelected(): Node {
-        return this.selected || undefined;
+        return this.selected;
     }
 
     select(newValue: Node) {
-        this.dropdownItems.forEach((item) => {
+        this.items.forEach((item) => {
             if (item.model === newValue) {
                 item.activate();
                 this.trigger('select', newValue);
-            }
-            else {
+            } else {
                 item.deactivate();
             }
         });
@@ -121,6 +106,7 @@ extend(OntologyClassPickerView.prototype, {
     tagName: 'div',
     className: 'ontology-class-picker',
     template: ontologyClassPickerTemplate,
+    container: '.dropdown-content',
     events: {
         'click': 'onClick',
     }
