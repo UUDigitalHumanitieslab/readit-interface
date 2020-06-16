@@ -77,6 +77,12 @@ As in any Django application, you may add an arbitrary number of "application" (
 
 Unittest modules live directly next to the module they belong to. Each directory may contain a `conftest.py` with test fixtures available to all tests in the directory.
 
+Data are stored in two places. The RDF triplestore contains the data of primary interest, i.e., sources, annotations and supporting concepts. The RDF data are segmented in several graphs, each represented by a separate Django application. The relational database takes care of user profiles, privileges and other bits of administration.
+
+Each type of storage has its own way of describing the data model and of performing migrations. RDF is inherently self-describing, so the datamodel is stored alongside the data. Changes in the datamodel are performed using the `rdfmigrate` management command, which is implemented in our own `rdf` package.
+
+The relational database follows the Django ORM conventions and can be migrated using the standard `migrate` command. The user list is however also exposed in RDF format, as if the users were stored in the triplestore. This facilitates linking annotations to users in RDF data.
+
 
 ## Development
 
@@ -93,6 +99,7 @@ $ psql -f create_db.sql
 $ pip install pip-tools
 $ pip install -r requirements.txt
 $ python manage.py migrate
+$ python manage.py rdfmigrate
 $ python manage.py createsuperuser
 ```
 
