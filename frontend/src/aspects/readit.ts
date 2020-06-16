@@ -136,7 +136,7 @@ function initSourceList() {
         collection: sources
     });
     
-    let explorerView = initExplorer(sourceListView, new Graph(ontology));
+    let explorerView = initExplorer(sourceListView, ontology);
 
     parallel([getOntology, getSources], function (error, results) {
         if (error) console.debug(error);
