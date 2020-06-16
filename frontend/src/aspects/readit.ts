@@ -125,24 +125,29 @@ function getViewportHeight(): number {
 function initExplorer(first: SourceListView, ontology: Graph): ExplorerView {
     explorerView = new ExplorerView({ first: first, ontology: ontology });
     explorerView.setHeight(getViewportHeight());
-    explorerView.render().$el.appendTo('#main');
+    explorerView.$el.appendTo('#main');
     return explorerView;
 }
 
 function initSourceList() {
+    let sources =  new Graph();
+    let ontology = new Graph();
+    let sourceListView = new SourceListView({
+        collection: sources
+    });
+    
+    let explorerView = initExplorer(sourceListView, ontology);
+
     parallel([getOntology, getSources], function (error, results) {
         if (error) console.debug(error);
         else {
-            let ontology = results[0];
-            let sources = results[1];
-
-            let ccView = new CategoryColorView({ collection: ontology });
+            ontology = results[0];
+            sources = results[1];
+            sourceListView.collection.reset(sources.models);
+            let ccView = new CategoryColorView({ collection: ontology});
             ccView.render().$el.appendTo('body');
-
-            let sourceListView = new SourceListView({
-                collection: sources,
-            });
-            let explorer = initExplorer(sourceListView, ontology);
+            explorerView.ontology.reset(ontology.models);
+            explorerView.render();
         }
     });
 }
