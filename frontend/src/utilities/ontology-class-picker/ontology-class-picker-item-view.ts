@@ -1,19 +1,17 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, sortBy } from 'lodash';
-import View from '../../core/view';
 
+import View from '../../core/view';
 import Node from '../../jsonld/node';
 import  LabelView from './../label-view';
-
-export interface ViewOptions extends BaseOpt<Node> {
-    model: Node;
-}
 
 export default class OntologyClassPickerItemView extends View<Node> {
     labelView: LabelView;
 
-    initialize(options: ViewOptions): this {
-        this.labelView = new LabelView({ model: options.model, toolTipSetting: false });
+    initialize(): this {
+        this.labelView = new LabelView({
+            model: this.model,
+            toolTipSetting: false
+        });
         return this;
     }
 
