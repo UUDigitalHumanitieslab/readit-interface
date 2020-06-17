@@ -17,4 +17,4 @@ class SPARQLContentNegotiator(DefaultContentNegotiation):
         if query_type in ('EMPTY',):
             renderers = [renderer() for renderer in self.rdf_renderers]
 
-        return super(SPARQLContentNegotiator, self).select_renderer(request, renderers, format_suffix)
+        return super().select_renderer(request, renderers, format_suffix)

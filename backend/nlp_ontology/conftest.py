@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 import pytest
 from rdflib import Literal
 
@@ -5,7 +7,6 @@ from rdf.ns import RDF, SCHEMA
 from rdf.utils import graph_from_triples
 
 from . import namespace as my
-from types import SimpleNamespace
 from .graph import graph
 
 TRIPLES = (
@@ -46,9 +47,6 @@ CONSTRUCT_QUERY = '''
     CONSTRUCT WHERE { ?x my:meow ?name } 
 '''
 
-DESCRIBE_QUERY = '''PREFIX ns3: <http://schema.org/>
-DESCRIBE ?x WHERE { ?x ns3:color "#f9e5bc" }'''
-
 
 @pytest.fixture
 def ontologygraph():
@@ -70,7 +68,6 @@ def test_queries():
         'ASK_TRUE': ASK_QUERY,
         'ASK_FALSE': ASK_QUERY_FALSE,
         'CONSTRUCT': CONSTRUCT_QUERY,
-        'DESCRIBE': DESCRIBE_QUERY,
         'SELECT': SELECT_QUERY,
         'INSERT': INSERT_QUERY
     }

@@ -5,7 +5,6 @@ from rdflib import BNode, Literal
 from rest_framework.authentication import (BasicAuthentication,
                                            SessionAuthentication)
 from rest_framework.exceptions import APIException
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -100,8 +99,7 @@ class SPARQLQueryAPIView(APIView):
                 query_results = graph()
                 query_type = 'EMPTY'
             else:
-                prepared_query = rdf_sparql.prepareQuery(querystring)
-                query_results = graph().query(prepared_query)
+                query_results = graph().query(querystring)
                 query_type = query_results.type
             self.request.data['query_type'] = query_type
             return query_results

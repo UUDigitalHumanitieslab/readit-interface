@@ -10,7 +10,4 @@ class SPARQLPermission(BasePermission):
     message = 'Not allowed (no admin or SPARQL-Update permission)'
 
     def has_permission(self, request, view):
-        if request.user.is_staff:
-            # admins have permission
-            return True
         return request.user.has_perm('rdflib_django.{}'.format(SPARQL_UPDATE))

@@ -13,8 +13,7 @@ class QueryResultsTurtleRenderer(TurtleRenderer):
 
     def render(self, query_results, media_type=None, renderer_context=None):
         results_graph = graph_from_triples(query_results)
-        return super(QueryResultsTurtleRenderer,
-                     self).render(results_graph, media_type, renderer_context)
+        return super().render(results_graph, media_type, renderer_context)
 
 
 class QueryResultsJSONRenderer(JSONRenderer):
@@ -23,11 +22,10 @@ class QueryResultsJSONRenderer(JSONRenderer):
     format = 'srj'
 
     def render(self, query_results, media_type=None, renderer_context=None):
-        stream = StringIO()
-        JSONResultSerializer(query_results).serialize(stream)
-        json_str = stream.getvalue()
-        stream.close()
-        serialized_results = json.loads(json_str)
-        return super(QueryResultsJSONRenderer, self).render(serialized_results,
-                                                            media_type,
-                                                            renderer_context)
+        with StringIO() as stream:
+            JSONResultSerializer(query_results).serialize(stream)
+            json_str = stream.getvalue()
+            serialized_results = json.loads(json_str)
+            return super().render(serialized_results,
+                                  media_type,
+                                  renderer_context)

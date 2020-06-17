@@ -37,14 +37,7 @@ def test_ask(client, test_queries, ontologygraph_db):
     assert not json.loads(false_response.content)['boolean']
 
 
-def test_describe(client, test_queries, ontologygraph_db):
-    # DESCRIBE queries are not implemented in rdflib
-    response = client.get(QUERY_URL, {'query': test_queries.DESCRIBE})
-    assert response.status_code == 500
-
-
 def test_construct(client, test_queries, ontologygraph_db):
-    # TODO: proper test
     response = client.get(QUERY_URL, {'query': test_queries.CONSTRUCT})
     assert response.status_code == 200
 
@@ -65,8 +58,9 @@ def test_malformed_update(admin_client):
     assert response.status_code == 400
 
 
-def test_malformed_query(client):
-    response = client.post(QUERY_URL, {'query': 'this is no SPARQL query!'})
+def test_malformed_query(admin_client):
+    response = admin_client.post(
+        QUERY_URL, {'query': 'this is no SPARQL query!'})
     assert response.status_code == 400
 
 
