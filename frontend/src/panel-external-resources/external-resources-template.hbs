@@ -7,8 +7,8 @@
     {{#each externalResources.models}}
         <h5 class="title is-5">{{this.attributes.label}}</h5>
         {{#each this.attributes.urls.models}}
-            <a href="{{this.attributes.url}}" target="_blank" rel="noopener noreferrer">
-                {{this.attributes.url}}
+            <a href="{{this.attributes.id}}" target="_blank" rel="noopener noreferrer">
+                {{this.attributes.id}}
             </a>
         {{/each}}
     {{/each}}

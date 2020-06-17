@@ -12,6 +12,7 @@ import ItemGraph from '../utilities/item-graph';
 import externalResourcesEditTemplate from './external-resources-edit-template';
 import ExternalResourceEditItem from './external-resource-edit-item-view';
 import { helpers } from 'handlebars';
+import { replyOnce } from 'backbone.radio';
 
 const commitCallback = a$.asyncify(n => n.save());
 
@@ -41,7 +42,7 @@ class ExternalResourcesEditView extends CollectionView<Node> {
 
     makeItem(model: Model): ExternalResourceEditItem {
         const itemEditor = new ExternalResourceEditItem({model});
-        this.listenTo(itemEditor, 'change', this.updateExternalResource);
+        this.listenTo(model, 'change', this.updateExternalResource);
         return itemEditor;
     }
 
@@ -80,7 +81,6 @@ class ExternalResourcesEditView extends CollectionView<Node> {
 
     submit(event: JQuery.TriggeredEvent): this {
         event.preventDefault();
-        if (this.changes.isEmpty()) return this;
         this.indicateProgress().commitChanges().then(
             this.indicateSuccess.bind(this),
             this.indicateError.bind(this),
@@ -92,9 +92,7 @@ class ExternalResourcesEditView extends CollectionView<Node> {
         return this.trigger('externalItems:edit-close', this);
     }
 
-    updateExternalResource(resource, url): void {
-        this.registerUnset(resource.previousAttributes());
-        this.registerSet(resource.attributes);
+    updateExternalResource(resource): void {
     }
 
     registerSet(attributes): void {
@@ -110,22 +108,13 @@ class ExternalResourcesEditView extends CollectionView<Node> {
     }
 
     commitChanges(): PromiseLike<void> {
-        const affectedItems = new ItemGraph();
-        this.changes.forEach(update => {
-            const {action, predicate, object} = update.attributes;
-            let inverse: Node | Node[] = predicate.get(owl.inverseOf) as Node[];
-            if (inverse) {
-                inverse = inverse[0];
-                object[action](inverse.id, this.model);
-                affectedItems.add(object);
-            } else {
-                this.model[action](predicate.id, object);
-                affectedItems.add(this.model);
-            }
-        });
-        return a$.eachLimit(affectedItems.models, 4, commitCallback).then(
-            () => this.changes.reset()
-        );
+        let changedItems = this.collection.filter( item => Object.keys(item.changed).length > 0 )
+        changedItems.forEach(item => {
+            const predicate = item.get('predicate');
+            const object = item.attributes.urls;
+            this.model.set(predicate, object.models);
+        })
+        return new Promise(this.model.save());
     }
 }
 

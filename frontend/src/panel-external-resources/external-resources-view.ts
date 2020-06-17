@@ -41,7 +41,7 @@ export default class ExternalResourcesView extends CompositeView<Node> {
                 '@id': this.model.id,
                 'predicate': attribute,
                 'label': getLabelFromId(attribute),
-                'urls': urls === undefined? new Collection() : new Collection(urls.map( url => { return {'url': url.get('@id')}}))
+                'urls': urls === undefined? new Collection() : new Collection(urls)
             })
         }));
         this.render();

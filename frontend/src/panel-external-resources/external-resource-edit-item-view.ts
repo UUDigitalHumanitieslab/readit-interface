@@ -10,7 +10,7 @@ import ExternalUrl from './external-url-view';
 export default class ExternalResourceEditItem extends CollectionView {
 
     initialize() {
-        this.collection = this.model.attributes.urls;
+        this.collection = this.model.get('urls');
         this.initItems().render().initCollectionEvents();
     }
 
@@ -22,7 +22,7 @@ export default class ExternalResourceEditItem extends CollectionView {
     makeItem(model: Model): ExternalUrl {
         const url = new ExternalUrl({model});
         this.listenToOnce(url, 'remove', this.removeUrl);
-        this.listenTo(url, 'change', this.updateUrls);
+        this.listenTo(model, 'change', this.updateUrls);
         return url;
     }
 
@@ -37,14 +37,13 @@ export default class ExternalResourceEditItem extends CollectionView {
         return this;
     }
 
-    updateUrls(url: Model, urlText: string): this {
+    updateUrls(): this {
         this.changeUrls();
         return this;
     }
 
     changeUrls(): this {
-        this.model.set('urls', this.collection);
-        this.trigger('change', this.model);
+        this.model.set('urls', new Collection(this.collection.models));
         return this;
     }
 }

@@ -21,7 +21,8 @@ export default class ExternalUrl extends View {
     }
 
     changeUrl(event): this {
-        this.trigger('change', this.model, event.target.value);
+        this.model.set('url', event.target.value);
+        // this.trigger('change', this.model, event.target.value);
         return this;
     }
 
