@@ -27,7 +27,7 @@ class SPARQLUpdateAPIView(APIView):
 
     def execute_update(self, updatestring):
         try:
-            return graph().update(updatestring)
+            return self.graph().update(updatestring)
         except ParseException as p_e:
             # Raised when SPARQL syntax is not valid, or parsing fails
             raise ParseSPARQLError(p_e)
@@ -54,6 +54,9 @@ class SPARQLUpdateAPIView(APIView):
 
         self.execute_update(sparql_string)
         return Response(response)
+
+    def graph(self):
+        raise NotImplementedError
 
 
 class SPARQLQueryAPIView(APIView):
@@ -96,10 +99,10 @@ class SPARQLQueryAPIView(APIView):
         '''
         try:
             if not querystring:
-                query_results = graph()
+                query_results = self.graph()
                 query_type = 'EMPTY'
             else:
-                query_results = graph().query(querystring)
+                query_results = self.graph().query(querystring)
                 query_type = query_results.type
             self.request.data['query_type'] = query_type
             return query_results
@@ -131,6 +134,9 @@ class SPARQLQueryAPIView(APIView):
 
         return Response(query_results)
 
+    def graph(self):
+        raise NotImplementedError
+
 
 class NlpOntologyQueryView(SPARQLQueryAPIView):
     """ Query the NLP ontology through SPARQL-Query """
@@ -144,3 +150,6 @@ class NlpOntologyUpdateView(SPARQLUpdateAPIView):
     """ Update the NLP ontology through SPARQL-Update """
     permission_classes = (SPARQLPermission,)
     authentication_classes = (SessionAuthentication, BasicAuthentication)
+
+    def graph(self):
+        return graph()
