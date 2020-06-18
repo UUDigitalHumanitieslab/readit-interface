@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'sources',
     'register',
     'feedback',
+    'sparql',
 ]
 
 # This is required by rest-auth registration
