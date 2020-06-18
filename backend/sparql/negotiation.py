@@ -1,8 +1,8 @@
 from rest_framework.negotiation import DefaultContentNegotiation
 
-from nlp_ontology.renderers import (QueryResultsJSONRenderer,
-                                    QueryResultsTurtleRenderer)
 from rdf.renderers import TurtleRenderer
+
+from .renderers import QueryResultsJSONRenderer, QueryResultsTurtleRenderer
 
 
 class SPARQLContentNegotiator(DefaultContentNegotiation):

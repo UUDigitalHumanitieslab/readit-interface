@@ -6,8 +6,8 @@ from rdflib import Literal
 from rdf.ns import RDF, SCHEMA
 from rdf.utils import graph_from_triples
 
-from . import namespace as my
-from .graph import graph
+from nlp_ontology import namespace as my
+from nlp_ontology.graph import graph
 
 TRIPLES = (
     (my.icecream,   RDF.type,       SCHEMA.Food),
