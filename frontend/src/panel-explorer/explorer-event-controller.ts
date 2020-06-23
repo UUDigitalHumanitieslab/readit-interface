@@ -160,7 +160,7 @@ export default class ExplorerEventController {
         return this;
     }
 
-    ldItemShowExternal(view: LdItemView, item: Node, externalResources: Node[]): this {
+    ldItemShowExternal(view: LdItemView, item: Node): this {
         if (!item) {
             alert('no external resources!');
             return;

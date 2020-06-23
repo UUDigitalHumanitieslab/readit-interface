@@ -1,17 +1,16 @@
 import { extend, map } from 'lodash';
-import View from '../core/view';
 
 import externalResourceEditItemTemplate from './external-resource-edit-item-template';
 import Model from '../core/model';
 import Collection from '../core/collection';
-import { CollectionView } from '../core/view';
+import View from '../core/view';
 import ExternalUrl from './external-url-view';
 
-export default class ExternalResourceEditItem extends CollectionView {
+export default class ExternalResourceEditItem extends View {
 
     initialize() {
         this.collection = this.model.get('urls');
-        this.initItems().render().initCollectionEvents();
+        // this.initItems().render().initCollectionEvents();
     }
 
     renderContainer(): this {
@@ -28,6 +27,7 @@ export default class ExternalResourceEditItem extends CollectionView {
 
     removeUrl(url: Model): this {
         this.collection.remove(url);
+        this.model.unset(this.model.get('predicate'), url.get('url'));
         this.changeUrls();
         return this;
     }
@@ -37,7 +37,10 @@ export default class ExternalResourceEditItem extends CollectionView {
         return this;
     }
 
-    updateUrls(): this {
+    updateUrls(url: Model): this {
+        if (url.get('url')!=='') {
+            this.model.set(this.model.get('predicate'), url.get('url'));
+        }
         this.changeUrls();
         return this;
     }

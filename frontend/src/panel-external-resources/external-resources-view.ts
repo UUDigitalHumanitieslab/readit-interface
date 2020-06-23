@@ -34,15 +34,16 @@ export default class ExternalResourcesView extends View<Node> {
     }
 
     initialize(): this {
-        this.externalResources = new Collection(externalAttributes.map( attribute => {
+        this.externalResources = new Collection()
+        externalAttributes.forEach( attribute => {
             const urls = this.model.get(attribute) as Node[];
-            return new Model({
-                '@id': this.model.id,
-                'predicate': attribute,
-                'label': getLabelFromId(attribute),
-                'urls': urls === undefined? new Collection() : new Collection(urls)
+            if (urls === undefined) {
+                this.externalResources.add({[attribute]: ''})
+            }
+            else urls.forEach( url => {
+                this.externalResources.add({attribute: url})
             })
-        }));
+        });
         this.render();
         return this;
     }
@@ -65,8 +66,3 @@ extend(ExternalResourcesView.prototype, {
         'click .btn-edit': 'onEditButtonClicked',
     },
 });
-
-interface ExternalResource {
-    label: string,
-    urls: string[]
-};

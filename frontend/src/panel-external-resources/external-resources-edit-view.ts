@@ -4,7 +4,7 @@ import * as a$ from 'async';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
-import { owl } from '../jsonld/ns';
+import { owl, rdfs, item } from '../jsonld/ns';
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
 import ItemGraph from '../utilities/item-graph';
@@ -13,6 +13,7 @@ import externalResourcesEditTemplate from './external-resources-edit-template';
 import ExternalResourceEditItem from './external-resource-edit-item-view';
 import { helpers } from 'handlebars';
 import { replyOnce } from 'backbone.radio';
+import { relationsFromModel } from '../panel-related-items/relation-utilities';
 
 const commitCallback = a$.asyncify(n => n.save());
 
@@ -21,6 +22,10 @@ const addField = '.rit-add-external';
 // Selector of the .control that contains the save button.
 const saveControl = '.panel-footer .control:first-child';
 
+const externalAttributes = [
+    rdfs.seeAlso,
+    owl.sameAs
+];
 /**
  * View class that displays a RelationEditor for each related item.
  */
