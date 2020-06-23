@@ -2,7 +2,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, map } from 'lodash';
 import Model from '../core/model';
 import Collection from '../core/collection';
-import CompositeView from '../core/view';
+import View from '../core/view';
 
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
@@ -12,7 +12,6 @@ import externalResourcesTemplate from './external-resources-template';
 import { rdfs, owl } from '../jsonld/ns';
 import { getLabel, getLabelFromId } from '../utilities/utilities';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
-import sourceLanguageTemplate from '../panel-source-list/source-language-template';
 
 const externalAttributes = [
     rdfs.seeAlso,
@@ -23,7 +22,7 @@ export interface ViewOptions extends BaseOpt<Node> {
     model: Node;
 }
 
-export default class ExternalResourcesView extends CompositeView<Node> {
+export default class ExternalResourcesView extends View<Node> {
     externalResources: Collection;
     /**
      * Keep track of the currently highlighted summary block
