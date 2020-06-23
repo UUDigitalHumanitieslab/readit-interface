@@ -4,7 +4,7 @@ import * as bulmaAccordion from 'bulma-accordion';
 
 import Node, { isNode } from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
-import { owl, oa, dcterms } from './../jsonld/ns';
+import { owl, oa, dcterms, rdfs } from './../jsonld/ns';
 import { getLabelText } from '../utilities/annotation/annotation-utilities';
 import LabelView from '../utilities/label-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
@@ -132,9 +132,12 @@ export default class LdItemView extends BaseAnnotationView {
 
             let attributeLabel = getLabelFromId(attribute);
 
-            if (attribute == owl.sameAs) {
+            if (attribute in [owl.sameAs, rdfs.seeAlso] ) {
                 this.externalResources = this.currentItem.get(attribute) as Node[];
                 continue;
+            }
+            else {
+                this.externalResources = new Array(new Node());
             }
 
             let valueArray = this.currentItem.get(attribute);
