@@ -1,10 +1,8 @@
-from rest_framework.authentication import (BasicAuthentication,
-                                           SessionAuthentication)
+from django.urls import path
 
-
+from nlp_ontology import NLP_ONTOLOGY_ROUTE
+from nlp_ontology.graph import graph
 from sparql.views import SPARQLQueryAPIView, SPARQLUpdateAPIView
-
-from .graph import graph
 
 
 class NlpOntologyQueryView(SPARQLQueryAPIView):
@@ -17,7 +15,13 @@ class NlpOntologyQueryView(SPARQLQueryAPIView):
 class NlpOntologyUpdateView(SPARQLUpdateAPIView):
     """ Update the NLP ontology through SPARQL-Update """
 
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
-
     def graph(self):
         return graph()
+
+
+NLP_ONTOLOGY_URLS = [
+    path('{}/query'.format(NLP_ONTOLOGY_ROUTE),
+         NlpOntologyQueryView.as_view()),
+    path('{}/update'.format(NLP_ONTOLOGY_ROUTE),
+         NlpOntologyUpdateView.as_view())
+]
