@@ -3,6 +3,8 @@ import View from './../core/view';
 
 import Node from './../jsonld/node';
 import uploadSourceTemplate from './upload-source-template';
+import { stringify } from 'querystring';
+import UploadPreviewSourceView from './upload-preview-source.view';
 
 export default class UploadSourceFormView extends View {
     isSuccess: boolean;
@@ -62,13 +64,17 @@ export default class UploadSourceFormView extends View {
         let label = this.$('.filelabel');
         let name = this.$('.filename');
 
+        this.$('.btn-preview').prop('disabled', true);
+
         input.on('change', () => {
             let files = (input.get(0) as HTMLInputElement).files;
             if (files.length === 0) {
-                name.text('No file selected');
+                name.text('No file selected');            
             } else {
                 name.text(files[0].name);
                 label.text('Change file...');
+                this.$('.btn-preview').prop('disabled', false);
+
             }
             input.valid();
         });
@@ -116,6 +122,22 @@ export default class UploadSourceFormView extends View {
         return this;
     }
 
+    onPreviewClicked(event: JQueryEventObject): this {
+        event.preventDefault();
+        let file = (this.$('.file-input').get(0) as HTMLInputElement).files[0];
+        let reader = new FileReader();
+        // reader.onload( f: ProgressEvent<FileReader> => f.target.result)
+        reader.onload = (f) => {
+            const newline = String.fromCharCode(13, 10);
+            // escaping html
+            const sourceText = new Option(f.target.result as string).innerHTML;
+            const preview = new UploadPreviewSourceView({model: sourceText});
+            this.$el.append(preview.render().$el);
+        };
+        reader.readAsText(file);
+        return this;
+    }
+
     hideFeedback(event?: JQueryEventObject): this {
         this.$('.form-feedback-bar').hide();
         return this;
@@ -129,5 +151,6 @@ extend(UploadSourceFormView.prototype, {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
         'click .input': 'hideFeedback',
+        'click .btn-preview': 'onPreviewClicked'
     }
 });
