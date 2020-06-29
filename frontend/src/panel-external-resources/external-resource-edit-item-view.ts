@@ -3,14 +3,33 @@ import { extend, map } from 'lodash';
 import externalResourceEditItemTemplate from './external-resource-edit-item-template';
 import Model from '../core/model';
 import Collection from '../core/collection';
-import View from '../core/view';
+import CompositeView from '../core/view';
+import PickerView from '../forms/base-picker-view';
 import ExternalUrl from './external-url-view';
+import Graph from '../jsonld/graph';
+import Node from '../jsonld/node';
+import { owl, rdfs, item } from '../jsonld/ns';
 
-export default class ExternalResourceEditItem extends View {
+const externalAttributes = [
+    rdfs.seeAlso,
+    owl.sameAs
+];
+
+export default class ExternalResourceEditItem extends CompositeView {
+    predicatePicker: PickerView;
+    predicates: Graph;
+    url: string;
 
     initialize() {
-        this.collection = this.model.get('urls');
-        // this.initItems().render().initCollectionEvents();
+        this.url = this.model.get(Object.keys(this.model.attributes)[0]);
+        this.predicates = new Graph( externalAttributes.map( attr =>  {
+            let node = new Node();
+            node.set('@id', attr);
+            return node;
+        })
+        );
+        this.predicatePicker = new PickerView({collection: this.predicates});
+        this.render();
     }
 
     renderContainer(): this {
@@ -53,6 +72,10 @@ export default class ExternalResourceEditItem extends View {
 
 extend(ExternalResourceEditItem.prototype, {
     template: externalResourceEditItemTemplate,
+    subviews: [{
+        view: 'predicatePicker',
+        selector: '.control:first-child',
+    },],
     container: '.url-container',
     events: {
         'click .add': 'addUrl'

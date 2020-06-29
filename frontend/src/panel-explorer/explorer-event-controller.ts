@@ -116,8 +116,8 @@ export default class ExplorerEventController {
         return this;
     }
 
-    externalItemsEdit(exView: ExternalResourcesView, items: Collection): this {
-        const editView = new ExternalResourcesEditView({ model: exView.model, collection: items });
+    externalItemsEdit(exView: ExternalResourcesView): this {
+        const editView = new ExternalResourcesEditView({ model: exView.model });
         this.explorerView.overlay(editView, exView);
         return this;
     }

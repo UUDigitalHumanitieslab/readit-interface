@@ -23,7 +23,8 @@ export interface ViewOptions extends BaseOpt<Node> {
 }
 
 export default class ExternalResourcesView extends View<Node> {
-    externalResources: Collection;
+    externalResources: {label: string, urls: string[]}[];
+    filteredNode: Node;
     /**
      * Keep track of the currently highlighted summary block
      */
@@ -34,15 +35,11 @@ export default class ExternalResourcesView extends View<Node> {
     }
 
     initialize(): this {
-        this.externalResources = new Collection()
-        externalAttributes.forEach( attribute => {
-            const urls = this.model.get(attribute) as Node[];
-            if (urls === undefined) {
-                this.externalResources.add({[attribute]: ''})
+        this.externalResources = externalAttributes.map( attribute => {
+            return {
+                label: getLabelFromId(attribute),
+                urls: this.model.get(attribute) as string[]
             }
-            else urls.forEach( url => {
-                this.externalResources.add({attribute: url})
-            })
         });
         this.render();
         return this;
@@ -55,7 +52,7 @@ export default class ExternalResourcesView extends View<Node> {
     }
 
     onEditButtonClicked(event: JQuery.TriggeredEvent): void {
-        this.trigger('externalItems:edit', this, this.externalResources);
+        this.trigger('externalItems:edit', this);
     }
 }
 extend(ExternalResourcesView.prototype, {

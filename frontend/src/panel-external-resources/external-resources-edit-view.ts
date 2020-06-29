@@ -4,9 +4,9 @@ import * as a$ from 'async';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
-import { owl, rdfs, item } from '../jsonld/ns';
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
+import { rdfs, owl } from '../jsonld/ns';
 import ItemGraph from '../utilities/item-graph';
 
 import externalResourcesEditTemplate from './external-resources-edit-template';
@@ -26,16 +26,26 @@ const externalAttributes = [
     rdfs.seeAlso,
     owl.sameAs
 ];
+
 /**
  * View class that displays a RelationEditor for each related item.
  */
 export default
-class ExternalResourcesEditView extends CollectionView<Node> {
-    model: Node;
-    predicates: Graph;
+class ExternalResourcesEditView extends CollectionView {
     changes: Collection;
+    collection: Collection;
 
     initialize(): void {
+        this.collection = new Collection();
+        externalAttributes.forEach( attribute => {
+            const urls = this.model.get(attribute) as Model[];
+            if (urls === undefined) {
+                this.collection.add({[attribute]: ''})
+            }
+            else urls.forEach( url => {
+                this.collection.add({attribute: url})
+            })
+        });
         this.initItems().render().initCollectionEvents();
         this.changes = new Collection();
     }
