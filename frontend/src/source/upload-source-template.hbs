@@ -116,8 +116,28 @@
             <button type=submit class="button is-link btn-submit">Submit</button>
         </div>
         <div class="control">
+            <button type=button class="button is-link is-light btn-preview">Preview</button>
+        </div>
+        <div class="control">
             <button type=reset class="button is-link is-light btn-cancel">Cancel</button>
         </div>
     </div>
 
+</div>
+
+<div class="modal is-clipped">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Preview source content</p>
+            <button class="delete" aria-label="close">
+                <i class="fas fa-times"></i>
+            </button>
+        </header>
+        <section class="modal-card-body">
+            <pre>
+            {{! preview rendered here}}
+            </pre>
+        </section>
+    </div>
 </div>
