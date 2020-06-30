@@ -120,8 +120,7 @@ export default class UploadSourceFormView extends View {
         return this;
     }
 
-    onPreviewClicked(event: JQueryEventObject): this {
-        event.preventDefault();
+    onPreviewClicked(): this {
         let file = (this.$('.file-input').get(0) as HTMLInputElement).files[0];
         let reader = new FileReader();
         reader.onload = (f) => {
