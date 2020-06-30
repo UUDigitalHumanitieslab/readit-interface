@@ -3,12 +3,11 @@ import View from './../core/view';
 
 import Node from './../jsonld/node';
 import uploadSourceTemplate from './upload-source-template';
-import { stringify } from 'querystring';
-import UploadPreviewSourceView from './upload-preview-source.view';
 
 export default class UploadSourceFormView extends View {
     isSuccess: boolean;
     hasError: boolean;
+    sourceText: string;
 
     /**
      * Class to add to invalid inputs. Note that this is not
@@ -74,7 +73,6 @@ export default class UploadSourceFormView extends View {
                 name.text(files[0].name);
                 label.text('Change file...');
                 this.$('.btn-preview').prop('disabled', false);
-
             }
             input.valid();
         });
@@ -126,21 +124,28 @@ export default class UploadSourceFormView extends View {
         event.preventDefault();
         let file = (this.$('.file-input').get(0) as HTMLInputElement).files[0];
         let reader = new FileReader();
-        // reader.onload( f: ProgressEvent<FileReader> => f.target.result)
         reader.onload = (f) => {
-            const newline = String.fromCharCode(13, 10);
-            // escaping html
-            const sourceText = new Option(f.target.result as string).innerHTML;
-            const preview = new UploadPreviewSourceView({model: sourceText});
-            this.$el.append(preview.render().$el);
+            const sourceText = this.escapeHtml(f.target.result as string);
+            this.$('pre').append(sourceText);
+            this.$('.modal').addClass('is-active');
         };
         reader.readAsText(file);
+        return this;
+    }
+
+    hidePreview(event?: JQueryEventObject): this {
+        this.$('pre').empty();
+        this.$('.modal').removeClass('is-active');
         return this;
     }
 
     hideFeedback(event?: JQueryEventObject): this {
         this.$('.form-feedback-bar').hide();
         return this;
+    }
+
+    escapeHtml(input: string): string {
+        return new Option(input).innerHTML;
     }
 }
 extend(UploadSourceFormView.prototype, {
@@ -151,6 +156,8 @@ extend(UploadSourceFormView.prototype, {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
         'click .input': 'hideFeedback',
-        'click .btn-preview': 'onPreviewClicked'
+        'click .btn-preview': 'onPreviewClicked',
+        'click .modal-background': 'hidePreview',
+        'click .delete': 'hidePreview'
     }
 });
