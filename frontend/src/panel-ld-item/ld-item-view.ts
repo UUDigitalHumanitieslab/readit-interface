@@ -1,6 +1,5 @@
 
 import { extend } from 'lodash';
-import * as bulmaAccordion from 'bulma-accordion';
 
 import Node, { isNode } from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
@@ -18,6 +17,8 @@ const excludedProperties = [
     dcterms.creator,
     dcterms.created,
     dcterms.modified,
+    rdfs.seeAlso,
+    owl.sameAs
 ];
 
 
@@ -131,15 +132,6 @@ export default class LdItemView extends BaseAnnotationView {
             }
 
             let attributeLabel = getLabelFromId(attribute);
-
-            if (attribute in [owl.sameAs, rdfs.seeAlso] ) {
-                this.externalResources = this.currentItem.get(attribute) as Node[];
-                continue;
-            }
-            else {
-                this.externalResources = new Array(new Node());
-            }
-
             let valueArray = this.currentItem.get(attribute);
             valueArray.forEach(value => {
                 if (isNode(value)) {
@@ -163,7 +155,7 @@ export default class LdItemView extends BaseAnnotationView {
     }
 
     onExtResourcesClicked(): void {
-        this.trigger('lditem:showExternal', this, this.currentItem, this.externalResources);
+        this.trigger('lditem:showExternal', this, this.currentItem);
     }
 
     onEditClicked(): void {
