@@ -37,13 +37,14 @@ class ExternalResourcesEditView extends CollectionView {
 
     initialize(): void {
         this.collection = new Collection();
+        this.changes = new Collection();
         externalAttributes.forEach( attribute => {
             const urls = this.model.get(attribute) as Model[];
             if (urls === undefined) {
-                this.collection.add({[attribute]: ''})
+                return;
             }
             else urls.forEach( url => {
-                this.collection.add({attribute: url})
+                this.collection.add({predicate: attribute, object: url})
             })
         });
         this.initItems().render().initCollectionEvents();
@@ -57,8 +58,32 @@ class ExternalResourcesEditView extends CollectionView {
 
     makeItem(model: Model): ExternalResourceEditItem {
         const itemEditor = new ExternalResourceEditItem({model});
+        itemEditor.once('remove', this.removeExternalResource, this);
         this.listenTo(model, 'change', this.updateExternalResource);
         return itemEditor;
+    }
+
+    addExternalResource(): this {
+        this.collection.add({});
+        return this;
+    }
+
+    removeExternalResource(view: ExternalResourceEditItem, resource: Model): this {
+        this.registerUnset(resource.attributes);
+        this.collection.remove(resource);
+        return this;
+    }
+
+    updateExternalResource(resource: Model): void {
+        this.registerUnset(resource.previousAttributes());
+        this.registerSet(resource.attributes);
+    }
+
+    placeItems(): this {
+        // ensure the add button stays at the bottom.
+        super.placeItems();
+        this.$(addField).appendTo(this.$(this.container));
+        return this;
     }
 
     resetIndicators(): this {
@@ -96,6 +121,7 @@ class ExternalResourcesEditView extends CollectionView {
 
     submit(event: JQuery.TriggeredEvent): this {
         event.preventDefault();
+        if (this.changes.isEmpty()) return this;
         this.indicateProgress().commitChanges().then(
             this.indicateSuccess.bind(this),
             this.indicateError.bind(this),
@@ -105,9 +131,6 @@ class ExternalResourcesEditView extends CollectionView {
 
     close(): this {
         return this.trigger('externalItems:edit-close', this);
-    }
-
-    updateExternalResource(resource): void {
     }
 
     registerSet(attributes): void {
@@ -123,13 +146,15 @@ class ExternalResourcesEditView extends CollectionView {
     }
 
     commitChanges(): PromiseLike<void> {
-        let changedItems = this.collection.filter( item => Object.keys(item.changed).length > 0 )
-        changedItems.forEach(item => {
-            const predicate = item.get('predicate');
-            const object = item.attributes.urls;
-            this.model.set(predicate, object.models);
-        })
-        return new Promise(this.model.save());
+        const affectedItems = new ItemGraph();
+        this.changes.forEach(update => {
+            const {action, predicate, object} = update.attributes;
+            this.model[action](predicate, object);
+            affectedItems.add(this.model);
+        });
+        return a$.each(affectedItems.models, commitCallback).then(
+            () => this.changes.reset()
+        );
     }
 }
 
@@ -141,5 +166,6 @@ extend(ExternalResourcesEditView.prototype, {
     events: {
         reset: 'close',
         submit: 'submit',
+        'click .add': 'addExternalResource'
     },
 });
