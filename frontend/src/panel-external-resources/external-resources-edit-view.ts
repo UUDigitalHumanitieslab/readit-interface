@@ -4,19 +4,13 @@ import * as a$ from 'async';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
-import Graph from '../jsonld/graph';
-import Node from '../jsonld/node';
 import { rdfs, owl } from '../jsonld/ns';
 import ItemGraph from '../utilities/item-graph';
 
 import externalResourcesEditTemplate from './external-resources-edit-template';
 import ExternalResourceEditItem from './external-resource-edit-item-view';
-import { helpers } from 'handlebars';
-import { replyOnce } from 'backbone.radio';
-import { relationsFromModel } from '../panel-related-items/relation-utilities';
 
 const commitCallback = a$.asyncify(n => n.save());
-
 // Selector of the .field that contains the add button.
 const addField = '.rit-add-external';
 // Selector of the .control that contains the save button.
@@ -134,13 +128,13 @@ class ExternalResourcesEditView extends CollectionView {
     }
 
     registerSet(attributes): void {
-        if (!attributes.object) return;
+        if (!attributes.object || !attributes.predicate) return;
         this.changes.push(extend({action: 'set'}, attributes));
         this.resetIndicators();
     }
 
     registerUnset(attributes): void {
-        if (!attributes.object) return;
+        if (!attributes.object || !attributes.predicate) return;
         this.changes.push(extend({action: 'unset'}, attributes));
         this.resetIndicators();
     }

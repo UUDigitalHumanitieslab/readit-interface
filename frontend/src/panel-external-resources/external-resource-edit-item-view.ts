@@ -1,14 +1,11 @@
-import { extend, map } from 'lodash';
+import { extend } from 'lodash';
 
 import externalResourceEditItemTemplate from './external-resource-edit-item-template';
-import Model from '../core/model';
-import Collection from '../core/collection';
 import { CompositeView } from '../core/view';
 import PickerView from '../forms/base-picker-view';
-import ExternalUrl from './external-url-view';
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
-import { owl, rdfs, item } from '../jsonld/ns';
+import { owl, rdfs } from '../jsonld/ns';
 
 const externalAttributes = [
     rdfs.seeAlso,
@@ -29,6 +26,9 @@ export default class ExternalResourceEditItem extends CompositeView {
         })
         );
         this.predicatePicker = new PickerView({collection: this.predicates});
+        if ( this.model.get('predicate') !== undefined ) {
+            this.predicatePicker.val(this.model.get('predicate'));
+        }
         this.predicatePicker.on('change', this.updatePredicate, this);
         this.render();
     }

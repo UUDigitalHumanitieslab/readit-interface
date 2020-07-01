@@ -1,16 +1,13 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, map } from 'lodash';
-import Model from '../core/model';
-import Collection from '../core/collection';
+import { extend } from 'lodash';
 import View from '../core/view';
-
-import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
+import ldChannel from '../jsonld/radio';
 
 import externalResourcesTemplate from './external-resources-template';
 
 import { rdfs, owl } from '../jsonld/ns';
-import { getLabel, getLabelFromId } from '../utilities/utilities';
+import { getLabelFromId } from '../utilities/utilities';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 
 const externalAttributes = [
@@ -35,19 +32,27 @@ export default class ExternalResourcesView extends View<Node> {
     }
 
     initialize(): this {
+        this.displayResources();
+        this.model.on('change', this.displayResources, this);
+        return this;
+    }
+
+    render(): this {
+        this.$el.html(this.template(this));
+        return this;
+    }
+
+    displayResources(): this {
         this.externalResources = externalAttributes.map( attribute => {
+            if (this.model.get(attribute) === undefined) {
+                return;
+            }
             return {
                 label: getLabelFromId(attribute),
                 urls: this.model.get(attribute) as string[]
             }
         });
         this.render();
-        return this;
-    }
-
-    render(): this {
-        this.$el.html(this.template(this));
-        if (!this.model) return;
         return this;
     }
 

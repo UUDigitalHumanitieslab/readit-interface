@@ -1,11 +1,11 @@
 import Node from '../jsonld/node';
 
 import ExternalResourcesView from './external-resources-view';
-import anno1Instance from '../mock-data/mock-items';
+import { anno1ContentInstance } from '../mock-data/mock-items';
 
 describe('ExternalResourcesView', function() {
     beforeEach(function() {
-        this.model = new Node(anno1Instance);
+        this.model = new Node(anno1ContentInstance);
     });
 
     it('can be constructed in isolation', function() {
