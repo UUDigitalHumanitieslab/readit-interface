@@ -262,8 +262,9 @@ export default class ExplorerView extends View {
     /**
      * Dynamically set the height for the explorer, based on the viewport height.
      */
-    setHeight(height: number): void {
+    setHeight(height: number): this {
         this.$el.css('height', height);
+        return this;
     }
 
     onScroll(): void {
