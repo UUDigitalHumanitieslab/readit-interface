@@ -17,8 +17,6 @@ import explorerView from '../global/explorer-view';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
-    menuView.on('feedback', () => { feedbackView.render().$el.appendTo('body'); });
-    feedbackView.on('close', () => feedbackView.$el.detach());
     footerView.render().$el.appendTo('.footer');
     categoryStyles.$el.appendTo('body');
     // 133 is the height of the footer (got this number by manually testing)
@@ -28,18 +26,20 @@ history.once('route', () => {
     explorerView.setHeight(availableHeight).render();
     uploadSourceForm.setHeight(availableHeight);
 });
+menuView.on('feedback', () => { feedbackView.render().$el.appendTo('body'); });
+feedbackView.on('close', () => feedbackView.$el.detach());
 
 directionRouter.on('route:register', () => {
     userFsm.handle('register');
 });
 
 directionRouter.on('route:confirm-registration', (key) => {
-    user.on('confirm-registration:success', () => confirmRegistrationView.success());
-    user.on('confirm-registration:notfound', () => confirmRegistrationView.notFound());
-    user.on('confirm-registration:error', (response) => confirmRegistrationView.error(response));
     confirmRegistrationView.processKey(key);
     directionFsm.handle('confirm');
 });
+user.on('confirm-registration:success', () => confirmRegistrationView.success());
+user.on('confirm-registration:notfound', () => confirmRegistrationView.notFound());
+user.on('confirm-registration:error', (response) => confirmRegistrationView.error(response));
 
 directionFsm.on('enter:confirming', () => {
     confirmRegistrationView.render().$el.appendTo('#main');
