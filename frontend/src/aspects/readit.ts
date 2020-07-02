@@ -1,7 +1,6 @@
 import { history } from 'backbone';
 
 import Graph from '../jsonld/graph';
-import SourceListView from '../panel-source-list/source-list-view';
 import ExplorerView from '../panel-explorer/explorer-view';
 
 import footerView from '../global/footer-view';
@@ -16,7 +15,8 @@ import user from '../global/user';
 import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
-import sources, { ensureSources } from '../global/sources';
+import { ensureSources } from '../global/sources';
+import sourceListView from '../global/source-list-view';
 
 let explorerView;
 
@@ -106,7 +106,6 @@ function getViewportHeight(): number {
 
 function initSourceList() {
     ensureSources();
-    let sourceListView = new SourceListView({ collection: sources });
     explorerView = new ExplorerView({ first: sourceListView });
 
     explorerView.setHeight(getViewportHeight());
