@@ -1,7 +1,5 @@
 import { history } from 'backbone';
 
-import Graph from '../jsonld/graph';
-
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
