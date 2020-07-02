@@ -11,11 +11,9 @@ import Graph from './../jsonld/graph';
 import Node from './../jsonld/node';
 import { JsonLdObject } from './../jsonld/json';
 import { item, readit, rdf, vocab, oa } from '../jsonld/ns';
-import ldChannel from '../jsonld/radio';
 
-import { getOntology, getSources } from './../utilities/utilities';
+import { getSources } from './../utilities/utilities';
 
-import CategoryColorView from './../utilities/category-colors/category-colors-view';
 import SourceView from './../panel-source/source-view';
 
 import directionRouter from '../global/direction-router';
@@ -34,6 +32,7 @@ import RelatedItemsView from '../panel-related-items/related-items-view';
 import SearchResultBaseItemView from '../search/search-results/search-result-base-view';
 
 import SourceListView from '../panel-source-list/source-list-view';
+import categoryStyles from '../global/category-styles';
 
 let explorerView;
 
@@ -42,6 +41,7 @@ history.once('route', () => {
     menuView.on('feedback', () => { feedbackView.render().$el.appendTo('body'); });
     feedbackView.on('close', () => feedbackView.$el.detach());
     footerView.render().$el.appendTo('.footer');
+    categoryStyles.$el.appendTo('body');
 });
 
 directionRouter.on('route:register', () => {
@@ -128,7 +128,6 @@ function initExplorer(first: SourceListView): ExplorerView {
 }
 
 function initSourceList() {
-    let ontology = ldChannel.request('ontology:graph');
     let sources =  new Graph();
     let sourceListView = new SourceListView({
         collection: sources
@@ -139,10 +138,7 @@ function initSourceList() {
     getSources(function (error, results) {
         if (error) console.debug(error);
         else {
-            sources = results;
-            sourceListView.collection.reset(sources.models);
-            let ccView = new CategoryColorView({ collection: ontology});
-            ccView.render().$el.appendTo('body');
+            sourceListView.collection.reset(results.models);
             explorerView.render();
         }
     });
