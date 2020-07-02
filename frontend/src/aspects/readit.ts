@@ -3,7 +3,6 @@ import { history } from 'backbone';
 import Graph from '../jsonld/graph';
 import SourceListView from '../panel-source-list/source-list-view';
 import ExplorerView from '../panel-explorer/explorer-view';
-import { getSources } from '../utilities/utilities';
 
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
@@ -17,6 +16,7 @@ import user from '../global/user';
 import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
+import sources, { ensureSources } from '../global/sources';
 
 let explorerView;
 
@@ -104,26 +104,11 @@ function getViewportHeight(): number {
     return Math.max(vh - 160, 555);
 }
 
-function initExplorer(first: SourceListView): ExplorerView {
-    explorerView = new ExplorerView({ first });
-    explorerView.setHeight(getViewportHeight());
-    explorerView.$el.appendTo('#main');
-    return explorerView;
-}
-
 function initSourceList() {
-    let sources =  new Graph();
-    let sourceListView = new SourceListView({
-        collection: sources
-    });
+    ensureSources();
+    let sourceListView = new SourceListView({ collection: sources });
+    explorerView = new ExplorerView({ first: sourceListView });
 
-    let explorerView = initExplorer(sourceListView);
-
-    getSources(function (error, results) {
-        if (error) console.debug(error);
-        else {
-            sourceListView.collection.reset(results.models);
-            explorerView.render();
-        }
-    });
+    explorerView.setHeight(getViewportHeight());
+    explorerView.render().$el.appendTo('#main');
 }
