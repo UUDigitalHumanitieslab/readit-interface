@@ -12,6 +12,7 @@ import './global/item-cache';
 import './global/scroll-easings';
 import './aspects/readit';
 import './aspects/authentication';
+import './aspects/registration';
 
 when(ready, i18nPromise).done(function () {
     user.fetch();

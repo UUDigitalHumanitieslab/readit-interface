@@ -5,13 +5,10 @@ import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
 import feedbackView from '../global/feedback-view';
 import uploadSourceForm from '../global/upload-source-form';
-import registrationFormView from '../global/registration-view';
-import confirmRegistrationView from '../global/confirm-registration-view';
 import categoryStyles from '../global/category-styles';
 import user from '../global/user';
 import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
-import directionFsm from '../global/direction-fsm';
 import { ensureSources } from '../global/sources';
 import explorerView from '../global/explorer-view';
 
@@ -27,23 +24,12 @@ history.once('route', () => {
     uploadSourceForm.setHeight(availableHeight);
 });
 
-directionRouter.on('route:register', () => userFsm.handle('register'));
-directionRouter.on('route:confirm-registration', (key) => {
-    confirmRegistrationView.processKey(key);
-    directionFsm.handle('confirm');
-});
 directionRouter.on('route:arrive', () => {
-    directionFsm.handle('arrive');
     userFsm.handle('arrive');
 });
 directionRouter.on('route:upload', () => userFsm.handle('upload'));
 directionRouter.on('route:explore', () => userFsm.handle('explore'));
 directionRouter.on('route:leave', () => userFsm.handle('leave'));
-
-directionFsm.on('enter:confirming', () => {
-    confirmRegistrationView.render().$el.appendTo('#main');
-});
-directionFsm.on('exit:confirming', () => confirmRegistrationView.$el.detach());
 
 userFsm.on('enter:arriving', () => welcomeView.render().$el.appendTo('#main'));
 userFsm.on('exit:arriving', () => welcomeView.$el.detach());
@@ -64,13 +50,3 @@ userFsm.on('exit:exploring', () => explorerView.$el.detach());
 menuView.on('feedback', () => feedbackView.render().$el.appendTo('body'));
 
 feedbackView.on('close', () => feedbackView.$el.detach());
-
-user.on('confirm-registration:success', () => {
-    confirmRegistrationView.success()
-});
-user.on('confirm-registration:notfound', () => {
-    confirmRegistrationView.notFound()
-});
-user.on('confirm-registration:error', (response) => {
-    confirmRegistrationView.error(response)
-});
