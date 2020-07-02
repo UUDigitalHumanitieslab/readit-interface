@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timezone
+import html
 
 from django.http import HttpResponse
 from django.core.files.storage import default_storage
@@ -98,10 +99,9 @@ class AddSource(RDFResourceView):
     permission_classes = [IsAuthenticated, UploadSourcePermission]
     parser_classes = [MultiPartParser]
 
-    def store(self, file, destination):
-        with open(destination, 'wb+') as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
+    def store(self, source_file, destination_file):
+        with open(destination_file, 'w+') as destination:
+            destination.write(html.escape(str(source_file.read())))
 
     def is_valid(self, data):
         is_valid = True
