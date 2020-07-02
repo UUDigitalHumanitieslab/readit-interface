@@ -1,38 +1,22 @@
-import { history, View } from 'backbone';
+import { history } from 'backbone';
+
+import Graph from '../jsonld/graph';
+import SourceListView from '../panel-source-list/source-list-view';
+import ExplorerView from '../panel-explorer/explorer-view';
+import { getSources } from '../utilities/utilities';
+
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
 import welcomeView from '../global/welcome-view';
-import feedbackView from './../global/feedback-view';
-import ExplorerView from '../panel-explorer/explorer-view';
-
-import user from './../global/user';
-
-import Graph from './../jsonld/graph';
-import Node from './../jsonld/node';
-import { JsonLdObject } from './../jsonld/json';
-import { item, readit, rdf, vocab, oa } from '../jsonld/ns';
-
-import { getSources } from './../utilities/utilities';
-
-import SourceView from './../panel-source/source-view';
-
+import feedbackView from '../global/feedback-view';
+import uploadSourceForm from '../global/upload-source-form';
+import registrationFormView from '../global/registration-view';
+import confirmRegistrationView from '../global/confirm-registration-view';
+import categoryStyles from '../global/category-styles';
+import user from '../global/user';
 import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
-import uploadSourceForm from './../global/upload-source-form';
-import registrationFormView from './../global/registration-view';
-import confirmRegistrationView from './../global/confirm-registration-view';
-
-import mockOntology from './../mock-data/mock-ontology';
-import mockItems from './../mock-data/mock-items';
-import mockSources from './../mock-data/mock-sources';
-import mockStaff from '../mock-data/mock-staff';
-import LdItemView from '../panel-ld-item/ld-item-view';
-import RelatedItemsView from '../panel-related-items/related-items-view';
-import SearchResultBaseItemView from '../search/search-results/search-result-base-view';
-
-import SourceListView from '../panel-source-list/source-list-view';
-import categoryStyles from '../global/category-styles';
 
 let explorerView;
 
