@@ -10,6 +10,7 @@ import sourceListTemplate from './source-list-template';
 import SourceLanguageView from './source-language-view';
 import { cpus } from 'os';
 import Collection from '../core/collection';
+import FilteredCollection from '../utilities/filtered-collection';
 
 const languages = ["en", "fr", "de", "other"];
 
@@ -32,18 +33,15 @@ export default class SourceListView extends CollectionView<Model, SourceLanguage
 
     processCollection(collection: Graph, languages: string[]): this {
         this.unorderedSources = collection;
-        this.collection = new Graph(languages.map(lang => {
-            let sources = [];
-            if (collection.models.length > 1) {
-                sources = collection.filter( (item: Node) => {
-                    let inLanguage = item.get(schema.inLanguage)[0] as Node;
-                    return inLanguage.id == this.vocabularizeLanguage(lang);
-                })
-            }
+        this.collection = new Collection(languages.map(lang => {
+            let sources = new FilteredCollection(collection, (item: Node) => {
+                let inLanguage = item.get(schema.inLanguage)[0] as Node;
+                return inLanguage.id == this.vocabularizeLanguage(lang);
+            });
             return new Model({
                 language: lang,
                 sources: sources
-            })
+            });
         }));
         return this;
     }
