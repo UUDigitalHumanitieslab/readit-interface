@@ -1,7 +1,6 @@
 import { history } from 'backbone';
 
 import Graph from '../jsonld/graph';
-import ExplorerView from '../panel-explorer/explorer-view';
 
 import footerView from '../global/footer-view';
 import menuView from '../global/menu-view';
@@ -16,9 +15,7 @@ import directionRouter from '../global/direction-router';
 import userFsm from '../global/user-fsm';
 import directionFsm from '../global/direction-fsm';
 import { ensureSources } from '../global/sources';
-import sourceListView from '../global/source-list-view';
-
-let explorerView;
+import explorerView from '../global/explorer-view';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');
@@ -26,6 +23,12 @@ history.once('route', () => {
     feedbackView.on('close', () => feedbackView.$el.detach());
     footerView.render().$el.appendTo('.footer');
     categoryStyles.$el.appendTo('body');
+    // 133 is the height of the footer (got this number by manually testing)
+    // Note that the same number needs to be the height of the 'push' class in
+    // main.sass. 555 is min-height.
+    const availableHeight = Math.max($(window).height() - 160, 555);
+    explorerView.setHeight(availableHeight).render();
+    uploadSourceForm.setHeight(availableHeight);
 });
 
 directionRouter.on('route:register', () => {
@@ -66,7 +69,6 @@ directionRouter.on('route:upload', () => {
 });
 
 userFsm.on('enter:uploading', () => {
-    uploadSourceForm.setHeight(getViewportHeight());
     uploadSourceForm.render().$el.appendTo('#main');
 });
 
@@ -80,34 +82,15 @@ directionRouter.on('route:explore', () => {
 });
 
 userFsm.on('enter:exploring', () => {
+    ensureSources();
     welcomeView.$el.detach();
-    initSourceList();
+    explorerView.$el.appendTo('#main');
 });
 
 userFsm.on('exit:exploring', () => {
     if (explorerView) explorerView.$el.detach();
 });
 
-
 directionRouter.on('route:leave', () => {
     userFsm.handle('leave');
 });
-
-/**
- * Get the heigth of the available vertical space.
- * Compensates for menu and footer, and 555 is min-height.
- */
-function getViewportHeight(): number {
-    let vh = $(window).height();
-    // 133 is the height of the footer (got this number by manually testing)
-    // Note that the same number needs to be the height of the 'push' class in main.sass
-    return Math.max(vh - 160, 555);
-}
-
-function initSourceList() {
-    ensureSources();
-    explorerView = new ExplorerView({ first: sourceListView });
-
-    explorerView.setHeight(getViewportHeight());
-    explorerView.render().$el.appendTo('#main');
-}
