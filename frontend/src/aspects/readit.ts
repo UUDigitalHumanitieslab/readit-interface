@@ -27,9 +27,7 @@ history.once('route', () => {
     uploadSourceForm.setHeight(availableHeight);
 });
 
-directionRouter.on('route:register', () => {
-    userFsm.handle('register');
-});
+directionRouter.on('route:register', () => userFsm.handle('register'));
 directionRouter.on('route:confirm-registration', (key) => {
     confirmRegistrationView.processKey(key);
     directionFsm.handle('confirm');
@@ -38,29 +36,17 @@ directionRouter.on('route:arrive', () => {
     directionFsm.handle('arrive');
     userFsm.handle('arrive');
 });
-directionRouter.on('route:upload', () => {
-    userFsm.handle('upload');
-});
-directionRouter.on('route:explore', () => {
-    userFsm.handle('explore');
-});
-directionRouter.on('route:leave', () => {
-    userFsm.handle('leave');
-});
+directionRouter.on('route:upload', () => userFsm.handle('upload'));
+directionRouter.on('route:explore', () => userFsm.handle('explore'));
+directionRouter.on('route:leave', () => userFsm.handle('leave'));
 
 directionFsm.on('enter:confirming', () => {
     confirmRegistrationView.render().$el.appendTo('#main');
 });
-directionFsm.on('exit:confirming', () => {
-    confirmRegistrationView.$el.detach();
-});
+directionFsm.on('exit:confirming', () => confirmRegistrationView.$el.detach());
 
-userFsm.on('enter:arriving', () => {
-    welcomeView.render().$el.appendTo('#main');
-});
-userFsm.on('exit:arriving', () => {
-    welcomeView.$el.detach();
-});
+userFsm.on('enter:arriving', () => welcomeView.render().$el.appendTo('#main'));
+userFsm.on('exit:arriving', () => welcomeView.$el.detach());
 userFsm.on('enter:uploading', () => {
     uploadSourceForm.render().$el.appendTo('#main');
 });
@@ -73,13 +59,18 @@ userFsm.on('enter:exploring', () => {
     welcomeView.$el.detach();
     explorerView.$el.appendTo('#main');
 });
-userFsm.on('exit:exploring', () => {
-    if (explorerView) explorerView.$el.detach();
-});
+userFsm.on('exit:exploring', () => explorerView.$el.detach());
 
-menuView.on('feedback', () => { feedbackView.render().$el.appendTo('body'); });
+menuView.on('feedback', () => feedbackView.render().$el.appendTo('body'));
+
 feedbackView.on('close', () => feedbackView.$el.detach());
 
-user.on('confirm-registration:success', () => confirmRegistrationView.success());
-user.on('confirm-registration:notfound', () => confirmRegistrationView.notFound());
-user.on('confirm-registration:error', (response) => confirmRegistrationView.error(response));
+user.on('confirm-registration:success', () => {
+    confirmRegistrationView.success()
+});
+user.on('confirm-registration:notfound', () => {
+    confirmRegistrationView.notFound()
+});
+user.on('confirm-registration:error', (response) => {
+    confirmRegistrationView.error(response)
+});
