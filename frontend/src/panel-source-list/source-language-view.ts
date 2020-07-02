@@ -1,11 +1,7 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
+
 import View from '../core/view';
-
-import { schema, iso6391, UNKNOWN } from '../jsonld/ns';
-
-import Graph from '../jsonld/graph';
-
+import { schema } from '../jsonld/ns';
 import sourceLanguageTemplate from './source-language-template';
 
 export default class SourceLanguageView extends View {
@@ -17,13 +13,6 @@ export default class SourceLanguageView extends View {
         this.collection = this.model.get('sources');
         this.render().listenTo(this.collection, 'update reset', this.render);
         return this;
-    }
-
-    vocabularizeLanguage(inputLanguage: string): string {
-        if (inputLanguage == "other") {
-            return UNKNOWN;
-        }
-        return iso6391(inputLanguage);
     }
 
     render(): this {

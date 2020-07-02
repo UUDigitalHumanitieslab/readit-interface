@@ -8,7 +8,6 @@ import { schema, iso6391, UNKNOWN } from '../jsonld/ns';
 
 import sourceListTemplate from './source-list-template';
 import SourceLanguageView from './source-language-view';
-import { cpus } from 'os';
 import Collection from '../core/collection';
 import FilteredCollection from '../utilities/filtered-collection';
 
@@ -27,7 +26,7 @@ export default class SourceListView extends CollectionView<Model, SourceLanguage
 
     initialize(): this {
         this.processCollection(this.collection as Graph, languages);
-        this.initItems().initCollectionEvents();
+        this.initItems();
         return this;
     }
 
@@ -57,12 +56,6 @@ export default class SourceListView extends CollectionView<Model, SourceLanguage
         let view = new SourceLanguageView({model});
         this.listenTo(view, 'click', this.onSourceClicked);
         return view;
-    }
-
-    resetItems(): this {
-        this.processCollection(this.collection as Graph, languages);
-        this.clearItems().initItems().placeItems().render();
-        return this;
     }
 
     renderContainer(): this {
