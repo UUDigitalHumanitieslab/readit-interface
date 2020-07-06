@@ -11,6 +11,8 @@ import AnnotationListView from '../annotation/panel-annotation-list-view';
 import AnnotationEditView from '../annotation/panel-annotation-edit-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
 import RelatedItemsEditView from '../panel-related-items/related-items-edit-view';
+import ExternalResourcesView from '../panel-external-resources/external-resources-view';
+import ExternalResourcesEditView from '../panel-external-resources/external-resources-edit-view';
 import ItemGraph from '../utilities/item-graph';
 import FlatModel from '../annotation/flat-annotation-model';
 import FlatCollection from '../annotation/flat-annotation-collection';
@@ -21,6 +23,7 @@ import {
     isType,
     isOntologyClass,
 } from '../utilities/utilities';
+import { Collection } from 'backbone';
 
 export default class ExplorerEventController {
     /**
@@ -62,6 +65,8 @@ export default class ExplorerEventController {
             'lditem:editItem': this.notImplemented,
             'relItems:itemClick': this.relItemsItemClicked,
             'relItems:edit': this.relItemsEdit,
+            'externalItems:edit': this.externalItemsEdit,
+            'externalItems:edit-close': this.externalItemsEditClose,
             'relItems:edit-close': this.relItemsEditClose,
             'source-list:click': this.pushSourcePair,
             'searchResultList:itemClicked': this.searchResultListItemClicked,
@@ -110,6 +115,17 @@ export default class ExplorerEventController {
         return this;
     }
 
+    externalItemsEdit(exView: ExternalResourcesView): this {
+        const editView = new ExternalResourcesEditView({ model: exView.model });
+        this.explorerView.overlay(editView, exView);
+        return this;
+    }
+
+    externalItemsEditClose(editView: ExternalResourcesEditView): this {
+        this.explorerView.removeOverlay(editView);
+        return this;
+    }
+
     ldItemShowRelated(view: LdItemView, item: Node): this {
         if (!item) {
             alert('no related items!');
@@ -143,9 +159,12 @@ export default class ExplorerEventController {
         return this;
     }
 
-    ldItemShowExternal(view: LdItemView, item: Node, externalResources: Node[]): this {
-        this.explorerView.popUntil(view);
-        this.notImplemented();
+    ldItemShowExternal(view: LdItemView, item: Node): this {
+        if (!item) {
+            alert('no external resources!');
+            return;
+        }
+        this.explorerView.popUntilAndPush(view, new ExternalResourcesView({ model: item }));
         return this;
     }
 
