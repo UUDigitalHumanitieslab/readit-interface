@@ -45,6 +45,11 @@ export default class ExternalResourceEditItem extends CompositeView {
 
     updatePredicate(view: PickerView, id: string): void {
         this.model.set('predicate', id);
+        if (this.$('input').length === 0) {
+            this.$('.url-input').append(`
+                <input class="input" type="url" required>
+            `)
+        }
     }
 
     changeUrl(event): void {

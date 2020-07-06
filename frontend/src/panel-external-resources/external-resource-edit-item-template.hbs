@@ -2,7 +2,9 @@
     {{! predicate picker }}
 </div>
 <div class="control is-expanded url-input">
-    <input class="input" type="url" value="{{url}}" required>
+    {{#if url}}
+        <input class="input" type="url" value="{{url}}" required>
+    {{/if}}
 </div>
 <div class="control">
     <button type=button class="button is-danger remove">

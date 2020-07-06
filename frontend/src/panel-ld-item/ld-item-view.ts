@@ -40,7 +40,6 @@ export default class LdItemView extends BaseAnnotationView {
     properties: any;
     annotations: any;
     relatedItems: Node[];
-    externalResources: Node[];
 
 
     itemMetadataView: ItemMetadataView;
