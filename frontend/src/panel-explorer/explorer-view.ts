@@ -48,6 +48,7 @@ export default class ExplorerView extends View {
         this.stacks = [];
         this.eventController = new EventController(this);
         this.rltPanelStack = {};
+        this.scroll = debounce(this.scroll, 100);
         this.push(options.first);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 500));
@@ -64,17 +65,29 @@ export default class ExplorerView extends View {
     }
 
     /**
-     * Animated scroll to put a stack in focus (i.e. at the right of the screen).
+     * Animated scroll to make a stack visible.
+     * If the stack is not already visible, apply minimal horizontal scroll so
+     * that the stack is just within the viewport. Otherwise, no animation
+     * occurs.
      * By default scrolls to the rightmost stack.
      * @param stack: Optional. The stack to focus on / scroll to.
      */
     scroll(stack?: PanelStackView, callback?: any): this {
-        // Scrolling temporarily disabled due to #309.
-        // Running callback immediately instead (but still async).
-        if (callback) fastTimeout(callback);
-        // if (!stack) stack = this.getRightMostStack();
-        // let scrollTarget = stack.getRightBorderOffset() - $(window).width();
-        // animatedScroll(ScrollType.Left, this.$el, scrollTarget, callback);
+        if (!stack) stack = this.getRightMostStack();
+        const thisLeft = this.$el.scrollLeft();
+        const thisRight = this.getMostRight();
+        const stackLeft = stack.getLeftBorderOffset();
+        const stackRight = stack.getRightBorderOffset();
+        let scrollTarget;
+        if (stackRight < thisLeft) {
+            scrollTarget = stackLeft;
+        } else if (stackLeft > thisRight) {
+            scrollTarget = stackRight - $(window).width();
+        } else {
+            if (callback) fastTimeout(callback);
+            return this;
+        }
+        animatedScroll(ScrollType.Left, this.$el, scrollTarget, callback);
         return this;
     }
 
