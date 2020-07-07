@@ -69,9 +69,12 @@ export default class ExplorerView extends View {
      * @param stack: Optional. The stack to focus on / scroll to.
      */
     scroll(stack?: PanelStackView, callback?: any): this {
-        if (!stack) stack = this.getRightMostStack();
-        let scrollTarget = stack.getRightBorderOffset() - $(window).width();
-        animatedScroll(ScrollType.Left, this.$el, scrollTarget, callback);
+        // Scrolling temporarily disabled due to #309.
+        // Running callback immediately instead (but still async).
+        if (callback) fastTimeout(callback);
+        // if (!stack) stack = this.getRightMostStack();
+        // let scrollTarget = stack.getRightBorderOffset() - $(window).width();
+        // animatedScroll(ScrollType.Left, this.$el, scrollTarget, callback);
         return this;
     }
 
