@@ -1,5 +1,5 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend } from 'lodash';
+import { extend, invokeMap } from 'lodash';
 
 import Model from '../core/model';
 import ldChannel from '../jsonld/radio';
@@ -14,8 +14,14 @@ import ClassPickerView from '../utilities/ontology-class-picker/ontology-class-p
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import { isType } from '../utilities/utilities';
-import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
-import { composeAnnotation, getAnonymousTextQuoteSelector } from './../utilities/annotation/annotation-creation-utilities';
+import {
+    AnnotationPositionDetails,
+    getTargetDetails
+} from '../utilities/annotation/annotation-utilities';
+import {
+    composeAnnotation,
+    getAnonymousTextQuoteSelector
+} from './../utilities/annotation/annotation-creation-utilities';
 
 import BaseAnnotationView from './base-annotation-view';
 import FlatCollection from './flat-annotation-collection';
@@ -289,19 +295,29 @@ export default class AnnotationEditView extends BaseAnnotationView {
         return this;
     }
 
+    async onDelete(): Promise<void> {
+        const details = getTargetDetails(this.model);
+        // We wait for the oa:Annotation to be destroyed, then destroy its
+        // target and selectors without waiting whether deletion was successful.
+        // Incomplete deletion should not trouble the user.
+        await this.model.destroy({ wait: true });
+        invokeMap(details, 'destroy');
+    }
+
     onRelatedItemsClicked(event: JQueryEventObject): this {
         this.trigger('add-related-item', this.classPicker.getSelected());
         return this;
     }
 }
+
 extend(AnnotationEditView.prototype, {
-    tagName: 'div',
     className: 'annotation-edit-panel explorer-panel',
     template: annotationEditTemplate,
     events: {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
+        'click .panel-footer button.is-danger': 'onDelete',
         'click .btn-rel-items': 'onRelatedItemsClicked',
         'click .item-picker-container .field:last button': 'createItem',
-    }
+    },
 });
