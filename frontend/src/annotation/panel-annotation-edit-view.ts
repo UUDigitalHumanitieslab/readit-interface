@@ -58,7 +58,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
     metadataView: ItemMetadataView;
     classPicker: ClassPickerView;
     snippetView: SnippetView;
-    modelIsAnnotion: boolean;
+    modelIsAnnotation: boolean;
     userIsOwner: boolean;
     selectedClass: Node;
     selectedItem: Node;
@@ -83,9 +83,9 @@ export default class AnnotationEditView extends BaseAnnotationView {
             this.model = getAnonymousTextQuoteSelector(this.range);
         }
 
-        this.modelIsAnnotion = isType(this.model, oa.Annotation);
+        this.modelIsAnnotation = isType(this.model, oa.Annotation);
 
-        if (this.modelIsAnnotion) {
+        if (this.modelIsAnnotation) {
             this.listenTo(this, 'source', this.processSource);
             this.listenTo(this, 'body:ontologyClass', this.processClass)
             this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
@@ -103,11 +103,9 @@ export default class AnnotationEditView extends BaseAnnotationView {
     processModel(node: Node): this {
         super.processAnnotation(node);
 
-        if (isType(node, oa.Annotation)) {
-            this.metadataView = new ItemMetadataView({ model: this.model });
-            this.metadataView.render();
-            this.initClassPicker();
-        }
+        this.metadataView = new ItemMetadataView({ model: this.model });
+        this.metadataView.render();
+        this.initClassPicker();
 
         const creator = this.model.get(dcterms.creator)[0] as Node;
         const currentUser = ldChannel.request('current-user-uri');
@@ -129,7 +127,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
         });
         this.snippetView.render();
 
-        if (!this.modelIsAnnotion) this.initClassPicker();
+        if (!this.modelIsAnnotation) this.initClassPicker();
         return this;
     }
 
