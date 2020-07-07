@@ -2,7 +2,8 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
 import Model from '../core/model';
-import { oa, rdf, skos } from '../jsonld/ns';
+import ldChannel from '../jsonld/radio';
+import { oa, rdf, skos, dcterms } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
 
@@ -58,6 +59,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
     classPicker: ClassPickerView;
     snippetView: SnippetView;
     modelIsAnnotion: boolean;
+    userIsOwner: boolean;
     selectedClass: Node;
     selectedItem: Node;
     itemPicker: PickerView;
@@ -106,6 +108,10 @@ export default class AnnotationEditView extends BaseAnnotationView {
             this.metadataView.render();
             this.initClassPicker();
         }
+
+        const creator = this.model.get(dcterms.creator)[0] as Node;
+        const currentUser = ldChannel.request('current-user-uri');
+        if (creator.id === currentUser) this.userIsOwner = true;
 
         return this;
     }

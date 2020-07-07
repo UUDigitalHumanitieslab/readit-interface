@@ -63,6 +63,9 @@
         </section> --}}
     </div>
     <div class="panel-footer">
+        {{#userIsOwner}}<button type=button class="button is-danger">
+            Delete
+        </button>{{/userIsOwner}}
         <button class="button btn-save submit" type=submit>Save</button>
         <button type=reset class="button btn-cancel is-primary">Cancel</button>
     </div>
