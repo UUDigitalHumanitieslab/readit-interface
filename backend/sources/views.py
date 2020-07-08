@@ -99,8 +99,8 @@ class AddSource(RDFResourceView):
     parser_classes = [MultiPartParser]
 
     def store(self, source_file, destination_file):
-        with open(destination_file, 'w+') as destination:
-            destination.write(html.escape(str(source_file.read())))
+        with open(destination_file, 'w+', encoding='utf8') as destination:
+            destination.write(html.escape(source_file.read().decode('utf8')))
 
     def is_valid(self, data):
         is_valid = True
