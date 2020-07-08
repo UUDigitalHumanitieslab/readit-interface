@@ -16,6 +16,8 @@ import EventController from './explorer-event-controller';
 import { animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
 import fastTimeout from '../utilities/fastTimeout';
 
+const scrollFudge = 100;
+
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?
     first: View;
@@ -79,9 +81,9 @@ export default class ExplorerView extends View {
         const stackLeft = stack.getLeftBorderOffset();
         const stackRight = stack.getRightBorderOffset();
         let scrollTarget;
-        if (stackRight < thisLeft) {
+        if (stackRight - thisLeft < scrollFudge) {
             scrollTarget = stackLeft;
-        } else if (stackLeft > thisRight) {
+        } else if (thisRight - stackLeft < scrollFudge) {
             scrollTarget = stackRight - $(window).width();
         } else {
             if (callback) fastTimeout(callback);
