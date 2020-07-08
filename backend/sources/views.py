@@ -14,11 +14,10 @@ from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.reverse import reverse
 
 from rdflib import Graph, URIRef, Literal
-from rdflib_django.utils import get_conjunctive_graph
 
 from rdf.ns import *
 from rdf.views import RDFView, RDFResourceView
-from rdf.utils import graph_from_triples, prune_triples_cascade
+from rdf.utils import graph_from_triples, prune_triples_cascade, get_conjunctive_graph
 from vocab import namespace as vocab
 from staff.utils import submission_info
 from items.graph import graph as items_graph
