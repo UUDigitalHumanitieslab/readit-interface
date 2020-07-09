@@ -50,8 +50,6 @@ export default class ExplorerEventController {
         panel.on({
             'sourceview:showAnnotations': graph => defer(this.sourceViewShowAnnotations.bind(this), graph),
             'sourceview:hideAnnotations': this.sourceViewHideAnnotations,
-            'sourceView:enlarge': this.sourceViewEnlarge,
-            'sourceView:shrink': this.sourceViewShrink,
             'sourceview:textSelected': this.sourceViewOnTextSelected,
             'annotationList:showAnnotation': this.openAnnotationPanel,
             'annotationList:hideAnnotation': this.closeAnnotationPanel,
@@ -132,7 +130,7 @@ export default class ExplorerEventController {
             return;
         }
 
-        this.explorerView.popUntil(view).push(new RelatedItemsView({ 
+        this.explorerView.popUntil(view).push(new RelatedItemsView({
             model: item,
         }));
         return this;
@@ -165,7 +163,7 @@ export default class ExplorerEventController {
             alert('no external resources!');
             return;
         }
-        this.explorerView.popUntil(view).push(new ExternalResourcesView({ 
+        this.explorerView.popUntil(view).push(new ExternalResourcesView({
             model: item,
         }));
         return this;
@@ -236,16 +234,6 @@ export default class ExplorerEventController {
     closeAnnotationPanel(listView: AnnotationListView, annotation: FlatModel): void {
         this.mapAnnotationListAnnotationDetail.delete(listView);
         this.explorerView.popUntil(listView);
-    }
-
-    sourceViewEnlarge(sourceView: View): this {
-        this.explorerView.popUntil(sourceView);
-        this.notImplemented();
-        return this;
-    }
-
-    sourceViewShrink(sourceView: View): this {
-        return this;
     }
 
     sourceViewShowAnnotations(sourceView: SourceView): this {

@@ -265,15 +265,6 @@ class SourcePanel extends CompositeView {
         return this;
     }
 
-    toggleViewMode(): this {
-        // TODO: update when full screen modal is implemented
-        if (this.isInFullScreenViewMode) this.trigger('sourceView:shrink', this);
-        else this.trigger('sourceView:enlarge', this);
-        this.isInFullScreenViewMode = !this.isInFullScreenViewMode;
-        this.toggleToolbarItemSelected('viewmode');
-        return this;
-    }
-
     toggleHighlightMode(): this {
         this.isInHighlightClickingMode = !this.isInHighlightClickingMode;
         return this;
@@ -292,6 +283,5 @@ extend(SourcePanel.prototype, ToggleMixin.prototype, {
     events: {
         'click .toolbar-metadata': 'toggleMetadata',
         'click .toolbar-annotations': 'toggleHighlights',
-        'click .toolbar-viewmode': 'toggleViewMode',
     }
 });

@@ -1,3 +1,5 @@
+@import highlight
+
 .source
     .source-content
         height: 100%
@@ -38,3 +40,8 @@
         height: 100%
         overflow: auto
         padding: 0 50px
+
+    .modal pre
+        @extend %textWrapper
+        // exact same width as highlightable text in source panel
+        width: calc(.99 * 411px)
