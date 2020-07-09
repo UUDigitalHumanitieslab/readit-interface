@@ -22,4 +22,7 @@ from scripts.deanonymize_snapshots import deanonymize
 
 def move():
     deanonymize()
-    settings.RDFLIB_STORE.addN(get_conjunctive_graph().quads())
+    cg = get_conjunctive_graph()
+    store = settings.RDFLIB_STORE
+    for predicate in cg.predicates():
+        store.addN(cg.quads((None, predicate, None)))
