@@ -5,8 +5,10 @@ defusedxml<0.6.0
 django-livereload-server
 django-proxy
 django-cors-headers
--e git+https://github.com/UUDigitalHumanitieslab/rdflib-django3@store-triples-context-fix#egg=rdflib-django3
+rdflib-django3
 rdflib-jsonld
+sparqlwrapper
+keepalive
 psycopg2 --no-binary psycopg2
 pytest
 pytest-django

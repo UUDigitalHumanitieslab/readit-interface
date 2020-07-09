@@ -62,8 +62,11 @@
             </article>
         </section> --}}
     </div>
-    <div class="panel-footer">
-        <button class="button btn-save submit" type="submit">Save</button>
-        <button class="button btn-cancel is-primary">Cancel</button>
+    <div class="panel-footer buttons is-right">
+        {{#userIsOwner}}<button type=button class="button is-danger">
+            Delete
+        </button>{{/userIsOwner}}
+        <button class="button btn-save submit" type=submit>Save</button>
+        <button type=reset class="button btn-cancel is-primary">Cancel</button>
     </div>
 </form>

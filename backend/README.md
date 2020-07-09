@@ -2,10 +2,11 @@
 
 Public interface for READ-IT
 
-This is a server side web application based on [Django][1] and [Django REST framework][2] (DRF). Its primary purpose is to provide a JSON API with authentication and authorization, in order to support a separate frontend application.
+This is a server side web application based on [Django][1], [Django REST framework][2] (DRF) and [RDF][rdf]. Its primary purpose is to provide a JSON API with authentication and authorization, in order to support a separate frontend application.
 
 [1]: https://www.djangoproject.com
 [2]: https://www.django-rest-framework.org
+[rdf]: https://www.w3.org/TR/rdf11-primer/
 
 
 ## Before you start
@@ -15,10 +16,49 @@ You need to install the following software:
  - PostgreSQL >= 9.3, client, server and C libraries
  - Python >= 3.4, <= 3.6
  - virtualenv
+ - [Apache Jena Fuseki][fuseki] (see [notes](#notes-for-setting-up-fuseki) below) (requires Java)
  - WSGI-compatible webserver (deployment only)
  - [Visual C++ for Python][14] (Windows only)
 
 [14]: https://wiki.python.org/moin/WindowsCompilers
+[fuseki]: https://jena.apache.org/documentation/fuseki2/
+
+
+### Notes for setting up Fuseki
+
+The development settings included with this application assume that you have a Fuseki server running on port 3030 (the default) and that it hosts a dataset under the name `/readit`. The following steps suffice to make this true.
+
+After downloading and extracting the [Fuseki binary distribution tarball][jena-download], `cd` into the extracted directory with the terminal. The following command will start an appropriate Fuseki server as a foreground process.
+
+    ./fuseki-server --loc=/absolute/path/to/datadir --update --localhost /readit
+
+You can set `/absolute/path/to/datadir` to any directory of your choosing, as long as the Fuseki process has read and write access to it. You likely want to create a new directory for this purpose.
+
+While the Fuseki server is running, you can access its web interface at http://localhost:3030. This lets you upload and download data, try out queries and review statistics about the dataset. The server can be stopped by typing `ctrl-c`.
+
+If you are new to Fuseki but not to READ-IT, i.e., you have previously deployed READ-IT version 0.4.0 or older, or done local development work on any commit that did not descend from `0063b21`, then you should also read the following section about migrating your triples from the rdflib-django store to Fuseki.
+
+[jena-download]: https://jena.apache.org/download/
+
+
+### Migrating triples from rdflib-django to Fuseki
+
+*If you are setting up the READ-IT backend anew, you can skip this section.*
+
+To copy pre-existing triples from the rdflib-django store to Fuseki, only a few commands are needed. Ensure that Fuseki is running and that your virtualenv is activated before you start.
+
+First, open the interactive Django shell, for example with the following command.
+
+```sh
+$ python manage.py shell
+```
+
+In the interactive console, just two lines will do the trick:
+
+```py
+>>> from scripts.move_to_sparqlstore import move
+>>> move()
+```
 
 
 ## How it works
@@ -37,6 +77,12 @@ As in any Django application, you may add an arbitrary number of "application" (
 
 Unittest modules live directly next to the module they belong to. Each directory may contain a `conftest.py` with test fixtures available to all tests in the directory.
 
+Data are stored in two places. The RDF triplestore contains the data of primary interest, i.e., sources, annotations and supporting concepts. The RDF data are segmented in several graphs, each represented by a separate Django application. The relational database takes care of user profiles, privileges and other bits of administration.
+
+Each type of storage has its own way of describing the data model and of performing migrations. RDF is inherently self-describing, so the datamodel is stored alongside the data. Changes in the datamodel are performed using the `rdfmigrate` management command, which is implemented in our own `rdf` package.
+
+The relational database follows the Django ORM conventions and can be migrated using the standard `migrate` command. The user list is however also exposed in RDF format, as if the users were stored in the triplestore. This facilitates linking annotations to users in RDF data.
+
 
 ## Development
 
@@ -53,6 +99,7 @@ $ psql -f create_db.sql
 $ pip install pip-tools
 $ pip install -r requirements.txt
 $ python manage.py migrate
+$ python manage.py rdfmigrate
 $ python manage.py createsuperuser
 ```
 

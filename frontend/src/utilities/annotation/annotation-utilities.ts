@@ -38,7 +38,7 @@ export function getPositionDetails(selector: Node): AnnotationPositionDetails {
  * when deleting or adding the annotation from/to a Graph. Will not include the
  * annotation itself.
  */
-export function getLinkedItems(annotation: Node): Node[] {
+export function getTargetDetails(annotation: Node): Node[] {
     validateType(annotation);
     let specificResource = getSpecificResource(annotation);
     let textQuoteSelector = getSelector(annotation, oa.TextQuoteSelector);

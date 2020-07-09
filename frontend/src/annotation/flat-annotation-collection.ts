@@ -178,7 +178,12 @@ export default class FlatAnnotationCollection extends Collection<FlatAnnotation>
     proxyRemove(node: Node): void {
         // Find any flat representation of `node` and remove it. This might be a
         // no-op.
-        this.remove(node.id);
+        const flat = this.get(node.id);
+        if (flat) {
+            // A removed annotation cannot be in focus, so blur it first.
+            flat.trigger('blur', flat);
+            this.remove(flat);
+        }
         // If the previous step was a no-op, we might still be listening for the
         // `'change:@type'` event on `node` because of `flatten`. The next line
         // ensures that a flat representation of `node` will not sneak into our

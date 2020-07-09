@@ -1,0 +1,24 @@
+<div class="panel-header">
+    <header>
+        <h3 class="title is-3">External resources</h3>
+    </header>
+</div>
+<div class="panel-content external">
+    {{#each externalResources}}
+        <h4>{{this.label}}</h4>
+        {{#each this.urls}}
+            <a href="{{this}}" target="_blank" rel="noopener noreferrer">
+                {{this}}
+            </a>
+            <br>
+        {{/each}}
+    {{/each}}
+</div>
+<div class="panel-footer field is-grouped is-grouped-right">
+    <div class="control">
+        <button
+            type=button
+            class="button btn-edit"
+        >Edit</button>
+    </div>
+</div>

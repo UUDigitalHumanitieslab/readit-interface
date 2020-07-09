@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -33,6 +35,12 @@ RDF_NAMESPACE_ROOT = 'http://{}:8000/'.format(RDF_NAMESPACE_HOST)
 
 ALLOWED_HOSTS = []
 
+# Default store for our graphs.
+RDFLIB_STORE_PREFIX = 'http://localhost:3030/readit'
+RDFLIB_STORE = SPARQLUpdateStore(
+    queryEndpoint='{}/query'.format(RDFLIB_STORE_PREFIX),
+    update_endpoint='{}/update'.format(RDFLIB_STORE_PREFIX),
+)
 
 # Application definition
 
@@ -58,6 +66,7 @@ INSTALLED_APPS = [
     'vocab',
     'staff',
     'ontology',
+    'nlp_ontology',
     'items',
     'sources',
     'register',
@@ -104,7 +113,7 @@ WSGI_APPLICATION = 'readit.wsgi.application'
 # https://github.com/adamchainz/django-cors-headers
 
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_URLS_REGEX = r'^/((vocab|staff|ontology)|(source|item)/.*)$'
+CORS_URLS_REGEX = r'^/((vocab|staff|ontology|nlp-ontology)|(source|item|nlp-ontology)/.*)$'
 CORS_ALLOW_METHODS = ('GET', 'HEAD', 'OPTIONS')
 
 
@@ -185,3 +194,6 @@ DEFAULT_FROM_EMAIL = "donotreply@read-it.hum.uu.nl"
 
 ACCOUNT_ADAPTER = 'register.allauth.CustomAccountAdapter'
 ACCOUNT_EMAIL_VERIFICATION = "optional"
+
+# Suppress warnings
+SILENCED_SYSTEM_CHECKS = ['urls.W002']

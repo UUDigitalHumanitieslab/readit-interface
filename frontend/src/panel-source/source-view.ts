@@ -15,6 +15,7 @@ import { AnnotationPositionDetails } from '../utilities/annotation/annotation-ut
 
 import HighlightableTextView from './highlightable-text-view';
 import SourceToolbarView from './toolbar/source-toolbar-view';
+import MetadataView from './source-metadata-view';
 import sourceTemplate from './source-template';
 
 export interface ViewOptions extends BaseOpt<Model> {
@@ -52,7 +53,11 @@ class SourcePanel extends CompositeView {
     // view.
     htv: HighlightableTextView;
 
-    // Keep track of visiblility of the highlights.
+    metaView: MetadataView;
+
+    /**
+     * Keep track of visiblility of the highlights;
+     */
     isShowingHighlights: boolean;
 
     // Keep track of visiblility of the metadata.
@@ -68,6 +73,7 @@ class SourcePanel extends CompositeView {
     isInHighlightClickingMode: boolean;
 
     toolbar: SourceToolbarView;
+    sourceContainer: any;
 
     // Method that is repeatedly invoked to track whether we can already safely
     // render highlights. Dynamically generated inside the constructor.
@@ -80,6 +86,9 @@ class SourcePanel extends CompositeView {
         this.toolbar = new SourceToolbarView().render();
         this.isEditable = options.isEditable || false;
         this.isShowingHighlights = options.showHighlightsInitially || false;
+        this.metaView = new MetadataView({
+            model: this.model
+        });
         this.render();
 
         if (this.isShowingHighlights) {
@@ -87,6 +96,8 @@ class SourcePanel extends CompositeView {
         } else {
             this.hideHighlights();
         }
+
+        this.metaView.$el.hide();
 
         // Will be called three times: once when the annotations are complete,
         // once when this view is activated, and once when the text is complete.
@@ -113,6 +124,8 @@ class SourcePanel extends CompositeView {
                 this.model.toJSON()[vocab('fullText')][0]['@id'] as string
             ).then(this._createHtv.bind(this));
         }
+        this.metaView.on('metadata:hide', this.toggleMetadata, this);
+        this.metaView.on('metadata:edit', this.editMetadata, this);
     }
 
     validate() {
@@ -165,6 +178,11 @@ class SourcePanel extends CompositeView {
         if (this.htv) list.push({
             view: this.htv,
             selector: 'highlightable-text-view',
+            method: 'replaceWith',
+        });
+        if (this.metaView) list.push({
+            view: this.metaView,
+            selector: 'metadata-view',
             method: 'replaceWith',
         });
         return list;
@@ -228,24 +246,22 @@ class SourcePanel extends CompositeView {
         return this;
     }
 
+    editMetadata(): this {
+        // TO DO
+        return this;
+    }
+
     toggleMetadata(): this {
         if (this.isShowingMetadata) {
-            this.trigger('sourceview:hideMetadata', this, this.model);
+            this.metaView.$el.hide();
+            this.htv.$el.show();
         } else {
-            this.trigger('sourceview:showMetadata', this, this.model);
+            this.htv.$el.hide();
+            this.metaView.$el.show();
         }
         this.isShowingMetadata = !this.isShowingMetadata;
         this.toggleToolbarItemSelected('metadata');
 
-        return this;
-    }
-
-    toggleViewMode(): this {
-        // TODO: update when full screen modal is implemented
-        if (this.isInFullScreenViewMode) this.trigger('sourceView:shrink', this);
-        else this.trigger('sourceView:enlarge', this);
-        this.isInFullScreenViewMode = !this.isInFullScreenViewMode;
-        this.toggleToolbarItemSelected('viewmode');
         return this;
     }
 
@@ -257,6 +273,7 @@ class SourcePanel extends CompositeView {
     scrollTo(annotation: FlatModel): void {
         this.htv.scrollTo(annotation);
     }
+
 }
 export default SourcePanel;
 
@@ -266,6 +283,5 @@ extend(SourcePanel.prototype, ToggleMixin.prototype, {
     events: {
         'click .toolbar-metadata': 'toggleMetadata',
         'click .toolbar-annotations': 'toggleHighlights',
-        'click .toolbar-viewmode': 'toggleViewMode',
     }
 });

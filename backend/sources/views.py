@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timezone
+import html
 
 from django.http import HttpResponse
 from django.core.files.storage import default_storage
@@ -13,11 +14,10 @@ from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.reverse import reverse
 
 from rdflib import Graph, URIRef, Literal
-from rdflib_django.utils import get_conjunctive_graph
 
 from rdf.ns import *
 from rdf.views import RDFView, RDFResourceView
-from rdf.utils import graph_from_triples, prune_triples_cascade
+from rdf.utils import graph_from_triples, prune_triples_cascade, get_conjunctive_graph
 from vocab import namespace as vocab
 from staff.utils import submission_info
 from items.graph import graph as items_graph
@@ -28,7 +28,13 @@ from .permissions import UploadSourcePermission, DeleteSourcePermission
 
 
 def inject_fulltext(input, inline, request):
-    """ Return a copy of input that has the fulltext for each source. """
+    """
+    Return a copy of graph `input` that has the fulltext for each source.
+
+    If `inline` is true, add a `SCHEMA.text` property with the text verbatim.
+    Otherwise, add a `vocab.fullText` property with a URI that dereferences to
+    the text.
+    """
     subjects = set(input.subjects())
     text_triples = Graph()
     for s in subjects:
@@ -92,10 +98,9 @@ class AddSource(RDFResourceView):
     permission_classes = [IsAuthenticated, UploadSourcePermission]
     parser_classes = [MultiPartParser]
 
-    def store(self, file, destination):
-        with open(destination, 'wb+') as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
+    def store(self, source_file, destination_file):
+        with open(destination_file, 'w+', encoding='utf8') as destination:
+            destination.write(html.escape(source_file.read().decode('utf8')))
 
     def is_valid(self, data):
         is_valid = True
