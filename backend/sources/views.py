@@ -16,6 +16,8 @@ from rest_framework.reverse import reverse
 from rdflib import Graph, URIRef, Literal
 from rdflib_django.utils import get_conjunctive_graph
 
+from elasticsearch import Elasticsearch
+
 from rdf.ns import *
 from rdf.views import RDFView, RDFResourceView
 from rdf.utils import graph_from_triples, prune_triples_cascade
@@ -27,6 +29,7 @@ from .utils import get_media_filename
 from .models import SourcesCounter
 from .permissions import UploadSourcePermission, DeleteSourcePermission
 
+es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
 
 def inject_fulltext(input, inline, request):
     """
@@ -91,17 +94,29 @@ class SourcesAPISingular(RDFResourceView):
 
 def source_fulltext(request, serial):
     """ API endpoint for fetching the full text of a single source. """
-    with default_storage.open(get_media_filename(serial)) as f:
-        return HttpResponse(f, content_type='text/plain; charset=utf-8')
+    print(serial)
+    result = es.search(body={
+        "query" : {
+            "term" : { "id" : serial }
+        }
+    }, index=settings.ES_ALIASNAME, filter_path=['hits.hits._source'])
+    if result:
+        return result['text']
+    return None
 
 
 class AddSource(RDFResourceView):
     permission_classes = [IsAuthenticated, UploadSourcePermission]
     parser_classes = [MultiPartParser]
 
-    def store(self, source_file, destination_file):
-        with open(destination_file, 'w+') as destination:
-            destination.write(html.escape(str(source_file.read())))
+    def store(self, source_file, source_id, source_language):
+        text = html.escape(str(source_file.read()))
+        es.index(settings.ES_ALIASNAME, {
+            'id': source_id,
+            'language': source_language,
+            'text': text,
+            'text_{}'.format(source_language): text
+        })
 
     def is_valid(self, data):
         is_valid = True
@@ -191,11 +206,11 @@ class AddSource(RDFResourceView):
         counter = SourcesCounter.current
         counter.increment()
         new_subject = URIRef(str(counter))
+        print(str(counter))
 
-        # store the file
-        destination = os.path.join(settings.MEDIA_ROOT, get_media_filename(
-            get_serial_from_subject(new_subject)))
-        self.store(data['source'], destination)
+        # store the file in ES index
+        language = data['language']
+        self.store(data['source'], str(counter), language)
 
         # TODO: voor author en editor een instantie van SCHEMA.Person maken? Of iets uit CIDOC/ontologie?
         # create graph
