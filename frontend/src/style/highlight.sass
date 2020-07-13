@@ -1,3 +1,13 @@
+%textWrapper
+    position: relative // required for z-index to work
+    z-index: 2
+    white-space: pre-wrap
+    white-space: -moz-pre-wrap
+    white-space: -o-pre-wrap
+    background-color: unset
+    padding: unset
+    font-family: inherit
+
 .highlightable-text
     word-wrap: break-word
     overflow-y: scroll
@@ -8,14 +18,7 @@
         width: 99%
 
     .textWrapper
-        position: relative // required for z-index to work
-        z-index: 2
-        white-space: pre-wrap
-        white-space: -moz-pre-wrap
-        white-space: -o-pre-wrap
-        background-color: unset
-        padding: unset
-        font-family: inherit
+        @extend %textWrapper
 
     // using this class disables all pointer (i.e. mouse) events on the element.
     // this is useful for allowing mouse events on absolutely positioned elements

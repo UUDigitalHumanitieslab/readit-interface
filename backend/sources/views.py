@@ -14,13 +14,12 @@ from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.reverse import reverse
 
 from rdflib import Graph, URIRef, Literal
-from rdflib_django.utils import get_conjunctive_graph
 
 from elasticsearch import Elasticsearch
 
 from rdf.ns import *
 from rdf.views import RDFView, RDFResourceView
-from rdf.utils import graph_from_triples, prune_triples_cascade
+from rdf.utils import graph_from_triples, prune_triples_cascade, get_conjunctive_graph
 from vocab import namespace as vocab
 from staff.utils import submission_info
 from items.graph import graph as items_graph
@@ -110,7 +109,7 @@ class AddSource(RDFResourceView):
     parser_classes = [MultiPartParser]
 
     def store(self, source_file, source_id, source_language):
-        text = html.escape(str(source_file.read()))
+        text = html.escape(str(source_file.read().decode('utf8')))
         es.index(settings.ES_ALIASNAME, {
             'id': source_id,
             'language': source_language,
