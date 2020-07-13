@@ -24,5 +24,6 @@ def move():
     deanonymize()
     cg = get_conjunctive_graph()
     store = settings.RDFLIB_STORE
-    for predicate in cg.predicates():
+    predicates = set(cg.predicates())
+    for predicate in predicates:
         store.addN(cg.quads((None, predicate, None)))
