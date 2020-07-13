@@ -19,11 +19,23 @@ from rdflib_django.utils import get_conjunctive_graph
 
 from scripts.deanonymize_snapshots import deanonymize
 
+CHUNK_SIZE = 10000
 EXISTS_CHECK = '''ASK {
     GRAPH ?graph {
         ?subject ?predicate ?object
     }
 }'''
+
+
+def chunks(generator):
+    """ Combine and yield the elements from `generator` in sublists. """
+    chunk = [next(generator)]
+    while True:
+        for index, quad in zip(range(CHUNK_SIZE), generator):
+            chunk.append(quad)
+        yield chunk
+        # Next line ensures StopIteration.
+        chunk = [next(generator)]
 
 
 def move():
@@ -36,6 +48,8 @@ def move():
         print('\n{}'.format(predicate))
         if not store.query(EXISTS_CHECK, initBindings={'predicate': predicate}):
             print('Not yet in target store, copying')
-            store.addN(cg.quads((None, predicate, None)))
+            for chunk in chunks(cg.quads((None, predicate, None))):
+                print('Chunk of size {}'.format(len(chunk)))
+                store.addN(chunk)
         else:
             print('Already in target store, skipping')
