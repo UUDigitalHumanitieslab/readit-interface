@@ -19,11 +19,23 @@ from rdflib_django.utils import get_conjunctive_graph
 
 from scripts.deanonymize_snapshots import deanonymize
 
+EXISTS_CHECK = '''ASK {
+    GRAPH ?graph {
+        ?subject ?predicate ?object
+    }
+}'''
+
 
 def move():
     deanonymize()
     cg = get_conjunctive_graph()
     store = settings.RDFLIB_STORE
     predicates = set(cg.predicates())
+    print('Iterating {} predicates'.format(len(predicates)))
     for predicate in predicates:
-        store.addN(cg.quads((None, predicate, None)))
+        print('\n{}'.format(predicate))
+        if not store.query(EXISTS_CHECK, initBindings={'predicate': predicate}):
+            print('Not yet in target store, copying')
+            store.addN(cg.quads((None, predicate, None)))
+        else:
+            print('Already in target store, skipping')
