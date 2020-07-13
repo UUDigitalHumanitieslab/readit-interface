@@ -94,14 +94,14 @@ class SourcesAPISingular(RDFResourceView):
 
 def source_fulltext(request, serial):
     """ API endpoint for fetching the full text of a single source. """
-    print(serial)
     result = es.search(body={
         "query" : {
             "term" : { "id" : serial }
         }
-    }, index=settings.ES_ALIASNAME, filter_path=['hits.hits._source'])
+    }, index=settings.ES_ALIASNAME)
     if result:
-        return result['text']
+        f = result['hits']['hits'][0]['_source']['text']
+        return HttpResponse(f, content_type='text/plain; charset=utf-8')
     return None
 
 
@@ -206,11 +206,10 @@ class AddSource(RDFResourceView):
         counter = SourcesCounter.current
         counter.increment()
         new_subject = URIRef(str(counter))
-        print(str(counter))
 
         # store the file in ES index
         language = data['language']
-        self.store(data['source'], str(counter), language)
+        self.store(data['source'], str(counter).split("/")[-1], language)
 
         # TODO: voor author en editor een instantie van SCHEMA.Person maken? Of iets uit CIDOC/ontologie?
         # create graph
