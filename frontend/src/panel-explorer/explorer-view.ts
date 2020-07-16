@@ -15,6 +15,8 @@ import EventController from './explorer-event-controller';
 import { animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
 import fastTimeout from '../utilities/fastTimeout';
 
+const scrollFudge = 100;
+
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?
     first: View;
@@ -42,6 +44,7 @@ export default class ExplorerView extends View {
         this.stacks = [];
         this.eventController = new EventController(this);
         this.rltPanelStack = {};
+        this.scroll = debounce(this.scroll, 100);
         this.push(options.first);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 500));
@@ -58,13 +61,28 @@ export default class ExplorerView extends View {
     }
 
     /**
-     * Animated scroll to put a stack in focus (i.e. at the right of the screen).
+     * Animated scroll to make a stack visible.
+     * If the stack is not already visible, apply minimal horizontal scroll so
+     * that the stack is just within the viewport. Otherwise, no animation
+     * occurs.
      * By default scrolls to the rightmost stack.
      * @param stack: Optional. The stack to focus on / scroll to.
      */
     scroll(stack?: PanelStackView, callback?: any): this {
         if (!stack) stack = this.getRightMostStack();
-        let scrollTarget = stack.getRightBorderOffset() - $(window).width();
+        const thisLeft = this.$el.scrollLeft();
+        const thisRight = this.getMostRight();
+        const stackLeft = stack.getLeftBorderOffset();
+        const stackRight = stack.getRightBorderOffset();
+        let scrollTarget;
+        if (stackRight - thisLeft < scrollFudge) {
+            scrollTarget = stackLeft;
+        } else if (thisRight - stackLeft < scrollFudge) {
+            scrollTarget = stackRight - $(window).width();
+        } else {
+            if (callback) fastTimeout(callback);
+            return this;
+        }
         animatedScroll(ScrollType.Left, this.$el, scrollTarget, callback);
         return this;
     }
@@ -137,26 +155,10 @@ export default class ExplorerView extends View {
         let poppedPanel = this.getRightMostStack().getTopPanel();
         delete this.rltPanelStack[poppedPanel.cid];
 
-        const deleteAndTrigger = () => {
-            this.deletePanel(position);
-            this.trigger('pop', poppedPanel, position);
-        };
-        if (stack.getLeftBorderOffset() < this.getMostRight() && this.$el.scrollLeft() > 0) {
-            this.scroll(scrollToStack, deleteAndTrigger);
-        }
-        else fastTimeout(deleteAndTrigger);
+        this.scroll(scrollToStack);
+        this.deletePanel(position);
+        this.trigger('pop', poppedPanel, position);
         return poppedPanel;
-    }
-
-    popAsync(): Promise<View> {
-        return new Promise(resolve => {
-            const poppedPanel = this.pop();
-            if (poppedPanel) {
-                this.once('pop', resolve);
-            } else {
-                resolve(poppedPanel);
-            }
-        });
     }
 
     /**
@@ -184,35 +186,13 @@ export default class ExplorerView extends View {
     }
 
     /**
-     * Pop (async, because of scrolling) until `popUntilPanel` is the rightmost panel.
-     * When the scroll is done, push `newPanel`.
-     * @param popUntilPanel Pop until this panel is the rightmost panel
-     * @param newPanel Either a panel or a function that returns a panel. If the latter,
-     * the function will be called after all the `pop`s are completed.
-     */
-    popUntilAndPush(popUntilPanel: View, newPanel: View | (() => View)) : this {
-        this.popUntilAsync(popUntilPanel).then(() => {
-            if (isFunction(newPanel)) newPanel = (newPanel as () => View)();
-            this.push(newPanel as View);
-        });
-        return this;
-    }
-
-    /**
-    * Returns `this` immediately, but the actual `pop`s are performed async. If
-    * you need to do anything AFTER the last pop, listen once for the
-    * `pop:until` event or use `popUntilAsync` instead.
+    * Repeatedly call `this.pop()` until `panel` is the rightmost panel.
     * @param panel The panel that needs to become rightmost.
     */
     popUntil(panel: View): this {
-        this.popUntilAsync(panel);
-        return this;
-    }
-
-    async popUntilAsync(panel: View): Promise<this> {
         let i = 0;
         while (this.getRightMostStack().getTopPanel().cid !== panel.cid && i < 1000) {
-            await this.popAsync();
+            this.pop();
             i++;
         }
         if (i === 999) {
