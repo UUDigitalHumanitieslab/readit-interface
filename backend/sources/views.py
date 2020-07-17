@@ -24,7 +24,7 @@ from vocab import namespace as vocab
 from staff.utils import submission_info
 from items.graph import graph as items_graph
 from .graph import graph as sources_graph
-from .utils import get_media_filename
+from .utils import get_media_filename, get_serial_from_subject
 from .models import SourcesCounter
 from .permissions import UploadSourcePermission, DeleteSourcePermission
 
@@ -52,10 +52,6 @@ def inject_fulltext(input, inline, request):
                 request=request,
             ))))
     return input + text_triples
-
-
-def get_serial_from_subject(subject):
-    return str(subject).split('/')[-1]
 
 
 class SourcesAPIRoot(RDFView):
@@ -101,7 +97,7 @@ def source_fulltext(request, serial):
     if result:
         f = result['hits']['hits'][0]['_source']['text']
         return HttpResponse(f, content_type='text/plain; charset=utf-8')
-    return None
+    return Response(status=HTTP_404_NOT_FOUND)
 
 
 class AddSource(RDFResourceView):
@@ -208,7 +204,7 @@ class AddSource(RDFResourceView):
 
         # store the file in ES index
         language = data['language']
-        self.store(data['source'], str(counter).split("/")[-1], language)
+        self.store(data['source'], get_serial_from_subject(new_subject), language)
 
         # TODO: voor author en editor een instantie van SCHEMA.Person maken? Of iets uit CIDOC/ontologie?
         # create graph
