@@ -30,9 +30,15 @@ else:
 
 sys.modules[settings_name] = settings
 
-from settings import *
+TESTRUNNER_FILE_PATH = 'specRunner.html'
+
+import settings
+
+settings.TESTRUNNER_FILE_PATH = TESTRUNNER_FILE_PATH
 
 # Next, augment the settings to make the backend aware of the frontend.
+
+from settings import *
 
 STATICFILES_DIRS += [
     op.join(here, 'frontend', 'dist'),
