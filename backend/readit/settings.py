@@ -182,7 +182,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = []
 
 INDEX_FILE_PATH = 'index.html'
-TESTRUNNER_FILE_PATH = ''
+TESTRUNNER_FILE_PATH = '' # override in order to enable an external test runner
 
 
 # Uploads
