@@ -7,7 +7,8 @@ from django.conf import settings
 def html_view(filename):
     """ Return a view function that loads `filename` from the static files. """
     def fetch_html(request):
-        return HttpResponse(content=open(finders.find(filename)))
+        with open(finders.find(filename)) as html_file:
+            return HttpResponse(content=html_file)
     return fetch_html
 
 
