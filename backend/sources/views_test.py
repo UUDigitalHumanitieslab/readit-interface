@@ -25,5 +25,5 @@ def test_delete_source(auth_client, credentials):
     sources = graph()
     sources.add(test_triple)
     response = auth_client.delete('/source/1')
-    assert response.status_code == 200
+    assert response.status_code == 204
     assert test_triple not in sources
