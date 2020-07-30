@@ -81,10 +81,10 @@ class SourcesAPISingular(RDFResourceView):
         if len(existing) == 0:
             raise NotFound('Source \'{}\' not found'.format(source_uri))
         conjunctive = get_conjunctive_graph()
-        prune_triples_cascade(conjunctive, existing, [sources_graph])
+        prune_triples_cascade(conjunctive, existing, [sources_graph()])
         annotations = conjunctive.triples((None, OA.hasSource, URIRef(source_uri)))
         for s, p, o in annotations:
-            prune_triples_cascade(conjunctive, ((s, p, o),), [items_graph])
+            prune_triples_cascade(conjunctive, ((s, p, o),), [items_graph()])
         return Response(existing)
 
 
