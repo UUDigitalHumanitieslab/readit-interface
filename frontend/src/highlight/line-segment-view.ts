@@ -9,7 +9,18 @@ class ColorBand extends View {
     initialize({ model }): void {
         this.$el.addClass(model.get('cssClass'));
     }
+
+    onTypeChanged(): this {
+        console.log("changed annotation type");
+        return this;
+    }
 }
+
+// extend(ColorBand.prototype, {
+//     events: {
+//         'change': 'onTypeChanged',
+//     }
+// });
 
 /**
  * As the name implies, a line segment is a segment of a line of text, i.e.,
