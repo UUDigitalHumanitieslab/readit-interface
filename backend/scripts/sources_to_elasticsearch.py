@@ -13,10 +13,11 @@ if __name__ == '__main__':
     print(__doc__)
     sys.exit()
 
+from os import environ
 from os.path import isfile, join
 import html
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'readit.settings')
+environ.setdefault('DJANGO_SETTINGS_MODULE', 'readit.settings')
 from django.conf import settings
 from django.core.files.storage import default_storage
 from elasticsearch import Elasticsearch
@@ -32,6 +33,13 @@ def text_to_index():
     subjects = set(sources_graph().subjects())
     for s in subjects:
         serial = get_serial_from_subject(s)
+        result = es.search(body={
+            "query" : {
+                "term" : { "id" : serial }
+            }
+        }, index=settings.ES_ALIASNAME)
+        if result['hits']['total']['value'] > 0:
+            continue
         filename = join(settings.MEDIA_ROOT, get_media_filename(serial))
         if not isfile(filename):
             continue

@@ -5,6 +5,7 @@ defusedxml<0.6.0
 django-livereload-server
 django-proxy
 django-cors-headers
+elasticesarch
 rdflib-django3
 rdflib-jsonld
 sparqlwrapper
