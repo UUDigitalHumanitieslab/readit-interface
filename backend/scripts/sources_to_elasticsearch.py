@@ -47,7 +47,6 @@ def text_to_index():
         })
 
 
-
 def resolve_language(input_language):
         known_languages = {
             ISO6391.en: 'en',

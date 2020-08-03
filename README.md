@@ -11,6 +11,7 @@ You need to install the following software:
  - Python >= 3.4, <= 3.6
  - virtualenv
  - [Apache Jena Fuseki][fuseki] (see [notes in the backend README](backend/README.md#notes-for-setting-up-fuseki))
+ - Elasticsearch 7 (see [notes in the backend README](backend/README.md#setting-up-elasticsearch)))
  - WSGI-compatible webserver (deployment only)
  - [Visual C++ for Python][1] (Windows only)
  - Node.js >= 8
