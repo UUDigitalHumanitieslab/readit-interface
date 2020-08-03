@@ -17,6 +17,7 @@ You need to install the following software:
  - Python >= 3.4, <= 3.6
  - virtualenv
  - [Apache Jena Fuseki][fuseki] (see [notes](#notes-for-setting-up-fuseki) below) (requires Java)
+ -  - Elasticsearch 7 (see [notes](backend/README.md#setting-up-elasticsearch) below), (requires Java)
  - WSGI-compatible webserver (deployment only)
  - [Visual C++ for Python][14] (Windows only)
 
@@ -68,7 +69,7 @@ Note: The following commands include localhost:9200. Omit everything until the f
 
 
 From Kibana, Postman, curl, or similar, create an index `readit-1` with the following mapping:
-```
+```json
 PUT localhost:9200/readit-1
 {
   "mappings": {
@@ -98,7 +99,7 @@ PUT localhost:9200/readit-1
 ```
 
 Also add an alias named `readit`, like so:
-```
+```json
 POST localhost:9200/_aliases
 {
     "actions" : [
@@ -113,7 +114,7 @@ Indexing and reading will be performed via the alias `readit`, which is set in `
 
 #### Run the conversion script
 If you have sources in the `media/sources` folder, you can add them to the Elasticsearch index with a conversion script as follows:
-```
+```py
 >>> from scripts.sources_to_elasticsearch import text_to_index
 >>> text_to_index()
 ```
