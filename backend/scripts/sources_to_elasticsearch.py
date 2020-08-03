@@ -35,7 +35,6 @@ def text_to_index():
         filename = join(settings.MEDIA_ROOT, get_media_filename(serial))
         if not isfile(filename):
             continue
-        print(filename)
         triples = list(sources_graph().triples((s, lang_predicate, None)))
         language = resolve_language(triples[0][2])
         with open(filename, 'rb') as f:
