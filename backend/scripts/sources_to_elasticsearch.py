@@ -45,8 +45,8 @@ def text_to_index():
             continue
         triples = list(sources_graph().triples((s, lang_predicate, None)))
         language = resolve_language(triples[0][2])
-        with open(filename, 'rb') as f:
-            text = html.escape(str(f.read().decode('utf8')))
+        with open(filename, 'r', encoding='utf8') as f:
+            text = f.read()
         es.index(settings.ES_ALIASNAME, {
             'id': serial,
             'language': language,
