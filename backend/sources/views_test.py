@@ -6,7 +6,7 @@ from . import namespace as my
 from .graph import graph
 
 
-def test_delete_source_unauthorized(auth_client):
+def test_delete_source_unauthorized(auth_client, sparqlstore):
     test_triple = (my['1'], OWL.sameAs, my['1'])
     sources = graph()
     sources.add(test_triple)
@@ -15,7 +15,7 @@ def test_delete_source_unauthorized(auth_client):
     assert test_triple in sources
 
 
-def test_delete_source(auth_client, credentials):
+def test_delete_source(auth_client, credentials, sparqlstore):
     name, pwd = credentials
     User = get_user_model()
     user = User.objects.get(username=name)

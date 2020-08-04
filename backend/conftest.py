@@ -1,5 +1,13 @@
 import pytest
 
+HAS_TRIPLES = '''
+ASK {
+    GRAPH ?g {
+        ?s ?p ?o
+    }
+}
+'''
+
 
 @pytest.fixture
 def credentials():
@@ -14,3 +22,11 @@ def auth_client(client, django_user_model, credentials):
     yield client
     client.logout()
     django_user_model.objects.get(username=username).delete()
+
+
+@pytest.fixture
+def sparqlstore(settings):
+    store = settings.RDFLIB_STORE
+    assert not store.query(HAS_TRIPLES)
+    yield store
+    store.update('CLEAR ALL')
