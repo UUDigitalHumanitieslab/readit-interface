@@ -43,10 +43,10 @@ def text_to_index():
         filename = join(settings.MEDIA_ROOT, get_media_filename(serial))
         if not isfile(filename):
             continue
-        triples = list(sources_graph().triples((s, lang_predicate, None)))
-        language = resolve_language(triples[0][2])
-        with open(filename, 'rb') as f:
-            text = html.escape(str(f.read().decode('utf8')))
+        _, _, language_object = list(sources_graph().triples((s, lang_predicate, None)))[0]
+        language = resolve_language(language_object)
+        with open(filename, 'r', encoding='utf8') as f:
+            text = f.read()
         es.index(settings.ES_ALIASNAME, {
             'id': serial,
             'language': language,
@@ -67,4 +67,3 @@ def resolve_language(input_language):
             return result
         else:
             return 'other'
-
