@@ -98,20 +98,23 @@ class SPARQLQueryAPIView(APIView):
         ''' Attempt to query a graph with a SPARQL-Query string
             Sets query type on succes
         '''
+        graph = self.graph()
         try:
             if not querystring:
-                query_results = self.graph()
+                query_results = graph
                 query_type = 'EMPTY'
             else:
-                query_results = self.graph().query(querystring)
+                query_results = graph.query(querystring)
                 query_type = query_results.type
             self.request.data['query_type'] = query_type
             return query_results
 
         except (ParseException, QueryBadFormed) as p_e:
             # Raised when SPARQL syntax is not valid, or parsing fails
+            graph.rollback()
             raise ParseSPARQLError(p_e)
         except Exception as n_e:
+            graph.rollback()
             raise APIException(n_e)
 
     def get(self, request, **kwargs):
