@@ -1,8 +1,6 @@
 from django.http.response import HttpResponseBase
 from pyparsing import ParseException
 from rdflib import BNode, Literal
-from rest_framework.authentication import (BasicAuthentication,
-                                           SessionAuthentication)
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -143,7 +141,6 @@ class SPARQLQueryAPIView(APIView):
 
 class NlpOntologyQueryView(SPARQLQueryAPIView):
     """ Query the NLP ontology through SPARQL-Query """
-    # authentication_classes = (SessionAuthentication, BasicAuthentication)
 
     def graph(self):
         return graph()
@@ -152,7 +149,6 @@ class NlpOntologyQueryView(SPARQLQueryAPIView):
 class NlpOntologyUpdateView(SPARQLUpdateAPIView):
     """ Update the NLP ontology through SPARQL-Update """
     permission_classes = (SPARQLPermission,)
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
 
     def graph(self):
         return graph()
