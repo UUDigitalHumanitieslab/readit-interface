@@ -46,8 +46,8 @@ DELETE {{
     GRAPH <{0}> {{
         ?source ?a ?b
     }}
-    GRAPH <{1}> {{
-        OPTIONAL {{
+    OPTIONAL {{
+        GRAPH <{1}> {{
             ?annotation oa:hasTarget ?target;
                         ?c ?d.
             ?target oa:hasSource ?source;
