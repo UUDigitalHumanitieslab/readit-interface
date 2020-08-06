@@ -19,8 +19,9 @@ class ColorBand extends View {
         if (this.setClass !== currentClass) {
             this.$el.removeClass(this.setClass);
             this.setClass = currentClass;
-            this.$el.addClass(this.setClass);
+            this.$el.addClass(currentClass);
         }
+        this.model.trigger('focus', this.model);
         return this;
     }
 }
