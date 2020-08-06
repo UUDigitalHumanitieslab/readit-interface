@@ -36,6 +36,8 @@ You can set `/absolute/path/to/datadir` to any directory of your choosing, as lo
 
 While the Fuseki server is running, you can access its web interface at http://localhost:3030. This lets you upload and download data, try out queries and review statistics about the dataset. The server can be stopped by typing `ctrl-c`.
 
+In order to support the unittests, visit the Fuseki web interface and create an additional dataset by the name `readit-test`.
+
 If you are new to Fuseki but not to READ-IT, i.e., you have previously deployed READ-IT version 0.4.0 or older, or done local development work on any commit that did not descend from `0063b21`, then you should also read the following section about migrating your triples from the rdflib-django store to Fuseki.
 
 [jena-download]: https://jena.apache.org/download/
