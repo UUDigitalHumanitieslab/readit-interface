@@ -6,21 +6,24 @@ import View, { CollectionView } from '../core/view';
  * A line segment has a colored band for each associated annotation.
  */
 class ColorBand extends View {
+    setClass: string;
+
     initialize({ model }): void {
-        this.$el.addClass(model.get('cssClass'));
+        this.setClass = model.get('cssClass');
+        this.$el.addClass(this.setClass);
+        this.listenTo(model, 'change', this.onLabelChanged);
     }
 
-    onTypeChanged(): this {
-        console.log("changed annotation type");
+    onLabelChanged(): this {
+        let currentClass = this.model.get('cssClass');
+        if (this.setClass !== currentClass) {
+            this.$el.removeClass(this.setClass);
+            this.setClass = currentClass;
+            this.$el.addClass(this.setClass);
+        }
         return this;
     }
 }
-
-// extend(ColorBand.prototype, {
-//     events: {
-//         'change': 'onTypeChanged',
-//     }
-// });
 
 /**
  * As the name implies, a line segment is a segment of a line of text, i.e.,
