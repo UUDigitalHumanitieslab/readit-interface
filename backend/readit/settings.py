@@ -181,6 +181,9 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = []
 
+INDEX_FILE_PATH = 'index.html'
+TESTRUNNER_FILE_PATH = '' # override in order to enable an external test runner
+
 
 # Uploads
 # https://docs.djangoproject.com/en/2.2/topics/files/
@@ -197,3 +200,7 @@ ACCOUNT_EMAIL_VERIFICATION = "optional"
 
 # Suppress warnings
 SILENCED_SYSTEM_CHECKS = ['urls.W002']
+
+ES_HOST = "localhost"
+ES_PORT = "9200"
+ES_ALIASNAME = "readit"

@@ -1,4 +1,3 @@
-import rdflib.plugins.sparql as rdf_sparql
 from django.http.response import HttpResponseBase
 from pyparsing import ParseException
 from rdflib import BNode, Literal
@@ -7,6 +6,7 @@ from rest_framework.authentication import (BasicAuthentication,
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from SPARQLWrapper.SPARQLExceptions import QueryBadFormed
 
 from rdf.ns import HTTP, HTTPSC, RDF
 from rdf.renderers import TurtleRenderer
@@ -26,12 +26,15 @@ class SPARQLUpdateAPIView(APIView):
         return turtle_exception_handler
 
     def execute_update(self, updatestring):
+        graph = self.graph()
         try:
-            return self.graph().update(updatestring)
-        except ParseException as p_e:
+            return graph.update(updatestring)
+        except (ParseException, QueryBadFormed) as p_e:
             # Raised when SPARQL syntax is not valid, or parsing fails
+            graph.rollback()
             raise ParseSPARQLError(p_e)
         except Exception as e:
+            graph.rollback()
             raise APIException(e)
 
     def post(self, request, **kwargs):
