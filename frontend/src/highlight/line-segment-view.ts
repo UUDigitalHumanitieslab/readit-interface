@@ -9,20 +9,14 @@ class ColorBand extends View {
     setClass: string;
 
     initialize({ model }): void {
-        this.setClass = model.get('cssClass');
-        this.$el.addClass(this.setClass);
-        this.listenTo(model, 'change', this.onLabelChanged);
+        this.$el.addClass(model.get('cssClass'));
+        this.listenTo(model, 'change:cssClass', this.onLabelChanged);
     }
 
-    onLabelChanged(): this {
-        let currentClass = this.model.get('cssClass');
-        if (this.setClass !== currentClass) {
-            this.$el.removeClass(this.setClass);
-            this.setClass = currentClass;
-            this.$el.addClass(currentClass);
-        }
-        this.model.trigger('focus', this.model);
-        return this;
+    onLabelChanged(model, newCssClass): void {
+        this.$el.removeClass(model.previous('cssClass'));
+        this.$el.addClass(newCssClass);
+        model.trigger('focus', model);
     }
 }
 
