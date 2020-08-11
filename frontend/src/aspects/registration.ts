@@ -34,3 +34,7 @@ user.on('confirm-registration:notfound', () => {
 user.on('confirm-registration:error', (response) => {
     confirmRegistrationView.error(response)
 });
+
+registrationForm.on('register', details => user.register(details));
+
+confirmRegistrationView.on('confirm', key => user.confirmRegistration(key));
