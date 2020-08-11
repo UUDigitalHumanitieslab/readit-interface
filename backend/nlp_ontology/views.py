@@ -110,7 +110,7 @@ class SPARQLQueryAPIView(APIView):
             self.request.data['query_type'] = query_type
             return query_results
 
-        except ParseException as p_e:
+        except (ParseException, QueryBadFormed) as p_e:
             # Raised when SPARQL syntax is not valid, or parsing fails
             raise ParseSPARQLError(p_e)
         except Exception as n_e:
