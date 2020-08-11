@@ -42,23 +42,23 @@ def test_construct(client, test_queries, ontologygraph_db):
     assert response.status_code == 200
 
 
-def test_authorized(admin_client, test_queries):
+def test_authorized(admin_client, test_queries, sparqlstore):
     response = admin_client.post(UPDATE_URL, {'update': test_queries.INSERT})
     assert response.status_code == 200
 
 
-def test_unauthorized(client):
+def test_unauthorized(client, sparqlstore):
     response = client.post(UPDATE_URL)
     assert response.status_code == 403
 
 
-def test_malformed_update(admin_client):
+def test_malformed_update(admin_client, sparqlstore):
     response = admin_client.post(
         UPDATE_URL, {'update': 'this is no SPARQL update!'})
     assert response.status_code == 400
 
 
-def test_malformed_query(admin_client):
+def test_malformed_query(admin_client, sparqlstore):
     response = admin_client.post(
         QUERY_URL, {'query': 'this is no SPARQL query!'})
     assert response.status_code == 400
