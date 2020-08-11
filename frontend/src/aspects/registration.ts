@@ -3,12 +3,12 @@ import confirmRegistrationView from '../global/confirm-registration-view';
 import user from '../global/user';
 import directionRouter from '../global/direction-router';
 import authFsm from '../global/authentication-fsm';
-import directionFsm from '../global/direction-fsm';
+import userFsm from '../global/user-fsm';
 
 directionRouter.on('route:register', () => authFsm.handle('register'));
 directionRouter.on('route:confirm-registration', (key) => {
     confirmRegistrationView.processKey(key);
-    directionFsm.handle('confirm');
+    userFsm.handle('confirm');
 });
 
 authFsm.on('enter:registering', () => {
@@ -17,10 +17,10 @@ authFsm.on('enter:registering', () => {
 authFsm.on('exit:registering', () => {
     registrationForm.$el.detach();
 });
-directionFsm.on('enter:confirming', () => {
+userFsm.on('enter:confirming', () => {
     confirmRegistrationView.render().$el.appendTo('#main');
 });
-directionFsm.on('exit:confirming', () => confirmRegistrationView.$el.detach());
+userFsm.on('exit:confirming', () => confirmRegistrationView.$el.detach());
 
 user.on('registration:success', () => registrationForm.success());
 user.on('registration:error', (response) => registrationForm.error(response));
