@@ -24,9 +24,7 @@ history.once('route', () => {
     uploadSourceForm.setHeight(availableHeight);
 });
 
-mainRouter.on('route:arrive', () => {
-    userFsm.handle('arrive');
-});
+mainRouter.on('route:arrive', () => userFsm.handle('arrive'));
 mainRouter.on('route:upload', () => userFsm.handle('upload'));
 mainRouter.on('route:explore', () => userFsm.handle('explore'));
 mainRouter.on('route:leave', () => userFsm.handle('leave'));
@@ -42,7 +40,6 @@ userFsm.on('exit:uploading', () => {
 });
 userFsm.on('enter:exploring', () => {
     ensureSources();
-    welcomeView.$el.detach();
     explorerView.$el.appendTo('#main');
 });
 userFsm.on('exit:exploring', () => explorerView.$el.detach());
