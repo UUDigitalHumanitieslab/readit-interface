@@ -10,7 +10,7 @@ import user from './global/user';
 import { prefetch } from './global/ld-store';
 import './global/item-cache';
 import './core/scroll-easings';
-import './aspects/readit';
+import './aspects/navigation';
 import './aspects/authentication';
 import './aspects/registration';
 
