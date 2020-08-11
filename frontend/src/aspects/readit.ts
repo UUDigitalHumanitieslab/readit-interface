@@ -7,7 +7,7 @@ import feedbackView from '../global/feedback-view';
 import uploadSourceForm from '../global/upload-source-form';
 import categoryStyles from '../global/category-styles';
 import user from '../global/user';
-import directionRouter from '../global/direction-router';
+import mainRouter from '../global/main-router';
 import userFsm from '../global/user-fsm';
 import { ensureSources } from '../global/sources';
 import explorerView from '../global/explorer-view';
@@ -24,12 +24,12 @@ history.once('route', () => {
     uploadSourceForm.setHeight(availableHeight);
 });
 
-directionRouter.on('route:arrive', () => {
+mainRouter.on('route:arrive', () => {
     userFsm.handle('arrive');
 });
-directionRouter.on('route:upload', () => userFsm.handle('upload'));
-directionRouter.on('route:explore', () => userFsm.handle('explore'));
-directionRouter.on('route:leave', () => userFsm.handle('leave'));
+mainRouter.on('route:upload', () => userFsm.handle('upload'));
+mainRouter.on('route:explore', () => userFsm.handle('explore'));
+mainRouter.on('route:leave', () => userFsm.handle('leave'));
 
 userFsm.on('enter:arriving', () => welcomeView.render().$el.appendTo('#main'));
 userFsm.on('exit:arriving', () => welcomeView.$el.detach());

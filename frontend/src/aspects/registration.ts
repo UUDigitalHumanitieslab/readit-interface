@@ -1,12 +1,12 @@
 import registrationForm from '../global/registration-view';
 import confirmRegistrationView from '../global/confirm-registration-view';
 import user from '../global/user';
-import directionRouter from '../global/direction-router';
+import mainRouter from '../global/main-router';
 import authFsm from '../global/authentication-fsm';
 import userFsm from '../global/user-fsm';
 
-directionRouter.on('route:register', () => authFsm.handle('register'));
-directionRouter.on('route:confirm-registration', (key) => {
+mainRouter.on('route:register', () => authFsm.handle('register'));
+mainRouter.on('route:confirm-registration', (key) => {
     confirmRegistrationView.processKey(key);
     userFsm.handle('confirm');
 });
