@@ -8,8 +8,6 @@ import { schema, iso6391, UNKNOWN } from '../jsonld/ns';
 
 import sourceListTemplate from './source-list-template';
 import SourceLanguageView from './source-language-view';
-import { cpus } from 'os';
-import Collection from '../core/collection';
 
 const languages = ["en", "fr", "de", "other"];
 

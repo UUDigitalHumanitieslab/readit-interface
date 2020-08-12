@@ -5,6 +5,7 @@ import html
 from django.http import HttpResponse
 from django.core.files.storage import default_storage
 from django.conf import settings
+from django.contrib.admin.utils import flatten
 
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -98,6 +99,36 @@ def source_fulltext(request, serial):
         f = result['hits']['hits'][0]['_source']['text']
         return HttpResponse(f, content_type='text/plain; charset=utf-8')
     return Response(status=HTTP_404_NOT_FOUND)
+
+
+def search_sources(request):
+    query = request.GET.get('query')
+    fields = request.GET.get('queryfields')
+    query_string = {"query": query}
+    if fields != 'all':
+        query_string['fields'] = [fields]
+    body = {
+        "query" : {
+            "query_string": query_string
+        },
+        "highlight" : {
+            "fields" : {
+                "text_en" : {},
+                "text_de": {},
+                "text_fr": {},
+                "text_nl": {}
+            }
+        }
+    }
+    results = es.search(body=body, index=settings.ES_ALIASNAME)
+    if results['hits']['total']['value'] == 0:
+        return HttpResponse('no results found')
+    response = [
+        {'id': hit['_source']['id'], 
+        'highlights': flatten([hit['highlight'][key] for key in hit['highlight'].keys()])} 
+        for hit in results['hits']['hits']
+    ]
+    return HttpResponse(response)
 
 
 class AddSource(RDFResourceView):

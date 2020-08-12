@@ -11,7 +11,6 @@ export interface ViewOptions extends BaseOpt<Model> {
 
 export default class WelcomeView extends View {
     searchboxView: View;
-    sources: SearchResult[];
 
     constructor(options: ViewOptions) {
         super(options);
@@ -29,8 +28,8 @@ export default class WelcomeView extends View {
 
     search(query: string, queryfields: string = 'all') {
         const sources = new Graph();
-        sources.fetch({ url: '/source/search/', data: $.param({ query: query, queryfields: queryfields})  }).then( bla => {
-            console.log('fetch!');
+        sources.fetch({ url: '/source/search', data: $.param({ query: query, queryfields: queryfields})  }).then( results => {
+            console.log(results);
         })
     }
 }
@@ -41,9 +40,7 @@ extend(WelcomeView.prototype, {
 });
 
 export type SearchResult = {
-    text: string,
-    language: string,
     id: number,
-    score: number,
+    highlight: any,
 
 }
