@@ -5,9 +5,14 @@ import View from './../../core/view';
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
 import explorerChannel from '../../explorer/radio';
+import { announceRoute } from '../../explorer/utilities';
 
 import searchResultListTemplate from './panel-search-result-list-template';
 import SearchResultBaseItemView from './search-result-base-view';
+
+// TODO: the search results list is general enough to be used for other purposes
+// than item annotations. Fix the route announcement when we decide to do this.
+const announce = announceRoute('item:annotations', ['model', 'id']);
 
 export interface ViewOptions extends BaseOpt {
     collection: Graph;
@@ -38,6 +43,7 @@ export default class SearchResultListView extends View {
         this.collection.each(n => {
             this.initItem(n as Node);
         });
+        this.on('announceRoute', announce);
         return this;
     }
 

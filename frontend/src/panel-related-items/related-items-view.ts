@@ -8,6 +8,7 @@ import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
 import { dcterms, owl } from '../jsonld/ns';
 import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 
 import relatedItemsTemplate from './related-items-template';
 
@@ -15,6 +16,8 @@ import { getLabel } from '../utilities/utilities';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import RelatedItemsRelationView from './related-items-relation-view';
 import { applicablePredicates, relationsFromModel } from './relation-utilities';
+
+const announce = announceRoute('item:related', ['model', 'id']);
 
 export interface ViewOptions extends BaseOpt<Node> {
     model: Node;
@@ -35,6 +38,7 @@ export default class RelatedItemsView extends View<Node> {
     initialize(options: ViewOptions): this {
         this.predicates = applicablePredicates(this.model);
         this.relations = [];
+        this.on('announceRoute', announce);
         return this;
     }
 

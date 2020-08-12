@@ -24,6 +24,7 @@ import {
     getAnonymousTextQuoteSelector
 } from './../utilities/annotation/annotation-creation-utilities';
 import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 
 import BaseAnnotationView from './base-annotation-view';
 import FlatCollection from './flat-annotation-collection';
@@ -37,6 +38,8 @@ function getOntologyClasses() {
     const ontology = ldChannel.request('ontology:graph') || new Graph();
     return new FilteredCollection<Node, Graph>(ontology, isRdfsClass);
 }
+
+const announce = announceRoute('item:edit', ['model', 'id']);
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
@@ -103,6 +106,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
             this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
             this.processModel(options.model);
             this.listenTo(this.model, 'change', this.processModel);
+            this.on('announceRoute', announce);
         }
         else {
             this.processTextQuoteSelector(this.model);

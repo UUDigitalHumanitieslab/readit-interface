@@ -66,6 +66,7 @@ export default class ExplorerEventController {
     pushSourcePair(basePanel: View, source: Node): [SourceView, AnnotationListView] {
         const sourcePanel = createSourceView(source, true, true);
         const listPanel = new AnnotationListView({
+            model: sourcePanel.model,
             collection: sourcePanel.collection,
         });
         this.mapSourceAnnotationList.set(sourcePanel, listPanel);
@@ -138,7 +139,11 @@ export default class ExplorerEventController {
         let items = new ItemGraph();
         items.query({ predicate: oa.hasBody, object: item }).then(
             function success() {
-                let resultView = new SearchResultListView({ collection: new Graph(items.models), selectable: false });
+                let resultView = new SearchResultListView({
+                    model: item,
+                    collection: new Graph(items.models),
+                    selectable: false,
+                });
                 self.explorerView.push(resultView);
             },
             function error(error) {
@@ -229,7 +234,8 @@ export default class ExplorerEventController {
 
     sourceViewShowAnnotations(sourceView: SourceView): this {
         let annotationListView = new AnnotationListView({
-            collection: sourceView.collection
+            model: sourceView.model,
+            collection: sourceView.collection,
         });
         sourceView.collection.underlying.trigger('sync');
         this.mapSourceAnnotationList.set(sourceView, annotationListView);

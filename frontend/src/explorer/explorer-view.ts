@@ -249,6 +249,7 @@ export default class ExplorerView extends View {
             let topPanel = mostRightFullyVisibleStack.getTopPanel();
             let position = this.rltPanelStack[topPanel.cid];
             this.trigger('scrollTo', topPanel, position, (position - this.stacks.length));
+            topPanel.trigger('announceRoute');
         }
     }
 

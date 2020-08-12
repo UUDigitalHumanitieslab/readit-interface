@@ -9,8 +9,11 @@ import LabelView from '../utilities/label-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import { isType, getLabelFromId } from './../utilities/utilities';
 import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 import ldItemTemplate from './ld-item-template';
 import BaseAnnotationView, { ViewOptions } from '../annotation/base-annotation-view';
+
+const announce = announceRoute('item', ['model', 'id']);
 
 const excludedProperties = [
     '@id',
@@ -58,8 +61,9 @@ export default class LdItemView extends BaseAnnotationView {
         this.listenTo(this.model, 'change', this.processModel);
         this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
         this.listenTo(this, 'body:ontologyClass', this.processOntologyClass);
-        this.listenTo(this, 'body:ontologyInstance', this.processOntologyInstance)
+        this.listenTo(this, 'body:ontologyInstance', this.processOntologyInstance);
         this.processModel(this.model);
+        this.on('announceRoute', announce);
         return this;
     }
 

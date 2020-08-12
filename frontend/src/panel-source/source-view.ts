@@ -13,11 +13,14 @@ import SegmentCollection from '../highlight/text-segment-collection';
 import { isType } from './../utilities/utilities';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 
 import HighlightableTextView from './highlightable-text-view';
 import SourceToolbarView from './toolbar/source-toolbar-view';
 import MetadataView from './source-metadata-view';
 import sourceTemplate from './source-template';
+
+const announce = announceRoute('source', ['model', 'id']);
 
 export interface ViewOptions extends BaseOpt<Model> {
     // An instance of vocab('Source').
@@ -127,6 +130,7 @@ class SourcePanel extends CompositeView {
         }
         this.metaView.on('metadata:hide', this.toggleMetadata, this);
         this.metaView.on('metadata:edit', this.editMetadata, this);
+        this.on('announceRoute', announce);
     }
 
     validate() {
