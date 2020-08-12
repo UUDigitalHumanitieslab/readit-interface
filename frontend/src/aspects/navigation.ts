@@ -11,6 +11,7 @@ import mainRouter from '../global/main-router';
 import userFsm from '../global/user-fsm';
 import { ensureSources } from '../global/sources';
 import explorerView from '../global/explorer-view';
+import '../global/explorer-controller';
 
 history.once('route', () => {
     menuView.render().$el.appendTo('#header');

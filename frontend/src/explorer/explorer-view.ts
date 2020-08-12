@@ -11,7 +11,6 @@ import Model from '../core/model';
 import View from '../core/view';
 
 import PanelStackView from './explorer-panelstack-view';
-import EventController from './explorer-event-controller';
 import { animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
 import fastTimeout from '../utilities/fastTimeout';
 
@@ -24,8 +23,6 @@ export interface ViewOptions extends BaseOpt<Model> {
 
 export default class ExplorerView extends View {
     stacks: PanelStackView[];
-
-    eventController: EventController;
 
     /**
      * A reverse lookuptable containing each panel's cid as key,
@@ -42,7 +39,6 @@ export default class ExplorerView extends View {
     constructor(options?: ViewOptions) {
         super(options);
         this.stacks = [];
-        this.eventController = new EventController(this);
         this.rltPanelStack = {};
         this.scroll = debounce(this.scroll, 100);
         this.push(options.first);
@@ -94,7 +90,6 @@ export default class ExplorerView extends View {
      * of the new panel's stack from the left.
      */
     push(panel: View): this {
-        this.eventController.subscribeToPanelEvents(panel);
         let position = this.stacks.length;
         this.stacks.push(new PanelStackView({ first: panel }));
         let stack = this.stacks[position];
@@ -135,7 +130,6 @@ export default class ExplorerView extends View {
         stack.push(panel);
         this.rltPanelStack[panel.cid] = position;
 
-        this.eventController.subscribeToPanelEvents(panel);
         this.trigger('overlay', panel, ontoPanel, position, (position - this.stacks.length));
         this.scroll(stack);
         return this;

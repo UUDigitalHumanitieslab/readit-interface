@@ -3,6 +3,7 @@ import { extend } from 'lodash';
 import View from '../core/view';
 import Node from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
+import explorerChannel from '../explorer/radio';
 
 import externalResourcesTemplate from './external-resources-template';
 
@@ -57,7 +58,7 @@ export default class ExternalResourcesView extends View<Node> {
     }
 
     onEditButtonClicked(event: JQuery.TriggeredEvent): void {
-        this.trigger('externalItems:edit', this);
+        explorerChannel.trigger('externalItems:edit', this);
     }
 }
 extend(ExternalResourcesView.prototype, {

@@ -8,6 +8,7 @@ import { getLabelText } from '../utilities/annotation/annotation-utilities';
 import LabelView from '../utilities/label-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import { isType, getLabelFromId } from './../utilities/utilities';
+import explorerChannel from '../explorer/radio';
 import ldItemTemplate from './ld-item-template';
 import BaseAnnotationView, { ViewOptions } from '../annotation/base-annotation-view';
 
@@ -146,22 +147,22 @@ export default class LdItemView extends BaseAnnotationView {
     }
 
     onRelItemsClicked(): void {
-        this.trigger('lditem:showRelated', this, this.currentItem);
+        explorerChannel.trigger('lditem:showRelated', this, this.currentItem);
     }
 
     onAnnotationsClicked(): void {
-        this.trigger('lditem:showAnnotations', this, this.currentItem);
+        explorerChannel.trigger('lditem:showAnnotations', this, this.currentItem);
     }
 
     onExtResourcesClicked(): void {
-        this.trigger('lditem:showExternal', this, this.currentItem);
+        explorerChannel.trigger('lditem:showExternal', this, this.currentItem);
     }
 
     onEditClicked(): void {
         if (this.modelIsAnnotation) {
-            this.trigger('lditem:editAnnotation', this, this.model);
+            explorerChannel.trigger('lditem:editAnnotation', this, this.model);
         } else {
-            this.trigger('lditem:editItem', this, this.currentItem);
+            explorerChannel.trigger('lditem:editItem', this, this.currentItem);
         }
     }
 }

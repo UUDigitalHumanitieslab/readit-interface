@@ -1,15 +1,16 @@
 import { ViewOptions as BaseOpt, Model } from 'backbone';
 import { extend } from 'lodash';
-import { CollectionView } from '../core/view';
 
+import { CollectionView } from '../core/view';
+import Collection from '../core/collection';
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
 import { schema, iso6391, UNKNOWN } from '../jsonld/ns';
+import FilteredCollection from '../utilities/filtered-collection';
+import explorerChannel from '../explorer/radio';
 
 import sourceListTemplate from './source-list-template';
 import SourceLanguageView from './source-language-view';
-import Collection from '../core/collection';
-import FilteredCollection from '../utilities/filtered-collection';
 
 const languages = ["en", "fr", "de", "other"];
 
@@ -64,7 +65,7 @@ export default class SourceListView extends CollectionView<Model, SourceLanguage
     }
 
     onSourceClicked(sourceCid: string): this {
-        this.trigger('source-list:click', this, this.unorderedSources.get(sourceCid));
+        explorerChannel.trigger('source-list:click', this, this.unorderedSources.get(sourceCid));
         return this;
     }
 }

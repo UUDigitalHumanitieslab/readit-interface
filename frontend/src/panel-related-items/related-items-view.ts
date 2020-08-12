@@ -1,15 +1,16 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, map } from 'lodash';
+
 import Model from '../core/model';
 import Collection from '../core/collection';
 import View from '../core/view';
-
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
+import { dcterms, owl } from '../jsonld/ns';
+import explorerChannel from '../explorer/radio';
 
 import relatedItemsTemplate from './related-items-template';
 
-import { dcterms, owl } from '../jsonld/ns';
 import { getLabel } from '../utilities/utilities';
 import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
 import RelatedItemsRelationView from './related-items-relation-view';
@@ -74,12 +75,12 @@ export default class RelatedItemsView extends View<Node> {
         if (this.currentlyHighlighted && summaryBlock !== this.currentlyHighlighted) {
         }
         this.currentlyHighlighted = summaryBlock;
-        this.trigger('relItems:itemClick', this, model.get('item'));
+        explorerChannel.trigger('relItems:itemClick', this, model.get('item'));
         return this;
     }
 
     onEditButtonClicked(event: JQuery.TriggeredEvent): void {
-        this.trigger('relItems:edit', this, this.model);
+        explorerChannel.trigger('relItems:edit', this, this.model);
     }
 }
 extend(RelatedItemsView.prototype, {

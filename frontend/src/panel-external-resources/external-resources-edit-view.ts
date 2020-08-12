@@ -6,6 +6,7 @@ import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
 import { rdfs, owl } from '../jsonld/ns';
 import ItemGraph from '../utilities/item-graph';
+import explorerChannel from '../explorer/radio';
 
 import externalResourcesEditTemplate from './external-resources-edit-template';
 import ExternalResourceEditItem from './external-resource-edit-item-view';
@@ -124,7 +125,8 @@ class ExternalResourcesEditView extends CollectionView {
     }
 
     close(): this {
-        return this.trigger('externalItems:edit-close', this);
+        explorerChannel.trigger('externalItems:edit-close', this);
+        return this;
     }
 
     registerSet(attributes): void {

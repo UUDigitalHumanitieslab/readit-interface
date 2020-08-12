@@ -3,6 +3,7 @@ import { defer } from 'lodash';
 import Node from './../jsonld/node';
 
 import ExplorerView from './explorer-view';
+import explorerChannel from './radio';
 import LdItemView from '../panel-ld-item/ld-item-view';
 import Graph from '../jsonld/graph';
 import SourceView from './../panel-source/source-view';
@@ -38,16 +39,7 @@ export default class ExplorerEventController {
 
     constructor(explorerView: ExplorerView) {
         this.explorerView = explorerView;
-    }
-
-    /**
-     * Subcribes to the events fired by the panel.
-     * Contains a neat trick: will subscribe to all known events, most of which will never be
-     * fired by the panel. No panel fires all different events.
-     * @param panel The panel to listen to.
-     */
-    subscribeToPanelEvents(panel: View): void {
-        panel.on({
+        explorerChannel.on({
             'sourceview:showAnnotations': graph => defer(this.sourceViewShowAnnotations.bind(this), graph),
             'sourceview:hideAnnotations': this.sourceViewHideAnnotations,
             'sourceview:textSelected': this.sourceViewOnTextSelected,

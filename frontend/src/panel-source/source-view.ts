@@ -12,6 +12,7 @@ import ToggleMixin from '../utilities/category-colors/category-toggle-mixin';
 import SegmentCollection from '../highlight/text-segment-collection';
 import { isType } from './../utilities/utilities';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
+import explorerChannel from '../explorer/radio';
 
 import HighlightableTextView from './highlightable-text-view';
 import SourceToolbarView from './toolbar/source-toolbar-view';
@@ -208,7 +209,7 @@ class SourcePanel extends CompositeView {
      * Pass events from HighlightableTextView
      */
     onTextSelected(range: Range, posDetails: AnnotationPositionDetails): void {
-        this.trigger('sourceview:textSelected', this, this.model, range, posDetails);
+        explorerChannel.trigger('sourceview:textSelected', this, this.model, range, posDetails);
     }
 
     /**
@@ -217,11 +218,11 @@ class SourcePanel extends CompositeView {
     toggleHighlights(): this {
         if (this.isShowingHighlights) {
             this.hideHighlights();
-            this.trigger('sourceview:hideAnnotations', this);
+            explorerChannel.trigger('sourceview:hideAnnotations', this);
         }
         else {
             this.showHighlights();
-            this.trigger('sourceview:showAnnotations', this, true);
+            explorerChannel.trigger('sourceview:showAnnotations', this, true);
         }
         this.toggleToolbarItemSelected('annotations');
         this.isShowingHighlights = !this.isShowingHighlights;

@@ -8,6 +8,7 @@ import { owl } from '../jsonld/ns';
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
 import ItemGraph from '../utilities/item-graph';
+import explorerChannel from '../explorer/radio';
 import RelationEditor from './relation-editor-view';
 import { applicablePredicates, relationsFromModel } from './relation-utilities';
 import relatedItemsTemplate from './related-items-edit-template';
@@ -98,7 +99,8 @@ class RelatedItemsEditor extends CollectionView<Model, RelationEditor> {
     }
 
     close(): this {
-        return this.trigger('relItems:edit-close', this);
+        explorerChannel.trigger('relItems:edit-close', this);
+        return this;
     }
 
     addRelation(): this {

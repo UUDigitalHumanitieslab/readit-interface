@@ -23,6 +23,7 @@ import {
     composeAnnotation,
     getAnonymousTextQuoteSelector
 } from './../utilities/annotation/annotation-creation-utilities';
+import explorerChannel from '../explorer/radio';
 
 import BaseAnnotationView from './base-annotation-view';
 import FlatCollection from './flat-annotation-collection';
@@ -229,7 +230,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
                 const anno = results.annotation;
                 this.collection.underlying.add(anno);
                 const flat = this.collection.get(anno.id);
-                this.trigger('annotationEditView:saveNew', this, flat, results.items);
+                explorerChannel.trigger('annotationEditView:saveNew', this, flat, results.items);
             }
         );
     }
@@ -237,7 +238,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
     submitOldAnnotation(newItem: boolean): void {
         this.selectedItem && this.model.set(oa.hasBody, this.selectedItem);
         this.model.save();
-        this.trigger('annotationEditView:save', this, this.model, newItem);
+        explorerChannel.trigger('annotationEditView:save', this, this.model, newItem);
     }
 
     reset(): this {
@@ -294,7 +295,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
     onCancelClicked(event: JQueryEventObject): this {
         event.preventDefault();
         this.reset();
-        this.trigger('annotationEditView:close', this);
+        explorerChannel.trigger('annotationEditView:close', this);
         return this;
     }
 

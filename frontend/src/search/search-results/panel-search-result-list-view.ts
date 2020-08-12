@@ -1,11 +1,12 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
+
 import View from './../../core/view';
-
-import searchResultListTemplate from './panel-search-result-list-template';
-
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
+import explorerChannel from '../../explorer/radio';
+
+import searchResultListTemplate from './panel-search-result-list-template';
 import SearchResultBaseItemView from './search-result-base-view';
 
 export interface ViewOptions extends BaseOpt {
@@ -86,7 +87,7 @@ export default class SearchResultListView extends View {
 
     onItemClicked(subView: SearchResultBaseItemView): this {
         this.processSelection(subView);
-        this.trigger('searchResultList:itemClicked', this, subView.model);
+        explorerChannel.trigger('searchResultList:itemClicked', this, subView.model);
         return this;
     }
 }
