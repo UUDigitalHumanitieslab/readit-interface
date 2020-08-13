@@ -69,7 +69,7 @@ export default class ExplorerView extends View {
         const thisLeft = this.$el.scrollLeft();
         const thisRight = this.getMostRight();
         const stackLeft = stack.getLeftBorderOffset();
-        const stackRight = stack.getRightBorderOffset();
+        const stackRight = stackLeft + stack.getWidth();
         let scrollTarget;
         if (stackRight - thisLeft < scrollFudge) {
             scrollTarget = stackLeft;
