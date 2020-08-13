@@ -15,6 +15,7 @@ from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.reverse import reverse
 
 from rdflib import Graph, URIRef, Literal
+from rdflib.plugins.sparql import prepareQuery
 
 from elasticsearch import Elasticsearch
 
@@ -24,12 +25,38 @@ from rdf.utils import graph_from_triples, prune_triples_cascade, get_conjunctive
 from vocab import namespace as vocab
 from staff.utils import submission_info
 from items.graph import graph as items_graph
+from .constants import SOURCES_NS
 from .graph import graph as sources_graph
 from .utils import get_media_filename, get_serial_from_subject
 from .models import SourcesCounter
 from .permissions import UploadSourcePermission, DeleteSourcePermission
 
 es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
+
+SELECT_SOURCES_QUERY_START = '''
+BASE <http://localhost:8000/>
+PREFIX source: <source/>
+CONSTRUCT {
+    ?id ?p ?o.
+'''
+
+SELECT_SOURCES_QUERY_MIDDLE_RELEVANCE = '''
+    ?id <https://www.semanticdesktop.org/ontologies/2007/08/15/nao/#score> ?relevance.
+} WHERE {
+   VALUES (?id ?relevance) {
+'''
+
+SELECT_SOURCES_QUERY_MIDDLE_NO_RELEVANCE = '''
+} WHERE {
+   VALUES ?id {
+'''
+
+SELECT_SOURCES_QUERY_END = '''
+}
+    ?id ?p ?o
+}
+'''
+
 
 def inject_fulltext(input, inline, request):
     """
@@ -88,13 +115,28 @@ class SourcesAPISingular(RDFResourceView):
         return Response(existing)
 
 
-def source_fulltext(request, serial):
+def source_fulltext(request, serial, query=None):
     """ API endpoint for fetching the full text of a single source. """
-    result = es.search(body={
+    body = {
         "query" : {
             "term" : { "id" : serial }
         }
-    }, index=settings.ES_ALIASNAME)
+    }
+    if query:
+        body['highlight'] = {
+            "highlight_query": {
+                "simple_query_string": {
+                    "query": query
+                }
+            }, 
+            "fields" : {
+                "text_en" : {},
+                "text_de": {},
+                "text_fr": {},
+                "text_nl": {}
+            }
+        }
+    result = es.search(body=body, index=settings.ES_ALIASNAME)
     if result:
         f = result['hits']['hits'][0]['_source']['text']
         return HttpResponse(f, content_type='text/plain; charset=utf-8')
@@ -107,28 +149,32 @@ def search_sources(request):
     query_string = {"query": query}
     if fields != 'all':
         query_string['fields'] = [fields]
-    body = {
-        "query" : {
-            "query_string": query_string
-        },
-        "highlight" : {
-            "fields" : {
-                "text_en" : {},
-                "text_de": {},
-                "text_fr": {},
-                "text_nl": {}
-            }
-        }
-    }
+    if query == '':
+        clause = {"match_all": {}}
+    else:
+        clause = {"simple_query_string": query_string}
+    body = {"query": clause}
     results = es.search(body=body, index=settings.ES_ALIASNAME)
     if results['hits']['total']['value'] == 0:
         return HttpResponse('no results found')
-    response = [
-        {'id': hit['_source']['id'], 
-        'highlights': flatten([hit['highlight'][key] for key in hit['highlight'].keys()])} 
-        for hit in results['hits']['hits']
-    ]
-    return HttpResponse(response)
+    selected_sources_graph = select_sources_elasticsearch(results)
+    return HttpResponse(selected_sources_graph)
+
+
+def select_sources_elasticsearch(results):
+    endpoint = sources_graph()
+    selection = '\n'.join(list(map(format_ids_and_relevances, results['hits']['hits'])))
+    query = '{}{}{}{}'.format(
+        SELECT_SOURCES_QUERY_START,
+        SELECT_SOURCES_QUERY_MIDDLE_RELEVANCE,
+        selection,
+        SELECT_SOURCES_QUERY_END
+    )
+    return endpoint.query(query)
+
+
+def format_ids_and_relevances(hit):
+    return '(source:{} {})'.format(hit['_source']['id'], hit['_score'])
 
 
 class AddSource(RDFResourceView):

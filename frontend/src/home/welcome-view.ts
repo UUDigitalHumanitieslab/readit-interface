@@ -26,11 +26,9 @@ export default class WelcomeView extends View {
         return this;
     }
 
-    search(query: string, queryfields: string = 'all') {
+    async search(query: string, queryfields: string = 'all') {
         const sources = new Graph();
-        sources.fetch({ url: '/source/search', data: $.param({ query: query, queryfields: queryfields})  }).then( results => {
-            console.log(results);
-        })
+        await sources.fetch({ url: '/source/search', data: $.param({ query: query, queryfields: queryfields})  });
     }
 }
 
