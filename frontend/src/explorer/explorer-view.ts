@@ -66,6 +66,7 @@ export default class ExplorerView extends View {
      */
     scroll(stack?: PanelStackView, callback?: any): this {
         if (!stack) stack = this.getRightMostStack();
+        stack.getTopPanel().trigger('announceRoute');
         const thisLeft = this.$el.scrollLeft();
         const thisRight = this.getMostRight();
         const stackLeft = stack.getLeftBorderOffset();
@@ -166,16 +167,18 @@ export default class ExplorerView extends View {
     removeOverlay(panel: View): View {
         // validate that the panel is on top of its stack
         let position = this.rltPanelStack[panel.cid];
-        let stackTop = this.stacks[position].getTopPanel();
+        const stack = this.stacks[position];
+        let stackTop = stack.getTopPanel();
         if (panel.cid !== stackTop.cid) {
             throw new RangeError(`panel with cid '${panel.cid}' is not a topmost panel`);
         }
-        if (this.stacks[position].hasOnlyOnePanel()) {
+        if (stack.hasOnlyOnePanel()) {
             throw new RangeError(`cannot remove panel with cid '${panel.cid}' because it is a bottom panel (not an overlay)`);
         }
 
         let removedPanel = this.deletePanel(position);
-        this.trigger('removeOverlay', removedPanel, this.stacks[position].getTopPanel(), position, (position - this.stacks.length));
+        this.scroll(stack);
+        this.trigger('removeOverlay', removedPanel, stack.getTopPanel(), position, (position - this.stacks.length));
         return removedPanel;
     }
 
