@@ -36,6 +36,7 @@ export interface ViewOptions extends BViewOptions {
  * with focus/blur interaction. This view is self-rendering.
  */
 export default class ItemSummaryBlockView extends View {
+    setClass: string;
     constructor(options: ViewOptions) {
         super(options);
     }
@@ -74,13 +75,19 @@ export default class ItemSummaryBlockView extends View {
             this._renderWhenComplete();
         } else {
             this.model = wrapItem(this.model as Node);
+            this.setClass = this.model.get('cssClass');
             this.render();
         }
     }
 
     render(): this {
         this.$el.html(this.template(this.model.attributes));
+        let currentClass = this.model.get('cssClass');
+        if (this.setClass != currentClass) {
+            this.$el.removeClass(this.setClass);
+        }
         this.$el.addClass(this.model.get('cssClass'));
+        this.setClass = currentClass;
         this._bindModelEvents();
         return this;
     }

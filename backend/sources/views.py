@@ -22,13 +22,47 @@ from rdf.views import RDFView, RDFResourceView
 from rdf.utils import graph_from_triples, prune_triples_cascade, get_conjunctive_graph
 from vocab import namespace as vocab
 from staff.utils import submission_info
+from items.constants import ITEMS_NS
 from items.graph import graph as items_graph
+from .constants import SOURCES_NS
 from .graph import graph as sources_graph
 from .utils import get_media_filename, get_serial_from_subject
 from .models import SourcesCounter
 from .permissions import UploadSourcePermission, DeleteSourcePermission
 
 es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
+
+PREFIXES = {
+    'oa': OA,
+}
+SOURCE_EXISTS_QUERY = 'ASK { ?source ?a ?b }'
+SOURCE_DELETE_QUERY = '''
+DELETE {{
+    GRAPH <{0}> {{
+        ?source ?a ?b
+    }}
+    GRAPH <{1}> {{
+        ?annotation ?c ?d.
+        ?target ?e ?f.
+        ?selector ?g ?h.
+    }}
+}} WHERE {{
+    GRAPH <{0}> {{
+        ?source ?a ?b
+    }}
+    OPTIONAL {{
+        GRAPH <{1}> {{
+            ?annotation oa:hasTarget ?target;
+                        ?c ?d.
+            ?target oa:hasSource ?source;
+                    oa:hasSelector ?selector;
+                    ?e ?f.
+            ?selector ?g ?h.
+        }}
+    }}
+}}
+'''.format(SOURCES_NS, ITEMS_NS)
+
 
 def inject_fulltext(input, inline, request):
     """
@@ -76,15 +110,14 @@ class SourcesAPISingular(RDFResourceView):
 
     def delete(self, request, format=None, **kwargs):
         source_uri = request.build_absolute_uri(request.path)
-        existing = self.get_graph(request, **kwargs)
-        if len(existing) == 0:
+        bindings = {'source': URIRef(source_uri)}
+        if not self.graph().query(SOURCE_EXISTS_QUERY, initBindings=bindings):
             raise NotFound('Source \'{}\' not found'.format(source_uri))
         conjunctive = get_conjunctive_graph()
-        prune_triples_cascade(conjunctive, existing, [sources_graph])
-        annotations = conjunctive.triples((None, OA.hasSource, URIRef(source_uri)))
-        for s, p, o in annotations:
-            prune_triples_cascade(conjunctive, ((s, p, o),), [items_graph])
-        return Response(existing)
+        conjunctive.update(
+            SOURCE_DELETE_QUERY, initNs=PREFIXES, initBindings=bindings
+        )
+        return Response(Graph(), HTTP_204_NO_CONTENT)
 
 
 def source_fulltext(request, serial):

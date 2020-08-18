@@ -2,8 +2,9 @@
 Script for moving all source texts from file store to Elasticsearch.
 
 Usage: open an interactive Python shell with Django's `shell`
-command. Then:
-
+command. When working on a server, pass the arguments `--settings 
+settings --pythonpath {directory/of/settings/file}`.
+Then:
 >>> from scripts.sources_to_elasticsearch import text_to_index
 >>> text_to_index()
 """
@@ -43,7 +44,11 @@ def text_to_index():
         filename = join(settings.MEDIA_ROOT, get_media_filename(serial))
         if not isfile(filename):
             continue
+<<<<<<< HEAD
         _, _, language_object = list(sources_graph().triples((s, lang_predicate, None)))[0]
+=======
+        _, _, language_object = next(sources_graph().triples((s, lang_predicate, None)))
+>>>>>>> develop
         language = resolve_language(language_object)
         with open(filename, 'r', encoding='utf8') as f:
             text = f.read()
@@ -67,3 +72,7 @@ def resolve_language(input_language):
             return result
         else:
             return 'other'
+<<<<<<< HEAD
+=======
+
+>>>>>>> develop
