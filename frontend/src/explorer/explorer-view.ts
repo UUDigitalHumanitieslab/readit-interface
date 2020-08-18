@@ -190,17 +190,11 @@ export default class ExplorerView extends View {
     * @param panel The panel that needs to become rightmost.
     */
     popUntil(panel: View): this {
-        let i = 0;
-        while (this.getRightMostStack().getTopPanel().cid !== panel.cid && i < 1000) {
-            this.pop();
-            i++;
+        if (this.rltPanelStack[panel.cid] == null) {
+            throw new RangeError('Cannot find panel to pop until.');
         }
-        if (i === 999) {
-            // Note that this check exists only to protect developers.
-            // If one consumes `popUntil` without being aware it will async,
-            // `panel` might be replaced while the popping is not completed yet,
-            // resulting inan infinite loop.
-            throw new RangeError('Cannot find panel to pop until. Do you need to async?');
+        while (this.getRightMostStack().getTopPanel().cid !== panel.cid) {
+            this.pop();
         }
         this.trigger('pop:until', panel);
         return this;
