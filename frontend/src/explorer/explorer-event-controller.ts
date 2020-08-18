@@ -39,7 +39,7 @@ export default class ExplorerEventController {
     constructor(explorerView: ExplorerView) {
         this.explorerView = explorerView;
         explorerChannel.on({
-            'sourceview:showAnnotations': graph => defer(this.reopenSourceAnnotations.bind(this), graph),
+            'sourceview:showAnnotations': this.reopenSourceAnnotations,
             'sourceview:hideAnnotations': this.unlistSourceAnnotations,
             'sourceview:textSelected': this.selectText,
             'annotationList:showAnnotation': this.openSourceAnnotation,
