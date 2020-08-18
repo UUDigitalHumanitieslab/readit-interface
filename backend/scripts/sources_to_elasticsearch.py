@@ -44,11 +44,7 @@ def text_to_index():
         filename = join(settings.MEDIA_ROOT, get_media_filename(serial))
         if not isfile(filename):
             continue
-<<<<<<< HEAD
-        _, _, language_object = list(sources_graph().triples((s, lang_predicate, None)))[0]
-=======
         _, _, language_object = next(sources_graph().triples((s, lang_predicate, None)))
->>>>>>> develop
         language = resolve_language(language_object)
         with open(filename, 'r', encoding='utf8') as f:
             text = f.read()
@@ -72,7 +68,3 @@ def resolve_language(input_language):
             return result
         else:
             return 'other'
-<<<<<<< HEAD
-=======
-
->>>>>>> develop

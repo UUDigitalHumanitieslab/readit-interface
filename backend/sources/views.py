@@ -77,8 +77,14 @@ def inject_fulltext(input, inline, request):
     for s in subjects:
         serial = get_serial_from_subject(s)
         if inline:
-            with default_storage.open(get_media_filename(serial)) as f:
-                text_triples.add((s, SCHEMA.text, Literal(f.read())))
+            result = es.search(body={
+                "query" : {
+                    "term" : { "id" : serial }
+                    }
+                }, index=settings.ES_ALIASNAME)
+            if result:
+                f = result['hits']['hits'][0]['_source']['text']
+                text_triples.add((s, SCHEMA.text, Literal(f)))
         else:
             text_triples.add((s, vocab.fullText, URIRef(reverse(
                 'sources:fulltext',
