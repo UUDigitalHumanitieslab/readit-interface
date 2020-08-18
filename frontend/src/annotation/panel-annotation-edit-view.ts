@@ -203,8 +203,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
         let newItem = false;
         if (!this.selectedItem) return Promise.resolve(newItem);
         if (this.selectedItem.isNew()) {
-            const items = new ItemGraph();
-            items.add(this.selectedItem);
             newItem = true;
         }
         return new Promise((resolve, reject) => {

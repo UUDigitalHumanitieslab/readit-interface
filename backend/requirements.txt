@@ -21,6 +21,7 @@ django-proxy==1.2.1       # via -r requirements.in
 django-rest-auth[with_social]==0.9.5  # via -r requirements.in
 django==2.0.13            # via -r requirements.in, django-allauth, django-cors-headers, django-livereload-server, django-rest-auth, rdflib-django3
 djangorestframework==3.9.4  # via -r requirements.in, django-rest-auth
+elasticsearch==7.8.0
 execnet==1.7.1            # via pytest-xdist
 idna==2.8                 # via requests
 importlib-metadata==0.20  # via pluggy, pytest

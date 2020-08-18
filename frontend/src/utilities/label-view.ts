@@ -29,7 +29,6 @@ export default class LabelView extends View<Node> {
     render(): this {
         let label = getLabel(this.model);
         let className = getCssClassName(this.model);
-
         this.$el.html();
         this.$el.text(label);
         this.$el.addClass(className);

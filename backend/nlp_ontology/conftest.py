@@ -22,7 +22,7 @@ INSERT_QUERY = '''
     PREFIX dctypes: <http://purl.org/dc/dcmitype/>
     PREFIX ns3: <http://schema.org/>
 
-    INSERT DATA { 
+    INSERT DATA {
         my:icecream         a               ns3:Food        ;
                             ns3:color       "#f9e5bc"       .
         ns3:Cat             my:meow         "loud"          .
@@ -36,15 +36,15 @@ SELECT_QUERY = '''
     }
 '''
 
-ASK_QUERY = '''PREFIX my: <http://testserver/nlp-ontology#> 
+ASK_QUERY = '''PREFIX my: <http://testserver/nlp-ontology#>
 ASK { ?x my:meow  "loud" }'''
-ASK_QUERY_FALSE = '''PREFIX my: <http://testserver/nlp-ontology#> 
+ASK_QUERY_FALSE = '''PREFIX my: <http://testserver/nlp-ontology#>
 ASK { ?x my:meow  "silent" }'''
 
 CONSTRUCT_QUERY = '''
     PREFIX my: <http://testserver/nlp-ontology#>
     PREFIX ns3: <http://schema.org/>
-    CONSTRUCT WHERE { ?x my:meow ?name } 
+    CONSTRUCT WHERE { ?x my:meow ?name }
 '''
 
 
@@ -55,7 +55,7 @@ def ontologygraph():
 
 
 @pytest.fixture
-def ontologygraph_db(db, ontologygraph):
+def ontologygraph_db(db, ontologygraph, sparqlstore):
     g = graph()
     g += ontologygraph
     yield

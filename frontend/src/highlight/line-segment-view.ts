@@ -6,8 +6,17 @@ import View, { CollectionView } from '../core/view';
  * A line segment has a colored band for each associated annotation.
  */
 class ColorBand extends View {
+    setClass: string;
+
     initialize({ model }): void {
         this.$el.addClass(model.get('cssClass'));
+        this.listenTo(model, 'change:cssClass', this.onLabelChanged);
+    }
+
+    onLabelChanged(model, newCssClass): void {
+        this.$el.removeClass(model.previous('cssClass'));
+        this.$el.addClass(newCssClass);
+        model.trigger('focus', model);
     }
 }
 

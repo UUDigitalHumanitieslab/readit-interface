@@ -16,9 +16,6 @@ class Migration(migrations.Migration):
             db_alias = schema_editor.connection.alias
             # Set a counter taking into account the 21 sources fom the skinny tool.
             SourcesCounter.objects.using(db_alias).bulk_create([SourcesCounter(count=21)])
-            print('SourcesCounter instance created')
-        else:
-            print('SourcesCounter already exists')
 
     operations = [
         migrations.RunPython(init_sources_counter)
