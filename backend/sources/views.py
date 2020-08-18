@@ -123,6 +123,15 @@ class SourcesAPISingular(RDFResourceView):
         conjunctive.update(
             SOURCE_DELETE_QUERY, initNs=PREFIXES, initBindings=bindings
         )
+        serial = get_serial_from_subject(source_uri)
+        es.delete_by_query(
+            index=settings.ES_ALIASNAME, 
+            body= { "query": {
+                "match": {
+                    "id": serial
+                }
+            }}
+        )
         return Response(Graph(), HTTP_204_NO_CONTENT)
 
 
