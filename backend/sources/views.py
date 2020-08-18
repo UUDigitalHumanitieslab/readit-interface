@@ -82,9 +82,8 @@ def inject_fulltext(input, inline, request):
                     "term" : { "id" : serial }
                     }
                 }, index=settings.ES_ALIASNAME)
-            if result:
-                f = result['hits']['hits'][0]['_source']['text']
-                text_triples.add((s, SCHEMA.text, Literal(f)))
+            f = result['hits']['hits'][0]['_source']['text']
+            text_triples.add((s, SCHEMA.text, Literal(f)))
         else:
             text_triples.add((s, vocab.fullText, URIRef(reverse(
                 'sources:fulltext',
