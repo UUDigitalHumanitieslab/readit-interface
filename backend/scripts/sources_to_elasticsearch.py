@@ -68,4 +68,3 @@ def resolve_language(input_language):
             return result
         else:
             return 'other'
-
