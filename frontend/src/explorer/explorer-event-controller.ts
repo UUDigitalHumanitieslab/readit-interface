@@ -24,7 +24,6 @@ import {
     isType,
     isOntologyClass,
 } from '../utilities/utilities';
-import { Collection } from 'backbone';
 
 export default class ExplorerEventController {
     /**
