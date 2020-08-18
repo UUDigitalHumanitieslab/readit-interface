@@ -6,6 +6,7 @@ import {
     isFunction,
     sortedIndexBy,
     constant,
+    isString,
 } from 'lodash';
 import Model from '../core/model';
 import View from '../core/view';
@@ -62,9 +63,11 @@ export default class ExplorerView extends View {
      * that the stack is just within the viewport. Otherwise, no animation
      * occurs.
      * By default scrolls to the rightmost stack.
-     * @param stack: Optional. The stack to focus on / scroll to.
+     * @param stack: Optional. The stack, or the cid of a panel, to
+     * focus on / scroll to.
      */
-    scroll(stack?: PanelStackView, callback?: any): this {
+    scroll(stack?: string | PanelStackView, callback?: any): this {
+        if (isString(stack)) stack = this.stacks[this.rltPanelStack[stack]];
         if (!stack) stack = this.getRightMostStack();
         stack.getTopPanel().trigger('announceRoute');
         const thisLeft = this.$el.scrollLeft();
