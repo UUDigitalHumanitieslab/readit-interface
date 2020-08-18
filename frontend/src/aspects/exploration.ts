@@ -3,10 +3,32 @@ import { isString } from 'lodash';
 import channel from '../explorer/radio';
 import router from '../global/exploration-router';
 import explorer from '../global/explorer-view';
-import '../global/explorer-controller';
+import controller from '../global/explorer-controller';
 
 const browserHistory = window.history;
 
+channel.on({
+    'sourceview:showAnnotations': controller.reopenSourceAnnotations,
+    'sourceview:hideAnnotations': controller.unlistSourceAnnotations,
+    'sourceview:textSelected': controller.selectText,
+    'annotationList:showAnnotation': controller.openSourceAnnotation,
+    'annotationList:hideAnnotation': controller.closeSourceAnnotation,
+    'annotationEditView:saveNew': controller.saveNewAnnotation,
+    'annotationEditView:save': controller.saveAnnotation,
+    'annotationEditView:close': controller.closeEditAnnotation,
+    'lditem:showRelated': controller.listRelated,
+    'lditem:showAnnotations': controller.listItemAnnotations,
+    'lditem:showExternal': controller.listExternal,
+    'lditem:editAnnotation': controller.editAnnotation,
+    'lditem:editItem': controller.notImplemented,
+    'relItems:itemClick': controller.openRelated,
+    'relItems:edit': controller.editRelated,
+    'externalItems:edit': controller.editExternal,
+    'externalItems:edit-close': controller.closeEditExternal,
+    'relItems:edit-close': controller.closeEditRelated,
+    'source-list:click': controller.pushSourcePair,
+    'searchResultList:itemClicked': controller.openSearchResult,
+}, controller);
 channel.on('currentRoute', (route, panel) => {
     router.navigate(route);
     // Amend the state that Backbone.history just pushed with the cid of the

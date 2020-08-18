@@ -3,7 +3,6 @@ import { defer } from 'lodash';
 import Node from './../jsonld/node';
 
 import ExplorerView from './explorer-view';
-import explorerChannel from './radio';
 import LdItemView from '../panel-ld-item/ld-item-view';
 import Graph from '../jsonld/graph';
 import SourceView from './../panel-source/source-view';
@@ -38,28 +37,6 @@ export default class ExplorerEventController {
 
     constructor(explorerView: ExplorerView) {
         this.explorerView = explorerView;
-        explorerChannel.on({
-            'sourceview:showAnnotations': this.reopenSourceAnnotations,
-            'sourceview:hideAnnotations': this.unlistSourceAnnotations,
-            'sourceview:textSelected': this.selectText,
-            'annotationList:showAnnotation': this.openSourceAnnotation,
-            'annotationList:hideAnnotation': this.closeSourceAnnotation,
-            'annotationEditView:saveNew': this.saveNewAnnotation,
-            'annotationEditView:save': this.saveAnnotation,
-            'annotationEditView:close': this.closeEditAnnotation,
-            'lditem:showRelated': this.listRelated,
-            'lditem:showAnnotations': this.listItemAnnotations,
-            'lditem:showExternal': this.listExternal,
-            'lditem:editAnnotation': this.editAnnotation,
-            'lditem:editItem': this.notImplemented,
-            'relItems:itemClick': this.openRelated,
-            'relItems:edit': this.editRelated,
-            'externalItems:edit': this.editExternal,
-            'externalItems:edit-close': this.closeEditExternal,
-            'relItems:edit-close': this.closeEditRelated,
-            'source-list:click': this.pushSourcePair,
-            'searchResultList:itemClicked': this.openSearchResult,
-        }, this);
     }
 
     pushSource(basePanel: View, source: Node): SourceView {
