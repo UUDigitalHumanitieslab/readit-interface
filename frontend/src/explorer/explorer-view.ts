@@ -201,6 +201,16 @@ export default class ExplorerView extends View {
     }
 
     /**
+    * Remove all panels, then make `panel` the new first panel.
+    * @param panel The panel that needs to become leftmost.
+    */
+    reset(panel: View): this {
+        while (this.stacks.length) this.pop();
+        this.trigger('reset', this).push(panel);
+        return this;
+    }
+
+    /**
      * Remove the topmost panel from the stack at position. Returns the deleted panel.
      * @param position The indes of the stack to remove the panel from
      */

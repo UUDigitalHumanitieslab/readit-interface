@@ -1,5 +1,5 @@
 import { $ } from 'backbone';
-import { times, after } from 'lodash';
+import { times, after, size } from 'lodash';
 
 import './../core/scroll-easings';
 import { enableI18n } from '../test-util';
@@ -231,5 +231,18 @@ describe('ExplorerView', function () {
         // this will not pop any panels
         this.view.popUntil(stack1Panel2);
         expectSame();
+    });
+
+    it('can reset the panels wholesale', function() {
+        this.view.push(new View()).push(new View()).push(new View());
+        expect(this.view.stacks.length).toBe(4);
+        const replacement = new View();
+        const spy = jasmine.createSpy('resetSpy');
+        this.view.once('reset', spy);
+        this.view.reset(replacement);
+        expect(spy).toHaveBeenCalledWith(this.view);
+        expect(this.view.stacks.length).toBe(1);
+        expect(size(this.view.rltPanelStack)).toBe(1);
+        expect(this.view.rltPanelStack[replacement.cid]).toBe(0);
     });
 });
