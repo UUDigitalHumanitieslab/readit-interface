@@ -57,6 +57,10 @@ export default class ExplorerView extends View {
         return this;
     }
 
+    has(cid: string): boolean {
+        return cid in this.rltPanelStack;
+    }
+
     /**
      * Animated scroll to make a stack visible.
      * If the stack is not already visible, apply minimal horizontal scroll so
