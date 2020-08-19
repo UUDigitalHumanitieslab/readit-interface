@@ -45,6 +45,12 @@ export default class ExplorerEventController {
         return sourcePanel.activate();
     }
 
+    resetSource(source: Node, showHighlights: boolean): SourceView {
+        const sourcePanel = createSourceView(source, showHighlights, true);
+        this.explorerView.reset(sourcePanel);
+        return sourcePanel.activate();
+    }
+
     listSourceAnnotations(sourcePanel: SourceView): AnnotationListView {
         const listPanel = new AnnotationListView({
             model: sourcePanel.model,
@@ -58,6 +64,12 @@ export default class ExplorerEventController {
 
     pushSourcePair(basePanel: View, source: Node): [SourceView, AnnotationListView] {
         const sourcePanel = this.pushSource(basePanel, source);
+        const listPanel = this.listSourceAnnotations(sourcePanel);
+        return [sourcePanel, listPanel];
+    }
+
+    resetSourcePair(source: Node): [SourceView, AnnotationListView] {
+        const sourcePanel = this.resetSource(source, true);
         const listPanel = this.listSourceAnnotations(sourcePanel);
         return [sourcePanel, listPanel];
     }
@@ -197,6 +209,12 @@ export default class ExplorerEventController {
         let newDetailView = new LdItemView({ model: annoRDF });
         this.mapAnnotationListAnnotationDetail.set(listView, newDetailView);
         this.explorerView.popUntil(listView).push(newDetailView);
+    }
+
+    resetItem(item: Node): LdItemView {
+        let detailView = new LdItemView({ model: item });
+        this.explorerView.reset(detailView);
+        return detailView;
     }
 
     closeSourceAnnotation(listView: AnnotationListView, annotation: FlatModel): void {
