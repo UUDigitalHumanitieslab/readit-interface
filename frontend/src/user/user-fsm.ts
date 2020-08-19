@@ -8,8 +8,8 @@ import AuthorizationFsm, { requireAuthorization } from './user-fsm-base';
  * this.
  */
 const unprivilegedState = {
-    arrive: requireAuthorization,
     leave: 'leaving',
+    search: requireAuthorization,
     explore: requireAuthorization,
     upload: requireAuthorization,
     confirm: 'confirming',
@@ -20,8 +20,8 @@ const unprivilegedState = {
  * the "arriving" state below for an example of how to extend this.
  */
 const privilegedState = {
-    arrive: 'arriving',
     leave: 'leaving',
+    search: 'searching',
     explore: 'exploring',
     upload: 'uploading',
     confirm: 'confirming',
@@ -38,12 +38,8 @@ export default AuthorizationFsm.extend({
     // AuthorizationFsm.
     states: {
         travelling: unprivilegedState,
-        arriving: defaults({
-            // Special case for the arriving state.
-            // Other privileged states may have different logout handlers.
-            logout: 'leaving',
-        }, privilegedState),
         leaving: unprivilegedState,
+        searching: privilegedState,
         authorizationGranted: privilegedState,
         exploring: privilegedState,
         uploading: privilegedState,

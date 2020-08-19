@@ -25,7 +25,8 @@ history.once('route', () => {
     uploadSourceForm.setHeight(availableHeight);
 });
 
-mainRouter.on('route:arrive', () => userFsm.handle('arrive'));
+mainRouter.on('route:home', () => mainRouter.navigate('search'));
+mainRouter.on('route:search', () => userFsm.handle('search'));
 mainRouter.on('route:upload', () => userFsm.handle('upload'));
 mainRouter.on('route:explore', () => {
     ensureSources();
@@ -35,8 +36,8 @@ mainRouter.on('route:leave', () => userFsm.handle('leave'));
 
 explorationRouter.on('route', () => userFsm.handle('explore'));
 
-userFsm.on('enter:arriving', () => welcomeView.render().$el.appendTo('#main'));
-userFsm.on('exit:arriving', () => welcomeView.$el.detach());
+userFsm.on('enter:searching', () => welcomeView.render().$el.appendTo('#main'));
+userFsm.on('exit:searching', () => welcomeView.$el.detach());
 userFsm.on('enter:uploading', () => {
     uploadSourceForm.render().$el.appendTo('#main');
 });

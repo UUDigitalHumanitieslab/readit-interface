@@ -6,7 +6,8 @@ export default class MainRouter extends Router {}
 
 extend(MainRouter.prototype, {
     routes: {
-        '(arrive)': 'arrive',
+        '': 'home',
+        'search': 'search',
         'leave': 'leave',
         'explore': 'explore',
         'upload': 'upload',
