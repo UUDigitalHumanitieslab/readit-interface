@@ -1,5 +1,5 @@
 export default {
-    'source':             'explore/source/:serial',
+    'source:bare':        'explore/source/:serial',
     'source:annotated':   'explore/source/:serial/annotations',
     'item':               'explore/item/:serial',
     'item:edit':          'explore/item/:serial/edit',

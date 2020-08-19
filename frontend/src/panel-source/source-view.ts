@@ -20,7 +20,7 @@ import SourceToolbarView from './toolbar/source-toolbar-view';
 import MetadataView from './source-metadata-view';
 import sourceTemplate from './source-template';
 
-const announce = announceRoute('source', ['model', 'id']);
+const announce = announceRoute('source:bare', ['model', 'id']);
 
 export interface ViewOptions extends BaseOpt<Model> {
     // An instance of vocab('Source').
