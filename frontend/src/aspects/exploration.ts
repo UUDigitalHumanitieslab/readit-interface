@@ -1,6 +1,7 @@
 import { isString } from 'lodash';
 
 import channel from '../explorer/radio';
+import executeRoute from '../explorer/route-parser';
 import router from '../global/exploration-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
@@ -36,8 +37,12 @@ channel.on('currentRoute', (route, panel) => {
     browserHistory.replaceState(panel.cid, document.title);
 });
 
-router.on('route', (route, params) => {
+router.on('route', (route, [serial]) => {
     const state = browserHistory.state;
     // state can only be a string if we made it so.
-    if (isString(state)) explorer.scroll(state);
+    if (isString(state) && explorer.has(state)) {
+        explorer.scroll(state);
+    } else {
+        executeRoute(route, controller, serial);
+    }
 });
