@@ -10,7 +10,6 @@ import user from '../global/user';
 import mainRouter from '../global/main-router';
 import explorationRouter from '../global/exploration-router';
 import userFsm from '../global/user-fsm';
-import { ensureSources } from '../global/sources';
 import explorerView from '../global/explorer-view';
 
 history.once('route', () => {
@@ -28,10 +27,7 @@ history.once('route', () => {
 mainRouter.on('route:home', () => mainRouter.navigate('search'));
 mainRouter.on('route:search', () => userFsm.handle('search'));
 mainRouter.on('route:upload', () => userFsm.handle('upload'));
-mainRouter.on('route:explore', () => {
-    ensureSources();
-    userFsm.handle('explore');
-});
+mainRouter.on('route:explore', () => userFsm.handle('explore'));
 mainRouter.on('route:leave', () => userFsm.handle('leave'));
 
 explorationRouter.on('route', () => userFsm.handle('explore'));

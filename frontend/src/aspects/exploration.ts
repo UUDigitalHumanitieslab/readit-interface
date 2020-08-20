@@ -3,8 +3,10 @@ import { isString } from 'lodash';
 import channel from '../explorer/radio';
 import executeRoute from '../explorer/route-parser';
 import router from '../global/exploration-router';
+import mainRouter from '../global/main-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
+import { ensureSources } from '../global/sources';
 
 const browserHistory = window.history;
 
@@ -36,6 +38,8 @@ channel.on('currentRoute', (route, panel) => {
     // panel.
     browserHistory.replaceState(panel.cid, document.title);
 });
+
+mainRouter.on('route:explore', () => ensureSources());
 
 router.on('route', (route, [serial]) => {
     const state = browserHistory.state;
