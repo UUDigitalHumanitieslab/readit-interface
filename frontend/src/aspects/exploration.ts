@@ -7,6 +7,7 @@ import mainRouter from '../global/main-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
 import { ensureSources } from '../global/sources';
+import sourceListPanel from '../global/source-list-view';
 
 const browserHistory = window.history;
 
@@ -39,7 +40,15 @@ channel.on('currentRoute', (route, panel) => {
     browserHistory.replaceState(panel.cid, document.title);
 });
 
-mainRouter.on('route:explore', () => ensureSources());
+mainRouter.on('route:explore', () => {
+    ensureSources();
+    const cid = sourceListPanel.cid;
+    if (explorer.has(cid)) {
+        explorer.scroll(cid);
+    } else {
+        explorer.reset(sourceListPanel);
+    }
+});
 
 router.on('route', (route, [serial]) => {
     const state = browserHistory.state;

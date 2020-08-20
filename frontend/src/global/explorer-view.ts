@@ -1,4 +1,4 @@
+import View from '../core/view';
 import ExplorerView from '../explorer/explorer-view';
-import sourceListView from '../global/source-list-view';
 
-export default new ExplorerView({ first: sourceListView });
+export default new ExplorerView({ first: new View() });
