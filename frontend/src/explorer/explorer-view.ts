@@ -215,6 +215,19 @@ export default class ExplorerView extends View {
     }
 
     /**
+     * Scroll to a panel if present, otherwise execute an action of choice.
+     * Useful in routing.
+     */
+    scrollOrAction(cid, action: () => void): this {
+        if (isString(cid) && this.has(cid)) {
+            this.scroll(cid);
+        } else {
+            action();
+        }
+        return this;
+    }
+
+    /**
      * Remove the topmost panel from the stack at position. Returns the deleted panel.
      * @param position The indes of the stack to remove the panel from
      */

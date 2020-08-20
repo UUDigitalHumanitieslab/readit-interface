@@ -42,20 +42,13 @@ channel.on('currentRoute', (route, panel) => {
 
 mainRouter.on('route:explore', () => {
     ensureSources();
-    const cid = sourceListPanel.cid;
-    if (explorer.has(cid)) {
-        explorer.scroll(cid);
-    } else {
-        explorer.reset(sourceListPanel);
-    }
+    explorer.scrollOrAction(
+        sourceListPanel.cid,
+        () => explorer.reset(sourceListPanel)
+    );
 });
 
-router.on('route', (route, [serial]) => {
-    const state = browserHistory.state;
-    // state can only be a string if we made it so.
-    if (isString(state) && explorer.has(state)) {
-        explorer.scroll(state);
-    } else {
-        executeRoute(route, controller, serial);
-    }
-});
+router.on('route', (route, [serial]) => explorer.scrollOrAction(
+    browserHistory.state,
+    () => executeRoute(route, controller, serial)
+));
