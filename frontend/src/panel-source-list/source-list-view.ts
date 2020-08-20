@@ -8,10 +8,12 @@ import Node from '../jsonld/node';
 import { schema, iso6391, UNKNOWN } from '../jsonld/ns';
 import FilteredCollection from '../utilities/filtered-collection';
 import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 
 import sourceListTemplate from './source-list-template';
 import SourceLanguageView from './source-language-view';
 
+const announce = announceRoute('explore');
 const languages = ["en", "fr", "de", "other"];
 
 export interface ViewOptions extends BaseOpt<Node> {
@@ -27,7 +29,7 @@ export default class SourceListView extends CollectionView<Model, SourceLanguage
 
     initialize(): this {
         this.processCollection(this.collection as Graph, languages);
-        this.initItems();
+        this.initItems().on('announceRoute', announce);
         return this;
     }
 
