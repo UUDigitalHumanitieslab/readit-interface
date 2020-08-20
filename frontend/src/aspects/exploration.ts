@@ -10,6 +10,34 @@ import { ensureSources } from '../global/sources';
 import sourceListPanel from '../global/source-list-view';
 
 const browserHistory = window.history;
+const resetSourceList = () => explorer.reset(sourceListPanel);
+
+/**
+ * Common patterns for the explorer routes.
+ */
+function deepRoute(obtainAction, resetAction) {
+    return ([serial]) => explorer.scrollOrAction(
+        browserHistory.state,
+        () => resetAction(controller, obtainAction(serial))
+    );
+}
+const sourceRoute = partial(deepRoute, act.getSource);
+const itemRoute = partial(deepRoute, act.getItem);
+
+mainRouter.on('route:explore', () => {
+    ensureSources();
+    explorer.scrollOrAction(sourceListPanel.cid, resetSourceList);
+});
+
+router.on('route:source:bare',       sourceRoute(act.sourceWithoutAnnotations));
+router.on('route:source:annotated',  sourceRoute(act.sourceWithAnnotations));
+router.on('route:item',                itemRoute(act.item));
+router.on('route:item:edit',           itemRoute(act.itemInEditMode));
+router.on('route:item:related',        itemRoute(act.itemWithRelations));
+router.on('route:item:related:edit',   itemRoute(act.itemWithEditRelations));
+router.on('route:item:external',       itemRoute(act.itemWithExternal));
+router.on('route:item:external:edit',  itemRoute(act.itemWithEditExternal));
+router.on('route:item:annotations',    itemRoute(act.itemWithOccurrences));
 
 channel.on({
     'sourceview:showAnnotations': controller.reopenSourceAnnotations,
@@ -39,34 +67,3 @@ channel.on('currentRoute', (route, panel) => {
     // panel.
     browserHistory.replaceState(panel.cid, document.title);
 });
-
-mainRouter.on('route:explore', () => {
-    ensureSources();
-    explorer.scrollOrAction(
-        sourceListPanel.cid,
-        () => explorer.reset(sourceListPanel)
-    );
-});
-
-/**
- * Common patterns for the explorer routes.
- */
-function deepRoute(obtainAction, resetAction) {
-    return ([serial]) => explorer.scrollOrAction(
-        browserHistory.state,
-        () => resetAction(controller, obtainAction(serial))
-    );
-}
-
-const sourceRoute = partial(deepRoute, act.getSource);
-const itemRoute = partial(deepRoute, act.getItem);
-
-router.on('route:source:bare',       sourceRoute(act.sourceWithoutAnnotations));
-router.on('route:source:annotated',  sourceRoute(act.sourceWithAnnotations));
-router.on('route:item',                itemRoute(act.item));
-router.on('route:item:edit',           itemRoute(act.itemInEditMode));
-router.on('route:item:related',        itemRoute(act.itemWithRelations));
-router.on('route:item:related:edit',   itemRoute(act.itemWithEditRelations));
-router.on('route:item:external',       itemRoute(act.itemWithExternal));
-router.on('route:item:external:edit',  itemRoute(act.itemWithEditExternal));
-router.on('route:item:annotations',    itemRoute(act.itemWithOccurrences));
