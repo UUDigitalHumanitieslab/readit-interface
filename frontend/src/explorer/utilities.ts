@@ -12,8 +12,8 @@ import routePatterns from './route-patterns';
  *             `':serial'` in the route pattern may be obtained.
  * @returns Function that will trigger 'currentRoute' on the `explorerChannel`.
  */
-export function announceRoute(route: string, path: string[]) {
-    const pattern = routePatterns[route];
+export function announceRoute(route: string, path?: string[]) {
+    const pattern = routePatterns[route] || route;
 
     /**
      * The created event handler.
@@ -21,7 +21,7 @@ export function announceRoute(route: string, path: string[]) {
      * @fires Events#currentRoute
      */
     return function(): void {
-        const serial = getLabelFromId(get(this, path));
+        const serial = getLabelFromId(get(this, path, ''));
         const route = pattern.replace(':serial', serial);
 
         /**
