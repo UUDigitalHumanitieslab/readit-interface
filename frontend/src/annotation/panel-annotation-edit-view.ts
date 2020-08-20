@@ -9,11 +9,12 @@ import Graph from '../jsonld/graph';
 
 import ItemEditor from '../panel-ld-item/ld-item-edit-view';
 import PickerView from '../forms/base-picker-view';
+import FilteredCollection from '../utilities/filtered-collection';
 import ItemGraph from '../utilities/item-graph';
 import ClassPickerView from '../utilities/ontology-class-picker/ontology-class-picker-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import SnippetView from '../utilities/snippet-view/snippet-view';
-import { isType } from '../utilities/utilities';
+import { isRdfsClass, isType } from '../utilities/utilities';
 import {
     AnnotationPositionDetails,
     getTargetDetails
@@ -22,12 +23,23 @@ import {
     composeAnnotation,
     getAnonymousTextQuoteSelector
 } from './../utilities/annotation/annotation-creation-utilities';
+import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 
 import BaseAnnotationView from './base-annotation-view';
 import FlatCollection from './flat-annotation-collection';
 
 import annotationEditTemplate from './panel-annotation-edit-template';
 
+/**
+ * Helper function in order to pass the right classes to the classPicker.
+ */
+function getOntologyClasses() {
+    const ontology = ldChannel.request('ontology:graph') || new Graph();
+    return new FilteredCollection<Node, Graph>(ontology, isRdfsClass);
+}
+
+const announce = announceRoute('item:edit', ['model', 'id']);
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
@@ -35,7 +47,6 @@ export interface ViewOptions extends BaseOpt<Model> {
      * can be undefined if range and positionDetails are set (i.e. in case of a new annotation)
      */
     model: Node;
-    ontology: Graph;
     collection?: FlatCollection;
 
     /**
@@ -56,7 +67,6 @@ export interface ViewOptions extends BaseOpt<Model> {
 
 export default class AnnotationEditView extends BaseAnnotationView {
     collection: FlatCollection;
-    ontology: Graph;
     source: Node;
     range: Range;
     positionDetails: AnnotationPositionDetails;
@@ -77,7 +87,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
     }
 
     initialize(options: ViewOptions): this {
-        this.ontology = options.ontology;
         this.itemOptions = new ItemGraph();
         this.itemPicker = new PickerView({collection: this.itemOptions});
         this.itemPicker.on('change', this.selectItem, this);
@@ -97,6 +106,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
             this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
             this.processModel(options.model);
             this.listenTo(this.model, 'change', this.processModel);
+            this.on('announceRoute', announce);
         }
         else {
             this.processTextQuoteSelector(this.model);
@@ -144,7 +154,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     initClassPicker(): this {
         this.classPicker = new ClassPickerView({
-            collection: this.ontology,
+            collection: getOntologyClasses(),
             preselection: this.preselection
         });
 
@@ -224,7 +234,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
                 const anno = results.annotation;
                 this.collection.underlying.add(anno);
                 const flat = this.collection.get(anno.id);
-                this.trigger('annotationEditView:saveNew', this, flat, results.items);
+                explorerChannel.trigger('annotationEditView:saveNew', this, flat, results.items);
             }
         );
     }
@@ -232,7 +242,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
     submitOldAnnotation(newItem: boolean): void {
         this.selectedItem && this.model.set(oa.hasBody, this.selectedItem);
         this.model.save();
-        this.trigger('annotationEditView:save', this, this.model, newItem);
+        explorerChannel.trigger('annotationEditView:save', this, this.model, newItem);
     }
 
     reset(): this {
@@ -289,7 +299,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
     onCancelClicked(event: JQueryEventObject): this {
         event.preventDefault();
         this.reset();
-        this.trigger('annotationEditView:close', this);
+        explorerChannel.trigger('annotationEditView:close', this);
         return this;
     }
 

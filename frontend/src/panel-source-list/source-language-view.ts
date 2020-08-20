@@ -1,41 +1,29 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
+
 import View from '../core/view';
-
-import { schema, iso6391, UNKNOWN } from '../jsonld/ns';
-
-import Graph from '../jsonld/graph';
-import Node from '../jsonld/node';
-
+import { schema } from '../jsonld/ns';
 import sourceLanguageTemplate from './source-language-template';
 
-export default class SourceLanguageView extends View<Node> {
+export default class SourceLanguageView extends View {
     language: string;
     sources: any;
 
     initialize(): this {
-        this.language = this.model.attributes.language;
-        this.sources = this.model.attributes.sources.map( source => {
-            return {
-                name: source.get(schema('name'))[0],
-                author: source.get(schema.creator)[0],
-                cid: source.cid
-        }});
-        if (this.sources.length > 0) {
-            this.render();
-        }
+        this.language = this.model.get('language');
+        this.collection = this.model.get('sources');
+        this.render().listenTo(this.collection, 'update reset', this.render);
         return this;
     }
 
-    vocabularizeLanguage(inputLanguage: string): string {
-        if (inputLanguage == "other") {
-            return UNKNOWN;
-        }
-        return iso6391(inputLanguage);
-    } 
-
     render(): this {
-        this.$el.html(this.template(this));
+        this.sources = this.collection.map( source => ({
+            name: source.get(schema('name'))[0],
+            author: source.get(schema.creator)[0],
+            cid: source.cid
+        }));
+        if (this.sources.length > 0) {
+            this.$el.html(this.template(this));
+        }
         return this;
     }
 

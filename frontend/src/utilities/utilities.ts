@@ -204,13 +204,3 @@ export function getOntology(callback): void {
         /*error*/ callback
     );
 }
-
-export function getSources(callback): void {
-    const sources = new Graph();
-    sources.fetch({ url: '/source/' }).then(
-        function succes() {
-            callback(null, sources);
-        },
-        /*error*/ callback
-    );
-}

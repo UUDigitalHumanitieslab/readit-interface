@@ -2,11 +2,12 @@ import { extend } from 'lodash';
 
 import Router from '../core/router';
 
-export default class DirectionRouter extends Router {}
+export default class MainRouter extends Router {}
 
-extend(DirectionRouter.prototype, {
+extend(MainRouter.prototype, {
     routes: {
-        '(arrive)': 'arrive',
+        '': 'home',
+        'search': 'search',
         'leave': 'leave',
         'explore': 'explore',
         'upload': 'upload',

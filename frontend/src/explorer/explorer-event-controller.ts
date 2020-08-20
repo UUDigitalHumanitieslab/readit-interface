@@ -8,11 +8,11 @@ import Graph from '../jsonld/graph';
 import SourceView from './../panel-source/source-view';
 import AnnotationListView from '../annotation/panel-annotation-list-view';
 
-import AnnotationEditView from '../annotation/panel-annotation-edit-view';
+import AnnoEditView from '../annotation/panel-annotation-edit-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
-import RelatedItemsEditView from '../panel-related-items/related-items-edit-view';
-import ExternalResourcesView from '../panel-external-resources/external-resources-view';
-import ExternalResourcesEditView from '../panel-external-resources/external-resources-edit-view';
+import RelatedEditView from '../panel-related-items/related-items-edit-view';
+import ExternalView from '../panel-external-resources/external-resources-view';
+import ExternalEditView from '../panel-external-resources/external-resources-edit-view';
 import ItemGraph from '../utilities/item-graph';
 import FlatModel from '../annotation/flat-annotation-model';
 import FlatCollection from '../annotation/flat-annotation-collection';
@@ -23,7 +23,6 @@ import {
     isType,
     isOntologyClass,
 } from '../utilities/utilities';
-import { Collection } from 'backbone';
 
 export default class ExplorerEventController {
     /**
@@ -33,57 +32,49 @@ export default class ExplorerEventController {
 
     mapSourceAnnotationList: Map<SourceView, AnnotationListView> = new Map();
     mapAnnotationListSource: Map<AnnotationListView, SourceView> = new Map();
-    mapAnnotationEditSource: Map<AnnotationEditView, SourceView> = new Map();
+    mapAnnotationEditSource: Map<AnnoEditView, SourceView> = new Map();
     mapAnnotationListAnnotationDetail: Map<AnnotationListView, LdItemView> = new Map();
 
     constructor(explorerView: ExplorerView) {
         this.explorerView = explorerView;
     }
 
-    /**
-     * Subcribes to the events fired by the panel.
-     * Contains a neat trick: will subscribe to all known events, most of which will never be
-     * fired by the panel. No panel fires all different events.
-     * @param panel The panel to listen to.
-     */
-    subscribeToPanelEvents(panel: View): void {
-        panel.on({
-            'sourceview:showAnnotations': graph => defer(this.sourceViewShowAnnotations.bind(this), graph),
-            'sourceview:hideAnnotations': this.sourceViewHideAnnotations,
-            'sourceview:textSelected': this.sourceViewOnTextSelected,
-            'annotationList:showAnnotation': this.openAnnotationPanel,
-            'annotationList:hideAnnotation': this.closeAnnotationPanel,
-            'annotationEditView:saveNew': this.annotationEditSaveNew,
-            'annotationEditView:save': this.annotationEditSave,
-            'annotationEditView:close': this.annotationEditClose,
-            'lditem:showRelated': this.ldItemShowRelated,
-            'lditem:showAnnotations': this.ldItemShowAnnotations,
-            'lditem:showExternal': this.ldItemShowExternal,
-            'lditem:editAnnotation': this.ldItemEditAnnotation,
-            'lditem:editItem': this.notImplemented,
-            'relItems:itemClick': this.relItemsItemClicked,
-            'relItems:edit': this.relItemsEdit,
-            'externalItems:edit': this.externalItemsEdit,
-            'externalItems:edit-close': this.externalItemsEditClose,
-            'relItems:edit-close': this.relItemsEditClose,
-            'source-list:click': this.pushSourcePair,
-            'searchResultList:itemClicked': this.searchResultListItemClicked,
-        }, this);
+    pushSource(basePanel: View, source: Node): SourceView {
+        const sourcePanel = createSourceView(source, true, true);
+        this.explorerView.popUntil(basePanel).push(sourcePanel);
+        return sourcePanel.activate();
     }
 
-    pushSourcePair(basePanel: View, source: Node): [SourceView, AnnotationListView] {
-        const sourcePanel = createSourceView(source, true, true);
+    resetSource(source: Node, showHighlights: boolean): SourceView {
+        const sourcePanel = createSourceView(source, showHighlights, true);
+        this.explorerView.reset(sourcePanel);
+        return sourcePanel.activate();
+    }
+
+    listSourceAnnotations(sourcePanel: SourceView): AnnotationListView {
         const listPanel = new AnnotationListView({
+            model: sourcePanel.model,
             collection: sourcePanel.collection,
         });
         this.mapSourceAnnotationList.set(sourcePanel, listPanel);
         this.mapAnnotationListSource.set(listPanel, sourcePanel);
-        this.explorerView.popUntil(basePanel).push(sourcePanel).push(listPanel);
-        sourcePanel.activate();
+        this.explorerView.push(listPanel);
+        return listPanel;
+    }
+
+    pushSourcePair(basePanel: View, source: Node): [SourceView, AnnotationListView] {
+        const sourcePanel = this.pushSource(basePanel, source);
+        const listPanel = this.listSourceAnnotations(sourcePanel);
         return [sourcePanel, listPanel];
     }
 
-    searchResultListItemClicked(searchResults: SearchResultListView, item: Node) {
+    resetSourcePair(source: Node): [SourceView, AnnotationListView] {
+        const sourcePanel = this.resetSource(source, true);
+        const listPanel = this.listSourceAnnotations(sourcePanel);
+        return [sourcePanel, listPanel];
+    }
+
+    openSearchResult(searchResults: SearchResultListView, item: Node) {
         if (isType(item, oa.Annotation)) {
             const specificResource = item.get(oa.hasTarget)[0] as Node;
             const source = specificResource.get(oa.hasSource)[0] as Node;
@@ -95,48 +86,43 @@ export default class ExplorerEventController {
         }
     }
 
-    relItemsItemClicked(relView: RelatedItemsView, item: Node): this {
-        this.explorerView.popUntil(relView).push(new LdItemView({
-            model: item,
-        }));
-        return this;
+    openRelated(relView: RelatedItemsView, item: Node): LdItemView {
+        const itemPanel = new LdItemView({ model: item });
+        this.explorerView.popUntil(relView).push(itemPanel);
+        return itemPanel;
     }
 
-    relItemsEdit(relView: RelatedItemsView, item: Node): this {
-        const editView = new RelatedItemsEditView({ model: item });
+    editRelated(relView: RelatedItemsView, item: Node): RelatedEditView {
+        const editView = new RelatedEditView({ model: item });
         this.explorerView.overlay(editView, relView);
-        return this;
+        return editView;
     }
 
-    relItemsEditClose(editView: RelatedItemsEditView): this {
+    closeEditRelated(editView: RelatedEditView): void {
         this.explorerView.removeOverlay(editView);
-        return this;
     }
 
-    externalItemsEdit(exView: ExternalResourcesView): this {
-        const editView = new ExternalResourcesEditView({ model: exView.model });
+    editExternal(exView: ExternalView): ExternalEditView {
+        const editView = new ExternalEditView({ model: exView.model });
         this.explorerView.overlay(editView, exView);
-        return this;
+        return editView;
     }
 
-    externalItemsEditClose(editView: ExternalResourcesEditView): this {
+    closeEditExternal(editView: ExternalEditView): void {
         this.explorerView.removeOverlay(editView);
-        return this;
     }
 
-    ldItemShowRelated(view: LdItemView, item: Node): this {
+    listRelated(view: LdItemView, item: Node): RelatedItemsView {
         if (!item) {
             alert('no related items!');
             return;
         }
-
-        this.explorerView.popUntil(view).push(new RelatedItemsView({
-            model: item,
-        }));
-        return this;
+        const listView = new RelatedItemsView({ model: item });
+        this.explorerView.popUntil(view).push(listView);
+        return listView;
     }
 
-    ldItemShowAnnotations(view: LdItemView, item: Node): this {
+    listItemAnnotations(view: LdItemView, item: Node): void {
         if (!item) {
             alert('no linked annotations!');
             return;
@@ -146,7 +132,11 @@ export default class ExplorerEventController {
         let items = new ItemGraph();
         items.query({ predicate: oa.hasBody, object: item }).then(
             function success() {
-                let resultView = new SearchResultListView({ collection: new Graph(items.models), selectable: false });
+                let resultView = new SearchResultListView({
+                    model: item,
+                    collection: new Graph(items.models),
+                    selectable: false,
+                });
                 self.explorerView.push(resultView);
             },
             function error(error) {
@@ -154,38 +144,31 @@ export default class ExplorerEventController {
             }
         );
         this.explorerView.popUntil(view);
-
-        return this;
     }
 
-    ldItemShowExternal(view: LdItemView, item: Node): this {
+    listExternal(view: LdItemView, item: Node): ExternalView {
         if (!item) {
             alert('no external resources!');
             return;
         }
-        this.explorerView.popUntil(view).push(new ExternalResourcesView({
-            model: item,
-        }));
-        return this;
+        const listView = new ExternalView({ model: item });
+        this.explorerView.popUntil(view).push(listView);
+        return listView;
     }
 
-    ldItemEditAnnotation(ldItemview: LdItemView, annotation: Node): this {
-        let annoEditView = new AnnotationEditView({
-            ontology: this.explorerView.ontology,
-            model: annotation,
-        });
+    editAnnotation(ldItemview: LdItemView, annotation: Node): AnnoEditView {
+        let annoEditView = new AnnoEditView({ model: annotation });
         this.explorerView.overlay(annoEditView, ldItemview);
-        return this;
+        return annoEditView;
     }
 
-    annotationEditSave(editView: AnnotationEditView, annotation: Node, newItem: boolean): this {
+    saveAnnotation(editView: AnnoEditView, annotation: Node, newItem: boolean): void {
         this.explorerView.removeOverlay(editView);
         // TODO: re-enable the next line.
         // if (newItem) this.autoOpenRelationEditor(annotation);
-        return this;
     }
 
-    annotationEditSaveNew(editView: AnnotationEditView, annotation: FlatModel, created: ItemGraph): void {
+    saveNewAnnotation(editView: AnnoEditView, annotation: FlatModel, created: ItemGraph): void {
         const listView = editView['_listview'];
         if (listView) {
             this.explorerView.removeOverlay(editView);
@@ -206,62 +189,58 @@ export default class ExplorerEventController {
             const item = newItems[0];
             const relView = new RelatedItemsView({ model: item });
             this.explorerView.push(relView);
-            this.relItemsEdit(relView, item);
+            this.editRelated(relView, item);
         }
         return this;
     }
 
-    annotationEditClose(editView: AnnotationEditView): this {
+    closeEditAnnotation(editView: AnnoEditView): void {
         let source = this.mapAnnotationEditSource.get(editView);
         let annoList = this.mapSourceAnnotationList.get(source);
-        if (annoList) this.explorerView.removeOverlay(editView);
-        else this.explorerView.pop();
-        return this;
+        if (annoList) {
+            this.explorerView.removeOverlay(editView);
+        } else {
+            this.explorerView.pop();
+        }
     }
 
-    annotationListEdit(view: AnnotationListView, annotationList): this {
-        this.notImplemented();
-        return this;
-    }
-
-    openAnnotationPanel(listView: AnnotationListView, anno: FlatModel): void {
+    openSourceAnnotation(listView: AnnotationListView, anno: FlatModel): void {
         const annoRDF = anno.get('annotation');
         let newDetailView = new LdItemView({ model: annoRDF });
         this.mapAnnotationListAnnotationDetail.set(listView, newDetailView);
         this.explorerView.popUntil(listView).push(newDetailView);
     }
 
-    closeAnnotationPanel(listView: AnnotationListView, annotation: FlatModel): void {
+    resetItem(item: Node): LdItemView {
+        let detailView = new LdItemView({ model: item });
+        this.explorerView.reset(detailView);
+        return detailView;
+    }
+
+    closeSourceAnnotation(listView: AnnotationListView, annotation: FlatModel): void {
         this.mapAnnotationListAnnotationDetail.delete(listView);
         this.explorerView.popUntil(listView);
     }
 
-    sourceViewShowAnnotations(sourceView: SourceView): this {
-        let annotationListView = new AnnotationListView({
-            collection: sourceView.collection
-        });
+    reopenSourceAnnotations(sourceView: SourceView): AnnotationListView {
+        const annoListView = this.listSourceAnnotations(sourceView);
         sourceView.collection.underlying.trigger('sync');
-        this.mapSourceAnnotationList.set(sourceView, annotationListView);
-        this.mapAnnotationListSource.set(annotationListView, sourceView);
-        this.explorerView.push(annotationListView);
-        return this;
+        return annoListView;
     }
 
-    sourceViewHideAnnotations(sourceView): this {
+    unlistSourceAnnotations(sourceView): void {
         let annoListView = this.mapSourceAnnotationList.get(sourceView);
         this.mapSourceAnnotationList.delete(sourceView);
         this.mapAnnotationListSource.delete(annoListView);
         this.explorerView.popUntil(sourceView);
-        return this;
     }
 
-    sourceViewOnTextSelected(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): this {
+    selectText(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): AnnoEditView {
         let listView = this.mapSourceAnnotationList.get(sourceView);
-        let annoEditView = new AnnotationEditView({
+        let annoEditView = new AnnoEditView({
             range: range,
             positionDetails: positionDetails,
             source: source,
-            ontology: this.explorerView.ontology,
             model: undefined,
             collection: sourceView.collection,
         });
@@ -270,11 +249,10 @@ export default class ExplorerEventController {
         if (listView) {
             annoEditView['_listview'] = listView;
             this.explorerView.popUntil(listView).overlay(annoEditView);
-        }
-        else {
+        } else {
             this.explorerView.push(annoEditView);
         }
-        return this;
+        return annoEditView;
     }
 
     notImplemented() {

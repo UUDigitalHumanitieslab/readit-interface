@@ -1,7 +1,6 @@
 import { extend } from 'lodash';
 import View from './../../core/view';
 
-import user from './../../global/user';
 import registrationTemplate from './registration-template';
 
 export default class RegistrationFormView extends View {
@@ -28,13 +27,12 @@ export default class RegistrationFormView extends View {
 
     submit(event?: JQuery.TriggeredEvent): this {
         if (event) event.preventDefault();
-        if (this.$('form').valid()) {
-            let username = this.$('input[name="username"]').val() as string,
-                password1 = this.$('input[name="password1"]').val() as string,
-                password2 = this.$('input[name="password2"]').val() as string,
-                email = this.$('input[name="email"]').val() as string;
-            user.register({ username, password1, password2, email });
-        }
+        if (this.$('form').valid()) this.trigger('register', {
+            username: this.$('input[name="username"]').val(),
+            password1: this.$('input[name="password1"]').val(),
+            password2: this.$('input[name="password2"]').val(),
+            email: this.$('input[name="email"]').val(),
+        });
         return this;
     }
 

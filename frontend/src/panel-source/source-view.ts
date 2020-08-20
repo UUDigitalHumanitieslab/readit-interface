@@ -12,11 +12,15 @@ import ToggleMixin from '../utilities/category-colors/category-toggle-mixin';
 import SegmentCollection from '../highlight/text-segment-collection';
 import { isType } from './../utilities/utilities';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
+import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 
 import HighlightableTextView from './highlightable-text-view';
 import SourceToolbarView from './toolbar/source-toolbar-view';
 import MetadataView from './source-metadata-view';
 import sourceTemplate from './source-template';
+
+const announce = announceRoute('source:bare', ['model', 'id']);
 
 export interface ViewOptions extends BaseOpt<Model> {
     // An instance of vocab('Source').
@@ -126,6 +130,7 @@ class SourcePanel extends CompositeView {
         }
         this.metaView.on('metadata:hide', this.toggleMetadata, this);
         this.metaView.on('metadata:edit', this.editMetadata, this);
+        this.on('announceRoute', announce);
     }
 
     validate() {
@@ -208,7 +213,7 @@ class SourcePanel extends CompositeView {
      * Pass events from HighlightableTextView
      */
     onTextSelected(range: Range, posDetails: AnnotationPositionDetails): void {
-        this.trigger('sourceview:textSelected', this, this.model, range, posDetails);
+        explorerChannel.trigger('sourceview:textSelected', this, this.model, range, posDetails);
     }
 
     /**
@@ -217,11 +222,11 @@ class SourcePanel extends CompositeView {
     toggleHighlights(): this {
         if (this.isShowingHighlights) {
             this.hideHighlights();
-            this.trigger('sourceview:hideAnnotations', this);
+            explorerChannel.trigger('sourceview:hideAnnotations', this);
         }
         else {
             this.showHighlights();
-            this.trigger('sourceview:showAnnotations', this, true);
+            explorerChannel.trigger('sourceview:showAnnotations', this, true);
         }
         this.toggleToolbarItemSelected('annotations');
         this.isShowingHighlights = !this.isShowingHighlights;
