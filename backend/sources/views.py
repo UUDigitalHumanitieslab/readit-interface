@@ -92,6 +92,27 @@ class SourcesAPIRoot(RDFView):
         return inject_fulltext(super().get_graph(request, **kwargs), False, request)
 
 
+class SourceSelection(RDFResourceView):
+    ''' list all sources related to a search query. '''
+
+    def get_graph(self, request, **kwargs):
+        query = request.GET.get('query')
+        fields = request.GET.get('queryfields')
+        query_string = {"query": query}
+        if fields != 'all':
+            query_string['fields'] = [fields]
+        if query == '':
+            clause = {"match_all": {}}
+        else:
+            clause = {"simple_query_string": query_string}
+        body = {"query": clause}
+        results = es.search(body=body, index=settings.ES_ALIASNAME)
+        if results['hits']['total']['value'] == 0:
+            return Graph()
+        selected_sources_graph = select_sources_elasticsearch(results)
+        return selected_sources_graph
+
+
 class SourcesAPISingular(RDFResourceView):
     """ API endpoint for fetching individual subjects. """
     permission_classes = [IsAuthenticated, DeleteSourcePermission]
@@ -141,24 +162,6 @@ def source_fulltext(request, serial, query=None):
         f = result['hits']['hits'][0]['_source']['text']
         return HttpResponse(f, content_type='text/plain; charset=utf-8')
     return Response(status=HTTP_404_NOT_FOUND)
-
-
-def search_sources(request):
-    query = request.GET.get('query')
-    fields = request.GET.get('queryfields')
-    query_string = {"query": query}
-    if fields != 'all':
-        query_string['fields'] = [fields]
-    if query == '':
-        clause = {"match_all": {}}
-    else:
-        clause = {"simple_query_string": query_string}
-    body = {"query": clause}
-    results = es.search(body=body, index=settings.ES_ALIASNAME)
-    if results['hits']['total']['value'] == 0:
-        return HttpResponse('no results found')
-    selected_sources_graph = select_sources_elasticsearch(results)
-    return HttpResponse(selected_sources_graph)
 
 
 def select_sources_elasticsearch(results):
