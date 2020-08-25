@@ -8,7 +8,7 @@ django-cors-headers
 elasticsearch
 rdflib-django3
 rdflib-jsonld
-sparqlwrapper
+requests
 keepalive
 psycopg2 --no-binary psycopg2
 pytest
