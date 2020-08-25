@@ -36,7 +36,6 @@ describe('AnnotationEditView', function() {
             range,
             positionDetails: this.positionDetails,
             source: new Node({'@id': 'x'}),
-            ontology: new Graph(),
             model: undefined,
         })).not.toThrow();
     });
@@ -46,10 +45,7 @@ describe('AnnotationEditView', function() {
         const annotation = items.get(item('100'));
         const creator = annotation.get(dcterms.creator)[0] as Node;
         ldChannel.reply('current-user-uri', constant(creator.id));
-        const view = new AnnotationEditView({
-            ontology: new Graph(),
-            model: annotation,
-        }).render();
+        const view = new AnnotationEditView({ model: annotation }).render();
         expect(view.$('.panel-footer button.is-danger').length).toBe(1);
         view.remove();
         ldChannel.stopReplying('current-user-uri');
@@ -59,10 +55,7 @@ describe('AnnotationEditView', function() {
         const items = new Graph(mockItems);
         const annotation = items.get(item('100'));
         const creator = annotation.get(dcterms.creator)[0] as Node;
-        const view = new AnnotationEditView({
-            ontology: new Graph(),
-            model: annotation,
-        }).render();
+        const view = new AnnotationEditView({ model: annotation }).render();
         expect(view.$('.panel-footer button.is-danger').length).toBe(0);
         view.remove();
     });

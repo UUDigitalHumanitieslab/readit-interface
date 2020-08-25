@@ -4,10 +4,14 @@ import { CollectionView } from '../core/view';
 import { getScrollTop, animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
 import ItemSummaryBlock from '../utilities/item-summary-block/item-summary-block-view';
 import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
+import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 
 import FlatModel from './flat-annotation-model';
 import FlatCollection from './flat-annotation-collection';
 import annotationsTemplate from './panel-annotation-list-template';
+
+const announce = announceRoute('source:annotated', ['model', 'id']);
 
 /**
  * Explorer panel that displays a list of annotations as ItemSummaryBlocks.
@@ -41,7 +45,7 @@ export default class AnnotationListView extends CollectionView<FlatModel, ItemSu
             remove: this.removeItem,
             sort: this.placeItems,
             reset: this.resetItems,
-        });
+        }).on('announceRoute', announce);
     }
 
     _hideLoadingSpinner(): void {
@@ -52,12 +56,12 @@ export default class AnnotationListView extends CollectionView<FlatModel, ItemSu
 
     _handleFocus(model: FlatModel): void {
         this.scrollTo(model);
-        this.trigger('annotationList:showAnnotation', this, model);
+        explorerChannel.trigger('annotationList:showAnnotation', this, model);
     }
 
     _handleBlur(lostFocus: FlatModel, gainedFocus?: FlatModel): void {
         if (!gainedFocus) {
-            this.trigger('annotationList:hideAnnotation', this, lostFocus);
+            explorerChannel.trigger('annotationList:hideAnnotation', this, lostFocus);
         }
     }
 

@@ -1,4 +1,4 @@
-import { extend } from 'lodash';
+import { extend, compact } from 'lodash';
 import { ViewOptions as BaseOpt } from 'backbone';
 
 import View from '../../core/view';
@@ -15,32 +15,32 @@ export interface ViewOptions extends BaseOpt<Node> {
 
 export default class CategoryColorsView extends View {
     collection: Graph
-    categoryColors: any;
 
     constructor(options: ViewOptions) {
         super(options);
     }
 
     initialize(): void {
-        this.collectColours();
+        this.render().listenTo(this.collection, 'update reset', this.render);
     }
 
     render(): View {
-        this.$el.html(this.template({ categoryColors: this.categoryColors }));
+        this.$el.html(this.template({ categoryColors: this.collectColors() }));
         return this;
     }
 
-    collectColours(): void {
-        this.categoryColors = [];
-
-        this.collection.each(node => {
+    collectColors() {
+        return compact(this.collection.map(node => {
             if (isRdfsClass(node) && node.has(schema.color)) {
-                let cssClass = getCssClassName(node);
-                this.categoryColors.push({ class: cssClass, color: node.get(schema.color)[0] });
+                return {
+                    class: getCssClassName(node),
+                    color: node.get(schema.color)[0] ,
+                };
             }
-        });
+        }));
     }
 }
+
 extend(CategoryColorsView.prototype, {
     tagName: 'style',
     template: categoryColorsTemplate,

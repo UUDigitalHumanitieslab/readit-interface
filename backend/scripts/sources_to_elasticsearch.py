@@ -2,8 +2,9 @@
 Script for moving all source texts from file store to Elasticsearch.
 
 Usage: open an interactive Python shell with Django's `shell`
-command. Then:
-
+command. When working on a server, pass the arguments `--settings 
+settings --pythonpath {directory/of/settings/file}`.
+Then:
 >>> from scripts.sources_to_elasticsearch import text_to_index
 >>> text_to_index()
 """
@@ -67,4 +68,3 @@ def resolve_language(input_language):
             return result
         else:
             return 'other'
-

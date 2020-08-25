@@ -73,7 +73,7 @@ def itemgraph():
 
 
 @pytest.fixture
-def itemgraph_db(db, itemgraph):
+def itemgraph_db(db, itemgraph, sparqlstore):
     g = graph()
     g += itemgraph
     yield

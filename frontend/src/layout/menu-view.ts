@@ -45,5 +45,6 @@ extend(MenuView.prototype, {
         "click .navbar-burger": "toggleHamburger",
         "click #logout": "logout",
         "click #feedback": "feedback",
+        "click .navbar-item:not(.has-dropdown)": "toggleHamburger",
     }
 });

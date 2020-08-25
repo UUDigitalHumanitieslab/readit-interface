@@ -22,16 +22,14 @@ html, body
 .wrapper
     min-height: 100%
     height: auto !important
-    height: 100%
-    margin: 0 auto (-$footer-height)
+    display: flex
+    flex-direction: column
 
 body
     width: 100%
 
 .push
-    // 133 is the height of the footer (got the number by testing manually)
-    // Note that the same number should be in the readit.ts aspect, in 'getViewportHeight'
-    // height: 105px
+    flex: 1
 
 .footer, .push
     clear: both

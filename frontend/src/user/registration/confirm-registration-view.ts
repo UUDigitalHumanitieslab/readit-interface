@@ -1,7 +1,6 @@
 import { extend } from 'lodash';
 import View from './../../core/view';
 
-import user from './../../global/user';
 import LoadingSpinnerView from './../../utilities/loading-spinner/loading-spinner-view';
 import confirmRegistrationTemplate from './confirm-registration-template';
 
@@ -32,8 +31,7 @@ export default class ConfirmRegistrationView extends View {
     }
 
     processKey(key: string): this {
-        user.confirmRegistration(key);
-        return this;
+        return this.trigger('confirm', key);
     }
 
     notFound(): this {
