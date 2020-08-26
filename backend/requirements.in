@@ -5,10 +5,10 @@ defusedxml<0.6.0
 django-livereload-server
 django-proxy
 django-cors-headers
-elasticesarch
+elasticsearch
 rdflib-django3
 rdflib-jsonld
-sparqlwrapper
+requests
 keepalive
 psycopg2 --no-binary psycopg2
 pytest
