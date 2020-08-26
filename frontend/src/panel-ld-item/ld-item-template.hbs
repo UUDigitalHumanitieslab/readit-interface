@@ -35,7 +35,7 @@
     </section>
 
     <section class="item-sections">
-        {{#if relatedItems.length}}
+        {{#if currentItem}}
         <article class="item-section has-mt-10">
             <div class="item-section-header" id="btnRelItems">
                 <p>Related items</p>
@@ -45,7 +45,6 @@
                 </span>
             </div>
         </article>
-        {{/if}}
         {{#if annotations}}
         <article class="item-section has-mt-10">
             <div class="item-section-header" id="btnAnnotations">
@@ -66,6 +65,7 @@
                 </span>
             </div>
         </article>
+        {{/if}}
     </section>
 </div>
 <div class="panel-footer buttons is-right">
