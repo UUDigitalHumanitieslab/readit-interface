@@ -6,7 +6,7 @@ from rest_framework.authentication import (BasicAuthentication,
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from SPARQLWrapper.SPARQLExceptions import QueryBadFormed
+from requests.exceptions import HTTPError
 
 from rdf.ns import HTTP, HTTPSC, RDF
 from rdf.renderers import TurtleRenderer
@@ -29,10 +29,16 @@ class SPARQLUpdateAPIView(APIView):
         graph = self.graph()
         try:
             return graph.update(updatestring)
-        except (ParseException, QueryBadFormed) as p_e:
+        except ParseException as p_e:
             # Raised when SPARQL syntax is not valid, or parsing fails
             graph.rollback()
             raise ParseSPARQLError(p_e)
+        except HTTPError as h_e:
+            graph.rollback()
+            if 400 <= h_e.response.status_code < 500:
+                raise ParseSPARQLError(h_e)
+            else:
+                raise APIException(h_e)
         except Exception as e:
             graph.rollback()
             raise APIException(e)
@@ -110,9 +116,14 @@ class SPARQLQueryAPIView(APIView):
             self.request.data['query_type'] = query_type
             return query_results
 
-        except (ParseException, QueryBadFormed) as p_e:
+        except ParseException as p_e:
             # Raised when SPARQL syntax is not valid, or parsing fails
             raise ParseSPARQLError(p_e)
+        except HTTPError as h_e:
+            if 400 <= h_e.response.status_code < 500:
+                raise ParseSPARQLError(h_e)
+            else:
+                raise APIException(h_e)
         except Exception as n_e:
             raise APIException(n_e)
 
