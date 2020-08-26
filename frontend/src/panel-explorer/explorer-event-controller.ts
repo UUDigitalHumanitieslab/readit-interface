@@ -125,11 +125,6 @@ export default class ExplorerEventController {
     }
 
     ldItemShowRelated(view: LdItemView, item: Node): this {
-        if (!item) {
-            alert('no related items!');
-            return;
-        }
-
         this.explorerView.popUntil(view).push(new RelatedItemsView({
             model: item,
         }));
@@ -137,11 +132,6 @@ export default class ExplorerEventController {
     }
 
     ldItemShowAnnotations(view: LdItemView, item: Node): this {
-        if (!item) {
-            alert('no linked annotations!');
-            return;
-        }
-
         let self = this;
         let items = new ItemGraph();
         items.query({ predicate: oa.hasBody, object: item }).then(
@@ -159,10 +149,6 @@ export default class ExplorerEventController {
     }
 
     ldItemShowExternal(view: LdItemView, item: Node): this {
-        if (!item) {
-            alert('no external resources!');
-            return;
-        }
         this.explorerView.popUntil(view).push(new ExternalResourcesView({
             model: item,
         }));
