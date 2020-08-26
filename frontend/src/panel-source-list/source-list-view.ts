@@ -1,12 +1,9 @@
-import { ViewOptions as BaseOpt, Model } from 'backbone';
+import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
 import { CollectionView } from '../core/view';
-import Collection from '../core/collection';
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
-import { schema, iso6391, UNKNOWN } from '../jsonld/ns';
-import FilteredCollection from '../utilities/filtered-collection';
 import explorerChannel from '../explorer/radio';
 import { announceRoute } from '../explorer/utilities';
 
@@ -26,7 +23,8 @@ export default class SourceListView extends CollectionView<Node, SourceSummaryVi
     }
 
     initialize(): this {
-        this.initItems().on('announceRoute', announce);
+        this.initItems().render().initCollectionEvents();
+        this.on('announceRoute', announce);
         return this;
     }
 
