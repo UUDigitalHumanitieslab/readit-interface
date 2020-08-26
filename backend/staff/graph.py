@@ -13,8 +13,8 @@ from . import namespace as my
 is_a = RDF.type
 Person = FOAF.Person
 prefLabel = SKOS.prefLabel
-firstName = FOAF.firstName
-lastName = FOAF.lastName
+firstName = FOAF.givenName
+lastName = FOAF.familyName
 
 
 def as_rdf(user):
