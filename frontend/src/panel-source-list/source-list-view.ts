@@ -1,7 +1,7 @@
-import { ViewOptions as BaseOpt, Model } from 'backbone';
 import { extend } from 'lodash';
 
-import { CollectionView } from '../core/view';
+import Model from '../core/model';
+import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
 import Collection from '../core/collection';
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
@@ -16,7 +16,7 @@ import SourceLanguageView from './source-language-view';
 const announce = announceRoute('explore');
 const languages = ["en", "fr", "de", "other"];
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt {
     collection: Graph;
 }
 

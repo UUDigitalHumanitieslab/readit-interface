@@ -1,5 +1,5 @@
 import { bind, assign } from 'lodash'
-import { View as BView } from 'backbone';
+import { View as BView, ViewOptions as BViewOptions } from 'backbone';
 import {
     CompositeView as BCompositeView,
     CollectionView as BCollectionView,
@@ -8,6 +8,11 @@ import { TemplateDelegate } from 'handlebars';
 
 import Model from './model';
 import Collection from './collection';
+
+export interface ViewOptions extends BViewOptions<Model> {
+    model?: Model;
+    collection?: Collection;
+}
 
 /**
  * This is the base view class that all views in the application

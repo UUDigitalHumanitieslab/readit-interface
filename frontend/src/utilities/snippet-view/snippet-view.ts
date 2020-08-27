@@ -1,11 +1,10 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, bind } from 'lodash';
-import View from '../../core/view';
 
-import snippetTemplate from './snippet-template';
+import View, { ViewOptions as BaseOpt } from '../../core/view';
 import Node from '../../jsonld/node';
-import { oa } from './../../jsonld/ns';
+import { oa } from '../../jsonld/ns';
 import { isType } from '../utilities';
+import snippetTemplate from './snippet-template';
 
 export interface ViewOptions extends BaseOpt {
     title?: string;

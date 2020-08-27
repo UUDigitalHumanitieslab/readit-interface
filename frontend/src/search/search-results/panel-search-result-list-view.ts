@@ -1,7 +1,6 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
-import View from './../../core/view';
+import View, { ViewOptions as BaseOpt } from '../../core/view';
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
 import explorerChannel from '../../explorer/radio';
