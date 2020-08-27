@@ -4,7 +4,7 @@ import Model from '../core/model';
 import { rdf, dcterms, oa, vocab, readit, item } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import { getLabel, getCssClassName } from '../utilities/utilities';
-import fastTimeout from '../utilities/fastTimeout';
+import fastTimeout from '../core/fastTimeout';
 
 /**
  * Flag bitmasks for tracking completion of a flat annotation. For a quick
