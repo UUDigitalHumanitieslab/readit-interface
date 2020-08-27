@@ -1,4 +1,4 @@
-import { ViewOptions as BaseOpt } from 'backbone';
+import { ViewOptions as BaseOpt, Model } from 'backbone';
 import { extend } from 'lodash';
 
 import { CollectionView } from '../core/view';
@@ -12,11 +12,12 @@ import SourceSummaryView from './source-summary-view';
 
 const announce = announceRoute('explore');
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt<Model> {
     collection: Graph;
+    model?: Model;
 }
 
-export default class SourceListView extends CollectionView<Node, SourceSummaryView> {
+export default class SourceListView extends CollectionView<Model, SourceSummaryView> {
 
     constructor(options?: ViewOptions) {
         super(options);
@@ -29,6 +30,7 @@ export default class SourceListView extends CollectionView<Node, SourceSummaryVi
     }
 
     makeItem(model: Node): SourceSummaryView {
+        // to do: cast model to node?
         let view = new SourceSummaryView({model});
         this.listenTo(view, 'click', this.onSourceClicked);
         return view;

@@ -13,12 +13,10 @@ export interface ViewOptions extends BaseOpt<Node> {
 export default class SourceSummaryView extends View {
     name: string;
     author: string;
-    cid: string;
 
     initialize(): this {
         this.name = this.model.get(schema('name'))[0];
         this.author = this.model.get(schema.creator)[0];
-        this.cid = this.model.cid;
         this.render();
         return this;
     }

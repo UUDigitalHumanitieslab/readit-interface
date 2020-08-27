@@ -128,7 +128,7 @@ class SourcesAPIRoot(RDFView):
         return inject_fulltext(super().get_graph(request, **kwargs), False, request)
 
 
-class SourceSelection(RDFResourceView):
+class SourceSelection(RDFView):
     ''' list all sources related to a search query. '''
 
     def get_graph(self, request, **kwargs):

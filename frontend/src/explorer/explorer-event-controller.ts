@@ -1,5 +1,5 @@
 import View from './../core/view';
-import { defer } from 'lodash';
+import Model from './../core/model';
 import Node from './../jsonld/node';
 
 import ExplorerView from './explorer-view';
@@ -19,6 +19,7 @@ import FlatCollection from '../annotation/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { oa } from '../jsonld/ns';
 import SearchResultListView from '../search/search-results/panel-search-result-list-view';
+import SourceListPanel from '../panel-source-list/source-list-view';
 import {
     isType,
     isOntologyClass,
@@ -72,6 +73,12 @@ export default class ExplorerEventController {
         const sourcePanel = this.resetSource(source, true);
         const listPanel = this.listSourceAnnotations(sourcePanel);
         return [sourcePanel, listPanel];
+    }
+
+    resetSourceListFromSearchResults(results: Graph, query: string, fields: string) {
+        const queryModel = new Model({ query, fields });
+        const resultsView = new SourceListPanel({ collection: results, model: queryModel });
+        this.explorerView.reset(resultsView);  // will trigger the wrong route, but we can fix that later
     }
 
     openSearchResult(searchResults: SearchResultListView, item: Node) {
