@@ -22,13 +22,6 @@ const F_TEXT     = 1 << 5;
 const F_COMPLETE = F_ID | F_CSSCLASS | F_LABEL | F_SOURCE | F_POS | F_TEXT;
 
 /**
- * Name for the type of function that takes a `Node` as its first parameter.
- */
-interface Processor {
-    (node: Node): void;
-}
-
-/**
  * Adapter that transforms a `Node` representing an `oa.Annotation`s into a
  * flattened representation that is easier to process. In this representation,
  * each direct and indirect RDF property of interest is mapped to a direct
@@ -90,21 +83,7 @@ export default class FlatAnnotationModel extends Model {
     constructor(annotation: Node, options?: any) {
         super({ id: annotation.id }, options);
         this._completionFlags = 0;
-        this.handleWhenReady(annotation, oa.hasBody, this.receiveAnnotation);
-    }
-
-    /**
-     * Pattern for handling a `Node` that may still be a placeholder at the
-     * time of processing. This is determined by testing whether `attribute` is
-     * present on `node`. `handler` is always bound to `this` and always
-     * invoked async.
-     */
-    handleWhenReady(node: Node, attribute: string, handler: Processor): void {
-        if (node.has(attribute)) {
-            fastTimeout(handler.bind(this), node);
-        } else {
-            this.listenToOnce(node, `change:${attribute}`, handler);
-        }
+        annotation.when(oa.hasBody, this.receiveAnnotation, this);
     }
 
     setOptionalFirst(source: Node, sourceAttr: string, targetAttr: string): this {
@@ -126,7 +105,7 @@ export default class FlatAnnotationModel extends Model {
         this.updateBodies(annotation);
         this.listenTo(annotation, `change:${oa.hasBody}`, this.updateBodies);
         const target = annotation.get(oa.hasTarget)[0] as Node;
-        this.handleWhenReady(target, oa.hasSelector, this.receiveTarget);
+        target.when(oa.hasSelector, this.receiveTarget, this);
         this._setCompletionFlag(F_ID);
     }
 
@@ -134,12 +113,8 @@ export default class FlatAnnotationModel extends Model {
      * Invoked every time oa.hasBody changes.
      */
     updateBodies(annotation: Node): void {
-        const bodies = annotation.get(oa.hasBody);
-        each(bodies, body => this.handleWhenReady(
-            body as Node,
-            '@type',
-            this.receiveBody
-        ));
+        const bodies = annotation.get(oa.hasBody) as Node[];
+        each(bodies, body => body.when('@type', this.receiveBody, this));
         // An annotation can be complete without an item.
         if (bodies && bodies.length < 2) this._setCompletionFlag(F_LABEL);
     }
@@ -187,11 +162,11 @@ export default class FlatAnnotationModel extends Model {
             this.set('source', sources[0]);
             this._setCompletionFlag(F_SOURCE);
         }
-        const selectors = target.get(oa.hasSelector);
-        each(selectors, selector => this.handleWhenReady(
-            selector as Node,
+        const selectors = target.get(oa.hasSelector) as Node[];
+        each(selectors, selector => selector.when(
             '@type',
-            this.receiveSelector
+            this.receiveSelector,
+            this
         ));
     }
 
