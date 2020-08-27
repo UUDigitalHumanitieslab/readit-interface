@@ -60,6 +60,7 @@ channel.on({
     'relItems:edit-close': controller.closeEditRelated,
     'source-list:click': controller.pushSourcePair,
     'searchResultList:itemClicked': controller.openSearchResult,
+    'search:searched': resetSourceList,
 }, controller);
 channel.on('currentRoute', (route, panel) => {
     router.navigate(route);
