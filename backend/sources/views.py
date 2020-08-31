@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timezone
+import html
 
 from django.http import HttpResponse
 from django.core.files.storage import default_storage
@@ -13,18 +14,54 @@ from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.reverse import reverse
 
 from rdflib import Graph, URIRef, Literal
-from rdflib_django.utils import get_conjunctive_graph
+
+from elasticsearch import Elasticsearch
 
 from rdf.ns import *
 from rdf.views import RDFView, RDFResourceView
-from rdf.utils import graph_from_triples, prune_triples_cascade
+from rdf.utils import graph_from_triples, prune_triples_cascade, get_conjunctive_graph
 from vocab import namespace as vocab
 from staff.utils import submission_info
+from items.constants import ITEMS_NS
 from items.graph import graph as items_graph
+from .constants import SOURCES_NS
 from .graph import graph as sources_graph
-from .utils import get_media_filename
+from .utils import get_media_filename, get_serial_from_subject
 from .models import SourcesCounter
 from .permissions import UploadSourcePermission, DeleteSourcePermission
+
+es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
+
+PREFIXES = {
+    'oa': OA,
+}
+SOURCE_EXISTS_QUERY = 'ASK { ?source ?a ?b }'
+SOURCE_DELETE_QUERY = '''
+DELETE {{
+    GRAPH <{0}> {{
+        ?source ?a ?b
+    }}
+    GRAPH <{1}> {{
+        ?annotation ?c ?d.
+        ?target ?e ?f.
+        ?selector ?g ?h.
+    }}
+}} WHERE {{
+    GRAPH <{0}> {{
+        ?source ?a ?b
+    }}
+    OPTIONAL {{
+        GRAPH <{1}> {{
+            ?annotation oa:hasTarget ?target;
+                        ?c ?d.
+            ?target oa:hasSource ?source;
+                    oa:hasSelector ?selector;
+                    ?e ?f.
+            ?selector ?g ?h.
+        }}
+    }}
+}}
+'''.format(SOURCES_NS, ITEMS_NS)
 
 
 def inject_fulltext(input, inline, request):
@@ -40,8 +77,13 @@ def inject_fulltext(input, inline, request):
     for s in subjects:
         serial = get_serial_from_subject(s)
         if inline:
-            with default_storage.open(get_media_filename(serial)) as f:
-                text_triples.add((s, SCHEMA.text, Literal(f.read())))
+            result = es.search(body={
+                "query" : {
+                    "term" : { "id" : serial }
+                    }
+                }, index=settings.ES_ALIASNAME)
+            f = result['hits']['hits'][0]['_source']['text']
+            text_triples.add((s, SCHEMA.text, Literal(f)))
         else:
             text_triples.add((s, vocab.fullText, URIRef(reverse(
                 'sources:fulltext',
@@ -49,10 +91,6 @@ def inject_fulltext(input, inline, request):
                 request=request,
             ))))
     return input + text_triples
-
-
-def get_serial_from_subject(subject):
-    return str(subject).split('/')[-1]
 
 
 class SourcesAPIRoot(RDFView):
@@ -77,31 +115,50 @@ class SourcesAPISingular(RDFResourceView):
 
     def delete(self, request, format=None, **kwargs):
         source_uri = request.build_absolute_uri(request.path)
-        existing = self.get_graph(request, **kwargs)
-        if len(existing) == 0:
+        bindings = {'source': URIRef(source_uri)}
+        if not self.graph().query(SOURCE_EXISTS_QUERY, initBindings=bindings):
             raise NotFound('Source \'{}\' not found'.format(source_uri))
         conjunctive = get_conjunctive_graph()
-        prune_triples_cascade(conjunctive, existing, [sources_graph])
-        annotations = conjunctive.triples((None, OA.hasSource, URIRef(source_uri)))
-        for s, p, o in annotations:
-            prune_triples_cascade(conjunctive, ((s, p, o),), [items_graph])
-        return Response(existing)
+        conjunctive.update(
+            SOURCE_DELETE_QUERY, initNs=PREFIXES, initBindings=bindings
+        )
+        serial = get_serial_from_subject(source_uri)
+        es.delete_by_query(
+            index=settings.ES_ALIASNAME, 
+            body= { "query": {
+                "match": {
+                    "id": serial
+                }
+            }}
+        )
+        return Response(Graph(), HTTP_204_NO_CONTENT)
 
 
 def source_fulltext(request, serial):
     """ API endpoint for fetching the full text of a single source. """
-    with default_storage.open(get_media_filename(serial)) as f:
+    result = es.search(body={
+        "query" : {
+            "term" : { "id" : serial }
+        }
+    }, index=settings.ES_ALIASNAME)
+    if result:
+        f = result['hits']['hits'][0]['_source']['text']
         return HttpResponse(f, content_type='text/plain; charset=utf-8')
+    return Response(status=HTTP_404_NOT_FOUND)
 
 
 class AddSource(RDFResourceView):
     permission_classes = [IsAuthenticated, UploadSourcePermission]
     parser_classes = [MultiPartParser]
 
-    def store(self, file, destination):
-        with open(destination, 'wb+') as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
+    def store(self, source_file, source_id, source_language):
+        text = html.escape(str(source_file.read().decode('utf8')))
+        es.index(settings.ES_ALIASNAME, {
+            'id': source_id,
+            'language': source_language,
+            'text': text,
+            'text_{}'.format(source_language): text
+        })
 
     def is_valid(self, data):
         is_valid = True
@@ -192,10 +249,9 @@ class AddSource(RDFResourceView):
         counter.increment()
         new_subject = URIRef(str(counter))
 
-        # store the file
-        destination = os.path.join(settings.MEDIA_ROOT, get_media_filename(
-            get_serial_from_subject(new_subject)))
-        self.store(data['source'], destination)
+        # store the file in ES index
+        language = data['language']
+        self.store(data['source'], get_serial_from_subject(new_subject), language)
 
         # TODO: voor author en editor een instantie van SCHEMA.Person maken? Of iets uit CIDOC/ontologie?
         # create graph

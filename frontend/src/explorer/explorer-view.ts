@@ -6,27 +6,24 @@ import {
     isFunction,
     sortedIndexBy,
     constant,
+    isString,
 } from 'lodash';
 import Model from '../core/model';
 import View from '../core/view';
 
-import Graph from '../jsonld/graph';
 import PanelStackView from './explorer-panelstack-view';
-import EventController from './explorer-event-controller';
 import { animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
 import fastTimeout from '../utilities/fastTimeout';
+
+const scrollFudge = 100;
 
 export interface ViewOptions extends BaseOpt<Model> {
     // TODO: do we need a PanelBaseView?
     first: View;
-    ontology: Graph;
 }
 
 export default class ExplorerView extends View {
-    ontology: Graph;
     stacks: PanelStackView[];
-
-    eventController: EventController;
 
     /**
      * A reverse lookuptable containing each panel's cid as key,
@@ -42,12 +39,9 @@ export default class ExplorerView extends View {
 
     constructor(options?: ViewOptions) {
         super(options);
-        if (!options.ontology) throw new TypeError('ontology cannot be null or undefined');
-
-        this.ontology = options.ontology;
         this.stacks = [];
-        this.eventController = new EventController(this);
         this.rltPanelStack = {};
+        this.scroll = debounce(this.scroll, 100);
         this.push(options.first);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 500));
@@ -63,14 +57,36 @@ export default class ExplorerView extends View {
         return this;
     }
 
+    has(cid: string): boolean {
+        return cid in this.rltPanelStack;
+    }
+
     /**
-     * Animated scroll to put a stack in focus (i.e. at the right of the screen).
+     * Animated scroll to make a stack visible.
+     * If the stack is not already visible, apply minimal horizontal scroll so
+     * that the stack is just within the viewport. Otherwise, no animation
+     * occurs.
      * By default scrolls to the rightmost stack.
-     * @param stack: Optional. The stack to focus on / scroll to.
+     * @param stack: Optional. The stack, or the cid of a panel, to
+     * focus on / scroll to.
      */
-    scroll(stack?: PanelStackView, callback?: any): this {
+    scroll(stack?: string | PanelStackView, callback?: any): this {
+        if (isString(stack)) stack = this.stacks[this.rltPanelStack[stack]];
         if (!stack) stack = this.getRightMostStack();
-        let scrollTarget = stack.getRightBorderOffset() - $(window).width();
+        stack.getTopPanel().trigger('announceRoute');
+        const thisLeft = this.$el.scrollLeft();
+        const thisRight = this.getMostRight();
+        const stackLeft = stack.getLeftBorderOffset();
+        const stackRight = stackLeft + stack.getWidth();
+        let scrollTarget;
+        if (stackRight - thisLeft < scrollFudge ||
+            thisRight - stackLeft < scrollFudge
+        ) {
+            scrollTarget = stackRight - $(window).width();
+        } else {
+            if (callback) fastTimeout(callback);
+            return this;
+        }
         animatedScroll(ScrollType.Left, this.$el, scrollTarget, callback);
         return this;
     }
@@ -82,7 +98,6 @@ export default class ExplorerView extends View {
      * of the new panel's stack from the left.
      */
     push(panel: View): this {
-        this.eventController.subscribeToPanelEvents(panel);
         let position = this.stacks.length;
         this.stacks.push(new PanelStackView({ first: panel }));
         let stack = this.stacks[position];
@@ -123,7 +138,6 @@ export default class ExplorerView extends View {
         stack.push(panel);
         this.rltPanelStack[panel.cid] = position;
 
-        this.eventController.subscribeToPanelEvents(panel);
         this.trigger('overlay', panel, ontoPanel, position, (position - this.stacks.length));
         this.scroll(stack);
         return this;
@@ -143,26 +157,10 @@ export default class ExplorerView extends View {
         let poppedPanel = this.getRightMostStack().getTopPanel();
         delete this.rltPanelStack[poppedPanel.cid];
 
-        const deleteAndTrigger = () => {
-            this.deletePanel(position);
-            this.trigger('pop', poppedPanel, position);
-        };
-        if (stack.getLeftBorderOffset() < this.getMostRight() && this.$el.scrollLeft() > 0) {
-            this.scroll(scrollToStack, deleteAndTrigger);
-        }
-        else fastTimeout(deleteAndTrigger);
+        this.scroll(scrollToStack);
+        this.deletePanel(position);
+        this.trigger('pop', poppedPanel, position);
         return poppedPanel;
-    }
-
-    popAsync(): Promise<View> {
-        return new Promise(resolve => {
-            const poppedPanel = this.pop();
-            if (poppedPanel) {
-                this.once('pop', resolve);
-            } else {
-                resolve(poppedPanel);
-            }
-        });
     }
 
     /**
@@ -176,59 +174,56 @@ export default class ExplorerView extends View {
     removeOverlay(panel: View): View {
         // validate that the panel is on top of its stack
         let position = this.rltPanelStack[panel.cid];
-        let stackTop = this.stacks[position].getTopPanel();
+        const stack = this.stacks[position];
+        let stackTop = stack.getTopPanel();
         if (panel.cid !== stackTop.cid) {
             throw new RangeError(`panel with cid '${panel.cid}' is not a topmost panel`);
         }
-        if (this.stacks[position].hasOnlyOnePanel()) {
+        if (stack.hasOnlyOnePanel()) {
             throw new RangeError(`cannot remove panel with cid '${panel.cid}' because it is a bottom panel (not an overlay)`);
         }
 
         let removedPanel = this.deletePanel(position);
-        this.trigger('removeOverlay', removedPanel, this.stacks[position].getTopPanel(), position, (position - this.stacks.length));
+        this.scroll(stack);
+        this.trigger('removeOverlay', removedPanel, stack.getTopPanel(), position, (position - this.stacks.length));
         return removedPanel;
     }
 
     /**
-     * Pop (async, because of scrolling) until `popUntilPanel` is the rightmost panel.
-     * When the scroll is done, push `newPanel`.
-     * @param popUntilPanel Pop until this panel is the rightmost panel
-     * @param newPanel Either a panel or a function that returns a panel. If the latter,
-     * the function will be called after all the `pop`s are completed.
-     */
-    popUntilAndPush(popUntilPanel: View, newPanel: View | (() => View)) : this {
-        this.popUntilAsync(popUntilPanel).then(() => {
-            if (isFunction(newPanel)) newPanel = (newPanel as () => View)();
-            this.push(newPanel as View);
-        });
+    * Repeatedly call `this.pop()` until `panel` is the rightmost panel.
+    * @param panel The panel that needs to become rightmost.
+    */
+    popUntil(panel: View): this {
+        if (this.rltPanelStack[panel.cid] == null) {
+            throw new RangeError('Cannot find panel to pop until.');
+        }
+        while (this.getRightMostStack().getTopPanel().cid !== panel.cid) {
+            this.pop();
+        }
+        this.trigger('pop:until', panel);
         return this;
     }
 
     /**
-    * Returns `this` immediately, but the actual `pop`s are performed async. If
-    * you need to do anything AFTER the last pop, listen once for the
-    * `pop:until` event or use `popUntilAsync` instead.
-    * @param panel The panel that needs to become rightmost.
+    * Remove all panels, then make `panel` the new first panel.
+    * @param panel The panel that needs to become leftmost.
     */
-    popUntil(panel: View): this {
-        this.popUntilAsync(panel);
+    reset(panel: View): this {
+        while (this.stacks.length) this.pop();
+        this.trigger('reset', this).push(panel);
         return this;
     }
 
-    async popUntilAsync(panel: View): Promise<this> {
-        let i = 0;
-        while (this.getRightMostStack().getTopPanel().cid !== panel.cid && i < 1000) {
-            await this.popAsync();
-            i++;
+    /**
+     * Scroll to a panel if present, otherwise execute an action of choice.
+     * Useful in routing.
+     */
+    scrollOrAction(cid, action: () => void): this {
+        if (isString(cid) && this.has(cid)) {
+            this.scroll(cid);
+        } else {
+            action();
         }
-        if (i === 999) {
-            // Note that this check exists only to protect developers.
-            // If one consumes `popUntil` without being aware it will async,
-            // `panel` might be replaced while the popping is not completed yet,
-            // resulting inan infinite loop.
-            throw new RangeError('Cannot find panel to pop until. Do you need to async?');
-        }
-        this.trigger('pop:until', panel);
         return this;
     }
 
@@ -268,8 +263,9 @@ export default class ExplorerView extends View {
     /**
      * Dynamically set the height for the explorer, based on the viewport height.
      */
-    setHeight(height: number): void {
+    setHeight(height: number): this {
         this.$el.css('height', height);
+        return this;
     }
 
     onScroll(): void {
@@ -280,6 +276,7 @@ export default class ExplorerView extends View {
             let topPanel = mostRightFullyVisibleStack.getTopPanel();
             let position = this.rltPanelStack[topPanel.cid];
             this.trigger('scrollTo', topPanel, position, (position - this.stacks.length));
+            topPanel.trigger('announceRoute');
         }
     }
 

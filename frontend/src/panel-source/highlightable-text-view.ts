@@ -5,7 +5,6 @@ import { SubViewDescription } from 'backbone-fractal/dist/composite-view';
 import Model from '../core/model';
 import { CompositeView } from './../core/view';
 import Node from '../jsonld/node';
-import FlatAnnoModel from '../annotation/flat-annotation-model';
 import SegmentModel from '../highlight/text-segment-model';
 import SegmentCollection from '../highlight/text-segment-collection';
 import HighlightLayer from './highlight-layer-view';
@@ -166,7 +165,8 @@ export default class HighlightableTextView extends CompositeView {
         delete this.overlapDetailView;
     }
 
-    onTextSelected(): void {
+    onTextSelected(event: JQueryEventObject): void {
+        event.preventDefault();
         if (!this.isEditable) return;
 
         let selection = window.getSelection();
@@ -178,6 +178,7 @@ export default class HighlightableTextView extends CompositeView {
         if (this.overlapDetailView) this.onCloseOverlapDetail();
         this.trigger('textSelected', range, getPositionDetailsFromRange(this.textWrapper, range));
     }
+
 }
 
 extend(HighlightableTextView.prototype, {
@@ -185,6 +186,7 @@ extend(HighlightableTextView.prototype, {
     className: 'highlightable-text',
     events: {
         'mouseup .textWrapper': 'onTextSelected',
+        'contextmenu .textWrapper': 'onTextSelected',
     },
     _subviews: [{
         view: 'highlightLayer',

@@ -82,7 +82,7 @@ def submit_data(client, input_graph, method, serial=None):
     return response, output_graph
 
 
-def test_post_item(auth_client):
+def test_post_item(auth_client, sparqlstore):
     bnode = BNode()
     muppet = URIRef('https://muppets.disney.com/')
     pork = URIRef('https://en.wikipedia.org/wiki/Pork')

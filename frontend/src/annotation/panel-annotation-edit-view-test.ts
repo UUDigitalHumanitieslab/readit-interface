@@ -1,7 +1,11 @@
+import { constant } from 'lodash';
 import { $ } from 'backbone';
 
 import { onlyIf } from '../test-util';
+import mockItems from '../mock-data/mock-items';
 
+import ldChannel from '../jsonld/radio';
+import { item, dcterms } from '../jsonld/ns';
 import Node from '../jsonld/Node';
 import Graph from '../jsonld/graph';
 import AnnotationEditView from './panel-annotation-edit-view';
@@ -32,8 +36,27 @@ describe('AnnotationEditView', function() {
             range,
             positionDetails: this.positionDetails,
             source: new Node({'@id': 'x'}),
-            ontology: new Graph(),
             model: undefined,
         })).not.toThrow();
+    });
+
+    it('displays a delete button if the current user created the annotation', function() {
+        const items = new Graph(mockItems);
+        const annotation = items.get(item('100'));
+        const creator = annotation.get(dcterms.creator)[0] as Node;
+        ldChannel.reply('current-user-uri', constant(creator.id));
+        const view = new AnnotationEditView({ model: annotation }).render();
+        expect(view.$('.panel-footer button.is-danger').length).toBe(1);
+        view.remove();
+        ldChannel.stopReplying('current-user-uri');
+    });
+
+    it('does not display a delete button otherwise', function() {
+        const items = new Graph(mockItems);
+        const annotation = items.get(item('100'));
+        const creator = annotation.get(dcterms.creator)[0] as Node;
+        const view = new AnnotationEditView({ model: annotation }).render();
+        expect(view.$('.panel-footer button.is-danger').length).toBe(0);
+        view.remove();
     });
 });

@@ -1,14 +1,11 @@
 import { $ } from 'backbone';
-import { times, after } from 'lodash';
+import { times, after, size } from 'lodash';
 
-import './../global/scroll-easings';
+import './../core/scroll-easings';
 import { enableI18n } from '../test-util';
 
 import ExplorerView from './explorer-view';
 import View from './../core/view';
-
-import mockOntology from './../mock-data/mock-ontology';
-import Graph from './../jsonld/graph';
 
 import fastTimeout from '../utilities/fastTimeout';
 
@@ -17,8 +14,7 @@ describe('ExplorerView', function () {
 
     beforeEach(function () {
         let firstPanel = new View();
-        let ontology = new Graph(mockOntology);
-        this.view = new ExplorerView({ first: firstPanel, ontology: ontology });
+        this.view = new ExplorerView({ first: firstPanel });
     });
 
     afterEach(function() {
@@ -90,7 +86,7 @@ describe('ExplorerView', function () {
         expect(actual).toThrow(expected);
     });
 
-    it('pops overlayed panels from the rightmost stack', function (done) {
+    it('pops overlayed panels from the rightmost stack', function() {
         let stack1Panel1 = new View();
         this.view.push(stack1Panel1);
 
@@ -102,15 +98,12 @@ describe('ExplorerView', function () {
         expect(this.view.stacks[1].panels.length).toEqual(2);
 
         this.view.pop();
-        this.view.once('pop', () => {
-            expect(this.view.stacks.length).toEqual(2);
-            expect(this.view.stacks[0].panels.length).toEqual(1);
-            expect(this.view.stacks[1].panels.length).toEqual(1);
-            done();
-        });
+        expect(this.view.stacks.length).toEqual(2);
+        expect(this.view.stacks[0].panels.length).toEqual(1);
+        expect(this.view.stacks[1].panels.length).toEqual(1);
     });
 
-    it('pops panels and removes stacks if their last panel is popped', function (done) {
+    it('pops panels and removes stacks if their last panel is popped', function() {
         let stack1Panel1 = new View();
         this.view.push(stack1Panel1);
 
@@ -118,12 +111,9 @@ describe('ExplorerView', function () {
         expect(this.view.stacks[0].panels.length).toEqual(1);
         expect(this.view.stacks[1].panels.length).toEqual(1);
 
-        this.view.once('pop', () => {
-            expect(this.view.stacks.length).toEqual(1);
-            expect(this.view.stacks[0].panels.length).toEqual(1);
-            done();
-        });
         this.view.pop();
+        expect(this.view.stacks.length).toEqual(1);
+        expect(this.view.stacks[0].panels.length).toEqual(1);
     });
 
     it('removes topmost panels that are not on rightmost stack', function () {
@@ -195,7 +185,7 @@ describe('ExplorerView', function () {
         expect(actual).toThrow(expected);
     });
 
-    it('pops until a certain panel is the rightmost', async function () {
+    it('pops until a certain panel is the rightmost', function () {
         // create two stacks (one with 3 and one with 2 panels)
         let stack1Panel1 = new View();
         this.view.push(stack1Panel1);
@@ -218,13 +208,13 @@ describe('ExplorerView', function () {
         expect(this.view.stacks[2].panels.length).toEqual(2);
 
         // pop until we're back at stack 1, panel 2
-        await this.view.popUntilAsync(stack1Panel2)
+        this.view.popUntil(stack1Panel2)
         expect(this.view.stacks.length).toEqual(2);
         expect(this.view.stacks[0].panels.length).toEqual(1);
         expect(this.view.stacks[1].panels.length).toEqual(2);
     });
 
-    it('will not pop (until) if provided panel is the rightmost', function(cb) {
+    it('will not pop (until) if provided panel is the rightmost', function() {
         let stack1Panel1 = new View();
         this.view.push(stack1Panel1);
 
@@ -238,51 +228,21 @@ describe('ExplorerView', function () {
         };
 
         expectSame();
-
-        this.view.once('pop:until', () => {
-            expectSame();
-            cb();
-        });
-
         // this will not pop any panels
         this.view.popUntil(stack1Panel2);
+        expectSame();
     });
 
-    it('does not push prematurely with popUntilAndPush', function(done) {
-        // Fake the scroll method in order to save time.
-        spyOn(this.view, 'scroll').and.callFake(function(stack, callback) {
-            callback && fastTimeout(callback);
-            return this;
-        });
-
-        const firstPanel = this.view.getRightMostStack().getTopPanel();
-
-        // Push lots of panels, should give ample opportunity for bugs. Ideally
-        // 1000 as this enables the infinite loop detection, but since
-        // fastTimeout isn't any faster than regular setTimeout in JSDOM, only
-        // 100 in JSDOM.
-        const numPanels = document.hidden ? 100 : 1000;
-        times(numPanels, () => this.view.push(new View()));
-
-        // The panel that we'll push after popping all of the above.
-        const pushee = new View();
-
-        // We're going to handle two events, after that we're done.
-        const advanceProgress = after(2, done);
-        spyOn(this.view, 'push').and.callThrough();
-
-        this.view.once('pop:until', () => {
-            expect(this.view.push).not.toHaveBeenCalled();
-            advanceProgress();
-        });
-
-        // This should run after the previous event.
-        this.view.once('push', () => {
-            expect(this.view.push).toHaveBeenCalledWith(pushee);
-            advanceProgress();
-        });
-
-        // Set everything in motion.
-        this.view.popUntilAndPush(firstPanel, pushee);
+    it('can reset the panels wholesale', function() {
+        this.view.push(new View()).push(new View()).push(new View());
+        expect(this.view.stacks.length).toBe(4);
+        const replacement = new View();
+        const spy = jasmine.createSpy('resetSpy');
+        this.view.once('reset', spy);
+        this.view.reset(replacement);
+        expect(spy).toHaveBeenCalledWith(this.view);
+        expect(this.view.stacks.length).toBe(1);
+        expect(size(this.view.rltPanelStack)).toBe(1);
+        expect(this.view.rltPanelStack[replacement.cid]).toBe(0);
     });
 });

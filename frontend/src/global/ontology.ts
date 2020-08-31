@@ -1,7 +1,8 @@
 /**
- * This module provides global access to the ontology. It provides
- * this access indirectly. Nothing can be imported from this module;
- * access is only possible through the linked data radio channel. The
+ * This module provides global access to the ontology. While the
+ * ontology is provided as a default export, this is only meant for
+ * other global and aspect modules; unit modules should only access
+ * the ontology indirectly through the linked data radio channel. The
  * ontology is fetched lazily, i.e., not before it is first requested.
  *
  * This module provides its service through one trigger and two
@@ -34,6 +35,7 @@ import { readit } from '../jsonld/ns';
 import Graph from '../jsonld/graph';
 
 const ontology = new Graph();
+export default ontology;
 let promise: PromiseLike<Graph> = null;
 
 /**

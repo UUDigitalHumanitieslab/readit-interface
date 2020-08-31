@@ -17,6 +17,7 @@ You need to install the following software:
  - Python >= 3.4, <= 3.6
  - virtualenv
  - [Apache Jena Fuseki][fuseki] (see [notes](#notes-for-setting-up-fuseki) below) (requires Java)
+ -  - Elasticsearch 7 (see [notes](backend/README.md#setting-up-elasticsearch) below), (requires Java)
  - WSGI-compatible webserver (deployment only)
  - [Visual C++ for Python][14] (Windows only)
 
@@ -35,6 +36,8 @@ After downloading and extracting the [Fuseki binary distribution tarball][jena-d
 You can set `/absolute/path/to/datadir` to any directory of your choosing, as long as the Fuseki process has read and write access to it. You likely want to create a new directory for this purpose.
 
 While the Fuseki server is running, you can access its web interface at http://localhost:3030. This lets you upload and download data, try out queries and review statistics about the dataset. The server can be stopped by typing `ctrl-c`.
+
+In order to support the unittests, visit the Fuseki web interface and create an additional dataset by the name `readit-test`.
 
 If you are new to Fuseki but not to READ-IT, i.e., you have previously deployed READ-IT version 0.4.0 or older, or done local development work on any commit that did not descend from `0063b21`, then you should also read the following section about migrating your triples from the rdflib-django store to Fuseki.
 
@@ -60,6 +63,63 @@ In the interactive console, just two lines will do the trick:
 >>> move()
 ```
 
+### Setting up Elasticsearch
+Download Elasticsearch 7 from the Elastic [website](https://www.elastic.co/downloads/elasticsearch). Optionally, also download [Kibana](https://www.elastic.co/downloads/kibana) (for easier index management). Unzip to a location of your choice. Navigate to the location of Elasticsearch and start with `bin/elasticsearch` (requires JAVA). This will start up the Elasticsearch server at `localhost:9200`. If you wish to use another port, you can set this in the Elasticsearch settings (`config/elasticsearch.yml`). In that case, adjust the settings in the `settings.py` document to use the correct port.
+
+#### Set up an Elasticsearch index
+Note: The following commands include localhost:9200. Omit everything until the first `/` after `PUT` or `POST` when using Kibana.
+
+
+From Kibana, Postman, curl, or similar, create an index `readit-1` with the following mapping:
+```json
+PUT localhost:9200/readit-1
+{
+  "mappings": {
+    "properties": {
+      "id": {"type": "keyword"},
+      "language": {"type": "keyword"},
+      "text": {"type": "text"},
+      "text_en":  {
+        "type": "text",
+        "analyzer": "english"
+      },
+      "text_fr":  {
+        "type": "text",
+        "analyzer": "french"
+      },
+      "text_de":  {
+        "type": "text",
+        "analyzer": "german"
+      },
+      "text_nl":  {
+        "type": "text",
+        "analyzer": "dutch"
+      }
+    }
+  }
+}
+```
+
+Also add an alias named `readit`, like so:
+```json
+POST localhost:9200/_aliases
+{
+    "actions" : [
+        { "add" : { "index" : "readit-1", "alias" : "readit" } }
+    ]
+}
+```
+
+This will make sure that the id and languate will be saved. The source texts will be saved with standard analyzer in the `text` field, and depending on the source language, in a `text_{lang}` field with a language-specific analyzer.
+
+Indexing and reading will be performed via the alias `readit`, which is set in `settings.py` as `ES_ALIASNAME`. The alias is used such that indices can be rolled over to a new version if necessary. Then the alias will have to be unset from the old index, and set to the new index.
+
+#### Run the conversion script
+If you have sources in the `media/sources` folder, you can add them to the Elasticsearch index with a conversion script as follows:
+```py
+>>> from scripts.sources_to_elasticsearch import text_to_index
+>>> text_to_index()
+```
 
 ## How it works
 

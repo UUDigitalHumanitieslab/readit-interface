@@ -19,9 +19,11 @@ if __name__ == '__main__':
 
 from rdflib import URIRef, BNode, Graph
 
+from rdflib_django.utils import get_named_graph
+
 from rdf.ns import *
+from items.constants import ITEMS_HISTORY_NS
 from items.models import EditCounter
-from items.graph import history
 
 counter = EditCounter.current
 
@@ -33,7 +35,7 @@ def next_uri():
 
 
 def deanonymize():
-    g = history()
+    g = get_named_graph(ITEMS_HISTORY_NS)
     additions = Graph()
     removals = Graph()
     for snapshot in g.subjects(OA.motivatedBy, OA.editing):

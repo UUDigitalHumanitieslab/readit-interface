@@ -1,8 +1,11 @@
 import { extend } from 'lodash';
+
 import View from '../core/view';
-import metadataTemplate from './source-metadata-template';
 import ldChannel from '../jsonld/radio';
 import { getLabel, getLabelFromId } from '../utilities/utilities';
+import explorerChannel from '../explorer/radio';
+
+import metadataTemplate from './source-metadata-template';
 
 const excludedProperties = [
     '@id',
@@ -58,11 +61,11 @@ export default class MetadataView extends View {
     }
 
     onCloseClicked() {
-        this.trigger('metadata:hide', this);
+        explorerChannel.trigger('metadata:hide', this);
     }
 
     onEditClicked() {
-        this.trigger('metadata:edit', this);
+        explorerChannel.trigger('metadata:edit', this);
     }
 
 }

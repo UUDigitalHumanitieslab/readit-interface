@@ -1,26 +1,45 @@
 import { ViewOptions as BaseOpt } from 'backbone';
-import { extend } from 'lodash';
+import { extend, invokeMap } from 'lodash';
 
 import Model from '../core/model';
-import { oa, rdf, skos } from '../jsonld/ns';
+import ldChannel from '../jsonld/radio';
+import { oa, rdf, skos, dcterms } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
 
 import ItemEditor from '../panel-ld-item/ld-item-edit-view';
 import PickerView from '../forms/base-picker-view';
+import FilteredCollection from '../utilities/filtered-collection';
 import ItemGraph from '../utilities/item-graph';
 import ClassPickerView from '../utilities/ontology-class-picker/ontology-class-picker-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import SnippetView from '../utilities/snippet-view/snippet-view';
-import { isType } from '../utilities/utilities';
-import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
-import { composeAnnotation, getAnonymousTextQuoteSelector } from './../utilities/annotation/annotation-creation-utilities';
+import { isRdfsClass, isType } from '../utilities/utilities';
+import {
+    AnnotationPositionDetails,
+    getTargetDetails
+} from '../utilities/annotation/annotation-utilities';
+import {
+    composeAnnotation,
+    getAnonymousTextQuoteSelector
+} from './../utilities/annotation/annotation-creation-utilities';
+import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 
 import BaseAnnotationView from './base-annotation-view';
 import FlatCollection from './flat-annotation-collection';
 
 import annotationEditTemplate from './panel-annotation-edit-template';
 
+/**
+ * Helper function in order to pass the right classes to the classPicker.
+ */
+function getOntologyClasses() {
+    const ontology = ldChannel.request('ontology:graph') || new Graph();
+    return new FilteredCollection<Node, Graph>(ontology, isRdfsClass);
+}
+
+const announce = announceRoute('item:edit', ['model', 'id']);
 
 export interface ViewOptions extends BaseOpt<Model> {
     /**
@@ -28,7 +47,6 @@ export interface ViewOptions extends BaseOpt<Model> {
      * can be undefined if range and positionDetails are set (i.e. in case of a new annotation)
      */
     model: Node;
-    ontology: Graph;
     collection?: FlatCollection;
 
     /**
@@ -49,7 +67,6 @@ export interface ViewOptions extends BaseOpt<Model> {
 
 export default class AnnotationEditView extends BaseAnnotationView {
     collection: FlatCollection;
-    ontology: Graph;
     source: Node;
     range: Range;
     positionDetails: AnnotationPositionDetails;
@@ -57,7 +74,8 @@ export default class AnnotationEditView extends BaseAnnotationView {
     metadataView: ItemMetadataView;
     classPicker: ClassPickerView;
     snippetView: SnippetView;
-    modelIsAnnotion: boolean;
+    modelIsAnnotation: boolean;
+    userIsOwner: boolean;
     selectedClass: Node;
     selectedItem: Node;
     itemPicker: PickerView;
@@ -69,7 +87,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
     }
 
     initialize(options: ViewOptions): this {
-        this.ontology = options.ontology;
         this.itemOptions = new ItemGraph();
         this.itemPicker = new PickerView({collection: this.itemOptions});
         this.itemPicker.on('change', this.selectItem, this);
@@ -81,14 +98,15 @@ export default class AnnotationEditView extends BaseAnnotationView {
             this.model = getAnonymousTextQuoteSelector(this.range);
         }
 
-        this.modelIsAnnotion = isType(this.model, oa.Annotation);
+        this.modelIsAnnotation = isType(this.model, oa.Annotation);
 
-        if (this.modelIsAnnotion) {
+        if (this.modelIsAnnotation) {
             this.listenTo(this, 'source', this.processSource);
             this.listenTo(this, 'body:ontologyClass', this.processClass)
             this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
             this.processModel(options.model);
             this.listenTo(this.model, 'change', this.processModel);
+            this.on('announceRoute', announce);
         }
         else {
             this.processTextQuoteSelector(this.model);
@@ -101,11 +119,13 @@ export default class AnnotationEditView extends BaseAnnotationView {
     processModel(node: Node): this {
         super.processAnnotation(node);
 
-        if (isType(node, oa.Annotation)) {
-            this.metadataView = new ItemMetadataView({ model: this.model });
-            this.metadataView.render();
-            this.initClassPicker();
-        }
+        this.metadataView = new ItemMetadataView({ model: this.model });
+        this.metadataView.render();
+        this.initClassPicker();
+
+        const creator = this.model.get(dcterms.creator)[0] as Node;
+        const currentUser = ldChannel.request('current-user-uri');
+        if (creator.id === currentUser) this.userIsOwner = true;
 
         return this;
     }
@@ -123,7 +143,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
         });
         this.snippetView.render();
 
-        if (!this.modelIsAnnotion) this.initClassPicker();
+        if (!this.modelIsAnnotation) this.initClassPicker();
         return this;
     }
 
@@ -134,7 +154,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
 
     initClassPicker(): this {
         this.classPicker = new ClassPickerView({
-            collection: this.ontology,
+            collection: getOntologyClasses(),
             preselection: this.preselection
         });
 
@@ -193,8 +213,6 @@ export default class AnnotationEditView extends BaseAnnotationView {
         let newItem = false;
         if (!this.selectedItem) return Promise.resolve(newItem);
         if (this.selectedItem.isNew()) {
-            const items = new ItemGraph();
-            items.add(this.selectedItem);
             newItem = true;
         }
         return new Promise((resolve, reject) => {
@@ -216,7 +234,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
                 const anno = results.annotation;
                 this.collection.underlying.add(anno);
                 const flat = this.collection.get(anno.id);
-                this.trigger('annotationEditView:saveNew', this, flat, results.items);
+                explorerChannel.trigger('annotationEditView:saveNew', this, flat, results.items);
             }
         );
     }
@@ -224,7 +242,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
     submitOldAnnotation(newItem: boolean): void {
         this.selectedItem && this.model.set(oa.hasBody, this.selectedItem);
         this.model.save();
-        this.trigger('annotationEditView:save', this, this.model, newItem);
+        explorerChannel.trigger('annotationEditView:save', this, this.model, newItem);
     }
 
     reset(): this {
@@ -281,8 +299,17 @@ export default class AnnotationEditView extends BaseAnnotationView {
     onCancelClicked(event: JQueryEventObject): this {
         event.preventDefault();
         this.reset();
-        this.trigger('annotationEditView:close', this);
+        explorerChannel.trigger('annotationEditView:close', this);
         return this;
+    }
+
+    async onDelete(): Promise<void> {
+        const details = getTargetDetails(this.model);
+        // We wait for the oa:Annotation to be destroyed, then destroy its
+        // target and selectors without waiting whether deletion was successful.
+        // Incomplete deletion should not trouble the user.
+        await this.model.destroy({ wait: true });
+        invokeMap(details, 'destroy');
     }
 
     onRelatedItemsClicked(event: JQueryEventObject): this {
@@ -290,14 +317,15 @@ export default class AnnotationEditView extends BaseAnnotationView {
         return this;
     }
 }
+
 extend(AnnotationEditView.prototype, {
-    tagName: 'div',
     className: 'annotation-edit-panel explorer-panel',
     template: annotationEditTemplate,
     events: {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
+        'click .panel-footer button.is-danger': 'onDelete',
         'click .btn-rel-items': 'onRelatedItemsClicked',
         'click .item-picker-container .field:last button': 'createItem',
-    }
+    },
 });

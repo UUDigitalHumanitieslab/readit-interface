@@ -55,7 +55,7 @@ def delete_cascade(graph, predicate, _object):
     Delete all triples in the item graph with the combination of `predicate` and `_object`.
     """
     obsolete = list(graph.quads((None, predicate, _object)))
-    prune_triples_cascade(graph, obsolete, [item_graph], [OA.hasBody])
+    prune_triples_cascade(graph, obsolete, [item_graph()], [OA.hasBody])
 
 
 def delete_predicate(graph, predicate):
