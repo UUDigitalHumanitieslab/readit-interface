@@ -1,23 +1,9 @@
-from rest_framework.authentication import (BasicAuthentication,
-                                           SessionAuthentication)
-
-
-from sparql.views import SPARQLQueryAPIView, SPARQLUpdateAPIView
-
+from rdf.views import RDFView
 from .graph import graph
 
 
-class NlpOntologyQueryView(SPARQLQueryAPIView):
-    """ Query the NLP ontology through SPARQL-Query """
-
-    def graph(self):
-        return graph()
-
-
-class NlpOntologyUpdateView(SPARQLUpdateAPIView):
-    """ Update the NLP ontology through SPARQL-Update """
-
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
+class ListNlpOntology(RDFView):
+    """ List the full ontology in RDF. """
 
     def graph(self):
         return graph()
