@@ -78,7 +78,7 @@ export default class ExplorerEventController {
     resetSourceListFromSearchResults(results: Graph, query: string, fields: string) {
         const queryModel = new Model({ query, fields });
         const resultsView = new SourceListPanel({ collection: results, model: queryModel });
-        this.explorerView.reset(resultsView);  // will trigger the wrong route, but we can fix that later
+        this.explorerView.reset(resultsView);
     }
 
     openSearchResult(searchResults: SearchResultListView, item: Node) {

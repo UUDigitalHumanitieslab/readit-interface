@@ -26,6 +26,7 @@ from vocab import namespace as vocab
 from staff.utils import submission_info
 from items.constants import ITEMS_NS
 from items.graph import graph as items_graph
+from . import namespace as ns
 from .constants import SOURCES_NS
 from .graph import graph as sources_graph
 from .utils import get_media_filename, get_serial_from_subject
@@ -35,14 +36,12 @@ from .permissions import UploadSourcePermission, DeleteSourcePermission
 es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
 
 SELECT_SOURCES_QUERY_START = '''
-BASE <http://localhost:8000/>
-PREFIX source: <source/>
 CONSTRUCT {
     ?id ?p ?o.
 '''
 
 SELECT_SOURCES_QUERY_MIDDLE_RELEVANCE = '''
-    ?id <https://www.semanticdesktop.org/ontologies/2007/08/15/nao/#score> ?relevance.
+    ?id nao:score ?relevance.
 } WHERE {
    VALUES (?id ?relevance) {
 '''
@@ -125,6 +124,7 @@ class SourcesAPIRoot(RDFView):
         return sources_graph()
 
     def get_graph(self, request, **kwargs):
+        print(super().get_graph(request, **kwargs))
         return inject_fulltext(super().get_graph(request, **kwargs), False, request)
 
 
@@ -132,20 +132,22 @@ class SourceSelection(RDFView):
     ''' list all sources related to a search query. '''
 
     def get_graph(self, request, **kwargs):
-        query = request.GET.get('query')
+        query_string = request.GET.get('query')
         fields = request.GET.get('queryfields')
-        query_string = {"query": query}
-        if fields != 'all':
-            query_string['fields'] = [fields]
-        if query == '':
+        if query_string == '':
             clause = {"match_all": {}}
         else:
-            clause = {"simple_query_string": query_string}
+            es_query = {"query": query_string}
+            if fields != 'all':
+                es_query['fields'] = [fields]
+            clause = {"simple_query_string": es_query}
         body = {"query": clause}
         results = es.search(body=body, index=settings.ES_ALIASNAME)
         if results['hits']['total']['value'] == 0:
             return Graph()
-        selected_sources_graph = select_sources_elasticsearch(results)
+        selected_sources = select_sources_elasticsearch(results)
+        selected_sources_graph = inject_fulltext(graph_from_triples(
+            list(selected_sources)), False, request)
         return selected_sources_graph
 
 
@@ -205,7 +207,8 @@ def source_fulltext(request, serial, query=None):
     if result:
         f = result['hits']['hits'][0]['_source']['text']
         return HttpResponse(f, content_type='text/plain; charset=utf-8')
-    return Response(status=HTTP_404_NOT_FOUND)
+    else:
+        raise NotFound
 
 
 def select_sources_elasticsearch(results):
@@ -217,7 +220,7 @@ def select_sources_elasticsearch(results):
         selection,
         SELECT_SOURCES_QUERY_END
     )
-    return endpoint.query(query)
+    return endpoint.query(query, initNs={'source': ns, 'nao': NAO})
 
 
 def format_ids_and_relevances(hit):
