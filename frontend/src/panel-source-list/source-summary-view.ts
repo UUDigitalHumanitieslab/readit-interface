@@ -27,7 +27,7 @@ export default class SourceSummaryView extends View {
     }
 
     onSourceClicked(): this {
-        this.trigger('click', this.cid);
+        this.trigger('click', this.model.cid);
         return this;
     }
 }

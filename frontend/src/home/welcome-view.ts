@@ -21,7 +21,7 @@ export default class WelcomeView extends View {
         this.$el.html(this.template(this));
 
         this.$('.welcome-image').append(this.searchboxView.render().$el);
-        this.searchboxView.on("searchClicked", this.search);
+        this.searchboxView.on("searchClicked", this.search, this);
 
         return this;
     }

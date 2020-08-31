@@ -30,7 +30,6 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
     }
 
     makeItem(model: Node): SourceSummaryView {
-        // to do: cast model to node?
         let view = new SourceSummaryView({model});
         this.listenTo(view, 'click', this.onSourceClicked);
         return view;
