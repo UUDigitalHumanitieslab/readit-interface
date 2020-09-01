@@ -8,6 +8,7 @@ import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
 import { ensureSources } from '../global/sources';
 import sourceListPanel from '../global/source-list-view';
+import welcomeView from '../global/welcome-view';
 
 const browserHistory = window.history;
 const resetSourceList = () => explorer.reset(sourceListPanel);
@@ -59,7 +60,7 @@ channel.on({
     'externalItems:edit-close': controller.closeEditExternal,
     'relItems:edit-close': controller.closeEditRelated,
     'source-list:click': controller.pushSourcePair,
-    'searchResultList:itemClicked': controller.openSearchResult,
+    'searchResultList:itemClicked': controller.openSearchResult
 }, controller);
 channel.on('currentRoute', (route, panel) => {
     router.navigate(route);
@@ -67,3 +68,4 @@ channel.on('currentRoute', (route, panel) => {
     // panel.
     browserHistory.replaceState(panel.cid, document.title);
 });
+welcomeView.on({'search:searched': controller.resetSourceListFromSearchResults}, controller);

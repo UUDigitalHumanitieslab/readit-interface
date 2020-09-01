@@ -480,6 +480,7 @@ export const iso6391Terms = [
     'en',
     'de',
     'fr',
+    'nl'
 ] as const;
 
 export const iso6391 = Vocabulary(iso6391Prefix, iso6391Terms);
