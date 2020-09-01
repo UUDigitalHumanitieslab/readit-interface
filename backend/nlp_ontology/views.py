@@ -1,8 +1,6 @@
 from django.http.response import HttpResponseBase
 from pyparsing import ParseException
 from rdflib import BNode, Literal
-from rest_framework.authentication import (BasicAuthentication,
-                                           SessionAuthentication)
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -106,18 +104,20 @@ class SPARQLQueryAPIView(APIView):
         ''' Attempt to query a graph with a SPARQL-Query string
             Sets query type on succes
         '''
+        graph = self.graph()
         try:
             if not querystring:
-                query_results = self.graph()
+                query_results = graph
                 query_type = 'EMPTY'
             else:
-                query_results = self.graph().query(querystring)
+                query_results = graph.query(querystring)
                 query_type = query_results.type
             self.request.data['query_type'] = query_type
             return query_results
 
-        except ParseException as p_e:
+        except (ParseException, QueryBadFormed) as p_e:
             # Raised when SPARQL syntax is not valid, or parsing fails
+            graph.rollback()
             raise ParseSPARQLError(p_e)
         except HTTPError as h_e:
             if 400 <= h_e.response.status_code < 500:
@@ -125,6 +125,7 @@ class SPARQLQueryAPIView(APIView):
             else:
                 raise APIException(h_e)
         except Exception as n_e:
+            graph.rollback()
             raise APIException(n_e)
 
     def get(self, request, **kwargs):
@@ -154,7 +155,6 @@ class SPARQLQueryAPIView(APIView):
 
 class NlpOntologyQueryView(SPARQLQueryAPIView):
     """ Query the NLP ontology through SPARQL-Query """
-    # authentication_classes = (SessionAuthentication, BasicAuthentication)
 
     def graph(self):
         return graph()
@@ -163,7 +163,6 @@ class NlpOntologyQueryView(SPARQLQueryAPIView):
 class NlpOntologyUpdateView(SPARQLUpdateAPIView):
     """ Update the NLP ontology through SPARQL-Update """
     permission_classes = (SPARQLPermission,)
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
 
     def graph(self):
         return graph()
