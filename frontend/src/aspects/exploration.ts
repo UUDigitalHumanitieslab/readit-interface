@@ -16,7 +16,7 @@ const resetSourceList = () => explorer.reset(sourceListPanel);
  * Common patterns for the explorer routes.
  */
 function deepRoute(obtainAction, resetAction) {
-    return ([serial]) => explorer.scrollOrAction(
+    return (serial) => explorer.scrollOrAction(
         browserHistory.state,
         () => resetAction(controller, obtainAction(serial))
     );
