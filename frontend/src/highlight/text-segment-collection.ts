@@ -2,7 +2,7 @@ import { extend, sortedIndexBy, each, range } from 'lodash';
 
 import Model from '../core/model';
 import Collection from '../core/collection';
-import FlatModel from '../annotation/flat-annotation-model';
+import FlatItem from '../annotation/flat-item-model';
 import FlatCollection from '../annotation/flat-annotation-collection';
 import Segment from './text-segment-model';
 
@@ -63,7 +63,7 @@ export default class TextSegmentCollection extends Collection<Segment> {
     }
 
     // Implementation detail of initSegments.
-    insertIfComplete(annotation: FlatModel): void {
+    insertIfComplete(annotation: FlatItem): void {
         if (annotation.complete) this.insert(annotation);
     }
 
@@ -75,7 +75,7 @@ export default class TextSegmentCollection extends Collection<Segment> {
      * This is the event handler for the `'complete'` event of the underlying
      * collection and it is where most of the magic happens.
      */
-    insert(annotation: FlatModel): void {
+    insert(annotation: FlatItem): void {
         // Position range of the *annotation*.
         const start = getStart(annotation);
         const end = getEnd(annotation);
@@ -121,7 +121,7 @@ export default class TextSegmentCollection extends Collection<Segment> {
      * high annotation turnover, but we don't really expect frequent removal at
      * this time.
      */
-    eject(annotation: FlatModel): void {
+    eject(annotation: FlatItem): void {
         if (!annotation.complete) return;
         const ejectOne = segment => segment.annotations.remove(annotation);
         this.eachRange(ejectOne, annotation);
@@ -147,10 +147,10 @@ export default class TextSegmentCollection extends Collection<Segment> {
      * @param first The first index in the range to be iterated over.
      * @param last The index past the end of the range to be iterated over.
      */
-    eachRange(callback: SegmentIteratee, annotation: FlatModel, first?: number, last?: number): this;
+    eachRange(callback: SegmentIteratee, annotation: FlatItem, first?: number, last?: number): this;
     eachRange(callback: SegmentIteratee, first: number, last: number): this;
     eachRange(callback, annotation, first, last?): this {
-        if (annotation instanceof FlatModel) {
+        if (annotation instanceof FlatItem) {
             (first == null) && (first = this.findStart(annotation));
             (last == null) && (last = this.findEnd(annotation) + 1);
         } else {
@@ -164,7 +164,7 @@ export default class TextSegmentCollection extends Collection<Segment> {
     /**
      * Return the index of the first segment that contains `annotation`.
      */
-    findStart(annotation: FlatModel): number {
+    findStart(annotation: FlatItem): number {
         const index = sortedIndexBy(this.models, annotation, getStart);
         if (index === this.length) return index - 1;
         const segment = this.at(index);
@@ -174,7 +174,7 @@ export default class TextSegmentCollection extends Collection<Segment> {
     /**
      * Return the index of the last segment that contains `annotation`.
      */
-    findEnd(annotation: FlatModel): number {
+    findEnd(annotation: FlatItem): number {
         return sortedIndexBy(this.models, annotation, getEnd);
     }
 }

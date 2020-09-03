@@ -6,7 +6,7 @@ import Model from './../core/model';
 import { CompositeView } from './../core/view';
 import { schema, vocab } from './../jsonld/ns';
 import Node from './../jsonld/node';
-import FlatModel from '../annotation/flat-annotation-model';
+import FlatItem from '../annotation/flat-item-model';
 import FlatCollection from '../annotation/flat-annotation-collection';
 import ToggleMixin from '../utilities/category-colors/category-toggle-mixin';
 import SegmentCollection from '../highlight/text-segment-collection';
@@ -278,7 +278,7 @@ class SourcePanel extends CompositeView {
         return this;
     }
 
-    scrollTo(annotation: FlatModel): void {
+    scrollTo(annotation: FlatItem): void {
         this.htv.scrollTo(annotation);
     }
 

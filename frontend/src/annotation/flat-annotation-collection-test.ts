@@ -5,8 +5,8 @@ import { oa, item } from '../jsonld/ns';
 import Graph from '../jsonld/graph';
 import ontologyData from '../mock-data/mock-ontology';
 import itemData from '../mock-data/mock-items';
-import { createPlaceholder, completion } from './flat-annotation-model-test';
-import FlatModel from './flat-annotation-model';
+import { createPlaceholder, completion } from './flat-item-model-test';
+import FlatItem from './flat-item-model';
 import FlatCollection from './flat-annotation-collection';
 
 const numAnnotations = 5;
@@ -157,7 +157,7 @@ describe('FlatAnnotationCollection', function() {
         await event(this.flat, 'sort');
         expect(this.flat.map('id')).toEqual(
             // This ordering takes only the character position into account, as
-            // does FlatAnnotationModel. This is by design and as agreed, i.e.,
+            // does FlatItem. This is by design and as agreed, i.e.,
             // we agreed with the users to support only plaintext.
             map('103 100 101 102 104'.split(' '), item)
         );

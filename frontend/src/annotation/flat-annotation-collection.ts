@@ -4,11 +4,11 @@ import Collection from '../core/collection';
 import { oa } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
-import FlatAnnotation from './flat-annotation-model';
+import FlatItem from './flat-item-model';
 
 /**
  * Adapter that represents `oa.Annotation`s from an underlying `Graph` as
- * FlatAnnotation models.
+ * FlatItem models.
  *
  * `'complete'` events triggered by models are forwarded by the collection, as
  * with all model events. In addition, a single `'complete:all'` event is
@@ -31,7 +31,7 @@ import FlatAnnotation from './flat-annotation-model';
  * events and ensures that the previous focused annotation blurs automatically
  * when a different annotation receives focus.
  */
-export default class FlatAnnotationCollection extends Collection<FlatAnnotation> {
+export default class FlatAnnotationCollection extends Collection<FlatItem> {
     // We keep hold of the underlying `Graph`, mostly as a service to the user.
     underlying: Graph;
 
@@ -56,18 +56,18 @@ export default class FlatAnnotationCollection extends Collection<FlatAnnotation>
     }
 
     // The annotation that is currently in focus, if any.
-    focus: FlatAnnotation;
+    focus: FlatItem;
 
     // Handlers for `'focus'` and `'blur'` events to maintain the invariant that
     // only one annotation can be in focus at the same time.
-    _onFocus(newFocus: FlatAnnotation): void {
+    _onFocus(newFocus: FlatItem): void {
         const oldFocus = this.focus;
         if (oldFocus && oldFocus !== newFocus) {
             oldFocus.trigger('blur', oldFocus, newFocus);
         }
         this.focus = newFocus;
     }
-    _onBlur(annotation: FlatAnnotation): void {
+    _onBlur(annotation: FlatItem): void {
         if (annotation === this.focus) delete this.focus;
     }
 
@@ -107,7 +107,7 @@ export default class FlatAnnotationCollection extends Collection<FlatAnnotation>
      * Core operation that handles incoming nodes.
      *
      * If `node` is certainly an `oa.Annotation`, a corresponding
-     * `FlatAnnotation` is returned, otherwise `undefined`. The purpose of this
+     * `FlatItem` is returned, otherwise `undefined`. The purpose of this
      * return value is that it may passed to the `add`, `set` or `reset` method.
      *
      * If the type is not yet known, `flattenPost` is installed as an event
@@ -116,7 +116,7 @@ export default class FlatAnnotationCollection extends Collection<FlatAnnotation>
      * the behaviour will be the same as when you'd handle the return value
      * yourself, e.g. `{ silent: true }` if your intention is a `reset`.
      */
-    flatten(node: Node, options?: any): FlatAnnotation {
+    flatten(node: Node, options?: any): FlatItem {
         const types = node.get('@type') as string[];
         if (!types) {
             // A keen observer may notice that we use `flattenPost` as the event
@@ -132,7 +132,7 @@ export default class FlatAnnotationCollection extends Collection<FlatAnnotation>
             );
             ++this._tracking;
         } else if (includes(types, oa.Annotation)) {
-            return new FlatAnnotation(node);
+            return new FlatItem(node);
         }
     }
 
@@ -157,7 +157,7 @@ export default class FlatAnnotationCollection extends Collection<FlatAnnotation>
      * Variant of `flatten` that can be used to prepare a `reset`. Useful as an
      * iteratee for `map`.
      */
-    flattenSilent(node: Node): FlatAnnotation {
+    flattenSilent(node: Node): FlatItem {
         return this.flatten(node, { silent: true });
     }
 
@@ -209,7 +209,7 @@ export default class FlatAnnotationCollection extends Collection<FlatAnnotation>
 }
 
 extend(FlatAnnotationCollection.prototype, {
-    model: FlatAnnotation,
+    model: FlatItem,
     // Sort first by `startPosition`, then by `endPosition`.
     comparator(left, right) {
         return left.get('startPosition') - right.get('startPosition') ||

@@ -23,9 +23,10 @@ const F_COMPLETE = F_ID | F_CSSCLASS | F_LABEL | F_SOURCE | F_POS | F_TEXT;
 
 /**
  * Adapter that transforms a `Node` representing an `oa.Annotation`s into a
- * flattened representation that is easier to process. In this representation,
- * each direct and indirect RDF property of interest is mapped to a direct
- * model attribute.
+ * flattened representation that is easier to process. Incomplete annotations
+ * and unwrapped instances of node types that tend to be used as body or target
+ * are supported as well. In this representation, each direct and indirect RDF
+ * property of interest is mapped to a direct model attribute.
  *
  * Please keep in mind that this transform is one way only. In order to edit an
  * annotation, you have to walk the original RDF datastructure. However, the
@@ -53,9 +54,10 @@ const F_COMPLETE = F_ID | F_CSSCLASS | F_LABEL | F_SOURCE | F_POS | F_TEXT;
  * when all of the following attributes have been collected: `id`, `cssClass`,
  * `label`, `source`, `startPosition`, `endPosition`, `text`. It also exposes a
  * read-only `complete` property which evaluates to `false` before the event
- * and `true` after the event.
+ * and `true` after the event. Attributes that are never expected to be set,
+ * such as `startPosition` for a bare item, are intelligently skipped.
  */
-export default class FlatAnnotationModel extends Model {
+export default class FlatItem extends Model {
     // Private bitfield for tracking completion.
     _completionFlags: number;
 
@@ -80,10 +82,10 @@ export default class FlatAnnotationModel extends Model {
      * instead of an initial hash of attributes. Precondition: `annotation`
      * must be an instance of `oa.Annotation`.
      */
-    constructor(annotation: Node, options?: any) {
-        super({ id: annotation.id }, options);
+    constructor(node: Node, options?: any) {
+        super({ id: node.id }, options);
         this._completionFlags = 0;
-        annotation.when(oa.hasBody, this.receiveAnnotation, this);
+        node.when('@type', this.receiveTopNode, this);
     }
 
     setOptionalFirst(source: Node, sourceAttr: string, targetAttr: string): this {
@@ -92,21 +94,32 @@ export default class FlatAnnotationModel extends Model {
         return this;
     }
 
+    receiveTopNode(node: Node): void {
+        const id = node.id;
+        this.set({ id });
+        this.setOptionalFirst(node, dcterms.creator, 'creator');
+        this.setOptionalFirst(node, dcterms.created, 'created');
+        this._setCompletionFlag(F_ID);
+        if (node.has('@type', oa.Annotation)) {
+            this.receiveAnnotation(node);
+        } else if (node.has('@type', oa.SpecificResource)) {
+            this.receiveTarget(node);
+            this._setCompletionFlag(F_CSSCLASS | F_LABEL);
+        } else {
+            this._setCompletionFlag(this.receiveBody(node));
+            this._setCompletionFlag(F_SOURCE | F_POS | F_TEXT);
+        }
+    }
+
     /**
      * Invoked once when the annotation is more than just a placeholder.
      */
     receiveAnnotation(annotation: Node): void {
-        this.set({
-            annotation,
-            id: annotation.id,
-        });
-        this.setOptionalFirst(annotation, dcterms.creator, 'creator');
-        this.setOptionalFirst(annotation, dcterms.created, 'created');
+        this.set({ annotation });
         this.updateBodies(annotation);
         this.listenTo(annotation, `change:${oa.hasBody}`, this.updateBodies);
         const target = annotation.get(oa.hasTarget)[0] as Node;
         target.when(oa.hasSelector, this.receiveTarget, this);
-        this._setCompletionFlag(F_ID);
     }
 
     /**
@@ -115,14 +128,20 @@ export default class FlatAnnotationModel extends Model {
     updateBodies(annotation: Node): void {
         const bodies = annotation.get(oa.hasBody) as Node[];
         each(bodies, body => body.when('@type', this.receiveBody, this));
-        // An annotation can be complete without an item.
-        if (bodies && bodies.length < 2) this._setCompletionFlag(F_LABEL);
+        // An annotation can be complete without an item or even a class.
+        if (bodies) {
+            if (bodies.length < 2) this._setCompletionFlag(F_LABEL);
+            if (bodies.length < 1) this._setCompletionFlag(F_CSSCLASS);
+        } else {
+            this._setCompletionFlag(F_LABEL | F_CSSCLASS);
+        }
     }
 
     /**
      * Invoked once for each oa.hasBody when it is more than just a placeholder.
+     * Returns the body bit flag that was *not* completed.
      */
-    receiveBody(body: Node): void {
+    receiveBody(body: Node): number {
         const id = body.id;
         if (id.startsWith(readit())) return this.receiveClass(body);
         if (id.startsWith(item())) return this.receiveItem(body);
@@ -133,24 +152,26 @@ export default class FlatAnnotationModel extends Model {
     /**
      * Invoked once when the class body is more than just a placeholder.
      */
-    receiveClass(body: Node): void {
+    receiveClass(body: Node): number {
         this.set({
             class: body,
             classLabel: getLabel(body),
             cssClass: getCssClassName(body),
         });
         this._setCompletionFlag(F_CSSCLASS);
+        return F_LABEL;
     }
 
     /**
      * Invoked once when the item body is more than just a placeholder.
      */
-    receiveItem(body: Node): void {
+    receiveItem(body: Node): number {
         this.set({
             item: body,
             label: getLabel(body),
         });
         this._setCompletionFlag(F_LABEL);
+        return F_CSSCLASS;
     }
 
     /**

@@ -14,7 +14,7 @@ import RelatedEditView from '../panel-related-items/related-items-edit-view';
 import ExternalView from '../panel-external-resources/external-resources-view';
 import ExternalEditView from '../panel-external-resources/external-resources-edit-view';
 import ItemGraph from '../utilities/item-graph';
-import FlatModel from '../annotation/flat-annotation-model';
+import FlatItem from '../annotation/flat-item-model';
 import FlatCollection from '../annotation/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { oa } from '../jsonld/ns';
@@ -155,7 +155,7 @@ export default class ExplorerEventController {
         // if (newItem) this.autoOpenRelationEditor(annotation);
     }
 
-    saveNewAnnotation(editView: AnnoEditView, annotation: FlatModel, created: ItemGraph): void {
+    saveNewAnnotation(editView: AnnoEditView, annotation: FlatItem, created: ItemGraph): void {
         const listView = editView['_listview'];
         if (listView) {
             this.explorerView.removeOverlay(editView);
@@ -191,7 +191,7 @@ export default class ExplorerEventController {
         }
     }
 
-    openSourceAnnotation(listView: AnnotationListView, anno: FlatModel): void {
+    openSourceAnnotation(listView: AnnotationListView, anno: FlatItem): void {
         const annoRDF = anno.get('annotation');
         let newDetailView = new LdItemView({ model: annoRDF });
         this.mapAnnotationListAnnotationDetail.set(listView, newDetailView);
@@ -204,7 +204,7 @@ export default class ExplorerEventController {
         return detailView;
     }
 
-    closeSourceAnnotation(listView: AnnotationListView, annotation: FlatModel): void {
+    closeSourceAnnotation(listView: AnnotationListView, annotation: FlatItem): void {
         this.mapAnnotationListAnnotationDetail.delete(listView);
         this.explorerView.popUntil(listView);
     }
