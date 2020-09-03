@@ -103,6 +103,30 @@ class SourcesAPIRoot(RDFView):
         return inject_fulltext(super().get_graph(request, **kwargs), False, request)
 
 
+class SourceSelection(RDFView):
+    ''' list all sources related to a search query. '''
+
+    def get_graph(self, request, **kwargs):
+        query_string = request.GET.get('query')
+        fields = request.GET.get('queryfields')
+        if query_string == '':
+            clause = {"match_all": {}}
+        else:
+            es_query = {"query": query_string}
+            if fields != 'all':
+                field = fields.split(' ')[1] # text / title / author
+                es_query['fields'] = [field]
+            clause = {"simple_query_string": es_query}
+        body = {"query": clause}
+        results = es.search(body=body, index=settings.ES_ALIASNAME)
+        if results['hits']['total']['value'] == 0:
+            return Graph()
+        selected_sources = select_sources_elasticsearch(results)
+        selected_sources_graph = inject_fulltext(graph_from_triples(
+            list(selected_sources)), False, request)
+        return selected_sources_graph
+
+
 class SourcesAPISingular(RDFResourceView):
     """ API endpoint for fetching individual subjects. """
     permission_classes = [IsAuthenticated, DeleteSourcePermission]
