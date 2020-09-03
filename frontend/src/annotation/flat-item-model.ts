@@ -58,6 +58,8 @@ const F_COMPLETE = F_ID | F_CSSCLASS | F_LABEL | F_SOURCE | F_POS | F_TEXT;
  * such as `startPosition` for a bare item, are intelligently skipped.
  */
 export default class FlatItem extends Model {
+    underlying: Node;
+
     // Private bitfield for tracking completion.
     _completionFlags: number;
 
@@ -70,7 +72,7 @@ export default class FlatItem extends Model {
     _setCompletionFlag(flag: number): void {
         this._completionFlags |= flag;
         if (this.complete) {
-            this.trigger('complete', this, this.get('annotation'));
+            this.trigger('complete', this, this.underlying);
             // After this, we never need to check the flags or trigger the
             // `'complete'` event again.
             this._setCompletionFlag = noop;
@@ -84,6 +86,7 @@ export default class FlatItem extends Model {
      */
     constructor(node: Node, options?: any) {
         super({ id: node.id }, options);
+        this.underlying = node;
         this._completionFlags = 0;
         node.when('@type', this.receiveTopNode, this);
     }
