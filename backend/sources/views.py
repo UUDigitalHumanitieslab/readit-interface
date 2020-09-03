@@ -5,6 +5,7 @@ import html
 from django.http import HttpResponse
 from django.core.files.storage import default_storage
 from django.conf import settings
+from django.contrib.admin.utils import flatten
 
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -14,6 +15,7 @@ from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.reverse import reverse
 
 from rdflib import Graph, URIRef, Literal
+from rdflib.plugins.sparql import prepareQuery
 
 from elasticsearch import Elasticsearch
 
@@ -24,6 +26,7 @@ from vocab import namespace as vocab
 from staff.utils import submission_info
 from items.constants import ITEMS_NS
 from items.graph import graph as items_graph
+from . import namespace as ns
 from .constants import SOURCES_NS
 from .graph import graph as sources_graph
 from .utils import get_media_filename, get_serial_from_subject
@@ -32,6 +35,27 @@ from .permissions import UploadSourcePermission, DeleteSourcePermission
 
 es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
 
+SELECT_SOURCES_QUERY_START = '''
+CONSTRUCT {
+    ?id ?p ?o.
+'''
+
+SELECT_SOURCES_QUERY_MIDDLE_RELEVANCE = '''
+    ?id nao:score ?relevance.
+} WHERE {
+   VALUES (?id ?relevance) {
+'''
+
+SELECT_SOURCES_QUERY_MIDDLE_NO_RELEVANCE = '''
+} WHERE {
+   VALUES ?id {
+'''
+
+SELECT_SOURCES_QUERY_END = '''
+}
+    ?id ?p ?o
+}
+'''
 PREFIXES = {
     'oa': OA,
 }
@@ -100,6 +124,7 @@ class SourcesAPIRoot(RDFView):
         return sources_graph()
 
     def get_graph(self, request, **kwargs):
+        print(super().get_graph(request, **kwargs))
         return inject_fulltext(super().get_graph(request, **kwargs), False, request)
 
 
@@ -158,17 +183,49 @@ class SourcesAPISingular(RDFResourceView):
         return Response(Graph(), HTTP_204_NO_CONTENT)
 
 
-def source_fulltext(request, serial):
+def source_fulltext(request, serial, query=None):
     """ API endpoint for fetching the full text of a single source. """
-    result = es.search(body={
+    body = {
         "query" : {
             "term" : { "id" : serial }
         }
-    }, index=settings.ES_ALIASNAME)
+    }
+    if query:
+        body['highlight'] = {
+            "highlight_query": {
+                "simple_query_string": {
+                    "query": query
+                }
+            }, 
+            "fields" : {
+                "text_en" : {},
+                "text_de": {},
+                "text_fr": {},
+                "text_nl": {}
+            }
+        }
+    result = es.search(body=body, index=settings.ES_ALIASNAME)
     if result:
         f = result['hits']['hits'][0]['_source']['text']
         return HttpResponse(f, content_type='text/plain; charset=utf-8')
-    return Response(status=HTTP_404_NOT_FOUND)
+    else:
+        raise NotFound
+
+
+def select_sources_elasticsearch(results):
+    endpoint = sources_graph()
+    selection = '\n'.join(list(map(format_ids_and_relevances, results['hits']['hits'])))
+    query = '{}{}{}{}'.format(
+        SELECT_SOURCES_QUERY_START,
+        SELECT_SOURCES_QUERY_MIDDLE_RELEVANCE,
+        selection,
+        SELECT_SOURCES_QUERY_END
+    )
+    return endpoint.query(query, initNs={'source': ns, 'nao': NAO})
+
+
+def format_ids_and_relevances(hit):
+    return '(source:{} {})'.format(hit['_source']['id'], hit['_score'])
 
 
 class AddSource(RDFResourceView):
