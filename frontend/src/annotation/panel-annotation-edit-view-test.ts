@@ -40,6 +40,12 @@ describe('AnnotationEditView', function() {
         })).not.toThrow();
     });
 
+    it('can be constructed with a pre-existing annotation', function() {
+        expect(() => new AnnotationEditView({
+            model: new Node(mockItems[0]),
+        })).not.toThrow();
+    });
+
     it('displays a delete button if the current user created the annotation', function() {
         const items = new Graph(mockItems);
         const annotation = items.get(item('100'));
