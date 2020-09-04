@@ -139,7 +139,7 @@ class SourceSelection(RDFView):
         else:
             es_query = {"query": query_string}
             if fields != 'all':
-                field = fields.split(' ')[1] # text / title / author
+                field = fields.split('_')[1] # text / title / author
                 es_query['fields'] = [field]
             clause = {"simple_query_string": es_query}
         body = {"query": clause}
