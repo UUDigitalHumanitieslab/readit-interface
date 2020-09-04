@@ -221,4 +221,19 @@ describe('FlatItem', function() {
             'cssClass'
         ));
     });
+
+    it('can flatten a bare selector', async function() {
+        const items = getFullItems();
+        const flatAnno = new FlatItem(items.position);
+        await completion(flatAnno);
+        expect(flatAnno.attributes).toEqual(assign({
+            id: items.position.id
+        }, pick(
+            expectedFlatAttributes,
+            'startPosition',
+            'endPosition',
+            'creator',
+            'created'
+        )));
+    });
 });

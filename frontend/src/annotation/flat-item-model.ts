@@ -103,11 +103,14 @@ export default class FlatItem extends Model {
         this.setOptionalFirst(node, dcterms.creator, 'creator');
         this.setOptionalFirst(node, dcterms.created, 'created');
         this._setCompletionFlag(F_ID);
+        let missing;
         if (node.has('@type', oa.Annotation)) {
             this.receiveAnnotation(node);
         } else if (node.has('@type', oa.SpecificResource)) {
             this.receiveTarget(node);
             this._setCompletionFlag(F_CSSCLASS | F_LABEL);
+        } else if (missing = this.receiveSelector(node)) {
+            this._setCompletionFlag(missing | F_CSSCLASS | F_LABEL | F_SOURCE);
         } else {
             this._setCompletionFlag(this.receiveBody(node));
             this._setCompletionFlag(F_SOURCE | F_POS | F_TEXT);
@@ -197,8 +200,9 @@ export default class FlatItem extends Model {
     /**
      * Invoked once for each oa.hasSelector when it is more than just a
      * placeholder.
+     * Returns the selector bit flag that was *not* completed.
      */
-    receiveSelector(selector: Node): void {
+    receiveSelector(selector: Node): number {
         const type = selector.get('@type') as string[];
         if (includes(type, oa.TextPositionSelector)) {
             return this.receivePosition(selector);
@@ -212,7 +216,7 @@ export default class FlatItem extends Model {
      * Invoked once when the TextPositionSelector is more than just a
      * placeholder.
      */
-    receivePosition(selector: Node): void {
+    receivePosition(selector: Node): number {
         const start = selector.get(oa.start);
         const end = selector.get(oa.end);
         if (start && start.length && end && end.length) {
@@ -222,12 +226,13 @@ export default class FlatItem extends Model {
             });
             this._setCompletionFlag(F_POS);
         }
+        return F_TEXT;
     }
 
     /**
      * Invoked once when the TextQuoteSelector is more than just a placeholder.
      */
-    receiveText(selector: Node): void {
+    receiveText(selector: Node): number {
         this.setOptionalFirst(selector, oa.prefix, 'prefix');
         this.setOptionalFirst(selector, oa.suffix, 'suffix');
         const text = selector.get(oa.exact);
@@ -235,5 +240,6 @@ export default class FlatItem extends Model {
             this.set({ text: text[0] });
             this._setCompletionFlag(F_TEXT);
         }
+        return F_POS;
     }
 }
