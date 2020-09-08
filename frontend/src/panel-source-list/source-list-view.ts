@@ -18,12 +18,14 @@ export interface ViewOptions extends BaseOpt<Model> {
 }
 
 export default class SourceListView extends CollectionView<Model, SourceSummaryView> {
-    
+    noResults: boolean;
+
     constructor(options?: ViewOptions) {
         super(options);
     }
 
     initialize(): this {
+        this.noResults = this.model && !this.collection.length;
         this.initItems().render().initCollectionEvents();
         this.on('announceRoute', announce);
         return this;
