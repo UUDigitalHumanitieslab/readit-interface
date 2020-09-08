@@ -18,7 +18,7 @@ export interface ViewOptions extends BaseOpt<Model> {
 }
 
 export default class SourceListView extends CollectionView<Model, SourceSummaryView> {
-
+    
     constructor(options?: ViewOptions) {
         super(options);
     }
@@ -30,7 +30,8 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
     }
 
     makeItem(model: Node): SourceSummaryView {
-        let view = new SourceSummaryView({model});
+        const query = this.model? this.model.get('query') : undefined;
+        let view = new SourceSummaryView({model, query});
         this.listenTo(view, 'click', this.onSourceClicked);
         return view;
     }
