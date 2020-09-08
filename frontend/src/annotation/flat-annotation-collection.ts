@@ -1,74 +1,34 @@
-import { compact, includes, extend, throttle } from 'lodash';
+import { includes, extend } from 'lodash';
 
-import Collection from '../core/collection';
 import { oa } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
 import FlatItem from './flat-item-model';
+import FlatItemCollection from './flat-item-collection';
 
 /**
- * Adapter that represents `oa.Annotation`s from an underlying `Graph` as
- * FlatItem models.
- *
- * `'complete'` events triggered by models are forwarded by the collection, as
- * with all model events. In addition, a single `'complete:all'` event is
- * triggered when a state is reached in which all annotations known to the
- * collection are complete.
- *
- * The collection stays in sync with the underlying `Graph`. This should be
- * considered read-only; manipulate the underlying `Graph` in order to change
- * the contents of the flat representation.
+ * Specialization of FlatItemCollection that represents exclusively
+ * `oa.Annotation`s from an underlying `Graph` as FlatItem models. If the type
+ * of an underlying Node is not know synchronously, addition to the
+ * FlatAnnotationCollection is postponed until it is confirmed to be an
+ * annotation.
  *
  * The flat annotations are ordered first by the `startPosition` attribute and
  * then by the `endPosition` attribute.
- *
- * At any one time, at most one flat annotation in the collection may be "in
- * focus". At the model layer, this is an abstract notion; views may use the
- * information in order to emphasize the presentation of the focused annotation
- * over other annotations. Focus can be shifted by triggering a `'focus'` event
- * on any individual flat annotation and removed by triggering `'blur'` on the
- * annotation that is currently in focus. The collection propagates these
- * events and ensures that the previous focused annotation blurs automatically
- * when a different annotation receives focus.
  */
-export default class FlatAnnotationCollection extends Collection<FlatItem> {
-    // We keep hold of the underlying `Graph`, mostly as a service to the user.
-    underlying: Graph;
-
-    // Current tally of complete flat annotations.
-    _complete: number;
-
+export default class FlatAnnotationCollection extends FlatItemCollection {
     // Current tally of tracked `Node`s that may or may not be annotations.
     _tracking: number;
 
-    // Some event handlers that update `_complete`. Note that `_tracking` is
-    // updated in `flatten` and `flattenPost`.
-    _addComplete() { ++this._complete; this._checkCompletion(); }
-    _removeComplete(annotation) {
-        annotation.complete && --this._complete || this._checkCompletion();
-    }
-
-    // Trigger the `'complete:all'` event if appropriate.
+    // Override from base class to take `this._tracking` into account.
     _checkCompletion(): void {
         if (this._complete === this.length && !this._tracking) {
             this.trigger('complete:all', this, this._complete);
         }
     }
 
-    // The annotation that is currently in focus, if any.
-    focus: FlatItem;
-
-    // Handlers for `'focus'` and `'blur'` events to maintain the invariant that
-    // only one annotation can be in focus at the same time.
-    _onFocus(newFocus: FlatItem): void {
-        const oldFocus = this.focus;
-        if (oldFocus && oldFocus !== newFocus) {
-            oldFocus.trigger('blur', oldFocus, newFocus);
-        }
-        this.focus = newFocus;
-    }
-    _onBlur(annotation: FlatItem): void {
-        if (annotation === this.focus) delete this.focus;
+    preinitialize(): void {
+        this._tracking = 0;
     }
 
     /**
@@ -76,35 +36,13 @@ export default class FlatAnnotationCollection extends Collection<FlatItem> {
      * instead of an optional array of models or model attributes.
      */
     constructor(underlying: Graph, options?: any) {
-        super(null, options);
-        this.underlying = underlying;
-        this._complete = this._tracking = 0;
-        this.listenTo(underlying, {
-            add: this.proxyAdd,
-            remove: this.proxyRemove,
-            reset: this.proxyReset,
-        });
-        this.on({
-            complete: this._addComplete,
-            remove: this._removeComplete,
-            'complete:all': this.sort,
-            focus: this._onFocus,
-            blur: this._onBlur,
-        });
-        // Set the initial models. This would otherwise be done by `super`, but
-        // we passed `null`.
-        this.reset(
-            // We passed `null` because we would otherwise pass the following
-            // expression, but we cannot do that because `this` is not available
-            // until `super` has been called.
-            compact(underlying.map(this.flattenSilent.bind(this))),
-            // The initial reset is always silent.
-            { silent: true }
-        );
+        super(underlying, options);
+        this.stopListening(underlying, 'sort');
+        this.on('complete:all', this.sort);
     }
 
     /**
-     * Core operation that handles incoming nodes.
+     * Core operation that handles incoming nodes. Override from base class.
      *
      * If `node` is certainly an `oa.Annotation`, a corresponding
      * `FlatItem` is returned, otherwise `undefined`. The purpose of this
@@ -132,7 +70,7 @@ export default class FlatAnnotationCollection extends Collection<FlatItem> {
             );
             ++this._tracking;
         } else if (includes(types, oa.Annotation)) {
-            return new FlatItem(node);
+            return super.flatten(node, options);
         }
     }
 
@@ -154,36 +92,23 @@ export default class FlatAnnotationCollection extends Collection<FlatItem> {
     }
 
     /**
-     * Variant of `flatten` that can be used to prepare a `reset`. Useful as an
-     * iteratee for `map`.
-     */
-    flattenSilent(node: Node): FlatItem {
-        return this.flatten(node, { silent: true });
-    }
-
-    /**
      * Listener for the `'add'` event on `this.underlying`.
+     * Override from base class to take tracking into account.
      */
     proxyAdd(node: Node): void {
         // In case this `node` was added before, prevent duplicate event
         // handlers.
         this.stopListening(node, 'change:@type');
         // Add it, potentially binding the event handler again.
-        this.add(this.flatten(node));
+        super.proxyAdd(node);
     }
 
     /**
      * Listener for the `'remove'` event on `this.underlying`.
+     * Override from base class to take tracking into account.
      */
     proxyRemove(node: Node): void {
-        // Find any flat representation of `node` and remove it. This might be a
-        // no-op.
-        const flat = this.get(node.id);
-        if (flat) {
-            // A removed annotation cannot be in focus, so blur it first.
-            flat.trigger('blur', flat);
-            this.remove(flat);
-        }
+        super.proxyRemove(node);
         // If the previous step was a no-op, we might still be listening for the
         // `'change:@type'` event on `node` because of `flatten`. The next line
         // ensures that a flat representation of `node` will not sneak into our
@@ -193,29 +118,21 @@ export default class FlatAnnotationCollection extends Collection<FlatItem> {
 
     /**
      * Listener for the `'reset'` event on `this.underlying`.
+     * Override from base class to take tracking into account.
      */
     proxyReset(): void {
         // Prevent outstanding event listeners from pushing annotations into our
         // collection later.
         this.stopListening(null, 'change:@type');
-        // Reset our tallies.
-        this._complete = this._tracking = 0;
-        // Reset focus.
-        delete this.focus;
-        // Reset with the known annotations and silently add the unknown
-        // annotations later.
-        this.reset(compact(this.underlying.map(this.flattenSilent.bind(this))));
+        this._tracking = 0;
+        super.proxyReset();
     }
 }
 
 extend(FlatAnnotationCollection.prototype, {
-    model: FlatItem,
     // Sort first by `startPosition`, then by `endPosition`.
     comparator(left, right) {
         return left.get('startPosition') - right.get('startPosition') ||
                left.get('endPosition') - right.get('endPosition');
     },
-    // `sort` is going to be called on every `add` and takes linear time. The
-    // next line ensures it runs at most once in every 200ms.
-    sort: throttle(FlatAnnotationCollection.prototype.sort, 200),
 });
