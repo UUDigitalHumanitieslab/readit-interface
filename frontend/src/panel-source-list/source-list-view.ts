@@ -25,9 +25,7 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
     }
 
     initialize(): this {
-        if (this.model && this.collection.length==0) {
-            this.noResults = true;
-        } else { this.noResults = false; }
+        this.noResults = this.model && !this.collection.length;
         this.initItems().render().initCollectionEvents();
         this.on('announceRoute', announce);
         return this;
