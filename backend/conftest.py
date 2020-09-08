@@ -27,6 +27,7 @@ def auth_client(client, django_user_model, credentials):
 @pytest.fixture
 def sparqlstore(settings):
     store = settings.RDFLIB_STORE
+    store.update('CLEAR ALL')
     assert not store.query(HAS_TRIPLES)
     yield store
     store.update('CLEAR ALL')
