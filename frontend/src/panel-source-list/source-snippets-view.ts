@@ -1,12 +1,18 @@
 import { extend } from 'lodash';
+import { ViewOptions as BaseOpt } from 'backbone';
 
 import { CollectionView } from '../core/view';
-import Model from '../core/model';
+import Graph from '../jsonld/graph';
+import Node from '../jsonld/node';
 
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import sourceSnippetsTemplate from './source-snippets-template';
 
-export default class SourceSnippetsView extends CollectionView<Model, SnippetView> {
+export interface ViewOptions extends BaseOpt<Node> {
+    collection: Graph;
+}
+
+export default class SourceSnippetsView extends CollectionView<Node, SnippetView> {
     initialize() {
         this.initItems().render().initCollectionEvents();
     }
@@ -16,9 +22,8 @@ export default class SourceSnippetsView extends CollectionView<Model, SnippetVie
         return this;
     }
     
-    makeItem(model: Model): SnippetView {
-        const snippet = model.attributes['snippet'];
-        const snippetView = new SnippetView({snippet: snippet});
+    makeItem(model: Node): SnippetView {
+        const snippetView = new SnippetView({selector: model});
         return snippetView;
     }
 }

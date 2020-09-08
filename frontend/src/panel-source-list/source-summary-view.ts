@@ -9,22 +9,11 @@ import Node from '../jsonld/node';
 import { schema } from '../jsonld/ns';
 import sourceSummaryTemplate from './source-summary-template';
 import SourceSnippetsView from './source-snippets-view';
+import Graph from '../jsonld/graph';
 
 export interface ViewOptions extends BaseOpt<Node> {
     model: Node;
     query?: string;
-}
-
-class Snippet extends Model {
-    parse( data: string ){
-        return {
-            snippet: data
-        };
-    }
-}
-
-class Snippets extends Collection<Snippet>{
-    model = Snippet;
 }
 
 
@@ -33,7 +22,7 @@ export default class SourceSummaryView extends View {
     author: string;
     query: string;
     identifier: string;
-    snippets: Snippets;
+    snippets: Graph;
 
 
     initialize(options: ViewOptions): this {
@@ -42,14 +31,18 @@ export default class SourceSummaryView extends View {
         this.author = this.model.get(schema.creator)[0];
         this.identifier = this.model.attributes['@id'];
         if (this.query !== undefined) {
-            this.snippets = new Snippets();
-            this.snippets.fetch({url: '/source/highlight', data: $.param({ source: this.identifier, query: this.query}) }).then( results => {
-                const sourceSnippets = new SourceSnippetsView({collection: this.snippets});
-                sourceSnippets.render().$el.appendTo('.source');
-            });
+            this.renderSnippets();
         }
         this.render();
         return this;
+    }
+
+    async renderSnippets() {
+        this.snippets = new Graph();
+        await this.snippets.fetch({url: '/source/highlight', data: $.param({ source: this.identifier, query: this.query}) });
+        const sourceSnippets = new SourceSnippetsView({collection: this.snippets});
+        sourceSnippets.render().$el.appendTo('.source');
+        // return sourceSnippets;
     }
 
     render(): this {

@@ -15,9 +15,8 @@ from rest_framework.status import *
 from rest_framework.parsers import MultiPartParser
 from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.reverse import reverse
-from rest_framework.views import APIView
 
-from rdflib import Graph, URIRef, Literal
+from rdflib import BNode, Graph, URIRef, Literal
 from rdflib.plugins.sparql import prepareQuery
 
 from elasticsearch import Elasticsearch
@@ -154,12 +153,12 @@ class SourceSelection(RDFView):
         return selected_sources_graph
 
 
-class SourceHighlights(APIView):
+class SourceHighlights(RDFView):
     ''' 
     view to perform query highlighting in the full text source
     with Elasticsearch
     '''
-    def get(self, request):
+    def get_graph(self, request, **kwargs):
         query = request.GET.get('query')
         serial = get_serial_from_subject(request.GET.get('source'))
         if not query or not serial:
@@ -171,7 +170,7 @@ class SourceHighlights(APIView):
             "highlight": {
                 "highlight_query": {
                     "simple_query_string": {
-                        "query": query
+                        "query": "\"{}\"".format(query)
                     }
                 }, 
                 "fields" : {
@@ -180,11 +179,25 @@ class SourceHighlights(APIView):
             }
         }
         results = es.search(body=body, index=settings.ES_ALIASNAME)
-        highlights = results['hits']['hits'][0]['highlight']
+        try:
+            highlights = results['hits']['hits'][0]['highlight']
+        except KeyError:
+            return Response(Graph(), HTTP_204_NO_CONTENT)
         text_fields = ['text_en', 'text_fr', 'text_de', 'text_nl', 'text']
         text_highlights = functools.reduce(operator.concat,
             [highlights.get(field) for field in text_fields if field in highlights])
-        return Response(text_highlights)
+        hg = Graph()
+        for hl in text_highlights:
+            bn = BNode()
+            prefix, rest = hl.split('<em>')
+            exact, suffix = rest.split('</em>')
+            hg.add((bn, RDF.type, OA.TextQuoteSelector))
+            hg.add((bn, OA.prefix, Literal(prefix)))
+            hg.add((bn, OA.exact, Literal(exact)))
+            if suffix != '':
+                hg.add((bn, OA.suffix, Literal(suffix)))
+        return hg
+
 
 class SourcesAPISingular(RDFResourceView):
     """ API endpoint for fetching individual subjects. """
