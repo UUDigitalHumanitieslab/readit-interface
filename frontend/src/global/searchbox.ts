@@ -7,19 +7,20 @@ const exampleQueryFields = [
     },
     {
         'label': 'source title',
-        'value': 'source_title'
+        'value': 'title'
     },
     {
         'label': 'source author',
-        'value': 'source_author'
+        'value': 'author'
     },
-    {
-        'label': 'annotations',
-        'value': 'snippet_text'
-    },
+    // removing annotations option for now, as it's not currently supported
+    // {
+    //     'label': 'annotations',
+    //     'value': 'snippet_text'
+    // },
     {
         'label': 'full text',
-        'value': 'fragment_text'
+        'value': 'text*'
     },
 ];
 
