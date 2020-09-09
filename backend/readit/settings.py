@@ -156,7 +156,6 @@ REST_AUTH_SERIALIZERS = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'nlp_ontology.authentication.CsrfExemptSessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ]
 }
