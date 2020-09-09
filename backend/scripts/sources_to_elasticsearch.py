@@ -22,12 +22,14 @@ environ.setdefault('DJANGO_SETTINGS_MODULE', 'readit.settings')
 from django.conf import settings
 from django.core.files.storage import default_storage
 from elasticsearch import Elasticsearch
+from elasticsearch.client import IndicesClient
 
 from rdf.ns import SCHEMA, ISO6391
 from sources.graph import graph as sources_graph
 from sources.utils import get_media_filename, get_serial_from_subject
 
 es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
+ind_client = IndicesClient(es)
 
 def text_to_index():
     lang_predicate = SCHEMA.inLanguage
@@ -54,6 +56,34 @@ def text_to_index():
             'text': text,
             'text_{}'.format(language): text
         })
+
+
+def title_author_to_index():
+    ind_client.put_mapping(index=settings.ES_ALIASNAME, body=
+    {
+        "properties": {
+            "author": {
+                "type": "text"
+            },
+            "title": {
+                "type": "text"
+            }
+        }
+    })
+    subjects = set(sources_graph().subjects())
+    for s in subjects:
+        author = list(sources_graph().triples((s, SCHEMA.author, None)))[0][2]
+        title = (list(sources_graph().triples((s, SCHEMA.name, None))))[0][2]
+        serial = get_serial_from_subject(s)
+        result = es.update_by_query(body={
+            "query" : {
+                "term" : { "id" : serial }
+            },
+            "script": {
+                "lang": "painless",
+                "source": "ctx._source.author = '{}'; ctx._source.title = '{}'".format(author, title)
+            }
+        }, index=settings.ES_ALIASNAME)
 
 
 def resolve_language(input_language):

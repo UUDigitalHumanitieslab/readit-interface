@@ -231,11 +231,13 @@ class AddSource(RDFResourceView):
     permission_classes = [IsAuthenticated, UploadSourcePermission]
     parser_classes = [MultiPartParser]
 
-    def store(self, source_file, source_id, source_language):
+    def store(self, source_file, source_id, source_language, author, title):
         text = html.escape(str(source_file.read().decode('utf8')))
         es.index(settings.ES_ALIASNAME, {
             'id': source_id,
             'language': source_language,
+            'author': author,
+            'title': title,
             'text': text,
             'text_{}'.format(source_language): text
         })
@@ -330,8 +332,8 @@ class AddSource(RDFResourceView):
         new_subject = URIRef(str(counter))
 
         # store the file in ES index
-        language = data['language']
-        self.store(data['source'], get_serial_from_subject(new_subject), language)
+        self.store(data['source'], get_serial_from_subject(new_subject), 
+        data['language'], data['author'], data['title'])
 
         # TODO: voor author en editor een instantie van SCHEMA.Person maken? Of iets uit CIDOC/ontologie?
         # create graph
