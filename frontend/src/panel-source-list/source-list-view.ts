@@ -33,7 +33,8 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
 
     makeItem(model: Node): SourceSummaryView {
         const query = this.model? this.model.get('query') : undefined;
-        let view = new SourceSummaryView({model, query});
+        const fields = this.model? this.model.get('fields') : undefined;
+        let view = new SourceSummaryView({model, query, fields});
         this.listenTo(view, 'click', this.onSourceClicked);
         return view;
     }

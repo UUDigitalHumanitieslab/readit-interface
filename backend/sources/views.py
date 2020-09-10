@@ -160,9 +160,28 @@ class SourceHighlights(RDFView):
     '''
     def get_graph(self, request, **kwargs):
         query = request.GET.get('query')
+        fields = request.GET.get('fields')
         serial = get_serial_from_subject(request.GET.get('source'))
         if not query or not serial:
             raise NotFound
+        if fields == 'all':
+            fields_query = {
+                    "text*" : {},
+                    "author": {},
+                    "title": {}
+            }
+        elif fields == 'author':
+            fields_query = {
+                "author": {}
+            }
+        elif fields == 'title':
+            fields_query = {
+                "title": {}
+            }
+        else:
+            fields_query = {
+                "text*": {}
+            }
         body = {
             "query": {
                 "term": {"id": serial} 
@@ -173,9 +192,11 @@ class SourceHighlights(RDFView):
                         "query": "\"{}\"".format(query)
                     }
                 }, 
-                "fields" : {
-                    "text*" : {}
-                }
+                "fields" : fields_query,
+                "fragment_size": 50,
+                "number_of_fragments": 3,
+                "pre_tags": ["<mark>"],
+                "post_tags": ["</mark>"]
             }
         }
         results = es.search(body=body, index=settings.ES_ALIASNAME)
@@ -183,19 +204,25 @@ class SourceHighlights(RDFView):
             highlights = results['hits']['hits'][0]['highlight']
         except KeyError:
             return Response(Graph(), HTTP_204_NO_CONTENT)
-        text_fields = ['text_en', 'text_fr', 'text_de', 'text_nl', 'text']
-        text_highlights = functools.reduce(operator.concat,
-            [highlights.get(field) for field in text_fields if field in highlights])
         hg = Graph()
-        for hl in text_highlights:
-            bn = BNode()
-            prefix, rest = hl.split('<em>')
-            exact, suffix = rest.split('</em>')
-            hg.add((bn, RDF.type, OA.TextQuoteSelector))
-            hg.add((bn, OA.prefix, Literal(prefix)))
-            hg.add((bn, OA.exact, Literal(exact)))
-            if suffix != '':
-                hg.add((bn, OA.suffix, Literal(suffix)))
+        for key in highlights.keys():
+            if key=='author':
+                obj = SCHEMA.author
+            elif key=='title':
+                obj = DCTERMS.title
+            else:
+                obj = SCHEMA.text
+            subj = BNode()
+            hg.add((subj, RDF.type, OA.annotation))
+            hg.add((subj, OA.hasTarget, obj))
+            for highlight in highlights.get(key):
+                if obj==SCHEMA.text:
+                    # add ellipses to start or end of string
+                    if not highlight[0].isupper():
+                        highlight = '(...) {}'.format(highlight)
+                    if not highlight[-1] in ['?','.','!']:
+                        highlight = '{} (...)'.format(highlight)
+                hg.add((subj, OA.hasBody, Literal(highlight)))
         return hg
 
 
