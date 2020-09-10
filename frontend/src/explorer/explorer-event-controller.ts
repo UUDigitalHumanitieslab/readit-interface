@@ -42,13 +42,13 @@ export default class ExplorerEventController {
     pushSource(basePanel: View, source: Node): SourceView {
         const sourcePanel = createSourceView(source, true, true);
         this.explorerView.popUntil(basePanel).push(sourcePanel);
-        return sourcePanel.activate();
+        return sourcePanel;
     }
 
     resetSource(source: Node, showHighlights: boolean): SourceView {
         const sourcePanel = createSourceView(source, showHighlights, true);
         this.explorerView.reset(sourcePanel);
-        return sourcePanel.activate();
+        return sourcePanel;
     }
 
     listSourceAnnotations(sourcePanel: SourceView): AnnotationListView {
