@@ -1,14 +1,15 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from './../../core/view';
 
-import searchResultBaseTemplate from './search-result-base-template';
-
+import View from '../../core/view';
+import { oa } from '../../jsonld/ns';
 import Node from '../../jsonld/node';
-import SearchResultItemView from './search-result-item-view';
-import { oa } from './../../jsonld/ns';
-import { isType } from './../../utilities/utilities';
+import FlatItem from '../../annotation/flat-item-model';
+import { isType } from '../../utilities/utilities';
+
 import SearchResultSourceView from './search-result-source-view';
+import SearchResultItemView from './search-result-item-view';
+import searchResultBaseTemplate from './search-result-base-template';
 
 export interface ViewOptions extends BaseOpt<Node> {
     model: Node;
@@ -31,11 +32,12 @@ export default class SearchResultBaseItemView extends View<Node> {
         this.selectable = (options.selectable === undefined) || options.selectable;
 
         if (isType(this.model, oa.Annotation)) {
-            this.contentView = new SearchResultSourceView({model: options.model});
-        }
-        else {
-            this.contentView = new SearchResultItemView({ model: options.model });
-        }
+            this.contentView = new SearchResultSourceView({
+                model: new FlatItem(options.model),
+            });
+        } else this.contentView = new SearchResultItemView({
+            model: options.model,
+        });
         this.contentView.render();
 
         return this;

@@ -1,5 +1,6 @@
 import { extend } from 'lodash';
 
+import { CompositeView } from '../../core/view';
 import { schema } from '../../jsonld/ns';
 import ldChannel from '../../jsonld/radio';
 import Node from '../../jsonld/node';
@@ -10,61 +11,40 @@ import BaseAnnotationView from '../../annotation/base-annotation-view';
 
 import searchResultSourceTemplate from './search-result-source-template';
 
-export default class SearchResultSourceView extends BaseAnnotationView {
-    snippetView: SnippetView;
-    labelView: LabelView;
+export default class SearchResultSourceView extends CompositeView<FlatItem> {
+    snippet: SnippetView;
+    label: LabelView;
     title: string;
 
-    constructor(options) {
-        super(options);
-    }
-
     initialize(options): this {
-        this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
-        this.listenTo(this.model, 'change', super.processAnnotation);
-        this.listenTo(this, 'source', super.processSource);
-        super.processAnnotation(this.model);
+        this.snippet = new SnippetView({ model: this.model });
+        this.model.when('source', this.processSource, this);
         return this;
     }
 
-    processSource(source: Node): this {
+    processSource(model: FlatItem, source: Node): this {
         this.title = source.get(schema('name'))[0] as string;
-        let sourceOntologyInstance = ldChannel.request('obtain', source.get('@type')[0] as string);
-        if (!this.labelView) {
-            this.labelView = new LabelView({ model: sourceOntologyInstance });
-            this.labelView.render();
-        }
-
-        this.render();
-
-        return this;
+        this.snippet.title = this.title;
+        let sourceType = ldChannel.request('obtain', source.get('@type')[0] as string);
+        this.label = new LabelView({ model: sourceType }).render();
+        return this.render();
     }
 
-    processTextQuoteSelector(selector: Node): this {
-        if (this.snippetView) return;
-        this.snippetView = new SnippetView({
-            title: this.title,
-            model: new FlatItem(selector),
-        });
-        this.snippetView.render();
-        this.render();
-        return this;
-    }
-
-    render(): this {
-        if (this.snippetView) this.snippetView.$el.detach();
-        if (this.labelView) this.labelView.$el.detach();
+    renderContainer(): this {
         this.$el.html(this.template(this));
-
-        if (this.snippetView) this.$('.snippet-container').append(this.snippetView.el);
-        if (this.labelView) this.$('.label-container').append(this.labelView.el);
         return this;
     }
 }
+
 extend(SearchResultSourceView.prototype, {
     tagName: 'div',
     className: 'search-result-source',
     template: searchResultSourceTemplate,
-    events: {
-    }
+    subviews: [{
+        view: 'snippet',
+        selector: '.snippet-container',
+    }, {
+        view: 'label',
+        selector: '.label-container',
+    }],
 });
