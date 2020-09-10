@@ -1,4 +1,4 @@
-import { extend } from 'lodash';
+import { extend, after } from 'lodash';
 
 import { CompositeView } from '../../core/view';
 import { schema } from '../../jsonld/ns';
@@ -15,6 +15,7 @@ export default class SearchResultSourceView extends CompositeView<FlatItem> {
     snippet: SnippetView;
     label: LabelView;
     title: string;
+    delayedRender: () => void;
 
     initialize(options): this {
         this.snippet = new SnippetView({ model: this.model });
@@ -23,11 +24,21 @@ export default class SearchResultSourceView extends CompositeView<FlatItem> {
     }
 
     processSource(model: FlatItem, source: Node): this {
-        this.title = source.get(schema('name'))[0] as string;
-        this.snippet.title = this.title;
-        let sourceType = ldChannel.request('obtain', source.get('@type')[0] as string);
-        this.label = new LabelView({ model: sourceType }).render();
+        source.when(schema('name'), this.processTitle, this);
+        source.when('@type', this.processLabel, this);
+        this.delayedRender = after(2, this.render);
         return this.render();
+    }
+
+    processTitle(source: Node, [title]: string[]): void {
+        this.snippet.title = this.title = title;
+        this.delayedRender();
+    }
+
+    processLabel(source: Node, [firstType]: string[]): void {
+        const sourceType = ldChannel.request('obtain', firstType);
+        this.label = new LabelView({ model: sourceType }).render();
+        this.delayedRender();
     }
 
     renderContainer(): this {
