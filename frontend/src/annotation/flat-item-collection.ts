@@ -1,8 +1,10 @@
-import { map, invert, compact, extend, throttle } from 'lodash';
+import { map, invert, compact, throttle } from 'lodash';
 
+import mixin from '../core/mixin';
 import Collection from '../core/collection';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
+import ProxyMixin from '../utilities/collection-proxy';
 import FlatItem from './flat-item-model';
 
 /**
@@ -26,10 +28,8 @@ import FlatItem from './flat-item-model';
  * the previous focused item blurs automatically when a different item receives
  * focus.
  */
-export default class FlatItemCollection extends Collection<FlatItem> {
-    // We keep hold of the underlying `Graph`, mostly as a service to the user.
-    underlying: Graph;
-
+interface FlatItemCollection extends ProxyMixin<Node, Graph> {}
+class FlatItemCollection extends Collection<FlatItem> {
     // Current tally of complete flat items.
     _complete: number;
 
@@ -69,7 +69,7 @@ export default class FlatItemCollection extends Collection<FlatItem> {
      */
     constructor(underlying: Graph, options?: any) {
         super(null, options);
-        this.underlying = underlying;
+        this._underlying = underlying;
         this._complete = 0;
         this.listenTo(underlying, {
             add: this.proxyAdd,
@@ -115,14 +115,14 @@ export default class FlatItemCollection extends Collection<FlatItem> {
     }
 
     /**
-     * Listener for the `'add'` event on `this.underlying`.
+     * Listener for the `'add'` event on `this._underlying`.
      */
     proxyAdd(node: Node, graph?: Graph, options?: any): void {
         this.add(this.flatten(node), options);
     }
 
     /**
-     * Listener for the `'remove'` event on `this.underlying`.
+     * Listener for the `'remove'` event on `this._underlying`.
      */
     proxyRemove(node: Node): void {
         // Find any flat representation of `node` and remove it. This might be a
@@ -136,7 +136,7 @@ export default class FlatItemCollection extends Collection<FlatItem> {
     }
 
     /**
-     * Listener for the `'sort'` event on `this.underlying`.
+     * Listener for the `'sort'` event on `this._underlying`.
      */
     proxySort(underlying: Graph): void {
         const order = invert(map(underlying.models, 'id'));
@@ -146,17 +146,19 @@ export default class FlatItemCollection extends Collection<FlatItem> {
     }
 
     /**
-     * Listener for the `'reset'` event on `this.underlying`.
+     * Listener for the `'reset'` event on `this._underlying`.
      */
     proxyReset(): void {
         this._complete = 0;
         delete this.focus;
         // Reset with the known items and silently add the unknown
         // items later.
-        this.reset(compact(this.underlying.map(this.flattenSilent.bind(this))));
+        const flattenSilent = this.flattenSilent.bind(this);
+        this.reset(compact(this._underlying.map(flattenSilent)));
     }
 }
-
-extend(FlatItemCollection.prototype, {
+mixin(FlatItemCollection.prototype, ProxyMixin.prototype, {
     model: FlatItem,
 });
+
+export default FlatItemCollection;
