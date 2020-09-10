@@ -27,6 +27,7 @@ import explorerChannel from '../explorer/radio';
 import { announceRoute } from '../explorer/utilities';
 
 import BaseAnnotationView from './base-annotation-view';
+import FlatItem from './flat-item-model';
 import FlatCollection from './flat-annotation-collection';
 
 import annotationEditTemplate from './panel-annotation-edit-template';
@@ -139,7 +140,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
         if (this.snippetView) return this;
 
         this.snippetView = new SnippetView({
-            selector: selector
+            model: new FlatItem(selector),
         });
         this.snippetView.render();
 
@@ -226,7 +227,7 @@ export default class AnnotationEditView extends BaseAnnotationView {
         composeAnnotation(
             this.source,
             this.positionDetails,
-            this.snippetView.selector,
+            this.snippetView.model.underlying as Node,
             this.selectedClass,
             this.selectedItem,
             (error, results) => {

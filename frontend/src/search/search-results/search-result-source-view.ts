@@ -1,29 +1,25 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
-import searchResultSourceTemplate from './search-result-source-template';
-
-import { schema } from './../../jsonld/ns';
-import ldChannel from './../../jsonld/radio';
+import { schema } from '../../jsonld/ns';
+import ldChannel from '../../jsonld/radio';
 import Node from '../../jsonld/node';
+import FlatItem from '../../annotation/flat-item-model';
 import LabelView from '../../utilities/label-view';
 import SnippetView from '../../utilities/snippet-view/snippet-view';
 import BaseAnnotationView from '../../annotation/base-annotation-view';
 
-export interface ViewOptions extends BaseOpt<Node> {
-    model: Node;
-}
+import searchResultSourceTemplate from './search-result-source-template';
 
 export default class SearchResultSourceView extends BaseAnnotationView {
     snippetView: SnippetView;
     labelView: LabelView;
     title: string;
 
-    constructor(options: ViewOptions) {
+    constructor(options) {
         super(options);
     }
 
-    initialize(options: ViewOptions): this {
+    initialize(options): this {
         this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
         this.listenTo(this.model, 'change', super.processAnnotation);
         this.listenTo(this, 'source', super.processSource);
@@ -48,7 +44,7 @@ export default class SearchResultSourceView extends BaseAnnotationView {
         if (this.snippetView) return;
         this.snippetView = new SnippetView({
             title: this.title,
-            selector: selector
+            model: new FlatItem(selector),
         });
         this.snippetView.render();
         this.render();

@@ -1,24 +1,22 @@
 import { extend, bind } from 'lodash';
 
 import View, { ViewOptions as BaseOpt } from '../../core/view';
-import Node from '../../jsonld/node';
 import { oa } from '../../jsonld/ns';
+import FlatItem from '../../annotation/flat-item-model';
 import { isType } from '../utilities';
 import snippetTemplate from './snippet-template';
 
 export interface ViewOptions extends BaseOpt {
     title?: string;
-    selector: Node;
 }
 
-export default class SnippetView extends View {
+export default class SnippetView extends View<FlatItem> {
     ellipsis = "(...)";
     trimmedTitle: boolean;
     trimmedStart: boolean;
     trimmedEnd: boolean;
 
-    title?: string;
-    selector: Node;
+    title: string;
 
     title_calc: string;
     prefix_calc: string;
@@ -35,13 +33,8 @@ export default class SnippetView extends View {
     }
 
     initialize(options: ViewOptions): this {
-        if (!isType(options.selector, oa.TextQuoteSelector)) {
-            throw new TypeError('selector must be of type oa:TextQuoteSelector');
-        }
-
         this.title = options.title;
-        this.selector = options.selector;
-        this.listenTo(this.selector, 'change', this.createContent);
+        this.listenTo(this.model, 'change', this.createContent);
         this.$el.ready(bind(this.onReady, this));
         return this;
     }
@@ -93,35 +86,34 @@ export default class SnippetView extends View {
 
     setText(): this {
         // subtract 100 to compensate for ellipses
-        let availableSpace = (3 * this.availableWidth) - 100;
-        let prefix, suffix;
-        if (this.selector.has(oa.prefix)) prefix = this.selector.get(oa.prefix)[0] as string;
-        let exact = this.selector.get(oa.exact)[0] as string;
-        if (this.selector.has(oa.suffix)) suffix = this.selector.get(oa.suffix)[0] as string;
-        let fullString = `${prefix}${exact}${suffix}`;
+        const availableSpace = (3 * this.availableWidth) - 100;
+        const prefix = this.model.get('prefix') as string || '';
+        const exact = this.model.get('text') as string || '';
+        const suffix = this.model.get('suffix') as string || '';
+        const fullString = `${prefix}${exact}${suffix}`;
 
         if (this.getLengthInPixels(fullString) < availableSpace) {
-            this.prefix_calc = prefix || "";
+            this.prefix_calc = prefix;
             this.exact_calc = exact;
-            this.suffix_calc = suffix || "";
-        }
-        else {
-            if (!prefix) this.prefix_calc = "";
-            else {
+            this.suffix_calc = suffix;
+        } else {
+            if (!prefix) {
+                this.prefix_calc = "";
+            } else {
                 this.prefix_calc = this.trimToFit(prefix, availableSpace / 4, true);
                 this.trimmedStart = true;
             }
 
             if (this.getLengthInPixels(exact) <= availableSpace / 2.5) {
                 this.exact_calc = exact;
-            }
-            else {
+            } else {
                 this.exact_calc = `${this.trimToFit(exact, availableSpace / 4)}
                 ${this.ellipsis} ${this.trimToFit(exact, availableSpace / 4, true)}`;
             }
 
-            if (!suffix) this.suffix_calc = "";
-            else {
+            if (!suffix) {
+                this.suffix_calc = "";
+            } else {
                 this.suffix_calc = this.trimToFit(suffix, availableSpace / 4);
                 this.trimmedEnd = true;
             }
