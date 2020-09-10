@@ -43,6 +43,16 @@ export default class View<M extends Model = Model> extends BView<M> {
         if (this.extraLoggingInfo) console.log(this.extraLoggingInfo);
         return this;
     }
+
+    /**
+     * All views have an `activate` method which can be called to signal to the
+     * view that it was attached to the document. By default, it is a no-op;
+     * views that actually depend on DOM insertion, for example for size or
+     * position calculations, may override it to do something meaningful.
+     */
+    activate(): this {
+        return this;
+    }
 }
 
 /**
