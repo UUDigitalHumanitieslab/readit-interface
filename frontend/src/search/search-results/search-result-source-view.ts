@@ -34,6 +34,11 @@ export default class SearchResultSourceView extends CompositeView<FlatItem> {
         this.$el.html(this.template(this));
         return this;
     }
+
+    activate(): this {
+        this.snippet.activate();
+        return this;
+    }
 }
 
 extend(SearchResultSourceView.prototype, {

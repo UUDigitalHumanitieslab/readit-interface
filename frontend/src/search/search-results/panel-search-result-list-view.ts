@@ -1,4 +1,4 @@
-import { extend } from 'lodash';
+import { extend, invokeMap } from 'lodash';
 
 import View, { ViewOptions as BaseOpt } from '../../core/view';
 import Node from '../../jsonld/node';
@@ -25,6 +25,7 @@ export interface ViewOptions extends BaseOpt {
 export default class SearchResultListView extends View {
     selectable: boolean;
     title: string;
+    attached: boolean;
 
     items: SearchResultBaseItemView[];
 
@@ -57,19 +58,19 @@ export default class SearchResultListView extends View {
     }
 
     render(): this {
-        if (this.items) {
-            this.items.forEach(view => {
-                view.$el.detach();
-            });
-        }
-
+        invokeMap(this.items, 'detach');
         this.$el.html(this.template(this));
 
-        if (this.items) {
-            this.items.forEach(view => {
-                this.$('.results-container').append(view.el);
-            });
-        }
+        this.items.forEach(view => {
+            this.$('.results-container').append(view.el);
+        });
+        if (this.attached) this.activate();
+        return this;
+    }
+
+    activate(): this {
+        this.attached = true;
+        invokeMap(this.items, 'activate');
         return this;
     }
 

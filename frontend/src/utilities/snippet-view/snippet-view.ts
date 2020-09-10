@@ -35,7 +35,6 @@ export default class SnippetView extends View<FlatItem> {
     initialize(options: ViewOptions): this {
         this.title = options.title;
         this.listenTo(this.model, 'change', this.createContent);
-        this.$el.ready(bind(this.onReady, this));
         return this;
     }
 
@@ -44,13 +43,7 @@ export default class SnippetView extends View<FlatItem> {
         return this;
     }
 
-    /**
-     * Handle the ready event.
-     * Ideal for working with (i.e. initializing HTML on the basis of) Javascript Range Objects (as SnippetViews do),
-     * because it is fired 'as soon as the page's Document Object Model (DOM) becomes safe to manipulate'
-     * (from: https://api.jquery.com/ready/). For the currrent View it guarantees that the View is in the DOM.
-     */
-    onReady(): this {
+    activate(): this {
         this.isInDom = true;
         this.createContent();
         return this;

@@ -55,6 +55,11 @@ export default class SearchResultBaseItemView extends View<Node> {
         return this;
     }
 
+    activate(): this {
+        this.contentView.activate();
+        return this;
+    }
+
     isSelected(): boolean {
         return this.chbSelected.is(':checked');
     }
