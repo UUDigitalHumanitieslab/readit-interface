@@ -36,7 +36,7 @@ export default class SearchResultBaseItemView extends View<Node> {
                 model: new FlatItem(options.model),
             });
         } else this.contentView = new SearchResultItemView({
-            model: options.model,
+            model: new FlatItem(options.model),
         });
         this.contentView.render();
 
