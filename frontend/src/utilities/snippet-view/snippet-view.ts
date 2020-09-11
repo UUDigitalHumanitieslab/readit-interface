@@ -1,21 +1,15 @@
 import { extend } from 'lodash';
 
-import View, { ViewOptions as BaseOpt } from '../../core/view';
+import View from '../../core/view';
 import FlatItem from '../../annotation/flat-item-model';
 
 import snippetTemplate from './snippet-template';
-
-export interface ViewOptions extends BaseOpt {
-    title?: string;
-}
 
 export default class SnippetView extends View<FlatItem> {
     ellipsis = "(...)";
     trimmedTitle: boolean;
     trimmedStart: boolean;
     trimmedEnd: boolean;
-
-    title: string;
 
     title_calc: string;
     prefix_calc: string;
@@ -27,12 +21,7 @@ export default class SnippetView extends View<FlatItem> {
 
     isInDom: boolean;
 
-    constructor(options: ViewOptions) {
-        super(options);
-    }
-
-    initialize(options: ViewOptions): this {
-        this.title = options.title;
+    initialize(): this {
         this.listenTo(this.model, 'change', this.createContent);
         return this;
     }
@@ -64,14 +53,15 @@ export default class SnippetView extends View<FlatItem> {
     }
 
     setTitle(): this {
-        if (this.title) {
+        const title = this.model.get('title');
+        if (title) {
             // if title is longer than available space (subtract 25 to compensate for strong)
-            if (this.getLengthInPixels(this.title) > this.availableWidth - 25) {
+            if (this.getLengthInPixels(title) > this.availableWidth - 25) {
                 // trim to fit (subtract 25 compensating for strong and another 25 for ellipses)
-                this.title_calc = this.trimToFit(this.title, this.availableWidth - 50);
+                this.title_calc = this.trimToFit(title, this.availableWidth - 50);
                 this.trimmedTitle = true;
             }
-            else this.title_calc = this.title;
+            else this.title_calc = title;
         }
         return this;
     }
@@ -141,10 +131,9 @@ export default class SnippetView extends View<FlatItem> {
         return this.canvasCtx.measureText(text).width;
     }
 }
+
 extend(SnippetView.prototype, {
     tagName: 'div',
     className: 'snippet',
     template: snippetTemplate,
-    events: {
-    }
 });

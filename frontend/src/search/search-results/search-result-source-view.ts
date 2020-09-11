@@ -13,7 +13,6 @@ import searchResultSourceTemplate from './search-result-source-template';
 export default class SearchResultSourceView extends CompositeView<FlatItem> {
     snippet: SnippetView;
     label: LabelView;
-    title: string;
     delayedRender: () => void;
 
     initialize(options): this {
@@ -22,15 +21,14 @@ export default class SearchResultSourceView extends CompositeView<FlatItem> {
         return this;
     }
 
-    processSource(model: FlatItem, source: Node): this {
+    processSource(model: FlatItem, source: Node): void {
         source.when(schema('name'), this.processTitle, this);
         source.when('@type', this.processLabel, this);
         this.delayedRender = after(2, this.render);
-        return this.render();
     }
 
     processTitle(source: Node, [title]: string[]): void {
-        this.snippet.title = this.title = title;
+        this.model.set({ title });
         this.delayedRender();
     }
 
