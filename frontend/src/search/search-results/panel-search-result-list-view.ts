@@ -3,6 +3,7 @@ import { extend, invokeMap } from 'lodash';
 import View, { ViewOptions as BaseOpt } from '../../core/view';
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
+import FlatItem from '../../annotation/flat-item-model';
 import explorerChannel from '../../explorer/radio';
 import { announceRoute } from '../../explorer/utilities';
 
@@ -49,7 +50,7 @@ export default class SearchResultListView extends View {
 
     initItem(node: Node): this {
         let item = new SearchResultBaseItemView({
-            model: node, selectable: this.selectable
+            model: new FlatItem(node), selectable: this.selectable
         });
         item.render();
         this.listenTo(item, 'click', this.onItemClicked);

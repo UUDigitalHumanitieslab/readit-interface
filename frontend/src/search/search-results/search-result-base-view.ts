@@ -1,62 +1,55 @@
-import { ViewOptions as BaseOpt } from 'backbone';
-import { extend } from 'lodash';
+import { extend, after } from 'lodash';
 
-import View from '../../core/view';
-import { oa } from '../../jsonld/ns';
-import Node from '../../jsonld/node';
+import View, { CompositeView, ViewOptions as BaseOpt } from '../../core/view';
 import FlatItem from '../../annotation/flat-item-model';
-import { isType } from '../../utilities/utilities';
 
 import SearchResultSourceView from './search-result-source-view';
 import SearchResultItemView from './search-result-item-view';
 import searchResultBaseTemplate from './search-result-base-template';
 
-export interface ViewOptions extends BaseOpt<Node> {
-    model: Node;
+export interface ViewOptions extends BaseOpt {
     /**
      * Specify if the view is selectable. Defaults to true.
      */
     selectable?: boolean;
 }
 
-export default class SearchResultBaseItemView extends View<Node> {
+export default class SearchResultView extends CompositeView<FlatItem> {
     selectable: boolean;
     chbSelected: JQuery<HTMLElement>;
     contentView: View;
+    activateContent: () => void;
 
     constructor(options: ViewOptions) {
         super(options);
     }
 
-    initialize(options: ViewOptions): this {
+    initialize(options: ViewOptions) {
         this.selectable = (options.selectable === undefined) || options.selectable;
-
-        if (isType(this.model, oa.Annotation)) {
-            this.contentView = new SearchResultSourceView({
-                model: new FlatItem(options.model),
-            });
-        } else this.contentView = new SearchResultItemView({
-            model: new FlatItem(options.model),
-        });
-        this.contentView.render();
-
-        return this;
+        this.model.when('item', this.setContentView, this);
+        this.activateContent = after(2, () => this.contentView.activate());
     }
 
-    render(): this {
-        if (this.contentView) this.contentView.$el.detach();
-        this.$el.html(this.template(this));
-        if (this.contentView) this.$('.result-content').append(this.contentView.el);
+    setContentView(model: FlatItem): void {
+        const ctor = (
+            model.has('annotation') ?
+            SearchResultSourceView :
+            SearchResultItemView
+        );
+        this.contentView = new ctor({ model }).render();
+        this.render().activateContent();
+    }
 
+    renderContainer(): this {
+        this.$el.html(this.template(this));
         if (this.selectable) {
             this.chbSelected = this.$(".chbSelected");
         }
-
         return this;
     }
 
     activate(): this {
-        this.contentView.activate();
+        this.activateContent();
         return this;
     }
 
@@ -89,11 +82,16 @@ export default class SearchResultBaseItemView extends View<Node> {
         return this;
     }
 }
-extend(SearchResultBaseItemView.prototype, {
+
+extend(SearchResultView.prototype, {
     tagName: 'article',
     className: 'search-result box',
     template: searchResultBaseTemplate,
+    subviews: [{
+        view: 'contentView',
+        selector: '.result-content',
+    }],
     events: {
         'click': 'onClick'
-    }
+    },
 });
