@@ -1,6 +1,7 @@
 import { noop, each, includes } from 'lodash';
 
 import Model from '../core/model';
+import ldChannel from '../jsonld/radio';
 import { rdf, dcterms, oa, vocab, readit, item } from '../jsonld/ns';
 import Node from '../jsonld/node';
 import { getLabel, getCssClassName } from '../utilities/utilities';
@@ -172,12 +173,20 @@ export default class FlatItem extends Model {
      * Invoked once when the item body is more than just a placeholder.
      */
     receiveItem(body: Node): number {
+        if (!this.has('annotation')) {
+            // Bare item, so there is no containing annotation that has both a
+            // class and an item as bodies. Fetch the class through the item
+            // instead.
+            const ontoUri = body.get('@type')[0] as string;
+            const ontoClass = ldChannel.request('obtain', ontoUri) as Node;
+            ontoClass.when('@type', this.receiveClass, this);
+        }
         this.set({
             item: body,
             label: getLabel(body),
         });
         this._setCompletionFlag(F_LABEL);
-        return F_CSSCLASS;
+        return 0;
     }
 
     /**

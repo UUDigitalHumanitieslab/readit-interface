@@ -166,13 +166,22 @@ describe('FlatItem', function() {
     });
 
     it('can flatten a bare item', async function() {
+        const ontologyClass = new Node(contentClass);
         const items = getFullItems();
         const flatAnno = new FlatItem(items.item);
         await completion(flatAnno);
         expect(flatAnno.attributes).toEqual(assign({
             id: items.item.id,
             item: items.item,
-        }, pick(expectedFlatAttributes, 'label', 'creator', 'created')));
+            class: ontologyClass,
+        }, pick(
+            expectedFlatAttributes,
+            'classLabel',
+            'cssClass',
+            'label',
+            'creator',
+            'created'
+        )));
     });
 
     it('can flatten a bare class', async function() {
