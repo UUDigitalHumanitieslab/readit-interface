@@ -1,9 +1,8 @@
-import { extend, bind } from 'lodash';
+import { extend } from 'lodash';
 
 import View, { ViewOptions as BaseOpt } from '../../core/view';
-import { oa } from '../../jsonld/ns';
 import FlatItem from '../../annotation/flat-item-model';
-import { isType } from '../utilities';
+
 import snippetTemplate from './snippet-template';
 
 export interface ViewOptions extends BaseOpt {

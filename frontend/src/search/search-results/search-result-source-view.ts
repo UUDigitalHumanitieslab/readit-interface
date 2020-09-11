@@ -7,7 +7,6 @@ import Node from '../../jsonld/node';
 import FlatItem from '../../annotation/flat-item-model';
 import LabelView from '../../utilities/label-view';
 import SnippetView from '../../utilities/snippet-view/snippet-view';
-import BaseAnnotationView from '../../annotation/base-annotation-view';
 
 import searchResultSourceTemplate from './search-result-source-template';
 
