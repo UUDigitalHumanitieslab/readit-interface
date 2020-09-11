@@ -15,10 +15,12 @@ import ExternalView from '../panel-external-resources/external-resources-view';
 import ExternalEditView from '../panel-external-resources/external-resources-edit-view';
 import ItemGraph from '../utilities/item-graph';
 import FlatItem from '../annotation/flat-item-model';
-import FlatCollection from '../annotation/flat-annotation-collection';
+import FlatItemCollection from '../annotation/flat-item-collection';
+import FlatAnnoCollection from '../annotation/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { oa } from '../jsonld/ns';
 import SearchResultListView from '../search/search-results/panel-search-result-list-view';
+import FilteredCollection from '../utilities/filtered-collection';
 import {
     isType,
     isOntologyClass,
@@ -74,14 +76,20 @@ export default class ExplorerEventController {
         return [sourcePanel, listPanel];
     }
 
-    openSearchResult(searchResults: SearchResultListView, item: Node) {
-        if (isType(item, oa.Annotation)) {
-            const specificResource = item.get(oa.hasTarget)[0] as Node;
-            const source = specificResource.get(oa.hasSource)[0] as Node;
+    openSearchResult(
+        searchResults: SearchResultListView,
+        result: FlatItem
+    ) {
+        const annotation = result.get('annotation') as Node;
+        if (annotation) {
+            const source = result.get('source') as Node;
             const [sourcePanel,] = this.pushSourcePair(searchResults, source);
             const collection = sourcePanel.collection;
-            collection.underlying.add(item);
-            const flat = collection.get(item.id);
+            collection.underlying.add(annotation);
+            // `flat` represents the same underlying Node, but is a distinct
+            // FlatItem from `result`, since they come from distinct
+            // collections.
+            const flat = collection.get(annotation.id);
             sourcePanel.once('ready', () => flat.trigger('focus', flat));
         }
     }
@@ -119,22 +127,19 @@ export default class ExplorerEventController {
     }
 
     listItemAnnotations(view: LdItemView, item: Node): void {
-        let self = this;
-        let items = new ItemGraph();
-        items.query({ predicate: oa.hasBody, object: item }).then(
-            function success() {
-                let resultView = new SearchResultListView({
-                    model: item,
-                    collection: new Graph(items.models),
-                    selectable: false,
-                });
-                self.explorerView.push(resultView);
-            },
-            function error(error) {
-                console.error(error);
-            }
-        );
-        this.explorerView.popUntil(view);
+        const items = new ItemGraph();
+        items.query({
+            predicate: oa.hasBody,
+            object: item ,
+        }).catch(console.error);
+        const flatItems = new FlatItemCollection(items);
+        const filteredItems = new FilteredCollection(flatItems, 'annotation');
+        const resultView = new SearchResultListView({
+            model: item,
+            collection: filteredItems,
+            selectable: false,
+        });
+        this.explorerView.popUntil(view).push(resultView);
     }
 
     listExternal(view: LdItemView, item: Node): ExternalView {
@@ -277,7 +282,7 @@ function createSourceView(
         if (error) console.debug(error);
     });
 
-    let annotations = new FlatCollection(sourceItems);
+    let annotations = new FlatAnnoCollection(sourceItems);
 
     let sourceView = new SourceView({
         collection: annotations,

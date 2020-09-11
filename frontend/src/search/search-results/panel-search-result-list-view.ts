@@ -1,6 +1,6 @@
 import { extend, invokeMap } from 'lodash';
 
-import View, { ViewOptions as BaseOpt } from '../../core/view';
+import View, { CollectionView, ViewOptions as BaseOpt } from '../../core/view';
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
 import FlatItem from '../../annotation/flat-item-model';
@@ -8,14 +8,13 @@ import explorerChannel from '../../explorer/radio';
 import { announceRoute } from '../../explorer/utilities';
 
 import searchResultListTemplate from './panel-search-result-list-template';
-import SearchResultBaseItemView from './search-result-base-view';
+import SearchResultView from './search-result-base-view';
 
 // TODO: the search results list is general enough to be used for other purposes
 // than item annotations. Fix the route announcement when we decide to do this.
 const announce = announceRoute('item:annotations', ['model', 'id']);
 
 export interface ViewOptions extends BaseOpt {
-    collection: Graph;
     selectable: boolean;
     /**
      * The title displayed above the result list. Defaults to 'Search Results'.
@@ -23,14 +22,13 @@ export interface ViewOptions extends BaseOpt {
     title?: string;
 }
 
-export default class SearchResultListView extends View {
+export default
+class SearchResultListView extends CollectionView<FlatItem, SearchResultView> {
     selectable: boolean;
     title: string;
     attached: boolean;
 
-    items: SearchResultBaseItemView[];
-
-    currentlySelected: SearchResultBaseItemView;
+    currentlySelected: SearchResultView;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -40,68 +38,63 @@ export default class SearchResultListView extends View {
         this.selectable = (options.selectable === undefined) || options.selectable;
         this.title = options.title || 'Search Results';
 
-        this.items = [];
-        this.collection.each(n => {
-            this.initItem(n as Node);
-        });
+        this.initItems().initCollectionEvents();
         this.on('announceRoute', announce);
         return this;
     }
 
-    initItem(node: Node): this {
-        let item = new SearchResultBaseItemView({
-            model: new FlatItem(node), selectable: this.selectable
-        });
-        item.render();
-        this.listenTo(item, 'click', this.onItemClicked);
-        this.items.push(item);
+    makeItem(model: FlatItem): SearchResultView {
+        const item = new SearchResultView({
+            model,
+            selectable: this.selectable,
+        }).render();
+        item.on('click', this.onItemClicked, this);
+        return item;
+    }
+
+    renderContainer(): this {
+        this.$el.html(this.template(this));
         return this;
     }
 
-    render(): this {
-        invokeMap(this.items, 'detach');
-        this.$el.html(this.template(this));
-
-        this.items.forEach(view => {
-            this.$('.results-container').append(view.el);
-        });
-        if (this.attached) this.activate();
+    placeItems(): this {
+        super.placeItems();
+        if (this.attached) invokeMap(this.items, 'activate');
         return this;
     }
 
     activate(): this {
         this.attached = true;
-        invokeMap(this.items, 'activate');
-        return this;
+        return this.render();
     }
 
-    processSelection(subView: SearchResultBaseItemView): this {
+    processSelection(subView: SearchResultView): this {
         if (this.currentlySelected) this.unSelect(this.currentlySelected);
         this.select(subView);
         return this;
     }
 
-    select(subView: SearchResultBaseItemView): this {
+    select(subView: SearchResultView): this {
         subView.select();
         this.currentlySelected = subView;
         return this;
     }
 
-    unSelect(subView: SearchResultBaseItemView): this {
+    unSelect(subView: SearchResultView): this {
         subView.unSelect();
         return this;
     }
 
-    onItemClicked(subView: SearchResultBaseItemView): this {
+    onItemClicked(subView: SearchResultView): this {
         this.processSelection(subView);
         explorerChannel.trigger('searchResultList:itemClicked', this, subView.model);
         return this;
     }
 }
+
 extend(SearchResultListView.prototype, {
     tagName: 'div',
     className: 'search-result-list explorer-panel',
     template: searchResultListTemplate,
-    events: {
-    }
+    container: '.results-container',
 });
