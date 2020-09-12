@@ -60,22 +60,26 @@ export default class SearchResultView extends CompositeView<FlatItem> {
     }
 
     select(): this {
-        // TODO: clean up here (implement both?)
-        // this.chbSelected.prop('checked', true);
-        this.$el.addClass('is-selected');
+        this.chbSelected.prop('checked', true);
         return this;
     }
 
     unSelect(): this {
-        // TODO: clean up here (implement both?)
-        // this.chbSelected.prop('checked', false);
-        this.$el.removeClass('is-selected');
+        this.chbSelected.prop('checked', false);
         return this;
     }
 
     toggle(): this {
-        if (this.isSelected) this.unSelect();
-        else this.select();
+        return this.isSelected ? this.unSelect() : this.select();
+    }
+
+    highlight(): this {
+        this.$el.addClass('is-highlighted');
+        return this;
+    }
+
+    unhighlight(): this {
+        this.$el.removeClass('is-highlighted');
         return this;
     }
 

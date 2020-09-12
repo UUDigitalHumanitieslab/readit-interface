@@ -75,13 +75,13 @@ class SearchResultListView extends CollectionView<FlatItem, SearchResultView> {
     }
 
     select(subView: SearchResultView): this {
-        subView.select();
+        subView.highlight();
         this.currentlySelected = subView;
         return this;
     }
 
     unSelect(subView: SearchResultView): this {
-        subView.unSelect();
+        subView.unhighlight();
         return this;
     }
 
