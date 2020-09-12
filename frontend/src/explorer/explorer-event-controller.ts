@@ -110,18 +110,14 @@ export default class ExplorerEventController {
         return editView;
     }
 
-    closeEditRelated(editView: RelatedEditView): void {
-        this.explorerView.removeOverlay(editView);
+    closeOverlay(panel: View): void {
+        this.explorerView.removeOverlay(panel);
     }
 
     editExternal(exView: ExternalView): ExternalEditView {
         const editView = new ExternalEditView({ model: exView.model });
         this.explorerView.overlay(editView, exView);
         return editView;
-    }
-
-    closeEditExternal(editView: ExternalEditView): void {
-        this.explorerView.removeOverlay(editView);
     }
 
     listRelated(view: LdItemView, item: Node): RelatedItemsView {
