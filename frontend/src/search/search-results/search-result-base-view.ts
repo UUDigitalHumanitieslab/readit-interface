@@ -1,4 +1,4 @@
-import { extend, after } from 'lodash';
+import { extend, after, constant } from 'lodash';
 
 import View, { CompositeView, ViewOptions as BaseOpt } from '../../core/view';
 import FlatItem from '../../annotation/flat-item-model';
@@ -50,6 +50,8 @@ export default class SearchResultView extends CompositeView<FlatItem> {
 
     activate(): this {
         this.activateContent();
+        // prevent double activation trigger.
+        this.activate = constant(this);
         return this;
     }
 
