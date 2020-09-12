@@ -28,8 +28,6 @@ class SearchResultListView extends CollectionView<FlatItem, SearchResultView> {
     title: string;
     attached: boolean;
 
-    currentlySelected: SearchResultView;
-
     constructor(options: ViewOptions) {
         super(options);
     }
@@ -37,19 +35,20 @@ class SearchResultListView extends CollectionView<FlatItem, SearchResultView> {
     initialize(options: ViewOptions): this {
         this.selectable = (options.selectable === undefined) || options.selectable;
         this.title = options.title || 'Search Results';
-
         this.initItems().initCollectionEvents();
+        this.listenTo(this.collection, {
+            focus: this.onFocus,
+            blur: this.onBlur,
+        });
         this.on('announceRoute', announce);
         return this;
     }
 
     makeItem(model: FlatItem): SearchResultView {
-        const item = new SearchResultView({
+        return new SearchResultView({
             model,
             selectable: this.selectable,
         }).render();
-        item.on('click', this.onItemClicked, this);
-        return item;
     }
 
     renderContainer(): this {
@@ -68,27 +67,12 @@ class SearchResultListView extends CollectionView<FlatItem, SearchResultView> {
         return this.render();
     }
 
-    processSelection(subView: SearchResultView): this {
-        if (this.currentlySelected) this.unSelect(this.currentlySelected);
-        this.select(subView);
-        return this;
+    onFocus(model: FlatItem): void {
+        explorerChannel.trigger('searchResultList:itemClicked', this, model);
     }
 
-    select(subView: SearchResultView): this {
-        subView.highlight();
-        this.currentlySelected = subView;
-        return this;
-    }
-
-    unSelect(subView: SearchResultView): this {
-        subView.unhighlight();
-        return this;
-    }
-
-    onItemClicked(subView: SearchResultView): this {
-        this.processSelection(subView);
-        explorerChannel.trigger('searchResultList:itemClicked', this, subView.model);
-        return this;
+    onBlur(model: FlatItem, next?: FlatItem): void {
+        next || explorerChannel.trigger('searchResultList:itemClosed', this);
     }
 }
 

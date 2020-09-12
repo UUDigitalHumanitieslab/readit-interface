@@ -27,6 +27,10 @@ export default class SearchResultView extends CompositeView<FlatItem> {
     initialize(options: ViewOptions) {
         this.selectable = (options.selectable === undefined) || options.selectable;
         this.model.when('item', this.setContentView, this);
+        this.listenTo(this.model, {
+            focus: this.highlight,
+            blur: this.unhighlight,
+        });
         this.activateContent = after(2, () => this.contentView.activate());
     }
 
@@ -73,19 +77,19 @@ export default class SearchResultView extends CompositeView<FlatItem> {
         return this.isSelected ? this.unSelect() : this.select();
     }
 
-    highlight(): this {
+    highlight(): void {
         this.$el.addClass('is-highlighted');
-        return this;
     }
 
-    unhighlight(): this {
+    unhighlight(): void {
         this.$el.removeClass('is-highlighted');
-        return this;
     }
 
-    onClick(event: JQueryEventObject): this {
-        this.trigger('click', this);
-        return this;
+    onClick(): void {
+        this.model.trigger(
+            this.$el.hasClass('is-highlighted') ? 'blur' : 'focus',
+            this.model
+        );
     }
 }
 

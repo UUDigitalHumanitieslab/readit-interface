@@ -94,6 +94,10 @@ export default class ExplorerEventController {
         }
     }
 
+    closeToRight(panel: View) {
+        this.explorerView.popUntil(panel);
+    }
+
     openRelated(relView: RelatedItemsView, item: Node): LdItemView {
         const itemPanel = new LdItemView({ model: item });
         this.explorerView.popUntil(relView).push(itemPanel);
