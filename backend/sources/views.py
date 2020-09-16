@@ -161,9 +161,20 @@ class SourceHighlights(RDFView):
     def get_graph(self, request, **kwargs):
         query = request.GET.get('query')
         fields = request.GET.get('fields')
-        serial = get_serial_from_subject(request.GET.get('source'))
-        if not query or not serial:
+        source = request.GET.get('source')
+        if not query or not source:
             raise NotFound
+        serial = get_serial_from_subject(source)
+        body = self.construct_es_body(serial, query, fields)
+        results = es.search(body=body, index=settings.ES_ALIASNAME)
+        try:
+            highlights = results['hits']['hits'][0]['highlight']
+        except KeyError:
+            return Response(Graph(), HTTP_204_NO_CONTENT)
+        highlight_graph = self.construct_highlight_graph(highlights)
+        return highlight_graph
+
+    def construct_es_body(self, serial, query, fields):
         if fields == 'all':
             fields_query = {
                     "text*" : {},
@@ -199,11 +210,9 @@ class SourceHighlights(RDFView):
                 "post_tags": ["</mark>"]
             }
         }
-        results = es.search(body=body, index=settings.ES_ALIASNAME)
-        try:
-            highlights = results['hits']['hits'][0]['highlight']
-        except KeyError:
-            return Response(Graph(), HTTP_204_NO_CONTENT)
+        return body
+    
+    def construct_highlight_graph(self, highlights):
         hg = Graph()
         for key in highlights.keys():
             if key=='author':

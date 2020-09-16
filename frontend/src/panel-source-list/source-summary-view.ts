@@ -3,11 +3,9 @@ import { ViewOptions as BaseOpt } from 'backbone';
 
 import View from '../core/view';
 import Node from '../jsonld/node';
-import { dcterms, oa, schema, vocab } from '../jsonld/ns';
+import { dcterms, oa, schema } from '../jsonld/ns';
 import sourceSummaryTemplate from './source-summary-template';
-import SourceSnippetsView from './source-snippets-view';
 import Graph from '../jsonld/graph';
-import { getLabel } from '../utilities/utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     model: Node;
