@@ -485,6 +485,20 @@ export const iso6391Terms = [
 
 export const iso6391 = Vocabulary(iso6391Prefix, iso6391Terms);
 
+/**
+ * NEPOMUK Annotation Ontology
+ * 'https://www.semanticdesktop.org/ontologies/2007/08/15/nao/'
+ * has a 'score' term (value between 0 and 1) used for expressing relevance
+ */
+
+export const naoPrefix = 'https://www.semanticdesktop.org/ontologies/2007/08/15/nao/#';
+
+export const naoTerms = [
+    'score'
+] as const;
+
+export const nao = Vocabulary(naoPrefix, naoTerms);
+
 
 /**
  * READ-IT global prefix
