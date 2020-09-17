@@ -41,7 +41,7 @@ CONSTRUCT {
 '''
 
 SELECT_SOURCES_QUERY_MIDDLE_RELEVANCE = '''
-    ?id nao:score ?relevance.
+    ?id vocab:elasticsearch-relevance ?relevance.
 } WHERE {
    VALUES (?id ?relevance) {
 '''
@@ -220,7 +220,7 @@ def select_sources_elasticsearch(results):
         selection,
         SELECT_SOURCES_QUERY_END
     )
-    return endpoint.query(query, initNs={'source': ns, 'nao': NAO})
+    return endpoint.query(query, initNs={'source': ns, 'vocab': vocab})
 
 
 def format_ids_and_relevances(hit):

@@ -4,7 +4,7 @@ import { extend } from 'lodash';
 import { CollectionView } from '../core/view';
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
-import { dcterms, nao, schema } from '../jsonld/ns';
+import { dcterms, vocab } from '../jsonld/ns';
 import explorerChannel from '../explorer/radio';
 import { announceRoute } from '../explorer/utilities';
 
@@ -54,7 +54,7 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
     }
 
     sortByRelevance(model): number {
-        const score = model.get(nao.score)[0].slice(0);
+        const score = model.get(vocab['elasticsearch-relevance'])[0].slice(0);
         return -parseFloat(score);
     }
 
