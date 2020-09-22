@@ -500,7 +500,7 @@ export const READIT = nsRoot;
 export const vocabPrefix = READIT + 'vocab#';
 
 export const vocabTerms = [
-    'elasticsearch-relevance',
+    'relevance',
 ] as const;
 
 export const vocab = Vocabulary(vocabPrefix, vocabTerms);

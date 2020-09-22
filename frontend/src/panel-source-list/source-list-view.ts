@@ -54,7 +54,7 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
     }
 
     sortByRelevance(model): number {
-        const score = model.get(vocab['elasticsearch-relevance'])[0].slice(0);
+        const score = model.get(vocab['relevance'])[0].slice(0);
         return -parseFloat(score);
     }
 

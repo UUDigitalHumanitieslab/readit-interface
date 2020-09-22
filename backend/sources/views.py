@@ -41,7 +41,7 @@ CONSTRUCT {
 '''
 
 SELECT_SOURCES_QUERY_MIDDLE_RELEVANCE = '''
-    ?id vocab:elasticsearch-relevance ?relevance.
+    ?id vocab:relevance ?relevance.
 } WHERE {
    VALUES (?id ?relevance) {
 '''
@@ -146,8 +146,8 @@ class SourceSelection(RDFView):
         if results['hits']['total']['value'] == 0:
             return Graph()
         selected_sources = select_sources_elasticsearch(results)
-        selected_sources_graph = inject_fulltext(graph_from_triples(
-            list(selected_sources)), False, request)
+        selected_sources_graph = inject_fulltext(
+            graph_from_triples(list(selected_sources)), False, request)
         return selected_sources_graph
 
 
