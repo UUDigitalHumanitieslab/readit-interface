@@ -170,7 +170,7 @@ class SourceHighlights(RDFView):
         try:
             highlights = results['hits']['hits'][0]['highlight']
         except KeyError:
-            return Response(Graph(), HTTP_204_NO_CONTENT)
+            return Graph()
         highlight_graph = self.construct_highlight_graph(highlights)
         return highlight_graph
 
