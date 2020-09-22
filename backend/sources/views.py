@@ -200,7 +200,7 @@ class SourceHighlights(RDFView):
             "highlight": {
                 "highlight_query": {
                     "simple_query_string": {
-                        "query": "\"{}\"".format(query)
+                        "query": query
                     }
                 }, 
                 "fields" : fields_query,
