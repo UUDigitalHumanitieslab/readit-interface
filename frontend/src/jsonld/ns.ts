@@ -500,6 +500,7 @@ export const READIT = nsRoot;
 export const vocabPrefix = READIT + 'vocab#';
 
 export const vocabTerms = [
+    'relevance',
 ] as const;
 
 export const vocab = Vocabulary(vocabPrefix, vocabTerms);

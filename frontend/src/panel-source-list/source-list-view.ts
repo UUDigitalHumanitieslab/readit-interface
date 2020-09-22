@@ -4,6 +4,7 @@ import { extend } from 'lodash';
 import { CollectionView } from '../core/view';
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
+import { dcterms, vocab } from '../jsonld/ns';
 import explorerChannel from '../explorer/radio';
 import { announceRoute } from '../explorer/utilities';
 
@@ -25,6 +26,11 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
     }
 
     initialize(): this {
+        if (this.collection.length) {
+            this.collection.comparator = this.sortByRelevance;
+            this.collection.sort();
+        }
+        else this.collection.comparator = this.sortByDate;
         this.noResults = this.model && !this.collection.length;
         this.initItems().render().initCollectionEvents();
         this.on('announceRoute', announce);
@@ -47,6 +53,15 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
     onSourceClicked(sourceCid: string): this {
         explorerChannel.trigger('source-list:click', this, this.collection.get(sourceCid));
         return this;
+    }
+
+    sortByRelevance(model): number {
+        const score = model.get(vocab['relevance'])[0].slice(0);
+        return -parseFloat(score);
+    }
+
+    sortByDate(model): number {
+        return -model.get(dcterms.created)[0].getTime();
     }
 }
 extend(SourceListView.prototype, {

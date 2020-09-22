@@ -43,7 +43,7 @@ CONSTRUCT {
 '''
 
 SELECT_SOURCES_QUERY_MIDDLE_RELEVANCE = '''
-    ?id nao:score ?relevance.
+    ?id vocab:relevance ?relevance.
 } WHERE {
    VALUES (?id ?relevance) {
 '''
@@ -148,8 +148,8 @@ class SourceSelection(RDFView):
         if results['hits']['total']['value'] == 0:
             return Graph()
         selected_sources = select_sources_elasticsearch(results)
-        selected_sources_graph = inject_fulltext(graph_from_triples(
-            list(selected_sources)), False, request)
+        selected_sources_graph = inject_fulltext(
+            graph_from_triples(list(selected_sources)), False, request)
         return selected_sources_graph
 
 
@@ -290,7 +290,7 @@ def select_sources_elasticsearch(results):
         selection,
         SELECT_SOURCES_QUERY_END
     )
-    return endpoint.query(query, initNs={'source': ns, 'nao': NAO})
+    return endpoint.query(query, initNs={'source': ns, 'vocab': vocab})
 
 
 def format_ids_and_relevances(hit):
