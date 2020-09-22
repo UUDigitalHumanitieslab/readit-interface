@@ -189,13 +189,7 @@ export default class ExplorerEventController {
     }
 
     closeEditAnnotation(editView: AnnoEditView): void {
-        let source = this.mapAnnotationEditSource.get(editView);
-        let annoList = this.mapSourceAnnotationList.get(source);
-        if (annoList) {
-            this.explorerView.removeOverlay(editView);
-        } else {
-            this.explorerView.pop();
-        }
+        this.explorerView.removeOverlay(editView);
     }
 
     openSourceAnnotation(listView: AnnotationListView, anno: FlatModel): void {
