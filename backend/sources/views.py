@@ -1,6 +1,8 @@
 import os
 from datetime import datetime, timezone
 import html
+import functools
+import operator
 
 from django.http import HttpResponse
 from django.core.files.storage import default_storage
@@ -14,7 +16,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.reverse import reverse
 
-from rdflib import Graph, URIRef, Literal
+from rdflib import BNode, Graph, URIRef, Literal
 from rdflib.plugins.sparql import prepareQuery
 
 from elasticsearch import Elasticsearch
@@ -151,6 +153,88 @@ class SourceSelection(RDFView):
         return selected_sources_graph
 
 
+class SourceHighlights(RDFView):
+    ''' 
+    view to perform query highlighting in the full text source
+    with Elasticsearch
+    '''
+    def get_graph(self, request, **kwargs):
+        query = request.GET.get('query')
+        fields = request.GET.get('fields')
+        source = request.GET.get('source')
+        if not query or not source:
+            raise NotFound
+        serial = get_serial_from_subject(source)
+        body = self.construct_es_body(serial, query, fields)
+        results = es.search(body=body, index=settings.ES_ALIASNAME)
+        try:
+            highlights = results['hits']['hits'][0]['highlight']
+        except KeyError:
+            return Response(Graph(), HTTP_204_NO_CONTENT)
+        highlight_graph = self.construct_highlight_graph(highlights)
+        return highlight_graph
+
+    def construct_es_body(self, serial, query, fields):
+        if fields == 'all':
+            fields_query = {
+                    "text*" : {},
+                    "author": {},
+                    "title": {}
+            }
+        elif fields == 'author':
+            fields_query = {
+                "author": {}
+            }
+        elif fields == 'title':
+            fields_query = {
+                "title": {}
+            }
+        else:
+            fields_query = {
+                "text*": {}
+            }
+        body = {
+            "query": {
+                "term": {"id": serial} 
+            },
+            "highlight": {
+                "highlight_query": {
+                    "simple_query_string": {
+                        "query": "\"{}\"".format(query)
+                    }
+                }, 
+                "fields" : fields_query,
+                "fragment_size": 50,
+                "number_of_fragments": 3,
+                "pre_tags": ["<mark>"],
+                "post_tags": ["</mark>"]
+            }
+        }
+        return body
+    
+    def construct_highlight_graph(self, highlights):
+        hg = Graph()
+        for key in highlights.keys():
+            if key=='author':
+                obj = SCHEMA.author
+            elif key=='title':
+                obj = DCTERMS.title
+            else:
+                obj = SCHEMA.text
+            subj = BNode()
+            hg.add((subj, RDF.type, OA.annotation))
+            hg.add((subj, OA.hasTarget, obj))
+            for highlight in highlights.get(key):
+                if obj==SCHEMA.text:
+                    # add ellipses to start or end of string
+                    if not highlight[0].isupper():
+                        highlight = '(...) {}'.format(highlight)
+                    if not highlight[-1] in ['?','.','!']:
+                        highlight = '{} (...)'.format(highlight)
+                hg.add((subj, OA.hasBody, Literal(highlight)))
+        return hg
+
+
 class SourcesAPISingular(RDFResourceView):
     """ API endpoint for fetching individual subjects. """
     permission_classes = [IsAuthenticated, DeleteSourcePermission]
@@ -189,20 +273,6 @@ def source_fulltext(request, serial, query=None):
             "term" : { "id" : serial }
         }
     }
-    if query:
-        body['highlight'] = {
-            "highlight_query": {
-                "simple_query_string": {
-                    "query": query
-                }
-            }, 
-            "fields" : {
-                "text_en" : {},
-                "text_de": {},
-                "text_fr": {},
-                "text_nl": {}
-            }
-        }
     result = es.search(body=body, index=settings.ES_ALIASNAME)
     if result:
         f = result['hits']['hits'][0]['_source']['text']

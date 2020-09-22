@@ -1,8 +1,14 @@
 <div class="card">
     <div class="card-content">
         <a data-source-cid="{{model.cid}}" class="source">
-            <p class="title is-5">{{name}}</p>
-            <p class="subtitle is-6">({{author}})</p>
+            <p class="title is-5">{{{name}}}</p>
+            <p class="subtitle is-6">({{{author}}})</p>
         </a>
+        {{#if snippets}}
+            <hr>
+            {{#each snippets}}
+                <p class="is-size-7">{{{this}}}</p>
+            {{/each}}
+        {{/if}}
     </div>
 </div>

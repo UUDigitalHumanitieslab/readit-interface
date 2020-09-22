@@ -463,7 +463,7 @@ export const schemaTerms = [
     // 'name', // causes runtime error, use schema('name') instead
     'Organization',
     'Person',
-    'text',
+    'text'
 ] as const;
 
 export const schema = Vocabulary(schemaPrefix, schemaTerms);
