@@ -36,7 +36,7 @@ export default class ItemEditor extends CompositeView<Node> {
         this.categoryLabel = new Label({
             model: category,
             id: `category-${this.cid}`,
-        }).render();
+        });
         this.render().itemLabelFromModel();
         this.listenTo(this.model, 'change', this.itemLabelFromModel);
     }

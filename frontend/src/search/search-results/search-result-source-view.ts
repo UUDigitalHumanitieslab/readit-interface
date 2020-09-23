@@ -34,7 +34,7 @@ export default class SearchResultSourceView extends CompositeView<FlatItem> {
 
     processLabel(source: Node, [firstType]: string[]): void {
         const sourceType = ldChannel.request('obtain', firstType);
-        this.label = new LabelView({ model: sourceType }).render();
+        this.label = new LabelView({ model: sourceType });
         this.delayedRender();
     }
 

@@ -113,7 +113,6 @@ export default class LdItemView extends BaseAnnotationView {
     createLabel(ontologyClass: Node): this {
         if (ontologyClass) {
             this.lblView = new LabelView({ model: ontologyClass, toolTipSetting: 'left' });
-            this.lblView.render();
         }
         return this;
     }

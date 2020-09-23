@@ -39,7 +39,7 @@ export default class SearchResultItemView extends CompositeView<FlatItem> {
     }
 
     setLabel(model: FlatItem, ontologyClass: Node): void {
-        this.labelView = new LabelView({ model: ontologyClass }).render();
+        this.labelView = new LabelView({ model: ontologyClass });
     }
 
     renderContainer(): this {

@@ -32,8 +32,8 @@ describe('LabelView', function () {
         let node = getDefaultNode();
         let view = new LabelView({ model: node });
 
-        expect(view.render().el.className).toContain('is-readit-content');
-        expect(view.render().$el.attr('data-tooltip')).toEqual('This is a test definition');
+        expect(view.el.className).toContain('is-readit-content');
+        expect(view.$el.attr('data-tooltip')).toEqual('This is a test definition');
     });
 
     it('does not include a tooltip if a definition does not exists', function () {
@@ -43,15 +43,15 @@ describe('LabelView', function () {
 
         let view = new LabelView({ model: node });
 
-        expect(view.render().el.className).toContain('is-readit-content');
-        expect(view.render().$el.attr('data-tooltip')).toBeUndefined();
+        expect(view.el.className).toContain('is-readit-content');
+        expect(view.$el.attr('data-tooltip')).toBeUndefined();
     });
 
     it('excludes a tooltip if told so', function () {
         let node = getDefaultNode();
         let view = new LabelView({ model: node, toolTipSetting: false });
 
-        expect(view.render().el.className).toContain('is-readit-content');
-        expect(view.render().$el.attr('data-tooltip')).toBeUndefined();
+        expect(view.el.className).toContain('is-readit-content');
+        expect(view.$el.attr('data-tooltip')).toBeUndefined();
     });
 })

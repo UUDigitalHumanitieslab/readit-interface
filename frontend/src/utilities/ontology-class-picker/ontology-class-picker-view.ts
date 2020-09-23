@@ -76,7 +76,7 @@ export default class OntologyClassPickerView extends CollectionView<
         if (this.label) this.label.remove();
         dropdownLabel.text('');
         this.label = new LabelView({ model: node });
-        this.label.render().$el.appendTo(dropdownLabel);
+        this.label.$el.appendTo(dropdownLabel);
         return this;
     }
 
