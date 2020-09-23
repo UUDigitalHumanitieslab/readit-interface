@@ -33,7 +33,6 @@ export default class ExplorerEventController {
 
     mapSourceAnnotationList: Map<SourceView, AnnotationListView> = new Map();
     mapAnnotationListSource: Map<AnnotationListView, SourceView> = new Map();
-    mapAnnotationEditSource: Map<AnnoEditView, SourceView> = new Map();
     mapAnnotationListAnnotationDetail: Map<AnnotationListView, LdItemView> = new Map();
 
     constructor(explorerView: ExplorerView) {
@@ -232,7 +231,6 @@ export default class ExplorerEventController {
             model: undefined,
             collection: sourceView.collection,
         });
-        this.mapAnnotationEditSource.set(annoEditView, sourceView);
 
         if (listView) {
             annoEditView['_listview'] = listView;
