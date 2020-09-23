@@ -149,15 +149,17 @@ export default class ExplorerEventController {
     }
 
     editAnnotation(ldItemview: LdItemView, annotation: Node): AnnoEditView {
-        let annoEditView = new AnnoEditView({ model: annotation });
+        let annoEditView = new AnnoEditView({
+            model: new FlatItem(annotation)
+        });
         this.explorerView.overlay(annoEditView, ldItemview);
         return annoEditView;
     }
 
-    saveAnnotation(editView: AnnoEditView, annotation: Node, newItem: boolean): void {
+    saveAnnotation(editView: AnnoEditView, annotation: FlatItem, newItem: boolean): void {
         this.explorerView.removeOverlay(editView);
         // TODO: re-enable the next line.
-        // if (newItem) this.autoOpenRelationEditor(annotation);
+        // if (newItem) this.autoOpenRelationEditor(annotation.get('annotation'));
     }
 
     saveNewAnnotation(editView: AnnoEditView, annotation: FlatItem, created: ItemGraph): void {
@@ -233,7 +235,6 @@ export default class ExplorerEventController {
             range: range,
             positionDetails: positionDetails,
             source: source,
-            model: undefined,
             collection: sourceView.collection,
         });
         this.mapAnnotationEditSource.set(annoEditView, sourceView);
