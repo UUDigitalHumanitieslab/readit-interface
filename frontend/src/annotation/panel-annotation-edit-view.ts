@@ -156,7 +156,7 @@ export default class AnnotationEditView extends View<FlatItem> {
         if (!item) return Promise.resolve(newItem);
         if (item.isNew()) {
             newItem = true;
-            if (!item.collection) new ItemGraph().add(item);
+            if (!item.collection) this.itemOptions.add(item);
         }
         return new Promise((resolve, reject) => {
             item.save();
