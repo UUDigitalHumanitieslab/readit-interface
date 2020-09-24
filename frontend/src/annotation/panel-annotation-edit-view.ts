@@ -1,6 +1,6 @@
 import { extend, invokeMap, bindAll } from 'lodash';
 
-import View, { ViewOptions as BaseOpt } from '../core/view';
+import { CompositeView, ViewOptions as BaseOpt } from '../core/view';
 import ldChannel from '../jsonld/radio';
 import { oa, rdf, skos } from '../jsonld/ns';
 import Node from '../jsonld/node';
@@ -51,7 +51,7 @@ export interface ViewOptions extends BaseOpt {
     source?: Node;
 }
 
-export default class AnnotationEditView extends View<FlatItem> {
+export default class AnnotationEditView extends CompositeView<FlatItem> {
     collection: FlatCollection;
     positionDetails: AnnotationPositionDetails;
     metadataView: ItemMetadataView;
@@ -84,9 +84,7 @@ export default class AnnotationEditView extends View<FlatItem> {
             preselection: this.model.get('class'),
         }).on('select', this.selectClass, this).render();
 
-        this.snippetView = new SnippetView({
-            model: this.model,
-        }).render();
+        this.snippetView = new SnippetView({ model: this.model }).render();
 
         this.model.when('annotation', this.processAnnotation, this);
         this.model.when('class', (model, cls) => this.selectClass(cls), this);
@@ -103,13 +101,7 @@ export default class AnnotationEditView extends View<FlatItem> {
         if (creator.id === currentUser) this.userIsOwner = true;
     }
 
-    render(): this {
-        this.classPicker.$el.detach();
-        this.itemPicker.$el.detach();
-        if (this.snippetView) this.snippetView.$el.detach();
-        if (this.metadataView) this.metadataView.$el.detach();
-        if (this.itemEditor) this.itemEditor.$el.detach();
-
+    renderContainer(): this {
         this.$el.html(this.template(this));
         if (this.selectedClass) this.selectClass(this.selectedClass);
 
@@ -117,25 +109,7 @@ export default class AnnotationEditView extends View<FlatItem> {
             errorClass: "help is-danger",
             ignore: "",
         });
-
-        this.$('.ontology-class-picker-container').append(this.classPicker.el);
-        this.$('.item-picker-container .field:first .control')
-            .append(this.itemPicker.el);
-        if (this.snippetView) this.$('.snippet-container').append(this.snippetView.el);
-        if (this.metadataView) this.$('.metadata-container').append(this.metadataView.el);
-        if (this.itemEditor) {
-            this.$('.item-picker-container').after(this.itemEditor.el);
-        }
         return this;
-    }
-
-    remove() {
-        this.metadataView && this.metadataView.remove();
-        this.classPicker && this.classPicker.remove();
-        this.snippetView && this.snippetView.remove();
-        this.itemEditor && this.itemEditor.remove();
-        this.itemPicker.remove();
-        return super.remove();
     }
 
     submit(): this {
@@ -272,6 +246,23 @@ export default class AnnotationEditView extends View<FlatItem> {
 extend(AnnotationEditView.prototype, {
     className: 'annotation-edit-panel explorer-panel',
     template: annotationEditTemplate,
+    subviews: [{
+        view: 'classPicker',
+        selector: '.ontology-class-picker-container',
+    }, {
+        view: 'itemPicker',
+        selector: '.item-picker-container .field:first .control',
+    }, {
+        view: 'snippetView',
+        selector: '.snippet-container',
+    }, {
+        view: 'metadataView',
+        selector: '.metadata-container',
+    }, {
+        view: 'itemEditor',
+        selector: '.item-picker-container',
+        method: 'after',
+    }],
     events: {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
