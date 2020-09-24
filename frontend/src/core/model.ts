@@ -1,5 +1,5 @@
-import { Model as BackboneModel, Events } from 'backbone';
-import { extend } from 'lodash';
+import { Model as BackboneModel } from 'backbone';
+import { extend, isFunction } from 'lodash';
 
 import { syncWithCSRF } from './csrf';
 import fastTimeout from './fastTimeout';
@@ -24,14 +24,34 @@ export default class Model extends BackboneModel {
      * to `this`. `handler` is always invoked async, with the same arguments
      * that the `change:$attribute` event would pass.
      */
-    when(attribute: string, handler: ValueProcessor, context?: Events): void {
+    when(attribute: string, handler: ValueProcessor, context?: any): void {
+        const eventName = `change:${attribute}`;
         if (this.has(attribute)) {
             const value = this.get(attribute);
             fastTimeout(handler.bind(context || this), this, value, {});
-        } else if (context) {
-            context.listenToOnce(this, `change:${attribute}`, handler);
+        } else if (context && isFunction(context.listenToOnce)) {
+            context.listenToOnce(this, eventName, handler);
         } else {
-            this.once(`change:${attribute}`, handler);
+            this.once(eventName, handler, context);
+        }
+    }
+
+    /**
+     * Like `when`, with two main differences:
+     * 1. If the `attribute` is already present at the time of invocation, the
+     *    `handler` is invoked immediately instead of async.
+     * 2. The `handler` will be continue to be invoked on every subsequent
+     *    change of the `attribute`, instead of being called exactly once.
+     */
+    whenever(attribute: string, handler: ValueProcessor, context?: any): void {
+        if (this.has(attribute)) {
+            handler.call(context || this, this, this.get(attribute), {});
+        }
+        const eventName = `change:${attribute}`;
+        if (context && isFunction(context.listenTo)) {
+            context.listenTo(this, eventName, handler);
+        } else {
+            this.on(eventName, handler, context);
         }
     }
 }
