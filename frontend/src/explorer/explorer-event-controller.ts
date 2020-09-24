@@ -99,7 +99,7 @@ export default class ExplorerEventController {
     }
 
     openRelated(relView: RelatedItemsView, item: Node): LdItemView {
-        const itemPanel = new LdItemView({ model: item });
+        const itemPanel = new LdItemView({ model: new FlatItem(item) });
         this.explorerView.popUntil(relView).push(itemPanel);
         return itemPanel;
     }
@@ -148,10 +148,8 @@ export default class ExplorerEventController {
         return listView;
     }
 
-    editAnnotation(ldItemview: LdItemView, annotation: Node): AnnoEditView {
-        let annoEditView = new AnnoEditView({
-            model: new FlatItem(annotation)
-        });
+    editAnnotation(ldItemview: LdItemView, annotation: FlatItem): AnnoEditView {
+        const annoEditView = new AnnoEditView({ model: annotation });
         this.explorerView.overlay(annoEditView, ldItemview);
         return annoEditView;
     }
@@ -199,14 +197,13 @@ export default class ExplorerEventController {
     }
 
     openSourceAnnotation(listView: AnnotationListView, anno: FlatItem): void {
-        const annoRDF = anno.get('annotation');
-        let newDetailView = new LdItemView({ model: annoRDF });
+        let newDetailView = new LdItemView({ model: anno });
         this.mapAnnotationListAnnotationDetail.set(listView, newDetailView);
         this.explorerView.popUntil(listView).push(newDetailView);
     }
 
     resetItem(item: Node): LdItemView {
-        let detailView = new LdItemView({ model: item });
+        let detailView = new LdItemView({ model: new FlatItem(item) });
         this.explorerView.reset(detailView);
         return detailView;
     }
