@@ -1,8 +1,9 @@
-import { extend, map } from 'lodash';
+import { extend, map, after, bind } from 'lodash';
 
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
+import ldChannel from '../jsonld/radio';
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
 import explorerChannel from '../explorer/radio';
@@ -32,14 +33,25 @@ export default class RelatedItemsView extends CollectionView {
     }
 
     initialize(options: ViewOptions) {
-        this.predicates = applicablePredicates(this.model);
         this.collection = new Collection();
-        this.initItems().initCollectionEvents().updateRelations(this.model);
-        this.listenTo(this.model, 'change', this.updateRelations);
+        this.initItems().initCollectionEvents();
         this.on('announceRoute', announce);
+        // Start collecting relations only after both the full ontology has been
+        // fetched and the type of the model is known. Otherwise,
+        // `this.predicates` will remain empty.
+        const kickoff = after(2, bind(this.initPredicates, this));
+        ldChannel.request('ontology:promise').then(kickoff);
+        this.model.when('@type', kickoff);
+    }
+
+    initPredicates(): void {
+        this.predicates = applicablePredicates(this.model);
+        this.updateRelations(this.model);
+        this.listenTo(this.model, 'change', this.updateRelations);
     }
 
     updateRelations(model: Node): void {
+        if (!this.predicates) return;
         const relations = relationsFromModel(this.model, this.predicates);
         relations.once('complete', () => {
             const byPredicate = relations.groupBy(getPredicateId);
