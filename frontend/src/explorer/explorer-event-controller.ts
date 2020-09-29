@@ -7,6 +7,7 @@ import LdItemView from '../panel-ld-item/ld-item-view';
 import Graph from '../jsonld/graph';
 import SourceView from './../panel-source/source-view';
 import AnnotationListView from '../annotation/panel-annotation-list-view';
+import SuggestionsView from '../suggestions/suggestions-view';
 
 import AnnoEditView from '../annotation/panel-annotation-edit-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
@@ -78,6 +79,11 @@ export default class ExplorerEventController {
         const queryModel = new Model({ query, fields });
         const resultsView = new SourceListPanel({ collection: results, model: queryModel });
         this.explorerView.reset(resultsView);
+    }
+
+    showSuggestionsPanel() {
+        const suggestionsView = new SuggestionsView();
+        this.explorerView.reset(suggestionsView);
     }
 
     openSearchResult(searchResults: SearchResultListView, item: Node) {

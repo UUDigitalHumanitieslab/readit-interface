@@ -48,3 +48,4 @@ menuView.on('feedback', () => feedbackView.render().$el.appendTo('body'));
 
 feedbackView.on('close', () => feedbackView.$el.detach());
 welcomeView.on('search:searched', () => userFsm.handle('explore'));
+welcomeView.on('suggestions:show', () => userFsm.handle('explore'));

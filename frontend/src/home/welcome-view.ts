@@ -22,7 +22,6 @@ export default class WelcomeView extends View {
 
         this.$('.welcome-image').append(this.searchboxView.render().$el);
         this.searchboxView.on("searchClicked", this.search, this);
-
         return this;
     }
 
@@ -35,7 +34,10 @@ export default class WelcomeView extends View {
 
 extend(WelcomeView.prototype, {
     tagName: 'section',
-    template: welcomeTemplate
+    template: welcomeTemplate,
+    events: {
+        'click .suggest': 'suggest',
+    }
 });
 
 export type SearchResult = {
