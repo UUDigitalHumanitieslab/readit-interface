@@ -41,6 +41,7 @@ export default class LdItemView extends CompositeView<FlatItem> {
         model.whenever('annotation', this.processAnnotation, this);
         model.whenever('class', this.processClass, this);
         model.whenever('item', this.processItem, this);
+        model.whenever('label', this.processLabel, this);
         model.whenever('text', this.processText, this);
         this.render().listenTo(model, 'change', this.render);
     }
@@ -89,6 +90,10 @@ export default class LdItemView extends CompositeView<FlatItem> {
                 }
             });
         }
+    }
+
+    processLabel(model: FlatItem, label: string): void {
+        if (!model.has('annotation')) this.label = label;
     }
 
     processText(model: FlatItem, text: string): void {
