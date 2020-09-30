@@ -168,9 +168,9 @@ describe('FlatItem', function() {
     it('can flatten a bare item', async function() {
         const ontologyClass = new Node(contentClass);
         const items = getFullItems();
-        const flatAnno = new FlatItem(items.item);
-        await completion(flatAnno);
-        expect(flatAnno.attributes).toEqual(assign({
+        const flatItem = new FlatItem(items.item);
+        await completion(flatItem);
+        expect(flatItem.attributes).toEqual(assign({
             id: items.item.id,
             item: items.item,
             class: ontologyClass,
@@ -186,9 +186,9 @@ describe('FlatItem', function() {
 
     it('can flatten a bare class', async function() {
         const ontologyClass = new Node(contentClass);
-        const flatAnno = new FlatItem(ontologyClass);
-        await completion(flatAnno);
-        expect(flatAnno.attributes).toEqual(assign({
+        const flatClass = new FlatItem(ontologyClass);
+        await completion(flatClass);
+        expect(flatClass.attributes).toEqual(assign({
             id: ontologyClass.id,
             class: ontologyClass,
         }, pick(
@@ -202,9 +202,11 @@ describe('FlatItem', function() {
 
     it('can flatten a bare target', async function() {
         const items = getFullItems();
-        const flatAnno = new FlatItem(items.target);
-        await completion(flatAnno);
-        expect(flatAnno.attributes).toEqual(assign({id: items.target.id}, omit(
+        const flatTarget = new FlatItem(items.target);
+        await completion(flatTarget);
+        expect(flatTarget.attributes).toEqual(assign({
+            id: items.target.id,
+        }, omit(
             expectedFlatAttributes,
             'id',
             'annotation',
@@ -233,9 +235,9 @@ describe('FlatItem', function() {
 
     it('can flatten a bare selector', async function() {
         const items = getFullItems();
-        const flatAnno = new FlatItem(items.position);
-        await completion(flatAnno);
-        expect(flatAnno.attributes).toEqual(assign({
+        const flatSelector = new FlatItem(items.position);
+        await completion(flatSelector);
+        expect(flatSelector.attributes).toEqual(assign({
             id: items.position.id
         }, pick(
             expectedFlatAttributes,
