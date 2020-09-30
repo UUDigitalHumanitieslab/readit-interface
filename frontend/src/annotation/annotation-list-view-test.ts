@@ -1,6 +1,6 @@
 import Graph from '../jsonld/graph';
 import FlatCollection from './flat-annotation-collection';
-import AnnoListPanel from './panel-annotation-list-view';
+import AnnoListView from './annotation-list-view';
 
 describe('AnnotationListPanel', function() {
     beforeEach(function() {
@@ -9,7 +9,7 @@ describe('AnnotationListPanel', function() {
     });
 
     it('can be constructed in isolation', function() {
-        const view = new AnnoListPanel({ collection: this.flat });
+        const view = new AnnoListView({ collection: this.flat });
         expect(view.$el.html()).toBeTruthy();
     });
 });

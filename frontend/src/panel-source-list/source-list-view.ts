@@ -66,7 +66,7 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
 }
 extend(SourceListView.prototype, {
     tagName: 'div',
-    className: 'source-list explorer-panel',
+    className: 'source-list',
     template: sourceListTemplate,
     events: {
 

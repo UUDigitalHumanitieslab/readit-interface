@@ -6,7 +6,7 @@ import Graph from '../jsonld/graph';
 
 import suggestionsTemplate from './suggestions-template';
 import SourceListView from '../panel-source-list/source-list-view';
-import AnnotationListView from '../annotation/panel-annotation-list-view';
+import AnnotationListView from '../annotation/annotation-list-view';
 
 export default class SuggestionsView extends CompositeView{
     sourceSuggestions: Graph;

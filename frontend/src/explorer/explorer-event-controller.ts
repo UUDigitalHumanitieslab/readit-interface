@@ -6,7 +6,7 @@ import ExplorerView from './explorer-view';
 import LdItemView from '../panel-ld-item/ld-item-view';
 import Graph from '../jsonld/graph';
 import SourceView from './../panel-source/source-view';
-import AnnotationListView from '../annotation/panel-annotation-list-view';
+import AnnotationListPanel from '../annotation/annotation-list-panel';
 import SuggestionsView from '../suggestions/suggestions-view';
 
 import AnnoEditView from '../annotation/panel-annotation-edit-view';
@@ -20,7 +20,7 @@ import FlatCollection from '../annotation/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { oa } from '../jsonld/ns';
 import SearchResultListView from '../search/search-results/panel-search-result-list-view';
-import SourceListPanel from '../panel-source-list/source-list-view';
+import SourceListPanel from '../panel-source-list/source-list-panel';
 import {
     isType,
     isOntologyClass,
@@ -32,9 +32,9 @@ export default class ExplorerEventController {
      */
     explorerView: ExplorerView;
 
-    mapSourceAnnotationList: Map<SourceView, AnnotationListView> = new Map();
-    mapAnnotationListSource: Map<AnnotationListView, SourceView> = new Map();
-    mapAnnotationListAnnotationDetail: Map<AnnotationListView, LdItemView> = new Map();
+    mapSourceAnnotationList: Map<SourceView, AnnotationListPanel> = new Map();
+    mapAnnotationListSource: Map<AnnotationListPanel, SourceView> = new Map();
+    mapAnnotationListAnnotationDetail: Map<AnnotationListPanel, LdItemView> = new Map();
 
     constructor(explorerView: ExplorerView) {
         this.explorerView = explorerView;
@@ -52,8 +52,8 @@ export default class ExplorerEventController {
         return sourcePanel.activate();
     }
 
-    listSourceAnnotations(sourcePanel: SourceView): AnnotationListView {
-        const listPanel = new AnnotationListView({
+    listSourceAnnotations(sourcePanel: SourceView): AnnotationListPanel {
+        const listPanel = new AnnotationListPanel({
             model: sourcePanel.model,
             collection: sourcePanel.collection,
         });
@@ -63,13 +63,13 @@ export default class ExplorerEventController {
         return listPanel;
     }
 
-    pushSourcePair(basePanel: View, source: Node): [SourceView, AnnotationListView] {
+    pushSourcePair(basePanel: View, source: Node): [SourceView, AnnotationListPanel] {
         const sourcePanel = this.pushSource(basePanel, source);
         const listPanel = this.listSourceAnnotations(sourcePanel);
         return [sourcePanel, listPanel];
     }
 
-    resetSourcePair(source: Node): [SourceView, AnnotationListView] {
+    resetSourcePair(source: Node): [SourceView, AnnotationListPanel] {
         const sourcePanel = this.resetSource(source, true);
         const listPanel = this.listSourceAnnotations(sourcePanel);
         return [sourcePanel, listPanel];
@@ -197,7 +197,7 @@ export default class ExplorerEventController {
         this.explorerView.removeOverlay(editView);
     }
 
-    openSourceAnnotation(listView: AnnotationListView, anno: FlatModel): void {
+    openSourceAnnotation(listView: AnnotationListPanel, anno: FlatModel): void {
         const annoRDF = anno.get('annotation');
         let newDetailView = new LdItemView({ model: annoRDF });
         this.mapAnnotationListAnnotationDetail.set(listView, newDetailView);
@@ -210,12 +210,12 @@ export default class ExplorerEventController {
         return detailView;
     }
 
-    closeSourceAnnotation(listView: AnnotationListView, annotation: FlatModel): void {
+    closeSourceAnnotation(listView: AnnotationListPanel, annotation: FlatModel): void {
         this.mapAnnotationListAnnotationDetail.delete(listView);
         this.explorerView.popUntil(listView);
     }
 
-    reopenSourceAnnotations(sourceView: SourceView): AnnotationListView {
+    reopenSourceAnnotations(sourceView: SourceView): AnnotationListPanel {
         const annoListView = this.listSourceAnnotations(sourceView);
         sourceView.collection.underlying.trigger('sync');
         return annoListView;
