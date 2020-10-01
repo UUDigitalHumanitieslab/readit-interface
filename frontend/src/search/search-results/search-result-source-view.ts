@@ -1,74 +1,63 @@
-import { ViewOptions as BaseOpt } from 'backbone';
-import { extend } from 'lodash';
+import { extend, after } from 'lodash';
+
+import { CompositeView } from '../../core/view';
+import { schema } from '../../jsonld/ns';
+import ldChannel from '../../jsonld/radio';
+import Node from '../../jsonld/node';
+import FlatItem from '../../annotation/flat-item-model';
+import LabelView from '../../utilities/label-view';
+import SnippetView from '../../utilities/snippet-view/snippet-view';
 
 import searchResultSourceTemplate from './search-result-source-template';
 
-import { schema } from './../../jsonld/ns';
-import ldChannel from './../../jsonld/radio';
-import Node from '../../jsonld/node';
-import LabelView from '../../utilities/label-view';
-import SnippetView from '../../utilities/snippet-view/snippet-view';
-import BaseAnnotationView from '../../annotation/base-annotation-view';
+export default class SearchResultSourceView extends CompositeView<FlatItem> {
+    snippet: SnippetView;
+    label: LabelView;
+    delayedRender: () => void;
 
-export interface ViewOptions extends BaseOpt<Node> {
-    model: Node;
-}
-
-export default class SearchResultSourceView extends BaseAnnotationView {
-    snippetView: SnippetView;
-    labelView: LabelView;
-    title: string;
-
-    constructor(options: ViewOptions) {
-        super(options);
-    }
-
-    initialize(options: ViewOptions): this {
-        this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
-        this.listenTo(this.model, 'change', super.processAnnotation);
-        this.listenTo(this, 'source', super.processSource);
-        super.processAnnotation(this.model);
+    initialize(options): this {
+        this.snippet = new SnippetView({ model: this.model });
+        this.model.when('source', this.processSource, this);
         return this;
     }
 
-    processSource(source: Node): this {
-        this.title = source.get(schema('name'))[0] as string;
-        let sourceOntologyInstance = ldChannel.request('obtain', source.get('@type')[0] as string);
-        if (!this.labelView) {
-            this.labelView = new LabelView({ model: sourceOntologyInstance });
-            this.labelView.render();
-        }
-
-        this.render();
-
-        return this;
+    processSource(model: FlatItem, source: Node): void {
+        source.when(schema('name'), this.processTitle, this);
+        source.when('@type', this.processLabel, this);
+        this.delayedRender = after(2, this.render);
     }
 
-    processTextQuoteSelector(selector: Node): this {
-        if (this.snippetView) return;
-        this.snippetView = new SnippetView({
-            title: this.title,
-            selector: selector
-        });
-        this.snippetView.render();
-        this.render();
-        return this;
+    processTitle(source: Node, [title]: string[]): void {
+        this.model.set({ title });
+        this.delayedRender();
     }
 
-    render(): this {
-        if (this.snippetView) this.snippetView.$el.detach();
-        if (this.labelView) this.labelView.$el.detach();
+    processLabel(source: Node, [firstType]: string[]): void {
+        const sourceType = ldChannel.request('obtain', firstType);
+        this.label = new LabelView({ model: sourceType });
+        this.delayedRender();
+    }
+
+    renderContainer(): this {
         this.$el.html(this.template(this));
+        return this;
+    }
 
-        if (this.snippetView) this.$('.snippet-container').append(this.snippetView.el);
-        if (this.labelView) this.$('.label-container').append(this.labelView.el);
+    activate(): this {
+        this.snippet.activate();
         return this;
     }
 }
+
 extend(SearchResultSourceView.prototype, {
     tagName: 'div',
     className: 'search-result-source',
     template: searchResultSourceTemplate,
-    events: {
-    }
+    subviews: [{
+        view: 'snippet',
+        selector: '.snippet-container',
+    }, {
+        view: 'label',
+        selector: '.label-container',
+    }],
 });

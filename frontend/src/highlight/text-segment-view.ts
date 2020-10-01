@@ -4,7 +4,7 @@ import { $, ViewOptions as BViewOptions } from 'backbone';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
-import FlatModel from '../annotation/flat-annotation-model';
+import FlatItem from '../annotation/flat-item-model';
 import FlatCollection from '../annotation/flat-annotation-collection';
 import SegmentModel from './text-segment-model';
 import LineSegment from './line-segment-view';
@@ -64,7 +64,7 @@ class TextSegmentView extends CollectionView<SegmentModel, LineSegment> {
      * When an annotation is in focus, hide the color bands of other classes
      * and emphasize this segment with a border and greater opacity.
      */
-    focus(annotation: FlatModel): void {
+    focus(annotation: FlatItem): void {
         this.toggleCategories([annotation.get('cssClass')]);
         this.$el.addClass('is-selected');
     }

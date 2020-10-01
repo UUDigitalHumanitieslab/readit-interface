@@ -1,72 +1,75 @@
-import { ViewOptions as BaseOpt } from 'backbone';
-import { extend } from 'lodash';
-import View from './../../core/view';
+import {
+    extend,
+    keys,
+    includes,
+    find,
+    negate,
+    isUndefined,
+    isNil
+} from 'lodash';
 
-import ldChannel from './../../jsonld/radio';
+import { CompositeView } from '../../core/view';
+import { dcterms, owl, skos } from '../../jsonld/ns';
+import Node, { isNode } from '../../jsonld/node';
+import FlatItem from '../../annotation/flat-item-model';
+import LabelView from '../../utilities/label-view';
+import { getLabelFromId } from '../../utilities/utilities';
+
 import searchResultItemTemplate from './search-result-item-template';
 
-import Node, { isNode } from '../../jsonld/node';
-import LabelView from '../../utilities/label-view';
-import { getLabel, getLabelFromId } from '../../utilities/utilities';
-import { dcterms, owl, skos } from '../../jsonld/ns';
+const maxProperties = 4
+const excludedAttributes = [
+    '@id',
+    '@type',
+    dcterms.created,
+    dcterms.creator,
+    owl.sameAs,
+    skos.prefLabel,
+];
 
-export interface ViewOptions extends BaseOpt<Node> {
-    model: Node;
-}
-
-export default class SearchResultItemView extends View<Node> {
+export default class SearchResultItemView extends CompositeView<FlatItem> {
     labelView: LabelView;
-    itemLabel: string;
     properties: any;
-    propertyCount: number;
-
-    constructor(options: ViewOptions) {
-        super(options);
-    }
 
     initialize(): this {
-        let ontologyClass = ldChannel.request('obtain', this.model.get('@type')[0] as string);
-        this.labelView = new LabelView({ model: ontologyClass }).render();
-        this.itemLabel = getLabel(this.model);
-        this.propertyCount = 0;
-        this.collectDetails();
+        this.model.when('class', this.setLabel, this);
+        this.model.when('item', this.collectDetails, this);
+        this.listenTo(this.model, 'change complete', this.render);
         return this;
     }
 
-    render(): this {
-        this.labelView.$el.detach();
+    setLabel(model: FlatItem, ontologyClass: Node): void {
+        this.labelView = new LabelView({ model: ontologyClass });
+    }
+
+    renderContainer(): this {
         this.$el.html(this.template(this));
-        this.labelView.$el.appendTo(this.$('.label-container'));
         return this;
     }
 
-    collectDetails(): this {
-        const excluded = ['@id', '@type', dcterms.created, dcterms.creator, owl.sameAs, skos.prefLabel];
-
-        for (let attribute in this.model.attributes) {
-            if (excluded.includes(attribute)) {
-                continue;
-            }
-
-            let attributeLabel = getLabelFromId(attribute);
-
-            let valueArray = this.model.get(attribute);
-            valueArray.forEach(value => {
-                if (this.propertyCount < 4 && !isNode(value)) {
-                    if (!this.properties) this.properties = {};
-                    this.properties[attributeLabel] = value;
-                    this.propertyCount++;
-                }
-            });
+    collectDetails(model: FlatItem, item: Node): void {
+        const attributes = keys(item.attributes);
+        const properties = {};
+        let propertyCount = 0;
+        let keyIndex = 0;
+        while (propertyCount < maxProperties && keyIndex < attributes.length) {
+            const attribute = attributes[keyIndex++];
+            if (includes(excludedAttributes, attribute)) continue;
+            const firstValue = find(item.get(attribute), negate(isNil));
+            if (isUndefined(firstValue) || isNode(firstValue)) continue;
+            const label = getLabelFromId(attribute);
+            properties[label] = firstValue;
+            ++propertyCount;
         }
-
-        return this;
+        this.properties = properties;
     }
 }
+
 extend(SearchResultItemView.prototype, {
-    tagName: 'div',
     className: 'search-result-item',
     template: searchResultItemTemplate,
-    events: {
-    }
+    subviews: [{
+        view: 'labelView',
+        selector: '.label-container',
+    }],
 });

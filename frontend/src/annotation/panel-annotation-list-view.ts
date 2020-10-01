@@ -7,7 +7,7 @@ import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-vie
 import explorerChannel from '../explorer/radio';
 import { announceRoute } from '../explorer/utilities';
 
-import FlatModel from './flat-annotation-model';
+import FlatItem from './flat-item-model';
 import FlatCollection from './flat-annotation-collection';
 import annotationsTemplate from './panel-annotation-list-template';
 
@@ -18,7 +18,7 @@ const announce = announceRoute('source:annotated', ['model', 'id']);
  *
  * Self-rendering view, autoscrolls to the selected annotation on focus.
  */
-export default class AnnotationListView extends CollectionView<FlatModel, ItemSummaryBlock> {
+export default class AnnotationListView extends CollectionView<FlatItem, ItemSummaryBlock> {
     collection: FlatCollection;
     // This is mostly a CollectionView of ItemSummaryBlocks, but we occasionally
     // also behave a bit like a CompositeView with the loadingSpinnerView as the
@@ -54,18 +54,18 @@ export default class AnnotationListView extends CollectionView<FlatModel, ItemSu
         this.placeItems();
     }
 
-    _handleFocus(model: FlatModel): void {
+    _handleFocus(model: FlatItem): void {
         this.scrollTo(model);
         explorerChannel.trigger('annotationList:showAnnotation', this, model);
     }
 
-    _handleBlur(lostFocus: FlatModel, gainedFocus?: FlatModel): void {
+    _handleBlur(lostFocus: FlatItem, gainedFocus?: FlatItem): void {
         if (!gainedFocus) {
             explorerChannel.trigger('annotationList:hideAnnotation', this, lostFocus);
         }
     }
 
-    makeItem(model: FlatModel): ItemSummaryBlock {
+    makeItem(model: FlatItem): ItemSummaryBlock {
         const block = new ItemSummaryBlock({ model }).on({
             hover: this.onSummaryBlockedHover,
         });
@@ -112,7 +112,7 @@ export default class AnnotationListView extends CollectionView<FlatModel, ItemSu
         return super.remove();
     }
 
-    scrollTo(annotation: FlatModel): this {
+    scrollTo(annotation: FlatItem): this {
         if (!annotation) return this;
         const scrollToBlock = this._byId[annotation.cid];
 
@@ -124,7 +124,7 @@ export default class AnnotationListView extends CollectionView<FlatModel, ItemSu
         return this;
     }
 
-    onSummaryBlockedHover(annotation: FlatModel): this {
+    onSummaryBlockedHover(annotation: FlatItem): this {
         this.trigger('hover', annotation);
         return this;
     }

@@ -1,13 +1,15 @@
 import { constant } from 'lodash';
 import { $ } from 'backbone';
 
-import { onlyIf } from '../test-util';
+import { onlyIf, startStore, endStore, event } from '../test-util';
 import mockItems from '../mock-data/mock-items';
 
 import ldChannel from '../jsonld/radio';
 import { item, dcterms } from '../jsonld/ns';
 import Node from '../jsonld/Node';
 import Graph from '../jsonld/graph';
+
+import FlatItem from './flat-item-model';
 import AnnotationEditView from './panel-annotation-edit-view';
 
 const text = 'This is a text.'
@@ -22,6 +24,9 @@ describe('AnnotationEditView', function() {
             endCharacterIndex: text.length,
         };
     });
+
+    beforeEach(startStore);
+    afterEach(endStore);
 
     afterEach(function() {
         this.textContainer.remove();
@@ -40,22 +45,33 @@ describe('AnnotationEditView', function() {
         })).not.toThrow();
     });
 
-    it('displays a delete button if the current user created the annotation', function() {
+    it('can be constructed with a pre-existing annotation', function() {
+        expect(() => new AnnotationEditView({
+            model: new FlatItem(new Node(mockItems[0])),
+        })).not.toThrow();
+    });
+
+    it('displays a delete button if the current user created the annotation', async function() {
         const items = new Graph(mockItems);
         const annotation = items.get(item('100'));
         const creator = annotation.get(dcterms.creator)[0] as Node;
         ldChannel.reply('current-user-uri', constant(creator.id));
-        const view = new AnnotationEditView({ model: annotation }).render();
+        const flat = new FlatItem(annotation);
+        const view = new AnnotationEditView({ model: flat });
+        await event(flat, 'change:text');
+        view.render();
         expect(view.$('.panel-footer button.is-danger').length).toBe(1);
         view.remove();
         ldChannel.stopReplying('current-user-uri');
     });
 
-    it('does not display a delete button otherwise', function() {
+    it('does not display a delete button otherwise', async function() {
         const items = new Graph(mockItems);
         const annotation = items.get(item('100'));
-        const creator = annotation.get(dcterms.creator)[0] as Node;
-        const view = new AnnotationEditView({ model: annotation }).render();
+        const flat = new FlatItem(annotation);
+        const view = new AnnotationEditView({ model: flat });
+        await event(flat, 'change:text');
+        view.render();
         expect(view.$('.panel-footer button.is-danger').length).toBe(0);
         view.remove();
     });

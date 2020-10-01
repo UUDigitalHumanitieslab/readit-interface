@@ -1,17 +1,17 @@
+import { extend, includes } from 'lodash';
 
-import { extend } from 'lodash';
-
+import { CompositeView } from '../core/view';
 import Node, { isNode } from '../jsonld/node';
-import ldChannel from '../jsonld/radio';
-import { owl, oa, dcterms, rdfs } from './../jsonld/ns';
+import { owl, dcterms, rdfs } from '../jsonld/ns';
+import FlatItem from '../annotation/flat-item-model';
+import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 import { getLabelText } from '../utilities/annotation/annotation-utilities';
 import LabelView from '../utilities/label-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
-import { isType, getLabelFromId } from './../utilities/utilities';
-import explorerChannel from '../explorer/radio';
-import { announceRoute } from '../explorer/utilities';
+import { getLabelFromId } from '../utilities/utilities';
+
 import ldItemTemplate from './ld-item-template';
-import BaseAnnotationView, { ViewOptions } from '../annotation/base-annotation-view';
 
 const announce = announceRoute('item', ['model', 'id']);
 
@@ -25,159 +25,124 @@ const excludedProperties = [
     owl.sameAs
 ];
 
-
-export default class LdItemView extends BaseAnnotationView {
+export default class LdItemView extends CompositeView<FlatItem> {
     lblView: LabelView;
-
-    /**
-     * The item displayed by the current view.
-     * Is either the model or the ontology instance associated with the model if its type is oa:Annotation.
-     */
-    currentItem: Node;
-
-    /**
-     * Store if the current model is an instance of oa:Annotation
-     */
-    modelIsAnnotation: boolean;
-
-    label: string;
-    properties: any;
-    annotations: any;
-    relatedItems: Node[];
-
-
     itemMetadataView: ItemMetadataView;
     annotationMetadataView: ItemMetadataView;
 
-    constructor(options?: ViewOptions) {
-        super(options);
-    }
+    label: string;
+    properties: any;
 
-    initialize(options: ViewOptions): this {
-        this.properties = new Object();
-        this.annotations = new Object();
-        this.relatedItems = [];
+    initialize() {
+        this.properties = {};
 
-        this.listenTo(this.model, 'change', this.processModel);
-        this.listenTo(this, 'textQuoteSelector', this.processTextQuoteSelector);
-        this.listenTo(this, 'body:ontologyClass', this.processOntologyClass);
-        this.listenTo(this, 'body:ontologyInstance', this.processOntologyInstance);
-        this.processModel(this.model);
         this.on('announceRoute', announce);
-        return this;
+        const model = this.model;
+        model.whenever('annotation', this.processAnnotation, this);
+        model.whenever('class', this.processClass, this);
+        model.whenever('item', this.processItem, this);
+        model.whenever('label', this.processLabel, this);
+        model.whenever('text', this.processText, this);
+        this.render().listenTo(model, 'change', this.render);
     }
 
-    processModel(model: Node): this {
-        if (model.has('@type')) {
-            this.modelIsAnnotation = isType(this.model, oa.Annotation);
-            if (this.modelIsAnnotation) {
-                super.processAnnotation(model);
-                this.annotationMetadataView = new ItemMetadataView({ model: this.model, title: 'Annotation metadata' });
-                this.annotationMetadataView.render();
-            }
-            else {
-                this.listenTo(this.model, 'change', this.processOntologyInstance);
-                this.processOntologyInstance(this.model);
-            }
+    processAnnotation(model: FlatItem, annotation: Node): void {
+        const itemMetaView = this.annotationMetadataView;
+        if (itemMetaView) itemMetaView.remove();
+        if (annotation) this.annotationMetadataView = new ItemMetadataView({
+            model: annotation,
+            title: 'Annotation metadata'
+        }).render();
+    }
+
+    processClass(model: FlatItem, cls: Node): void {
+        const label = this.lblView;
+        if (label) label.remove();
+        if (cls) this.lblView = new LabelView({
+            model: cls,
+            toolTipSetting: 'left'
+        });
+    }
+
+    processItem(model: FlatItem, item: Node): void {
+        const itemMetaView = this.itemMetadataView;
+        const previousItem = model.previous('item');
+        if (itemMetaView) itemMetaView.remove();
+        if (previousItem) this.stopListening(previousItem);
+        if (item) {
+            this.itemMetadataView = new ItemMetadataView({
+                model: item,
+            }).render();
+            this.listenTo(item, 'change', this.collectDetails)
+                .collectDetails(item);
+            this.listenTo(item, 'change', this.render);
         }
-
-        return this.render();
     }
 
-    processOntologyClass(body: Node): this {
-        this.createLabel(body);
-        return this.render();
-    }
-
-    processOntologyInstance(item: Node): this {
-        this.currentItem = item;
-
-        if (!this.lblView) {
-            this.createLabel(ldChannel.request('obtain', item.get('@type')[0] as string));
-        }
-
-        if (item.has('@type')) {
-            this.itemMetadataView = new ItemMetadataView({ model: this.currentItem });
-            this.itemMetadataView.render();
-            this.collectDetails();
-        }
-
-        return this.render();
-    }
-
-    processTextQuoteSelector(selector: Node): this {
-        this.label = getLabelText(selector);
-        return this.render();
-    }
-
-    createLabel(ontologyClass: Node): this {
-        if (ontologyClass) {
-            this.lblView = new LabelView({ model: ontologyClass, toolTipSetting: 'left' });
-            this.lblView.render();
-        }
-        return this;
-    }
-
-    render(): this {
-        if (this.lblView) this.lblView.$el.detach();
-        if (this.itemMetadataView) this.itemMetadataView.$el.detach();
-        if (this.annotationMetadataView) this.annotationMetadataView.$el.detach();
-        this.$el.html(this.template(this));
-        if (this.lblView) this.$('header aside').append(this.lblView.el);
-        if (this.itemMetadataView) this.$('.itemMetadataContainer').append(this.itemMetadataView.el);
-        if (this.annotationMetadataView) this.$('.annotationMetadataContainer').append(this.annotationMetadataView.el);
-        return this;
-    }
-
-    collectDetails(): this {
-        for (let attribute in this.currentItem.attributes) {
-            if (excludedProperties.includes(attribute)) {
-                continue;
-            }
-
+    collectDetails(item: Node): void {
+        for (let attribute in item.attributes) {
+            if (includes(excludedProperties, attribute)) continue;
             let attributeLabel = getLabelFromId(attribute);
-            let valueArray = this.currentItem.get(attribute);
+            let valueArray = item.get(attribute);
             valueArray.forEach(value => {
-                if (isNode(value)) {
-                    this.relatedItems.push(value as Node);
-                }
-                else {
+                if (!isNode(value)) {
                     this.properties[attributeLabel] = value;
                 }
             });
         }
+    }
 
+    processLabel(model: FlatItem, label: string): void {
+        if (!model.has('annotation')) this.label = label;
+    }
+
+    processText(model: FlatItem, text: string): void {
+        this.label = getLabelText(text);
+    }
+
+    renderContainer(): this {
+        this.$el.html(this.template(this));
         return this;
     }
 
     onRelItemsClicked(): void {
-        explorerChannel.trigger('lditem:showRelated', this, this.currentItem);
+        explorerChannel.trigger('lditem:showRelated', this, this.model.get('item'));
     }
 
     onAnnotationsClicked(): void {
-        explorerChannel.trigger('lditem:showAnnotations', this, this.currentItem);
+        explorerChannel.trigger('lditem:showAnnotations', this, this.model.get('item'));
     }
 
     onExtResourcesClicked(): void {
-        explorerChannel.trigger('lditem:showExternal', this, this.currentItem);
+        explorerChannel.trigger('lditem:showExternal', this, this.model.get('item'));
     }
 
     onEditClicked(): void {
-        if (this.modelIsAnnotation) {
+        if (this.model.has('annotation')) {
             explorerChannel.trigger('lditem:editAnnotation', this, this.model);
         } else {
-            explorerChannel.trigger('lditem:editItem', this, this.currentItem);
+            explorerChannel.trigger('lditem:editItem', this, this.model.get('item'));
         }
     }
 }
+
 extend(LdItemView.prototype, {
-    tagName: 'div',
     className: 'ld-item explorer-panel',
     template: ldItemTemplate,
+    subviews: [{
+        view: 'lblView',
+        selector: 'header aside',
+    }, {
+        view: 'itemMetadataView',
+        selector: '.itemMetadataContainer',
+    }, {
+        view: 'annotationMetadataView',
+        selector: '.annotationMetadataContainer',
+    }],
     events: {
         'click #btnRelItems': 'onRelItemsClicked',
         'click #btnAnnotations': 'onAnnotationsClicked',
         'click #btnExtResources': 'onExtResourcesClicked',
         'click .btn-edit': 'onEditClicked'
-    }
+    },
 });

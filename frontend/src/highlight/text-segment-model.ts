@@ -1,6 +1,6 @@
 import Model from '../core/model';
 import Collection from '../core/collection';
-import FlatAnno from '../annotation/flat-annotation-model';
+import FlatItem from '../annotation/flat-item-model';
 
 /**
  * Highlight segments may be split into two adjacent segments. The original
@@ -30,10 +30,10 @@ export type cloneDirection = 'front' | 'back';
  *    first.
  */
 export default class TextSegmentModel extends Model {
-    annotations: Collection<FlatAnno>;
+    annotations: Collection<FlatItem>;
 
     initialize(attributes?: any, options?: any) {
-        const list = new Collection<FlatAnno>(options && options.annotations);
+        const list = new Collection<FlatItem>(options && options.annotations);
         this.annotations = list;
         this.updateListLength(list);
         this.listenTo(list, 'update reset', this.updateListLength);

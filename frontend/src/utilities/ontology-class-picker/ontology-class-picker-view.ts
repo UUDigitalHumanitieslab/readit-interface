@@ -17,7 +17,6 @@ export default class OntologyClassPickerView extends CollectionView<
     OntologyClassPickerItemView
 > {
     selected: Node;
-    preselection: Node;
     label: any;
     externalCloseHandler: any;
 
@@ -26,9 +25,10 @@ export default class OntologyClassPickerView extends CollectionView<
     }
 
     initialize(options: ViewOptions): this {
-        this.initItems().initCollectionEvents();
+        const preselection = options.preselection;
+        this.initItems().initCollectionEvents().select(preselection);
+        this.selected = preselection;
         this.externalCloseHandler = $(document).click(() => this.hideDropdown());
-        this.preselection = options.preselection;
         return this;
     }
 
@@ -44,8 +44,9 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
-    afterRender(): this {
-        if (this.preselection) this.select(this.preselection);
+    placeItems(): this {
+        super.placeItems();
+        if (this.selected) this.setLabel(this.selected);
         return this;
     }
 
@@ -61,6 +62,8 @@ export default class OntologyClassPickerView extends CollectionView<
     }
 
     select(newValue: Node) {
+        if (newValue === this.selected) return;
+        this.selected = newValue;
         this.items.forEach((item) => {
             if (item.model === newValue) {
                 item.activate();
@@ -76,7 +79,7 @@ export default class OntologyClassPickerView extends CollectionView<
         if (this.label) this.label.remove();
         dropdownLabel.text('');
         this.label = new LabelView({ model: node });
-        this.label.render().$el.appendTo(dropdownLabel);
+        this.label.$el.appendTo(dropdownLabel);
         return this;
     }
 
@@ -97,13 +100,12 @@ export default class OntologyClassPickerView extends CollectionView<
     }
 
     onItemActivated(view: OntologyClassPickerItemView): this {
-        this.selected = view.model;
         this.setLabel(view.model);
         return this;
     }
 }
+
 extend(OntologyClassPickerView.prototype, {
-    tagName: 'div',
     className: 'ontology-class-picker',
     template: ontologyClassPickerTemplate,
     container: '.dropdown-content',

@@ -11,8 +11,10 @@ import {
     Collection as BCollection,
 } from 'backbone';
 
+import mixin from '../core/mixin';
 import Model from '../core/model';
 import Collection from '../core/collection';
+import ProxyMixin from '../utilities/collection-proxy';
 
 type AnyFunction = (...args: any[]) => any;
 // surprising inconsistency in @types/lodash
@@ -40,11 +42,14 @@ type FilterCriterion<M extends BModel> = ListIterator<M, boolean>;
     myFilteredProxy.on('add', ...);
 
  */
-export default class FilteredCollection<
+interface FilteredCollection<
+    M extends BModel = Model,
+    U extends BCollection<M> = Collection<M>
+> extends ProxyMixin<M, U> {}
+class FilteredCollection<
     M extends BModel = Model,
     U extends BCollection<M> = Collection<M>
 > extends Collection<M> {
-    underlying: U;
     criterion: FilterCriterion<M>;
     matches: AnyFunction;
 
@@ -75,7 +80,7 @@ export default class FilteredCollection<
             const wrappedIterator = iteratee(criterion as IterateeParam);
             matches = model => wrappedIterator(model.attributes);
         }
-        extend(this, {underlying, criterion, matches});
+        extend(this, {_underlying: underlying, criterion, matches});
     }
 
     /**
@@ -91,7 +96,7 @@ export default class FilteredCollection<
     }
 
     proxyReset(collection: U, options: any): void {
-        this.reset(this.underlying.filter(this.criterion), options);
+        this.reset(this._underlying.filter(this.criterion), options);
     }
 
     proxySort(collection: U, options: any): void {
@@ -107,3 +112,6 @@ export default class FilteredCollection<
         }
     }
 }
+mixin(FilteredCollection.prototype, ProxyMixin.prototype);
+
+export default FilteredCollection;
