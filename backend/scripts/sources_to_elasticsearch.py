@@ -58,7 +58,20 @@ def text_to_index():
         })
 
 
+def dequoted_property_value(graph, subject, predicate):
+    """
+    Get the singleton value for a given subject-property pair in a given graph.
+
+    The value is returned as a string with escaped single quotes. This
+    is a helper function for `title_author_to_index` below.
+    """
+    return str(graph.value(subject, predicate)).replace("'", "\\'")
+    # Python interpreter: \\' --> \'
+    # Elasticsearch interpreter: \' --> '
+
+
 def title_author_to_index():
+    sg = sources_graph()
     ind_client.put_mapping(index=settings.ES_ALIASNAME, body=
     {
         "properties": {
@@ -70,10 +83,10 @@ def title_author_to_index():
             }
         }
     })
-    subjects = set(sources_graph().subjects())
+    subjects = set(sg.subjects())
     for s in subjects:
-        author = list(sources_graph().triples((s, SCHEMA.creator, None)))[0][2]
-        title = (list(sources_graph().triples((s, SCHEMA.name, None))))[0][2]
+        author = dequoted_property_value(sg, s, SCHEMA.creator)
+        title = dequoted_property_value(sg, s, SCHEMA.name)
         serial = get_serial_from_subject(s)
         result = es.update_by_query(body={
             "query" : {
