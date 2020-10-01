@@ -56,6 +56,10 @@ export default class LabelView extends View<Node> {
         return typeof this.toolTipSetting === 'string';
     }
 
+    onClick() {
+        this.model.trigger('focus', this.model);
+    }
+
     setTooltipOrientation(): this {
         let orientation = `-${this.toolTipSetting}`;
         this.$el.addClass(`is-tooltip${orientation}`);
@@ -65,4 +69,7 @@ export default class LabelView extends View<Node> {
 extend(LabelView.prototype, {
     tagName: 'span',
     className: 'tag',
+    events: {
+        click: 'onClick'
+    }
 });

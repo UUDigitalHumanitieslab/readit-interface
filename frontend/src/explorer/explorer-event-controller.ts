@@ -181,6 +181,25 @@ export default class ExplorerEventController {
         // this.autoOpenRelationEditor(annotation.get('annotation'));
     }
 
+    showAnnotationsOfCategory(view: SuggestionsView, category: Node): void {
+        let self = this;
+        let items = new ItemGraph();
+        items.query({ predicate: oa.hasBody, object: category.id }).then(
+            function success() {
+                let resultView = new SearchResultListView({
+                    model: category,
+                    collection: new Graph(items.models),
+                    selectable: false,
+                });
+                self.explorerView.push(resultView);
+            },
+            function error(error) {
+                console.error(error);
+            }
+        );
+        this.explorerView.popUntil(view);
+    }
+
     autoOpenRelationEditor(annotation: Node): this {
         const newItems = (annotation.get(oa.hasBody) as Node[])
             .filter(n => !isOntologyClass(n));

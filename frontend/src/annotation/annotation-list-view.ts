@@ -55,8 +55,7 @@ export default class AnnotationListView extends CollectionView<FlatModel, ItemSu
     }
 
     _handleFocus(model: FlatModel): void {
-        this.scrollTo(model);
-        explorerChannel.trigger('annotationList:showAnnotation', this, model);
+        this.trigger('annotation:clicked', model);
     }
 
     _handleBlur(lostFocus: FlatModel, gainedFocus?: FlatModel): void {
