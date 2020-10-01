@@ -3,7 +3,6 @@ import { extend, sampleSize } from 'lodash';
 
 import { CompositeView } from './../core/view';
 import Graph from '../jsonld/graph';
-import ldChannel from '../jsonld/radio';
 import explorerChannel from '../explorer/radio';
 
 import suggestionsTemplate from './suggestions-template';
@@ -28,8 +27,9 @@ export default class SuggestionsView extends CompositeView{
         this.categorySuggestions = new Graph();
         this.getSuggestions();
         this.sourceList = new SourceListView({collection: this.sourceSuggestions});
-        this.listenTo(this.sourceList, 'source-list:click', this.openSource);
+        this.listenTo(this.sourceList, 'source:clicked', this.openSource);
         this.annotationList = new AnnotationListView({collection: this.annotationSuggestions});
+        this.listenTo(this.annotationList, 'annotation:clicked', this.openAnnotation);
         this.ontologyList = new OntologyListView({collection: this.categorySuggestions});
         this.render();
     }
@@ -39,12 +39,16 @@ export default class SuggestionsView extends CompositeView{
         this.sourceSuggestions.fetch({ url: '/source/suggestion', data: param });
         this.annotationSuggestions.fetch({ url: '/item/suggestion', data: param });
         const categories = new Graph();
-        categories.fetch({ url: '/ontology' });
+        await categories.fetch({ url: '/ontology' });
         this.categorySuggestions.reset(sampleSize(categories.models, nSuggestions));
     }
 
-    openSource(source: Node) {
+    openSource(source: Node): void {
         explorerChannel.trigger('source-list:click', this, source);
+    }
+
+    openAnnotation(annotation: Node): void {
+        explorerChannel.trigger('annotationList:showAnnotation', this, annotation);
     }
 
     renderContainer(): this {
@@ -57,11 +61,9 @@ export default class SuggestionsView extends CompositeView{
 extend(SuggestionsView.prototype, {
     template: suggestionsTemplate,
     className: 'suggestions explorer-panel',
-    tagName: 'div',
     subviews: [
-    { view: 'sourceList', selector: 'source-suggestions' },
-    { view: 'anntoationList', selector: 'annotation-suggestions' },
-    { view: 'categoryList', selector: 'category-suggestions' },
-    ],
-    container: '.selections'
+    { view: 'sourceList', selector: '.selections' },
+    { view: 'annotationList', selector: '.selections' },
+    { view: 'ontologyList', selector: '.selections' },
+    ]
 })

@@ -44,7 +44,7 @@ export default class AnnotationListView extends CollectionView<FlatModel, ItemSu
             add: this.insertItem,
             remove: this.removeItem,
             sort: this.placeItems,
-            reset: this.resetItems,
+            reset: this.resetItems
         }).on('announceRoute', announce);
     }
 
@@ -98,6 +98,12 @@ export default class AnnotationListView extends CollectionView<FlatModel, ItemSu
             super.placeItems();
             this.summaryList.show();
         }
+        return this;
+    }
+
+    resetItems(): this {
+        super.resetItems();
+        this._hideLoadingSpinner();
         return this;
     }
 

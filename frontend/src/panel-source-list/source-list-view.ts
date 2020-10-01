@@ -50,7 +50,7 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
     }
 
     onSourceClicked(sourceCid: string): this {
-        this.trigger('source-list:click', this.collection.get(sourceCid));
+        this.trigger('source:clicked', this.collection.get(sourceCid));
         return this;
     }
 
