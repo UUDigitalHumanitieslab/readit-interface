@@ -9,6 +9,21 @@ from rdf.ns import *
 from items.graph import graph as item_graph
 
 CIDOC = Namespace('http://www.cidoc-crm.org/cidoc-crm/')
+DELETE_CLASS_ANNOS_UPDATE = '''
+DELETE {
+    ?annotation ?a ?b.
+    ?target ?c ?d.
+    ?selector ?e ?f.
+} WHERE {
+    ?annotation a oa:Annotation;
+                oa:hasBody ?body;
+                oa:hasTarget ?target;
+                ?a ?b.
+    ?target oa:hasSelector ?selector;
+            ?c ?d.
+    ?selector ?e ?f.
+}
+'''
 
 
 def replace_object(graph, before, after):
@@ -145,3 +160,11 @@ class Migration(RDFMigration):
             conjunctive.remove((s, p, o, c))
 
         delete_predicate(conjunctive, before_rev)
+
+    @on_remove(READIT.reading_testimony)
+    def delete_READIT_reading_testimony(self, actual, conjunctive):
+        item_graph().update(
+            DELETE_CLASS_ANNOS_UPDATE,
+            initNs={'oa': OA},
+            initBindings={'body': READIT.reading_testimony},
+        )
