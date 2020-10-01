@@ -6,7 +6,7 @@ import searchResultSourceTemplate from './search-result-source-template';
 import { schema } from './../../jsonld/ns';
 import ldChannel from './../../jsonld/radio';
 import Node from '../../jsonld/node';
-import LabelView from '../../utilities/label-view';
+import LabelView from '../../ontology/label-view';
 import SnippetView from '../../utilities/snippet-view/snippet-view';
 import BaseAnnotationView from '../../annotation/base-annotation-view';
 

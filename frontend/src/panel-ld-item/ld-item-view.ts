@@ -5,7 +5,7 @@ import Node, { isNode } from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
 import { owl, oa, dcterms, rdfs } from './../jsonld/ns';
 import { getLabelText } from '../utilities/annotation/annotation-utilities';
-import LabelView from '../utilities/label-view';
+import LabelView from '../ontology/label-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import { isType, getLabelFromId } from './../utilities/utilities';
 import explorerChannel from '../explorer/radio';

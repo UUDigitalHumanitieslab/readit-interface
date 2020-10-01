@@ -5,7 +5,6 @@ import { CollectionView } from '../core/view';
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
 import { dcterms, vocab } from '../jsonld/ns';
-import explorerChannel from '../explorer/radio';
 import { announceRoute } from '../explorer/utilities';
 
 import sourceListTemplate from './source-list-template';
@@ -51,7 +50,7 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
     }
 
     onSourceClicked(sourceCid: string): this {
-        explorerChannel.trigger('source-list:click', this, this.collection.get(sourceCid));
+        this.trigger('source-list:click', this.collection.get(sourceCid));
         return this;
     }
 

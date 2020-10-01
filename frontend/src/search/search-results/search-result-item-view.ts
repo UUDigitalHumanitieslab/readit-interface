@@ -6,7 +6,7 @@ import ldChannel from './../../jsonld/radio';
 import searchResultItemTemplate from './search-result-item-template';
 
 import Node, { isNode } from '../../jsonld/node';
-import LabelView from '../../utilities/label-view';
+import LabelView from '../../ontology/label-view';
 import { getLabel, getLabelFromId } from '../../utilities/utilities';
 import { dcterms, owl, skos } from '../../jsonld/ns';
 

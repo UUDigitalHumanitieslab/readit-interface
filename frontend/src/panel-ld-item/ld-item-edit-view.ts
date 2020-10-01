@@ -5,7 +5,7 @@ import { CompositeView } from '../core/view';
 import ldChannel from '../jsonld/radio';
 import { skos } from '../jsonld/ns';
 import Node from '../jsonld/node';
-import Label from '../utilities/label-view';
+import Label from '../ontology/label-view';
 import { getLabel } from '../utilities/utilities';
 import editorTemplate from './ld-item-edit-template';
 
