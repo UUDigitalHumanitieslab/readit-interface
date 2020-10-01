@@ -154,7 +154,7 @@ class SourceSelection(RDFView):
 
 
 class SourceHighlights(RDFView):
-    ''' 
+    '''
     view to perform query highlighting in the full text source
     with Elasticsearch
     '''
@@ -195,14 +195,14 @@ class SourceHighlights(RDFView):
             }
         body = {
             "query": {
-                "term": {"id": serial} 
+                "term": {"id": serial}
             },
             "highlight": {
                 "highlight_query": {
                     "simple_query_string": {
                         "query": query
                     }
-                }, 
+                },
                 "fields" : fields_query,
                 "fragment_size": 50,
                 "number_of_fragments": 3,
@@ -211,7 +211,7 @@ class SourceHighlights(RDFView):
             }
         }
         return body
-    
+
     def construct_highlight_graph(self, highlights):
         hg = Graph()
         for key in highlights.keys():
@@ -222,7 +222,7 @@ class SourceHighlights(RDFView):
             else:
                 obj = SCHEMA.text
             subj = BNode()
-            hg.add((subj, RDF.type, OA.annotation))
+            hg.add((subj, RDF.type, OA.Annotation))
             hg.add((subj, OA.hasTarget, obj))
             for highlight in highlights.get(key):
                 if obj==SCHEMA.text:
@@ -256,7 +256,7 @@ class SourcesAPISingular(RDFResourceView):
         )
         serial = get_serial_from_subject(source_uri)
         es.delete_by_query(
-            index=settings.ES_ALIASNAME, 
+            index=settings.ES_ALIASNAME,
             body= { "query": {
                 "match": {
                     "id": serial
@@ -402,7 +402,7 @@ class AddSource(RDFResourceView):
         new_subject = URIRef(str(counter))
 
         # store the file in ES index
-        self.store(data['source'], get_serial_from_subject(new_subject), 
+        self.store(data['source'], get_serial_from_subject(new_subject),
         data['language'], data['author'], data['title'])
 
         # TODO: voor author en editor een instantie van SCHEMA.Person maken? Of iets uit CIDOC/ontologie?
