@@ -2,7 +2,7 @@
 Script for moving all source texts from file store to Elasticsearch.
 
 Usage: open an interactive Python shell with Django's `shell`
-command. When working on a server, pass the arguments `--settings 
+command. When working on a server, pass the arguments `--settings
 settings --pythonpath {directory/of/settings/file}`.
 Then:
 >>> from scripts.sources_to_elasticsearch import text_to_index
@@ -72,7 +72,7 @@ def title_author_to_index():
     })
     subjects = set(sources_graph().subjects())
     for s in subjects:
-        author = list(sources_graph().triples((s, SCHEMA.author, None)))[0][2]
+        author = list(sources_graph().triples((s, SCHEMA.creator, None)))[0][2]
         title = (list(sources_graph().triples((s, SCHEMA.name, None))))[0][2]
         serial = get_serial_from_subject(s)
         result = es.update_by_query(body={
