@@ -33,7 +33,6 @@ export default class ExplorerEventController {
 
     mapSourceAnnotationList: Map<SourceView, AnnotationListView> = new Map();
     mapAnnotationListSource: Map<AnnotationListView, SourceView> = new Map();
-    mapAnnotationEditSource: Map<AnnoEditView, SourceView> = new Map();
     mapAnnotationListAnnotationDetail: Map<AnnotationListView, LdItemView> = new Map();
 
     constructor(explorerView: ExplorerView) {
@@ -189,13 +188,7 @@ export default class ExplorerEventController {
     }
 
     closeEditAnnotation(editView: AnnoEditView): void {
-        let source = this.mapAnnotationEditSource.get(editView);
-        let annoList = this.mapSourceAnnotationList.get(source);
-        if (annoList) {
-            this.explorerView.removeOverlay(editView);
-        } else {
-            this.explorerView.pop();
-        }
+        this.explorerView.removeOverlay(editView);
     }
 
     openSourceAnnotation(listView: AnnotationListView, anno: FlatModel): void {
@@ -238,7 +231,6 @@ export default class ExplorerEventController {
             model: undefined,
             collection: sourceView.collection,
         });
-        this.mapAnnotationEditSource.set(annoEditView, sourceView);
 
         if (listView) {
             annoEditView['_listview'] = listView;
