@@ -6,17 +6,21 @@ import Model from './../core/model';
 import { CompositeView } from './../core/view';
 import { schema, vocab } from './../jsonld/ns';
 import Node from './../jsonld/node';
-import FlatModel from '../annotation/flat-annotation-model';
+import FlatItem from '../annotation/flat-item-model';
 import FlatCollection from '../annotation/flat-annotation-collection';
 import ToggleMixin from '../utilities/category-colors/category-toggle-mixin';
 import SegmentCollection from '../highlight/text-segment-collection';
 import { isType } from './../utilities/utilities';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
+import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 
 import HighlightableTextView from './highlightable-text-view';
 import SourceToolbarView from './toolbar/source-toolbar-view';
 import MetadataView from './source-metadata-view';
 import sourceTemplate from './source-template';
+
+const announce = announceRoute('source:bare', ['model', 'id']);
 
 export interface ViewOptions extends BaseOpt<Model> {
     // An instance of vocab('Source').
@@ -109,8 +113,15 @@ class SourcePanel extends CompositeView {
         );
         // Trigger #2.
         this.activate = once(this.activate);
-
         // Trigger #3. Might be sync or async.
+        this.model.when('@type', this.processText, this);
+
+        this.metaView.on('metadata:hide', this.toggleMetadata, this);
+        this.metaView.on('metadata:edit', this.editMetadata, this);
+        this.on('announceRoute', announce);
+    }
+
+    processText(): this {
         const text = this.model.get(schema.text);
         if (text && text.length) {
             this._createHtv(text[0] as string);
@@ -124,16 +135,12 @@ class SourcePanel extends CompositeView {
                 this.model.toJSON()[vocab('fullText')][0]['@id'] as string
             ).then(this._createHtv.bind(this));
         }
-        this.metaView.on('metadata:hide', this.toggleMetadata, this);
-        this.metaView.on('metadata:edit', this.editMetadata, this);
+        return this;
     }
 
-    validate() {
+    validate(): void {
         if (this.model == undefined) {
             throw RangeError("model cannot be undefined");
-        }
-        if (!isType(this.model, vocab('Source'))) {
-            throw new TypeError("model should be of type vocab('Source')");
         }
     }
 
@@ -189,8 +196,9 @@ class SourcePanel extends CompositeView {
     }
 
     renderContainer(): this {
+        const names = this.model.get(schema('name'));
         this.$el.html(this.template({
-            title: this.model.get(schema('name'))[0]
+            title: names ? names[0] : ''
         }));
         return this;
     }
@@ -208,7 +216,7 @@ class SourcePanel extends CompositeView {
      * Pass events from HighlightableTextView
      */
     onTextSelected(range: Range, posDetails: AnnotationPositionDetails): void {
-        this.trigger('sourceview:textSelected', this, this.model, range, posDetails);
+        explorerChannel.trigger('sourceview:textSelected', this, this.model, range, posDetails);
     }
 
     /**
@@ -217,11 +225,11 @@ class SourcePanel extends CompositeView {
     toggleHighlights(): this {
         if (this.isShowingHighlights) {
             this.hideHighlights();
-            this.trigger('sourceview:hideAnnotations', this);
+            explorerChannel.trigger('sourceview:hideAnnotations', this);
         }
         else {
             this.showHighlights();
-            this.trigger('sourceview:showAnnotations', this, true);
+            explorerChannel.trigger('sourceview:showAnnotations', this, true);
         }
         this.toggleToolbarItemSelected('annotations');
         this.isShowingHighlights = !this.isShowingHighlights;
@@ -270,7 +278,7 @@ class SourcePanel extends CompositeView {
         return this;
     }
 
-    scrollTo(annotation: FlatModel): void {
+    scrollTo(annotation: FlatItem): void {
         this.htv.scrollTo(annotation);
     }
 

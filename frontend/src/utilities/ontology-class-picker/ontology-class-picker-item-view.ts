@@ -1,26 +1,18 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend, sortBy } from 'lodash';
-import View from '../../core/view';
 
+import { CompositeView } from '../../core/view';
 import Node from '../../jsonld/node';
-import  LabelView from './../label-view';
+import LabelView from './../label-view';
 
-export interface ViewOptions extends BaseOpt<Node> {
-    model: Node;
-}
-
-export default class OntologyClassPickerItemView extends View<Node> {
+export default class OntologyClassPickerItemView extends CompositeView<Node> {
     labelView: LabelView;
 
-    initialize(options: ViewOptions): this {
-        this.labelView = new LabelView({ model: options.model, toolTipSetting: false });
-        return this;
-    }
-
-    render(): this {
-        this.labelView.$el.detach();
-        this.labelView.render().$el.appendTo(this.$el);
-        return this;
+    initialize(): this {
+        this.labelView = new LabelView({
+            model: this.model,
+            toolTipSetting: false
+        });
+        return this.render();
     }
 
     activate(): this {
@@ -43,6 +35,7 @@ export default class OntologyClassPickerItemView extends View<Node> {
 extend(OntologyClassPickerItemView.prototype, {
     tagName: 'a',
     className: 'dropdown-item',
+    subviews: ['labelView'],
     events: {
         'mousedown': 'onClick',
     }

@@ -1,16 +1,21 @@
-import { extend } from 'lodash';
+import { extend, after, bind } from 'lodash';
 import * as a$ from 'async';
 
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
 import { owl } from '../jsonld/ns';
-import Graph from '../jsonld/graph';
+import ldChannel from '../jsonld/radio';
 import Node from '../jsonld/node';
+import Graph from '../jsonld/graph';
 import ItemGraph from '../utilities/item-graph';
+import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 import RelationEditor from './relation-editor-view';
 import { applicablePredicates, relationsFromModel } from './relation-utilities';
 import relatedItemsTemplate from './related-items-edit-template';
+
+const announce = announceRoute('item:related:edit', ['model', 'id']);
 
 // Selector of the .field that contains the add button.
 const addField = '.rit-add-relation';
@@ -29,10 +34,20 @@ class RelatedItemsEditor extends CollectionView<Model, RelationEditor> {
     changes: Collection;
 
     initialize(): void {
+        // Start collecting relations only after both the full ontology has been
+        // fetched and the type of the model is known. Otherwise,
+        // `this.predicates` will remain empty.
+        const kickoff = after(2, bind(this.initAsync, this));
+        ldChannel.request('ontology:promise').then(kickoff);
+        this.model.when('@type', kickoff);
+        this.on('announceRoute', announce);
+        this.changes = new Collection();
+    }
+
+    initAsync(): void {
         this.predicates = applicablePredicates(this.model);
         this.collection = relationsFromModel(this.model, this.predicates);
         this.initItems().render().initCollectionEvents();
-        this.changes = new Collection();
     }
 
     makeItem(model: Model): RelationEditor {
@@ -98,7 +113,8 @@ class RelatedItemsEditor extends CollectionView<Model, RelationEditor> {
     }
 
     close(): this {
-        return this.trigger('relItems:edit-close', this);
+        explorerChannel.trigger('relItems:edit-close', this);
+        return this;
     }
 
     addRelation(): this {

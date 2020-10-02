@@ -35,7 +35,7 @@
     </section>
 
     <section class="item-sections">
-        {{#if currentItem}}
+        {{#if model.attributes.item}}
         <article class="item-section has-mt-10">
             <div class="item-section-header" id="btnRelItems">
                 <p>Related items</p>
@@ -45,7 +45,6 @@
                 </span>
             </div>
         </article>
-        {{#if annotations}}
         <article class="item-section has-mt-10">
             <div class="item-section-header" id="btnAnnotations">
                 <p>Annotations</p>
@@ -55,7 +54,6 @@
                 </span>
             </div>
         </article>
-        {{/if}}
         <article class="item-section has-mt-10">
             <div class="item-section-header" id="btnExtResources">
                 <p>External resources</p>
@@ -68,7 +66,9 @@
         {{/if}}
     </section>
 </div>
+{{#if model.attributes.annotation}}
 <div class="panel-footer buttons is-right">
     <button type=button class="button btn-edit">Edit</button>
 </div>
+{{/if}}
 

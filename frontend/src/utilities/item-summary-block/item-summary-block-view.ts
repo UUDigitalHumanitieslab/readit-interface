@@ -6,12 +6,12 @@ import View from '../../core/view';
 import { oa } from '../../jsonld/ns';
 import Node from '../../jsonld/node';
 import ldChannel from '../../jsonld/radio';
-import FlatModel from '../../annotation/flat-annotation-model';
+import FlatItem from '../../annotation/flat-item-model';
 import { getCssClassName, getLabel } from '../utilities';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
 
-// Internal function to wrap an item as a surrogate FlatAnnotation so we can
+// Internal function to wrap an item as a surrogate FlatItem so we can
 // assume the same attributes when rendering.
 function wrapItem(item: Node): Model {
     const cls = ldChannel.request('obtain', item.get('@type')[0] as string);
@@ -28,7 +28,7 @@ export interface ViewOptions extends BViewOptions {
     // The model is required. It should be either an annotation that has an item
     // body or just a bare item. In the first case, it should preferably be a
     // flattened annotation, but it also works with a bare Node.
-    model: FlatModel | Node;
+    model: FlatItem | Node;
 }
 
 /**
@@ -42,7 +42,7 @@ export default class ItemSummaryBlockView extends View {
     }
 
     initialize(options: ViewOptions): this {
-        if (this.model instanceof FlatModel) {
+        if (this.model instanceof FlatItem) {
             this._renderWhenComplete();
         } else {
             if (this.model.has('@type')) {
@@ -71,7 +71,7 @@ export default class ItemSummaryBlockView extends View {
     _wrapModel(): void {
         const type = this.model.get('@type') as string[];
         if (includes(type, oa.Annotation)) {
-            this.model = new FlatModel(this.model as Node);
+            this.model = new FlatItem(this.model as Node);
             this._renderWhenComplete();
         } else {
             this.model = wrapItem(this.model as Node);

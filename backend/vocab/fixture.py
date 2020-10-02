@@ -46,6 +46,8 @@ def triples():
         ( my.fullText,         hasDomain,     my.Source ),
         ( my.fullText,         hasRange,      SCHEMA.Text ),
 
+        ( my.relevance,        hasRange,      XSD.float ),
+
         ( my.self,             is_a,          AS.Application ),
         ( my.self,             FOAF.homepage, APP_URI ),
     ]

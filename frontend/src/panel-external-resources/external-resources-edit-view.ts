@@ -6,9 +6,13 @@ import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
 import { rdfs, owl } from '../jsonld/ns';
 import ItemGraph from '../utilities/item-graph';
+import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 
 import externalResourcesEditTemplate from './external-resources-edit-template';
 import ExternalResourceEditItem from './external-resource-edit-item-view';
+
+const announce = announceRoute('item:external:edit', ['model', 'id']);
 
 const commitCallback = a$.asyncify(n => n.save());
 // Selector of the .field that contains the add button.
@@ -32,17 +36,19 @@ class ExternalResourcesEditView extends CollectionView {
     initialize(): void {
         this.collection = new Collection();
         this.changes = new Collection();
-        externalAttributes.forEach( attribute => {
-            const urls = this.model.get(attribute) as Model[];
-            if (urls === undefined) {
-                return;
-            }
-            else urls.forEach( url => {
-                this.collection.add({predicate: attribute, object: url})
-            })
-        });
+        this.model.when('@type', this.collectExternal, this);
         this.initItems().render().initCollectionEvents();
+        this.on('announceRoute', announce);
         this.changes = new Collection();
+    }
+
+    collectExternal(model: Model): void {
+        externalAttributes.forEach(predicate => {
+            const objects = this.model.get(predicate) as Model[];
+            objects && objects.forEach(object => {
+                this.collection.add({predicate, object})
+            });
+        });
     }
 
     renderContainer(): this {
@@ -124,7 +130,8 @@ class ExternalResourcesEditView extends CollectionView {
     }
 
     close(): this {
-        return this.trigger('externalItems:edit-close', this);
+        explorerChannel.trigger('externalItems:edit-close', this);
+        return this;
     }
 
     registerSet(attributes): void {

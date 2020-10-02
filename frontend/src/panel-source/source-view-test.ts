@@ -1,4 +1,5 @@
 import { $ } from 'backbone';
+import { pick } from 'lodash';
 
 import { startStore, endStore } from '../test-util';
 import mockSources from '../mock-data/mock-sources';
@@ -27,7 +28,6 @@ describe('SourceView', function() {
         });
         expect(view.isEditable).toBe(false);
         expect(view.isShowingHighlights).toBe(false);
-        expect(view.htv).toBeDefined();
         expect(view.toolbar).toBeDefined();
         expect(view._triggerHighlighting).toBeDefined();
         view.remove();
@@ -48,32 +48,44 @@ describe('SourceView', function() {
         expect(view.htv).not.toBeDefined();
 
         // First required trigger: text is available.
-        jasmine.Ajax.requests.mostRecent().respondWith({
-            status: 200,
-            contentType: 'text/plain',
-            responseText: text,
-        });
-        // XHR response is handled async, but since the response itself was
-        // produced sync, the callback is already queued at this point. Just
-        // a small delay (5 ms below) is enough to ensure that the next
-        // block of code runs after it.
         setTimeout(() => {
+            jasmine.Ajax.requests.mostRecent().respondWith({
+                status: 200,
+                contentType: 'text/plain',
+                responseText: text,
+            });
 
-            // The presence of the highlightable text view by itself only
-            // depends on the text and not on the other triggers.
-            expect(view.htv).toBeDefined();
-            expect(view.htv.highlightLayer).toBeDefined();
+            // XHR response is handled async, but since the response itself was
+            // produced sync, the callback is already queued at this point. Just
+            // a small delay (5 ms below) is enough to ensure that the next
+            // block of code runs after it.
+            setTimeout(() => {
 
-            // Second required trigger: all annotations are complete.
-            this.flat.trigger('complete:all');
-            expect(view.htv.highlightLayer.$el.children().length).toBe(0);
+                // The presence of the highlightable text view by itself only
+                // depends on the text and not on the other triggers.
+                expect(view.htv).toBeDefined();
+                expect(view.htv.highlightLayer).toBeDefined();
 
-            // Third requried trigger: view is attached to the `document`.
-            $('body').append(view.el);
-            view.activate();
-            expect(view.htv.highlightLayer.$el.children().length).toBe(1);
-            view.remove();
-            done();
-        }, 5);
+                // Second required trigger: all annotations are complete.
+                this.flat.trigger('complete:all');
+                expect(view.htv.highlightLayer.$el.children().length).toBe(0);
+
+                // Third requried trigger: view is attached to the `document`.
+                $('body').append(view.el);
+                view.activate();
+                expect(view.htv.highlightLayer.$el.children().length).toBe(1);
+                view.remove();
+                done();
+            }, 5);
+        });
+    });
+
+    it('can handle incomplete information', function() {
+        const incomplete = pick(mockSources[0], '@id');
+        this.source.clear().set(incomplete);
+        expect(() => new SourcePanel({
+            model: this.source,
+            collection: this.flat,
+        })).not.toThrow();
     });
 });

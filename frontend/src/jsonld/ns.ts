@@ -463,7 +463,7 @@ export const schemaTerms = [
     // 'name', // causes runtime error, use schema('name') instead
     'Organization',
     'Person',
-    'text',
+    'text'
 ] as const;
 
 export const schema = Vocabulary(schemaPrefix, schemaTerms);
@@ -480,6 +480,7 @@ export const iso6391Terms = [
     'en',
     'de',
     'fr',
+    'nl'
 ] as const;
 
 export const iso6391 = Vocabulary(iso6391Prefix, iso6391Terms);
@@ -499,6 +500,7 @@ export const READIT = nsRoot;
 export const vocabPrefix = READIT + 'vocab#';
 
 export const vocabTerms = [
+    'relevance',
 ] as const;
 
 export const vocab = Vocabulary(vocabPrefix, vocabTerms);

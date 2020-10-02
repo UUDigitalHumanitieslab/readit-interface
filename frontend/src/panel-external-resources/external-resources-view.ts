@@ -3,6 +3,8 @@ import { extend } from 'lodash';
 import View from '../core/view';
 import Node from '../jsonld/node';
 import ldChannel from '../jsonld/radio';
+import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 
 import externalResourcesTemplate from './external-resources-template';
 
@@ -14,6 +16,8 @@ const externalAttributes = [
     rdfs.seeAlso,
     owl.sameAs
 ];
+
+const announce = announceRoute('item:external', ['model', 'id']);
 
 export interface ViewOptions extends BaseOpt<Node> {
     model: Node;
@@ -34,6 +38,7 @@ export default class ExternalResourcesView extends View<Node> {
     initialize(): this {
         this.displayResources();
         this.model.on('change', this.displayResources, this);
+        this.on('announceRoute', announce);
         return this;
     }
 
@@ -57,7 +62,7 @@ export default class ExternalResourcesView extends View<Node> {
     }
 
     onEditButtonClicked(event: JQuery.TriggeredEvent): void {
-        this.trigger('externalItems:edit', this);
+        explorerChannel.trigger('externalItems:edit', this);
     }
 }
 extend(ExternalResourcesView.prototype, {

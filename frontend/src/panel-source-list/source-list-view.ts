@@ -1,70 +1,49 @@
-import { ViewOptions as BaseOpt, Model } from 'backbone';
 import { extend } from 'lodash';
-import { CollectionView } from '../core/view';
 
+import Model from '../core/model';
+import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
+import Collection from '../core/collection';
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
-import { schema, iso6391, UNKNOWN } from '../jsonld/ns';
+import { dcterms, vocab } from '../jsonld/ns';
+import explorerChannel from '../explorer/radio';
+import { announceRoute } from '../explorer/utilities';
 
 import sourceListTemplate from './source-list-template';
-import SourceLanguageView from './source-language-view';
-import { cpus } from 'os';
-import Collection from '../core/collection';
+import SourceSummaryView from './source-summary-view';
 
-const languages = ["en", "fr", "de", "other"];
+const announce = announceRoute('explore');
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt {
     collection: Graph;
+    model?: Model;
 }
 
-export default class SourceListView extends CollectionView<Model, SourceLanguageView> {
-    unorderedSources: Graph;
+export default class SourceListView extends CollectionView<Model, SourceSummaryView> {
+    noResults: boolean;
 
     constructor(options?: ViewOptions) {
         super(options);
     }
 
     initialize(): this {
-        this.processCollection(this.collection as Graph, languages);
-        this.initItems().initCollectionEvents();
-        return this;
-    }
-
-    processCollection(collection: Graph, languages: string[]): this {
-        this.unorderedSources = collection;
-        this.collection = new Graph(languages.map(lang => {
-            let sources = [];
-            if (collection.models.length > 1) {
-                sources = collection.filter( (item: Node) => {
-                    let inLanguage = item.get(schema.inLanguage)[0] as Node;
-                    return inLanguage.id == this.vocabularizeLanguage(lang);
-                })
-            }
-            return new Model({
-                language: lang,
-                sources: sources
-            })
-        }));
-        return this;
-    }
-
-    vocabularizeLanguage(inputLanguage: string): string {
-        if (inputLanguage == "other") {
-            return UNKNOWN;
+        if (this.collection.length) {
+            this.collection.comparator = this.sortByRelevance;
+            this.collection.sort();
         }
-        return iso6391(inputLanguage);
+        else this.collection.comparator = this.sortByDate;
+        this.noResults = this.model && !this.collection.length;
+        this.initItems().render().initCollectionEvents();
+        this.on('announceRoute', announce);
+        return this;
     }
 
-    makeItem(model: Model): SourceLanguageView {
-        let view = new SourceLanguageView({model});
+    makeItem(model: Node): SourceSummaryView {
+        const query = this.model? this.model.get('query') : undefined;
+        const fields = this.model? this.model.get('fields') : undefined;
+        let view = new SourceSummaryView({model, query, fields});
         this.listenTo(view, 'click', this.onSourceClicked);
         return view;
-    }
-
-    resetItems(): this {
-        this.processCollection(this.collection as Graph, languages);
-        this.clearItems().initItems().placeItems().render();
-        return this;
     }
 
     renderContainer(): this {
@@ -73,8 +52,17 @@ export default class SourceListView extends CollectionView<Model, SourceLanguage
     }
 
     onSourceClicked(sourceCid: string): this {
-        this.trigger('source-list:click', this, this.unorderedSources.get(sourceCid));
+        explorerChannel.trigger('source-list:click', this, this.collection.get(sourceCid));
         return this;
+    }
+
+    sortByRelevance(model): number {
+        const score = model.get(vocab['relevance'])[0].slice(0);
+        return -parseFloat(score);
+    }
+
+    sortByDate(model): number {
+        return -model.get(dcterms.created)[0].getTime();
     }
 }
 extend(SourceListView.prototype, {
@@ -82,6 +70,7 @@ extend(SourceListView.prototype, {
     className: 'source-list explorer-panel',
     template: sourceListTemplate,
     events: {
+
     },
-    container: '.sources-per-language'
+    container: '.source-summary'
 });

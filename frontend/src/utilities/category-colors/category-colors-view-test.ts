@@ -42,13 +42,13 @@ describe('CategoryColorsView', function() {
             color: 'hotpink'
         };
 
-        expect(this.view.categoryColors[0]).toEqual(expected);
+        expect(this.view.collectColors()[0]).toEqual(expected);
     });
 
     it('renders a HTML style tag with some CSS in it', function() {
-        expect(this.view.render().$el.prop("tagName")).toEqual('STYLE');
+        expect(this.view.$el.prop("tagName")).toEqual('STYLE');
 
-        let html = this.view.render().$el.html();
+        let html = this.view.$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
 
         expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}');
@@ -66,7 +66,7 @@ describe('CategoryColorsView', function() {
         let graph = new Graph([node1, node2]);
         let view = new CategoryColorsView({collection: graph});
 
-        let html = view.render().$el.html();
+        let html = view.$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
 
         expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}');
@@ -84,10 +84,23 @@ describe('CategoryColorsView', function() {
         let graph = new Graph([node1, node2]);
         let view = new CategoryColorsView({collection: graph});
 
-        let html = view.render().$el.html();
+        let html = view.$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
 
         expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}.is-readit-test2{background-color:aliceblue!important;}.hide-is-readit-test2.is-readit-test2,.hide-rit-any:not(.unhide-is-readit-test2).is-readit-test2{display:none!important;}');
+    });
+
+    it('is self-rendering and self-updating', function() {
+        const originalHTML = this.view.$el.html();
+        expect(originalHTML.length).toBeGreaterThan(0);
+
+        const newClass = getDefaultAttributes();
+        newClass['@id'] = '2';
+        newClass[skos.prefLabel][0]['@value'] = 'giraffe';
+        this.view.collection.add(newClass);
+        const newHTML = this.view.$el.html();
+        expect(newHTML.length).toBe(originalHTML.length * 2);
+        expect(newHTML).toContain(originalHTML);
     });
 
     function replaceNewLinesAndWhitespace(text: string) {

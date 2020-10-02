@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'sources',
     'register',
     'feedback',
+    'sparql',
 ]
 
 # This is required by rest-auth registration
@@ -155,7 +156,7 @@ REST_AUTH_SERIALIZERS = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
+        'readit.authentication.CsrfExemptSessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ]
 }
@@ -182,7 +183,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = []
 
 INDEX_FILE_PATH = 'index.html'
-TESTRUNNER_FILE_PATH = '' # override in order to enable an external test runner
+TESTRUNNER_FILE_PATH = ''  # override in order to enable an external test runner
 
 
 # Uploads

@@ -13,7 +13,7 @@ import mockOntology from '../mock-data/mock-ontology';
 import mockItems from '../mock-data/mock-items';
 import Collection from '../core/collection';
 import Graph from '../jsonld/graph';
-import FlatAnnotation from '../annotation/flat-annotation-model';
+import FlatItem from '../annotation/flat-item-model';
 import FlatCollection from '../annotation/flat-annotation-collection';
 import Segment, { cloneDirection } from './text-segment-model';
 

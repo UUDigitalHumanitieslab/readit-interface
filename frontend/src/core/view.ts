@@ -1,5 +1,5 @@
 import { bind, assign } from 'lodash'
-import { View as BView } from 'backbone';
+import { View as BView, ViewOptions as BViewOptions } from 'backbone';
 import {
     CompositeView as BCompositeView,
     CollectionView as BCollectionView,
@@ -8,6 +8,11 @@ import { TemplateDelegate } from 'handlebars';
 
 import Model from './model';
 import Collection from './collection';
+
+export interface ViewOptions extends BViewOptions<Model> {
+    model?: Model;
+    collection?: Collection;
+}
 
 /**
  * This is the base view class that all views in the application
@@ -36,6 +41,16 @@ export default class View<M extends Model = Model> extends BView<M> {
         if (this.cid == "view1") return this; // ignore internalLinkEnabler
         console.log(this);
         if (this.extraLoggingInfo) console.log(this.extraLoggingInfo);
+        return this;
+    }
+
+    /**
+     * All views have an `activate` method which can be called to signal to the
+     * view that it was attached to the document. By default, it is a no-op;
+     * views that actually depend on DOM insertion, for example for size or
+     * position calculations, may override it to do something meaningful.
+     */
+    activate(): this {
         return this;
     }
 }
