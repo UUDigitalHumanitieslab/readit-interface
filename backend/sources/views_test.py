@@ -32,13 +32,12 @@ def test_delete_source(auth_client, credentials, sparqlstore):
 
 
 def test_highlight_body(es_client, es_index_name):
-    es_client.create(index='test', body={
-        'source': 42,
+    es_client.create(es_index_name, id=42, body={
         'title': 'The answer to everything',
         'author': 'Douglas Adams',
         'text': 'The question is: what is the question?'
     })
-    hl = SourceHighlights
+    hl = SourceHighlights()
     serial = 42
     query = 'answer'
     fields = 'all'
