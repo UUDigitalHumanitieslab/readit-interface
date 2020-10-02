@@ -243,10 +243,6 @@ export default class ExplorerEventController {
         }
         return annoEditView;
     }
-
-    notImplemented() {
-        alert('Sorry, not implemented yet!');
-    }
 }
 
 /**

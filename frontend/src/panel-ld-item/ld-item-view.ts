@@ -118,11 +118,7 @@ export default class LdItemView extends CompositeView<FlatItem> {
     }
 
     onEditClicked(): void {
-        if (this.model.has('annotation')) {
-            explorerChannel.trigger('lditem:editAnnotation', this, this.model);
-        } else {
-            explorerChannel.trigger('lditem:editItem', this, this.model.get('item'));
-        }
+        explorerChannel.trigger('lditem:editAnnotation', this, this.model);
     }
 }
 

@@ -53,7 +53,6 @@ channel.on({
     'lditem:showAnnotations': controller.listItemAnnotations,
     'lditem:showExternal': controller.listExternal,
     'lditem:editAnnotation': controller.editAnnotation,
-    'lditem:editItem': controller.notImplemented,
     'relItems:itemClick': controller.openRelated,
     'relItems:edit': controller.editRelated,
     'externalItems:edit': controller.editExternal,
