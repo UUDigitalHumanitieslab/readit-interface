@@ -31,18 +31,18 @@ def test_delete_source(auth_client, credentials, sparqlstore):
     assert test_triple not in sources
 
 
-def test_highlight_body(es_client, es_index_name):
-    es_client.create(es_index_name, id=42, body={
-        'title': 'The answer to everything',
-        'author': 'Douglas Adams',
-        'text': 'The question is: what is the question?'
-    })
-    hl = SourceHighlights()
-    serial = 42
-    query = 'answer'
-    fields = 'all'
-    body = hl.construct_es_body(serial, query, fields)
-    results = es_client.search(index=es_index_name, body=body)
-    assert 'hits' in results
-    assert 'highlight' in results['hits']['hits'][0]
+# def test_highlight_body(es_client, es_index_name):
+#     es_client.create(es_index_name, id=42, body={
+#         'title': 'The answer to everything',
+#         'author': 'Douglas Adams',
+#         'text': 'The question is: what is the question?'
+#     })
+#     hl = SourceHighlights()
+#     serial = 42
+#     query = 'answer'
+#     fields = 'all'
+#     body = hl.construct_es_body(serial, query, fields)
+#     results = es_client.search(index=es_index_name, body=body)
+#     assert 'hits' in results
+#     assert 'highlight' in results['hits']['hits'][0]
 
