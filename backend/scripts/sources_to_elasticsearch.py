@@ -88,15 +88,19 @@ def title_author_to_index():
         author = dequoted_property_value(sg, s, SCHEMA.creator)
         title = dequoted_property_value(sg, s, SCHEMA.name)
         serial = get_serial_from_subject(s)
-        result = es.update_by_query(body={
+        document = es.search(body={
             "query" : {
                 "term" : { "id" : serial }
-            },
-            "script": {
-                "lang": "painless",
-                "source": "ctx._source.author = '{}'; ctx._source.title = '{}'".format(author, title)
+            }}, index=settings.ES_ALIASNAME)
+        if document['hits']['total']['value']==0:
+            print("serial {} not found in the index".format(serial))
+        source_id = document['hits']['hits']['_id']
+        es.update(index=settings.ES_ALIASNAME, id=source_id, body={
+            "doc": {
+                "author": author,
+                "title": title
             }
-        }, index=settings.ES_ALIASNAME)
+        })
 
 
 def resolve_language(input_language):
