@@ -58,18 +58,6 @@ def text_to_index():
         })
 
 
-def dequoted_property_value(graph, subject, predicate):
-    """
-    Get the singleton value for a given subject-property pair in a given graph.
-
-    The value is returned as a string with escaped single quotes. This
-    is a helper function for `title_author_to_index` below.
-    """
-    return str(graph.value(subject, predicate)).replace("'", "\\'")
-    # Python interpreter: \\' --> \'
-    # Elasticsearch interpreter: \' --> '
-
-
 def title_author_to_index():
     sg = sources_graph()
     ind_client.put_mapping(index=settings.ES_ALIASNAME, body=
@@ -85,18 +73,22 @@ def title_author_to_index():
     })
     subjects = set(sg.subjects())
     for s in subjects:
-        author = dequoted_property_value(sg, s, SCHEMA.creator)
-        title = dequoted_property_value(sg, s, SCHEMA.name)
+        author = sg.value(s, SCHEMA.creator)
+        title = sg.value(s, SCHEMA.name)
         serial = get_serial_from_subject(s)
-        result = es.update_by_query(body={
+        document = es.search(body={
             "query" : {
                 "term" : { "id" : serial }
-            },
-            "script": {
-                "lang": "painless",
-                "source": "ctx._source.author = '{}'; ctx._source.title = '{}'".format(author, title)
+            }}, index=settings.ES_ALIASNAME)
+        if document['hits']['total']['value']==0:
+            print("serial {} not found in the index".format(serial))
+        source_id = document['hits']['hits'][0]['_id']
+        es.update(index=settings.ES_ALIASNAME, id=source_id, body={
+            "doc": {
+                "author": author,
+                "title": title
             }
-        }, index=settings.ES_ALIASNAME)
+        })
 
 
 def resolve_language(input_language):
