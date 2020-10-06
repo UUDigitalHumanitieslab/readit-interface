@@ -189,20 +189,13 @@ export default class ExplorerEventController {
     showAnnotationsOfCategory(view: SuggestionsView, category: Node): void {
         let self = this;
         let items = new ItemGraph();
-        items.query({ predicate: oa.hasBody, object: category.id }).then(
-            function success() {
-                let resultView = new SearchResultListView({
-                    model: category,
-                    collection: new Graph(items.models),
-                    selectable: false,
-                });
-                self.explorerView.push(resultView);
-            },
-            function error(error) {
-                console.error(error);
-            }
-        );
-        this.explorerView.popUntil(view);
+        items.query({ predicate: oa.hasBody, object: category.id }).catch(console.error);
+        const resultView = new SearchResultListView({
+            model: category,
+            collection: items,
+            selectable: false,
+        });
+        this.explorerView.popUntil(view).push(resultView);
     }
 
     autoOpenRelationEditor(annotation: Node): this {
@@ -221,7 +214,7 @@ export default class ExplorerEventController {
         this.explorerView.removeOverlay(editView);
     }
 
-    openSourceAnnotation(listView: AnnotationListView, anno: FlatItem): void {
+    openSourceAnnotation(listView: AnnotationListPanel, anno: FlatItem): void {
         let newDetailView = new LdItemView({ model: anno });
         this.mapAnnotationListAnnotationDetail.set(listView, newDetailView);
         this.explorerView.popUntil(listView).push(newDetailView);

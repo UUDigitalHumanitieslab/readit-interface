@@ -54,7 +54,7 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
         this.placeItems();
     }
 
-    _handleFocus(model: FlatModel): void {
+    _handleFocus(model: FlatItem): void {
         this.trigger('annotation:clicked', model);
     }
 

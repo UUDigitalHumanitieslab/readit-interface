@@ -1,5 +1,5 @@
 import explorerChannel from '../explorer/radio';
-import FlatModel from './flat-annotation-model';
+import FlatItem from './flat-item-model';
 
 import AnnotationListView from './annotation-list-view';
 
@@ -14,7 +14,7 @@ export default class AnnotationListPanel extends AnnotationListView {
         return this;
     }
 
-    _handleFocus(model: FlatModel): void {
+    _handleFocus(model: FlatItem): void {
         this.scrollTo(model);
         explorerChannel.trigger('annotationList:showAnnotation', this, model);
     }
