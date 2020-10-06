@@ -11,6 +11,7 @@ import suggestionsTemplate from './suggestions-template';
 import SourceListView from '../panel-source-list/source-list-view';
 import AnnotationListView from '../annotation/annotation-list-view';
 import OntologyListView from '../ontology/ontology-list-view';
+import LabelView from '../ontology/label-view';
 import FlatAnnotationCollection from '../annotation/flat-annotation-collection';
 
 const nSuggestions = 3;
@@ -54,10 +55,13 @@ export default class SuggestionsView extends CompositeView{
     }
 
     openAnnotation(annotation: Node): void {
+        this.$('.category-view.is-highlighted').removeClass('is-highlighted');
         explorerChannel.trigger('annotationList:showAnnotation', this, annotation);
     }
 
-    openRelevantAnnotations(category: Node): void {
+    openRelevantAnnotations(label: LabelView, category: Node): void {
+        this.$('.is-highlighted').removeClass('is-highlighted');
+        label.$el.addClass('is-highlighted');
         explorerChannel.trigger('category:showRelevantAnnotations', this, category);
     }
 
@@ -72,8 +76,17 @@ extend(SuggestionsView.prototype, {
     template: suggestionsTemplate,
     className: 'suggestions explorer-panel',
     subviews: [
-    { view: 'sourceList', selector: '.selections' },
-    { view: 'annotationList', selector: '.selections' },
-    { view: 'ontologyList', selector: '.selections' },
+    { 
+        view: 'sourceList',
+        selector: '.selections' 
+    },
+    { 
+        view: 'annotationList',
+        selector: '.selections'
+    },
+    { 
+        view: 'ontologyList',
+        selector: '.selections'
+    },
     ]
 })

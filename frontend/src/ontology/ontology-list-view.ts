@@ -23,8 +23,8 @@ export default class OntologyListView extends CollectionView<Node, LabelView> {
         return this;
     }
 
-    categoryFocus(category: Node): void {
-        this.trigger('category:clicked', category);
+    categoryFocus(label: LabelView, category: Node): void {
+        this.trigger('category:clicked', label, category);
     }
 }
 extend(OntologyListView.prototype, {

@@ -58,7 +58,7 @@ export default class LabelView extends View<Node> {
     }
 
     onClick() {
-        this.model.trigger('focus', this.model);
+        this.model.trigger('focus', this, this.model);
     }
 
     setTooltipOrientation(): this {
