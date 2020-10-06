@@ -59,9 +59,19 @@ CONSTRUCT {
     ?selector ?g ?h.
 }
 '''
+SELECT_ANNO_QUERY = '''
+CONSTRUCT {
+    ?annotation ?a ?b.
+} WHERE {
+    ?annotation rdf:type oa.Annotation;
+                dcterms:creator ?user;
+                ?a ?b.
+}
+'''
 ANNO_NS = {
     'oa': OA,
     'dcterms': DCTERMS,
+    'rdf': RDF
 }
 
 
@@ -228,5 +238,14 @@ class ItemSuggestion(RDFView):
 
     def get_graph(self, request, **kwargs):  
         items = self.graph()
-        output = sample_graph(items, request, [RDF.type, OA.Annotation])
+        bindings = {}
+        if not request.user.has_perm('rdflib_django.view_all_annotations'):
+            user, now = submission_info(request)
+            bindings['user'] = user
+            user_items = graph_from_triples(items.query(
+                SELECT_ANNO_QUERY, initBindings=bindings, initNs=ANNO_NS)
+            ).subjects()
+        else:
+            user_items = set(items.subjects(RDF.type, OA.Annotation))
+        output = sample_graph(items, user_items, request)
         return output

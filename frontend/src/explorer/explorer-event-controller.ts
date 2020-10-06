@@ -187,7 +187,6 @@ export default class ExplorerEventController {
     }
 
     showAnnotationsOfCategory(view: SuggestionsView, category: Node): void {
-        let self = this;
         let items = new ItemGraph();
         items.query({ predicate: oa.hasBody, object: category.id }).catch(console.error);
         const resultView = new SearchResultListView({

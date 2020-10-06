@@ -1,9 +1,11 @@
 
-import { extend, sampleSize } from 'lodash';
+import { extend, filter, sampleSize } from 'lodash';
 
 import { CompositeView } from './../core/view';
 import Graph from '../jsonld/graph';
 import explorerChannel from '../explorer/radio';
+import ldChannel from '../jsonld/radio';
+import { isRdfsClass } from '../utilities/utilities';
 
 import suggestionsTemplate from './suggestions-template';
 import SourceListView from '../panel-source-list/source-list-view';
@@ -42,9 +44,9 @@ export default class SuggestionsView extends CompositeView{
         const param = $.param({ n_results: nSuggestions });
         this.sourceSuggestions.fetch({ url: '/source/suggestion', data: param });
         this.annotationGraph.fetch({ url: '/item/suggestion', data: param });
-        const categories = new Graph();
-        await categories.fetch({ url: '/ontology' });
-        this.categorySuggestions.reset(sampleSize(categories.models, nSuggestions));
+        const categories = await ldChannel.request('ontology:promise');
+        const suggestions = sampleSize(filter(categories.models, isRdfsClass), nSuggestions);
+        this.categorySuggestions.set(suggestions);
     }
 
     openSource(source: Node): void {

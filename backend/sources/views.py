@@ -137,7 +137,8 @@ class SourceSuggestion(RDFView):
 
     def get_graph(self, request, **kwargs):
         sources = self.graph()
-        output = sample_graph(sources, request)
+        subjects = set(sources.subjects())
+        output = sample_graph(sources, subjects, request)
         return inject_fulltext(output, False, request)
 
 
