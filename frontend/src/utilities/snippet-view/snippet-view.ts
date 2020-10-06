@@ -1,25 +1,15 @@
-import { ViewOptions as BaseOpt } from 'backbone';
-import { extend, bind } from 'lodash';
+import { extend } from 'lodash';
+
 import View from '../../core/view';
+import FlatItem from '../../annotation/flat-item-model';
 
 import snippetTemplate from './snippet-template';
-import Node from '../../jsonld/node';
-import { oa } from './../../jsonld/ns';
-import { isType } from '../utilities';
 
-export interface ViewOptions extends BaseOpt {
-    title?: string;
-    selector: Node;
-}
-
-export default class SnippetView extends View {
+export default class SnippetView extends View<FlatItem> {
     ellipsis = "(...)";
     trimmedTitle: boolean;
     trimmedStart: boolean;
     trimmedEnd: boolean;
-
-    title?: string;
-    selector: Node;
 
     title_calc: string;
     prefix_calc: string;
@@ -31,19 +21,8 @@ export default class SnippetView extends View {
 
     isInDom: boolean;
 
-    constructor(options: ViewOptions) {
-        super(options);
-    }
-
-    initialize(options: ViewOptions): this {
-        if (!isType(options.selector, oa.TextQuoteSelector)) {
-            throw new TypeError('selector must be of type oa:TextQuoteSelector');
-        }
-
-        this.title = options.title;
-        this.selector = options.selector;
-        this.listenTo(this.selector, 'change', this.createContent);
-        this.$el.ready(bind(this.onReady, this));
+    initialize(): this {
+        this.listenTo(this.model, 'change', this.createContent);
         return this;
     }
 
@@ -52,13 +31,7 @@ export default class SnippetView extends View {
         return this;
     }
 
-    /**
-     * Handle the ready event.
-     * Ideal for working with (i.e. initializing HTML on the basis of) Javascript Range Objects (as SnippetViews do),
-     * because it is fired 'as soon as the page's Document Object Model (DOM) becomes safe to manipulate'
-     * (from: https://api.jquery.com/ready/). For the currrent View it guarantees that the View is in the DOM.
-     */
-    onReady(): this {
+    activate(): this {
         this.isInDom = true;
         this.createContent();
         return this;
@@ -80,49 +53,49 @@ export default class SnippetView extends View {
     }
 
     setTitle(): this {
-        if (this.title) {
+        const title = this.model.get('title');
+        if (title) {
             // if title is longer than available space (subtract 25 to compensate for strong)
-            if (this.getLengthInPixels(this.title) > this.availableWidth - 25) {
+            if (this.getLengthInPixels(title) > this.availableWidth - 25) {
                 // trim to fit (subtract 25 compensating for strong and another 25 for ellipses)
-                this.title_calc = this.trimToFit(this.title, this.availableWidth - 50);
+                this.title_calc = this.trimToFit(title, this.availableWidth - 50);
                 this.trimmedTitle = true;
             }
-            else this.title_calc = this.title;
+            else this.title_calc = title;
         }
         return this;
     }
 
     setText(): this {
         // subtract 100 to compensate for ellipses
-        let availableSpace = (3 * this.availableWidth) - 100;
-        let prefix, suffix;
-        if (this.selector.has(oa.prefix)) prefix = this.selector.get(oa.prefix)[0] as string;
-        let exact = this.selector.get(oa.exact)[0] as string;
-        if (this.selector.has(oa.suffix)) suffix = this.selector.get(oa.suffix)[0] as string;
-        let fullString = `${prefix}${exact}${suffix}`;
+        const availableSpace = (3 * this.availableWidth) - 100;
+        const prefix = this.model.get('prefix') as string || '';
+        const exact = this.model.get('text') as string || '';
+        const suffix = this.model.get('suffix') as string || '';
+        const fullString = `${prefix}${exact}${suffix}`;
 
         if (this.getLengthInPixels(fullString) < availableSpace) {
-            this.prefix_calc = prefix || "";
+            this.prefix_calc = prefix;
             this.exact_calc = exact;
-            this.suffix_calc = suffix || "";
-        }
-        else {
-            if (!prefix) this.prefix_calc = "";
-            else {
+            this.suffix_calc = suffix;
+        } else {
+            if (!prefix) {
+                this.prefix_calc = "";
+            } else {
                 this.prefix_calc = this.trimToFit(prefix, availableSpace / 4, true);
                 this.trimmedStart = true;
             }
 
             if (this.getLengthInPixels(exact) <= availableSpace / 2.5) {
                 this.exact_calc = exact;
-            }
-            else {
+            } else {
                 this.exact_calc = `${this.trimToFit(exact, availableSpace / 4)}
                 ${this.ellipsis} ${this.trimToFit(exact, availableSpace / 4, true)}`;
             }
 
-            if (!suffix) this.suffix_calc = "";
-            else {
+            if (!suffix) {
+                this.suffix_calc = "";
+            } else {
                 this.suffix_calc = this.trimToFit(suffix, availableSpace / 4);
                 this.trimmedEnd = true;
             }
@@ -158,10 +131,9 @@ export default class SnippetView extends View {
         return this.canvasCtx.measureText(text).width;
     }
 }
+
 extend(SnippetView.prototype, {
     tagName: 'div',
     className: 'snippet',
     template: snippetTemplate,
-    events: {
-    }
 });

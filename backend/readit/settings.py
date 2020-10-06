@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'sources',
     'register',
     'feedback',
+    'sparql',
 ]
 
 # This is required by rest-auth registration
@@ -155,7 +156,7 @@ REST_AUTH_SERIALIZERS = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'nlp_ontology.authentication.CsrfExemptSessionAuthentication',
+        'readit.authentication.CsrfExemptSessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ]
 }

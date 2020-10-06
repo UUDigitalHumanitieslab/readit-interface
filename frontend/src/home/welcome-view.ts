@@ -1,33 +1,33 @@
 import { extend } from 'lodash';
-import Model from '../core/model';
-import View from '../core/view';
+import View, { CompositeView, ViewOptions as BaseOpt } from '../core/view';
 import Graph from '../jsonld/graph';
-import { ViewOptions as BaseOpt } from 'backbone';
 import welcomeTemplate from './welcome-template';
 
-export interface ViewOptions extends BaseOpt<Model> {
+export interface ViewOptions extends BaseOpt {
     searchBox: View;
 }
 
-export default class WelcomeView extends View {
+export default class WelcomeView extends CompositeView {
     searchboxView: View;
 
     constructor(options: ViewOptions) {
         super(options);
         this.searchboxView = options.searchBox;
+        this.render();
+        this.searchboxView.on("searchClicked", this.search, this);
     }
 
-    render() {
+    renderContainer() {
         this.$el.html(this.template(this));
-
-        this.$('.welcome-image').append(this.searchboxView.render().$el);
-        this.searchboxView.on("searchClicked", this.search, this);
         return this;
     }
 
     async search(query: string, queryfields: string = 'all') {
         const sources = new Graph();
-        await sources.fetch({ url: '/source/search', data: $.param({ query: query, queryfields: queryfields})  });
+        await sources.fetch({
+            url: '/source/search',
+            data: $.param({ query, queryfields}),
+        });
         this.trigger('search:searched', sources, query, queryfields);
     }
 }
@@ -35,13 +35,13 @@ export default class WelcomeView extends View {
 extend(WelcomeView.prototype, {
     tagName: 'section',
     template: welcomeTemplate,
-    events: {
-        'click .suggest': 'suggest',
-    }
+    subviews: [{
+        view: 'searchboxView',
+        selector: '.welcome-image',
+    }],
 });
 
 export type SearchResult = {
     id: number,
     highlight: any,
-
-}
+};

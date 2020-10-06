@@ -4,6 +4,7 @@ import { onlyIf } from '../../test-util';
 
 import { oa } from '../../jsonld/ns';
 import Node from '../../jsonld/node';
+import FlatItem from '../../annotation/flat-item-model';
 import SnippetView from './snippet-view';
 
 const selectorAttributes = {
@@ -19,11 +20,12 @@ describe('SnippetView', function() {
 
     beforeEach(function() {
         this.selector = new Node(selectorAttributes);
+        this.flat = new FlatItem(this.selector);
     });
 
     it('should not enter an infinite loop', function(done) {
         const el = $('<div class=snippet>').width(30);
-        const snippet = new SnippetView({ el, selector: this.selector });
+        const snippet = new SnippetView({ el, model: this.flat });
         snippet.$el.ready(() => setTimeout(() => {
             snippet.remove();
             done();

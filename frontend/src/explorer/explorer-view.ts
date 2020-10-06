@@ -13,7 +13,7 @@ import View from '../core/view';
 
 import PanelStackView from './explorer-panelstack-view';
 import { animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
-import fastTimeout from '../utilities/fastTimeout';
+import fastTimeout from '../core/fastTimeout';
 
 const scrollFudge = 100;
 
@@ -103,6 +103,7 @@ export default class ExplorerView extends View {
         let stack = this.stacks[position];
         this.rltPanelStack[panel.cid] = position;
         stack.render().$el.appendTo(this.$el);
+        panel.activate();
         this.trigger('push', panel, position);
         this.scroll();
         return this;
@@ -136,6 +137,7 @@ export default class ExplorerView extends View {
         let stack = this.stacks[position];
         // remove the old panel for this stack from search container, new one may have different width
         stack.push(panel);
+        panel.activate();
         this.rltPanelStack[panel.cid] = position;
 
         this.trigger('overlay', panel, ontoPanel, position, (position - this.stacks.length));

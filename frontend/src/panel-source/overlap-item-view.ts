@@ -1,10 +1,10 @@
 import { extend } from 'lodash';
 
 import View from '../core/view';
-import FlatAnnotation from '../annotation/flat-annotation-model';
+import FlatItem from '../annotation/flat-item-model';
 import itemTemplate from './overlap-item-template';
 
-export default class OverlapItemView extends View<FlatAnnotation> {
+export default class OverlapItemView extends View<FlatItem> {
     initialize() {
         this.render().listenTo(this.model, {
             focus: this.focus,

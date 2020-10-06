@@ -2,7 +2,7 @@
 Script for moving all source texts from file store to Elasticsearch.
 
 Usage: open an interactive Python shell with Django's `shell`
-command. When working on a server, pass the arguments `--settings 
+command. When working on a server, pass the arguments `--settings
 settings --pythonpath {directory/of/settings/file}`.
 Then:
 >>> from scripts.sources_to_elasticsearch import text_to_index
@@ -59,6 +59,7 @@ def text_to_index():
 
 
 def title_author_to_index():
+    sg = sources_graph()
     ind_client.put_mapping(index=settings.ES_ALIASNAME, body=
     {
         "properties": {
@@ -70,20 +71,24 @@ def title_author_to_index():
             }
         }
     })
-    subjects = set(sources_graph().subjects())
+    subjects = set(sg.subjects())
     for s in subjects:
-        author = list(sources_graph().triples((s, SCHEMA.author, None)))[0][2]
-        title = (list(sources_graph().triples((s, SCHEMA.name, None))))[0][2]
+        author = sg.value(s, SCHEMA.creator)
+        title = sg.value(s, SCHEMA.name)
         serial = get_serial_from_subject(s)
-        result = es.update_by_query(body={
+        document = es.search(body={
             "query" : {
                 "term" : { "id" : serial }
-            },
-            "script": {
-                "lang": "painless",
-                "source": "ctx._source.author = '{}'; ctx._source.title = '{}'".format(author, title)
+            }}, index=settings.ES_ALIASNAME)
+        if document['hits']['total']['value']==0:
+            print("serial {} not found in the index".format(serial))
+        source_id = document['hits']['hits'][0]['_id']
+        es.update(index=settings.ES_ALIASNAME, id=source_id, body={
+            "doc": {
+                "author": author,
+                "title": title
             }
-        }, index=settings.ES_ALIASNAME)
+        })
 
 
 def resolve_language(input_language):

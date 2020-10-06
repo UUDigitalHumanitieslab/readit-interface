@@ -36,18 +36,19 @@ class ExternalResourcesEditView extends CollectionView {
     initialize(): void {
         this.collection = new Collection();
         this.changes = new Collection();
-        externalAttributes.forEach( attribute => {
-            const urls = this.model.get(attribute) as Model[];
-            if (urls === undefined) {
-                return;
-            }
-            else urls.forEach( url => {
-                this.collection.add({predicate: attribute, object: url})
-            })
-        });
+        this.model.when('@type', this.collectExternal, this);
         this.initItems().render().initCollectionEvents();
         this.on('announceRoute', announce);
         this.changes = new Collection();
+    }
+
+    collectExternal(model: Model): void {
+        externalAttributes.forEach(predicate => {
+            const objects = this.model.get(predicate) as Model[];
+            objects && objects.forEach(object => {
+                this.collection.add({predicate, object})
+            });
+        });
     }
 
     renderContainer(): this {

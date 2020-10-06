@@ -7,6 +7,7 @@ import QueryField from './query-field'
 export default class SearchboxView extends View {
     defaultOption: QueryField;
     queryFields: QueryField[] = undefined;
+
     /**
      * Ctor for SearchboxView
      * @param queryFields Set of fields to include in the query
@@ -18,6 +19,7 @@ export default class SearchboxView extends View {
         super()
         this.queryFields = queryFields;
         this.defaultOption = defaultOption;
+        this.render();
     }
 
     render() {
@@ -29,10 +31,6 @@ export default class SearchboxView extends View {
         if (e.keyCode == 13) {
             this.search(e);
         }
-    }
-
-    initialize() {
-
     }
 
     search(event: any) {
@@ -53,12 +51,11 @@ export default class SearchboxView extends View {
 }
 
 extend(SearchboxView.prototype, {
-    tagName: 'div',
     className: 'searchbox',
     template: searchboxTemplate,
     events: {
         "click #searchbox-button": "search",
         "click .dropdown-item": "selectField",
         "keyup input": "onKeyUp",
-    }
+    },
 });

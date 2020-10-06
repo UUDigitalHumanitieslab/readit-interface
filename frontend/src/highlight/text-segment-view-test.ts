@@ -8,7 +8,7 @@ import Collection from '../core/collection';
 import Node from '../jsonld/node';
 import Graph from '../jsonld/graph';
 import CategoryStyle from '../utilities/category-colors/category-colors-view';
-import FlatAnnotation from '../annotation/flat-annotation-model';
+import FlatItem from '../annotation/flat-item-model';
 import Segment from './text-segment-model';
 import SegmentView from './text-segment-view';
 
@@ -39,7 +39,7 @@ describe('TextSegmentView', function() {
     });
 
     beforeEach(function() {
-        this.annotation = new FlatAnnotation(new Node());
+        this.annotation = new FlatItem(new Node());
         this.annotation.set(attributes);
         this.segment = new Segment(attributes);
         this.view = new SegmentView({

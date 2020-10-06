@@ -32,7 +32,7 @@ mainRouter.on('route:leave', () => userFsm.handle('leave'));
 
 explorationRouter.on('route', () => userFsm.handle('explore'));
 
-userFsm.on('enter:searching', () => welcomeView.render().$el.appendTo('#main'));
+userFsm.on('enter:searching', () => welcomeView.$el.appendTo('#main'));
 userFsm.on('exit:searching', () => welcomeView.$el.detach());
 userFsm.on('enter:uploading', () => {
     uploadSourceForm.render().$el.appendTo('#main');

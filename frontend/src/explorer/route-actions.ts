@@ -3,6 +3,8 @@ import { source, item as itemNs } from '../jsonld/ns';
 import { Namespace } from '../jsonld/vocabulary';
 import ldChannel from '../jsonld/radio';
 import Node from '../jsonld/node';
+import FlatItem from '../annotation/flat-item-model';
+
 import Controller from './explorer-event-controller';
 
 function obtainer<T extends readonly string[]>(namespace: Namespace<T>) {
@@ -27,7 +29,7 @@ export function item(control: Controller, node: Node) {
 }
 
 export function itemInEditMode(control: Controller, node: Node) {
-    return control.editAnnotation(item(control, node), node);
+    return control.editAnnotation(item(control, node), new FlatItem(node));
 }
 
 export function itemWithRelations(control: Controller, node: Node) {

@@ -15,7 +15,7 @@ const resetSuggestionsPanel = () => explorer.reset(suggestionsPanel);
  * Common patterns for the explorer routes.
  */
 function deepRoute(obtainAction, resetAction) {
-    return ([serial]) => explorer.scrollOrAction(
+    return (serial) => explorer.scrollOrAction(
         browserHistory.state,
         () => resetAction(controller, obtainAction(serial))
     );
@@ -51,14 +51,14 @@ channel.on({
     'lditem:showAnnotations': controller.listItemAnnotations,
     'lditem:showExternal': controller.listExternal,
     'lditem:editAnnotation': controller.editAnnotation,
-    'lditem:editItem': controller.notImplemented,
     'relItems:itemClick': controller.openRelated,
     'relItems:edit': controller.editRelated,
     'externalItems:edit': controller.editExternal,
-    'externalItems:edit-close': controller.closeEditExternal,
-    'relItems:edit-close': controller.closeEditRelated,
+    'externalItems:edit-close': controller.closeOverlay,
+    'relItems:edit-close': controller.closeOverlay,
     'source-list:click': controller.pushSourcePair,
-    'searchResultList:itemClicked': controller.openSearchResult
+    'searchResultList:itemClicked': controller.openSearchResult,
+    'searchResultList:itemClosed': controller.closeToRight,
 }, controller);
 channel.on('currentRoute', (route, panel) => {
     router.navigate(route);

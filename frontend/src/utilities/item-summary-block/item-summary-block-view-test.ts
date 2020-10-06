@@ -4,7 +4,7 @@ import mockItems from '../../mock-data/mock-items';
 
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
-import FlatModel from '../../annotation/flat-annotation-model';
+import FlatItem from '../../annotation/flat-item-model';
 import FlatCollection from '../../annotation/flat-annotation-collection';
 import ItemSummaryBlock from './item-summary-block-view';
 

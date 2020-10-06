@@ -24,6 +24,7 @@ export default class LabelView extends View<Node> {
         if (options && options.toolTipSetting !== undefined) {
             this.toolTipSetting = options.toolTipSetting;
         }
+        this.render().listenTo(this.model, 'change', this.render);
     }
 
     render(): this {
