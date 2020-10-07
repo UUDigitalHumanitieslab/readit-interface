@@ -186,7 +186,7 @@ export default class ExplorerEventController {
         // this.autoOpenRelationEditor(annotation.get('annotation'));
     }
 
-    showAnnotationsOfCategory(view: SuggestionsView, category: Node): void {
+    showAnnotationsOfCategory(view: SuggestionsView, category: Node): SearchResultListView {
         let items = new ItemGraph();
         items.query({ predicate: oa.hasBody, object: category.id }).catch(console.error);
         const resultView = new SearchResultListView({
@@ -195,6 +195,7 @@ export default class ExplorerEventController {
             selectable: false,
         });
         this.explorerView.popUntil(view).push(resultView);
+        return resultView;
     }
 
     autoOpenRelationEditor(annotation: Node): this {

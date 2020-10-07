@@ -2,7 +2,6 @@ import { extend } from 'lodash';
 
 import Model from '../core/model';
 import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
-import Collection from '../core/collection';
 import Graph from '../jsonld/graph';
 import Node from '../jsonld/node';
 import { dcterms, vocab } from '../jsonld/ns';

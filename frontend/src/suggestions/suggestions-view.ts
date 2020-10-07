@@ -6,6 +6,7 @@ import Graph from '../jsonld/graph';
 import explorerChannel from '../explorer/radio';
 import ldChannel from '../jsonld/radio';
 import { isRdfsClass } from '../utilities/utilities';
+import { announceRoute } from '../explorer/utilities';
 
 import suggestionsTemplate from './suggestions-template';
 import SourceListView from '../panel-source-list/source-list-view';
@@ -14,6 +15,7 @@ import OntologyListView from '../ontology/ontology-list-view';
 import LabelView from '../ontology/label-view';
 import FlatAnnotationCollection from '../annotation/flat-annotation-collection';
 
+const announce = announceRoute('explore');
 const nSuggestions = 3;
 
 export default class SuggestionsView extends CompositeView{
@@ -38,6 +40,7 @@ export default class SuggestionsView extends CompositeView{
         this.listenTo(this.annotationList, 'annotation:clicked', this.openAnnotation);
         this.ontologyList = new OntologyListView({collection: this.categorySuggestions});
         this.listenTo(this.ontologyList, 'category:clicked', this.openRelevantAnnotations);
+        this.on('announceRoute', announce);
         this.render();
     }
 
