@@ -20,7 +20,7 @@ class Migration(RDFMigration):
     actual = staticmethod(graph)
     desired = staticmethod(canonical_graph)
 
-    @on_present(SCHEMA.author)
+    @on_present(SCHEMA.creator)
     def replace_SCHEMA_creator(self, actual, conjunctive):
         graph().update(REPLACE_CREATOR_UPDATE,
                        initBindings={'creator': SCHEMA.creator,
