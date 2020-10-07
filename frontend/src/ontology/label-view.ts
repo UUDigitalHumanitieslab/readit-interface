@@ -2,9 +2,9 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 import View from '../core/view';
 
-import { skos } from './../jsonld/ns';
+import { skos } from '../jsonld/ns';
 import Node from '../jsonld/node';
-import { getCssClassName, getLabel } from './utilities';
+import { getCssClassName, getLabel } from '../utilities/utilities';
 
 type TooltipSetting = false | 'top' | 'bottom' | 'left' | 'right';
 
@@ -57,6 +57,10 @@ export default class LabelView extends View<Node> {
         return typeof this.toolTipSetting === 'string';
     }
 
+    onClick() {
+        this.model.trigger('focus', this, this.model);
+    }
+
     setTooltipOrientation(): this {
         let orientation = `-${this.toolTipSetting}`;
         this.$el.addClass(`is-tooltip${orientation}`);
@@ -66,4 +70,7 @@ export default class LabelView extends View<Node> {
 extend(LabelView.prototype, {
     tagName: 'span',
     className: 'tag',
+    events: {
+        click: 'onClick'
+    }
 });

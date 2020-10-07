@@ -23,7 +23,7 @@ from elasticsearch import Elasticsearch
 
 from rdf.ns import *
 from rdf.views import RDFView, RDFResourceView
-from rdf.utils import graph_from_triples, prune_triples_cascade, get_conjunctive_graph
+from rdf.utils import graph_from_triples, prune_triples_cascade, get_conjunctive_graph, sample_graph
 from vocab import namespace as vocab
 from staff.utils import submission_info
 from items.constants import ITEMS_NS
@@ -126,8 +126,20 @@ class SourcesAPIRoot(RDFView):
         return sources_graph()
 
     def get_graph(self, request, **kwargs):
-        print(super().get_graph(request, **kwargs))
         return inject_fulltext(super().get_graph(request, **kwargs), False, request)
+
+
+class SourceSuggestion(RDFView):
+    """ Return nodes of a random sample of source subjects. """
+
+    def graph(self):
+        return sources_graph()
+
+    def get_graph(self, request, **kwargs):
+        sources = self.graph()
+        subjects = set(sources.subjects())
+        output = sample_graph(sources, subjects, request)
+        return inject_fulltext(output, False, request)
 
 
 class SourceSelection(RDFView):

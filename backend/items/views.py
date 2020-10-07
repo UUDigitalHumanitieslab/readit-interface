@@ -11,7 +11,7 @@ from rdflib.plugins.sparql import prepareQuery
 
 from rdf.views import RDFView, RDFResourceView, graph_from_request
 from rdf.ns import *
-from rdf.utils import graph_from_triples, append_triples, traverse_forward, traverse_backward
+from rdf.utils import graph_from_triples, append_triples, sample_graph, traverse_forward, traverse_backward
 from vocab import namespace as vocab
 from staff import namespace as staff
 from staff.utils import submission_info
@@ -59,9 +59,19 @@ CONSTRUCT {
     ?selector ?g ?h.
 }
 '''
+SELECT_ANNO_QUERY = '''
+CONSTRUCT {
+    ?annotation ?a ?b.
+} WHERE {
+    ?annotation rdf:type oa.Annotation;
+                dcterms:creator ?user;
+                ?a ?b.
+}
+'''
 ANNO_NS = {
     'oa': OA,
     'dcterms': DCTERMS,
+    'rdf': RDF
 }
 
 
@@ -218,3 +228,24 @@ class ItemsAPISingular(RDFResourceView):
         full_graph = self.graph()
         full_graph -= existing
         return Response(existing)
+
+
+class ItemSuggestion(RDFView):
+    """ Return nodes of a random sample of item subjects. """
+
+    def graph(self):
+        return graph()
+
+    def get_graph(self, request, **kwargs):  
+        items = self.graph()
+        bindings = {}
+        if not request.user.has_perm('rdflib_django.view_all_annotations'):
+            user, now = submission_info(request)
+            bindings['user'] = user
+            user_items = graph_from_triples(items.query(
+                SELECT_ANNO_QUERY, initBindings=bindings, initNs=ANNO_NS)
+            ).subjects()
+        else:
+            user_items = set(items.subjects(RDF.type, OA.Annotation))
+        output = sample_graph(items, user_items, request)
+        return output

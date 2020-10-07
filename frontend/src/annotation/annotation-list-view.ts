@@ -1,7 +1,7 @@
 import { extend } from 'lodash';
 
 import { CollectionView } from '../core/view';
-import { getScrollTop, animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
+import { getScrollTop, animatedScroll, ScrollType } from '../utilities/scrolling-utilities';
 import ItemSummaryBlock from '../utilities/item-summary-block/item-summary-block-view';
 import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
 import explorerChannel from '../explorer/radio';
@@ -9,7 +9,7 @@ import { announceRoute } from '../explorer/utilities';
 
 import FlatItem from './flat-item-model';
 import FlatCollection from './flat-annotation-collection';
-import annotationsTemplate from './panel-annotation-list-template';
+import annotationsTemplate from './annotation-list-template';
 
 const announce = announceRoute('source:annotated', ['model', 'id']);
 
@@ -44,7 +44,7 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
             add: this.insertItem,
             remove: this.removeItem,
             sort: this.placeItems,
-            reset: this.resetItems,
+            reset: this.resetItems
         }).on('announceRoute', announce);
     }
 
@@ -55,8 +55,7 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
     }
 
     _handleFocus(model: FlatItem): void {
-        this.scrollTo(model);
-        explorerChannel.trigger('annotationList:showAnnotation', this, model);
+        this.trigger('annotation:clicked', model);
     }
 
     _handleBlur(lostFocus: FlatItem, gainedFocus?: FlatItem): void {
@@ -101,6 +100,12 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
         return this;
     }
 
+    resetItems(): this {
+        super.resetItems();
+        this._hideLoadingSpinner();
+        return this;
+    }
+
     renderContainer(): this {
         this.$el.html(this.template(this));
         this.summaryList = this.$(this.container);
@@ -131,7 +136,7 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
 }
 
 extend(AnnotationListView.prototype, {
-    className: 'annotation-list-panel explorer-panel',
+    className: 'annotation-list',
     template: annotationsTemplate,
     container: '.summary-list',
 });

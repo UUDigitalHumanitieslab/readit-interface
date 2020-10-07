@@ -1,8 +1,6 @@
 import { extend, invokeMap } from 'lodash';
 
-import View, { CollectionView, ViewOptions as BaseOpt } from '../../core/view';
-import Node from '../../jsonld/node';
-import Graph from '../../jsonld/graph';
+import { CollectionView, ViewOptions as BaseOpt } from '../../core/view';
 import FlatItem from '../../annotation/flat-item-model';
 import explorerChannel from '../../explorer/radio';
 import { announceRoute } from '../../explorer/utilities';
@@ -40,6 +38,7 @@ class SearchResultListView extends CollectionView<FlatItem, SearchResultView> {
             focus: this.onFocus,
             blur: this.onBlur,
         });
+        this.listenToOnce(this.collection, 'add', this.render);
         this.on('announceRoute', announce);
         return this;
     }

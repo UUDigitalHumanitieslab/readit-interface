@@ -10,7 +10,7 @@ import ItemEditor from '../panel-ld-item/ld-item-edit-view';
 import PickerView from '../forms/base-picker-view';
 import FilteredCollection from '../utilities/filtered-collection';
 import ItemGraph from '../utilities/item-graph';
-import ClassPickerView from '../utilities/ontology-class-picker/ontology-class-picker-view';
+import ClassPickerView from '../ontology/ontology-class-picker/ontology-class-picker-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import SnippetView from '../utilities/snippet-view/snippet-view';
 import { isRdfsClass } from '../utilities/utilities';

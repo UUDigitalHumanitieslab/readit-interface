@@ -7,5 +7,5 @@ export default {
     'item:related:edit':  'explore/item/:serial/related/edit',
     'item:external':      'explore/item/:serial/external',
     'item:external:edit': 'explore/item/:serial/external/edit',
-    'item:annotations':   'explore/item/:serial/annotations',
+    'item:annotations':   'explore/item/:serial/annotations'
 };

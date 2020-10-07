@@ -1,5 +1,4 @@
 import { extend } from 'lodash';
-import Model from '../core/model';
 import View, { CompositeView, ViewOptions as BaseOpt } from '../core/view';
 import Graph from '../jsonld/graph';
 import welcomeTemplate from './welcome-template';
