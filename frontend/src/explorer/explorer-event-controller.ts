@@ -189,9 +189,10 @@ export default class ExplorerEventController {
     showAnnotationsOfCategory(view: SuggestionsView, category: Node): SearchResultListView {
         let items = new ItemGraph();
         items.query({ predicate: oa.hasBody, object: category.id }).catch(console.error);
+        const flatItems = new FlatItemCollection(items);
         const resultView = new SearchResultListView({
             model: category,
-            collection: items,
+            collection: flatItems,
             selectable: false,
         });
         this.explorerView.popUntil(view).push(resultView);
