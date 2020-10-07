@@ -1,4 +1,5 @@
 import User from '../user/user-model';
+import userChannel from '../user/radio';
 import ldChannel from '../jsonld/radio';
 import { staff } from '../jsonld/ns';
 
@@ -10,5 +11,6 @@ function getUserURI() {
 }
 
 ldChannel.reply('current-user-uri', getUserURI);
+userChannel.reply('permission', user.hasPermission, user);
 
 export default user;
