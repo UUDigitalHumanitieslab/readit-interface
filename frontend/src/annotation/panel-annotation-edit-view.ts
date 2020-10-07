@@ -99,6 +99,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         const creator = model.get('creator') as Node;
         const currentUser = ldChannel.request('current-user-uri');
         if (creator.id === currentUser) this.userIsOwner = true;
+        if (this.userIsOwner) this.render();
     }
 
     renderContainer(): this {
