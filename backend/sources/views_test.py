@@ -33,6 +33,7 @@ def test_delete_source(auth_client, credentials, sparqlstore):
 
 def test_highlight_body(es_client, es_index_name):
     es_client.create(es_index_name, id=42, body={
+        'id': 42,
         'title': 'The answer to everything',
         'author': 'Douglas Adams',
         'text': 'The question is: what is the question?'

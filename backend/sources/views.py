@@ -207,7 +207,7 @@ class SourceHighlights(RDFView):
             }
         body = {
             "query": {
-                "term": {"_id": serial}
+                "term": {"id": serial}
             },
             "highlight": {
                 "highlight_query": {
