@@ -34,7 +34,7 @@ def sparqlstore(settings):
 
 @pytest.fixture
 def es_index_name():
-    return 'test'
+    return 'readit-test'
 
 
 @pytest.fixture

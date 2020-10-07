@@ -44,6 +44,6 @@ def test_highlight_body(es_client, es_index_name):
     fields = 'all'
     body = hl.construct_es_body(serial, query, fields)
     results = es_client.search(index=es_index_name, body=body)
-    assert 'hits' in results
+    assert len(results['hits']['hits'])
     assert 'highlight' in results['hits']['hits'][0]
 
