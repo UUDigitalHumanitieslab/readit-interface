@@ -1,11 +1,14 @@
-import View from './../core/view';
-import Model from './../core/model';
-import Node from './../jsonld/node';
+import View from '../core/view';
+import Model from '../core/model';
+import Collection from '../core/collection';
+import Node from '../jsonld/node';
+import userChannel from '../user/radio';
 
 import ExplorerView from './explorer-view';
 import LdItemView from '../panel-ld-item/ld-item-view';
+import ldChannel from '../jsonld/radio';
 import Graph from '../jsonld/graph';
-import SourceView from './../panel-source/source-view';
+import SourceView from '../panel-source/source-view';
 import AnnotationListPanel from '../annotation/annotation-list-panel';
 import SuggestionsView from '../suggestions/suggestions-view';
 
@@ -188,8 +191,17 @@ export default class ExplorerEventController {
 
     showAnnotationsOfCategory(view: SuggestionsView, category: Node): SearchResultListView {
         let items = new ItemGraph();
-        items.query({ predicate: oa.hasBody, object: category.id }).catch(console.error);
-        const flatItems = new FlatItemCollection(items);
+        items.query({
+            predicate: oa.hasBody,
+            object: category.id,
+        }).catch(console.error);
+        let flatItems: Collection<FlatItem> = new FlatItemCollection(items);
+        if (!userChannel.request('permission', 'view_all_annotations')) {
+            const userUri = ldChannel.request('current-user-uri');
+            const userNode = ldChannel.request('obtain', userUri);
+            const filter = item => item.get('creator') === userNode;
+            flatItems = new FilteredCollection<FlatItem>(flatItems, filter);
+        }
         const resultView = new SearchResultListView({
             model: category,
             collection: flatItems,
