@@ -24,7 +24,10 @@ history.once('route', () => {
     uploadSourceForm.setHeight(availableHeight);
 });
 
-mainRouter.on('route:home', () => mainRouter.navigate('search'));
+mainRouter.on('route:home', () => mainRouter.navigate('search', {
+    trigger: true,
+    replace: true,
+}));
 mainRouter.on('route:search', () => userFsm.handle('search'));
 mainRouter.on('route:upload', () => userFsm.handle('upload'));
 mainRouter.on('route:explore', () => userFsm.handle('explore'));
