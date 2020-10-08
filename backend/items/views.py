@@ -60,7 +60,7 @@ CONSTRUCT {
 }
 '''
 SELECT_ANNO_QUERY = '''
-CONSTRUCT {
+SELECT {
     ?annotation ?a ?b.
 } WHERE {
     ?annotation rdf:type oa.Annotation;
@@ -245,6 +245,7 @@ class ItemSuggestion(RDFView):
             user_items = graph_from_triples(items.query(
                 SELECT_ANNO_QUERY, initBindings=bindings, initNs=ANNO_NS)
             ).subjects()
+            print(user_items)
         else:
             user_items = set(items.subjects(RDF.type, OA.Annotation))
         output = sample_graph(items, user_items, request)

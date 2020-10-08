@@ -27,6 +27,7 @@ export default class SearchResultView extends CompositeView<FlatItem> {
     initialize(options: ViewOptions) {
         this.selectable = (options.selectable === undefined) || options.selectable;
         this.model.when('item', this.setContentView, this);
+        this.model.when('annotation', this.setContentView, this);
         this.listenTo(this.model, {
             focus: this.highlight,
             blur: this.unhighlight,
