@@ -2,10 +2,10 @@ import { extend } from 'lodash';
 
 import { CollectionView } from '../core/view';
 import Node from '../jsonld/node';
-import LabelView from './label-view';
+import OntologyItemView from './ontology-item-view';
 import ontologyListTemplate from './ontology-list-template';
 
-export default class OntologyListView extends CollectionView<Node, LabelView> {
+export default class OntologyListView extends CollectionView<Node, OntologyItemView> {
     initialize(): void {
         this.initItems().render().initCollectionEvents();
         this.listenTo(this.collection, {
@@ -13,8 +13,8 @@ export default class OntologyListView extends CollectionView<Node, LabelView> {
         });
     }
 
-    makeItem(model: Node): LabelView {
-        const label = new LabelView({ model, tagName:'div', className: 'tag category-view'}).render();
+    makeItem(model: Node): OntologyItemView {
+        const label = new OntologyItemView({ model, tagName:'div', className: 'tag category-view'}).render();
         return label;
     }
 
@@ -23,7 +23,7 @@ export default class OntologyListView extends CollectionView<Node, LabelView> {
         return this;
     }
 
-    categoryFocus(label: LabelView, category: Node): void {
+    categoryFocus(label: OntologyItemView, category: Node): void {
         this.trigger('category:clicked', label, category);
     }
 }
