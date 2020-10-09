@@ -7,7 +7,7 @@ import FlatItem from '../annotation/flat-item-model';
 import explorerChannel from '../explorer/radio';
 import { announceRoute } from '../explorer/utilities';
 import { getLabelText } from '../utilities/annotation/annotation-utilities';
-import LabelView from '../utilities/label-view';
+import LabelView from '../ontology/label-view';
 import ItemMetadataView from '../utilities/item-metadata/item-metadata-view';
 import { getLabelFromId } from '../utilities/utilities';
 

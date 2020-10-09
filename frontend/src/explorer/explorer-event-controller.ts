@@ -1,12 +1,16 @@
-import View from './../core/view';
-import Model from './../core/model';
-import Node from './../jsonld/node';
+import View from '../core/view';
+import Model from '../core/model';
+import Collection from '../core/collection';
+import Node from '../jsonld/node';
+import userChannel from '../user/radio';
 
 import ExplorerView from './explorer-view';
 import LdItemView from '../panel-ld-item/ld-item-view';
+import ldChannel from '../jsonld/radio';
 import Graph from '../jsonld/graph';
-import SourceView from './../panel-source/source-view';
-import AnnotationListView from '../annotation/panel-annotation-list-view';
+import SourceView from '../panel-source/source-view';
+import AnnotationListPanel from '../annotation/annotation-list-panel';
+import SuggestionsView from '../suggestions/suggestions-view';
 
 import AnnoEditView from '../annotation/panel-annotation-edit-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
@@ -20,7 +24,7 @@ import FlatAnnoCollection from '../annotation/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
 import { oa } from '../jsonld/ns';
 import SearchResultListView from '../search/search-results/panel-search-result-list-view';
-import SourceListPanel from '../panel-source-list/source-list-view';
+import SourceListPanel from '../panel-source-list/source-list-panel';
 import FilteredCollection from '../utilities/filtered-collection';
 import {
     isType,
@@ -33,9 +37,9 @@ export default class ExplorerEventController {
      */
     explorerView: ExplorerView;
 
-    mapSourceAnnotationList: Map<SourceView, AnnotationListView> = new Map();
-    mapAnnotationListSource: Map<AnnotationListView, SourceView> = new Map();
-    mapAnnotationListAnnotationDetail: Map<AnnotationListView, LdItemView> = new Map();
+    mapSourceAnnotationList: Map<SourceView, AnnotationListPanel> = new Map();
+    mapAnnotationListSource: Map<AnnotationListPanel, SourceView> = new Map();
+    mapAnnotationListAnnotationDetail: Map<AnnotationListPanel, LdItemView> = new Map();
 
     constructor(explorerView: ExplorerView) {
         this.explorerView = explorerView;
@@ -53,8 +57,8 @@ export default class ExplorerEventController {
         return sourcePanel;
     }
 
-    listSourceAnnotations(sourcePanel: SourceView): AnnotationListView {
-        const listPanel = new AnnotationListView({
+    listSourceAnnotations(sourcePanel: SourceView): AnnotationListPanel {
+        const listPanel = new AnnotationListPanel({
             model: sourcePanel.model,
             collection: sourcePanel.collection,
         });
@@ -64,13 +68,13 @@ export default class ExplorerEventController {
         return listPanel;
     }
 
-    pushSourcePair(basePanel: View, source: Node): [SourceView, AnnotationListView] {
+    pushSourcePair(basePanel: View, source: Node): [SourceView, AnnotationListPanel] {
         const sourcePanel = this.pushSource(basePanel, source);
         const listPanel = this.listSourceAnnotations(sourcePanel);
         return [sourcePanel, listPanel];
     }
 
-    resetSourcePair(source: Node): [SourceView, AnnotationListView] {
+    resetSourcePair(source: Node): [SourceView, AnnotationListPanel] {
         const sourcePanel = this.resetSource(source, true);
         const listPanel = this.listSourceAnnotations(sourcePanel);
         return [sourcePanel, listPanel];
@@ -80,6 +84,11 @@ export default class ExplorerEventController {
         const queryModel = new Model({ query, fields });
         const resultsView = new SourceListPanel({ collection: results, model: queryModel });
         this.explorerView.reset(resultsView);
+    }
+
+    showSuggestionsPanel() {
+        const suggestionsView = new SuggestionsView();
+        this.explorerView.reset(suggestionsView);
     }
 
     openSearchResult(
@@ -180,6 +189,20 @@ export default class ExplorerEventController {
         // this.autoOpenRelationEditor(annotation.get('annotation'));
     }
 
+    showAnnotationsOfCategory(view: SuggestionsView, category: Node): SearchResultListView {
+        let items = new ItemGraph();
+        const url = '/item/' + category.id.split("#")[1];
+        items.fetch({ url: url });
+        let flatItems = new FlatItemCollection(items);
+        const resultView = new SearchResultListView({
+            model: category,
+            collection: flatItems,
+            selectable: false,
+        });
+        this.explorerView.popUntil(view).push(resultView);
+        return resultView;
+    }
+
     autoOpenRelationEditor(annotation: Node): this {
         const newItems = (annotation.get(oa.hasBody) as Node[])
             .filter(n => !isOntologyClass(n));
@@ -196,7 +219,7 @@ export default class ExplorerEventController {
         this.explorerView.removeOverlay(editView);
     }
 
-    openSourceAnnotation(listView: AnnotationListView, anno: FlatItem): void {
+    openSourceAnnotation(listView: AnnotationListPanel, anno: FlatItem): void {
         let newDetailView = new LdItemView({ model: anno });
         this.mapAnnotationListAnnotationDetail.set(listView, newDetailView);
         this.explorerView.popUntil(listView).push(newDetailView);
@@ -208,12 +231,12 @@ export default class ExplorerEventController {
         return detailView;
     }
 
-    closeSourceAnnotation(listView: AnnotationListView, annotation: FlatItem): void {
+    closeSourceAnnotation(listView: AnnotationListPanel, annotation: FlatItem): void {
         this.mapAnnotationListAnnotationDetail.delete(listView);
         this.explorerView.popUntil(listView);
     }
 
-    reopenSourceAnnotations(sourceView: SourceView): AnnotationListView {
+    reopenSourceAnnotations(sourceView: SourceView): AnnotationListPanel {
         const annoListView = this.listSourceAnnotations(sourceView);
         sourceView.collection.underlying.trigger('sync');
         return annoListView;

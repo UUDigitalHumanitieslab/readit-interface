@@ -12,7 +12,7 @@ import { CompositeView } from '../../core/view';
 import { dcterms, owl, skos } from '../../jsonld/ns';
 import Node, { isNode } from '../../jsonld/node';
 import FlatItem from '../../annotation/flat-item-model';
-import LabelView from '../../utilities/label-view';
+import LabelView from '../../ontology/label-view';
 import { getLabelFromId } from '../../utilities/utilities';
 
 import searchResultItemTemplate from './search-result-item-template';

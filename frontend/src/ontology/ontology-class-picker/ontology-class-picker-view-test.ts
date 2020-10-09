@@ -2,8 +2,8 @@ import mockOntology from '../../mock-data/mock-ontology';
 
 import Node from '../../jsonld/node';
 import Graph from '../../jsonld/graph';
-import FilteredCollection from '../filtered-collection';
-import { isRdfsClass } from '../utilities';
+import FilteredCollection from '../../utilities/filtered-collection';
+import { isRdfsClass } from '../../utilities/utilities';
 import PickerView from './ontology-class-picker-view';
 
 describe('OntologyClassPickerView', function() {

@@ -2,9 +2,9 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 import View from '../core/view';
 
-import { skos } from './../jsonld/ns';
+import { skos } from '../jsonld/ns';
 import Node from '../jsonld/node';
-import { getCssClassName, getLabel } from './utilities';
+import { getCssClassName, getLabel } from '../utilities/utilities';
 
 type TooltipSetting = false | 'top' | 'bottom' | 'left' | 'right';
 
