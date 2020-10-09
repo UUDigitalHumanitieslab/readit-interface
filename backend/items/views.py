@@ -275,7 +275,10 @@ class ItemsOfCategory(RDFView):
                 ANNO_OF_CATEGORY_QUERY, initBindings=bindings, initNs=ANNO_NS)
             )
         else:
-            user_items = graph_from_triples(list(items.triples(
-                (None, OA.hasBody, ontology[category])
-            ))[:ANNOTATION_CUTOFF])
+            user_items = Graph()
+            subjects = items.subjects(OA.hasBody, ontology[category])
+            for i, s in enumerate(subjects):
+                if i==ANNOTATION_CUTOFF:
+                    break
+                [user_items.add(triple) for triple in items.triples((s, None, None))]
         return user_items
