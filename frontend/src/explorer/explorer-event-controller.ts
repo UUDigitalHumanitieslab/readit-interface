@@ -191,17 +191,9 @@ export default class ExplorerEventController {
 
     showAnnotationsOfCategory(view: SuggestionsView, category: Node): SearchResultListView {
         let items = new ItemGraph();
-        items.query({
-            predicate: oa.hasBody,
-            object: category.id,
-        }).catch(console.error);
-        let flatItems: Collection<FlatItem> = new FlatItemCollection(items);
-        if (!userChannel.request('permission', 'view_all_annotations')) {
-            const userUri = ldChannel.request('current-user-uri');
-            const userNode = ldChannel.request('obtain', userUri);
-            const filter = item => item.get('creator') === userNode;
-            flatItems = new FilteredCollection<FlatItem>(flatItems, filter);
-        }
+        const url = '/item/' + category.id.split("#")[1];
+        items.fetch({ url: url });
+        let flatItems = new FlatItemCollection(items);
         const resultView = new SearchResultListView({
             model: category,
             collection: flatItems,

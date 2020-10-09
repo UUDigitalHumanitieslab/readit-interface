@@ -26,6 +26,8 @@ MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank
 MUST_EQUAL_IDENTIFIER_400 = 'PUT must affect exactly the resource URI.'
 MUST_BE_OWNER_403 = 'PUT is only allowed to the resource owner.'
 
+ANNOTATION_CUTOFF = 10 # don't return more than 10 annotations when querying by category
+
 DEFAULT_NS = {
     'vocab': vocab,
     'staff': staff,
@@ -65,6 +67,14 @@ WHERE {
     ?annotation a oa:Annotation ;
     dcterms:creator ?user ;
     ?a ?b .
+}
+'''
+ANNO_OF_CATEGORY_QUERY = '''
+SELECT ?annotation ?a ?b
+WHERE {
+    ?annotation dcterms:creator ?user ;
+        oa:hasBody ?category ;
+        ?a ?b .
 }
 '''
 ANNO_NS = {
@@ -237,10 +247,9 @@ class ItemSuggestion(RDFView):
 
     def get_graph(self, request, **kwargs):  
         items = self.graph()
-        bindings = {}
         if not request.user.has_perm('rdflib_django.view_all_annotations'):
             user, now = submission_info(request)
-            bindings['user'] = user
+            bindings = {'user': user}
             user_items = set(graph_from_triples(items.query(
                 SELECT_ANNO_QUERY, initBindings=bindings, initNs=ANNO_NS)
             ).subjects())
@@ -248,3 +257,25 @@ class ItemSuggestion(RDFView):
             user_items = set(items.subjects(RDF.type, OA.Annotation))
         output = sample_graph(items, user_items, request)
         return output
+
+
+class ItemsOfCategory(RDFView):
+    """ Given a category, get annotations of that category,
+    taking into account user permissions. """
+    def graph(self):
+        return graph()
+
+    def get_graph(self, request, category, **kwargs):  
+        items = self.graph()
+        bindings = {'category': ontology[category]}
+        if not request.user.has_perm('rdflib_django.view_all_annotations'):
+            user, now = submission_info(request)
+            bindings['user'] = user
+            user_items = graph_from_triples(items.query(
+                ANNO_OF_CATEGORY_QUERY, initBindings=bindings, initNs=ANNO_NS)
+            )
+        else:
+            user_items = graph_from_triples(list(items.triples(
+                (None, OA.hasBody, ontology[category])
+            ))[:ANNOTATION_CUTOFF])
+        return user_items
