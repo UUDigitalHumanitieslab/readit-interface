@@ -169,6 +169,28 @@ export default class ExplorerEventController {
         return annoEditView;
     }
 
+    makeNewAnnotation(ldItemview: LdItemView, annotation: FlatItem): AnnoEditView {
+        const copiedNode = new Node();
+        const copiedInfo = {
+            'prefix': oa.prefix,
+            'suffix': oa.suffix,
+            'text': oa.exact
+        }
+   //    'startPosition', 'endPosition'];
+        Object.keys(copiedInfo).forEach( keyword => {
+            copiedNode.set(copiedInfo['keyword'], annotation.get(keyword))
+        })
+        const test = new FlatItem(copiedNode);
+        // let annoEditView = new AnnoEditView({
+        //     positionDetails: positionDetails,
+        //     source: source,
+        //     collection: sourceView.collection,
+        // });
+        const newEditView = new AnnoEditView({ model:annotation });
+        this.explorerView.overlay(newEditView, ldItemview);
+        return newEditView;
+    }
+
     saveAnnotation(editView: AnnoEditView, annotation: FlatItem, newItem: boolean): void {
         this.explorerView.removeOverlay(editView);
         // TODO: re-enable the next line.

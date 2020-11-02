@@ -120,6 +120,10 @@ export default class LdItemView extends CompositeView<FlatItem> {
     onEditClicked(): void {
         explorerChannel.trigger('lditem:editAnnotation', this, this.model);
     }
+
+    onNewClicked(): void {
+        explorerChannel.trigger('lditem:newAnnotation', this, this.model);
+    }
 }
 
 extend(LdItemView.prototype, {
@@ -139,6 +143,7 @@ extend(LdItemView.prototype, {
         'click #btnRelItems': 'onRelItemsClicked',
         'click #btnAnnotations': 'onAnnotationsClicked',
         'click #btnExtResources': 'onExtResourcesClicked',
-        'click .btn-edit': 'onEditClicked'
+        'click .btn-edit': 'onEditClicked',
+        'click .btn-new': 'onNewClicked'
     },
 });
