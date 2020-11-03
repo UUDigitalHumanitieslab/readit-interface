@@ -5,6 +5,7 @@ import Node  from './../../jsonld/node';
 import { oa, as, vocab, rdf, xsd, staff, dcterms, } from './../../jsonld/ns';
 
 import ItemGraph from './../../utilities/item-graph';
+import FlatItem from './../../annotation/flat-item-model';
 import { AnnotationPositionDetails } from './annotation-utilities';
 
 const prefixLength = 100;
@@ -30,6 +31,25 @@ export function getAnonymousTextQuoteSelector(range: Range): Node {
 
     if (prefix) selector.set(oa.prefix, prefix);
     if (suffix) selector.set(oa.suffix, suffix);
+    return selector;
+}
+
+/**
+ * For an existing annotation, clone its text quote selector
+ * Creates new Node, so that we can edit the range for each annotation separately
+ * @param previousAnnotation: FlatItem
+ */
+export function cloneTextQuoteSelector(previousAnnotation: FlatItem){
+    let selector = new Node({
+        '@type': [oa.TextQuoteSelector],
+        [oa.exact]: [
+            {
+                "@value": previousAnnotation.get('text')
+            }
+        ]
+    });
+    if (previousAnnotation.has('prefix')) selector.set(oa.prefix, previousAnnotation.get('prefix'));
+    if (previousAnnotation.has('suffix')) selector.set(oa.suffix, previousAnnotation.get('suffix'));
     return selector;
 }
 

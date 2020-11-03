@@ -30,6 +30,7 @@ import {
     isType,
     isOntologyClass,
 } from '../utilities/utilities';
+import { threadId } from 'worker_threads';
 
 export default class ExplorerEventController {
     /**
@@ -170,23 +171,21 @@ export default class ExplorerEventController {
     }
 
     makeNewAnnotation(ldItemview: LdItemView, annotation: FlatItem): AnnoEditView {
-        const copiedNode = new Node();
-        const copiedInfo = {
-            'prefix': oa.prefix,
-            'suffix': oa.suffix,
-            'text': oa.exact
+        const positionDetails = {
+            startIndex: annotation.get('startPosition'),
+            endIndex: annotation.get('endPosition')
         }
-   //    'startPosition', 'endPosition'];
-        Object.keys(copiedInfo).forEach( keyword => {
-            copiedNode.set(copiedInfo['keyword'], annotation.get(keyword))
-        })
-        const test = new FlatItem(copiedNode);
-        // let annoEditView = new AnnoEditView({
-        //     positionDetails: positionDetails,
-        //     source: source,
-        //     collection: sourceView.collection,
-        // });
-        const newEditView = new AnnoEditView({ model:annotation });
+        let sourceItems = getItems(annotation.get('source'), function(error, items) {
+            if (error) console.debug(error);
+        });
+        let annotations = new FlatAnnoCollection(sourceItems);
+        let newEditView = new AnnoEditView({
+            previousAnnotation: annotation,
+            positionDetails: positionDetails,
+            source: annotation.get('source'),
+            collection: annotations,
+        });
+        const listView = newEditView['_listview'];
         this.explorerView.overlay(newEditView, ldItemview);
         return newEditView;
     }
