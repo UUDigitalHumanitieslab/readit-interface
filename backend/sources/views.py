@@ -146,16 +146,7 @@ class SourceSelection(RDFView):
     ''' list all sources related to a search query. '''
 
     def get_graph(self, request, **kwargs):
-        query_string = request.GET.get('query')
-        fields = request.GET.get('queryfields')
-        if query_string == '':
-            clause = {"match_all": {}}
-        else:
-            es_query = {"query": query_string}
-            if fields != 'all':
-                es_query['fields'] = [fields]
-            clause = {"simple_query_string": es_query}
-        body = {"query": clause}
+        body = construct_es_body(request)
         results = es.search(body=body, index=settings.ES_ALIASNAME)
         if results['hits']['total']['value'] == 0:
             return Graph()
@@ -432,3 +423,24 @@ class AddSource(RDFResourceView):
         full_graph += result
 
         return Response(result, HTTP_201_CREATED)
+
+
+def construct_es_body(request):
+    query_string = request.GET.get('query')
+    fields = request.GET.get('queryfields')
+    if query_string == '':
+        clause = {"match_all": {}}
+    else:
+        es_query = {"query": query_string}
+        if fields != 'all':
+            es_query['fields'] = [fields]
+        clause = {"simple_query_string": es_query}
+    body = {"query": clause}
+    return body
+
+
+def get_number_search_results(request):
+    body = construct_es_body(request)
+    results = es.search(body=body, index=settings.ES_ALIASNAME, size=0)
+    response = {'value': results['hits']['total']['value']}
+    return Response(response)
