@@ -1,13 +1,20 @@
 import { extend, sortBy } from 'lodash';
+import { ViewOptions as BaseOpt } from 'backbone';
 
 import { CompositeView } from '../../core/view';
 import Node from '../../jsonld/node';
 import LabelView from './../label-view';
 
+export interface ViewOptions extends BaseOpt<Node> {
+    level: number;
+}
+
 export default class OntologyClassPickerItemView extends CompositeView<Node> {
     labelView: LabelView;
 
-    initialize(): this {
+    initialize(options: ViewOptions): this {
+        const specifyMargin = 'is-level-' + options.level;
+        this.$el.addClass(specifyMargin);
         this.labelView = new LabelView({
             model: this.model,
             toolTipSetting: false
@@ -27,8 +34,13 @@ export default class OntologyClassPickerItemView extends CompositeView<Node> {
         return this;
     }
 
-    onClick(event: any): this {
+    onClick(event: Event): this {
         this.trigger('click', this);
+        return this;
+    }
+
+    onHover(): this {
+        this.trigger('hover', this.model);
         return this;
     }
 }
@@ -38,5 +50,6 @@ extend(OntologyClassPickerItemView.prototype, {
     subviews: ['labelView'],
     events: {
         'mousedown': 'onClick',
+        'mouseover': 'onHover'
     }
 });
