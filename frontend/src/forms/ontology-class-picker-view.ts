@@ -32,9 +32,10 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
-    makeItem(model: Node): OntologyClassPickerItemView {
-        return new OntologyClassPickerItemView({ model }).on({
+    makeItem(model: Node, level: number = 0): OntologyClassPickerItemView {
+        return new OntologyClassPickerItemView({ model, level }).on({
             click: this.onItemClicked,
+            hover: this.onItemHovered,
             activated: this.onItemActivated,
         }, this);
     }
@@ -97,6 +98,27 @@ export default class OntologyClassPickerView extends CollectionView<
     onItemClicked(view: OntologyClassPickerItemView): this {
         this.select(view.model);
         return this;
+    }
+
+    /**
+     * on hover, bring up subcategories, if they exist;
+     * remove previously shown subcategories, with the exception of
+     * siblings of the current node
+     * @param model 
+     */
+    onItemHovered(model: Node) {
+        // check if any other subcategories are displayed, if so, remove them
+        // don't remove siblings of current model, however.
+        let removedCategories = this.collection.filter( category => {
+            const nodeLevel = Number(category.get('level')[0]);
+            return nodeLevel != 0 && category.get('parent') != model.get('parent')
+        });
+        if (removedCategories) this.collection.remove(removedCategories);
+        const subcategories = this.model.get('subcategories') as Node[];
+        if (subcategories) {
+            const modelIndex = this.collection.indexOf(model);
+            this.collection.add(subcategories, { at: modelIndex });
+        }
     }
 
     onItemActivated(view: OntologyClassPickerItemView): this {
