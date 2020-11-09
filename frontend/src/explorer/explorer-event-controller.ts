@@ -185,8 +185,10 @@ export default class ExplorerEventController {
             source: annotation.get('source'),
             collection: annotations,
         });
-        const listView = newEditView['_listview'];
-        this.explorerView.overlay(newEditView, ldItemview);
+        const newLdItemView = new LdItemView({ model: newEditView.model })
+        this.explorerView.pop()
+        this.explorerView.push(newLdItemView);
+        this.explorerView.overlay(newEditView, newLdItemView);
         return newEditView;
     }
 
@@ -202,6 +204,8 @@ export default class ExplorerEventController {
             this.explorerView.removeOverlay(editView);
         } else {
             this.explorerView.pop();
+            const lowerview = this.explorerView.getRightMostStack().getTopPanel();
+            lowerview.model.set(annotation);
         }
         editView.collection.once('sort', () => {
             annotation.trigger('focus', annotation);

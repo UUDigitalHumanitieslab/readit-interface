@@ -167,7 +167,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     submitOldAnnotation(newItem: boolean): void {
         const annotation = this.model.get('annotation');
         this.selectedItem && annotation.set(oa.hasBody, this.selectedItem);
-        annotation.save();
+        annotation.save({patch: true});
         explorerChannel.trigger('annotationEditView:save', this, this.model, newItem);
     }
 
