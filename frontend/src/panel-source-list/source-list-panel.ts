@@ -12,12 +12,13 @@ import PaginationView from '../pagination/pagination-view';
 export interface ViewOptions extends BaseOpt {
     collection: Graph;
     model: Model;
-    countResults: Number;
+    resultsCount: Model;
 }
 
 export default class SourceListPanel extends CompositeView {
     sourceListView: SourceListView;
     paginationView: PaginationView;
+    totalPages: Number;
 
     constructor(options?: ViewOptions) {
         super(options);
@@ -25,8 +26,15 @@ export default class SourceListPanel extends CompositeView {
 
     initialize(options: ViewOptions) {
         this.sourceListView = new SourceListView({collection: options.collection, model: options.model});
-        this.paginationView = new PaginationView();
+        this.totalPages = Math.ceil(options.resultsCount.get('total_results') / options.resultsCount.get('results_per_page'));
+        this.paginationView = new PaginationView({totalPages: this.totalPages});
     }
+
+    // subviews() {
+    //     if (this.totalPages > 1) {
+    //         return [this.sourceListView, this.paginationView];
+    //     } else return [this.sourceListView];
+    // }
 
     renderContainer(): this {
         this.$el.html(this.template(this));
@@ -44,9 +52,10 @@ extend(SourceListPanel.prototype, {
     template: SourceListPanelTemplate,
     subviews: [{
         view: 'sourceListView',
-        selector: '.panel-content',
-    }, {
-        view: 'paginationView',
-        selector: '.panel-footer',
-    }]
+        selector: '.panel-content'}
+    // }, {
+    //     view: 'paginationView',
+    //     selector: '.panel-footer',
+    // }]
+    ]
 });

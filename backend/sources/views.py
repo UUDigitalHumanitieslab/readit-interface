@@ -4,7 +4,7 @@ import html
 import functools
 import operator
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.files.storage import default_storage
 from django.conf import settings
 from django.contrib.admin.utils import flatten
@@ -442,5 +442,5 @@ def construct_es_body(request):
 def get_number_search_results(request):
     body = construct_es_body(request)
     results = es.search(body=body, index=settings.ES_ALIASNAME, size=0)
-    response = {'value': results['hits']['total']['value']}
-    return Response(response)
+    response = {'total_results': results['hits']['total']['value'], 'results_per_page': settings.RESULTS_PER_PAGE}
+    return JsonResponse(response)

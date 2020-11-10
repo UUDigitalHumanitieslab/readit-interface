@@ -205,3 +205,6 @@ SILENCED_SYSTEM_CHECKS = ['urls.W002']
 ES_HOST = "localhost"
 ES_PORT = "9200"
 ES_ALIASNAME = "readit"
+
+
+RESULTS_PER_PAGE = 20

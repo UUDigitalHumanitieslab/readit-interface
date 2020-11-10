@@ -1,12 +1,20 @@
 import { extend } from 'lodash';
 
-import View from '../core/view';
+import View, {ViewOptions as BaseOpt} from '../core/view';
 
 import PaginationTemplate from './pagination-template';
 
-export default class PaginationView extends View {
+export interface ViewOptions extends BaseOpt {
+    totalPages: Number;
+}
 
-    initialize() {
+export default class PaginationView extends View {
+    currentPage: Number;
+    totalPages: Number;
+
+    initialize(options: ViewOptions) {
+        this.currentPage = 1;
+        this.totalPages = options.totalPages;
         this.render();
     }
 

@@ -13,7 +13,7 @@ urlpatterns = format_suffix_patterns([
     path('<int:serial>', SourcesAPISingular.as_view()),
     path('<int:serial>/fulltext', source_fulltext, name='fulltext'),
     path('search', SourceSelection.as_view(), name='search-fulltext'),
-    path('count_results', get_number_search_results, name='count-results'),
+    path('results_count', get_number_search_results, name='results_count'),
     path('highlight', SourceHighlights.as_view(), name='highlight'),
     path('suggestion', SourceSuggestion.as_view(), name='source_suggest')
 ])

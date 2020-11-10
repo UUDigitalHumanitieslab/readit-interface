@@ -25,19 +25,19 @@ export default class WelcomeView extends CompositeView {
 
     async search(query: string, queryfields: string = 'all') {
         const sources = new Graph();
-        const countResults = new Model();
-        await countResults.fetch({ 
-            url: 'source/count_results',
+        const resultsCount = new Model();
+        await resultsCount.fetch({ 
+            url: 'source/results_count',
             data: $.param({ query, queryfields })
         });
-        if (countResults.get('value') !== 0) {
+        if (resultsCount.get('value') !== 0) {
             await sources.fetch({
                 url: '/source/search',
                 data: $.param({ query, queryfields}),
             });
         }
         
-        this.trigger('search:searched', countResults, sources, query, queryfields);
+        this.trigger('search:searched', resultsCount, sources, query, queryfields);
     }
 }
 
