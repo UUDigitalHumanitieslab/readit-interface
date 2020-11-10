@@ -26,6 +26,7 @@ from nlp_ontology import NLP_ONTOLOGY_ROUTE
 from sources import SOURCES_ROUTE
 from items import ITEMS_ROUTE
 from sparql import SPARQL_ROUTE
+from final_ontology import FINAL_ONTOLOGY_ROUTE
 from .index import index, specRunner
 from .utils import decode_and_proxy
 from feedback.views import FeedbackViewSet
@@ -47,6 +48,7 @@ urlpatterns = [
     path(STAFF_ROUTE, include('staff.urls')),
     path(ONTOLOGY_ROUTE, include('ontology.urls')),
     path(NLP_ONTOLOGY_ROUTE, include('nlp_ontology.urls')),
+    path(FINAL_ONTOLOGY_ROUTE, include('final_ontology.urls')),
     path(SOURCES_ROUTE, include('sources.urls')),
     path(ITEMS_ROUTE, include('items.urls')),
     path(SPARQL_ROUTE, include('sparql.urls')),
