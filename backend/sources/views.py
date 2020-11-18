@@ -147,7 +147,11 @@ class SourceSelection(RDFView):
 
     def get_graph(self, request, **kwargs):
         body = construct_es_body(request)
-        results = es.search(body=body, index=settings.ES_ALIASNAME)
+        from_value = 0
+        page = request.GET.get('page')
+        if page:
+            from_value = (int(page)-1) * settings.RESULTS_PER_PAGE
+        results = es.search(body=body, index=settings.ES_ALIASNAME, size=settings.RESULTS_PER_PAGE, from_=from_value)
         if results['hits']['total']['value'] == 0:
             return Graph()
         selected_sources = select_sources_elasticsearch(results)
@@ -427,7 +431,7 @@ class AddSource(RDFResourceView):
 
 def construct_es_body(request):
     query_string = request.GET.get('query')
-    fields = request.GET.get('queryfields')
+    fields = request.GET.get('fields')
     if query_string == '':
         clause = {"match_all": {}}
     else:

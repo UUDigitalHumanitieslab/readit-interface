@@ -66,5 +66,5 @@ channel.on('currentRoute', (route, panel) => {
     // panel.
     browserHistory.replaceState(panel.cid, document.title);
 });
-welcomeView.on({'search:searched': controller.resetSourceListFromSearchResults}, controller);
+welcomeView.on({'search:start': controller.resetSourceListFromSearchResults}, controller);
 welcomeView.on({'suggestions:show': controller.showSuggestionsPanel}, controller);

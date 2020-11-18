@@ -1,34 +1,36 @@
 <nav class="pagination" role="navigation" aria-label="pagination">
-  <a class="pagination-previous">Previous</a>
-  <a class="pagination-next">Next page</a>
+  <a class="btn pagination-previous">Previous</a>
+  <a class="btn pagination-next">Next page</a>
   <ul class="pagination-list">
-    {{#if currentPage!=1}}
+    {{#if showPaginationLinks.start}}
     <li>
       <a class="pagination-link" aria-label="Goto page 1">1</a>
     </li>
     {{/if}}
-    {{#if currentPage>2}}
+    {{#if showPaginationLinks.ellipsisStart}}
     <li>
       <span class="pagination-ellipsis">&hellip;</span>
     </li>
     {{/if}}
     <li>
-      <a class="pagination-link">{{currentPage-1}}</a>
+      <a id="page-minus" class="pagination-link">{{pageMinus}}</a>
     </li>
     <li>
-      <a class="pagination-link is-current" aria-current="page">{{currentPage}}</a>
+      <a id="page" class="pagination-link" aria-current="page">{{page}}</a>
     </li>
+    {{#if showPaginationLinks.pagePlus}}
     <li>
-      <a class="pagination-link">{{currentPage+1}}</a>
+      <a id="page-plus" class="pagination-link">{{pagePlus}}</a>
     </li>
-    {{#if currentPage<lastPage-1}}
+    {{/if}}
+    {{#if showPaginationLinks.ellipsisEnd}}
     <li>
       <span class="pagination-ellipsis">&hellip;</span>
     </li>
     {{/if}}
-    {{#if currentPage!=lastPage}}
+    {{#if showPaginationLinks.end}}
     <li>
-      <a class="pagination-link" aria-label="Goto last page">{{lastPage}}</a>
+      <a class="pagination-link" aria-label="Goto last page">{{totalPages}}</a>
     </li>
     {{/if}}
   </ul>

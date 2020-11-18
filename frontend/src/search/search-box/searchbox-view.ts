@@ -6,7 +6,7 @@ import QueryField from './query-field'
 
 export default class SearchboxView extends View {
     defaultOption: QueryField;
-    queryFields: QueryField[] = undefined;
+    fields: QueryField[] = undefined;
 
     /**
      * Ctor for SearchboxView
@@ -17,7 +17,7 @@ export default class SearchboxView extends View {
         queryFields: QueryField[],
         defaultOption: QueryField = queryFields[0]) {
         super()
-        this.queryFields = queryFields;
+        this.fields = queryFields;
         this.defaultOption = defaultOption;
         this.render();
     }
@@ -35,9 +35,9 @@ export default class SearchboxView extends View {
 
     search(event: any) {
         event.preventDefault();
-        var query = this.$('.input').val();
-        var queryfields = this.$(".dropdown-item.is-active").attr("value")
-        this.trigger("searchClicked", query, queryfields);
+        const query = this.$('.input').val();
+        const fields = this.$(".dropdown-item.is-active").attr("value")
+        this.trigger("searchClicked", query, fields);
     }
 
     selectField(event: any) {
