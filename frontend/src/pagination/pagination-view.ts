@@ -11,7 +11,8 @@ export interface ViewOptions extends BaseOpt {
 export default class PaginationView extends View {
     totalPages: number;
     showPaginationLinks: PaginationLinks;
-    page: number;
+    currentPage: number;
+    pageCenter: number;
     pagePlus: number;
     pageMinus: number;
 
@@ -22,6 +23,18 @@ export default class PaginationView extends View {
 
     render(): this {
         this.$el.html(this.template(this));
+        if (this.currentPage === this.pagePlus) {
+            this.$('#page-plus').addClass('is-current');
+        } else if (this.currentPage === this.pageCenter) {
+            this.$('#page-center').addClass('is-current');
+        } else if (this.currentPage === this.pageMinus) {
+            this.$('#page-minus').addClass('is-current');
+        }
+        if (this.currentPage === 1) {
+            this.$('.pagination-previous').attr('disabled', 'true');
+        } else if (this.currentPage === this.totalPages) {
+            this.$('.pagination-next').attr('disabled', 'true');
+        }
         return this;
     }
 
@@ -36,33 +49,25 @@ export default class PaginationView extends View {
     }
 
     determineCurrentPages(page: number) {
+        this.currentPage = page;
         this.showPaginationLinks = this.initializePaginationLinks();
-        $('.pagination-link').removeClass('is-current');
         if (this.totalPages < 3) {
             this.pageMinus = page;
-            this.page = 2;
-            $('#page-minus').addClass('is-current');
-        }
-        else {
+            this.pageCenter = 2;
+        } else {
             this.showPaginationLinks['pagePlus'] = true;
             if (page === 1) {
-                $('.pagination-previous').attr('disabled', 'true');
                 this.pageMinus = page;
-                this.page = page + 1;
+                this.pageCenter = page + 1;
                 this.pagePlus = page + 2;
-                $('#page-minus').addClass('is-current');
             } else if (page === this.totalPages) {
-                $('.pagination-next').attr('disabled', 'true');
                 this.pageMinus = page - 2;
-                this.page = page - 1;
+                this.pageCenter = page - 1;
                 this.pagePlus = page;
-                $('#page-plus').addClass('is-current');
             } else {
-                $('.btn').attr('disabled', 'false');
                 this.pageMinus = page - 1;
-                this.page = page;
+                this.pageCenter = page;
                 this.pagePlus = page + 1;
-                $('#page').addClass('is-current');
                 if (page > 3) this.showPaginationLinks['start'] = true;
                 if (page > 4) this.showPaginationLinks['ellipsis-start'] = true;
                 if (this.totalPages > 3 && page < this.totalPages-1) this.showPaginationLinks['end'] = true;
@@ -73,22 +78,25 @@ export default class PaginationView extends View {
     }
 
     clickPrevious() {
-        this.triggerSearch(this.page-1);
+        this.triggerSearch(this.currentPage-1);
     }
 
     clickNext() {
-        this.triggerSearch(this.page+1);
+        this.triggerSearch(this.currentPage+1);
     }
 
     clickPageMinus() {
+        if (this.currentPage === this.pageMinus) return;
         this.triggerSearch(this.pageMinus);
     }
 
-    clickPage() {
-        this.triggerSearch(this.page);
+    clickPageCenter() {
+        if (this.currentPage === this.pageCenter) return;
+        this.triggerSearch(this.pageCenter);
     }
 
     clickPagePlus() {
+        if (this.currentPage === this.pagePlus) return;
         this.triggerSearch(this.pagePlus);
     }
 
@@ -107,7 +115,7 @@ extend(PaginationView.prototype, {
         'click .pagination-previous': 'clickPrevious',
         'click .pagination-next': 'clickNext',
         'click #page-minus': 'clickPageMinus',
-        'click #page': 'clickPage',
+        'click #page-center': 'clickPageCenter',
         'click #page-plus': 'clickPagePlus'
     }
 });
