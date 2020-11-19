@@ -450,7 +450,5 @@ def construct_es_body(request):
 def get_number_search_results(request):
     body = construct_es_body(request)
     results = es.search(body=body, index=settings.ES_ALIASNAME, size=0)
-    logger.info(results)
     response = {'total_results': results['hits']['total']['value'], 'results_per_page': settings.RESULTS_PER_PAGE}
-    logger.info(response)
     return JsonResponse(response)
