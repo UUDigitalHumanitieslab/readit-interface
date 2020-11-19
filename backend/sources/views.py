@@ -37,6 +37,10 @@ from .permissions import UploadSourcePermission, DeleteSourcePermission
 
 es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
 
+import logging
+# Get sources logger for logging on server
+logger = logging.getLogger('sources')
+
 SELECT_SOURCES_QUERY_START = '''
 CONSTRUCT {
     ?id ?p ?o.
@@ -446,5 +450,7 @@ def construct_es_body(request):
 def get_number_search_results(request):
     body = construct_es_body(request)
     results = es.search(body=body, index=settings.ES_ALIASNAME, size=0)
+    logger.debug(results)
     response = {'total_results': results['hits']['total']['value'], 'results_per_page': settings.RESULTS_PER_PAGE}
+    logger.debug(response)
     return JsonResponse(response)
