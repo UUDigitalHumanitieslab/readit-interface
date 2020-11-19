@@ -89,27 +89,10 @@ export default class PaginationView extends View {
         this.triggerSearch(this.currentPage+1);
     }
 
-    clickPageMinus() {
-        if (this.currentPage === this.pageMinus) return;
-        this.triggerSearch(this.pageMinus);
-    }
-
-    clickPageCenter() {
-        if (this.currentPage === this.pageCenter) return;
-        this.triggerSearch(this.pageCenter);
-    }
-
-    clickPagePlus() {
-        if (this.currentPage === this.pagePlus) return;
-        this.triggerSearch(this.pagePlus);
-    }
-
-    clickPageFirst() {
-        this.triggerSearch(1);
-    }
-
-    clickPageLast() {
-        this.triggerSearch(this.totalPages);
+    clickPageLink(event) {
+        const page = parseInt(event.currentTarget.text);
+        if (page == this.currentPage) return;
+        this.triggerSearch(page);
     }
 
     triggerSearch(page: number) {
@@ -126,11 +109,7 @@ extend(PaginationView.prototype, {
     events: {
         'click .pagination-previous': 'clickPrevious',
         'click .pagination-next': 'clickNext',
-        'click #page-minus': 'clickPageMinus',
-        'click #page-center': 'clickPageCenter',
-        'click #page-plus': 'clickPagePlus',
-        'click #page-first': 'clickPageFirst',
-        'click #page-last': 'clickPageLast'
+        'click .pagination-link': 'clickPageLink'
     }
 });
 
