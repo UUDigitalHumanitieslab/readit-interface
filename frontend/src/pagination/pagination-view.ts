@@ -55,7 +55,7 @@ export default class PaginationView extends View {
             this.pageMinus = page;
             this.pageCenter = 2;
         } else {
-            this.showPaginationLinks['pagePlus'] = true;
+            this.adjustPaginationLinks(page);
             if (page === 1) {
                 this.pageMinus = page;
                 this.pageCenter = page + 1;
@@ -68,13 +68,17 @@ export default class PaginationView extends View {
                 this.pageMinus = page - 1;
                 this.pageCenter = page;
                 this.pagePlus = page + 1;
-                if (page > 3) this.showPaginationLinks['start'] = true;
-                if (page > 4) this.showPaginationLinks['ellipsis-start'] = true;
-                if (this.totalPages > 3 && page < this.totalPages-1) this.showPaginationLinks['end'] = true;
-                if (page < this.totalPages-2) this.showPaginationLinks['ellipsis-end'] = true;
             }
         }
         this.render();
+    }
+
+    adjustPaginationLinks(page: number) {
+        this.showPaginationLinks['pagePlus'] = true;
+        if (page > 2) this.showPaginationLinks['start'] = true;
+        if (page > 3) this.showPaginationLinks['ellipsisStart'] = true;
+        if (this.totalPages > 3 && page < this.totalPages-1) this.showPaginationLinks['end'] = true;
+        if (page < this.totalPages-2) this.showPaginationLinks['ellipsisEnd'] = true;
     }
 
     clickPrevious() {
@@ -100,6 +104,14 @@ export default class PaginationView extends View {
         this.triggerSearch(this.pagePlus);
     }
 
+    clickPageFirst() {
+        this.triggerSearch(1);
+    }
+
+    clickPageLast() {
+        this.triggerSearch(this.totalPages);
+    }
+
     triggerSearch(page: number) {
         this.trigger("pagination:set", page);
         this.determineCurrentPages(page);
@@ -116,7 +128,9 @@ extend(PaginationView.prototype, {
         'click .pagination-next': 'clickNext',
         'click #page-minus': 'clickPageMinus',
         'click #page-center': 'clickPageCenter',
-        'click #page-plus': 'clickPagePlus'
+        'click #page-plus': 'clickPagePlus',
+        'click #page-first': 'clickPageFirst',
+        'click #page-last': 'clickPageLast'
     }
 });
 

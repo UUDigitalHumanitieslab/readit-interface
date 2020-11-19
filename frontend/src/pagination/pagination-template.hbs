@@ -4,7 +4,7 @@
   <ul class="pagination-list">
     {{#if showPaginationLinks.start}}
     <li>
-      <a class="pagination-link" aria-label="Goto page 1">1</a>
+      <a id="page-first" class="pagination-link" aria-label="Goto page 1">1</a>
     </li>
     {{/if}}
     {{#if showPaginationLinks.ellipsisStart}}
@@ -30,7 +30,7 @@
     {{/if}}
     {{#if showPaginationLinks.end}}
     <li>
-      <a class="pagination-link" aria-label="Goto last page">{{totalPages}}</a>
+      <a id="page-last" class="pagination-link" aria-label="Goto last page">{{totalPages}}</a>
     </li>
     {{/if}}
   </ul>
