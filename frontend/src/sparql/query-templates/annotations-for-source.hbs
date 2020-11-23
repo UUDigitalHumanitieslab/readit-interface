@@ -1,0 +1,12 @@
+PREFIX oa: <http://www.w3.org/ns/oa#>
+
+CONSTRUCT { ?annotation ?p ?o }
+WHERE {
+ ?annotation    ?p              ?o              ;
+  	            a 		        oa:Annotation   ;
+ 	            oa:hasTarget    ?x              .
+ ?x             oa:hasSource    ?source         .
+}
+LIMIT 100
+OFFSET 0
+
