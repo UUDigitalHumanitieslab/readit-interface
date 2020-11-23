@@ -95,6 +95,13 @@ export default class ItemGraph extends Graph {
         return this.promise = this.fetch({data});
     }
 
+    sparqlQuery(query: string): JQuery.jqXHR {
+        const data: any = {};
+        const q = 'CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } '
+        data.query = q;
+        return this.promise = this.fetch({ url: '/sparql/item/query' });
+    }
+
     /**
      * Invokes the given callback when the most recent query completes.
      */

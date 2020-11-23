@@ -14,13 +14,14 @@ import AnnotationListView from '../annotation/annotation-list-view';
 import OntologyListView from '../ontology/ontology-list-view';
 import LabelView from '../ontology/label-view';
 import FlatAnnotationCollection from '../annotation/flat-annotation-collection';
+import ItemGraph from '../utilities/item-graph';
 
 const announce = announceRoute('explore');
 const nSuggestions = 3;
 
 export default class SuggestionsView extends CompositeView{
     sourceSuggestions: Graph;
-    annotationGraph: Graph;
+    annotationGraph: ItemGraph;
     annotationSuggestions: FlatAnnotationCollection;
     categorySuggestions: Graph;
     sourceList: SourceListView;
@@ -28,9 +29,10 @@ export default class SuggestionsView extends CompositeView{
     ontologyList: OntologyListView;
 
 
+
     initialize(){
         this.sourceSuggestions = new Graph();
-        this.annotationGraph = new Graph();
+        this.annotationGraph = new ItemGraph();
         this.annotationSuggestions = new FlatAnnotationCollection(this.annotationGraph);
         this.categorySuggestions = new Graph();
         this.getSuggestions();
@@ -47,7 +49,8 @@ export default class SuggestionsView extends CompositeView{
     async getSuggestions() {
         const param = $.param({ n_results: nSuggestions });
         this.sourceSuggestions.fetch({ url: '/source/suggestion', data: param });
-        this.annotationGraph.fetch({ url: '/item/suggestion', data: param });
+        // this.annotationGraph.fetch({ url: '/item/suggestion', data: param });
+        this.annotationGraph.sparqlQuery('bla');
         const categories = await ldChannel.request('ontology:promise');
         const suggestions = sampleSize(filter(categories.models, isRdfsClass), nSuggestions);
         this.categorySuggestions.set(suggestions);
