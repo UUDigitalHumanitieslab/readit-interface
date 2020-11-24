@@ -242,6 +242,12 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         this.trigger('add-related-item', this.classPicker.getSelected());
         return this;
     }
+
+    saveOnEnter(event) {
+        if (event.keyCode == 13) {
+            this.submit();
+        }
+    }
 }
 
 extend(AnnotationEditView.prototype, {
@@ -270,5 +276,6 @@ extend(AnnotationEditView.prototype, {
         'click .panel-footer button.is-danger': 'onDelete',
         'click .btn-rel-items': 'onRelatedItemsClicked',
         'click .item-picker-container .field:last button': 'createItem',
+        'keyup input': 'saveOnEnter',
     },
 });
