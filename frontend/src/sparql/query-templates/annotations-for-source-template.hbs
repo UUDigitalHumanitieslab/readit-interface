@@ -1,12 +1,19 @@
 PREFIX oa: <http://www.w3.org/ns/oa#>
-
+PREFIX schema: <>
 CONSTRUCT { ?annotation ?p ?o }
 WHERE {
  ?annotation    ?p              ?o              ;
   	            a 		        oa:Annotation   ;
  	            oa:hasTarget    ?x              .
- ?x             oa:hasSource    ?source         .
+ ?x             oa:hasSource    {{sourceURI}}   .
+ ?annotation    oa:dateCreated  ?date .
+ {{#if userHasLimitedRights}}
+ ?annotation    schema:creator  {{userURI}}
+ {{/if }}
 }
-LIMIT 100
-OFFSET 0
+LIMIT {{resultsPerPage}}
+{{#if fromResult}}
+OFFSET {{fromResult}}
+ORDER BY ?date
+{{/if }}
 
