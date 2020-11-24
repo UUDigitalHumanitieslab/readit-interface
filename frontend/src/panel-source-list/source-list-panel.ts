@@ -30,6 +30,7 @@ export default class SourceListPanel extends CompositeView {
         this.totalPages = Math.ceil(options.resultsCount.get('total_results') / options.resultsCount.get('results_per_page'));
         this.paginationView = new PaginationView({totalPages: this.totalPages});
         this.listenTo(this.paginationView, 'pagination:set', this.fetchMoreSources);
+        this.listenTo(this.sourceListView, 'source:clicked', this.onSourceClicked);
     }
 
     initSourceList() {
@@ -70,8 +71,8 @@ export default class SourceListPanel extends CompositeView {
         return this;
     }
 
-    onSourceClicked(sourceCid: string): this {
-        explorerChannel.trigger('source-list:click', this, this.collection.get(sourceCid));
+    onSourceClicked(model: Node): this {
+        explorerChannel.trigger('source-list:click', this, model);
         return this;
     }
 }
@@ -79,11 +80,4 @@ export default class SourceListPanel extends CompositeView {
 extend(SourceListPanel.prototype, {
     className: 'source-list explorer-panel',
     template: SourceListPanelTemplate,
-    // subviews: [{
-    //     view: 'sourceListView',
-    //     selector: '.panel-content'
-    // }, {
-    //     view: 'paginationView',
-    //     selector: '.panel-footer',
-    // }]
 });

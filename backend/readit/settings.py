@@ -207,7 +207,7 @@ ES_PORT = "9200"
 ES_ALIASNAME = "readit"
 
 
-RESULTS_PER_PAGE = 1
+RESULTS_PER_PAGE = 2
 
 LOGGING = {
     'version': 1,

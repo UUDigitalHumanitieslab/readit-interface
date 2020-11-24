@@ -75,7 +75,7 @@ export default class PaginationView extends View {
 
     adjustPaginationLinks(page: number) {
         this.showPaginationLinks['pagePlus'] = true;
-        if (page > 2) this.showPaginationLinks['start'] = true;
+        if (this.totalPages > 3 && page > 2) this.showPaginationLinks['start'] = true;
         if (page > 3) this.showPaginationLinks['ellipsisStart'] = true;
         if (this.totalPages > 3 && page < this.totalPages-1) this.showPaginationLinks['end'] = true;
         if (page < this.totalPages-2) this.showPaginationLinks['ellipsisEnd'] = true;
