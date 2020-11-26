@@ -1,12 +1,12 @@
 import { extend } from 'lodash';
-
-import { item } from '../jsonld/ns';
-import { FlatLdDocument } from '../jsonld/json';
-import Node, { isNode } from '../jsonld/node';
 import Graph from '../jsonld/graph';
+import Node from '../jsonld/node';
+import { item } from '../jsonld/ns';
+import { annotationsForSourceQuery } from '../sparql/compile-query';
 import { asURI } from '../utilities/utilities';
+import * as $ from 'jquery';
 
-import { annotationsForSourceQuery } from '../sparql/compile-query'
+
 
 export interface QueryParamsURI {
     predicate?: Node | string;
@@ -98,14 +98,7 @@ export default class ItemGraph extends Graph {
     }
 
     sparqlQuery(query: string): JQuery.jqXHR {
-        const data: any = {};
-        const q = 'CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } '
-        data.query = q;
-        // annotationsBySource('localhost:8000/source/1', null, { limit: 5, offset: 5, orderBy: [{ expression: 'name', desc: true }] })
-        annotationsForSourceQuery('localhost:8000/source/1', 'piet', { limit: 10, offset: 20, orderBy: [{ expression: 'name', desc: true }] })
-
-
-        return this.promise = this.fetch({ url: '/sparql/item/query' });
+        return this.promise = this.fetch({ url: '/sparql/item/query', data: $.param({ query: query }) });
     }
 
     /**

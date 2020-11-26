@@ -1,7 +1,7 @@
 import { Namespace } from '../jsonld/vocabulary';
-import AnnotationsForSourceTemplate from './query-templates/annotations-for-source-template';
-import { Handlebars } from 'handlebars/lib/handlebars.runtime';
 import ldChannel from '../jsonld/radio';
+import annotationsTemplate from './query-templates/annotations-for-source-template';
+import itemsTemplate from './query-templates/items-for-source-template';
 
 export interface OrderByOption {
     expression: string,
@@ -25,14 +25,7 @@ function orderByOptionsAsString(options: OrderByOption[]): string {
     let opts = options.map(opt => {
         return opt.desc ? `DESC(?${opt.expression})` : `?${opt.expression})`
     });
-    return 'ORDER_BY ' + opts.join(' ');
-}
-
-function prefixesAsString(namespaces: NamespaceOption[]): string {
-    let prefixes = namespaces.map(nsopt => {
-        return `PREFIX ${nsopt.label}: <${nsopt.prefix}>`
-    });
-    return prefixes.join('\n')
+    return 'ORDER BY ' + opts.join(' ');
 }
 
 function parseQueryOptions(options: SPARQLQueryOptions) {
@@ -47,25 +40,26 @@ function parseQueryOptions(options: SPARQLQueryOptions) {
         optionsData['offset'] = options.offset;
     }
     if (options.orderBy) {
-        optionsData['orderby'] = orderByOptionsAsString(options.orderBy);
+        optionsData['orderBy'] = orderByOptionsAsString(options.orderBy);
     }
     return optionsData;
 }
 
-
-export async function annotationsForSourceQuery(source: string, user: string = undefined, { ...options }: SPARQLQueryOptions) {
-    let data = { source: source };
+export function annotationsForSourceQuery(source: string, user: string = undefined, { ...options }: SPARQLQueryOptions) {
+    let data = { sourceURI: source };
     if (user) {
-        data['user'] = user
+        data['userURI'] = user
     }
     let optionsData = parseQueryOptions(options);
     let finalData = { ...data, ...optionsData };
-    const currentUser = await ldChannel.request('current-user-uri');
-    console.log(currentUser);
+    let userUri = ldChannel.request('current-user-uri');
+    console.log(userUri);
+    return annotationsTemplate(finalData);
+}
 
-    // console.log(Handlebars.compile(AnnotationsForSourceTemplate)(data))
-    return {
-        template: AnnotationsForSourceTemplate,
-        data: data
-    }
+export function itemsForSourceQuery(source: string, { ...options }: SPARQLQueryOptions) {
+    const data = { ...{ sourceURI: source }, ...parseQueryOptions(options) }
+    return itemsTemplate(data)
+        .replace(/ {2,}/g, ' ')
+        ;
 }

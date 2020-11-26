@@ -5,10 +5,10 @@ PREFIX schema: <http://schema.org/>
 PREFIX oa: <http://www.w3.org/ns/oa#>
 CONSTRUCT { ?annotation ?p ?o }
 WHERE {
-	?annotation 	?p 				?o 				;
-  	            	a 		        oa:Annotation   ;
- 	        		oa:hasTarget    ?x              ;
-					oa:dateCreated 	?date 			.
+    VALUES ?category { oa:Annotation oa:SpecificResource oa:TextQuoteSelector oa:TextPositionSelector }
+	?item 	        ?p 				?o 				;
+  	            	a 		        ?category       ;
+ 	        		oa:hasTarget    ?x              .
 	?x 				oa:hasSource 	<{{sourceURI}}> .
 	{{#if userURI}}
 	?annotation 	schema:creator 	<{{userURI}}> 	.

@@ -29,7 +29,9 @@ import FilteredCollection from '../utilities/filtered-collection';
 import {
     isType,
     isOntologyClass,
+    asURI,
 } from '../utilities/utilities';
+import { itemsForSourceQuery } from '../sparql/compile-query';
 
 export default class ExplorerEventController {
     /**
@@ -275,13 +277,24 @@ export default class ExplorerEventController {
  */
 export function getItems(source: Node, callback): ItemGraph {
     const items = new ItemGraph();
-    items.query({ object: source, traverse: 1, revTraverse: 1 }).then(
+    const queryString = itemsForSourceQuery(asURI(source), {});
+    console.log(queryString);
+    console.log(ldChannel.request('current-user-uri'));
+
+    items.sparqlQuery(queryString).then(
         function success() {
             callback(null, items);
         },
         /*error*/ callback
     );
     return items;
+    // items.query({ object: source, traverse: 1, revTraverse: 1 }).then(
+    //     function success() {
+    //         callback(null, items);
+    //     },
+    //     /*error*/ callback
+    // );
+    // return items;
 }
 
 /**

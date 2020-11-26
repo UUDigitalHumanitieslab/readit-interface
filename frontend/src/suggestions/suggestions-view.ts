@@ -49,8 +49,7 @@ export default class SuggestionsView extends CompositeView{
     async getSuggestions() {
         const param = $.param({ n_results: nSuggestions });
         this.sourceSuggestions.fetch({ url: '/source/suggestion', data: param });
-        // this.annotationGraph.fetch({ url: '/item/suggestion', data: param });
-        this.annotationGraph.sparqlQuery('bla');
+        this.annotationGraph.fetch({ url: '/item/suggestion', data: param });
         const categories = await ldChannel.request('ontology:promise');
         const suggestions = sampleSize(filter(categories.models, isRdfsClass), nSuggestions);
         this.categorySuggestions.set(suggestions);
