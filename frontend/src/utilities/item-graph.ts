@@ -6,6 +6,8 @@ import Node, { isNode } from '../jsonld/node';
 import Graph from '../jsonld/graph';
 import { asURI } from '../utilities/utilities';
 
+import { annotationsForSourceQuery } from '../sparql/compile-query'
+
 export interface QueryParamsURI {
     predicate?: Node | string;
     object?: Node | string;
@@ -99,6 +101,10 @@ export default class ItemGraph extends Graph {
         const data: any = {};
         const q = 'CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } '
         data.query = q;
+        // annotationsBySource('localhost:8000/source/1', null, { limit: 5, offset: 5, orderBy: [{ expression: 'name', desc: true }] })
+        annotationsForSourceQuery('localhost:8000/source/1', 'piet', { limit: 10, offset: 20, orderBy: [{ expression: 'name', desc: true }] })
+
+
         return this.promise = this.fetch({ url: '/sparql/item/query' });
     }
 
