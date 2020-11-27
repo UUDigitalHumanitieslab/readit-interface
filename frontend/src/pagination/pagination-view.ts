@@ -15,12 +15,12 @@ export default class PaginationView extends View {
     pageCenter: number;
     pagePlus: number;
     pageMinus: number;
-    showFirstLastPageLink: boolean;
+    numberPaginationLinks: number;
 
     initialize(options: ViewOptions) {
         this.totalPages = options.totalPages;
-        // show the first and last page link only if we have more than three pages
-        this.showFirstLastPageLink = this.totalPages > 3 ? true : false;
+        // there are three pagination links around the current page
+        this.numberPaginationLinks = 3;
         this.determineCurrentPages(1);
     }
 
@@ -47,7 +47,7 @@ export default class PaginationView extends View {
         return {
             start: false,
             ellipsisStart: false,
-            pagePlus: false,
+            pagePlus: true,
             ellipsisEnd: false,
             end: false
         }
@@ -56,44 +56,34 @@ export default class PaginationView extends View {
     determineCurrentPages(page: number) {
         this.currentPage = page;
         this.showPaginationLinks = this.initializePaginationLinks();
-        if (this.totalPages < 3) {
-            // special case: only 2 pages
-            // pageMinus is the left page link, which is always one or two
-            // pagePlus is the right page link, only shown for three and more pages
-            if (page == 1 ) {
-                this.pageMinus = page;
-                this.pageCenter = page+1;
-            }
-            else {
-                this.pageMinus = page-1;
-                this.pageCenter = page;
-            }
+        this.adjustPaginationLinks(page);
+        if (page === 1) {
+            this.pageMinus = page;
+            this.pageCenter = page + 1;
+            this.pagePlus = page + 2;
+        } else if (this.totalPages >= this.numberPaginationLinks && page === this.totalPages) {
+            // apply this rule if we are at the final page
+            // exception: if we only have two pages, apply else condition instead
+            this.pageMinus = page - 2;
+            this.pageCenter = page - 1;
+            this.pagePlus = page;
         } else {
-            this.adjustPaginationLinks(page);
-            if (page === 1) {
-                this.pageMinus = page;
-                this.pageCenter = page + 1;
-                this.pagePlus = page + 2;
-            } else if (page === this.totalPages) {
-                this.pageMinus = page - 2;
-                this.pageCenter = page - 1;
-                this.pagePlus = page;
-            } else {
-                this.pageMinus = page - 1;
-                this.pageCenter = page;
-                this.pagePlus = page + 1;
-            }
+            this.pageMinus = page - 1;
+            this.pageCenter = page;
+            this.pagePlus = page + 1;
         }
         this.render();
     }
 
     adjustPaginationLinks(page: number) {
+        // only show right pagination link (page-plus) if we have more than two pages
+        if (this.totalPages < this.numberPaginationLinks) this.showPaginationLinks['pagePlus'] = false;
         // control visiblity of first / last page link
+        // never show them if our total pages don't exceed the number of pagination links (3)
+        if (this.totalPages > this.numberPaginationLinks && page > 2) this.showPaginationLinks['start'] = true;
+        if (this.totalPages > this.numberPaginationLinks && page < this.totalPages-1) this.showPaginationLinks['end'] = true;
         // control visiblity of ellipses at start and end
-        this.showPaginationLinks['pagePlus'] = true;
-        if (this.showFirstLastPageLink && page > 2) this.showPaginationLinks['start'] = true;
         if (page > 3) this.showPaginationLinks['ellipsisStart'] = true;
-        if (this.showFirstLastPageLink && page < this.totalPages-1) this.showPaginationLinks['end'] = true;
         if (page < this.totalPages-2) this.showPaginationLinks['ellipsisEnd'] = true;
     }
 
@@ -123,8 +113,8 @@ extend(PaginationView.prototype, {
     className: 'pagination',
     template: PaginationTemplate,
     events: {
-        'click .pagination-previous': 'clickPrevious',
-        'click .pagination-next': 'clickNext',
+        'click .pagination-previous:not([disabled])': 'clickPrevious',
+        'click .pagination-next:not([disabled])': 'clickNext',
         'click .pagination-link': 'clickPageLink'
     }
 });
