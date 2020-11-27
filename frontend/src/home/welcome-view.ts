@@ -1,4 +1,5 @@
 import { extend } from 'lodash';
+import Model from '../core/model';
 import View, { CompositeView, ViewOptions as BaseOpt } from '../core/view';
 import Graph from '../jsonld/graph';
 import welcomeTemplate from './welcome-template';
@@ -22,13 +23,15 @@ export default class WelcomeView extends CompositeView {
         return this;
     }
 
-    async search(query: string, queryfields: string = 'all') {
-        const sources = new Graph();
-        await sources.fetch({
-            url: '/source/search',
-            data: $.param({ query, queryfields}),
+    async search(query: string, fields: string = 'all') {
+        const resultsCount = new Model();
+        await resultsCount.fetch({ 
+            url: 'source/results_count',
+            data: $.param({ query, fields })
         });
-        this.trigger('search:searched', sources, query, queryfields);
+        if (resultsCount.get('value') !== 0) {
+            this.trigger('search:start', resultsCount, query, fields);
+        }
     }
 }
 

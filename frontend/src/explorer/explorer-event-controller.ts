@@ -80,10 +80,10 @@ export default class ExplorerEventController {
         return [sourcePanel, listPanel];
     }
 
-    resetSourceListFromSearchResults(results: Graph, query: string, fields: string) {
+    resetSourceListFromSearchResults(resultsCount: Model, query: string, fields: string) {
         const queryModel = new Model({ query, fields });
-        const resultsView = new SourceListPanel({ collection: results, model: queryModel });
-        this.explorerView.reset(resultsView);
+        const sourceListPanel = new SourceListPanel({ resultsCount: resultsCount, model: queryModel });
+        this.explorerView.reset(sourceListPanel);
     }
 
     showSuggestionsPanel() {
