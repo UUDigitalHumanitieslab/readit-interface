@@ -1,7 +1,7 @@
 import { extend, invokeMap } from 'lodash';
 
 import { CollectionView, ViewOptions as BaseOpt } from '../../core/view';
-import FlatItem from '../../annotation/flat-item-model';
+import FlatItem from '../../core/flat-item-model';
 import explorerChannel from '../../explorer/radio';
 import { announceRoute } from '../../explorer/utilities';
 

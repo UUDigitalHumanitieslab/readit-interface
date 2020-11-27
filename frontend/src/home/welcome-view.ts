@@ -1,6 +1,6 @@
 import { extend } from 'lodash';
 import View, { CompositeView, ViewOptions as BaseOpt } from '../core/view';
-import Graph from '../jsonld/graph';
+import Graph from '../core/graph';
 import welcomeTemplate from './welcome-template';
 
 export interface ViewOptions extends BaseOpt {

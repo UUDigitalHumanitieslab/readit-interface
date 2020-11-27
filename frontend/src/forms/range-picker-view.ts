@@ -1,10 +1,10 @@
 import { map, some, defaults } from 'lodash';
 
-import { rdfs } from '../jsonld/ns';
-import Node from '../jsonld/node';
-import Graph from '../jsonld/graph';
-import { getRdfSubClasses } from '../utilities/utilities';
-import FilteredCollection from '../utilities/filtered-collection';
+import { rdfs } from '../core/ns';
+import Node from '../core/node';
+import Graph from '../core/graph';
+import { getRdfSubClasses } from '../utilities/linked-data-utilities';
+import FilteredCollection from '../core/filtered-collection';
 import PickerView, { PickerOptions } from './base-picker-view';
 
 export interface RangePickerOptions extends PickerOptions {

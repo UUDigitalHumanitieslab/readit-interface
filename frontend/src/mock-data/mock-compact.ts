@@ -9,7 +9,7 @@ import {
     schema,
     xsd,
     oa,
-} from '../jsonld/ns';
+} from '../core/ns';
 import context from './mock-context';
 
 export const contentInstance = {

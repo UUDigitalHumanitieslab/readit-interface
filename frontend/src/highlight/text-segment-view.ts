@@ -4,11 +4,11 @@ import { $, ViewOptions as BViewOptions } from 'backbone';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
-import FlatItem from '../annotation/flat-item-model';
-import FlatCollection from '../annotation/flat-annotation-collection';
+import FlatItem from '../core/flat-item-model';
+import FlatCollection from '../core/flat-annotation-collection';
 import SegmentModel from './text-segment-model';
 import LineSegment from './line-segment-view';
-import ToggleMixin from '../utilities/category-colors/category-toggle-mixin';
+import ToggleMixin from '../ontology/category-colors/category-toggle-mixin';
 import { getRange } from '../utilities/range-utilities';
 
 // Required options for TextSegmentView.

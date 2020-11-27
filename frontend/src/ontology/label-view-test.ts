@@ -1,8 +1,8 @@
 import { enableI18n } from '../test-util';
 
-import { rdfs, skos } from './../jsonld/ns';
-import { FlatLdObject } from '../jsonld/json';
-import Node from '../jsonld/node';
+import { rdfs, skos } from './../core/ns';
+import { FlatLdObject } from '../core/json';
+import Node from '../core/node';
 import LabelView from './label-view';
 
 function getDefaultNode(): Node {

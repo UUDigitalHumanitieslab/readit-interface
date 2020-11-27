@@ -1,6 +1,6 @@
-import { rdfs } from '../jsonld/ns';
-import Node from '../jsonld/node';
-import Graph from '../jsonld/graph';
+import { rdfs } from '../core/ns';
+import Node from '../core/node';
+import Graph from '../core/graph';
 import PickerView, { PickerOptionView } from './base-picker-view';
 
 export const options = [{

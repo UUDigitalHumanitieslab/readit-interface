@@ -12,7 +12,7 @@ import {
     schema,
     xsd,
     oa,
-} from '../jsonld/ns';
+} from '../core/ns';
 
 export const JoseInstance = {
     "@id": staff('JdeKruif'),

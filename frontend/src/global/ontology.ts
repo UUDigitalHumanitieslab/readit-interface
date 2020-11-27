@@ -30,9 +30,9 @@
  * that the ontology has already been fetched.
  */
 
-import ldChannel from '../jsonld/radio';
-import { readit } from '../jsonld/ns';
-import Graph from '../jsonld/graph';
+import ldChannel from '../core/radio';
+import { readit } from '../core/ns';
+import Graph from '../core/graph';
 
 const ontology = new Graph();
 export default ontology;

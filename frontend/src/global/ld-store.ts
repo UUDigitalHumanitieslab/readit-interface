@@ -6,9 +6,9 @@ import {
     vocab,
     staff,
     readit,
-} from '../jsonld/ns';
-import ldChannel from '../jsonld/radio';
-import Store from '../jsonld/store';
+} from '../core/ns';
+import ldChannel from '../core/radio';
+import Store from '../core/store';
 import './ontology';
 
 const defaultGraphs = [

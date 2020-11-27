@@ -7,9 +7,9 @@ import {
 } from 'backbone';
 
 import View, { CollectionView } from '../core/view';
-import Node from '../jsonld/node';
-import Graph from '../jsonld/graph';
-import { getLabel } from '../utilities/utilities';
+import Node from '../core/node';
+import Graph from '../core/graph';
+import { getLabel } from '../utilities/linked-data-utilities';
 import pickerTemplate from './base-picker-template';
 
 export interface PickerOptionOptions extends BViewOptions<Node> {

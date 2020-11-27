@@ -1,4 +1,4 @@
-import { vocab, staff, readit, item } from '../jsonld/ns';
+import { vocab, staff, readit, item } from '../core/ns';
 
 // This was extracted from the W3C web annotation context.
 export const webAnnoExerpt = {

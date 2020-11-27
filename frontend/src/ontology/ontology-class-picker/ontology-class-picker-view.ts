@@ -2,7 +2,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
 import { CollectionView } from '../../core/view';
-import Node from '../../jsonld/node';
+import Node from '../../core/node';
 import LabelView from './../label-view';
 
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';

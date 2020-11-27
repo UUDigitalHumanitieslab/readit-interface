@@ -5,10 +5,10 @@ import loremIpsum from '../lorem-ipsum';
 import mockOntology from '../mock-data/mock-ontology';
 
 import Collection from '../core/collection';
-import Node from '../jsonld/node';
-import Graph from '../jsonld/graph';
+import Node from '../core/node';
+import Graph from '../core/graph';
 import CategoryStyle from '../utilities/category-colors/category-colors-view';
-import FlatItem from '../annotation/flat-item-model';
+import FlatItem from '../core/flat-item-model';
 import Segment from './text-segment-model';
 import SegmentView from './text-segment-view';
 

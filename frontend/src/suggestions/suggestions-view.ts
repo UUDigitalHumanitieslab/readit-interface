@@ -2,18 +2,18 @@
 import { extend, filter, sampleSize } from 'lodash';
 
 import { CompositeView } from './../core/view';
-import Graph from '../jsonld/graph';
+import Graph from '../core/graph';
 import explorerChannel from '../explorer/radio';
-import ldChannel from '../jsonld/radio';
-import { isRdfsClass } from '../utilities/utilities';
+import ldChannel from '../core/radio';
+import { isRdfsClass } from '../utilities/linked-data-utilities';
 import { announceRoute } from '../explorer/utilities';
 
 import suggestionsTemplate from './suggestions-template';
-import SourceListView from '../panel-source-list/source-list-view';
+import SourceListView from '../source-list/source-list-view';
 import AnnotationListView from '../annotation/annotation-list-view';
 import OntologyListView from '../ontology/ontology-list-view';
 import LabelView from '../ontology/label-view';
-import FlatAnnotationCollection from '../annotation/flat-annotation-collection';
+import FlatAnnotationCollection from '../core/flat-annotation-collection';
 
 const announce = announceRoute('explore');
 const nSuggestions = 3;

@@ -11,7 +11,7 @@ import {
     schema,
     xsd,
     oa,
-} from '../jsonld/ns';
+} from '../core/ns';
 
 // class definition for a Source
 export const sourceClass = {

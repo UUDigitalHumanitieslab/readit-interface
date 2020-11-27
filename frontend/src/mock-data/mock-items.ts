@@ -12,7 +12,7 @@ import {
     schema,
     xsd,
     oa,
-} from '../jsonld/ns';
+} from '../core/ns';
 
 /**
  * 5 example annotations, 3 overlapping, all in source1

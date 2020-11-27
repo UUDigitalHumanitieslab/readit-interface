@@ -1,4 +1,4 @@
-import Graph from '../jsonld/graph';
+import Graph from '../core/graph';
 import FlatCollection from './flat-annotation-collection';
 import AnnoListView from './annotation-list-view';
 

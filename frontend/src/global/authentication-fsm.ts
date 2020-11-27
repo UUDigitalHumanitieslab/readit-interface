@@ -1,3 +1,3 @@
-import AuthenticationFsm from '../user/authentication-fsm';
+import AuthenticationFsm from '../core/authentication-fsm';
 
 export default new AuthenticationFsm();

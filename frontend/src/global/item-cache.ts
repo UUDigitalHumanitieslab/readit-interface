@@ -17,11 +17,11 @@
  * have a triple in which `item` takes the object role.
  */
 
-import ldChannel from '../jsonld/radio';
-import { rdf } from '../jsonld/ns';
-import Node, { isNode } from '../jsonld/node';
-import ItemGraph, { QueryParams } from '../utilities/item-graph';
-import { asURI } from '../utilities/utilities';
+import ldChannel from '../core/radio';
+import { rdf } from '../core/ns';
+import Node, { isNode } from '../core/node';
+import ItemGraph, { QueryParams } from '../core/item-graph';
+import { asURI } from '../utilities/linked-data-utilities';
 
 /**
  * Service names, used both in channel binding and cache key lookup.

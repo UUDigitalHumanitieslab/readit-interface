@@ -1,0 +1,74 @@
+import { extend } from 'lodash';
+
+import Model from '../core/model';
+import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
+import Graph from '../core/graph';
+import Node from '../core/node';
+import { dcterms, vocab } from '../core/ns';
+import { announceRoute } from '../explorer/utilities';
+
+import sourceListTemplate from './source-list-template';
+import SourceSummaryView from './source-summary-view';
+
+const announce = announceRoute('explore');
+
+export interface ViewOptions extends BaseOpt {
+    collection: Graph;
+    model?: Model;
+}
+
+export default class SourceListView extends CollectionView<Model, SourceSummaryView> {
+    noResults: boolean;
+
+    constructor(options?: ViewOptions) {
+        super(options);
+    }
+
+    initialize(): this {
+        if (this.collection.length) {
+            this.collection.comparator = this.sortByRelevance;
+            this.collection.sort();
+        }
+        else this.collection.comparator = this.sortByDate;
+        this.noResults = this.model && !this.collection.length;
+        this.initItems().render().initCollectionEvents();
+        this.on('announceRoute', announce);
+        return this;
+    }
+
+    makeItem(model: Node): SourceSummaryView {
+        const query = this.model? this.model.get('query') : undefined;
+        const fields = this.model? this.model.get('fields') : undefined;
+        let view = new SourceSummaryView({model, query, fields});
+        this.listenTo(view, 'click', this.onSourceClicked);
+        return view;
+    }
+
+    renderContainer(): this {
+        this.$el.html(this.template(this));
+        return this;
+    }
+
+    onSourceClicked(sourceCid: string): this {
+        this.trigger('source:clicked', this.collection.get(sourceCid));
+        return this;
+    }
+
+    sortByRelevance(model): number {
+        const score = model.get(vocab['relevance'])[0].slice(0);
+        return -parseFloat(score);
+    }
+
+    sortByDate(model): number {
+        return -model.get(dcterms.created)[0].getTime();
+    }
+}
+extend(SourceListView.prototype, {
+    tagName: 'div',
+    className: 'source-list',
+    template: sourceListTemplate,
+    events: {
+
+    },
+    container: '.source-summary'
+});

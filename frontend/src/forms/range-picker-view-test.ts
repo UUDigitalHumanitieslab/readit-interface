@@ -1,7 +1,7 @@
 import { startStore, endStore } from '../test-util';
-import { rdf, rdfs } from '../jsonld/ns';
-import Node from '../jsonld/node';
-import Graph from '../jsonld/graph';
+import { rdf, rdfs } from '../core/ns';
+import Node from '../core/node';
+import Graph from '../core/graph';
 import RangePickerView from './range-picker-view';
 import { options } from './base-picker-view-test';
 

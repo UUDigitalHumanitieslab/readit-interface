@@ -1,12 +1,12 @@
 import { extend, after } from 'lodash';
 
 import { CompositeView } from '../../core/view';
-import { schema } from '../../jsonld/ns';
-import ldChannel from '../../jsonld/radio';
-import Node from '../../jsonld/node';
+import { schema } from '../../core/ns';
+import ldChannel from '../../core/radio';
+import Node from '../../core/node';
 import LabelView from '../../ontology/label-view';
-import FlatItem from '../../annotation/flat-item-model';
-import SnippetView from '../../utilities/snippet-view/snippet-view';
+import FlatItem from '../../core/flat-item-model';
+import SnippetView from '../../snippet-view/snippet-view';
 
 import searchResultSourceTemplate from './search-result-source-template';
 

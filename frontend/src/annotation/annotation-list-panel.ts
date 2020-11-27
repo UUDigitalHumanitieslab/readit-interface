@@ -1,5 +1,5 @@
 import explorerChannel from '../explorer/radio';
-import FlatItem from './flat-item-model';
+import FlatItem from '../core/flat-item-model';
 
 import AnnotationListView from './annotation-list-view';
 

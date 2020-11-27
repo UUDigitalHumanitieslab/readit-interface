@@ -1,6 +1,6 @@
 import Model from '../core/model';
 import Collection from '../core/collection';
-import FlatItem from '../annotation/flat-item-model';
+import FlatItem from '../core/flat-item-model';
 
 /**
  * Highlight segments may be split into two adjacent segments. The original

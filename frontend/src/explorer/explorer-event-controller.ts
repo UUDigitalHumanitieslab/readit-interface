@@ -1,35 +1,35 @@
 import View from '../core/view';
 import Model from '../core/model';
 import Collection from '../core/collection';
-import Node from '../jsonld/node';
-import userChannel from '../user/radio';
+import Node from '../core/node';
+import userChannel from '../core/user-radio';
 
 import ExplorerView from './explorer-view';
-import LdItemView from '../panel-ld-item/ld-item-view';
-import ldChannel from '../jsonld/radio';
-import Graph from '../jsonld/graph';
-import SourceView from '../panel-source/source-view';
+import LdItemView from '../ld-item/ld-item-view';
+import ldChannel from '../core/radio';
+import Graph from '../core/graph';
+import SourceView from '../source/source-view';
 import AnnotationListPanel from '../annotation/annotation-list-panel';
 import SuggestionsView from '../suggestions/suggestions-view';
 
-import AnnoEditView from '../annotation/panel-annotation-edit-view';
-import RelatedItemsView from '../panel-related-items/related-items-view';
-import RelatedEditView from '../panel-related-items/related-items-edit-view';
-import ExternalView from '../panel-external-resources/external-resources-view';
-import ExternalEditView from '../panel-external-resources/external-resources-edit-view';
-import ItemGraph from '../utilities/item-graph';
-import FlatItem from '../annotation/flat-item-model';
-import FlatItemCollection from '../annotation/flat-item-collection';
-import FlatAnnoCollection from '../annotation/flat-annotation-collection';
-import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
-import { oa } from '../jsonld/ns';
+import AnnoEditView from '../annotation/annotation-edit-view';
+import RelatedItemsView from '../related-items/related-items-view';
+import RelatedEditView from '../related-items/related-items-edit-view';
+import ExternalView from '../external-resources/external-resources-view';
+import ExternalEditView from '../external-resources/external-resources-edit-view';
+import ItemGraph from '../core/item-graph';
+import FlatItem from '../core/flat-item-model';
+import FlatItemCollection from '../core/flat-item-collection';
+import FlatAnnoCollection from '../core/flat-annotation-collection';
+import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
+import { oa } from '../core/ns';
 import SearchResultListView from '../search/search-results/panel-search-result-list-view';
-import SourceListPanel from '../panel-source-list/source-list-panel';
-import FilteredCollection from '../utilities/filtered-collection';
+import SourceListPanel from '../source-list/source-list-panel';
+import FilteredCollection from '../core/filtered-collection';
 import {
     isType,
     isOntologyClass,
-} from '../utilities/utilities';
+} from '../utilities/linked-data-utilities';
 
 export default class ExplorerEventController {
     /**

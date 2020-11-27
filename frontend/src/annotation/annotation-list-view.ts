@@ -2,13 +2,13 @@ import { extend } from 'lodash';
 
 import { CollectionView } from '../core/view';
 import { getScrollTop, animatedScroll, ScrollType } from '../utilities/scrolling-utilities';
-import ItemSummaryBlock from '../utilities/item-summary-block/item-summary-block-view';
-import LoadingSpinnerView from '../utilities/loading-spinner/loading-spinner-view';
+import ItemSummaryBlock from '../ld-item/item-summary-block/item-summary-block-view';
+import LoadingSpinnerView from '../loading-spinner/loading-spinner-view';
 import explorerChannel from '../explorer/radio';
 import { announceRoute } from '../explorer/utilities';
 
-import FlatItem from './flat-item-model';
-import FlatCollection from './flat-annotation-collection';
+import FlatItem from '../core/flat-item-model';
+import FlatCollection from '../core/flat-annotation-collection';
 import annotationsTemplate from './annotation-list-template';
 
 const announce = announceRoute('source:annotated', ['model', 'id']);

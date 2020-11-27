@@ -1,7 +1,7 @@
-import User from '../user/user-model';
-import userChannel from '../user/radio';
-import ldChannel from '../jsonld/radio';
-import { staff } from '../jsonld/ns';
+import User from '../core/user-model';
+import userChannel from '../core/user-radio';
+import ldChannel from '../core/radio';
+import { staff } from '../core/ns';
 
 const user = new User();
 

@@ -1,7 +1,7 @@
 import { extend, sortBy } from 'lodash';
 
 import { CompositeView } from '../../core/view';
-import Node from '../../jsonld/node';
+import Node from '../../core/node';
 import LabelView from './../label-view';
 
 export default class OntologyClassPickerItemView extends CompositeView<Node> {
