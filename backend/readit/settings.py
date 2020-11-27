@@ -225,6 +225,11 @@ LOGGING = {
             'filename': 'readit.log',
             'formatter': 'standard',
         },
+        'console': {
+            'level': 'WARNING',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        }
     },
     'loggers': {
         'django': {
