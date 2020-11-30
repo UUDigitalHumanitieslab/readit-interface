@@ -25,13 +25,13 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
     }
 
     initialize(): this {
-        if (this.collection.length) {
+        if (this.model) {
             this.collection.comparator = this.sortByRelevance;
             this.collection.sort();
         }
         else this.collection.comparator = this.sortByDate;
-        this.noResults = this.model && !this.collection.length;
         this.initItems().render().initCollectionEvents();
+        this.listenToOnce(this.collection, 'add', this.render);
         this.on('announceRoute', announce);
         return this;
     }
