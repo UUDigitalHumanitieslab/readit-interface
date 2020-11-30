@@ -130,7 +130,7 @@ const browserLibs: LibraryProps[] = [{
         cdn: `${cdnjsPattern}/\${filenameMin}`,
     }, {
         module: 'jsonld',
-        browser: 'jsonld/dist/core.min',
+        browser: 'jsonld/dist/jsonld.min',
         global: 'jsonld',
         cdn: `${jsdelivrPattern}/dist/\${filenameMin}`,
     }, {
