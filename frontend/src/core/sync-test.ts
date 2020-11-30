@@ -19,7 +19,7 @@ import context from '../mock-data/mock-context';
 import Graph from './graph';
 import Node from './node';
 
-describe('the jsonld/sync module', function() {
+describe('the core/sync module', function() {
     let request, expandedGraph;
     let success, error;
 

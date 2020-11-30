@@ -4,7 +4,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import View from '../../core/view';
 import Node from '../../core/node';
 import Graph from '../../core/graph';
-import { schema } from '../../core/ns';
+import { schema } from './../../core/ns';
 
 import categoryColorsTemplate from './category-colors-template';
 import { getCssClassName, isRdfsClass } from '../../utilities/linked-data-utilities';

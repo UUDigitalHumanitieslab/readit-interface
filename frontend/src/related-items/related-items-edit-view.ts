@@ -8,7 +8,7 @@ import { owl } from '../core/ns';
 import ldChannel from '../core/radio';
 import Node from '../core/node';
 import Graph from '../core/graph';
-import ItemGraph from '../utilities/item-graph';
+import ItemGraph from '../core/item-graph';
 import explorerChannel from '../explorer/radio';
 import { announceRoute } from '../explorer/utilities';
 import RelationEditor from './relation-editor-view';
