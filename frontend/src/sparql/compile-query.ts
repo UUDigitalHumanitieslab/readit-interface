@@ -1,4 +1,4 @@
-import { Namespace } from '../jsonld/vocabulary';
+import user from '../global/user';
 import ldChannel from '../jsonld/radio';
 import annotationsTemplate from './query-templates/annotations-for-source-template';
 import itemsTemplate from './query-templates/items-for-source-template';
@@ -52,14 +52,18 @@ export function annotationsForSourceQuery(source: string, user: string = undefin
     }
     let optionsData = parseQueryOptions(options);
     let finalData = { ...data, ...optionsData };
-    let userUri = ldChannel.request('current-user-uri');
-    console.log(userUri);
     return annotationsTemplate(finalData);
 }
 
 export function itemsForSourceQuery(source: string, { ...options }: SPARQLQueryOptions) {
-    const data = { ...{ sourceURI: source }, ...parseQueryOptions(options) }
-    return itemsTemplate(data)
+    let data = { sourceURI: source };
+    const hasAllViewPerm = user.hasPermission('view_all_annotations');
+    if (!hasAllViewPerm) data['userURI'] = ldChannel.request('current-user-uri');
+    const finalData = { ...data, ...parseQueryOptions(options) };
+
+    return itemsTemplate(finalData)
+        // strip double spaces
+        // TODO: strip other whitespace? leave it all intact?
         .replace(/ {2,}/g, ' ')
         ;
 }

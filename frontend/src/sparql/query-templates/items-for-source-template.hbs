@@ -3,13 +3,17 @@ PREFIX {{this.label}}: <{{this.prefix}}>
 {{/each}}
 PREFIX schema: <http://schema.org/>
 PREFIX oa: <http://www.w3.org/ns/oa#>
-CONSTRUCT { ?annotation ?p ?o }
+CONSTRUCT { 
+	?annotation 	a 	oa:Annotation 			.
+	?resource   	a 	oa:SpecificResource 	.
+	?quoteSelector	a   oa:TextQuoteSelector 	.
+	?posSelector	a   oa:TextPositionSelector .
+	}
 WHERE {
-    VALUES ?category { oa:Annotation oa:SpecificResource oa:TextQuoteSelector oa:TextPositionSelector }
-	?item 	        ?p 				?o 				;
-  	            	a 		        ?category       ;
- 	        		oa:hasTarget    ?x              .
-	?x 				oa:hasSource 	<{{sourceURI}}> .
+	?annotation		oa:hasTarget 	?resource 		. 
+	?resource 		oa:hasSelector  ?quoteSelector  ,
+									?posSelector	;
+					oa:hasSource 	<{{sourceURI}}>	.
 	{{#if userURI}}
 	?annotation 	schema:creator 	<{{userURI}}> 	.
 	{{/if}}

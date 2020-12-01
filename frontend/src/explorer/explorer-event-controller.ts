@@ -277,24 +277,22 @@ export default class ExplorerEventController {
  */
 export function getItems(source: Node, callback): ItemGraph {
     const items = new ItemGraph();
+    const sparqlItems = new ItemGraph();
     const queryString = itemsForSourceQuery(asURI(source), {});
-    console.log(queryString);
-    console.log(ldChannel.request('current-user-uri'));
+    sparqlItems.sparqlQuery(queryString).then(
+        function success() {
+            callback(null, sparqlItems);
+        },
+        /*error*/ callback
+    );
 
-    items.sparqlQuery(queryString).then(
+    items.query({ object: source, traverse: 1, revTraverse: 1 }).then(
         function success() {
             callback(null, items);
         },
         /*error*/ callback
     );
     return items;
-    // items.query({ object: source, traverse: 1, revTraverse: 1 }).then(
-    //     function success() {
-    //         callback(null, items);
-    //     },
-    //     /*error*/ callback
-    // );
-    // return items;
 }
 
 /**
