@@ -1,10 +1,10 @@
 import { find, includes, map, compact, some, isString } from 'lodash';
 
 import ldChannel from '../core/radio';
-import { Identifier, isIdentifier } from '../core/json';
-import Node, { isNode, NodeLike } from '../core/node';
-import Graph, { ReadOnlyGraph } from './../core/graph';
-import { skos, rdfs, readit, dcterms } from './../core/ns';
+import { Identifier, isIdentifier } from '../common-rdf/json';
+import Node, { isNode, NodeLike } from '../common-rdf/node';
+import Graph, { ReadOnlyGraph } from '../common-rdf//graph';
+import { skos, rdfs, readit, dcterms } from '../common-rdf/ns';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 

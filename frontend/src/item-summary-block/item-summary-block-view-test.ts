@@ -2,10 +2,10 @@ import { startStore, endStore, event } from '../test-util';
 import mockOntology from '../mock-data/mock-ontology';
 import mockItems from '../mock-data/mock-items';
 
-import Node from '../core/node';
-import Graph from '../core/graph';
-import FlatItem from '../core/flat-item-model';
-import FlatCollection from '../core/flat-annotation-collection';
+import Node from '../common-rdf/node';
+import Graph from '../common-rdf/graph';
+import FlatItem from '../common-adapters/flat-item-model';
+import FlatCollection from '../common-adapters/flat-annotation-collection';
 import ItemSummaryBlock from './item-summary-block-view';
 
 function expectSuccessfulRender(view: ItemSummaryBlock) {

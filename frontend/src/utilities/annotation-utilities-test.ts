@@ -1,9 +1,9 @@
-import { startStore, endStore } from '../../test-util';
-import Node from '../../core/node';
-import { item, vocab, oa } from '../../core/ns';
-import mockItems from '../../mock-data/mock-items';
+import { startStore, endStore } from '../test-util';
+import Node from '../common-rdf/node';
+import { item, vocab, oa } from '../common-rdf/ns';
+import mockItems from '../mock-data/mock-items';
 import { getSelector } from './annotation-utilities';
-import Graph from '../../core/graph';
+import Graph from '../common-rdf/graph';
 
 describe('annotation-utilities', function () {
     const anno1InstanceId = item('100');

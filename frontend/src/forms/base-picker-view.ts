@@ -7,8 +7,8 @@ import {
 } from 'backbone';
 
 import View, { CollectionView } from '../core/view';
-import Node from '../core/node';
-import Graph from '../core/graph';
+import Node from '../common-rdf/node';
+import Graph from '../common-rdf/graph';
 import { getLabel } from '../utilities/linked-data-utilities';
 import pickerTemplate from './base-picker-template';
 

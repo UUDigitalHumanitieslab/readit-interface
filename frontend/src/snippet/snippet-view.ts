@@ -1,7 +1,7 @@
 import { extend } from 'lodash';
 
 import View from '../core/view';
-import FlatItem from '../core/flat-item-model';
+import FlatItem from '../common-adapters/flat-item-model';
 
 import snippetTemplate from './snippet-template';
 

@@ -1,6 +1,6 @@
-import Node from '../core/node';
+import Node from '../common-rdf/node';
 
-import { oa, rdf, vocab } from '../core/ns';
+import { oa, rdf, vocab } from '../common-rdf/ns';
 import { isType, getCssClassName as getCssClass, isOntologyClass } from './linked-data-utilities';
 
 export type AnnotationPositionDetails = {

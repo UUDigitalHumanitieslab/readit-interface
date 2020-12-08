@@ -12,7 +12,7 @@ import { $ } from 'backbone';
 import mockOntology from '../mock-data/mock-ontology';
 
 import View from '../core/view';
-import Graph from '../core/graph';
+import Graph from '../common-rdf/graph';
 import { getCssClassName } from '../utilities/linked-data-utilities';
 import CategoryStyling from './category-colors-view';
 import ToggleMixin from './category-toggle-mixin';

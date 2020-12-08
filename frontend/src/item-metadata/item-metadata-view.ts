@@ -2,11 +2,11 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 import View from '../core/view';
 
-import Node from '../core/node';
+import Node from '../common-rdf/node';
 
 import itemMetadataTemplate from './item-metadata-template';
 
-import { dcterms } from '../core/ns';
+import { dcterms } from '../common-rdf/ns';
 import { getLabel } from '../utilities/linked-data-utilities';
 
 import * as bulmaAccordion from 'bulma-accordion';

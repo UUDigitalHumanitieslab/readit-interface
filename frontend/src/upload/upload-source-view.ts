@@ -1,6 +1,6 @@
 import { extend } from 'lodash';
 import View from '../core/view';
-import Node from '../core/node';
+import Node from '../common-rdf/node';
 
 import uploadSourceTemplate from './upload-source-template';
 

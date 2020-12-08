@@ -1,10 +1,10 @@
 import { $ } from 'backbone';
 
-import { onlyIf } from '../../test-util';
+import { onlyIf } from '../test-util';
 
-import { oa } from '../../core/ns';
-import Node from '../../core/node';
-import FlatItem from '../../core/flat-item-model';
+import { oa } from '../common-rdf/ns';
+import Node from '../common-rdf/node';
+import FlatItem from '../common-adapters/flat-item-model';
 import SnippetView from './snippet-view';
 
 const selectorAttributes = {

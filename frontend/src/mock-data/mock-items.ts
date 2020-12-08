@@ -12,7 +12,7 @@ import {
     schema,
     xsd,
     oa,
-} from '../core/ns';
+} from '../common-rdf/ns';
 
 /**
  * 5 example annotations, 3 overlapping, all in source1

@@ -9,7 +9,7 @@ import {
     schema,
     xsd,
     oa,
-} from '../core/ns';
+} from '../common-rdf/ns';
 import context from './mock-context';
 
 export const contentInstance = {

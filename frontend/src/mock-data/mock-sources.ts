@@ -13,7 +13,7 @@ import {
     xsd,
     oa,
     iso6391,
-} from '../core/ns';
+} from '../common-rdf/ns';
 import mockSourceText from './mock-source-text';
 
 export const source1instance = {

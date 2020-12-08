@@ -1,7 +1,7 @@
 import { extend } from 'lodash';
 
 import { CollectionView } from '../core/view';
-import Node from '../core/node';
+import Node from '../common-rdf/node';
 import OntologyItemView from './ontology-item-view';
 import ontologyListTemplate from './ontology-list-template';
 

@@ -11,7 +11,7 @@ import {
     schema,
     xsd,
     oa,
-} from '../core/ns';
+} from '../common-rdf/ns';
 
 // class definition for a Source
 export const sourceClass = {

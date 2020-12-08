@@ -1,5 +1,5 @@
 import { extend } from 'lodash';
-import View from '../../core/view';
+import View from '../core/view';
 
 import searchboxTemplate from './searchbox-template';
 import QueryField from './query-field'

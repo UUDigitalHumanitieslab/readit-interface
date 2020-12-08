@@ -1,9 +1,9 @@
-import mockOntology from '../../mock-data/mock-ontology';
+import mockOntology from '../mock-data/mock-ontology';
 
-import Node from '../../core/node';
-import Graph from '../../core/graph';
-import FilteredCollection from '../../utilities/filtered-collection';
-import { isRdfsClass } from '../../utilities/linked-data-utilities';
+import Node from '../common-rdf/node';
+import Graph from '../common-rdf/graph';
+import FilteredCollection from '../common-adapters/filtered-collection';
+import { isRdfsClass } from '../utilities/linked-data-utilities';
 import PickerView from './ontology-class-picker-view';
 
 describe('OntologyClassPickerView', function() {

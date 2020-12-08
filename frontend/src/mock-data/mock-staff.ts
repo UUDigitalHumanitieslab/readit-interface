@@ -12,7 +12,7 @@ import {
     schema,
     xsd,
     oa,
-} from '../core/ns';
+} from '../common-rdf/ns';
 
 export const JoseInstance = {
     "@id": staff('JdeKruif'),

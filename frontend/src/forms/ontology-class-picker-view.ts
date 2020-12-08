@@ -1,9 +1,9 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
-import { CollectionView } from '../../core/view';
-import Node from '../../core/node';
-import LabelView from './../label-view';
+import { CollectionView } from '../core/view';
+import Node from '../common-rdf/node';
+import LabelView from '../label/label-view';
 
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 import ontologyClassPickerTemplate from './ontology-class-picker-template';

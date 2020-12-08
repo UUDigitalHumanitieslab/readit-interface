@@ -1,4 +1,4 @@
-import { rdf, rdfs, skos, item } from './../core/ns';
+import { rdf, rdfs, skos, item } from '../common-rdf/ns';
 import {
     getLabel,
     getLabelFromId,
@@ -9,10 +9,10 @@ import {
     transitiveClosure,
     getRdfSuperClasses,
     getRdfSubClasses,
-} from './utilities';
-import { FlatLdObject, FlatLdGraph } from '../core/json';
-import Node from '../core/node';
-import Graph from '../core/graph';
+} from './linked-data-utilities';
+import { FlatLdObject, FlatLdGraph } from '../common-rdf/json';
+import Node from '../common-rdf/node';
+import Graph from '../common-rdf/graph';
 import { startStore, endStore } from '../test-util';
 
 function getDefaultNode(): Node {
