@@ -1,9 +1,9 @@
-import { enableI18n } from '../../test-util';
+import { enableI18n } from '../test-util';
 
-import Graph from '../../core/graph';
-import Node from '../../core/node';
-import { FlatLdObject } from '../../core/json';
-import { rdfs, skos, schema } from '../../core/ns';
+import Graph from '../core/graph';
+import Node from '../core/node';
+import { FlatLdObject } from '../core/json';
+import { rdfs, skos, schema } from '../core/ns';
 import CategoryColorsView from './category-colors-view';
 
 function getDefaultNode(): Node {

@@ -1,13 +1,13 @@
 import { once, includes, extend } from 'lodash';
 import { ViewOptions as BViewOptions } from 'backbone';
 
-import Model from '../../core/model';
-import View from '../../core/view';
-import { oa } from '../../core/ns';
-import Node from '../../core/node';
-import ldChannel from '../../core/radio';
-import FlatItem from '../../core/flat-item-model';
-import { getCssClassName, getLabel } from '../../utilities/linked-data-utilities';
+import Model from '../core/model';
+import View from '../core/view';
+import { oa } from '../core/ns';
+import Node from '../core/node';
+import ldChannel from '../core/radio';
+import FlatItem from '../core/flat-item-model';
+import { getCssClassName, getLabel } from '../utilities/linked-data-utilities';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
 

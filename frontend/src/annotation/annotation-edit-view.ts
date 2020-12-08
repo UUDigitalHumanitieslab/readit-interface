@@ -11,8 +11,8 @@ import PickerView from '../forms/base-picker-view';
 import FilteredCollection from '../core/filtered-collection';
 import ItemGraph from '../core/item-graph';
 import ClassPickerView from '../ontology/ontology-class-picker/ontology-class-picker-view';
-import ItemMetadataView from '../ld-item/item-metadata/item-metadata-view';
-import SnippetView from '../snippet-view/snippet-view';
+import ItemMetadataView from '../item-metadata/item-metadata-view';
+import SnippetView from '../snippet/snippet-view';
 import { isRdfsClass } from '../utilities/linked-data-utilities';
 import {
     AnnotationPositionDetails,

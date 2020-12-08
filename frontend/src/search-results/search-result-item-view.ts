@@ -8,12 +8,12 @@ import {
     isNil
 } from 'lodash';
 
-import { CompositeView } from '../../core/view';
-import { dcterms, owl, skos } from '../../core/ns';
-import Node, { isNode } from '../../core/node';
-import FlatItem from '../../core/flat-item-model';
-import LabelView from '../../ontology/label-view';
-import { getLabelFromId } from '../../utilities/linked-data-utilities';
+import { CompositeView } from '../core/view';
+import { dcterms, owl, skos } from '../core/ns';
+import Node, { isNode } from '../core/node';
+import FlatItem from '../core/flat-item-model';
+import LabelView from '../ontology/label-view';
+import { getLabelFromId } from '../utilities/linked-data-utilities';
 
 import searchResultItemTemplate from './search-result-item-template';
 

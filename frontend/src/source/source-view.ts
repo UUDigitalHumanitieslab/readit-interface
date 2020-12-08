@@ -8,7 +8,7 @@ import { schema, vocab } from './../core/ns';
 import Node from './../core/node';
 import FlatItem from '../core/flat-item-model';
 import FlatCollection from '../core/flat-annotation-collection';
-import ToggleMixin from '../ontology/category-colors/category-toggle-mixin';
+import ToggleMixin from '../category-colors/category-toggle-mixin';
 import SegmentCollection from '../highlight/text-segment-collection';
 import { isType } from './../utilities/linked-data-utilities';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';

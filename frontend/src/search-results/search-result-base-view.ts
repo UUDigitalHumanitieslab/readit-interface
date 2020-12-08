@@ -1,7 +1,7 @@
 import { extend, after, constant } from 'lodash';
 
-import View, { CompositeView, ViewOptions as BaseOpt } from '../../core/view';
-import FlatItem from '../../core/flat-item-model';
+import View, { CompositeView, ViewOptions as BaseOpt } from '../core/view';
+import FlatItem from '../core/flat-item-model';
 
 import SearchResultSourceView from './search-result-source-view';
 import SearchResultItemView from './search-result-item-view';
