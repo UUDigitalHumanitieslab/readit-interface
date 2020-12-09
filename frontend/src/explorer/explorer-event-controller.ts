@@ -38,10 +38,6 @@ export default class ExplorerEventController {
      */
     explorerView: ExplorerView;
 
-    mapSourceAnnotationList: Map<SourceView, AnnotationListPanel> = new Map();
-    mapAnnotationListSource: Map<AnnotationListPanel, SourceView> = new Map();
-    mapAnnotationListAnnotationDetail: Map<AnnotationListPanel, LdItemView> = new Map();
-
     constructor(explorerView: ExplorerView) {
         this.explorerView = explorerView;
     }
@@ -63,8 +59,6 @@ export default class ExplorerEventController {
             model: sourcePanel.model,
             collection: sourcePanel.collection,
         });
-        this.mapSourceAnnotationList.set(sourcePanel, listPanel);
-        this.mapAnnotationListSource.set(listPanel, sourcePanel);
         this.explorerView.push(listPanel);
         return listPanel;
     }
@@ -242,7 +236,6 @@ export default class ExplorerEventController {
 
     openSourceAnnotation(listView: AnnotationListPanel, anno: FlatItem): void {
         let newDetailView = new LdItemView({ model: anno, collection: listView.collection });
-        this.mapAnnotationListAnnotationDetail.set(listView, newDetailView);
         this.explorerView.popUntil(listView).push(newDetailView);
     }
 
@@ -253,7 +246,6 @@ export default class ExplorerEventController {
     }
 
     closeSourceAnnotation(listView: AnnotationListPanel, annotation: FlatItem): void {
-        this.mapAnnotationListAnnotationDetail.delete(listView);
         this.explorerView.popUntil(listView);
     }
 
@@ -264,9 +256,6 @@ export default class ExplorerEventController {
     }
 
     unlistSourceAnnotations(sourceView): void {
-        let annoListView = this.mapSourceAnnotationList.get(sourceView);
-        this.mapSourceAnnotationList.delete(sourceView);
-        this.mapAnnotationListSource.delete(annoListView);
         this.explorerView.popUntil(sourceView);
     }
 
