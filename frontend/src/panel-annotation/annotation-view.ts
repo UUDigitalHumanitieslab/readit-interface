@@ -11,7 +11,7 @@ import LabelView from '../label/label-view';
 import ItemMetadataView from '../item-metadata/item-metadata-view';
 import { getLabelFromId } from '../utilities/linked-data-utilities';
 
-import ldItemTemplate from './annotation-template';
+import annotationTemplate from './annotation-template';
 
 const announce = announceRoute('item', ['model', 'id']);
 
@@ -25,7 +25,7 @@ const excludedProperties = [
     owl.sameAs
 ];
 
-export default class LdItemView extends CompositeView<FlatItem> {
+export default class AnnotationView extends CompositeView<FlatItem> {
     lblView: LabelView;
     itemMetadataView: ItemMetadataView;
     annotationMetadataView: ItemMetadataView;
@@ -106,25 +106,25 @@ export default class LdItemView extends CompositeView<FlatItem> {
     }
 
     onRelItemsClicked(): void {
-        explorerChannel.trigger('lditem:showRelated', this, this.model.get('item'));
+        explorerChannel.trigger('annotation:showRelated', this, this.model.get('item'));
     }
 
     onAnnotationsClicked(): void {
-        explorerChannel.trigger('lditem:showAnnotations', this, this.model.get('item'));
+        explorerChannel.trigger('annotation:showAnnotations', this, this.model.get('item'));
     }
 
     onExtResourcesClicked(): void {
-        explorerChannel.trigger('lditem:showExternal', this, this.model.get('item'));
+        explorerChannel.trigger('annotation:showExternal', this, this.model.get('item'));
     }
 
     onEditClicked(): void {
-        explorerChannel.trigger('lditem:editAnnotation', this, this.model);
+        explorerChannel.trigger('annotation:editAnnotation', this, this.model);
     }
 }
 
-extend(LdItemView.prototype, {
-    className: 'ld-item explorer-panel',
-    template: ldItemTemplate,
+extend(AnnotationView.prototype, {
+    className: 'annotation explorer-panel',
+    template: annotationTemplate,
     subviews: [{
         view: 'lblView',
         selector: 'header aside',
