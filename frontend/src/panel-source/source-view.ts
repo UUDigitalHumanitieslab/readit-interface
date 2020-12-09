@@ -2,21 +2,21 @@ import { after, once, extend } from 'lodash';
 import { ViewOptions as BaseOpt, $ } from 'backbone';
 import { SubViewDescription } from 'backbone-fractal/dist/composite-view';
 
-import Model from './../core/model';
-import { CompositeView } from './../core/view';
-import { schema, vocab } from './../jsonld/ns';
-import Node from './../jsonld/node';
-import FlatItem from '../annotation/flat-item-model';
-import FlatCollection from '../annotation/flat-annotation-collection';
-import ToggleMixin from '../utilities/category-colors/category-toggle-mixin';
+import Model from '../core/model';
+import { CompositeView } from '../core/view';
+import { schema, vocab } from '../common-rdf/ns';
+import Node from '../common-rdf/node';
+import FlatItem from '../common-adapters/flat-item-model';
+import FlatCollection from '../common-adapters/flat-annotation-collection';
+import ToggleMixin from '../category-colors/category-toggle-mixin';
 import SegmentCollection from '../highlight/text-segment-collection';
-import { isType } from './../utilities/utilities';
-import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
-import explorerChannel from '../explorer/radio';
+import { isType } from './../utilities/linked-data-utilities';
+import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
+import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
 
 import HighlightableTextView from './highlightable-text-view';
-import SourceToolbarView from './toolbar/source-toolbar-view';
+import SourceToolbarView from '../toolbar/toolbar-view';
 import MetadataView from './source-metadata-view';
 import sourceTemplate from './source-template';
 

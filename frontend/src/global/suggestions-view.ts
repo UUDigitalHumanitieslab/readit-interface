@@ -1,3 +1,3 @@
-import SuggestionsView from '../suggestions/suggestions-view';
+import SuggestionsView from '../panel-suggestions/suggestions-view';
 
 export default new SuggestionsView();

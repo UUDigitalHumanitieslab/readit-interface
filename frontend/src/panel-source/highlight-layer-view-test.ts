@@ -5,8 +5,8 @@ import loremIpsum from '../lorem-ipsum';
 import mockOntology from '../mock-data/mock-ontology';
 import mockItems from '../mock-data/mock-items';
 
-import Graph from '../jsonld/graph';
-import FlatCollection from '../annotation/flat-annotation-collection';
+import Graph from '../common-rdf/graph';
+import FlatCollection from '../common-adapters/flat-annotation-collection';
 import SegmentCollection from '../highlight/text-segment-collection';
 import HighlightLayer from './highlight-layer-view';
 

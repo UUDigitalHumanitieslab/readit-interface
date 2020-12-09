@@ -4,7 +4,7 @@ import { SubViewDescription } from 'backbone-fractal/dist/composite-view';
 
 import Model from '../core/model';
 import { CompositeView } from './../core/view';
-import Node from '../jsonld/node';
+import Node from '../common-rdf/node';
 import SegmentModel from '../highlight/text-segment-model';
 import SegmentCollection from '../highlight/text-segment-collection';
 import HighlightLayer from './highlight-layer-view';

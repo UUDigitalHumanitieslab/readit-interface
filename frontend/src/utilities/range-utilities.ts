@@ -1,5 +1,5 @@
 import { indexOf } from 'lodash';
-import { AnnotationPositionDetails } from "./annotation/annotation-utilities";
+import { AnnotationPositionDetails } from "./annotation-utilities";
 
 
 /**

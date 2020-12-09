@@ -4,10 +4,10 @@ import { pick } from 'lodash';
 import { startStore, endStore } from '../test-util';
 import mockSources from '../mock-data/mock-sources';
 
-import { schema, vocab } from '../jsonld/ns';
-import Node from '../jsonld/node';
-import Graph from '../jsonld/graph';
-import FlatCollection from '../annotation/flat-annotation-collection';
+import { schema, vocab } from '../common-rdf/ns';
+import Node from '../common-rdf/node';
+import Graph from '../common-rdf/graph';
+import FlatCollection from '../common-adapters/flat-annotation-collection';
 import SourcePanel from './source-view';
 
 const textURI = 'http://test.test/test.txt';

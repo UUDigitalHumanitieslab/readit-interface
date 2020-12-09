@@ -1,6 +1,6 @@
 import { partial, isString } from 'lodash';
 
-import channel from '../explorer/radio';
+import channel from '../explorer/explorer-radio';
 import * as act from '../explorer/route-actions';
 import router from '../global/exploration-router';
 import mainRouter from '../global/main-router';
@@ -67,5 +67,5 @@ channel.on('currentRoute', (route, panel) => {
     // panel.
     browserHistory.replaceState(panel.cid, document.title);
 });
-welcomeView.on({'search:searched': controller.resetSourceListFromSearchResults}, controller);
+welcomeView.on({'search:start': controller.resetSourceListFromSearchResults}, controller);
 welcomeView.on({'suggestions:show': controller.showSuggestionsPanel}, controller);
