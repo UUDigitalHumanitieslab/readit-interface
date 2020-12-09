@@ -1,0 +1,20 @@
+<div class="modal-background"></div>
+<div class="modal-content">
+    <form class="box is-narrow-modal-form">
+    {{#if isConfirmed}}
+    <h3 class="title is-3">Confirmation complete</h3>
+    <p>Thank you for signing up. You can now <a href='search'>login</a></p>
+    {{/if}}
+
+    {{#if wasNotFound}}
+    <h3 class="title is-3">Confirmation failed</h3>
+    <p>This is probably due to token expiration.</p>
+    <p>Please try again and if this error keeps occuring, contact the site administrator.</p>
+    {{/if}}
+
+    {{#if hasError}}
+    <h3 class="title is-3">Confirmation failed</h3>
+    <p>Please try again and if this error keeps occuring, contact the site administrator.</p>
+    {{/if}}
+    </form>
+</div>

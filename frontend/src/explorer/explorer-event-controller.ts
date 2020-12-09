@@ -175,15 +175,11 @@ export default class ExplorerEventController {
             startIndex: annotation.get('startPosition'),
             endIndex: annotation.get('endPosition')
         }
-        let sourceItems = getItems(annotation.get('source'), function(error, items) {
-            if (error) console.debug(error);
-        });
-        let annotations = new FlatAnnoCollection(sourceItems);
         let newEditView = new AnnoEditView({
             previousAnnotation: annotation,
             positionDetails: positionDetails,
             source: annotation.get('source'),
-            collection: annotations,
+            collection: ldItemview.collection,
         });
         const newLdItemView = new LdItemView({ model: newEditView.model })
         this.explorerView.pop()
@@ -245,7 +241,7 @@ export default class ExplorerEventController {
     }
 
     openSourceAnnotation(listView: AnnotationListPanel, anno: FlatItem): void {
-        let newDetailView = new LdItemView({ model: anno });
+        let newDetailView = new LdItemView({ model: anno, collection: listView.collection });
         this.mapAnnotationListAnnotationDetail.set(listView, newDetailView);
         this.explorerView.popUntil(listView).push(newDetailView);
     }
@@ -275,7 +271,6 @@ export default class ExplorerEventController {
     }
 
     selectText(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): AnnoEditView {
-        let listView = this.mapSourceAnnotationList.get(sourceView);
         let annoEditView = new AnnoEditView({
             range: range,
             positionDetails: positionDetails,
@@ -283,12 +278,9 @@ export default class ExplorerEventController {
             collection: sourceView.collection,
         });
 
-        if (listView) {
-            annoEditView['_listview'] = listView;
-            this.explorerView.popUntil(listView).overlay(annoEditView);
-        } else {
-            this.explorerView.push(annoEditView);
-        }
+        const newLdItemView = new LdItemView({ model: annoEditView.model })
+        this.explorerView.push(newLdItemView);
+        this.explorerView.overlay(annoEditView, newLdItemView);
         return annoEditView;
     }
 }
