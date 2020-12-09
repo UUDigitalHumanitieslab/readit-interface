@@ -1,7 +1,7 @@
 import { extend } from 'lodash';
 import Model from '../core/model';
 import View, { CompositeView, ViewOptions as BaseOpt } from '../core/view';
-import Graph from '../core/graph';
+import Graph from '../common-rdf/graph';
 import welcomeTemplate from './welcome-template';
 
 export interface ViewOptions extends BaseOpt {

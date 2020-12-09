@@ -1,7 +1,7 @@
 import { extend, includes } from 'lodash';
 
 import { CompositeView } from '../core/view';
-import Node, { isNode } from '../core/node';
+import Node, { isNode } from '../common-rdf/node';
 import { owl, dcterms, rdfs } from '../common-rdf/ns';
 import FlatItem from '../common-adapters/flat-item-model';
 import explorerChannel from '../explorer/explorer-radio';

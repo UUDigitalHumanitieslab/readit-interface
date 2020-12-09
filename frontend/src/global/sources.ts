@@ -1,7 +1,7 @@
 import { once } from 'lodash';
 
-import { source } from '../core/ns';
-import Graph from '../core/graph';
+import { source } from '../common-rdf/ns';
+import Graph from '../common-rdf/graph';
 
 const sources = new Graph();
 export default sources;

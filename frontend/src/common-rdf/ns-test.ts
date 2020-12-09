@@ -14,7 +14,7 @@ import {
     schema,
 } from './ns';
 
-describe('the core/ns module', function() {
+describe('the common-rdf/ns module', function() {
     it('exports vocabulary objects which actually work', function() {
         expect(rdf()).toBe('http://www.w3.org/1999/02/22-rdf-syntax-ns#');
         expect(rdf.type).toBe('http://www.w3.org/1999/02/22-rdf-syntax-ns#type');

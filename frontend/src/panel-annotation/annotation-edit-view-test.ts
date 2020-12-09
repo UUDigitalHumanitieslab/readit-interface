@@ -4,7 +4,7 @@ import { $ } from 'backbone';
 import { onlyIf, startStore, endStore, event } from '../test-util';
 import mockItems from '../mock-data/mock-items';
 
-import ldChannel from '../core/radio';
+import ldChannel from '../common-rdf/radio';
 import { item, dcterms } from '../common-rdf/ns';
 import Node from '../common-rdf/Node';
 import Graph from '../common-rdf/graph';

@@ -2,7 +2,7 @@ import { isArray, omit, map, defaultsDeep, each } from 'lodash';
 import { compact, flatten } from 'jsonld';
 import { parseLinkHeader } from 'jsonld/lib/util';
 import { LINK_HEADER_REL } from 'jsonld/lib/constants';
-import JsonLdError from 'jsonld/lib/coreError';
+import JsonLdError from 'jsonld/lib/JsonLdError';
 import rdfParser from 'rdf-parse';
 import * as Serializer from '@rdfjs/serializer-jsonld-ext';
 import * as streamify from 'streamify-string';

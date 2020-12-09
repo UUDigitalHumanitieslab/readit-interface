@@ -1,7 +1,7 @@
 import View from '../core/view';
 import { source, item as itemNs } from '../common-rdf/ns';
 import { Namespace } from '../common-rdf/vocabulary';
-import ldChannel from '../core/radio';
+import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import FlatItem from '../common-adapters/flat-item-model';
 

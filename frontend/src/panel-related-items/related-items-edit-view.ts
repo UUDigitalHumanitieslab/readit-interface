@@ -5,7 +5,7 @@ import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
 import { owl } from '../common-rdf/ns';
-import ldChannel from '../core/radio';
+import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import ItemGraph from '../common-adapters/item-graph';

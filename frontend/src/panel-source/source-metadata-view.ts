@@ -1,7 +1,7 @@
 import { extend } from 'lodash';
 
 import View from '../core/view';
-import ldChannel from '../core/radio';
+import ldChannel from '../common-rdf/radio';
 import { getLabel, getLabelFromId } from '../utilities/linked-data-utilities';
 import explorerChannel from '../explorer/explorer-radio';
 

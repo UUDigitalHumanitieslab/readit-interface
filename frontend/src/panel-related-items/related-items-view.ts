@@ -3,7 +3,7 @@ import { extend, map, after, bind } from 'lodash';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
-import ldChannel from '../core/radio';
+import ldChannel from '../common-rdf/radio';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
 import explorerChannel from '../explorer/explorer-radio';

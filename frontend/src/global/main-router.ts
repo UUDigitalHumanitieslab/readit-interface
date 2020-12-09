@@ -1,3 +1,3 @@
-import MainRouter from '../navigation/main-router';
+import MainRouter from '../menu/main-router';
 
 export default new MainRouter();

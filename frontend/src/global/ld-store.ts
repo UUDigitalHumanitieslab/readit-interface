@@ -6,9 +6,9 @@ import {
     vocab,
     staff,
     readit,
-} from '../core/ns';
-import ldChannel from '../core/radio';
-import Store from '../core/store';
+} from '../common-rdf/ns';
+import ldChannel from '../common-rdf/radio';
+import Store from '../common-rdf/store';
 import './ontology';
 
 const defaultGraphs = [

@@ -30,9 +30,9 @@
  * that the ontology has already been fetched.
  */
 
-import ldChannel from '../core/radio';
-import { readit } from '../core/ns';
-import Graph from '../core/graph';
+import ldChannel from '../common-rdf/radio';
+import { readit } from '../common-rdf/ns';
+import Graph from '../common-rdf/graph';
 
 const ontology = new Graph();
 export default ontology;

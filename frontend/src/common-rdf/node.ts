@@ -31,7 +31,7 @@ import { ModelSetOptions, Model as BackboneModel } from 'backbone';
 
 import Model from '../core/model';
 
-import ldChannel from './radio';
+import ldChannel from '../common-rdf/radio';
 import {
     JsonLdContext,
     FlatLdObject,

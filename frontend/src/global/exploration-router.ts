@@ -1,3 +1,3 @@
-import ExplorationRouter from '../navigation/exploration-router';
+import ExplorationRouter from '../explorer/exploration-router';
 
 export default new ExplorationRouter();

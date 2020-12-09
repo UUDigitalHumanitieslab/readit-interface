@@ -1,6 +1,6 @@
 import { find, includes, map, compact, some, isString } from 'lodash';
 
-import ldChannel from '../core/radio';
+import ldChannel from '../common-rdf/radio';
 import { Identifier, isIdentifier } from '../common-rdf/json';
 import Node, { isNode, NodeLike } from '../common-rdf/node';
 import Graph, { ReadOnlyGraph } from '../common-rdf//graph';

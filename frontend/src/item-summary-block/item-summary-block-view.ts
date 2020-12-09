@@ -5,7 +5,7 @@ import Model from '../core/model';
 import View from '../core/view';
 import { oa } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
-import ldChannel from '../core/radio';
+import ldChannel from '../common-rdf/radio';
 import FlatItem from '../common-adapters/flat-item-model';
 import { getCssClassName, getLabel } from '../utilities/linked-data-utilities';
 

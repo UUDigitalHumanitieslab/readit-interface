@@ -4,10 +4,10 @@ import { startStore, endStore, event } from '../test-util';
 import mockOntology from '../mock-data/mock-ontology';
 import mockItems from '../mock-data/mock-items';
 
-import { item } from '../core/ns';
-import Node from '../core/node';
-import Graph from '../core/graph';
-import FlatCollection from '../core/flat-annotation-collection';
+import { item } from '../common-rdf/ns';
+import Node from '../common-rdf/node';
+import Graph from '../common-rdf/graph';
+import FlatCollection from '../common-adapters/flat-annotation-collection';
 import Segment from './text-segment-model';
 import SegmentCollection from './text-segment-collection';
 

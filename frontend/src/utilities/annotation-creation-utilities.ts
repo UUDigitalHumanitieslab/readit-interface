@@ -2,9 +2,9 @@ import * as _ from 'lodash';
 import * as a$ from 'async';
 
 import Node  from '../common-rdf/node';
-import { oa, as, vocab, rdf, xsd, staff, dcterms, } from '../core/ns';
+import { oa, as, vocab, rdf, xsd, staff, dcterms, } from '../common-rdf/ns';
 
-import ItemGraph from '../core/item-graph';
+import ItemGraph from '../common-adapters/item-graph';
 import { AnnotationPositionDetails } from './annotation-utilities';
 
 const prefixLength = 100;

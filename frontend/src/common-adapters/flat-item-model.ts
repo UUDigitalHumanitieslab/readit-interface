@@ -1,7 +1,7 @@
 import { noop, each, includes } from 'lodash';
 
 import Model from '../core/model';
-import ldChannel from '../core/radio';
+import ldChannel from '../common-rdf/radio';
 import { rdf, dcterms, oa, vocab, readit, item } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import { getLabel, getCssClassName } from '../utilities/linked-data-utilities';

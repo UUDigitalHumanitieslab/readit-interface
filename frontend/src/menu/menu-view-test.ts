@@ -1,6 +1,6 @@
 import { enableI18n } from '../test-util';
 
-import User from '../user/user-model';
+import User from '../common-user/user-model';
 import MenuView from './menu-view';
 
 describe('MenuView', function() {

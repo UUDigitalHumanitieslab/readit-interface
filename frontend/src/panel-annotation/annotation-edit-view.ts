@@ -1,7 +1,7 @@
 import { extend, invokeMap, bindAll } from 'lodash';
 
 import { CompositeView, ViewOptions as BaseOpt } from '../core/view';
-import ldChannel from '../core/radio';
+import ldChannel from '../common-rdf/radio';
 import { oa, rdf, skos } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
@@ -22,7 +22,7 @@ import {
     composeAnnotation,
     getAnonymousTextQuoteSelector
 } from '../utilities/annotation-creation-utilities';
-import explorerChannel from '../explorer/radio';
+import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
 
 import FlatItem from '../common-adapters/flat-item-model';

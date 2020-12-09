@@ -5,7 +5,7 @@ import Vocabulary from './vocabulary';
  * Definitions of standard vocabularies. Terms listed in this module
  * can be relied upon to be defined and may be hardcoded as follows:
 
-      import { rdfs } from '../core/ns';
+      import { rdfs } from '../common-rdf/ns';
 
       let someNode = ...;  // imagine some instance of Node here
       let theLabels = someNode.get(rdfs.label);

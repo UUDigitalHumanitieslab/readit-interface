@@ -1,7 +1,7 @@
 import 'jasmine-ajax';
 import { defaults } from 'lodash';
 
-import { proxyRoot } from 'config.json';
+import { proxyRoot } from '../../config.json';
 
 import { contentInstance } from '../mock-data/mock-expanded';
 import compactData from '../mock-data/mock-compact';

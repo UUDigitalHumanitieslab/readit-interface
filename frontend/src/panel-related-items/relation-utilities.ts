@@ -1,7 +1,7 @@
 import { forEach, some, keys, ListIterator } from 'lodash';
 
 import Collection from '../core/collection';
-import ldChannel from '../core/radio';
+import ldChannel from '../common-rdf/radio';
 import { rdfs, owl, item } from '../common-rdf/ns';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';

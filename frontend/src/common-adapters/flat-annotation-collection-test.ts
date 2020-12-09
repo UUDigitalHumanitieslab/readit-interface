@@ -1,8 +1,8 @@
 import { map } from 'lodash';
 
 import { event, timeout, startStore, endStore } from '../test-util';
-import { oa, item } from '../core/ns';
-import Graph from '../core/graph';
+import { oa, item } from '../common-rdf/ns';
+import Graph from '../common-rdf/graph';
 import ontologyData from '../mock-data/mock-ontology';
 import itemData from '../mock-data/mock-items';
 import { createPlaceholder } from './flat-item-model-test';

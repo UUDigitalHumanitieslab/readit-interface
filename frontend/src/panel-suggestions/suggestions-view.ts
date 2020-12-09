@@ -2,9 +2,9 @@
 import { extend, filter, sampleSize } from 'lodash';
 
 import { CompositeView } from './../core/view';
-import Graph from '../core/graph';
-import explorerChannel from '../explorer/radio';
-import ldChannel from '../core/radio';
+import Graph from '../common-rdf/graph';
+import explorerChannel from '../explorer/explorer-radio';
+import ldChannel from '../common-rdf/radio';
 import { isRdfsClass } from '../utilities/linked-data-utilities';
 import { announceRoute } from '../explorer/utilities';
 

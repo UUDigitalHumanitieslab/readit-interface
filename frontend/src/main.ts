@@ -2,8 +2,8 @@ import { history } from 'backbone';
 import { when, ready } from 'jquery';
 import '@dhl-uu/jquery-promise';
 
-import { baseUrl } from 'config.json';
-import './core/scroll-easings';
+import { baseUrl } from '../config.json';
+import './global/scroll-easings';
 import { i18nPromise } from './global/i18n';
 import './global/internalLinks';
 import './global/hbsHelpers';

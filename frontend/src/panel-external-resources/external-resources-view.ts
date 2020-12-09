@@ -2,7 +2,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 import View from '../core/view';
 import Node from '../common-rdf/node';
-import ldChannel from '../core/radio';
+import ldChannel from '../common-rdf/radio';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
 

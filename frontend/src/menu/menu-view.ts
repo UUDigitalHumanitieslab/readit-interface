@@ -2,7 +2,7 @@ import { extend } from 'lodash';
 
 import View from '../core/view';
 import menuTemplate from './menu-template';
-import User from '../core/user-model';
+import User from '../common-user/user-model';
 
 export default class MenuView extends View {
     render() {

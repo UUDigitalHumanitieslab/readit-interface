@@ -2,7 +2,7 @@ import { extend } from 'lodash';
 
 import Model from '../core/model';
 import { CompositeView } from '../core/view';
-import ldChannel from '../core/radio';
+import ldChannel from '../common-rdf/radio';
 import { rdf } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';

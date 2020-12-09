@@ -22,7 +22,7 @@ import {
 } from 'jsonld';
 
 import Collection from '../core/collection';
-import ldChannel from './radio';
+import ldChannel from '../common-rdf/radio';
 import {
     FlatLdDocument,
     FlatLdGraph,

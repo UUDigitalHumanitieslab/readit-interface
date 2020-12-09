@@ -2,7 +2,7 @@ import { extend, after } from 'lodash';
 
 import { CompositeView } from '../core/view';
 import { schema } from '../common-rdf/ns';
-import ldChannel from '../core/radio';
+import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import LabelView from '../label/label-view';
 import FlatItem from '../common-adapters/flat-item-model';

@@ -17,10 +17,10 @@
  * have a triple in which `item` takes the object role.
  */
 
-import ldChannel from '../core/radio';
-import { rdf } from '../core/ns';
-import Node, { isNode } from '../core/node';
-import ItemGraph, { QueryParams } from '../core/item-graph';
+import ldChannel from '../common-rdf/radio';
+import { rdf } from '../common-rdf/ns';
+import Node, { isNode } from '../common-rdf/node';
+import ItemGraph, { QueryParams } from '../common-adapters/item-graph';
 import { asURI } from '../utilities/linked-data-utilities';
 
 /**

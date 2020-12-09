@@ -2,12 +2,12 @@ import { extend } from 'lodash';
 import { ViewOptions as BViewOptions } from 'backbone';
 
 import { CompositeView } from '../core/view';
-import ldChannel from '../core/radio';
-import { skos } from '../core/ns';
-import Node from '../core/node';
-import Label from '../ontology/label-view';
+import ldChannel from '../common-rdf/radio';
+import { skos } from '../common-rdf/ns';
+import Node from '../common-rdf/node';
+import Label from '../label/label-view';
 import { getLabel } from '../utilities/linked-data-utilities';
-import editorTemplate from './ld-item-edit-template';
+import editorTemplate from './item-edit-template';
 
 export const labelLanguage = 'en';
 

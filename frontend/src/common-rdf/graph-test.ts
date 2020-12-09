@@ -1,5 +1,5 @@
 import mockItems, { anno1Instance } from '../mock-data/mock-items';
-import ldChannel from './radio';
+import ldChannel from '../common-rdf/radio';
 import { oa } from './ns';
 import Graph from './graph';
 

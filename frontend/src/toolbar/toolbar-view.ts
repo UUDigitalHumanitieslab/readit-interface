@@ -4,7 +4,7 @@ import View from '../core/view';
 
 import SourceToolbarItemView from './toolbar-item-view';
 
-import template from './source-toolbar-template';
+import template from './toolbar-template';
 
 export default class SourceToolbarView extends View {
 

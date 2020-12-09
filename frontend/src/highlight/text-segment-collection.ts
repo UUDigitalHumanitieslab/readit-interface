@@ -2,8 +2,8 @@ import { extend, sortedIndexBy, each, range } from 'lodash';
 
 import Model from '../core/model';
 import Collection from '../core/collection';
-import FlatItem from '../core/flat-item-model';
-import FlatCollection from '../core/flat-annotation-collection';
+import FlatItem from '../common-adapters/flat-item-model';
+import FlatCollection from '../common-adapters/flat-annotation-collection';
 import Segment from './text-segment-model';
 
 // The type of function that may be passed as iteratee to collection methods
