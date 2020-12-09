@@ -1,7 +1,7 @@
 import { defaults, isUndefined, isString, isArray } from 'lodash';
 import { channel } from 'backbone.radio';
 
-import { proxyRoot } from '../../config.json';
+import { proxyRoot } from 'config.json';
 
 import { channelName } from './constants';
 import ldChannel from './radio';

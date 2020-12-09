@@ -1,7 +1,7 @@
 import { extend } from 'lodash';
 import { ModelSaveOptions } from 'backbone';
 
-import { authRoot } from '../../config.json';
+import { authRoot } from 'config.json';
 import Model from '../core/model';
 
 export interface UserCredentials {
