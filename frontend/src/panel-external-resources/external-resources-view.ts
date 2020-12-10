@@ -1,16 +1,16 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 import View from '../core/view';
-import Node from '../jsonld/node';
-import ldChannel from '../jsonld/radio';
-import explorerChannel from '../explorer/radio';
+import Node from '../common-rdf/node';
+import ldChannel from '../common-rdf/radio';
+import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
 
 import externalResourcesTemplate from './external-resources-template';
 
-import { rdfs, owl } from '../jsonld/ns';
-import { getLabelFromId } from '../utilities/utilities';
-import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
+import { rdfs, owl } from '../common-rdf/ns';
+import { getLabelFromId } from '../utilities/linked-data-utilities';
+import ItemSummaryBlockView from '../item-summary-block/item-summary-block-view';
 
 const externalAttributes = [
     rdfs.seeAlso,

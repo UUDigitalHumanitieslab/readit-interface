@@ -1,9 +1,9 @@
-import Node from '../jsonld/node';
+import Node from '../common-rdf/node';
 import Model from '../core/model';
 
 import ExternalResourcesEditView from './external-resources-edit-view';
 import { anno1ContentInstance } from '../mock-data/mock-items';
-import { item } from '../jsonld/ns';
+import { item } from '../common-rdf/ns';
 
 describe('ExternalResourceEditItemView', function() {
     beforeEach(function() {

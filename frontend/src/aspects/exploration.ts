@@ -1,6 +1,6 @@
 import { partial, isString } from 'lodash';
 
-import channel from '../explorer/radio';
+import channel from '../explorer/explorer-radio';
 import * as act from '../explorer/route-actions';
 import router from '../global/exploration-router';
 import mainRouter from '../global/main-router';
@@ -47,10 +47,10 @@ channel.on({
     'annotationEditView:save': controller.saveAnnotation,
     'annotationEditView:close': controller.closeEditAnnotation,
     'category:showRelevantAnnotations': controller.showAnnotationsOfCategory,
-    'lditem:showRelated': controller.listRelated,
-    'lditem:showAnnotations': controller.listItemAnnotations,
-    'lditem:showExternal': controller.listExternal,
-    'lditem:editAnnotation': controller.editAnnotation,
+    'annotation:showRelated': controller.listRelated,
+    'annotation:showAnnotations': controller.listItemAnnotations,
+    'annotation:showExternal': controller.listExternal,
+    'annotation:editAnnotation': controller.editAnnotation,
     'relItems:itemClick': controller.openRelated,
     'relItems:edit': controller.editRelated,
     'externalItems:edit': controller.editExternal,

@@ -1,35 +1,35 @@
 import View from '../core/view';
 import Model from '../core/model';
 import Collection from '../core/collection';
-import Node from '../jsonld/node';
-import userChannel from '../user/radio';
+import Node from '../common-rdf/node';
+import userChannel from '../common-user/user-radio';
 
 import ExplorerView from './explorer-view';
-import LdItemView from '../panel-ld-item/ld-item-view';
-import ldChannel from '../jsonld/radio';
-import Graph from '../jsonld/graph';
+import AnnotationView from '../panel-annotation/annotation-view';
+import ldChannel from '../common-rdf/radio';
+import Graph from '../common-rdf/graph';
 import SourceView from '../panel-source/source-view';
-import AnnotationListPanel from '../annotation/annotation-list-panel';
-import SuggestionsView from '../suggestions/suggestions-view';
+import AnnotationListPanel from '../panel-annotation-list/annotation-list-panel';
+import SuggestionsView from '../panel-suggestions/suggestions-view';
 
-import AnnoEditView from '../annotation/panel-annotation-edit-view';
+import AnnoEditView from '../panel-annotation/annotation-edit-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
 import RelatedEditView from '../panel-related-items/related-items-edit-view';
 import ExternalView from '../panel-external-resources/external-resources-view';
 import ExternalEditView from '../panel-external-resources/external-resources-edit-view';
-import ItemGraph from '../utilities/item-graph';
-import FlatItem from '../annotation/flat-item-model';
-import FlatItemCollection from '../annotation/flat-item-collection';
-import FlatAnnoCollection from '../annotation/flat-annotation-collection';
-import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
-import { oa } from '../jsonld/ns';
-import SearchResultListView from '../search/search-results/panel-search-result-list-view';
+import ItemGraph from '../common-adapters/item-graph';
+import FlatItem from '../common-adapters/flat-item-model';
+import FlatItemCollection from '../common-adapters/flat-item-collection';
+import FlatAnnoCollection from '../common-adapters/flat-annotation-collection';
+import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
+import { oa } from '../common-rdf/ns';
+import SearchResultListView from '../panel-search-results/search-result-list-view';
 import SourceListPanel from '../panel-source-list/source-list-panel';
-import FilteredCollection from '../utilities/filtered-collection';
+import FilteredCollection from '../common-adapters/filtered-collection';
 import {
     isType,
     isOntologyClass,
-} from '../utilities/utilities';
+} from '../utilities/linked-data-utilities';
 
 export default class ExplorerEventController {
     /**
@@ -39,7 +39,7 @@ export default class ExplorerEventController {
 
     mapSourceAnnotationList: Map<SourceView, AnnotationListPanel> = new Map();
     mapAnnotationListSource: Map<AnnotationListPanel, SourceView> = new Map();
-    mapAnnotationListAnnotationDetail: Map<AnnotationListPanel, LdItemView> = new Map();
+    mapAnnotationListAnnotationDetail: Map<AnnotationListPanel, AnnotationView> = new Map();
 
     constructor(explorerView: ExplorerView) {
         this.explorerView = explorerView;
@@ -113,8 +113,8 @@ export default class ExplorerEventController {
         this.explorerView.popUntil(panel);
     }
 
-    openRelated(relView: RelatedItemsView, item: Node): LdItemView {
-        const itemPanel = new LdItemView({ model: new FlatItem(item) });
+    openRelated(relView: RelatedItemsView, item: Node): AnnotationView {
+        const itemPanel = new AnnotationView({ model: new FlatItem(item) });
         this.explorerView.popUntil(relView).push(itemPanel);
         return itemPanel;
     }
@@ -135,13 +135,13 @@ export default class ExplorerEventController {
         return editView;
     }
 
-    listRelated(view: LdItemView, item: Node): RelatedItemsView {
+    listRelated(view: AnnotationView, item: Node): RelatedItemsView {
         const listView = new RelatedItemsView({ model: item });
         this.explorerView.popUntil(view).push(listView);
         return listView;
     }
 
-    listItemAnnotations(view: LdItemView, item: Node): void {
+    listItemAnnotations(view: AnnotationView, item: Node): void {
         const items = new ItemGraph();
         items.query({
             predicate: oa.hasBody,
@@ -157,15 +157,15 @@ export default class ExplorerEventController {
         this.explorerView.popUntil(view).push(resultView);
     }
 
-    listExternal(view: LdItemView, item: Node): ExternalView {
+    listExternal(view: AnnotationView, item: Node): ExternalView {
         const listView = new ExternalView({ model: item });
         this.explorerView.popUntil(view).push(listView);
         return listView;
     }
 
-    editAnnotation(ldItemview: LdItemView, annotation: FlatItem): AnnoEditView {
+    editAnnotation(AnnotationView: AnnotationView, annotation: FlatItem): AnnoEditView {
         const annoEditView = new AnnoEditView({ model: annotation });
-        this.explorerView.overlay(annoEditView, ldItemview);
+        this.explorerView.overlay(annoEditView, AnnotationView);
         return annoEditView;
     }
 
@@ -220,13 +220,13 @@ export default class ExplorerEventController {
     }
 
     openSourceAnnotation(listView: AnnotationListPanel, anno: FlatItem): void {
-        let newDetailView = new LdItemView({ model: anno });
+        let newDetailView = new AnnotationView({ model: anno });
         this.mapAnnotationListAnnotationDetail.set(listView, newDetailView);
         this.explorerView.popUntil(listView).push(newDetailView);
     }
 
-    resetItem(item: Node): LdItemView {
-        let detailView = new LdItemView({ model: new FlatItem(item) });
+    resetItem(item: Node): AnnotationView {
+        let detailView = new AnnotationView({ model: new FlatItem(item) });
         this.explorerView.reset(detailView);
         return detailView;
     }

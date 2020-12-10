@@ -3,7 +3,7 @@ import { extend } from 'lodash';
 
 import Model from '../core/model';
 import { CollectionView } from './../core/view';
-import FlatAnnotations from '../annotation/flat-annotation-collection';
+import FlatAnnotations from '../common-adapters/flat-annotation-collection';
 import OverlapItem from './overlap-item-view';
 import detailsTemplate from './overlap-details-template';
 

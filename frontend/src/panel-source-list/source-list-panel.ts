@@ -1,8 +1,8 @@
 import { extend } from 'lodash';
 
-import explorerChannel from '../explorer/radio';
+import explorerChannel from '../explorer/explorer-radio';
 import { CompositeView, ViewOptions as BaseOpt } from '../core/view';
-import Graph from '../jsonld/graph';
+import Graph from '../common-rdf/graph';
 import Model from '../core/model';
 
 import SourceListView from './source-list-view';
