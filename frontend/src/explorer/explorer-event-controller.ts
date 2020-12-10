@@ -5,7 +5,7 @@ import Node from '../common-rdf/node';
 import userChannel from '../common-user/user-radio';
 
 import ExplorerView from './explorer-view';
-import LdItemView from '../panel-annotation/annotation-view';
+import AnnotationView from '../panel-annotation/annotation-view';
 import ldChannel from '../common-rdf/radio';
 import Graph from '../common-rdf/graph';
 import SourceView from '../panel-source/source-view';
@@ -108,8 +108,8 @@ export default class ExplorerEventController {
         this.explorerView.popUntil(panel);
     }
 
-    openRelated(relView: RelatedItemsView, item: Node): LdItemView {
-        const itemPanel = new LdItemView({ model: new FlatItem(item) });
+    openRelated(relView: RelatedItemsView, item: Node): AnnotationView {
+        const itemPanel = new AnnotationView({ model: new FlatItem(item) });
         this.explorerView.popUntil(relView).push(itemPanel);
         return itemPanel;
     }
@@ -130,13 +130,13 @@ export default class ExplorerEventController {
         return editView;
     }
 
-    listRelated(view: LdItemView, item: Node): RelatedItemsView {
+    listRelated(view: AnnotationView, item: Node): RelatedItemsView {
         const listView = new RelatedItemsView({ model: item });
         this.explorerView.popUntil(view).push(listView);
         return listView;
     }
 
-    listItemAnnotations(view: LdItemView, item: Node): void {
+    listItemAnnotations(view: AnnotationView, item: Node): void {
         const items = new ItemGraph();
         items.query({
             predicate: oa.hasBody,
@@ -152,15 +152,15 @@ export default class ExplorerEventController {
         this.explorerView.popUntil(view).push(resultView);
     }
 
-    listExternal(view: LdItemView, item: Node): ExternalView {
+    listExternal(view: AnnotationView, item: Node): ExternalView {
         const listView = new ExternalView({ model: item });
         this.explorerView.popUntil(view).push(listView);
         return listView;
     }
 
-    editAnnotation(ldItemview: LdItemView, annotation: FlatItem): AnnoEditView {
+    editAnnotation(AnnotationView: AnnotationView, annotation: FlatItem): AnnoEditView {
         const annoEditView = new AnnoEditView({ model: annotation });
-        this.explorerView.overlay(annoEditView, ldItemview);
+        this.explorerView.overlay(annoEditView, AnnotationView);
         return annoEditView;
     }
 
@@ -239,8 +239,8 @@ export default class ExplorerEventController {
         this.explorerView.popUntil(listView).push(newDetailView);
     }
 
-    resetItem(item: Node): LdItemView {
-        let detailView = new LdItemView({ model: new FlatItem(item) });
+    resetItem(item: Node): AnnotationView {
+        let detailView = new AnnotationView({ model: new FlatItem(item) });
         this.explorerView.reset(detailView);
         return detailView;
     }
