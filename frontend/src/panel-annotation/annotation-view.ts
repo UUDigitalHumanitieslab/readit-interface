@@ -122,7 +122,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     onNewClicked(): void {
-        explorerChannel.trigger('lditem:newAnnotation', this, this.model);
+        explorerChannel.trigger('annotation:newAnnotation', this, this.model);
     }
 }
 
