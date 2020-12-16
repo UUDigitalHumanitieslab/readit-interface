@@ -270,7 +270,7 @@ export default class ExplorerEventController {
             source: source,
             collection: sourceView.collection,
         });
-        const panelToPopUntil = sourceView['_annotationListPanel'] ? sourceView['_annotationList'] : sourceView;
+        const panelToPopUntil = sourceView['_annotationListPanel'] ? sourceView['_annotationListPanel'] : sourceView;
         this.explorerView.popUntil(panelToPopUntil);
         const newAnnotationView = new AnnotationView({ model: annoEditView.model })
         this.explorerView.push(newAnnotationView);
