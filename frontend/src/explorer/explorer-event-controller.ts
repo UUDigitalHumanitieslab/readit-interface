@@ -66,7 +66,7 @@ export default class ExplorerEventController {
     pushSourcePair(basePanel: View, source: Node): [SourceView, AnnotationListPanel] {
         const sourcePanel = this.pushSource(basePanel, source);
         const listPanel = this.listSourceAnnotations(sourcePanel);
-        sourcePanel['_annotationList'] = listPanel;
+        sourcePanel['_annotationListPanel'] = listPanel;
         return [sourcePanel, listPanel];
     }
 
@@ -270,9 +270,8 @@ export default class ExplorerEventController {
             source: source,
             collection: sourceView.collection,
         });
-        if (sourceView['_annotationList'])  {
-            this.explorerView.popUntil(sourceView['_annotationList']);
-        }
+        const panelToPopUntil = sourceView['_annotationListPanel'] ? sourceView['_annotationList'] : sourceView;
+        this.explorerView.popUntil(panelToPopUntil);
         const newAnnotationView = new AnnotationView({ model: annoEditView.model })
         this.explorerView.push(newAnnotationView);
         this.explorerView.overlay(annoEditView, newAnnotationView);
