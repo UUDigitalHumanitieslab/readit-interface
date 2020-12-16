@@ -6,7 +6,7 @@ import Graph from '../common-rdf/graph';
 import Model from '../core/model';
 
 import SourceListView from './source-list-view';
-import SourceListPanelTemplate from './source-list-panel-template';
+import SourceListPanelTemplate from './source-list-template';
 import PaginationView from '../pagination/pagination-view';
 
 export interface ViewOptions extends BaseOpt {
@@ -26,7 +26,7 @@ export default class SourceListPanel extends CompositeView {
     }
 
     initialize(options: ViewOptions) {
-        this.initSourceList();      
+        this.initSourceList();
         this.totalPages = Math.ceil(options.resultsCount.get('total_results') / options.resultsCount.get('results_per_page'));
         this.paginationView = new PaginationView({totalPages: this.totalPages});
         this.listenTo(this.paginationView, 'pagination:set', this.fetchMoreSources);
