@@ -20,6 +20,7 @@ import {
 } from '../utilities/annotation-utilities';
 import {
     composeAnnotation,
+    cloneTextQuoteSelector,
     getAnonymousTextQuoteSelector
 } from '../utilities/annotation-creation-utilities';
 import explorerChannel from '../explorer/explorer-radio';
@@ -47,6 +48,7 @@ export interface ViewOptions extends BaseOpt {
      * ignored!
      */
     range?: Range;
+    previousAnnotation?: FlatItem;
     positionDetails?: AnnotationPositionDetails;
     source?: Node;
 }
@@ -73,11 +75,16 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         this.itemPicker = new PickerView({collection: this.itemOptions});
         this.itemPicker.on('change', this.selectItem, this);
 
-        if (options.range) {
+        if (options.positionDetails) {
             this.positionDetails = options.positionDetails;
-            this.model = new FlatItem(getAnonymousTextQuoteSelector(options.range));
+            if (options.previousAnnotation) {
+                this.model = new FlatItem(cloneTextQuoteSelector(options.previousAnnotation));
+            }
+            else {
+                this.model = new FlatItem(getAnonymousTextQuoteSelector(options.range));
+            } 
             this.model.set('source', options.source);
-        }
+        }        
 
         this.classPicker = new ClassPickerView({
             collection: getOntologyClasses(),
@@ -160,7 +167,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     submitOldAnnotation(newItem: boolean): void {
         const annotation = this.model.get('annotation');
         this.selectedItem && annotation.set(oa.hasBody, this.selectedItem);
-        annotation.save();
+        annotation.save({patch: true});
         explorerChannel.trigger('annotationEditView:save', this, this.model, newItem);
     }
 

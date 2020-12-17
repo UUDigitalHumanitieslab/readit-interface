@@ -120,6 +120,10 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     onEditClicked(): void {
         explorerChannel.trigger('annotation:editAnnotation', this, this.model);
     }
+
+    onNewClicked(): void {
+        explorerChannel.trigger('annotation:newAnnotation', this, this.model);
+    }
 }
 
 extend(AnnotationView.prototype, {
@@ -139,6 +143,7 @@ extend(AnnotationView.prototype, {
         'click #btnRelItems': 'onRelItemsClicked',
         'click #btnAnnotations': 'onAnnotationsClicked',
         'click #btnExtResources': 'onExtResourcesClicked',
-        'click .btn-edit': 'onEditClicked'
+        'click .btn-edit': 'onEditClicked',
+        'click #btnNewAnnotation': 'onNewClicked'
     },
 });

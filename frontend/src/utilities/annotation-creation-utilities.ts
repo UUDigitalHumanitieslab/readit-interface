@@ -4,6 +4,7 @@ import * as a$ from 'async';
 import Node  from '../common-rdf/node';
 import { oa, as, vocab, rdf, xsd, staff, dcterms, } from '../common-rdf/ns';
 
+import FlatItem from '../common-adapters/flat-item-model';
 import ItemGraph from '../common-adapters/item-graph';
 import { AnnotationPositionDetails } from './annotation-utilities';
 
@@ -30,6 +31,25 @@ export function getAnonymousTextQuoteSelector(range: Range): Node {
 
     if (prefix) selector.set(oa.prefix, prefix);
     if (suffix) selector.set(oa.suffix, suffix);
+    return selector;
+}
+
+/**
+ * For an existing annotation, clone its text quote selector
+ * Creates new Node, so that we can edit the range for each annotation separately
+ * @param previousAnnotation: FlatItem
+ */
+export function cloneTextQuoteSelector(previousAnnotation: FlatItem){
+    let selector = new Node({
+        '@type': [oa.TextQuoteSelector],
+        [oa.exact]: [
+            {
+                "@value": previousAnnotation.get('text')
+            }
+        ]
+    });
+    if (previousAnnotation.has('prefix')) selector.set(oa.prefix, previousAnnotation.get('prefix'));
+    if (previousAnnotation.has('suffix')) selector.set(oa.suffix, previousAnnotation.get('suffix'));
     return selector;
 }
 
