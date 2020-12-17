@@ -177,7 +177,7 @@ export default class ExplorerEventController {
             collection: annotationView.collection,
         });
         const newAnnotationView = new AnnotationView({ model: newEditView.model })
-        this.explorerView.pop()
+        this.explorerView.popUntil(annotationView).pop();
         this.explorerView.push(newAnnotationView);
         this.explorerView.overlay(newEditView, newAnnotationView);
         return newEditView;
@@ -190,14 +190,7 @@ export default class ExplorerEventController {
     }
 
     saveNewAnnotation(editView: AnnoEditView, annotation: FlatItem, created: ItemGraph): void {
-        const listView = editView['_listview'];
-        if (listView) {
-            this.explorerView.removeOverlay(editView);
-        } else {
-            this.explorerView.pop();
-            const lowerview = this.explorerView.getRightMostStack().getTopPanel();
-            lowerview.model.set(annotation);
-        }
+        this.explorerView.removeOverlay(editView);
         editView.collection.once('sort', () => {
             annotation.trigger('focus', annotation);
         });
@@ -232,9 +225,12 @@ export default class ExplorerEventController {
     }
 
     closeEditAnnotation(editView: AnnoEditView): void {
-        this.explorerView.removeOverlay(editView);
-        if (!editView.model.id) {
-            this.explorerView.pop();
+        if (editView.model.id) {
+            this.explorerView.removeOverlay(editView);
+        }
+        else {
+            this.explorerView.popUntil(editView).pop();
+            this.explorerView.pop(); // also remove the underlying (empty) annotation view
         }
     }
 

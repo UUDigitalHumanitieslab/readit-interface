@@ -144,6 +144,6 @@ extend(AnnotationView.prototype, {
         'click #btnAnnotations': 'onAnnotationsClicked',
         'click #btnExtResources': 'onExtResourcesClicked',
         'click .btn-edit': 'onEditClicked',
-        'click .btn-new': 'onNewClicked'
+        'click #btnNewAnnotation': 'onNewClicked'
     },
 });
