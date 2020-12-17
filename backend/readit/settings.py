@@ -222,7 +222,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': 'readit.log',
+            'filename': os.path.join(BASE_DIR, '..', 'readit.log'),
             'formatter': 'standard',
         },
         'console': {
