@@ -1,7 +1,7 @@
 import { $ } from 'backbone';
 import { times, after, size } from 'lodash';
 
-import './../core/scroll-easings';
+import '../global/scroll-easings';
 import { enableI18n } from '../test-util';
 
 import ExplorerView from './explorer-view';

@@ -1,4 +1,4 @@
-import SearchboxView from '../search/search-box/searchbox-view';
+import SearchboxView from '../search-box/searchbox-view';
 
 const exampleQueryFields = [
     {

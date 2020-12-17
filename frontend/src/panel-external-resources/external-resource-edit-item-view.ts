@@ -3,9 +3,9 @@ import { extend } from 'lodash';
 import externalResourceEditItemTemplate from './external-resource-edit-item-template';
 import { CompositeView } from '../core/view';
 import PickerView from '../forms/base-picker-view';
-import Graph from '../jsonld/graph';
-import Node from '../jsonld/node';
-import { owl, rdfs } from '../jsonld/ns';
+import Graph from '../common-rdf/graph';
+import Node from '../common-rdf/node';
+import { owl, rdfs } from '../common-rdf/ns';
 
 const externalAttributes = [
     rdfs.seeAlso,

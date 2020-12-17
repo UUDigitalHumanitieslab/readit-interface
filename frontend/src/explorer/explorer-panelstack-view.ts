@@ -2,7 +2,7 @@ import { extend } from 'lodash';
 import { ViewOptions as BaseOpt } from 'backbone';
 
 import View from './../core/view';
-import Node from './../jsonld/node';
+import Node from './../common-rdf/node';
 
 
 export interface ViewOptions extends BaseOpt<Node> {

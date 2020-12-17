@@ -166,6 +166,19 @@ export default class ExplorerView extends View {
     }
 
     /**
+     * 
+     * Remove all subviews, as well as the view itself. 
+     */
+    remove(): this {
+        while (this.stacks.length) {
+            const removedView = this.pop();
+            removedView.remove();
+        }
+        super.remove();
+        return this;
+    }
+
+    /**
      * Remove a panel from any stack.
      * @param panel The panel to remove. Must be a topmost panel.
      * @event removeOverlay (panel, ontoPanel, fromLeft, fromRight) where 'panel' is the removed panel,

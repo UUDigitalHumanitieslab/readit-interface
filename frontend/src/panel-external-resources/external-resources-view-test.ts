@@ -1,4 +1,4 @@
-import Node from '../jsonld/node';
+import Node from '../common-rdf/node';
 
 import ExternalResourcesView from './external-resources-view';
 import { anno1ContentInstance } from '../mock-data/mock-items';

@@ -2,9 +2,9 @@ import { extend } from 'lodash';
 
 import Model from '../core/model';
 import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
-import Graph from '../jsonld/graph';
-import Node from '../jsonld/node';
-import { dcterms, vocab } from '../jsonld/ns';
+import Graph from '../common-rdf/graph';
+import Node from '../common-rdf/node';
+import { dcterms, vocab } from '../common-rdf/ns';
 import { announceRoute } from '../explorer/utilities';
 
 import sourceListTemplate from './source-list-template';
@@ -25,13 +25,13 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
     }
 
     initialize(): this {
-        if (this.collection.length) {
+        if (this.model) {
             this.collection.comparator = this.sortByRelevance;
             this.collection.sort();
         }
         else this.collection.comparator = this.sortByDate;
-        this.noResults = this.model && !this.collection.length;
         this.initItems().render().initCollectionEvents();
+        this.listenToOnce(this.collection, 'add', this.render);
         this.on('announceRoute', announce);
         return this;
     }

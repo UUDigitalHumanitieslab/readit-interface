@@ -4,7 +4,7 @@ import 'jasmine-ajax';
 import { extend } from 'lodash';
 import { Events } from 'backbone';
 
-import Store from './jsonld/store';
+import Store from './common-rdf/store';
 import './global/hbsHelpers';
 import { i18nPromise } from './global/i18n';
 

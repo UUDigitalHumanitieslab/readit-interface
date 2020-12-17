@@ -11,7 +11,7 @@ import {
     schema,
     xsd,
     oa,
-} from '../jsonld/ns';
+} from '../common-rdf/ns';
 
 export const contentClass = {
     "@id": readit('Content'),
