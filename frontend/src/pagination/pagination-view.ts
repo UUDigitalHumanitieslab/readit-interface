@@ -25,6 +25,7 @@ export default class PaginationView extends View {
     }
 
     render(): this {
+        if (this.totalPages < 2) return this;
         this.$el.html(this.template(this));
         // add is-current class to left, center or right pagination link
         if (this.currentPage === this.pagePlus) {
@@ -106,7 +107,7 @@ export default class PaginationView extends View {
         this.determineCurrentPages(page);
     }
 
-    
+
 }
 
 extend(PaginationView.prototype, {
