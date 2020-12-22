@@ -73,6 +73,10 @@ export default class ExplorerView extends View {
     scroll(stack?: string | PanelStackView, callback?: any): this {
         if (isString(stack)) stack = this.stacks[this.rltPanelStack[stack]];
         if (!stack) stack = this.getRightMostStack();
+        if (!stack) {
+            callback && fastTimeout(callback);
+            return this;
+        }
         stack.getTopPanel().trigger('announceRoute');
         const thisLeft = this.$el.scrollLeft();
         const thisRight = this.getMostRight();
@@ -163,6 +167,16 @@ export default class ExplorerView extends View {
         this.deletePanel(position);
         this.trigger('pop', poppedPanel, position);
         return poppedPanel;
+    }
+
+    /**
+     *
+     * Remove all subviews, as well as the view itself.
+     */
+    remove(): this {
+        while (this.stacks.length) this.pop();
+        super.remove();
+        return this;
     }
 
     /**
