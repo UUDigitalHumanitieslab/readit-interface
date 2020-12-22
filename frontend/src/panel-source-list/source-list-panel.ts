@@ -1,17 +1,13 @@
 import { extend } from 'lodash';
 
 import explorerChannel from '../explorer/explorer-radio';
-import { CompositeView, ViewOptions as BaseOpt } from '../core/view';
+import { CompositeView } from '../core/view';
 import Graph from '../common-rdf/graph';
 import Model from '../core/model';
 
 import SourceListView from './source-list-view';
 import SourceListPanelTemplate from './source-list-panel-template';
 import PaginationView from '../pagination/pagination-view';
-
-export interface ViewOptions extends BaseOpt {
-    resultsCount: Model;
-}
 
 export default class SourceListPanel extends CompositeView {
     sourceListView: SourceListView;
@@ -21,27 +17,37 @@ export default class SourceListPanel extends CompositeView {
     query: string;
     queryfields: string;
 
-    constructor(options?: ViewOptions) {
-        super(options);
-    }
-
-    initialize(options: ViewOptions) {
+    initialize() {
+        this.query = this.model.get('query');
+        this.queryfields = this.model.get('fields');
         this.initSourceList();
-        this.totalPages = Math.ceil(options.resultsCount.get('total_results') / options.resultsCount.get('results_per_page'));
-        this.paginationView = new PaginationView({totalPages: this.totalPages});
-        this.listenTo(this.paginationView, 'pagination:set', this.fetchMoreSources);
-        this.listenTo(this.sourceListView, 'source:clicked', this.onSourceClicked);
+        this.fetchResultsCount().once('sync', this.initPagination, this);
     }
 
     initSourceList() {
         this.sources = new Graph();
-        this.query = this.model.get('query');
-        this.queryfields = this.model.get('fields');
         this.sources.fetch({
             url: '/source/search',
             data: $.param({ query: this.query, fields: this.queryfields}),
         });
         this.sourceListView = new SourceListView({collection: this.sources, model: this.model});
+        this.listenTo(this.sourceListView, 'source:clicked', this.onSourceClicked);
+    }
+
+    fetchResultsCount(): Model {
+        const resultsCount = new Model();
+        resultsCount.fetch({
+            url: 'source/results_count',
+            data: $.param(this.model.toJSON())
+        });
+        return resultsCount;
+    }
+
+    initPagination(resultsCount: Model) {
+        this.totalPages = Math.ceil(resultsCount.get('total_results') / resultsCount.get('results_per_page'));
+        this.paginationView = new PaginationView({totalPages: this.totalPages});
+        this.listenTo(this.paginationView, 'pagination:set', this.fetchMoreSources);
+        this.render();
     }
 
     fetchMoreSources(page: number) {
