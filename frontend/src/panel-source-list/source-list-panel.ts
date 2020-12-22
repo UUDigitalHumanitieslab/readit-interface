@@ -12,25 +12,20 @@ import PaginationView from '../pagination/pagination-view';
 export default class SourceListPanel extends CompositeView {
     sourceListView: SourceListView;
     paginationView: PaginationView;
-    totalPages: Number;
-    sources: Graph;
-    query: string;
-    queryfields: string;
+    collection: Graph;
 
     initialize() {
-        this.query = this.model.get('query');
-        this.queryfields = this.model.get('fields');
         this.initSourceList();
         this.fetchResultsCount().once('sync', this.initPagination, this);
     }
 
     initSourceList() {
-        this.sources = new Graph();
-        this.sources.fetch({
+        this.collection = new Graph();
+        this.collection.fetch({
             url: '/source/search',
-            data: $.param({ query: this.query, fields: this.queryfields}),
+            data: $.param(this.model.toJSON()),
         });
-        this.sourceListView = new SourceListView({collection: this.sources, model: this.model});
+        this.sourceListView = new SourceListView({collection: this.collection, model: this.model});
         this.listenTo(this.sourceListView, 'source:clicked', this.onSourceClicked);
     }
 
@@ -44,32 +39,17 @@ export default class SourceListPanel extends CompositeView {
     }
 
     initPagination(resultsCount: Model) {
-        this.totalPages = Math.ceil(resultsCount.get('total_results') / resultsCount.get('results_per_page'));
-        this.paginationView = new PaginationView({totalPages: this.totalPages});
+        const totalPages = Math.ceil(resultsCount.get('total_results') / resultsCount.get('results_per_page'));
+        this.paginationView = new PaginationView({ totalPages });
         this.listenTo(this.paginationView, 'pagination:set', this.fetchMoreSources);
         this.render();
     }
 
     fetchMoreSources(page: number) {
-        this.sources.fetch({
+        this.collection.fetch({
             url: '/source/search',
-            data: $.param({ query: this.query, fields: this.queryfields, page: page })
+            data: $.param({ ...this.model.toJSON(), page })
         })
-    }
-
-    subviews() {
-        if (this.totalPages > 1) {
-            return [{
-                    view: 'sourceListView',
-                    selector: '.panel-content'
-                }, {
-                    view: 'paginationView',
-                    selector: '.panel-footer',
-                }]
-        } else return [{
-            view: 'sourceListView',
-            selector: '.panel-content'
-        }];
     }
 
     renderContainer(): this {
@@ -86,4 +66,11 @@ export default class SourceListPanel extends CompositeView {
 extend(SourceListPanel.prototype, {
     className: 'source-list explorer-panel',
     template: SourceListPanelTemplate,
+    subviews: [{
+        view: 'sourceListView',
+        selector: '.panel-content'
+    }, {
+        view: 'paginationView',
+        selector: '.panel-footer',
+    }],
 });
