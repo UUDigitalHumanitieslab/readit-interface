@@ -6,7 +6,7 @@ import Graph from '../common-rdf/graph';
 import Model from '../core/model';
 
 import SourceListView from './source-list-view';
-import SourceListPanelTemplate from './source-list-template';
+import SourceListPanelTemplate from './source-list-panel-template';
 import PaginationView from '../pagination/pagination-view';
 
 export interface ViewOptions extends BaseOpt {
