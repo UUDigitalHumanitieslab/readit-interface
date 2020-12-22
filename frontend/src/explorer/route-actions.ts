@@ -55,5 +55,6 @@ export function itemWithOccurrences(control: Controller, node: Node) {
 }
 
 export function searchResultsSources(control: Controller, fields: string, query: string) {
+    query = decodeURIComponent(query);
     return control.resetSourceListFromSearchResults(query, fields);
 }

@@ -27,15 +27,21 @@ mainRouter.on('route:explore', () => {
     explorer.scrollOrAction(suggestionsPanel.cid, resetSuggestionsPanel);
 });
 
-router.on('route:source:bare',       sourceRoute(act.sourceWithoutAnnotations));
-router.on('route:source:annotated',  sourceRoute(act.sourceWithAnnotations));
-router.on('route:item',                itemRoute(act.item));
-router.on('route:item:edit',           itemRoute(act.itemInEditMode));
-router.on('route:item:related',        itemRoute(act.itemWithRelations));
-router.on('route:item:related:edit',   itemRoute(act.itemWithEditRelations));
-router.on('route:item:external',       itemRoute(act.itemWithExternal));
-router.on('route:item:external:edit',  itemRoute(act.itemWithEditExternal));
-router.on('route:item:annotations',    itemRoute(act.itemWithOccurrences));
+router.on({
+    'route:source:bare':            sourceRoute(act.sourceWithoutAnnotations),
+    'route:source:annotated':       sourceRoute(act.sourceWithAnnotations),
+    'route:item':                   itemRoute(act.item),
+    'route:item:edit':              itemRoute(act.itemInEditMode),
+    'route:item:related':           itemRoute(act.itemWithRelations),
+    'route:item:related:edit':      itemRoute(act.itemWithEditRelations),
+    'route:item:external':          itemRoute(act.itemWithExternal),
+    'route:item:external:edit':     itemRoute(act.itemWithEditExternal),
+    'route:item:annotations':       itemRoute(act.itemWithOccurrences),
+    'route:search:results:sources': (fields, query) => explorer.scrollOrAction(
+        browserHistory.state,
+        () => act.searchResultsSources(controller, fields, query),
+    ),
+});
 
 channel.on({
     'sourceview:showAnnotations': controller.reopenSourceAnnotations,
