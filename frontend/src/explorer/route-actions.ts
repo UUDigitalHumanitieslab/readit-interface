@@ -53,3 +53,7 @@ export function itemWithOccurrences(control: Controller, node: Node) {
     // see #342
     control.listItemAnnotations(item(control, node), node);
 }
+
+export function searchResultsSources(control: Controller, fields: string, query: string) {
+    return control.resetSourceListFromSearchResults(query, fields);
+}
