@@ -1,5 +1,6 @@
 import { extend } from 'lodash';
 
+import { baseUrl } from 'config.json';
 import Model from '../core/model';
 import { CompositeView } from '../core/view';
 import Graph from '../common-rdf/graph';
@@ -10,6 +11,8 @@ import SourceListView from './source-list-view';
 import SourceListPanelTemplate from './source-list-panel-template';
 import PaginationView from '../pagination/pagination-view';
 
+const searchURL = baseUrl + 'source/search';
+const resultsURL = baseUrl + 'source/results_count';
 const routePattern = routePatterns['search:results:sources'];
 
 export default class SourceListPanel extends CompositeView {
@@ -26,7 +29,7 @@ export default class SourceListPanel extends CompositeView {
     initSourceList() {
         this.collection = new Graph();
         this.collection.fetch({
-            url: '/source/search',
+            url: searchURL,
             data: $.param(this.model.toJSON()),
         });
         this.sourceListView = new SourceListView({collection: this.collection, model: this.model});
@@ -36,7 +39,7 @@ export default class SourceListPanel extends CompositeView {
     fetchResultsCount(): Model {
         const resultsCount = new Model();
         resultsCount.fetch({
-            url: 'source/results_count',
+            url: resultsURL,
             data: $.param(this.model.toJSON())
         });
         return resultsCount;
@@ -51,7 +54,7 @@ export default class SourceListPanel extends CompositeView {
 
     fetchMoreSources(page: number) {
         this.collection.fetch({
-            url: '/source/search',
+            url: searchURL,
             data: $.param({ ...this.model.toJSON(), page })
         })
     }

@@ -1,6 +1,6 @@
-
 import { extend, filter, sampleSize } from 'lodash';
 
+import { baseUrl } from 'config.json';
 import { CompositeView } from './../core/view';
 import Graph from '../common-rdf/graph';
 import explorerChannel from '../explorer/explorer-radio';
@@ -17,6 +17,8 @@ import FlatAnnotationCollection from '../common-adapters/flat-annotation-collect
 
 const announce = announceRoute('explore');
 const nSuggestions = 3;
+const sourceSuggestionsURL = baseUrl + 'source/suggestion';
+const itemSuggestionsUrl = baseUrl + 'item/suggestion';
 
 export default class SuggestionsView extends CompositeView{
     sourceSuggestions: Graph;
@@ -46,8 +48,8 @@ export default class SuggestionsView extends CompositeView{
 
     async getSuggestions() {
         const param = $.param({ n_results: nSuggestions });
-        this.sourceSuggestions.fetch({ url: '/source/suggestion', data: param });
-        this.annotationGraph.fetch({ url: '/item/suggestion', data: param });
+        this.sourceSuggestions.fetch({ url: sourceSuggestionsURL, data: param });
+        this.annotationGraph.fetch({ url: itemSuggestionsUrl, data: param });
         const categories = await ldChannel.request('ontology:promise');
         const suggestions = sampleSize(filter(categories.models, isRdfsClass), nSuggestions);
         this.categorySuggestions.set(suggestions);
@@ -79,15 +81,15 @@ extend(SuggestionsView.prototype, {
     template: suggestionsTemplate,
     className: 'suggestions explorer-panel',
     subviews: [
-    { 
+    {
         view: 'sourceList',
-        selector: '.selections' 
+        selector: '.selections'
     },
-    { 
+    {
         view: 'annotationList',
         selector: '.selections'
     },
-    { 
+    {
         view: 'ontologyList',
         selector: '.selections'
     },
