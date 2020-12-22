@@ -6,11 +6,16 @@ import router from '../global/exploration-router';
 import mainRouter from '../global/main-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
-import suggestionsPanel from '../global/suggestions-view';
+import SuggestionsPanel from '../panel-suggestions/suggestions-view';
 import welcomeView from '../global/welcome-view';
 
 const browserHistory = window.history;
-const resetSuggestionsPanel = () => explorer.reset(suggestionsPanel);
+let suggestionsPanel: SuggestionsPanel;
+function resetSuggestionsPanel() {
+    suggestionsPanel = new SuggestionsPanel();
+    explorer.reset(suggestionsPanel);
+}
+
 /**
  * Common patterns for the explorer routes.
  */
@@ -24,7 +29,7 @@ const sourceRoute = partial(deepRoute, act.getSource);
 const itemRoute = partial(deepRoute, act.getItem);
 
 mainRouter.on('route:explore', () => {
-    explorer.scrollOrAction(suggestionsPanel.cid, resetSuggestionsPanel);
+    explorer.scrollOrAction(suggestionsPanel && suggestionsPanel.cid, resetSuggestionsPanel);
 });
 
 router.on({
