@@ -1,13 +1,16 @@
 import { extend } from 'lodash';
 
-import explorerChannel from '../explorer/explorer-radio';
+import Model from '../core/model';
 import { CompositeView } from '../core/view';
 import Graph from '../common-rdf/graph';
-import Model from '../core/model';
+import explorerChannel from '../explorer/explorer-radio';
+import routePatterns from '../explorer/route-patterns';
 
 import SourceListView from './source-list-view';
 import SourceListPanelTemplate from './source-list-panel-template';
 import PaginationView from '../pagination/pagination-view';
+
+const routePattern = routePatterns['search:results:sources'];
 
 export default class SourceListPanel extends CompositeView {
     sourceListView: SourceListView;
@@ -17,6 +20,7 @@ export default class SourceListPanel extends CompositeView {
     initialize() {
         this.initSourceList();
         this.fetchResultsCount().once('sync', this.initPagination, this);
+        this.on('announceRoute', this.announceRoute);
     }
 
     initSourceList() {
@@ -50,6 +54,14 @@ export default class SourceListPanel extends CompositeView {
             url: '/source/search',
             data: $.param({ ...this.model.toJSON(), page })
         })
+    }
+
+    announceRoute(): void {
+        const route = routePattern.replace(':fields/*query', [
+            this.model.get('fields'),
+            encodeURIComponent(this.model.get('query')),
+        ].join('/'));
+        explorerChannel.trigger('currentRoute', route, this);
     }
 
     renderContainer(): this {
