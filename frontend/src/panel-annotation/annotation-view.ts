@@ -5,15 +5,15 @@ import Node, { isNode } from '../common-rdf/node';
 import { owl, dcterms, rdfs } from '../common-rdf/ns';
 import FlatItem from '../common-adapters/flat-item-model';
 import explorerChannel from '../explorer/explorer-radio';
-import { announceRoute } from '../explorer/utilities';
 import { getLabelText } from '../utilities/annotation-utilities';
 import LabelView from '../label/label-view';
 import ItemMetadataView from '../item-metadata/item-metadata-view';
 import { getLabelFromId } from '../utilities/linked-data-utilities';
 
+import { announceRoute } from './utilities';
 import annotationTemplate from './annotation-template';
 
-const announce = announceRoute('item', ['model', 'id']);
+const announce = announceRoute(false);
 
 const excludedProperties = [
     '@id',
