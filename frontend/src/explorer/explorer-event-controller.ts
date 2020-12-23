@@ -1,3 +1,6 @@
+import { extend } from 'lodash';
+import { Events } from 'backbone';
+
 import View from '../core/view';
 import Model from '../core/model';
 import Collection from '../core/collection';
@@ -31,8 +34,8 @@ import {
     isOntologyClass,
 } from '../utilities/linked-data-utilities';
 
-
-export default class ExplorerEventController {
+interface ExplorerEventController extends Events {}
+class ExplorerEventController {
     /**
      * The explorer view instance to manage events for
      */
@@ -275,6 +278,8 @@ export default class ExplorerEventController {
         return annoEditView;
     }
 }
+extend(ExplorerEventController.prototype, Events);
+export default ExplorerEventController;
 
 /**
  * Get an ItemGraph with all oa:Annotations, oa:SpecificResources,
