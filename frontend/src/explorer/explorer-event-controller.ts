@@ -234,9 +234,10 @@ export default class ExplorerEventController {
         }
     }
 
-    openSourceAnnotation(listView: AnnotationListPanel, anno: FlatItem): void {
+    openSourceAnnotation(listView: AnnotationListPanel, anno: FlatItem): AnnotationView {
         let newDetailView = new AnnotationView({ model: anno, collection: listView.collection });
         this.explorerView.popUntil(listView).push(newDetailView);
+        return newDetailView;
     }
 
     resetItem(item: Node): AnnotationView {
