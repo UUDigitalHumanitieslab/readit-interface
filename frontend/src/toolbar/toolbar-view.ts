@@ -3,8 +3,6 @@ import { extend } from 'lodash';
 import View from '../core/view';
 import Model from '../core/model';
 
-import SourceToolbarItemView from './toolbar-item-view';
-
 import template from './toolbar-template';
 
 export interface ViewOptions extends BaseOpt<Model> {
@@ -13,18 +11,7 @@ export interface ViewOptions extends BaseOpt<Model> {
 
 export default class SourceToolbarView extends View {
 
-    highlightModeToolbarItem: SourceToolbarItemView;
-
-
-
     initialize(options?: ViewOptions): this {
-        let items = [
-            { icon: 'fa-hand-pointer', tooltip: 'Allow clicking of highlights (i.e. to open their details)', clickedEventName: 'clickingMode'},
-            { icon: 'fa-i-cursor', tooltip: 'Allow selection of text in highlights.', clickedEventName: 'textSelectionMode' }
-        ]
-        this.highlightModeToolbarItem = new SourceToolbarItemView({ item: { items: items }});
-        this.listenTo(this.highlightModeToolbarItem, 'clickingMode', this.onHighlightClickingMode);
-        this.listenTo(this.highlightModeToolbarItem, 'textSelectionMode', this.onHighlightTextSelectionMode);
         this.listenTo(this.model, 'change', this.toggleToolbarItemSelected)
         return this;
     }
@@ -42,13 +29,7 @@ export default class SourceToolbarView extends View {
         if (this.model.get('annotations')===true) {
             this.$(`.toolbar-annotations`).addClass("is-active");
         }
-        this.$('toolbar-highlight-mode').replaceWith(this.highlightModeToolbarItem.render().$el);
         return this
-    }
-
-    remove(): this {
-        this.highlightModeToolbarItem.remove();
-        return this;
     }
 
     /**
