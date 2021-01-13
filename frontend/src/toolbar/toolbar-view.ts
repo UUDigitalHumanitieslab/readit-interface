@@ -1,23 +1,15 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 import View from '../core/view';
-import Model from '../core/model';
 
 import SourceToolbarItemView from './toolbar-item-view';
 
 import template from './toolbar-template';
 
-export interface ViewOptions extends BaseOpt<Model> {
-    model: Model;
-}
-
 export default class SourceToolbarView extends View {
 
     highlightModeToolbarItem: SourceToolbarItemView;
 
-
-
-    initialize(options?: ViewOptions): this {
+    initialize(): this {
         let items = [
             { icon: 'fa-hand-pointer', tooltip: 'Allow clicking of highlights (i.e. to open their details)', clickedEventName: 'clickingMode'},
             { icon: 'fa-i-cursor', tooltip: 'Allow selection of text in highlights.', clickedEventName: 'textSelectionMode' }
