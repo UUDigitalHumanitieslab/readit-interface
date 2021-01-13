@@ -10,7 +10,6 @@ import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
 import ToggleMixin from '../category-colors/category-toggle-mixin';
 import SegmentCollection from '../highlight/text-segment-collection';
-import { isType } from './../utilities/linked-data-utilities';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
@@ -59,15 +58,8 @@ class SourcePanel extends CompositeView {
 
     metaView: MetadataView;
 
-
     // Keep track of visiblility of the view mode.
     isInFullScreenViewMode: boolean;
-
-    // Highlight clicking mode allows the user to click highlights and see their
-    // details. If this is false, we're in highlight text selection mode, which
-    // allows users to select text in highlights. Defaults to false, i.e. text
-    // selection mode.
-    isInHighlightClickingMode: boolean;
 
     toolbar: SourceToolbarView;
     sourceContainer: any;
@@ -149,7 +141,6 @@ class SourcePanel extends CompositeView {
             collection: new SegmentCollection(this.collection),
             isEditable: this.isEditable
         }).on('textSelected', this.onTextSelected, this);
-        this.bindToToolbarEvents(this.toolbar);
         this.render()._triggerHighlighting();
     }
 
@@ -197,15 +188,6 @@ class SourcePanel extends CompositeView {
             title: names ? names[0] : ''
         }));
         return this;
-    }
-
-    // TODO: share information between the panel and the toolbar using a model
-    // and move all responsibility for the appearance and behaviour of the
-    // toolbar to the toolbar.
-    bindToToolbarEvents(toolbar: SourceToolbarView): SourceToolbarView {
-        this.listenTo(toolbar, 'highlightClickingMode', this.htv.disablePointerEvents);
-        this.listenTo(toolbar, 'highlightTextSelectionMode', this.htv.enablePointerEvents);
-        return toolbar;
     }
 
     /**
@@ -258,11 +240,6 @@ class SourcePanel extends CompositeView {
             this.hideHighlights();
             explorerChannel.trigger('sourceview:hideAnnotations', this);
         }
-        return this;
-    }
-
-    toggleHighlightMode(): this {
-        this.isInHighlightClickingMode = !this.isInHighlightClickingMode;
         return this;
     }
 
