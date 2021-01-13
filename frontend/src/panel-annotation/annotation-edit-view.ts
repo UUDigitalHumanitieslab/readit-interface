@@ -1,4 +1,5 @@
 import { extend, invokeMap, bindAll } from 'lodash';
+import 'select2';
 
 import { CompositeView, ViewOptions as BaseOpt } from '../core/view';
 import ldChannel from '../common-rdf/radio';
@@ -72,8 +73,10 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
 
     initialize(options: ViewOptions) {
         this.itemOptions = new ItemGraph();
+        this.itemOptions.comparator = this.sortOptions;
         this.itemPicker = new PickerView({collection: this.itemOptions});
         this.itemPicker.on('change', this.selectItem, this);
+        // this.itemPicker.$('select').select2();
 
         if (options.positionDetails) {
             this.positionDetails = options.positionDetails;
@@ -118,6 +121,16 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             ignore: "",
         });
         return this;
+    }
+
+    sortOptions(model1, model2): number {
+        if (model1.get(skos.prefLabel) < model2.get(skos.prefLabel)) {
+            return -1;
+        }
+        if (model1.get(skos.prefLabel) > model2.get(skos.prefLabel)) {
+            return 1;
+        }
+        else return 0;
     }
 
     submit(): this {
