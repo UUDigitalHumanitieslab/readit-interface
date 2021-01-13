@@ -244,11 +244,6 @@ class SourcePanel extends CompositeView {
         return this;
     }
 
-    toggleHighlightMode(): this {
-        this.isInHighlightClickingMode = !this.isInHighlightClickingMode;
-        return this;
-    }
-
     scrollTo(annotation: FlatItem): void {
         this.htv.scrollTo(annotation);
     }

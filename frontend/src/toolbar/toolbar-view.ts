@@ -16,14 +16,6 @@ export default class SourceToolbarView extends View {
         return this;
     }
 
-    onHighlightClickingMode(): this {
-        return this.trigger('highlightClickingMode');
-    }
-
-    onHighlightTextSelectionMode(): this {
-        return this.trigger('highlightTextSelectionMode');
-    }
-
     render(): this {
         this.$el.html(this.template(this));
         if (this.model.get('annotations')===true) {
