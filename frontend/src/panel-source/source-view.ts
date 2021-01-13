@@ -59,13 +59,6 @@ class SourcePanel extends CompositeView {
 
     metaView: MetadataView;
 
-    /**
-     * Keep track of visiblility of the highlights;
-     */
-    isShowingHighlights: boolean;
-
-    // Keep track of visiblility of the metadata.
-    isShowingMetadata: boolean;
 
     // Keep track of visiblility of the view mode.
     isInFullScreenViewMode: boolean;
@@ -78,6 +71,7 @@ class SourcePanel extends CompositeView {
 
     toolbar: SourceToolbarView;
     sourceContainer: any;
+    toolbarModel: Model;
 
     // Method that is repeatedly invoked to track whether we can already safely
     // render highlights. Dynamically generated inside the constructor.
@@ -86,18 +80,18 @@ class SourcePanel extends CompositeView {
     constructor(options?: ViewOptions) {
         super(options);
         this.validate();
-
-        this.toolbar = new SourceToolbarView().render();
+        this.toolbarModel = new Model({
+            metadata: false, 
+            annotations: options.showHighlightsInitially || false
+        });
+        this.toolbar = new SourceToolbarView({ model: this.toolbarModel }).render();
         this.isEditable = options.isEditable || false;
-        this.isShowingHighlights = options.showHighlightsInitially || false;
         this.metaView = new MetadataView({
             model: this.model
         });
         this.render();
 
-        if (this.isShowingHighlights) {
-            this.toggleToolbarItemSelected('annotations');
-        } else {
+        if (!options.showHighlightsInitially) {
             this.hideHighlights();
         }
 
@@ -116,8 +110,10 @@ class SourcePanel extends CompositeView {
         // Trigger #3. Might be sync or async.
         this.model.when('@type', this.processText, this);
 
-        this.metaView.on('metadata:hide', this.toggleMetadata, this);
+        this.metaView.on('metadata:hide', this.hideMetadata, this);
         this.metaView.on('metadata:edit', this.editMetadata, this);
+        this.listenTo(this.toolbarModel, 'change:metadata', this.toggleMetadata);
+        this.listenTo(this.toolbarModel, 'change:annotations', this.toggleHighlights);
         this.on('announceRoute', announce);
     }
 
@@ -219,31 +215,6 @@ class SourcePanel extends CompositeView {
         explorerChannel.trigger('sourceview:textSelected', this, this.model, range, posDetails);
     }
 
-    /**
-     * Toggle highlights on and off.
-     */
-    toggleHighlights(): this {
-        if (this.isShowingHighlights) {
-            this.hideHighlights();
-            explorerChannel.trigger('sourceview:hideAnnotations', this);
-        }
-        else {
-            this.showHighlights();
-            explorerChannel.trigger('sourceview:showAnnotations', this, true);
-        }
-        this.toggleToolbarItemSelected('annotations');
-        this.isShowingHighlights = !this.isShowingHighlights;
-        return this;
-    }
-
-    // TODO: share information between the panel and the toolbar using a model
-    // and move all responsibility for the appearance and behaviour of the
-    // toolbar to the toolbar.
-    toggleToolbarItemSelected(name: string): this {
-        this.$(`.toolbar-${name}`).toggleClass("is-active");
-        return this;
-    }
-
     showHighlights(): this {
         this.toggleCategories();
         return this;
@@ -254,22 +225,39 @@ class SourcePanel extends CompositeView {
         return this;
     }
 
+    hideMetadata(): this {
+        this.toolbarModel.set('metadata', false);
+        return this;
+    }
+
     editMetadata(): this {
         // TO DO
         return this;
     }
 
     toggleMetadata(): this {
-        if (this.isShowingMetadata) {
-            this.metaView.$el.hide();
-            this.htv.$el.show();
-        } else {
+        if (this.toolbarModel.get('metadata')===true) {
             this.htv.$el.hide();
             this.metaView.$el.show();
+        } else {
+            this.metaView.$el.hide();
+            this.htv.$el.show();
         }
-        this.isShowingMetadata = !this.isShowingMetadata;
-        this.toggleToolbarItemSelected('metadata');
+        return this;
+    }
 
+    /**
+     * Toggle highlights on and off.
+     */
+    toggleHighlights(): this {
+        if (this.toolbarModel.get('annotations') === true) {
+            this.showHighlights();
+            explorerChannel.trigger('sourceview:showAnnotations', this, true);
+        }
+        else {
+            this.hideHighlights();
+            explorerChannel.trigger('sourceview:hideAnnotations', this);
+        }
         return this;
     }
 
@@ -288,8 +276,4 @@ export default SourcePanel;
 extend(SourcePanel.prototype, ToggleMixin.prototype, {
     className: 'source explorer-panel',
     template: sourceTemplate,
-    events: {
-        'click .toolbar-metadata': 'toggleMetadata',
-        'click .toolbar-annotations': 'toggleHighlights',
-    }
 });
