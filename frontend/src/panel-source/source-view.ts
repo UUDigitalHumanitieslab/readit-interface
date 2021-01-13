@@ -74,7 +74,7 @@ class SourcePanel extends CompositeView {
         this.validate();
         this.toolbarModel = new Model({
             metadata: false, 
-            annotations: false || options.showHighlightsInitially
+            annotations: options.showHighlightsInitially || false
         });
         this.toolbar = new SourceToolbarView({ model: this.toolbarModel }).render();
         this.isEditable = options.isEditable || false;
@@ -209,7 +209,6 @@ class SourcePanel extends CompositeView {
 
     hideMetadata(): this {
         this.toolbarModel.set('metadata', false);
-        this.toggleMetadata();
         return this;
     }
 

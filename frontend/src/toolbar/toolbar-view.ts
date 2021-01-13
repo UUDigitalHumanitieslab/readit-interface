@@ -1,17 +1,11 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 import View from '../core/view';
-import Model from '../core/model';
 
 import template from './toolbar-template';
 
-export interface ViewOptions extends BaseOpt<Model> {
-    model: Model;
-}
-
 export default class SourceToolbarView extends View {
 
-    initialize(options?: ViewOptions): this {
+    initialize(): this {
         this.listenTo(this.model, 'change', this.toggleToolbarItemSelected)
         return this;
     }
