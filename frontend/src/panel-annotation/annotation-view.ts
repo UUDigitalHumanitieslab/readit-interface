@@ -134,10 +134,10 @@ extend(AnnotationView.prototype, {
         selector: 'header aside',
     }, {
         view: 'itemMetadataView',
-        selector: '.itemMetadataContainer',
+        selector: '.metadataContainer',
     }, {
         view: 'annotationMetadataView',
-        selector: '.annotationMetadataContainer',
+        selector: '.metadataContainer',
     }],
     events: {
         'click #btnRelItems': 'onRelItemsClicked',
