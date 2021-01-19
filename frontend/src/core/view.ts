@@ -75,7 +75,21 @@ export default class View<M extends Model = Model> extends BView<M> {
  *     going on, this final step ensures that it is actually true.
  */
 // step 1: define class with the first parent class
-export class CompositeView<M extends Model = Model> extends View<M> {}
+export class CompositeView<M extends Model = Model> extends View<M> {
+    /**
+     * Properly dispose of a subview in cases where it is outlived by the
+     * parent view. This ensures that the .remove()d subview cannot
+     * accidentally be reinserted in the parent HTML.
+     */
+    dispose<Name extends SubviewNames<this>>(subviewName: Name): this {
+        const subview = this[subviewName];
+        if (subview instanceof BView) {
+            subview.remove();
+            delete this[subviewName];
+        }
+        return this;
+    }
+}
 
 // step 2: declare interface with the second parent class
 export interface CompositeView<M extends Model = Model> extends BCompositeView<M> {
@@ -87,6 +101,12 @@ export interface CompositeView<M extends Model = Model> extends BCompositeView<M
 
 // step 3: perform the actual mixin
 assign(CompositeView.prototype, BCompositeView.prototype);
+
+// Helper for argument type checking in CompositeView.dispose.
+type SubviewNames<CV> = {
+    [K in keyof CV]: CV[K] extends BView<infer M> ? K : never;
+}[keyof CV];
+type Subviews<CV> = Pick<CV, SubviewNames<CV>>;
 
 /**
  * CollectionView derives both from our customized View base class
