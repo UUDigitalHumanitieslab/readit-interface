@@ -1,20 +1,21 @@
 import { extend } from 'lodash';
 
 import { CompositeView } from '../core/view';
+import { schema } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import FlatItem from '../common-adapters/flat-item-model';
 import { getLabel } from '../utilities/linked-data-utilities';
-import LabeledIRIView from './labeled-iri-view';
+import IRIView from './iri-view';
 import template from './selector-iri-template';
 
 /**
  * Like LabeledIRIView, but specialized in text position selectors. Renders the
  * starting and ending position of the selection in addition to the source IRI
- * and label. The model should be a flat wrapper of an oa.SpecificResource or
+ * and title. The model should be a flat wrapper of an oa.SpecificResource or
  * an oa.Annotation in order for this to work as intended.
  */
 export default class SelectorIRIView extends CompositeView<FlatItem> {
-    hyperlink: LabeledIRIView;
+    hyperlink: IRIView;
 
     initialize() {
         this.model.whenever('source', this.updateSource, this);
@@ -23,11 +24,14 @@ export default class SelectorIRIView extends CompositeView<FlatItem> {
 
     updateSource(model: FlatItem, source: Node): void {
         this.hyperlink && this.hyperlink.remove();
-        this.hyperlink = new LabeledIRIView({ model: source });
+        this.hyperlink = new IRIView({ model: source });
     }
 
     renderContainer(): this {
-        this.$el.html(this.template(this.model.toJSON()));
+        const source = this.model.get('source');
+        this.$el.html(this.template(extend({
+            title: source && source.get(schema('name')),
+        }, this.model.toJSON())));
         return this;
     }
 }
