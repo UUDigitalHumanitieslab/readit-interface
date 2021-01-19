@@ -52,9 +52,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     processAnnotation(model: FlatItem, annotation: Node): void {
-        const annoMetaView = this.annotationMetadataView;
-        if (annoMetaView) annoMetaView.remove();
-        if (this.sourceLink) this.sourceLink.remove();
+        this.dispose('annotationMetadataView').dispose('sourceLink');
         if (annotation) {
             this.annotationMetadataView = new ItemMetadataView({
                 model: annotation,
@@ -65,8 +63,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     processClass(model: FlatItem, cls: Node): void {
-        const label = this.lblView;
-        if (label) label.remove();
+        this.dispose('lblView');
         if (cls) this.lblView = new LabelView({
             model: cls,
             toolTipSetting: 'left'
@@ -74,10 +71,8 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     processItem(model: FlatItem, item: Node): void {
-        const itemMetaView = this.itemMetadataView;
+        this.dispose('itemMetadataView').dispose('itemLink');
         const previousItem = model.previous('item');
-        if (itemMetaView) itemMetaView.remove();
-        if (this.itemLink) this.itemLink.remove();
         if (previousItem) this.stopListening(previousItem);
         if (item) {
             this.itemMetadataView = new ItemMetadataView({
