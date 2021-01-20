@@ -61,7 +61,7 @@ export default class MetadataView extends View {
     }
 
     onCloseClicked() {
-        explorerChannel.trigger('metadata:hide', this);
+        this.trigger('metadata:hide', this);
     }
 
     onEditClicked() {

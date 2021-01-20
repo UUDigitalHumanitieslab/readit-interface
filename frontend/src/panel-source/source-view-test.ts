@@ -27,7 +27,6 @@ describe('SourceView', function() {
             collection: this.flat,
         });
         expect(view.isEditable).toBe(false);
-        expect(view.isShowingHighlights).toBe(false);
         expect(view.toolbar).toBeDefined();
         expect(view._triggerHighlighting).toBeDefined();
         view.remove();
