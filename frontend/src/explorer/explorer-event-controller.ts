@@ -73,6 +73,7 @@ export default class ExplorerEventController {
     resetSourcePair(source: Node): [SourceView, AnnotationListPanel] {
         const sourcePanel = this.resetSource(source, true);
         const listPanel = this.listSourceAnnotations(sourcePanel);
+        sourcePanel['_annotationListPanel'] = listPanel;
         return [sourcePanel, listPanel];
     }
 
