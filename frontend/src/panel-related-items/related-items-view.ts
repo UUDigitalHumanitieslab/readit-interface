@@ -8,6 +8,7 @@ import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
+import LabeledIRIView from '../iri-hyperlink/labeled-iri-view';
 import { getLabel } from '../utilities/linked-data-utilities';
 
 import relatedItemsTemplate from './related-items-template';
@@ -27,6 +28,8 @@ export interface ViewOptions extends BaseOpt {
 export default class RelatedItemsView extends CollectionView {
     model: Node;
     predicates: Graph;
+    itemLink: LabeledIRIView;  // unmanaged subview
+    itemLinkSelector: string;
 
     constructor(options?: ViewOptions) {
         super(options);
@@ -35,6 +38,7 @@ export default class RelatedItemsView extends CollectionView {
     initialize(options: ViewOptions) {
         this.collection = new Collection();
         this.initItems().initCollectionEvents();
+        this.itemLink = new LabeledIRIView({ model: this.model });
         this.on('announceRoute', announce);
         // Start collecting relations only after both the full ontology has been
         // fetched and the type of the model is known. Otherwise,
@@ -75,6 +79,17 @@ export default class RelatedItemsView extends CollectionView {
         return this;
     }
 
+    afterRender(): this {
+        this.$(this.itemLinkSelector).append(this.itemLink.el);
+        return this;
+    }
+
+    remove(): this {
+        this.itemLink.remove();
+        super.remove();
+        return this;
+    }
+
     onSummaryBlockClicked(summaryBlock, model: Model): void {
         explorerChannel.trigger('relItems:itemClick', this, model.get('item'));
     }
@@ -88,6 +103,7 @@ extend(RelatedItemsView.prototype, {
     className: 'related-items explorer-panel',
     template: relatedItemsTemplate,
     container: '.relations',
+    itemLinkSelector: '.panel-header .subtitle',
     events: {
         'click .btn-edit': 'onEditButtonClicked',
     },
