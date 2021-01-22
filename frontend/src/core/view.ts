@@ -105,10 +105,9 @@ export interface CompositeView<M extends Model = Model> extends BCompositeView<M
 assign(CompositeView.prototype, BCompositeView.prototype);
 
 // Helper for argument type checking in CompositeView.dispose.
-type SubviewNames<CV> = {
-    [K in keyof CV]: CV[K] extends BView<infer M> ? K : never;
-}[keyof CV];
-type Subviews<CV> = Pick<CV, SubviewNames<CV>>;
+type SubviewNames<T, U extends keyof T = keyof T> = U extends unknown ?
+    T[U] extends BView ? U : never :
+    never;
 
 /**
  * CollectionView derives both from our customized View base class
