@@ -1,7 +1,7 @@
-import { extend } from 'lodash';
+import { extend, map } from 'lodash';
 
 import View from '../core/view';
-import Node from '../common-rdf/node';
+import Node, { isNode } from '../common-rdf/node';
 import { rdfs, owl } from '../common-rdf/ns';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
@@ -23,11 +23,14 @@ export default class ExternalResourcesView extends View<Node> {
     }
 
     render(): this {
-        const externalResources = externalAttributes.map( attribute => {
+        const externalResources = map(externalAttributes, attribute => {
             if (!this.model.has(attribute)) return;
             return {
                 label: getLabelFromId(attribute),
-                urls: this.model.get(attribute),
+                urls: map(
+                    this.model.get(attribute),
+                    url => isNode(url) ? url.id : url
+                ),
             }
         });
         this.$el.html(this.template({ externalResources }));
