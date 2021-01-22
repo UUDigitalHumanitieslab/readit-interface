@@ -84,7 +84,9 @@ export class CompositeView<M extends Model = Model> extends View<M> {
     dispose<Name extends SubviewNames<this>>(subviewName: Name): this {
         const subview = this[subviewName];
         if (subview instanceof BView) {
-            subview.remove();
+            // Somehow, TS is still not able to infer automatically that subview
+            // is an instances of BView.
+            (subview as BView).remove();
             delete this[subviewName];
         }
         return this;
