@@ -1,16 +1,15 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
+
 import View from '../core/view';
 import Node from '../common-rdf/node';
+import { rdfs, owl } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
+import ItemSummaryBlockView from '../item-summary-block/item-summary-block-view';
+import { getLabelFromId } from '../utilities/linked-data-utilities';
 
 import externalResourcesTemplate from './external-resources-template';
-
-import { rdfs, owl } from '../common-rdf/ns';
-import { getLabelFromId } from '../utilities/linked-data-utilities';
-import ItemSummaryBlockView from '../item-summary-block/item-summary-block-view';
 
 const externalAttributes = [
     rdfs.seeAlso,
@@ -19,10 +18,6 @@ const externalAttributes = [
 
 const announce = announceRoute('item:external', ['model', 'id']);
 
-export interface ViewOptions extends BaseOpt<Node> {
-    model: Node;
-}
-
 export default class ExternalResourcesView extends View<Node> {
     externalResources: {label: string, urls: string[]}[];
     filteredNode: Node;
@@ -30,10 +25,6 @@ export default class ExternalResourcesView extends View<Node> {
      * Keep track of the currently highlighted summary block
      */
     currentlyHighlighted: ItemSummaryBlockView;
-
-    constructor(options?: ViewOptions) {
-        super(options);
-    }
 
     initialize(): this {
         this.displayResources();
