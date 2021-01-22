@@ -17,31 +17,20 @@ const externalAttributes = [
 const announce = announceRoute('item:external', ['model', 'id']);
 
 export default class ExternalResourcesView extends View<Node> {
-    externalResources: {label: string, urls: string[]}[];
-
-    initialize(): this {
-        this.displayResources();
-        this.model.on('change', this.displayResources, this);
+    initialize() {
+        this.render().listenTo(this.model, 'change', this.render);
         this.on('announceRoute', announce);
-        return this;
     }
 
     render(): this {
-        this.$el.html(this.template(this));
-        return this;
-    }
-
-    displayResources(): this {
-        this.externalResources = externalAttributes.map( attribute => {
-            if (this.model.get(attribute) === undefined) {
-                return;
-            }
+        const externalResources = externalAttributes.map( attribute => {
+            if (!this.model.has(attribute)) return;
             return {
                 label: getLabelFromId(attribute),
-                urls: this.model.get(attribute) as string[]
+                urls: this.model.get(attribute),
             }
         });
-        this.render();
+        this.$el.html(this.template({ externalResources }));
         return this;
     }
 
@@ -51,7 +40,6 @@ export default class ExternalResourcesView extends View<Node> {
 }
 
 extend(ExternalResourcesView.prototype, {
-    tagName: 'div',
     className: 'related-items explorer-panel',
     template: externalResourcesTemplate,
     events: {
