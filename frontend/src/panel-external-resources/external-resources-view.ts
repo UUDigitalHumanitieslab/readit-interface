@@ -1,6 +1,6 @@
 import { extend, map } from 'lodash';
 
-import View from '../core/view';
+import { CompositeView } from '../core/view';
 import Node, { isNode } from '../common-rdf/node';
 import { rdfs, owl } from '../common-rdf/ns';
 import explorerChannel from '../explorer/explorer-radio';
@@ -16,13 +16,13 @@ const externalAttributes = [
 
 const announce = announceRoute('item:external', ['model', 'id']);
 
-export default class ExternalResourcesView extends View<Node> {
+export default class ExternalResourcesView extends CompositeView<Node> {
     initialize() {
         this.render().listenTo(this.model, 'change', this.render);
         this.on('announceRoute', announce);
     }
 
-    render(): this {
+    renderContainer(): this {
         const externalResources = map(externalAttributes, attribute => {
             if (!this.model.has(attribute)) return;
             return {
