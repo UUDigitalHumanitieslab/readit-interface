@@ -3,10 +3,8 @@ import { extend } from 'lodash';
 import View from '../core/view';
 import Node from '../common-rdf/node';
 import { rdfs, owl } from '../common-rdf/ns';
-import ldChannel from '../common-rdf/radio';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
-import ItemSummaryBlockView from '../item-summary-block/item-summary-block-view';
 import { getLabelFromId } from '../utilities/linked-data-utilities';
 
 import externalResourcesTemplate from './external-resources-template';
@@ -20,11 +18,6 @@ const announce = announceRoute('item:external', ['model', 'id']);
 
 export default class ExternalResourcesView extends View<Node> {
     externalResources: {label: string, urls: string[]}[];
-    filteredNode: Node;
-    /**
-     * Keep track of the currently highlighted summary block
-     */
-    currentlyHighlighted: ItemSummaryBlockView;
 
     initialize(): this {
         this.displayResources();
@@ -56,6 +49,7 @@ export default class ExternalResourcesView extends View<Node> {
         explorerChannel.trigger('externalItems:edit', this);
     }
 }
+
 extend(ExternalResourcesView.prototype, {
     tagName: 'div',
     className: 'related-items explorer-panel',
