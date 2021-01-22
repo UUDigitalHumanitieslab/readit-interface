@@ -52,10 +52,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     processAnnotation(model: FlatItem, annotation: Node): void {
-        // Workaround for https://github.com/microsoft/TypeScript/issues/42413.
-        const self = this as AnnotationView;
-        self.dispose('annotationMetadataView');
-        self.dispose('sourceLink');
+        this.dispose('annotationMetadataView').dispose('sourceLink');
         if (annotation) {
             this.annotationMetadataView = new ItemMetadataView({
                 model: annotation,
@@ -66,9 +63,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     processClass(model: FlatItem, cls: Node): void {
-        // Workaround for https://github.com/microsoft/TypeScript/issues/42413.
-        const self = this as AnnotationView;
-        self.dispose('lblView');
+        this.dispose('lblView');
         if (cls) this.lblView = new LabelView({
             model: cls,
             toolTipSetting: 'left'
@@ -76,10 +71,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     processItem(model: FlatItem, item: Node): void {
-        // Workaround for https://github.com/microsoft/TypeScript/issues/42413.
-        const self = this as AnnotationView;
-        self.dispose('itemMetadataView');
-        self.dispose('itemLink');
+        this.dispose('itemMetadataView').dispose('itemLink');
         const previousItem = model.previous('item');
         if (previousItem) this.stopListening(previousItem);
         if (item) {

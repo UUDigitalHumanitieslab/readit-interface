@@ -81,13 +81,13 @@ export class CompositeView<M extends Model = Model> extends View<M> {
      * parent view. This ensures that the .remove()d subview cannot
      * accidentally be reinserted in the parent HTML.
      */
-    dispose<Name extends SubviewNames<this>>(subviewName: Name): this {
+    dispose<Name extends keyof this>(subviewName: Name): this {
         const subview = this[subviewName];
         if (subview instanceof BView) {
-            // Somehow, TS is still not able to infer automatically that subview
-            // is an instances of BView.
-            (subview as BView).remove();
+            subview.remove();
             delete this[subviewName];
+        } else {
+            console.warn(`Trying to dispose non-subview ${subviewName}`, this);
         }
         return this;
     }
@@ -103,11 +103,6 @@ export interface CompositeView<M extends Model = Model> extends BCompositeView<M
 
 // step 3: perform the actual mixin
 assign(CompositeView.prototype, BCompositeView.prototype);
-
-// Helper for argument type checking in CompositeView.dispose.
-type SubviewNames<T, U extends keyof T = keyof T> = U extends unknown ?
-    T[U] extends BView ? U : never :
-    never;
 
 /**
  * CollectionView derives both from our customized View base class
