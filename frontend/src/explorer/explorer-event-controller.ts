@@ -22,6 +22,7 @@ import FlatItem from '../common-adapters/flat-item-model';
 import FlatItemCollection from '../common-adapters/flat-item-collection';
 import FlatAnnoCollection from '../common-adapters/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
+import { getAnonymousTextQuoteSelector, createPlaceholderAnnotation, cloneTextQuoteSelector } from '../utilities/annotation-creation-utilities';
 import { oa } from '../common-rdf/ns';
 import SearchResultListView from '../panel-search-results/search-result-list-view';
 import SourceListPanel from '../panel-source-list/source-list-panel';
@@ -30,6 +31,7 @@ import {
     isType,
     isOntologyClass,
 } from '../utilities/linked-data-utilities';
+import { create } from 'lodash';
 
 
 export default class ExplorerEventController {
@@ -171,10 +173,10 @@ export default class ExplorerEventController {
             startIndex: annotation.get('startPosition'),
             endIndex: annotation.get('endPosition')
         }
+        const textQuoteSelector = cloneTextQuoteSelector(annotation);
+        const newAnnotation = createPlaceholderAnnotation(annotationView.model.get('source'), textQuoteSelector, positionDetails)
         let newEditView = new AnnoEditView({
-            previousAnnotation: annotation,
-            positionDetails: positionDetails,
-            source: annotation.get('source'),
+            model: new FlatItem(new Node(newAnnotation)),
             collection: annotationView.collection,
         });
         const newAnnotationView = new AnnotationView({ model: newEditView.model })
@@ -261,10 +263,10 @@ export default class ExplorerEventController {
     }
 
     selectText(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): AnnoEditView {
+        const textQuoteSelector = getAnonymousTextQuoteSelector(range);
+        const annotation = new FlatItem(new Node(createPlaceholderAnnotation(source, textQuoteSelector, positionDetails)));
         let annoEditView = new AnnoEditView({
-            range: range,
-            positionDetails: positionDetails,
-            source: source,
+            model: annotation,
             collection: sourceView.collection,
         });
         const panelToPopUntil = sourceView['_annotationListPanel'] ? sourceView['_annotationListPanel'] : sourceView;

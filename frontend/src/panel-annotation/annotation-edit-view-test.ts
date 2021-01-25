@@ -38,9 +38,6 @@ describe('AnnotationEditView', function() {
         const range = document.createRange();
         range.selectNodeContents(this.textContainer.get(0).firstChild);
         expect(() => new AnnotationEditView({
-            range,
-            positionDetails: this.positionDetails,
-            source: new Node({'@id': 'x'}),
             model: undefined,
         })).not.toThrow();
     });

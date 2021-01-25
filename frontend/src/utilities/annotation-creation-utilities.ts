@@ -2,11 +2,12 @@ import * as _ from 'lodash';
 import * as a$ from 'async';
 
 import Node  from '../common-rdf/node';
-import { oa, as, vocab, rdf, xsd, staff, dcterms, } from '../common-rdf/ns';
+import { oa, as, vocab, rdf, xsd, staff, dcterms, rdfs, schema } from '../common-rdf/ns';
 
 import FlatItem from '../common-adapters/flat-item-model';
 import ItemGraph from '../common-adapters/item-graph';
-import { AnnotationPositionDetails } from './annotation-utilities';
+import { AnnotationPositionDetails, getPositionDetails } from './annotation-utilities';
+import { uniqueId } from 'lodash';
 
 const prefixLength = 100;
 const suffixLength = 100;
@@ -209,21 +210,29 @@ function createTextQuoteSelector(items: ItemGraph, textQuoteSelector: Node, done
 }
 
 function createPositionSelector(items: ItemGraph, start: number, end: number, done?) {
-    const attributes = {
+    const attributes = getPositionSelector(start, end);
+    return createItem(items, attributes, done);
+}
+
+function getPositionSelector(start: number, end: number){
+    return {
         '@type': oa.TextPositionSelector,
         [oa.start]: start,
         [oa.end]: end,
     };
-    return createItem(items, attributes, done);
 }
 
 function createSpecificResource(items: ItemGraph, source: Node, positionSelector: Node, textQuoteSelector: Node, done?) {
-    const attributes = {
+    const attributes = getSpecificResource(source, positionSelector, textQuoteSelector);
+    return createItem(items, attributes, done);
+}
+
+function getSpecificResource(source: Node, positionSelector: Node, textQuoteSelector: Node){
+    return {
         '@type': oa.SpecificResource,
         [oa.hasSource]: source,
         [oa.hasSelector]: [positionSelector, textQuoteSelector],
     };
-    return createItem(items, attributes, done);
 }
 
 function createAnnotation(
@@ -241,4 +250,29 @@ function createAnnotation(
     };
     if (ontoItem) (attributes[oa.hasBody] as Node[]).push(ontoItem);
     return createItem(items, attributes, done);
+}
+
+function getPlaceholderClass() {
+    return {
+        '@id': 'placeholder',
+        '@type': [rdfs.Class],
+        [schema.color]: ['#a8c0f4']
+    }
+}
+
+export function createPlaceholderAnnotation(
+    source: Node,
+    textQuoteSelector: Node,
+    positionDetails: AnnotationPositionDetails
+) {
+    let positionSelector = getPositionSelector(positionDetails.startIndex, positionDetails.endIndex);
+    positionSelector['@id'] = uniqueId('_:');
+    let specificResource = getSpecificResource(source, new Node(positionSelector), textQuoteSelector);
+    specificResource['@id'] = uniqueId('_:');
+    const placeholderClass = getPlaceholderClass();
+    return {
+        '@type': oa.Annotation,
+        [oa.hasTarget]: specificResource,
+        [oa.hasBody]: [placeholderClass]
+    }
 }

@@ -48,9 +48,6 @@ export interface ViewOptions extends BaseOpt {
      * when the model is undefined). If you *also* pass a model, it will be
      * ignored!
      */
-    range?: Range;
-    previousAnnotation?: FlatItem;
-    positionDetails?: AnnotationPositionDetails;
     source?: Node;
 }
 
@@ -77,28 +74,20 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         this.itemPicker = new PickerView({collection: this.itemOptions});
         this.itemPicker.on('change', this.selectItem, this);
         // this.itemPicker.$('select').select2();
-
-        if (options.positionDetails) {
-            this.positionDetails = options.positionDetails;
-            if (options.previousAnnotation) {
-                this.model = new FlatItem(cloneTextQuoteSelector(options.previousAnnotation));
-            }
-            else {
-                this.model = new FlatItem(getAnonymousTextQuoteSelector(options.range));
-            } 
-            this.model.set('source', options.source);
-        }        
-
         this.classPicker = new ClassPickerView({
             collection: getOntologyClasses(),
             preselection: this.model.get('class'),
         }).on('select', this.selectClass, this).render();
+        // if (this.model.isNew()) {
+        //     this.collection.underlying.add(this.model.underlying);
+        // }
 
         this.snippetView = new SnippetView({ model: this.model }).render();
+        
 
-        this.model.when('annotation', this.processAnnotation, this);
+        // this.model.when('annotation', this.processAnnotation, this);
         this.model.when('class', (model, cls) => this.selectClass(cls), this);
-        bindAll(this, 'propagateItem');
+        // bindAll(this, 'propagateItem');
         this.model.when('item', this.propagateItem, this);
     }
 
