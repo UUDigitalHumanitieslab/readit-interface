@@ -78,16 +78,17 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             collection: getOntologyClasses(),
             preselection: this.model.get('class'),
         }).on('select', this.selectClass, this).render();
-        // if (this.model.isNew()) {
-        //     this.collection.underlying.add(this.model.underlying);
-        // }
+        if (this.model.id.slice(0,2)=='_:') {
+            // annotation is placeholder (blank node)
+            this.collection.underlying.add(this.model.underlying);
+        }
 
         this.snippetView = new SnippetView({ model: this.model }).render();
         
 
         // this.model.when('annotation', this.processAnnotation, this);
         this.model.when('class', (model, cls) => this.selectClass(cls), this);
-        // bindAll(this, 'propagateItem');
+        bindAll(this, 'propagateItem');
         this.model.when('item', this.propagateItem, this);
     }
 

@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as a$ from 'async';
 
 import Node  from '../common-rdf/node';
-import { oa, as, vocab, rdf, xsd, staff, dcterms, rdfs, schema } from '../common-rdf/ns';
+import { oa, as, vocab, rdf, xsd, staff, dcterms, rdfs, schema, readit } from '../common-rdf/ns';
 
 import FlatItem from '../common-adapters/flat-item-model';
 import ItemGraph from '../common-adapters/item-graph';
@@ -254,9 +254,9 @@ function createAnnotation(
 
 function getPlaceholderClass() {
     return {
-        '@id': 'placeholder',
+        '@id': readit('placeholder'),
         '@type': [rdfs.Class],
-        [schema.color]: ['#a8c0f4']
+        [schema.color]: ['#ACCEF7']
     }
 }
 
@@ -267,10 +267,12 @@ export function createPlaceholderAnnotation(
 ) {
     let positionSelector = getPositionSelector(positionDetails.startIndex, positionDetails.endIndex);
     positionSelector['@id'] = uniqueId('_:');
+    textQuoteSelector['@id'] = uniqueId('_:');
     let specificResource = getSpecificResource(source, new Node(positionSelector), textQuoteSelector);
     specificResource['@id'] = uniqueId('_:');
     const placeholderClass = getPlaceholderClass();
     return {
+        '@id': uniqueId('_:'),
         '@type': oa.Annotation,
         [oa.hasTarget]: specificResource,
         [oa.hasBody]: [placeholderClass]
