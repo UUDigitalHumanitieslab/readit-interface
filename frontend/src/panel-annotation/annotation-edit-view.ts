@@ -14,10 +14,11 @@ import ItemGraph from '../common-adapters/item-graph';
 import ClassPickerView from '../forms/ontology-class-picker-view';
 import ItemMetadataView from '../item-metadata/item-metadata-view';
 import SnippetView from '../snippet/snippet-view';
-import { isRdfsClass } from '../utilities/linked-data-utilities';
+import { isRdfsClass, isBlank } from '../utilities/linked-data-utilities';
 import {
     AnnotationPositionDetails,
-    getTargetDetails
+    getTargetDetails,
+    placeholderClass,
 } from '../utilities/annotation-utilities';
 import {
     composeAnnotation,
@@ -78,19 +79,17 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             collection: getOntologyClasses(),
             preselection: this.model.get('class'),
         }).on('select', this.selectClass, this).render();
-        if (this.model.id.slice(0,2)=='_:') {
+        if (isBlank(this.model.underlying)) {
             // annotation is placeholder (blank node)
             this.collection.underlying.add(this.model.underlying);
         }
 
         this.snippetView = new SnippetView({ model: this.model }).render();
-        
 
-        // this.model.when('annotation', this.processAnnotation, this);
+
+        this.model.when('annotation', this.processAnnotation, this);
         this.model.when('class', (model, cls) => {
-            if (cls.slice(0,11)!=='placeholder') {
-                this.selectClass(cls);
-            }
+            if (cls !== placeholderClass) this.selectClass(cls);
         });
         bindAll(this, 'propagateItem');
         this.model.when('item', this.propagateItem, this);
@@ -238,7 +237,9 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     onCancelClicked(event: JQueryEventObject): this {
         event.preventDefault();
         this.reset();
-        this.collection.underlying.remove(this.model.underlying);
+        if (isBlank(this.model.underlying)) {
+            this.collection.underlying.remove(this.model.underlying);
+        }
         explorerChannel.trigger('annotationEditView:close', this);
         return this;
     }
