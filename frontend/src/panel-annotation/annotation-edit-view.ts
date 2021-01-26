@@ -79,13 +79,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             collection: getOntologyClasses(),
             preselection: this.model.get('class'),
         }).on('select', this.selectClass, this).render();
-        if (isBlank(this.model.underlying)) {
-            // annotation is placeholder (blank node)
-            this.collection.underlying.add(this.model.underlying);
-        }
-
         this.snippetView = new SnippetView({ model: this.model }).render();
-
 
         this.model.when('annotation', this.processAnnotation, this);
         this.model.when('class', (model, cls) => {
@@ -101,7 +95,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         this.on('announceRoute', announce);
         const creator = model.get('creator') as Node;
         const currentUser = ldChannel.request('current-user-uri');
-        if (creator.id === currentUser) this.userIsOwner = true;
+        if (creator && (creator.id === currentUser)) this.userIsOwner = true;
         if (this.userIsOwner) this.render();
     }
 

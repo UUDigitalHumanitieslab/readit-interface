@@ -263,21 +263,27 @@ export default class ExplorerEventController {
     }
 
     selectText(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): AnnoEditView {
-        const panelToPopUntil = sourceView['_annotationListPanel'] ? sourceView['_annotationListPanel'] : sourceView;
+        const listPanel = sourceView['_annotationListPanel'];
+        const panelToPopUntil = listPanel || sourceView;
         this.explorerView.popUntil(panelToPopUntil);
-        if (panelToPopUntil===sourceView) {
-            let annoListView = this.listSourceAnnotations(sourceView);
+        if (panelToPopUntil === sourceView) {
+            const annoListView = this.listSourceAnnotations(sourceView);
             this.explorerView.push(annoListView);
         }
+        const collection = sourceView.collection;
         const textQuoteSelector = getAnonymousTextQuoteSelector(range);
-        const annotation = new FlatItem(new Node(createPlaceholderAnnotation(source, textQuoteSelector, positionDetails)));
-        const newAnnotationView = new AnnotationView({ model: annotation });
-        let annoEditView = new AnnoEditView({
-            model: annotation,
-            collection: sourceView.collection,
-        });
+        const annotation = new Node(createPlaceholderAnnotation(
+            source,
+            textQuoteSelector,
+            positionDetails,
+        ));
+        collection.underlying.add(annotation);
+        const flat = collection.get(annotation.id);
+        const newAnnotationView = new AnnotationView({ model: flat });
+        let annoEditView = new AnnoEditView({ model: flat, collection });
         this.explorerView.push(newAnnotationView);
         this.explorerView.overlay(annoEditView, newAnnotationView);
+        flat.trigger('focus', flat);
         return annoEditView;
     }
 }
