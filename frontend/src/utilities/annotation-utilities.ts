@@ -1,12 +1,24 @@
 import Node from '../common-rdf/node';
 
-import { oa, rdf, vocab } from '../common-rdf/ns';
+import { rdf, rdfs, skos, oa, schema, readit, vocab } from '../common-rdf/ns';
 import { isType, getCssClassName as getCssClass, isOntologyClass } from './linked-data-utilities';
 
 export type AnnotationPositionDetails = {
     startIndex: number;
     endIndex: number;
 }
+
+/**
+ * A class that is **not** in the ontology, but which can be used as a
+ * placeholder in new annotations and which can be rendered with a color.
+ */
+export const placeholderClass = new Node({
+    '@id': readit('placeholder'),
+    '@type': [rdfs.Class],
+    [skos.prefLabel]: 'Selection',
+    [skos.definition]: 'This annotation has not been tagged yet.',
+    [schema.color]: '#accef7',
+});
 
 /**
  * Get a text that is usable as a label for an oa:Annotation,

@@ -6,7 +6,11 @@ import { oa, as, vocab, rdf, xsd, staff, dcterms, rdfs, schema, readit } from '.
 
 import FlatItem from '../common-adapters/flat-item-model';
 import ItemGraph from '../common-adapters/item-graph';
-import { AnnotationPositionDetails, getPositionDetails } from './annotation-utilities';
+import {
+    AnnotationPositionDetails,
+    getPositionDetails ,
+    placeholderClass,
+} from './annotation-utilities';
 import { uniqueId } from 'lodash';
 
 const prefixLength = 100;
@@ -252,14 +256,6 @@ function createAnnotation(
     return createItem(items, attributes, done);
 }
 
-function getPlaceholderClass() {
-    return {
-        '@id': readit('placeholder'),
-        '@type': [rdfs.Class],
-        [schema.color]: '#ACCEF7'
-    }
-}
-
 export function createPlaceholderAnnotation(
     source: Node,
     textQuoteSelector: Node,
@@ -270,7 +266,6 @@ export function createPlaceholderAnnotation(
     textQuoteSelector['@id'] = uniqueId('_:');
     let specificResource = getSpecificResource(source, new Node(positionSelector), textQuoteSelector);
     specificResource['@id'] = uniqueId('_:');
-    const placeholderClass = getPlaceholderClass();
     return {
         '@id': uniqueId('_:'),
         '@type': oa.Annotation,
