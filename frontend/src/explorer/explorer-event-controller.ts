@@ -263,15 +263,19 @@ export default class ExplorerEventController {
     }
 
     selectText(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): AnnoEditView {
+        const panelToPopUntil = sourceView['_annotationListPanel'] ? sourceView['_annotationListPanel'] : sourceView;
+        this.explorerView.popUntil(panelToPopUntil);
+        if (panelToPopUntil===sourceView) {
+            let annoListView = this.listSourceAnnotations(sourceView);
+            this.explorerView.push(annoListView);
+        }
         const textQuoteSelector = getAnonymousTextQuoteSelector(range);
         const annotation = new FlatItem(new Node(createPlaceholderAnnotation(source, textQuoteSelector, positionDetails)));
+        const newAnnotationView = new AnnotationView({ model: annotation });
         let annoEditView = new AnnoEditView({
             model: annotation,
             collection: sourceView.collection,
         });
-        const panelToPopUntil = sourceView['_annotationListPanel'] ? sourceView['_annotationListPanel'] : sourceView;
-        this.explorerView.popUntil(panelToPopUntil);
-        const newAnnotationView = new AnnotationView({ model: annoEditView.model })
         this.explorerView.push(newAnnotationView);
         this.explorerView.overlay(annoEditView, newAnnotationView);
         return annoEditView;

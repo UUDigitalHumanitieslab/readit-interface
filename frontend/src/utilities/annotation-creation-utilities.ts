@@ -256,7 +256,7 @@ function getPlaceholderClass() {
     return {
         '@id': readit('placeholder'),
         '@type': [rdfs.Class],
-        [schema.color]: ['#ACCEF7']
+        [schema.color]: '#ACCEF7'
     }
 }
 

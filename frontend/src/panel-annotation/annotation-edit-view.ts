@@ -87,7 +87,11 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         
 
         // this.model.when('annotation', this.processAnnotation, this);
-        this.model.when('class', (model, cls) => this.selectClass(cls), this);
+        this.model.when('class', (model, cls) => {
+            if (cls.slice(0,11)!=='placeholder') {
+                this.selectClass(cls);
+            }
+        });
         bindAll(this, 'propagateItem');
         this.model.when('item', this.propagateItem, this);
     }
@@ -234,6 +238,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     onCancelClicked(event: JQueryEventObject): this {
         event.preventDefault();
         this.reset();
+        this.collection.underlying.remove(this.model.underlying);
         explorerChannel.trigger('annotationEditView:close', this);
         return this;
     }
