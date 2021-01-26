@@ -62,20 +62,19 @@ export default class ExplorerEventController {
             collection: sourcePanel.collection,
         });
         this.explorerView.push(listPanel);
+        sourcePanel['_annotationListPanel'] = listPanel;
         return listPanel;
     }
 
     pushSourcePair(basePanel: View, source: Node): [SourceView, AnnotationListPanel] {
         const sourcePanel = this.pushSource(basePanel, source);
         const listPanel = this.listSourceAnnotations(sourcePanel);
-        sourcePanel['_annotationListPanel'] = listPanel;
         return [sourcePanel, listPanel];
     }
 
     resetSourcePair(source: Node): [SourceView, AnnotationListPanel] {
         const sourcePanel = this.resetSource(source, true);
         const listPanel = this.listSourceAnnotations(sourcePanel);
-        sourcePanel['_annotationListPanel'] = listPanel;
         return [sourcePanel, listPanel];
     }
 
@@ -162,9 +161,12 @@ export default class ExplorerEventController {
         return listView;
     }
 
-    editAnnotation(AnnotationView: AnnotationView, annotation: FlatItem): AnnoEditView {
-        const annoEditView = new AnnoEditView({ model: annotation });
-        this.explorerView.overlay(annoEditView, AnnotationView);
+    editAnnotation(annotationView: AnnotationView, annotation: FlatItem): AnnoEditView {
+        const annoEditView = new AnnoEditView({
+            model: annotation,
+            collection: annotationView.collection,
+        });
+        this.explorerView.overlay(annoEditView, annotationView);
         return annoEditView;
     }
 
@@ -228,7 +230,8 @@ export default class ExplorerEventController {
     }
 
     closeEditAnnotation(editView: AnnoEditView): void {
-        if (editView.model.id) {
+        const id = editView.model.id;
+        if (id && !id.startsWith('_:')) {
             this.explorerView.removeOverlay(editView);
         }
         else {
@@ -237,9 +240,13 @@ export default class ExplorerEventController {
         }
     }
 
-    openSourceAnnotation(listView: AnnotationListPanel, anno: FlatItem): void {
-        let newDetailView = new AnnotationView({ model: anno, collection: listView.collection });
+    openSourceAnnotation(listView: AnnotationListPanel, anno: FlatItem): AnnotationView {
+        const newDetailView = new AnnotationView({
+            model: anno,
+            collection: listView.collection,
+        });
         this.explorerView.popUntil(listView).push(newDetailView);
+        return newDetailView;
     }
 
     resetItem(item: Node): AnnotationView {
@@ -260,15 +267,14 @@ export default class ExplorerEventController {
 
     unlistSourceAnnotations(sourceView): void {
         this.explorerView.popUntil(sourceView);
+        delete sourceView['_annotationListPanel'];
     }
 
     selectText(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): AnnoEditView {
-        const listPanel = sourceView['_annotationListPanel'];
-        const panelToPopUntil = listPanel || sourceView;
-        this.explorerView.popUntil(panelToPopUntil);
-        if (panelToPopUntil === sourceView) {
-            const annoListView = this.listSourceAnnotations(sourceView);
-            this.explorerView.push(annoListView);
+        let listPanel = sourceView['_annotationListPanel'];
+        if (!listPanel) {
+            this.explorerView.popUntil(sourceView);
+            listPanel = this.listSourceAnnotations(sourceView);
         }
         const collection = sourceView.collection;
         const textQuoteSelector = getAnonymousTextQuoteSelector(range);
@@ -279,12 +285,8 @@ export default class ExplorerEventController {
         ));
         collection.underlying.add(annotation);
         const flat = collection.get(annotation.id);
-        const newAnnotationView = new AnnotationView({ model: flat });
-        let annoEditView = new AnnoEditView({ model: flat, collection });
-        this.explorerView.push(newAnnotationView);
-        this.explorerView.overlay(annoEditView, newAnnotationView);
-        flat.trigger('focus', flat);
-        return annoEditView;
+        const newAnnotationView = this.openSourceAnnotation(listPanel, flat);
+        return this.editAnnotation(newAnnotationView, flat);
     }
 }
 
