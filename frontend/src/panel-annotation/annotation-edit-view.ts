@@ -1,4 +1,4 @@
-import { extend, invokeMap, bindAll } from 'lodash';
+import { extend, invokeMap, bindAll, uniqueId } from 'lodash';
 import 'select2';
 
 import { CompositeView, ViewOptions as BaseOpt } from '../core/view';
@@ -208,8 +208,9 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
 
     createItem(): this {
         if (this.itemEditor) return this;
-        this.selectedItem = new Node({
-            '@type': this.selectedClass.id,
+        const item = new Node({
+            '@id': uniqueId('_:'),
+            '@type': this.model.get('class').id,
             [skos.prefLabel]: '', // this prevents a failing getLabel
         });
         this.setItem(item);
