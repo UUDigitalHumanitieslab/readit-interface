@@ -16,7 +16,7 @@ QUERY_PATTERN = '/{}?'.format(ITEMS_ROUTE) + '{}'
 
 def test_is_unreserved():
     assert     is_unreserved((None, SCHEMA.CreativeWork, None))
-    assert     is_unreserved((None, SCHEMA.creator, None))
+    assert     is_unreserved((None, SCHEMA.author, None))
     assert     is_unreserved((None, SCHEMA.datePublished, None))
     assert     is_unreserved((None, SCHEMA.name, None))
     assert     is_unreserved((None, OA.Annotation, None))
