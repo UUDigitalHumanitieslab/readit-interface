@@ -25,9 +25,12 @@ const expectedFlatAttributes = {
     cssClass: 'is-readit-content',
     item: jasmine.any(Node),
     label: 'The Idler in France',
+    target: jasmine.any(Node),
     source: jasmine.any(Node),
+    positionSelector: jasmine.any(Node),
     startPosition: 15,
     endPosition: 34,
+    quoteSelector: jasmine.any(Node),
     text: 'The Idler in France',
     prefix: 'English descriptions of reading experiences <br><br> id_19 Titre : ',
     suffix: ' / by the countess of Blessington Auteur : Blessington,',
@@ -241,6 +244,7 @@ describe('FlatItem', function() {
             id: items.position.id
         }, pick(
             expectedFlatAttributes,
+            'positionSelector',
             'startPosition',
             'endPosition',
             'creator',
