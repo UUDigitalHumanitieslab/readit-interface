@@ -21,7 +21,7 @@ import {
     placeholderClass,
 } from '../utilities/annotation-utilities';
 import {
-    composeAnnotation,
+    savePlaceholderAnnotation,
 } from '../utilities/annotation-creation-utilities';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
@@ -102,7 +102,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     submit(): this {
-        if (this.model.isNew()) {
+        if (this.model.isNew() || isBlank(this.model.get('annotation'))) {
             this.submitNewAnnotation();
         } else {
             this.submitItem().then(this.submitOldAnnotation.bind(this));
@@ -126,18 +126,14 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     submitNewAnnotation(): void {
-        composeAnnotation(
-            this.model.get('source'),
-            this.positionDetails,
-            this.model.get('quoteSelector'),
-            this.model.get('class'),
-            this.model.get('item'),
+        savePlaceholderAnnotation(
+            this.model,
             (error, results) => {
                 if (error) return console.debug(error);
-                const anno = results.annotation;
-                this.collection.underlying.add(anno);
-                const flat = this.collection.get(anno.id);
-                explorerChannel.trigger('annotationEditView:saveNew', this, flat, results.items);
+                // const anno = results.annotation;
+                // this.collection.underlying.add(anno);
+                // const flat = this.collection.get(anno.id);
+                explorerChannel.trigger('annotationEditView:saveNew', this, this.model, results.items);
             }
         );
     }

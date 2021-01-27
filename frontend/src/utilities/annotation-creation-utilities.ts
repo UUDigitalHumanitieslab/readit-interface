@@ -1,17 +1,17 @@
 import * as _ from 'lodash';
 import * as a$ from 'async';
 
-import Node  from '../common-rdf/node';
+import Node, { isNode }  from '../common-rdf/node';
 import { oa, as, vocab, rdf, xsd, staff, dcterms, rdfs, schema, readit } from '../common-rdf/ns';
-
 import FlatItem from '../common-adapters/flat-item-model';
 import ItemGraph from '../common-adapters/item-graph';
+
+import { isBlank } from './linked-data-utilities';
 import {
     AnnotationPositionDetails,
     getPositionDetails ,
     placeholderClass,
 } from './annotation-utilities';
-import { uniqueId } from 'lodash';
 
 const prefixLength = 100;
 const suffixLength = 100;
@@ -195,7 +195,21 @@ function createItem(items: ItemGraph, attributes: any, done?) {
     return a$.waterfall([
         a$.constant(items.create(attributes)),
         awaitEvent('sync', 'error', unshiftArgs, errorFromXHR),
-    ], (error, results) => done(error, results));
+    ], done);
+}
+
+/**
+ * Guarded version of `createItem`.
+ */
+function createIfBlankOrNew(items: ItemGraph, attributes: any, done?) {
+    if (attributes) {
+        if (!isNode(attributes)) attributes = new Node(attributes);
+        if (isBlank(attributes)) attributes.unset('@id');
+        if (attributes.isNew()) return createItem(items, attributes, done);
+        items.add(attributes);
+    }
+    if (!done) return Promise.resolve(attributes);
+    a$.nextTick(done, null, attributes);
 }
 
 function createOntologyInstance(
@@ -239,6 +253,19 @@ function getSpecificResource(source: Node, positionSelector: Node, textQuoteSele
     };
 }
 
+function saveSpecificResource(
+    items: ItemGraph,
+    target: Node,
+    positionSelector: Node,
+    quoteSelector: Node,
+    done?
+) {
+    // Replace former blank node selectors by their respective IRIs.
+    target.unset(oa.hasSelector);
+    target.set(oa.hasSelector, [positionSelector, quoteSelector]);
+    return createIfBlankOrNew(items, target, done);
+}
+
 function createAnnotation(
     items: ItemGraph,
     specificResource: Node,
@@ -256,20 +283,63 @@ function createAnnotation(
     return createItem(items, attributes, done);
 }
 
+function saveAnnotation(
+    items: ItemGraph,
+    annotation: Node,
+    target: Node,
+    item: Node | undefined,
+    done?
+) {
+    // Erase the old blank node item reference if applicable.
+    const blankBody = _.find(annotation.get(oa.hasBody), isBlank);
+    if (blankBody) annotation.unset(oa.hasBody, blankBody);
+    if (item) annotation.set(oa.hasBody, item);
+    // Replace blank node target by IRI.
+    annotation.unset(oa.hasTarget).set(oa.hasTarget, target);
+    return createIfBlankOrNew(items, annotation, done);
+}
+
 export function createPlaceholderAnnotation(
     source: Node,
     textQuoteSelector: Node,
     positionDetails: AnnotationPositionDetails
 ) {
     let positionSelector = getPositionSelector(positionDetails.startIndex, positionDetails.endIndex);
-    positionSelector['@id'] = uniqueId('_:');
-    textQuoteSelector['@id'] = uniqueId('_:');
+    positionSelector['@id'] = _.uniqueId('_:');
+    textQuoteSelector['@id'] = _.uniqueId('_:');
     let specificResource = getSpecificResource(source, new Node(positionSelector), textQuoteSelector);
-    specificResource['@id'] = uniqueId('_:');
+    specificResource['@id'] = _.uniqueId('_:');
     return {
-        '@id': uniqueId('_:'),
+        '@id': _.uniqueId('_:'),
         '@type': oa.Annotation,
         [oa.hasTarget]: specificResource,
         [oa.hasBody]: [placeholderClass]
     }
+}
+
+export function savePlaceholderAnnotation(placeholder: FlatItem, done?) {
+    const inputs = {
+        pSelector: placeholder.get('positionSelector'),
+        qSelector: placeholder.get('quoteSelector'),
+        target: placeholder.get('target'),
+        item: placeholder.get('item'),
+        anno: placeholder.get('annotation'),
+        items: new ItemGraph(),
+    };
+
+    const tasks = {
+        positionSelector: [ 'items', 'pSelector', createIfBlankOrNew ],
+        quoteSelector: [ 'items', 'qSelector', createIfBlankOrNew ],
+        specificResource: [
+            'items', 'target', 'positionSelector', 'quoteSelector',
+            saveSpecificResource,
+        ],
+        body: [ 'items', 'item', createIfBlankOrNew ],
+        annotation: [
+            'items', 'anno', 'specificResource', 'body',
+            saveAnnotation,
+        ],
+    };
+
+    return a$.autoInject(combineAutoHash(inputs, tasks), done);
 }
