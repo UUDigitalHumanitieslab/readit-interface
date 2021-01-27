@@ -25,7 +25,7 @@ export const source1instance = {
             "@value": "Corpus_50_exp_lectures_interligne1.5 (1).pdf"
         }
     ],
-    [schema.creator]: [
+    [schema.author]: [
         {
             "@type": xsd.string,
             "@value": "Tess T. Author"

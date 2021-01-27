@@ -452,6 +452,7 @@ export const schemaTerms = [
     'alternativeHeadline',
     'Audience',
     'audience',
+    'author',
     'birthPlace',
     'color',
     'CreativeWork',

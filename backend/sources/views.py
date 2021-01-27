@@ -361,7 +361,6 @@ class AddSource(RDFResourceView):
             (new_subject, RDF.type, URIRef(self.resolve_type(data['type']))),
             (new_subject, SCHEMA.name, Literal(data['title'])),
             (new_subject, SCHEMA.author, Literal(data['author'])),
-            (new_subject, SCHEMA.creator, Literal(data['author'])),
             (new_subject, SCHEMA.inLanguage, URIRef(
                 self.resolve_language(data['language']))),
             (new_subject, SCHEMA.datePublished, Literal(
