@@ -1,7 +1,7 @@
 import { extend, invokeMap, bindAll, uniqueId } from 'lodash';
 import 'select2';
 
-import { CompositeView, ViewOptions as BaseOpt } from '../core/view';
+import { CompositeView } from '../core/view';
 import ldChannel from '../common-rdf/radio';
 import { oa, rdf, skos } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
@@ -22,8 +22,6 @@ import {
 } from '../utilities/annotation-utilities';
 import {
     composeAnnotation,
-    cloneTextQuoteSelector,
-    getAnonymousTextQuoteSelector
 } from '../utilities/annotation-creation-utilities';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
@@ -43,15 +41,6 @@ function getOntologyClasses() {
 
 const announce = announceRoute('item:edit', ['model', 'id']);
 
-export interface ViewOptions extends BaseOpt {
-    /**
-     * The following options should be set in case of a new annotation (i.e.
-     * when the model is undefined). If you *also* pass a model, it will be
-     * ignored!
-     */
-    source?: Node;
-}
-
 export default class AnnotationEditView extends CompositeView<FlatItem> {
     collection: FlatCollection;
     positionDetails: AnnotationPositionDetails;
@@ -63,11 +52,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     itemOptions: ItemGraph;
     itemEditor: ItemEditor;
 
-    constructor(options: ViewOptions) {
-        super(options);
-    }
-
-    initialize(options: ViewOptions) {
+    initialize() {
         this.itemOptions = new ItemGraph();
         this.itemOptions.comparator = this.sortOptions;
         this.itemPicker = new PickerView({collection: this.itemOptions});
