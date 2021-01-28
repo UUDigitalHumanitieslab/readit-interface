@@ -172,11 +172,11 @@ export default class ExplorerEventController {
 
     makeNewAnnotation(annotationView: AnnotationView, annotation: FlatItem): AnnoEditView {
         const newAnnotation = createPlaceholderAnnotation(annotation);
-        let newEditView = new AnnoEditView({
-            model: new FlatItem(newAnnotation),
-            collection: annotationView.collection,
-        });
-        const newAnnotationView = new AnnotationView({ model: newEditView.model })
+        const collection = annotationView.collection;
+        collection.underlying.add(newAnnotation);
+        const model = collection.get(newAnnotation.id);
+        const newAnnotationView = new AnnotationView({ model, collection });
+        const newEditView = new AnnoEditView({ model, collection });
         this.explorerView.popUntil(annotationView).pop();
         this.explorerView.push(newAnnotationView);
         this.explorerView.overlay(newEditView, newAnnotationView);
