@@ -1,9 +1,9 @@
 import View from '../core/view';
-import { source, item as itemNs } from '../jsonld/ns';
-import { Namespace } from '../jsonld/vocabulary';
-import ldChannel from '../jsonld/radio';
-import Node from '../jsonld/node';
-import FlatItem from '../annotation/flat-item-model';
+import { source, item as itemNs } from '../common-rdf/ns';
+import { Namespace } from '../common-rdf/vocabulary';
+import ldChannel from '../common-rdf/radio';
+import Node from '../common-rdf/node';
+import FlatItem from '../common-adapters/flat-item-model';
 
 import Controller from './explorer-event-controller';
 

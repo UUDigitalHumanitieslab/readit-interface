@@ -4,9 +4,9 @@ import * as a$ from 'async';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
-import { rdfs, owl } from '../jsonld/ns';
-import ItemGraph from '../utilities/item-graph';
-import explorerChannel from '../explorer/radio';
+import { rdfs, owl } from '../common-rdf/ns';
+import ItemGraph from '../common-adapters/item-graph';
+import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
 
 import externalResourcesEditTemplate from './external-resources-edit-template';

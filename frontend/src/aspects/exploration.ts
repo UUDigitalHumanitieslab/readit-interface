@@ -1,18 +1,16 @@
 import { partial, isString } from 'lodash';
 
-import channel from '../explorer/radio';
+import channel from '../explorer/explorer-radio';
 import * as act from '../explorer/route-actions';
 import router from '../global/exploration-router';
 import mainRouter from '../global/main-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
-import { ensureSources } from '../global/sources';
-import sourceListPanel from '../global/source-list-view';
+import suggestionsPanel from '../global/suggestions-view';
 import welcomeView from '../global/welcome-view';
 
 const browserHistory = window.history;
-const resetSourceList = () => explorer.reset(sourceListPanel);
-
+const resetSuggestionsPanel = () => explorer.reset(suggestionsPanel);
 /**
  * Common patterns for the explorer routes.
  */
@@ -26,8 +24,7 @@ const sourceRoute = partial(deepRoute, act.getSource);
 const itemRoute = partial(deepRoute, act.getItem);
 
 mainRouter.on('route:explore', () => {
-    ensureSources();
-    explorer.scrollOrAction(sourceListPanel.cid, resetSourceList);
+    explorer.scrollOrAction(suggestionsPanel.cid, resetSuggestionsPanel);
 });
 
 router.on('route:source:bare',       sourceRoute(act.sourceWithoutAnnotations));
@@ -49,10 +46,12 @@ channel.on({
     'annotationEditView:saveNew': controller.saveNewAnnotation,
     'annotationEditView:save': controller.saveAnnotation,
     'annotationEditView:close': controller.closeEditAnnotation,
-    'lditem:showRelated': controller.listRelated,
-    'lditem:showAnnotations': controller.listItemAnnotations,
-    'lditem:showExternal': controller.listExternal,
-    'lditem:editAnnotation': controller.editAnnotation,
+    'category:showRelevantAnnotations': controller.showAnnotationsOfCategory,
+    'annotation:showRelated': controller.listRelated,
+    'annotation:showAnnotations': controller.listItemAnnotations,
+    'annotation:showExternal': controller.listExternal,
+    'annotation:editAnnotation': controller.editAnnotation,
+    'annotation:newAnnotation': controller.makeNewAnnotation,
     'relItems:itemClick': controller.openRelated,
     'relItems:edit': controller.editRelated,
     'externalItems:edit': controller.editExternal,
@@ -68,4 +67,5 @@ channel.on('currentRoute', (route, panel) => {
     // panel.
     browserHistory.replaceState(panel.cid, document.title);
 });
-welcomeView.on({'search:searched': controller.resetSourceListFromSearchResults}, controller);
+welcomeView.on({'search:start': controller.resetSourceListFromSearchResults}, controller);
+welcomeView.on({'suggestions:show': controller.showSuggestionsPanel}, controller);

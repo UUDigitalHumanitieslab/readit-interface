@@ -1,9 +1,9 @@
 import { extend } from 'lodash';
 
 import View from '../core/view';
-import ldChannel from '../jsonld/radio';
-import { getLabel, getLabelFromId } from '../utilities/utilities';
-import explorerChannel from '../explorer/radio';
+import ldChannel from '../common-rdf/radio';
+import { getLabel, getLabelFromId } from '../utilities/linked-data-utilities';
+import explorerChannel from '../explorer/explorer-radio';
 
 import metadataTemplate from './source-metadata-template';
 
@@ -61,7 +61,7 @@ export default class MetadataView extends View {
     }
 
     onCloseClicked() {
-        explorerChannel.trigger('metadata:hide', this);
+        this.trigger('metadata:hide', this);
     }
 
     onEditClicked() {

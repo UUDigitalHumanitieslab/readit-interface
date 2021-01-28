@@ -24,7 +24,10 @@ history.once('route', () => {
     uploadSourceForm.setHeight(availableHeight);
 });
 
-mainRouter.on('route:home', () => mainRouter.navigate('search'));
+mainRouter.on('route:home', () => mainRouter.navigate('search', {
+    trigger: true,
+    replace: true,
+}));
 mainRouter.on('route:search', () => userFsm.handle('search'));
 mainRouter.on('route:upload', () => userFsm.handle('upload'));
 mainRouter.on('route:explore', () => userFsm.handle('explore'));
@@ -47,4 +50,5 @@ userFsm.on('exit:exploring', () => explorerView.$el.detach());
 menuView.on('feedback', () => feedbackView.render().$el.appendTo('body'));
 
 feedbackView.on('close', () => feedbackView.$el.detach());
-welcomeView.on('search:searched', () => userFsm.handle('explore'));
+welcomeView.on('search:start', () => userFsm.handle('explore'));
+welcomeView.on('suggestions:show', () => userFsm.handle('explore'));

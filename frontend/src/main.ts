@@ -3,7 +3,7 @@ import { when, ready } from 'jquery';
 import '@dhl-uu/jquery-promise';
 
 import { baseUrl } from 'config.json';
-import './core/scroll-easings';
+import './global/scroll-easings';
 import { i18nPromise } from './global/i18n';
 import './global/internalLinks';
 import './global/hbsHelpers';
@@ -15,8 +15,8 @@ import './aspects/authentication';
 import './aspects/registration';
 import './aspects/exploration';
 
+user.fetch();
 when(ready, i18nPromise).done(function () {
-    user.fetch();
     let success = history.start({
         root: baseUrl,
         pushState: true,

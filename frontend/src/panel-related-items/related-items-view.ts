@@ -3,12 +3,12 @@ import { extend, map, after, bind } from 'lodash';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
-import ldChannel from '../jsonld/radio';
-import Graph from '../jsonld/graph';
-import Node from '../jsonld/node';
-import explorerChannel from '../explorer/radio';
+import ldChannel from '../common-rdf/radio';
+import Graph from '../common-rdf/graph';
+import Node from '../common-rdf/node';
+import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
-import { getLabel } from '../utilities/utilities';
+import { getLabel } from '../utilities/linked-data-utilities';
 
 import relatedItemsTemplate from './related-items-template';
 import RelatedItemsRelationView from './related-items-relation-view';

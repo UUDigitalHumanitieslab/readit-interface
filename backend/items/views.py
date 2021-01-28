@@ -11,7 +11,7 @@ from rdflib.plugins.sparql import prepareQuery
 
 from rdf.views import RDFView, RDFResourceView, graph_from_request
 from rdf.ns import *
-from rdf.utils import graph_from_triples, append_triples, traverse_forward, traverse_backward
+from rdf.utils import graph_from_triples, append_triples, sample_graph, traverse_forward, traverse_backward
 from vocab import namespace as vocab
 from staff import namespace as staff
 from staff.utils import submission_info
@@ -25,6 +25,8 @@ from .permissions import *
 MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank node.'
 MUST_EQUAL_IDENTIFIER_400 = 'PUT must affect exactly the resource URI.'
 MUST_BE_OWNER_403 = 'PUT is only allowed to the resource owner.'
+
+ANNOTATION_CUTOFF = 10 # don't return more than 10 annotations when querying by category
 
 DEFAULT_NS = {
     'vocab': vocab,
@@ -59,9 +61,26 @@ CONSTRUCT {
     ?selector ?g ?h.
 }
 '''
+SELECT_ANNO_QUERY = '''
+SELECT ?annotation ?a ?b
+WHERE {
+    ?annotation a oa:Annotation ;
+    dcterms:creator ?user ;
+    ?a ?b .
+}
+'''
+ANNO_OF_CATEGORY_QUERY = '''
+SELECT ?annotation ?a ?b
+WHERE {
+    ?annotation dcterms:creator ?user ;
+        oa:hasBody ?category ;
+        ?a ?b .
+}
+'''
 ANNO_NS = {
     'oa': OA,
     'dcterms': DCTERMS,
+    'rdf': RDF
 }
 
 
@@ -218,3 +237,48 @@ class ItemsAPISingular(RDFResourceView):
         full_graph = self.graph()
         full_graph -= existing
         return Response(existing)
+
+
+class ItemSuggestion(RDFView):
+    """ Return nodes of a random sample of item subjects. """
+
+    def graph(self):
+        return graph()
+
+    def get_graph(self, request, **kwargs):  
+        items = self.graph()
+        if not request.user.has_perm('rdflib_django.view_all_annotations'):
+            user, now = submission_info(request)
+            bindings = {'user': user}
+            user_items = set(graph_from_triples(items.query(
+                SELECT_ANNO_QUERY, initBindings=bindings, initNs=ANNO_NS)
+            ).subjects())
+        else:
+            user_items = set(items.subjects(RDF.type, OA.Annotation))
+        output = sample_graph(items, user_items, request)
+        return output
+
+
+class ItemsOfCategory(RDFView):
+    """ Given a category, get annotations of that category,
+    taking into account user permissions. """
+    def graph(self):
+        return graph()
+
+    def get_graph(self, request, category, **kwargs):  
+        items = self.graph()
+        bindings = {'category': ontology[category]}
+        if not request.user.has_perm('rdflib_django.view_all_annotations'):
+            user, now = submission_info(request)
+            bindings['user'] = user
+            user_items = graph_from_triples(items.query(
+                ANNO_OF_CATEGORY_QUERY, initBindings=bindings, initNs=ANNO_NS)
+            )
+        else:
+            user_items = Graph()
+            subjects = items.subjects(OA.hasBody, ontology[category])
+            for i, s in enumerate(subjects):
+                if i==ANNOTATION_CUTOFF:
+                    break
+                [user_items.add(triple) for triple in items.triples((s, None, None))]
+        return user_items
