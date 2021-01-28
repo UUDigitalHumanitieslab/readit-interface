@@ -291,13 +291,13 @@ function saveAnnotation(
     items: ItemGraph,
     annotation: Node,
     [target]: [Node, unknown, unknown],
-    item: [Node, unknown, unknown] | undefined,
+    item: [Node, unknown, unknown] | Node | undefined,
     done?
 ) {
     // Erase the old blank node item reference if applicable.
     const blankBody = _.find(annotation.get(oa.hasBody), isBlank);
     if (blankBody) annotation.unset(oa.hasBody, blankBody);
-    if (item) annotation.set(oa.hasBody, item[0]);
+    if (item) annotation.set(oa.hasBody, isNode(item) ? item : item[0]);
     // Replace blank node target by IRI.
     annotation.unset(oa.hasTarget).set(oa.hasTarget, target);
     return createIfBlankOrNew(items, annotation, done);
