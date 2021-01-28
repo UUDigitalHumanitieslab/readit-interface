@@ -21,7 +21,7 @@ const suffixLength = 100;
  * and doesn't have an @id. Ideal for passing a user selection('s Range) to
  * the AnnotationEditView.
  */
-export function getAnonymousTextQuoteSelector(range: Range): Node {
+export function getTextQuoteSelector(range: Range): Node {
     let prefix = getPrefix(range);
     let suffix = getSuffix(range);
 
@@ -303,13 +303,31 @@ function saveAnnotation(
     return createIfBlankOrNew(items, annotation, done);
 }
 
+/**
+ * Create a placeholder annotation, either by cloning from an existing FlatItem
+ * or by creating one from scratch given a source and selection details.
+ */
+export function createPlaceholderAnnotation(existing: FlatItem): Node;
 export function createPlaceholderAnnotation(
-    source: Node,
-    textQuoteSelector: Node,
-    positionDetails: AnnotationPositionDetails
-) {
-    let positionSelector = getPositionSelector(positionDetails.startIndex, positionDetails.endIndex);
-    let specificResource = getSpecificResource(source, positionSelector, textQuoteSelector);
+    source: Node, range: Range, positionDetails: AnnotationPositionDetails
+): Node;
+export function createPlaceholderAnnotation(source, range?, positionDetails?) {
+    let textQuoteSelector, positionSelector;
+    if (isNode(source)) { // "From scratch" mode.
+        textQuoteSelector = getTextQuoteSelector(range);
+        positionSelector = getPositionSelector(
+            positionDetails.startIndex, positionDetails.endIndex
+        );
+    } else { // Clone mode.
+        textQuoteSelector = cloneTextQuoteSelector(source);
+        positionSelector = getPositionSelector(
+            source.get('startPosition'), source.get('endPosition')
+        );
+        source = source.get('source');
+    }
+    const specificResource = getSpecificResource(
+        source, positionSelector, textQuoteSelector
+    );
     return new Node({
         '@id': _.uniqueId('_:'),
         '@type': oa.Annotation,

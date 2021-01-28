@@ -22,7 +22,7 @@ import FlatItem from '../common-adapters/flat-item-model';
 import FlatItemCollection from '../common-adapters/flat-item-collection';
 import FlatAnnoCollection from '../common-adapters/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
-import { getAnonymousTextQuoteSelector, createPlaceholderAnnotation, cloneTextQuoteSelector } from '../utilities/annotation-creation-utilities';
+import { createPlaceholderAnnotation } from '../utilities/annotation-creation-utilities';
 import { oa } from '../common-rdf/ns';
 import SearchResultListView from '../panel-search-results/search-result-list-view';
 import SourceListPanel from '../panel-source-list/source-list-panel';
@@ -171,14 +171,9 @@ export default class ExplorerEventController {
     }
 
     makeNewAnnotation(annotationView: AnnotationView, annotation: FlatItem): AnnoEditView {
-        const positionDetails = {
-            startIndex: annotation.get('startPosition'),
-            endIndex: annotation.get('endPosition')
-        }
-        const textQuoteSelector = cloneTextQuoteSelector(annotation);
-        const newAnnotation = createPlaceholderAnnotation(annotationView.model.get('source'), textQuoteSelector, positionDetails)
+        const newAnnotation = createPlaceholderAnnotation(annotation);
         let newEditView = new AnnoEditView({
-            model: new FlatItem(new Node(newAnnotation)),
+            model: new FlatItem(newAnnotation),
             collection: annotationView.collection,
         });
         const newAnnotationView = new AnnotationView({ model: newEditView.model })
@@ -277,11 +272,8 @@ export default class ExplorerEventController {
             listPanel = this.listSourceAnnotations(sourceView);
         }
         const collection = sourceView.collection;
-        const textQuoteSelector = getAnonymousTextQuoteSelector(range);
         const annotation = createPlaceholderAnnotation(
-            source,
-            textQuoteSelector,
-            positionDetails,
+            source, range, positionDetails
         );
         collection.underlying.add(annotation);
         const flat = collection.get(annotation.id);
