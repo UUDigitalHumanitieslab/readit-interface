@@ -15,10 +15,7 @@ import ClassPickerView from '../forms/ontology-class-picker-view';
 import ItemMetadataView from '../item-metadata/item-metadata-view';
 import SnippetView from '../snippet/snippet-view';
 import { isRdfsClass, isBlank } from '../utilities/linked-data-utilities';
-import {
-    getTargetDetails,
-    placeholderClass,
-} from '../utilities/annotation-utilities';
+import { placeholderClass } from '../utilities/annotation-utilities';
 import {
     savePlaceholderAnnotation,
 } from '../utilities/annotation-creation-utilities';
@@ -230,7 +227,11 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
 
     async onDelete(): Promise<void> {
         const annotation = this.model.get('annotation');
-        const details = getTargetDetails(annotation);
+        const details = [
+            this.model.get('quoteSelector'),
+            this.model.get('positionSelector'),
+            this.model.get('target'),
+        ];
         // We wait for the oa:Annotation to be destroyed, then destroy its
         // target and selectors without waiting whether deletion was successful.
         // Incomplete deletion should not trouble the user.

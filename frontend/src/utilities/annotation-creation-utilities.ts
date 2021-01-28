@@ -9,7 +9,6 @@ import ItemGraph from '../common-adapters/item-graph';
 import { isBlank } from './linked-data-utilities';
 import {
     AnnotationPositionDetails,
-    getPositionDetails ,
     placeholderClass,
 } from './annotation-utilities';
 
