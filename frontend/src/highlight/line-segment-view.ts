@@ -16,7 +16,6 @@ class ColorBand extends View {
     onLabelChanged(model, newCssClass): void {
         this.$el.removeClass(model.previous('cssClass'));
         this.$el.addClass(newCssClass);
-        model.trigger('focus', model);
     }
 }
 
