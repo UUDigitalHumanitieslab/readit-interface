@@ -28,7 +28,7 @@ export default class SourceSummaryView extends View {
         this.query = options.query;
         this.fields = options.fields;
         this.name = this.model.get(schema('name'))[0];
-        this.author = this.model.get(schema.creator)[0];
+        this.author = this.model.get(schema.author)[0];
         this.identifier = this.model.attributes['@id'];
         if (this.query !== undefined) {
             this.renderHighlights();
@@ -44,7 +44,7 @@ export default class SourceSummaryView extends View {
         if (titleNode) {
             this.name = titleNode.get(oa.hasBody)[0].toString();
         }
-        const authorNode = this.highlights.models.find(node => node.has(oa.hasTarget, schema.creator));
+        const authorNode = this.highlights.models.find(node => node.has(oa.hasTarget, schema.author));
         if (authorNode) {
             this.author = authorNode.get(oa.hasBody)[0].toString();
         }
