@@ -85,49 +85,6 @@ function getSuffix(exactRange: Range): string {
 }
 
 /**
- * Create an annotation, with all relevant Nodes (e.g. oa.Specificresource, oa.Selector, etc) to store the information.
- * @param source
- * @param posDetails
- * @param tQSelector
- * @param ontoClass
- * @param done Callback function.
- */
-export function composeAnnotation(
-    source: Node,
-    posDetails: AnnotationPositionDetails,
-    tQSelector: Node,
-    ontoClass: Node,
-    ontoItem?: Node,
-    done?
-) {
-    const { startIndex, endIndex } = posDetails;
-
-    const inputs = {
-        startIndex, endIndex,
-        source, ontoClass, ontoItem, tQSelector, items: new ItemGraph(),
-    };
-
-    const tasks = {
-        positionSelector: ['items', 'startIndex', 'endIndex',
-            createPositionSelector,
-        ],
-        textQuoteSelector: ['items', 'tQSelector',
-            createTextQuoteSelector,
-        ],
-        specificResource: ['items', 'source', 'positionSelector', 'textQuoteSelector',
-            createSpecificResource,
-        ],
-        instance: ['items', 'ontoClass', 'ontoItem',
-            createOntologyInstance,
-        ],
-        annotation: ['items', 'specificResource', 'ontoClass', 'instance',
-            createAnnotation,
-        ],
-    };
-    return a$.autoInject(combineAutoHash(inputs, tasks), done);
-}
-
-/**
  * Utility function that takes two plain objects, inputs and tasks, and returns a new plain object which combines them.
  * In the combined object, all keys from inputs have been wrapped in a$.constant while the keys from tasks are copied as-is.
  * Therefore, the returned object contains only tasks, but some of them are “fake”, i.e., the wrapped inputs
@@ -214,26 +171,6 @@ function createIfBlankOrNew(items: ItemGraph, attributes: any, done?) {
     a$.nextTick(done, null, attributes);
 }
 
-function createOntologyInstance(
-    items: ItemGraph,
-    ontoClass: Node,
-    attributes?: Node,
-    done?
-) {
-    if (attributes) return createItem(items, attributes, done);
-    if (!done) return Promise.resolve(attributes);
-    a$.nextTick(done, null, attributes);
-}
-
-function createTextQuoteSelector(items: ItemGraph, textQuoteSelector: Node, done?) {
-    return createItem(items, textQuoteSelector.attributes, done);
-}
-
-function createPositionSelector(items: ItemGraph, start: number, end: number, done?) {
-    const attributes = getPositionSelector(start, end);
-    return createItem(items, attributes, done);
-}
-
 function getPositionSelector(start: number, end: number){
     return new Node({
         '@id': _.uniqueId('_:'),
@@ -241,11 +178,6 @@ function getPositionSelector(start: number, end: number){
         [oa.start]: start,
         [oa.end]: end,
     });
-}
-
-function createSpecificResource(items: ItemGraph, source: Node, positionSelector: Node, textQuoteSelector: Node, done?) {
-    const attributes = getSpecificResource(source, positionSelector, textQuoteSelector);
-    return createItem(items, attributes, done);
 }
 
 function getSpecificResource(source: Node, positionSelector: Node, textQuoteSelector: Node){
@@ -268,23 +200,6 @@ function saveSpecificResource(
     target.unset(oa.hasSelector);
     target.set(oa.hasSelector, [positionSelector, quoteSelector]);
     return createIfBlankOrNew(items, target, done);
-}
-
-function createAnnotation(
-    items: ItemGraph,
-    specificResource: Node,
-    ontoClass: Node,
-    ontoItem?: Node,
-    done?
-) {
-    const attributes = {
-        '@type': oa.Annotation,
-        [oa.hasBody]: [ontoClass],
-        [oa.hasTarget]: specificResource,
-        [as.generator]: {'@id': vocab('self')},
-    };
-    if (ontoItem) (attributes[oa.hasBody] as Node[]).push(ontoItem);
-    return createItem(items, attributes, done);
 }
 
 function saveAnnotation(

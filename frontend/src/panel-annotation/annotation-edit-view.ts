@@ -16,7 +16,6 @@ import ItemMetadataView from '../item-metadata/item-metadata-view';
 import SnippetView from '../snippet/snippet-view';
 import { isRdfsClass, isBlank } from '../utilities/linked-data-utilities';
 import {
-    AnnotationPositionDetails,
     getTargetDetails,
     placeholderClass,
 } from '../utilities/annotation-utilities';
@@ -43,7 +42,6 @@ const announce = announceRoute('item:edit', ['model', 'id']);
 
 export default class AnnotationEditView extends CompositeView<FlatItem> {
     collection: FlatCollection;
-    positionDetails: AnnotationPositionDetails;
     metadataView: ItemMetadataView;
     classPicker: ClassPickerView;
     snippetView: SnippetView;
