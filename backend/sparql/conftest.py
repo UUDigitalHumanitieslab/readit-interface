@@ -77,6 +77,16 @@ DELETE_FROM_QUERY = '''
     DELETE {{ GRAPH <{graph}> {{ ?s ?p ?o }} }} WHERE {{ ?s ?p ?o ; my:meow "loud" }}
 '''.format(ns=NLP_ONTOLOGY_NS, graph=NLP_ONTOLOGY_NS)
 
+INSERT_BLANK_QUERY = '''
+    PREFIX ns1: <http://schema.org/>
+    INSERT DATA { 
+        []          a           ns1:Cat     ;
+                    ns1:color   "red"       .
+        []          a           ns1:Dog     ;
+                    ns1:color   "black"     .
+    }
+'''
+
 
 @pytest.fixture
 def triples():
@@ -113,7 +123,8 @@ def test_queries():
         'INSERT': INSERT_QUERY,
         'DELETE': DELETE_QUERY,
         'DELETE_DATA': DELETE_DATA_QUERY,
-        'DELETE_FROM': DELETE_FROM_QUERY
+        'DELETE_FROM': DELETE_FROM_QUERY,
+        'INSERT_BLANK': INSERT_BLANK_QUERY
     }
     return SimpleNamespace(**values)
 

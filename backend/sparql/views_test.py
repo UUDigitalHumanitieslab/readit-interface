@@ -1,7 +1,8 @@
 import json
 
-from rdflib import Graph
+from rdf.ns import RDF
 from rdf.utils import graph_from_triples
+from rdflib import BNode, Graph, Literal
 
 QUERY_URL = '/sparql/nlp-ontology/query'
 UPDATE_URL = '/sparql/nlp-ontology/update'
@@ -138,3 +139,22 @@ def test_select_from(sparql_client, test_queries, ontologygraph_db, ontologygrap
                              HTTP_ACCEPT=accept_headers.turtle)
     assert res.status_code == 200
     assert len(Graph().parse(data=res.content, format='turtle')) == 3
+
+
+def test_blanknodes(sparql_client, test_queries, sparqlstore, accept_headers):
+    # Unclear why manual clearing of graph is necesarry here
+    # Probably due to other test being wonky and leaving behind triples
+    # Leaving it here until culprit is found
+    sparql_client.post(UPDATE_URL, {'update': 'DELETE WHERE {?s ?p ?o } '})
+    ins = sparql_client.post(UPDATE_URL, {'update': test_queries.INSERT_BLANK})
+    assert ins.status_code == 200
+
+    res = sparql_client.get(
+        QUERY_URL, {'query': test_queries.SELECT},
+        HTTP_ACCEPT=accept_headers.turtle)
+    g = Graph().parse(data=res.content, format='turtle')
+
+    py_triple = (BNode('label'), RDF.type, Literal('blanknode'))
+    g.add(py_triple)
+
+    assert len(g) == 5
