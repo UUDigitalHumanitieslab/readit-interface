@@ -260,8 +260,8 @@ function getSpecificResource(source: Node, positionSelector: Node, textQuoteSele
 function saveSpecificResource(
     items: ItemGraph,
     target: Node,
-    positionSelector: Node,
-    quoteSelector: Node,
+    [positionSelector]: [Node, unknown, unknown],
+    [quoteSelector]: [Node, unknown, unknown],
     done?
 ) {
     // Replace former blank node selectors by their respective IRIs.
@@ -290,14 +290,14 @@ function createAnnotation(
 function saveAnnotation(
     items: ItemGraph,
     annotation: Node,
-    target: Node,
-    item: Node | undefined,
+    [target]: [Node, unknown, unknown],
+    item: [Node, unknown, unknown] | undefined,
     done?
 ) {
     // Erase the old blank node item reference if applicable.
     const blankBody = _.find(annotation.get(oa.hasBody), isBlank);
     if (blankBody) annotation.unset(oa.hasBody, blankBody);
-    if (item) annotation.set(oa.hasBody, item);
+    if (item) annotation.set(oa.hasBody, item[0]);
     // Replace blank node target by IRI.
     annotation.unset(oa.hasTarget).set(oa.hasTarget, target);
     return createIfBlankOrNew(items, annotation, done);
