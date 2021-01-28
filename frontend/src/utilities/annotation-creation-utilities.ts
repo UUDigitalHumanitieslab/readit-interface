@@ -235,12 +235,12 @@ function createPositionSelector(items: ItemGraph, start: number, end: number, do
 }
 
 function getPositionSelector(start: number, end: number){
-    return {
+    return new Node({
         '@id': _.uniqueId('_:'),
         '@type': oa.TextPositionSelector,
         [oa.start]: start,
         [oa.end]: end,
-    };
+    });
 }
 
 function createSpecificResource(items: ItemGraph, source: Node, positionSelector: Node, textQuoteSelector: Node, done?) {
@@ -249,12 +249,12 @@ function createSpecificResource(items: ItemGraph, source: Node, positionSelector
 }
 
 function getSpecificResource(source: Node, positionSelector: Node, textQuoteSelector: Node){
-    return {
+    return new Node({
         '@id': _.uniqueId('_:'),
         '@type': oa.SpecificResource,
         [oa.hasSource]: source,
         [oa.hasSelector]: [positionSelector, textQuoteSelector],
-    };
+    });
 }
 
 function saveSpecificResource(
@@ -309,13 +309,13 @@ export function createPlaceholderAnnotation(
     positionDetails: AnnotationPositionDetails
 ) {
     let positionSelector = getPositionSelector(positionDetails.startIndex, positionDetails.endIndex);
-    let specificResource = getSpecificResource(source, new Node(positionSelector), textQuoteSelector);
-    return {
+    let specificResource = getSpecificResource(source, positionSelector, textQuoteSelector);
+    return new Node({
         '@id': _.uniqueId('_:'),
         '@type': oa.Annotation,
         [oa.hasTarget]: specificResource,
         [oa.hasBody]: [placeholderClass]
-    }
+    });
 }
 
 export function savePlaceholderAnnotation(placeholder: FlatItem, done?) {

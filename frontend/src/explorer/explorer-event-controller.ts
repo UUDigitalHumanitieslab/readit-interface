@@ -278,11 +278,11 @@ export default class ExplorerEventController {
         }
         const collection = sourceView.collection;
         const textQuoteSelector = getAnonymousTextQuoteSelector(range);
-        const annotation = new Node(createPlaceholderAnnotation(
+        const annotation = createPlaceholderAnnotation(
             source,
             textQuoteSelector,
             positionDetails,
-        ));
+        );
         collection.underlying.add(annotation);
         const flat = collection.get(annotation.id);
         const newAnnotationView = this.openSourceAnnotation(listPanel, flat);
