@@ -26,6 +26,7 @@ export function getAnonymousTextQuoteSelector(range: Range): Node {
     let suffix = getSuffix(range);
 
     let selector = new Node({
+        '@id': _.uniqueId('_:'),
         '@type': [oa.TextQuoteSelector],
         [oa.exact]: [
             {
@@ -46,6 +47,7 @@ export function getAnonymousTextQuoteSelector(range: Range): Node {
  */
 export function cloneTextQuoteSelector(previousAnnotation: FlatItem){
     let selector = new Node({
+        '@id': _.uniqueId('_:'),
         '@type': [oa.TextQuoteSelector],
         [oa.exact]: [
             {
@@ -234,6 +236,7 @@ function createPositionSelector(items: ItemGraph, start: number, end: number, do
 
 function getPositionSelector(start: number, end: number){
     return {
+        '@id': _.uniqueId('_:'),
         '@type': oa.TextPositionSelector,
         [oa.start]: start,
         [oa.end]: end,
@@ -247,6 +250,7 @@ function createSpecificResource(items: ItemGraph, source: Node, positionSelector
 
 function getSpecificResource(source: Node, positionSelector: Node, textQuoteSelector: Node){
     return {
+        '@id': _.uniqueId('_:'),
         '@type': oa.SpecificResource,
         [oa.hasSource]: source,
         [oa.hasSelector]: [positionSelector, textQuoteSelector],
@@ -305,10 +309,7 @@ export function createPlaceholderAnnotation(
     positionDetails: AnnotationPositionDetails
 ) {
     let positionSelector = getPositionSelector(positionDetails.startIndex, positionDetails.endIndex);
-    positionSelector['@id'] = _.uniqueId('_:');
-    textQuoteSelector['@id'] = _.uniqueId('_:');
     let specificResource = getSpecificResource(source, new Node(positionSelector), textQuoteSelector);
-    specificResource['@id'] = _.uniqueId('_:');
     return {
         '@id': _.uniqueId('_:'),
         '@type': oa.Annotation,
