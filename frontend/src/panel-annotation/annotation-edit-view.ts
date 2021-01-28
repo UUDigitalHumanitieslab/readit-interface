@@ -221,9 +221,12 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         event.preventDefault();
         this.reset();
         if (isBlank(this.model.underlying)) {
+            // Remove the placeholder. This will also pop the panels.
             this.collection.underlying.remove(this.model.underlying);
+        } else {
+            // Not a placeholder, but still remove the panels.
+            explorerChannel.trigger('annotationEditView:close', this);
         }
-        explorerChannel.trigger('annotationEditView:close', this);
         return this;
     }
 
