@@ -8,9 +8,6 @@ import explorerChannel from '../explorer/explorer-radio';
 import { getLabelText } from '../utilities/annotation-utilities';
 import LabelView from '../label/label-view';
 import ItemMetadataView from '../item-metadata/item-metadata-view';
-import IRIView from '../iri-hyperlink/iri-view';
-import LabeledIRIView from '../iri-hyperlink/labeled-iri-view';
-import SelectorIRIView from '../iri-hyperlink/selector-iri-view';
 import { getLabelFromId } from '../utilities/linked-data-utilities';
 
 import { announceRoute } from './utilities';
@@ -32,11 +29,11 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     lblView: LabelView;
     itemMetadataView: ItemMetadataView;
     annotationMetadataView: ItemMetadataView;
-    itemLink: IRIView | LabeledIRIView;
-    sourceLink: SelectorIRIView;
 
     label: string;
     properties: any;
+    annotationSerial: string;
+    itemSerial: string;
 
     initialize() {
         this.properties = {};
@@ -52,13 +49,14 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     processAnnotation(model: FlatItem, annotation: Node): void {
-        this.dispose('annotationMetadataView').dispose('sourceLink');
+        this.dispose('annotationMetadataView');
+        delete this.annotationSerial;
         if (annotation) {
             this.annotationMetadataView = new ItemMetadataView({
                 model: annotation,
                 title: 'Annotation metadata'
             }).render();
-            this.sourceLink = new SelectorIRIView({ model });
+            this.annotationSerial = getLabelFromId(annotation.id);
         }
     }
 
@@ -71,16 +69,15 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     processItem(model: FlatItem, item: Node): void {
-        this.dispose('itemMetadataView').dispose('itemLink');
+        this.dispose('itemMetadataView');
+        delete this.itemSerial;
         const previousItem = model.previous('item');
         if (previousItem) this.stopListening(previousItem);
         if (item) {
             this.itemMetadataView = new ItemMetadataView({
                 model: item,
             }).render();
-            this.itemLink = new (
-                model.has('annotation') ? LabeledIRIView : IRIView
-            )({ model: item });
+            this.itemSerial = getLabelFromId(item.id);
             this.listenTo(item, 'change', this.collectDetails)
                 .collectDetails(item);
             this.listenTo(item, 'change', this.render);
@@ -146,13 +143,6 @@ extend(AnnotationView.prototype, {
     }, {
         view: 'annotationMetadataView',
         selector: '.metadataContainer',
-    }, {
-        view: 'sourceLink',
-        selector: '.subtitle',
-        method: 'prepend',
-    }, {
-        view: 'itemLink',
-        selector: '.subtitle',
     }],
     events: {
         'click #btnRelItems': 'onRelItemsClicked',
