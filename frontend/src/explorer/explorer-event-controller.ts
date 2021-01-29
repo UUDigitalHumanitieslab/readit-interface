@@ -22,6 +22,7 @@ import FlatItem from '../common-adapters/flat-item-model';
 import FlatItemCollection from '../common-adapters/flat-item-collection';
 import FlatAnnoCollection from '../common-adapters/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
+import { createPlaceholderAnnotation } from '../utilities/annotation-creation-utilities';
 import { oa } from '../common-rdf/ns';
 import SearchResultListView from '../panel-search-results/search-result-list-view';
 import SourceListPanel from '../panel-source-list/source-list-panel';
@@ -30,6 +31,7 @@ import {
     isType,
     isOntologyClass,
 } from '../utilities/linked-data-utilities';
+import { create } from 'lodash';
 
 
 export default class ExplorerEventController {
@@ -60,13 +62,13 @@ export default class ExplorerEventController {
             collection: sourcePanel.collection,
         });
         this.explorerView.push(listPanel);
+        sourcePanel['_annotationListPanel'] = listPanel;
         return listPanel;
     }
 
     pushSourcePair(basePanel: View, source: Node): [SourceView, AnnotationListPanel] {
         const sourcePanel = this.pushSource(basePanel, source);
         const listPanel = this.listSourceAnnotations(sourcePanel);
-        sourcePanel['_annotationListPanel'] = listPanel;
         return [sourcePanel, listPanel];
     }
 
@@ -159,24 +161,22 @@ export default class ExplorerEventController {
         return listView;
     }
 
-    editAnnotation(AnnotationView: AnnotationView, annotation: FlatItem): AnnoEditView {
-        const annoEditView = new AnnoEditView({ model: annotation });
-        this.explorerView.overlay(annoEditView, AnnotationView);
+    editAnnotation(annotationView: AnnotationView, annotation: FlatItem): AnnoEditView {
+        const annoEditView = new AnnoEditView({
+            model: annotation,
+            collection: annotationView.collection,
+        });
+        this.explorerView.overlay(annoEditView, annotationView);
         return annoEditView;
     }
 
     makeNewAnnotation(annotationView: AnnotationView, annotation: FlatItem): AnnoEditView {
-        const positionDetails = {
-            startIndex: annotation.get('startPosition'),
-            endIndex: annotation.get('endPosition')
-        }
-        let newEditView = new AnnoEditView({
-            previousAnnotation: annotation,
-            positionDetails: positionDetails,
-            source: annotation.get('source'),
-            collection: annotationView.collection,
-        });
-        const newAnnotationView = new AnnotationView({ model: newEditView.model })
+        const newAnnotation = createPlaceholderAnnotation(annotation);
+        const collection = annotationView.collection;
+        collection.underlying.add(newAnnotation);
+        const model = collection.get(newAnnotation.id);
+        const newAnnotationView = new AnnotationView({ model, collection });
+        const newEditView = new AnnoEditView({ model, collection });
         this.explorerView.popUntil(annotationView).pop();
         this.explorerView.push(newAnnotationView);
         this.explorerView.overlay(newEditView, newAnnotationView);
@@ -225,7 +225,8 @@ export default class ExplorerEventController {
     }
 
     closeEditAnnotation(editView: AnnoEditView): void {
-        if (editView.model.id) {
+        const id = editView.model.id;
+        if (id && !id.startsWith('_:')) {
             this.explorerView.removeOverlay(editView);
         }
         else {
@@ -234,9 +235,13 @@ export default class ExplorerEventController {
         }
     }
 
-    openSourceAnnotation(listView: AnnotationListPanel, anno: FlatItem): void {
-        let newDetailView = new AnnotationView({ model: anno, collection: listView.collection });
+    openSourceAnnotation(listView: AnnotationListPanel, anno: FlatItem): AnnotationView {
+        const newDetailView = new AnnotationView({
+            model: anno,
+            collection: listView.collection,
+        });
         this.explorerView.popUntil(listView).push(newDetailView);
+        return newDetailView;
     }
 
     resetItem(item: Node): AnnotationView {
@@ -257,21 +262,23 @@ export default class ExplorerEventController {
 
     unlistSourceAnnotations(sourceView): void {
         this.explorerView.popUntil(sourceView);
+        delete sourceView['_annotationListPanel'];
     }
 
     selectText(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): AnnoEditView {
-        let annoEditView = new AnnoEditView({
-            range: range,
-            positionDetails: positionDetails,
-            source: source,
-            collection: sourceView.collection,
-        });
-        const panelToPopUntil = sourceView['_annotationListPanel'] ? sourceView['_annotationListPanel'] : sourceView;
-        this.explorerView.popUntil(panelToPopUntil);
-        const newAnnotationView = new AnnotationView({ model: annoEditView.model })
-        this.explorerView.push(newAnnotationView);
-        this.explorerView.overlay(annoEditView, newAnnotationView);
-        return annoEditView;
+        let listPanel = sourceView['_annotationListPanel'];
+        if (!listPanel) {
+            this.explorerView.popUntil(sourceView);
+            listPanel = this.listSourceAnnotations(sourceView);
+        }
+        const collection = sourceView.collection;
+        const annotation = createPlaceholderAnnotation(
+            source, range, positionDetails
+        );
+        collection.underlying.add(annotation);
+        const flat = collection.get(annotation.id);
+        const newAnnotationView = this.openSourceAnnotation(listPanel, flat);
+        return this.editAnnotation(newAnnotationView, flat);
     }
 }
 

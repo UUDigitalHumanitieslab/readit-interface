@@ -3,13 +3,17 @@ import { $ } from 'backbone';
 
 import { onlyIf, startStore, endStore, event } from '../test-util';
 import mockItems from '../mock-data/mock-items';
+import { source1instance } from '../mock-data/mock-sources';
 
 import ldChannel from '../common-rdf/radio';
 import { item, dcterms } from '../common-rdf/ns';
 import Node from '../common-rdf/Node';
 import Graph from '../common-rdf/graph';
-
 import FlatItem from '../common-adapters/flat-item-model';
+import {
+    createPlaceholderAnnotation
+} from '../utilities/annotation-creation-utilities';
+
 import AnnotationEditView from './annotation-edit-view';
 
 const text = 'This is a text.'
@@ -17,12 +21,7 @@ const text = 'This is a text.'
 describe('AnnotationEditView', function() {
     beforeEach(function() {
         this.textContainer = $(`<p>${text}</p>`);
-        this.positionDetails = {
-            startNodeIndex: 0,
-            startCharacterIndex: 0,
-            endNodeIndex: 0,
-            endCharacterIndex: text.length,
-        };
+        this.positionDetails = { startIndex: 0, endIndex: text.length };
     });
 
     beforeEach(startStore);
@@ -37,11 +36,13 @@ describe('AnnotationEditView', function() {
         this.textContainer.appendTo('body');
         const range = document.createRange();
         range.selectNodeContents(this.textContainer.get(0).firstChild);
-        expect(() => new AnnotationEditView({
+        const placeholder = createPlaceholderAnnotation(
+            new Node(source1instance),
             range,
-            positionDetails: this.positionDetails,
-            source: new Node({'@id': 'x'}),
-            model: undefined,
+            this.positionDetails,
+        );
+        expect(() => new AnnotationEditView({
+            model: new FlatItem(placeholder),
         })).not.toThrow();
     });
 

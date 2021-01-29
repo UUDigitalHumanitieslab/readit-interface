@@ -35,21 +35,24 @@ const F_COMPLETE = F_ID | F_CSSCLASS | F_LABEL | F_SOURCE | F_POS | F_TEXT;
  *
  * The RDF properties are mapped to model attributes as follows:
 
-    annotation    = (original annotation)
-    id            = @id
-    class         = oa.hasBody (if ontology class)
-    classLabel    = oa.hasBody (if ontology class) -> getLabel()
-    cssClass      = oa.hasBody (if ontology class) -> getCssClassName()
-    item          = oa.hasBody (if item)
-    label         = oa.hasBody (if item) -> getLabel()
-    source        = oa.hasTarget -> oa.hasSource
-    startPosition = oa.hasTarget -> oa.hasSelector (if vocab.TextPositionSelector) -> oa.start
-    endPosition   = oa.hasTarget -> oa.hasSelector (if vocab.TextPositionSelector) -> oa.end
-    text          = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.exact
-    prefix        = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.prefix
-    suffix        = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.suffix
-    creator       = dcterms.creator
-    created       = dcterms.created
+    annotation       = (original annotation)
+    id               = @id
+    class            = oa.hasBody (if ontology class)
+    classLabel       = oa.hasBody (if ontology class) -> getLabel()
+    cssClass         = oa.hasBody (if ontology class) -> getCssClassName()
+    item             = oa.hasBody (if item)
+    label            = oa.hasBody (if item) -> getLabel()
+    target           = oa.hasTarget
+    source           = oa.hasTarget -> oa.hasSource
+    positionSelector = oa.hasTarget -> oa.hasSelector (if vocab.TextPositionSelector)
+    startPosition    = oa.hasTarget -> oa.hasSelector (if vocab.TextPositionSelector) -> oa.start
+    endPosition      = oa.hasTarget -> oa.hasSelector (if vocab.TextPositionSelector) -> oa.end
+    quoteSelector    = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector)
+    text             = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.exact
+    prefix           = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.prefix
+    suffix           = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.suffix
+    creator          = dcterms.creator
+    created          = dcterms.created
 
  * For further processing convenience, the model triggers a `'complete'` event
  * when all of the following attributes have been collected: `id`, `cssClass`,
@@ -193,6 +196,7 @@ export default class FlatItem extends Model {
      * Invoked once when the target is more than just a placeholder.
      */
     receiveTarget(target: Node): void {
+        this.set('target', target);
         const sources = target.get(oa.hasSource);
         if (sources && sources.length) {
             this.set('source', sources[0]);
@@ -231,7 +235,8 @@ export default class FlatItem extends Model {
         if (start && start.length && end && end.length) {
             this.set({
                 startPosition: start[0],
-                endPosition: end[0]
+                endPosition: end[0],
+                positionSelector: selector,
             });
             this._setCompletionFlag(F_POS);
         }
@@ -242,6 +247,7 @@ export default class FlatItem extends Model {
      * Invoked once when the TextQuoteSelector is more than just a placeholder.
      */
     receiveText(selector: Node): number {
+        this.set('quoteSelector', selector);
         this.setOptionalFirst(selector, oa.prefix, 'prefix');
         this.setOptionalFirst(selector, oa.suffix, 'suffix');
         const text = selector.get(oa.exact);

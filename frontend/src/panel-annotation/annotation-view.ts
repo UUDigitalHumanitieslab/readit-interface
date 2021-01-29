@@ -4,6 +4,7 @@ import { CompositeView } from '../core/view';
 import Node, { isNode } from '../common-rdf/node';
 import { owl, dcterms, rdfs } from '../common-rdf/ns';
 import FlatItem from '../common-adapters/flat-item-model';
+import FlatCollection from '../common-adapters/flat-annotation-collection';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
 import { getLabelText } from '../utilities/annotation-utilities';
@@ -26,6 +27,7 @@ const excludedProperties = [
 ];
 
 export default class AnnotationView extends CompositeView<FlatItem> {
+    collection: FlatCollection;
     lblView: LabelView;
     itemMetadataView: ItemMetadataView;
     annotationMetadataView: ItemMetadataView;

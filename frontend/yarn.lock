@@ -849,6 +849,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/select2@^4.0.53":
+  version "4.0.53"
+  resolved "https://registry.yarnpkg.com/@types/select2/-/select2-4.0.53.tgz#1eef6cd44179fc2329ced2cc5ab8260ad38ce989"
+  integrity sha512-5+HxxtKgyR954mFL61pNvKenx55gYinkYfSG5tVeItvmHhc2h+yRiGXNTYSwcrAcrUJ2ewLgOxG3STZRsPEnag==
+  dependencies:
+    "@types/jquery" "*"
+
 "@types/sizzle@*":
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.2.tgz#a811b8c18e2babab7d542b3365887ae2e4d9de47"
@@ -6955,6 +6962,11 @@ scss-tokenizer@^0.2.3:
   dependencies:
     js-base64 "^2.1.8"
     source-map "^0.4.2"
+
+select2@^4.0.13:
+  version "4.0.13"
+  resolved "https://registry.yarnpkg.com/select2/-/select2-4.0.13.tgz#0dbe377df3f96167c4c1626033e924372d8ef44d"
+  integrity sha512-1JeB87s6oN/TDxQQYCvS5EFoQyvV6eYMZZ0AeA4tdFDYWN3BAGZ8npr17UBFddU0lgAt3H0yjX3X6/ekOj1yjw==
 
 semver-greatest-satisfied-range@^1.1.0:
   version "1.1.0"

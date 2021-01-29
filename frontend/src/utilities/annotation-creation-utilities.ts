@@ -1,12 +1,16 @@
 import * as _ from 'lodash';
 import * as a$ from 'async';
 
-import Node  from '../common-rdf/node';
-import { oa, as, vocab, rdf, xsd, staff, dcterms, } from '../common-rdf/ns';
-
+import Node, { isNode }  from '../common-rdf/node';
+import { oa, as, vocab, rdf, xsd, staff, dcterms, rdfs, schema, readit } from '../common-rdf/ns';
 import FlatItem from '../common-adapters/flat-item-model';
 import ItemGraph from '../common-adapters/item-graph';
-import { AnnotationPositionDetails } from './annotation-utilities';
+
+import { isBlank } from './linked-data-utilities';
+import {
+    AnnotationPositionDetails,
+    placeholderClass,
+} from './annotation-utilities';
 
 const prefixLength = 100;
 const suffixLength = 100;
@@ -16,11 +20,12 @@ const suffixLength = 100;
  * and doesn't have an @id. Ideal for passing a user selection('s Range) to
  * the AnnotationEditView.
  */
-export function getAnonymousTextQuoteSelector(range: Range): Node {
+export function getTextQuoteSelector(range: Range): Node {
     let prefix = getPrefix(range);
     let suffix = getSuffix(range);
 
     let selector = new Node({
+        '@id': _.uniqueId('_:'),
         '@type': [oa.TextQuoteSelector],
         [oa.exact]: [
             {
@@ -41,6 +46,7 @@ export function getAnonymousTextQuoteSelector(range: Range): Node {
  */
 export function cloneTextQuoteSelector(previousAnnotation: FlatItem){
     let selector = new Node({
+        '@id': _.uniqueId('_:'),
         '@type': [oa.TextQuoteSelector],
         [oa.exact]: [
             {
@@ -75,49 +81,6 @@ function getSuffix(exactRange: Range): string {
     let result = suffixRange.toString();
     suffixRange.detach();
     return result;
-}
-
-/**
- * Create an annotation, with all relevant Nodes (e.g. oa.Specificresource, oa.Selector, etc) to store the information.
- * @param source
- * @param posDetails
- * @param tQSelector
- * @param ontoClass
- * @param done Callback function.
- */
-export function composeAnnotation(
-    source: Node,
-    posDetails: AnnotationPositionDetails,
-    tQSelector: Node,
-    ontoClass: Node,
-    ontoItem?: Node,
-    done?
-) {
-    const { startIndex, endIndex } = posDetails;
-
-    const inputs = {
-        startIndex, endIndex,
-        source, ontoClass, ontoItem, tQSelector, items: new ItemGraph(),
-    };
-
-    const tasks = {
-        positionSelector: ['items', 'startIndex', 'endIndex',
-            createPositionSelector,
-        ],
-        textQuoteSelector: ['items', 'tQSelector',
-            createTextQuoteSelector,
-        ],
-        specificResource: ['items', 'source', 'positionSelector', 'textQuoteSelector',
-            createSpecificResource,
-        ],
-        instance: ['items', 'ontoClass', 'ontoItem',
-            createOntologyInstance,
-        ],
-        annotation: ['items', 'specificResource', 'ontoClass', 'instance',
-            createAnnotation,
-        ],
-    };
-    return a$.autoInject(combineAutoHash(inputs, tasks), done);
 }
 
 /**
@@ -190,55 +153,126 @@ function createItem(items: ItemGraph, attributes: any, done?) {
     return a$.waterfall([
         a$.constant(items.create(attributes)),
         awaitEvent('sync', 'error', unshiftArgs, errorFromXHR),
-    ], (error, results) => done(error, results));
+    ], done);
 }
 
-function createOntologyInstance(
-    items: ItemGraph,
-    ontoClass: Node,
-    attributes?: Node,
-    done?
-) {
-    if (attributes) return createItem(items, attributes, done);
+/**
+ * Guarded version of `createItem`.
+ */
+function createIfBlankOrNew(items: ItemGraph, attributes: any, done?) {
+    if (attributes) {
+        if (!isNode(attributes)) attributes = new Node(attributes);
+        if (isBlank(attributes)) attributes.unset('@id');
+        if (attributes.isNew()) return createItem(items, attributes, done);
+        items.add(attributes);
+    }
     if (!done) return Promise.resolve(attributes);
     a$.nextTick(done, null, attributes);
 }
 
-function createTextQuoteSelector(items: ItemGraph, textQuoteSelector: Node, done?) {
-    return createItem(items, textQuoteSelector.attributes, done);
-}
-
-function createPositionSelector(items: ItemGraph, start: number, end: number, done?) {
-    const attributes = {
+function getPositionSelector(start: number, end: number){
+    return new Node({
+        '@id': _.uniqueId('_:'),
         '@type': oa.TextPositionSelector,
         [oa.start]: start,
         [oa.end]: end,
-    };
-    return createItem(items, attributes, done);
+    });
 }
 
-function createSpecificResource(items: ItemGraph, source: Node, positionSelector: Node, textQuoteSelector: Node, done?) {
-    const attributes = {
+function getSpecificResource(source: Node, positionSelector: Node, textQuoteSelector: Node){
+    return new Node({
+        '@id': _.uniqueId('_:'),
         '@type': oa.SpecificResource,
         [oa.hasSource]: source,
         [oa.hasSelector]: [positionSelector, textQuoteSelector],
-    };
-    return createItem(items, attributes, done);
+    });
 }
 
-function createAnnotation(
+function saveSpecificResource(
     items: ItemGraph,
-    specificResource: Node,
-    ontoClass: Node,
-    ontoItem?: Node,
+    target: Node,
+    [positionSelector]: [Node, unknown, unknown],
+    [quoteSelector]: [Node, unknown, unknown],
     done?
 ) {
-    const attributes = {
+    // Replace former blank node selectors by their respective IRIs.
+    target.unset(oa.hasSelector);
+    target.set(oa.hasSelector, [positionSelector, quoteSelector]);
+    return createIfBlankOrNew(items, target, done);
+}
+
+function saveAnnotation(
+    items: ItemGraph,
+    annotation: Node,
+    [target]: [Node, unknown, unknown],
+    item: [Node, unknown, unknown] | Node | undefined,
+    done?
+) {
+    // Erase the old blank node item reference if applicable.
+    const blankBody = _.find(annotation.get(oa.hasBody), isBlank);
+    if (blankBody) annotation.unset(oa.hasBody, blankBody);
+    if (item) annotation.set(oa.hasBody, isNode(item) ? item : item[0]);
+    // Replace blank node target by IRI.
+    annotation.unset(oa.hasTarget).set(oa.hasTarget, target);
+    return createIfBlankOrNew(items, annotation, done);
+}
+
+/**
+ * Create a placeholder annotation, either by cloning from an existing FlatItem
+ * or by creating one from scratch given a source and selection details.
+ */
+export function createPlaceholderAnnotation(existing: FlatItem): Node;
+export function createPlaceholderAnnotation(
+    source: Node, range: Range, positionDetails: AnnotationPositionDetails
+): Node;
+export function createPlaceholderAnnotation(source, range?, positionDetails?) {
+    let textQuoteSelector, positionSelector;
+    if (isNode(source)) { // "From scratch" mode.
+        textQuoteSelector = getTextQuoteSelector(range);
+        positionSelector = getPositionSelector(
+            positionDetails.startIndex, positionDetails.endIndex
+        );
+    } else { // Clone mode.
+        textQuoteSelector = cloneTextQuoteSelector(source);
+        positionSelector = getPositionSelector(
+            source.get('startPosition'), source.get('endPosition')
+        );
+        source = source.get('source');
+    }
+    const specificResource = getSpecificResource(
+        source, positionSelector, textQuoteSelector
+    );
+    return new Node({
+        '@id': _.uniqueId('_:'),
         '@type': oa.Annotation,
-        [oa.hasBody]: [ontoClass],
         [oa.hasTarget]: specificResource,
-        [as.generator]: {'@id': vocab('self')},
+        [oa.hasBody]: [placeholderClass]
+    });
+}
+
+export function savePlaceholderAnnotation(placeholder: FlatItem, done?) {
+    const inputs = {
+        pSelector: placeholder.get('positionSelector'),
+        qSelector: placeholder.get('quoteSelector'),
+        target: placeholder.get('target'),
+        item: placeholder.get('item'),
+        anno: placeholder.get('annotation'),
+        items: new ItemGraph(),
     };
-    if (ontoItem) (attributes[oa.hasBody] as Node[]).push(ontoItem);
-    return createItem(items, attributes, done);
+
+    const tasks = {
+        positionSelector: [ 'items', 'pSelector', createIfBlankOrNew ],
+        quoteSelector: [ 'items', 'qSelector', createIfBlankOrNew ],
+        specificResource: [
+            'items', 'target', 'positionSelector', 'quoteSelector',
+            saveSpecificResource,
+        ],
+        body: [ 'items', 'item', createIfBlankOrNew ],
+        annotation: [
+            'items', 'anno', 'specificResource', 'body',
+            saveAnnotation,
+        ],
+    };
+
+    return a$.autoInject(combineAutoHash(inputs, tasks), done);
 }

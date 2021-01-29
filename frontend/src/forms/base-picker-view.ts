@@ -6,6 +6,7 @@ import {
     ViewOptions as BViewOptions,
 } from 'backbone';
 
+
 import View, { CollectionView } from '../core/view';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
