@@ -93,6 +93,7 @@ export default class FlatItem extends Model {
         this.underlying = node;
         this._completionFlags = 0;
         node.when('@type', this.receiveTopNode, this);
+        this.listenTo(node, 'change', this.updateMeta).updateMeta(node);
     }
 
     setOptionalFirst(source: Node, sourceAttr: string, targetAttr: string): this {
@@ -101,11 +102,19 @@ export default class FlatItem extends Model {
         return this;
     }
 
-    receiveTopNode(node: Node): void {
-        const id = node.id;
-        this.set({ id });
+    /**
+     * Keep meta attributes in sync with the top node. Triggers repeatedly.
+     */
+    updateMeta(node: Node) {
+        this.set('id', node.id);
         this.setOptionalFirst(node, dcterms.creator, 'creator');
         this.setOptionalFirst(node, dcterms.created, 'created');
+    }
+
+    /**
+     * Invoked once when this.underlying is more than just a placeholder.
+     */
+    receiveTopNode(node: Node): void {
         this._setCompletionFlag(F_ID);
         let missing;
         if (node.has('@type', oa.Annotation)) {
