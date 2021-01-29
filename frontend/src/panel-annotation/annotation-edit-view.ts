@@ -109,7 +109,8 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         let newItem = false;
         const item = this.model.get('item');
         if (!item) return Promise.resolve(newItem);
-        if (item.isNew() || isBlank(item)) {
+        if (isBlank(item)) item.unset('@id');
+        if (item.isNew()) {
             newItem = true;
             if (!item.collection) this.itemOptions.add(item);
         }
