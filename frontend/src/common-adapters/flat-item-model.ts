@@ -4,7 +4,11 @@ import Model from '../core/model';
 import ldChannel from '../common-rdf/radio';
 import { rdf, dcterms, oa, vocab, readit, item } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
-import { getLabel, getCssClassName } from '../utilities/linked-data-utilities';
+import {
+    getLabel,
+    getCssClassName,
+    isBlank,
+} from '../utilities/linked-data-utilities';
 import fastTimeout from '../core/fastTimeout';
 
 /**
@@ -161,6 +165,7 @@ export default class FlatItem extends Model {
      * Returns the body bit flag that was *not* completed.
      */
     receiveBody(body: Node): number {
+        if (isBlank(body)) return this.receiveItem(body);
         const id = body.id;
         if (id.startsWith(readit())) return this.receiveClass(body);
         if (id.startsWith(item())) return this.receiveItem(body);
