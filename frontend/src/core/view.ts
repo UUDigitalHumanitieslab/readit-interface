@@ -86,7 +86,7 @@ export class CompositeView<M extends Model = Model> extends View<M> {
         if (subview instanceof BView) {
             subview.remove();
             delete this[subviewName];
-        } else {
+        } else if (subview != null) {
             console.warn(`Trying to dispose non-subview ${subviewName}`, this);
         }
         return this;
