@@ -4,6 +4,7 @@ import { Namespace } from '../common-rdf/vocabulary';
 import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import FlatItem from '../common-adapters/flat-item-model';
+import deparam from '../utilities/deparam';
 
 import Controller from './explorer-event-controller';
 
@@ -64,4 +65,9 @@ export function itemWithOccurrences(control: Controller, node: Node) {
     // listItemAnnotations does not return the created panel
     // see #342
     control.listItemAnnotations(item(control, node), node);
+}
+
+export function searchResultsSources(control: Controller, queryParams: string) {
+    const { fields, query } = deparam(queryParams);
+    return control.resetSourceListFromSearchResults(query, fields);
 }

@@ -1,69 +1,69 @@
 import { extend } from 'lodash';
 
-import explorerChannel from '../explorer/explorer-radio';
-import { CompositeView, ViewOptions as BaseOpt } from '../core/view';
-import Graph from '../common-rdf/graph';
+import { baseUrl } from 'config.json';
 import Model from '../core/model';
+import { CompositeView } from '../core/view';
+import Graph from '../common-rdf/graph';
+import explorerChannel from '../explorer/explorer-radio';
+import routePatterns from '../explorer/route-patterns';
 
 import SourceListView from './source-list-view';
 import SourceListPanelTemplate from './source-list-panel-template';
 import PaginationView from '../pagination/pagination-view';
 
-export interface ViewOptions extends BaseOpt {
-    resultsCount: Model;
-}
+const searchURL = baseUrl + 'source/search';
+const resultsURL = baseUrl + 'source/results_count';
+const routePattern = routePatterns['search:results:sources'];
 
 export default class SourceListPanel extends CompositeView {
     sourceListView: SourceListView;
     paginationView: PaginationView;
-    totalPages: Number;
-    sources: Graph;
-    query: string;
-    queryfields: string;
+    collection: Graph;
 
-    constructor(options?: ViewOptions) {
-        super(options);
-    }
-
-    initialize(options: ViewOptions) {
+    initialize() {
         this.initSourceList();
-        this.totalPages = Math.ceil(options.resultsCount.get('total_results') / options.resultsCount.get('results_per_page'));
-        this.paginationView = new PaginationView({totalPages: this.totalPages});
-        this.listenTo(this.paginationView, 'pagination:set', this.fetchMoreSources);
-        this.listenTo(this.sourceListView, 'source:clicked', this.onSourceClicked);
+        this.fetchResultsCount().once('sync', this.initPagination, this);
+        this.on('announceRoute', this.announceRoute);
     }
 
     initSourceList() {
-        this.sources = new Graph();
-        this.query = this.model.get('query');
-        this.queryfields = this.model.get('fields');
-        this.sources.fetch({
-            url: '/source/search',
-            data: $.param({ query: this.query, fields: this.queryfields}),
+        this.collection = new Graph();
+        this.collection.fetch({
+            url: searchURL,
+            data: $.param(this.model.toJSON()),
         });
-        this.sourceListView = new SourceListView({collection: this.sources, model: this.model});
+        this.sourceListView = new SourceListView({collection: this.collection, model: this.model});
+        this.listenTo(this.sourceListView, 'source:clicked', this.onSourceClicked);
+    }
+
+    fetchResultsCount(): Model {
+        const resultsCount = new Model();
+        resultsCount.fetch({
+            url: resultsURL,
+            data: $.param(this.model.toJSON())
+        });
+        return resultsCount;
+    }
+
+    initPagination(resultsCount: Model) {
+        const totalPages = Math.ceil(resultsCount.get('total_results') / resultsCount.get('results_per_page'));
+        this.paginationView = new PaginationView({ totalPages });
+        this.listenTo(this.paginationView, 'pagination:set', this.fetchMoreSources);
+        this.render();
     }
 
     fetchMoreSources(page: number) {
-        this.sources.fetch({
-            url: '/source/search',
-            data: $.param({ query: this.query, fields: this.queryfields, page: page })
+        this.collection.fetch({
+            url: searchURL,
+            data: $.param({ ...this.model.toJSON(), page })
         })
     }
 
-    subviews() {
-        if (this.totalPages > 1) {
-            return [{
-                    view: 'sourceListView',
-                    selector: '.panel-content'
-                }, {
-                    view: 'paginationView',
-                    selector: '.panel-footer',
-                }]
-        } else return [{
-            view: 'sourceListView',
-            selector: '.panel-content'
-        }];
+    announceRoute(): void {
+        const route = routePattern.replace(
+            '*queryParams', $.param(this.model.toJSON())
+        );
+        explorerChannel.trigger('currentRoute', route, this);
     }
 
     renderContainer(): this {
@@ -80,4 +80,11 @@ export default class SourceListPanel extends CompositeView {
 extend(SourceListPanel.prototype, {
     className: 'source-list explorer-panel',
     template: SourceListPanelTemplate,
+    subviews: [{
+        view: 'sourceListView',
+        selector: '.panel-content'
+    }, {
+        view: 'paginationView',
+        selector: '.panel-footer',
+    }],
 });
