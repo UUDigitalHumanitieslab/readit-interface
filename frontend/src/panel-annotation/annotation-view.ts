@@ -52,13 +52,11 @@ export default class AnnotationView extends CompositeView<FlatItem> {
 
     processAnnotation(model: FlatItem, annotation: Node): void {
         this.dispose('annotationMetadataView');
-        delete this.annotationSerial;
         if (annotation) {
             this.annotationMetadataView = new ItemMetadataView({
                 model: annotation,
                 title: 'Annotation metadata'
             }).render();
-            this.annotationSerial = getLabelFromId(annotation.id);
         }
     }
 
@@ -72,14 +70,12 @@ export default class AnnotationView extends CompositeView<FlatItem> {
 
     processItem(model: FlatItem, item: Node): void {
         this.dispose('itemMetadataView');
-        delete this.itemSerial;
         const previousItem = model.previous('item');
         if (previousItem) this.stopListening(previousItem);
         if (item) {
             this.itemMetadataView = new ItemMetadataView({
                 model: item,
             }).render();
-            this.itemSerial = getLabelFromId(item.id);
             this.listenTo(item, 'change', this.collectDetails)
                 .collectDetails(item);
             this.listenTo(item, 'change', this.render);
@@ -108,6 +104,10 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     renderContainer(): this {
+        const annotation = this.model.get('annotation');
+        const item = this.model.get('item');
+        this.annotationSerial = annotation && getLabelFromId(annotation.id);
+        this.itemSerial = item && getLabelFromId(item.id);
         this.$el.html(this.template(this));
         return this;
     }
