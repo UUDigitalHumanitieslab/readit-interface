@@ -11,6 +11,7 @@ import welcomeView from '../global/welcome-view';
 
 const browserHistory = window.history;
 const resetSuggestionsPanel = () => explorer.reset(suggestionsPanel);
+
 /**
  * Common patterns for the explorer routes.
  */
@@ -22,6 +23,16 @@ function deepRoute(obtainAction, resetAction) {
 }
 const sourceRoute = partial(deepRoute, act.getSource);
 const itemRoute = partial(deepRoute, act.getItem);
+function annoRoute(resetAction) {
+    return (sourceSerial, itemSerial) => explorer.scrollOrAction(
+        browserHistory.state,
+        () => resetAction(
+            controller,
+            act.getSource(sourceSerial),
+            act.getItem(itemSerial)
+        )
+    );
+}
 
 mainRouter.on('route:explore', () => {
     explorer.scrollOrAction(suggestionsPanel.cid, resetSuggestionsPanel);
@@ -29,6 +40,8 @@ mainRouter.on('route:explore', () => {
 
 router.on('route:source:bare',       sourceRoute(act.sourceWithoutAnnotations));
 router.on('route:source:annotated',  sourceRoute(act.sourceWithAnnotations));
+router.on('route:annotation',          annoRoute(act.annotation));
+router.on('route:annotation:edit',     annoRoute(act.annotationInEditMode));
 router.on('route:item',                itemRoute(act.item));
 router.on('route:item:edit',           itemRoute(act.itemInEditMode));
 router.on('route:item:related',        itemRoute(act.itemWithRelations));

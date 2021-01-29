@@ -20,11 +20,11 @@ import {
     savePlaceholderAnnotation,
 } from '../utilities/annotation-creation-utilities';
 import explorerChannel from '../explorer/explorer-radio';
-import { announceRoute } from '../explorer/utilities';
 
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-item-collection';
 
+import { announceRoute } from './utilities';
 import annotationEditTemplate from './annotation-edit-template';
 
 /**
@@ -35,7 +35,7 @@ function getOntologyClasses() {
     return new FilteredCollection<Node, Graph>(ontology, isRdfsClass);
 }
 
-const announce = announceRoute('item:edit', ['model', 'id']);
+const announce = announceRoute(true);
 
 export default class AnnotationEditView extends CompositeView<FlatItem> {
     collection: FlatCollection;

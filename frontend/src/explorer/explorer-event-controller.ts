@@ -1,3 +1,6 @@
+import { extend } from 'lodash';
+import { Events } from 'backbone';
+
 import View from '../core/view';
 import Model from '../core/model';
 import Collection from '../core/collection';
@@ -33,8 +36,8 @@ import {
 } from '../utilities/linked-data-utilities';
 import { create } from 'lodash';
 
-
-export default class ExplorerEventController {
+interface ExplorerEventController extends Events {}
+class ExplorerEventController {
     /**
      * The explorer view instance to manage events for
      */
@@ -98,12 +101,13 @@ export default class ExplorerEventController {
             const source = result.get('source') as Node;
             const [sourcePanel,] = this.pushSourcePair(searchResults, source);
             const collection = sourcePanel.collection;
-            collection.underlying.add(annotation);
-            // `flat` represents the same underlying Node, but is a distinct
-            // FlatItem from `result`, since they come from distinct
-            // collections.
-            const flat = collection.get(annotation.id);
-            sourcePanel.once('ready', () => flat.trigger('focus', flat));
+            sourcePanel.once('ready', () => {
+                // `flat` represents the same underlying Node, but is a distinct
+                // FlatItem from `result`, since they come from distinct
+                // collections.
+                const flat = collection.get(annotation.id);
+                flat.trigger('focus', flat);
+            });
         }
     }
 
@@ -161,12 +165,16 @@ export default class ExplorerEventController {
         return listView;
     }
 
-    editAnnotation(annotationView: AnnotationView, annotation: FlatItem): AnnoEditView {
-        const annoEditView = new AnnoEditView({
-            model: annotation,
-            collection: annotationView.collection,
-        });
-        this.explorerView.overlay(annoEditView, annotationView);
+    editAnnotation(annotationPanel: AnnotationView, model: FlatItem): AnnoEditView {
+        const { collection } = annotationPanel;
+        const annoEditView = new AnnoEditView({ model });
+        this.explorerView.overlay(annoEditView, annotationPanel);
+        // If the collection isn't complete yet, `openSourceAnnotation` will
+        // probably re-focus, causing `annotationPanel` to be replaced. In that
+        // case, we need to overlay again.
+        if (!collection.get(model)) {
+            this.once('reopen-edit-annotation', this.editAnnotation);
+        }
         return annoEditView;
     }
 
@@ -235,12 +243,20 @@ export default class ExplorerEventController {
         }
     }
 
-    openSourceAnnotation(listView: AnnotationListPanel, anno: FlatItem): AnnotationView {
-        const newDetailView = new AnnotationView({
-            model: anno,
-            collection: listView.collection,
-        });
+    openSourceAnnotation(listView: AnnotationListPanel, model: FlatItem): AnnotationView {
+        const { collection } = listView;
+        let newDetailView = new AnnotationView({ model, collection });
         this.explorerView.popUntil(listView).push(newDetailView);
+        // Focus might not work if the collection isn't complete yet. In that
+        // case, re-focus when it is complete. This will cause
+        // `openSourceAnnotation` to run again.
+        if (!collection.get(model)) collection.once('complete:all', () => {
+            model = collection.get(model);
+            model.trigger('focus', model);
+        });
+        // Nobody is listening for the following event, except when we are
+        // re-focusing as discussed above **and** the route ends in `/edit`.
+        this.trigger('reopen-edit-annotation', newDetailView, model);
         return newDetailView;
     }
 
@@ -281,6 +297,8 @@ export default class ExplorerEventController {
         return this.editAnnotation(newAnnotationView, flat);
     }
 }
+extend(ExplorerEventController.prototype, Events);
+export default ExplorerEventController;
 
 /**
  * Get an ItemGraph with all oa:Annotations, oa:SpecificResources,
