@@ -60,10 +60,9 @@ export default class SourceListPanel extends CompositeView {
     }
 
     announceRoute(): void {
-        const route = routePattern.replace(':fields/*query', [
-            this.model.get('fields'),
-            encodeURIComponent(this.model.get('query')),
-        ].join('/'));
+        const route = routePattern.replace(
+            '*queryParams', $.param(this.model.toJSON())
+        );
         explorerChannel.trigger('currentRoute', route, this);
     }
 

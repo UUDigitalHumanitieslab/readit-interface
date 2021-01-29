@@ -42,9 +42,9 @@ router.on({
     'route:item:external':          itemRoute(act.itemWithExternal),
     'route:item:external:edit':     itemRoute(act.itemWithEditExternal),
     'route:item:annotations':       itemRoute(act.itemWithOccurrences),
-    'route:search:results:sources': (fields, query) => explorer.scrollOrAction(
+    'route:search:results:sources': params => explorer.scrollOrAction(
         browserHistory.state,
-        () => act.searchResultsSources(controller, fields, query),
+        () => act.searchResultsSources(controller, params),
     ),
 });
 

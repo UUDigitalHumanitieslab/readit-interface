@@ -8,5 +8,5 @@ export default {
     'item:external':          'explore/item/:serial/external',
     'item:external:edit':     'explore/item/:serial/external/edit',
     'item:annotations':       'explore/item/:serial/annotations',
-    'search:results:sources': 'explore/sources/:fields/*query',
+    'search:results:sources': 'explore/sources?*queryParams',
 };
