@@ -167,7 +167,7 @@ class ExplorerEventController {
 
     editAnnotation(annotationPanel: AnnotationView, model: FlatItem): AnnoEditView {
         const { collection } = annotationPanel;
-        const annoEditView = new AnnoEditView({ model });
+        const annoEditView = new AnnoEditView({ model, collection });
         this.explorerView.overlay(annoEditView, annotationPanel);
         // If the collection isn't complete yet, `openSourceAnnotation` will
         // probably re-focus, causing `annotationPanel` to be replaced. In that
