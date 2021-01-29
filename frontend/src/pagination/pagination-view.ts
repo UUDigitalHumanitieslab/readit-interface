@@ -6,6 +6,7 @@ import PaginationTemplate from './pagination-template';
 
 export interface ViewOptions extends BaseOpt {
     totalPages: number;
+    initialPage?: number;
 }
 
 export default class PaginationView extends View {
@@ -21,7 +22,7 @@ export default class PaginationView extends View {
         this.totalPages = options.totalPages;
         // there are three pagination links around the current page
         this.numberPaginationLinks = 3;
-        this.determineCurrentPages(1);
+        this.determineCurrentPages(options.initialPage || 1);
     }
 
     render(): this {

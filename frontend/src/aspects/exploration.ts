@@ -6,8 +6,9 @@ import router from '../global/exploration-router';
 import mainRouter from '../global/main-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
-import SuggestionsPanel from '../panel-suggestions/suggestions-view';
 import welcomeView from '../global/welcome-view';
+import SuggestionsPanel from '../panel-suggestions/suggestions-view';
+import deparam from '../utilities/deparam';
 
 const browserHistory = window.history;
 let suggestionsPanel: SuggestionsPanel;
@@ -27,6 +28,7 @@ function deepRoute(obtainAction, resetAction) {
 }
 const sourceRoute = partial(deepRoute, act.getSource);
 const itemRoute = partial(deepRoute, act.getItem);
+const queryRoute = partial(deepRoute, deparam);
 function annoRoute(resetAction) {
     return (sourceSerial, itemSerial) => explorer.scrollOrAction(
         browserHistory.state,
@@ -54,10 +56,7 @@ router.on({
     'route:item:external':          itemRoute(act.itemWithExternal),
     'route:item:external:edit':     itemRoute(act.itemWithEditExternal),
     'route:item:annotations':       itemRoute(act.itemWithOccurrences),
-    'route:search:results:sources': params => explorer.scrollOrAction(
-        browserHistory.state,
-        () => act.searchResultsSources(controller, params),
-    ),
+    'route:search:results:sources': queryRoute(act.searchResultsSources),
 });
 
 channel.on({

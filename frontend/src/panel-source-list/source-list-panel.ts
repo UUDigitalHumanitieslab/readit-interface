@@ -1,4 +1,4 @@
-import { extend } from 'lodash';
+import { extend, omit } from 'lodash';
 
 import { baseUrl } from 'config.json';
 import Model from '../core/model';
@@ -24,39 +24,52 @@ export default class SourceListPanel extends CompositeView {
         this.initSourceList();
         this.fetchResultsCount().once('sync', this.initPagination, this);
         this.on('announceRoute', this.announceRoute);
+        this.listenTo(this.model, 'change', this.announceRoute);
     }
 
     initSourceList() {
         this.collection = new Graph();
-        this.collection.fetch({
-            url: searchURL,
-            data: $.param(this.model.toJSON()),
+        this.fetchSources();
+        this.sourceListView = new SourceListView({
+            collection: this.collection,
+            model: this.model,
         });
-        this.sourceListView = new SourceListView({collection: this.collection, model: this.model});
-        this.listenTo(this.sourceListView, 'source:clicked', this.onSourceClicked);
+        this.listenTo(
+            this.sourceListView, 'source:clicked', this.onSourceClicked
+        );
     }
 
     fetchResultsCount(): Model {
         const resultsCount = new Model();
         resultsCount.fetch({
             url: resultsURL,
-            data: $.param(this.model.toJSON())
+            data: $.param(omit(this.model.toJSON(), 'page'))
         });
         return resultsCount;
     }
 
     initPagination(resultsCount: Model) {
         const totalPages = Math.ceil(resultsCount.get('total_results') / resultsCount.get('results_per_page'));
-        this.paginationView = new PaginationView({ totalPages });
-        this.listenTo(this.paginationView, 'pagination:set', this.fetchMoreSources);
+        this.paginationView = new PaginationView({
+            totalPages,
+            initialPage: this.model.get('page'),
+        });
+        this.listenTo(this.paginationView, 'pagination:set', this.fetchSources);
         this.render();
     }
 
-    fetchMoreSources(page: number) {
+    fetchSources(page?: number) {
+        if (page != null) {
+            if (page === 1) {
+                this.model.unset('page');
+            } else {
+                this.model.set('page', page);
+            }
+        }
         this.collection.fetch({
             url: searchURL,
-            data: $.param({ ...this.model.toJSON(), page })
-        })
+            data: $.param(this.model.toJSON()),
+        });
     }
 
     announceRoute(): void {

@@ -24,7 +24,7 @@ export default class WelcomeView extends CompositeView {
     }
 
     search(query: string, fields: string = 'all') {
-        this.trigger('search:start', query, fields);
+        this.trigger('search:start', { query, fields });
     }
 }
 
