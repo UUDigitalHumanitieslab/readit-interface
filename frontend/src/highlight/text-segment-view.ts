@@ -65,14 +65,17 @@ class TextSegmentView extends CollectionView<SegmentModel, LineSegment> {
      * and emphasize this segment with a border and greater opacity.
      */
     focus(annotation: FlatItem): void {
-        this.toggleCategories([annotation.get('cssClass')]);
+        annotation.whenever(
+            'cssClass', (a, cls) => this.toggleCategories([cls]), this
+        );
         this.$el.addClass('is-selected');
     }
 
     /**
      * Undo the effect of `focus`.
      */
-    blur(): void {
+    blur(annotation: FlatItem): void {
+        this.stopListening(annotation, 'change:cssClass');
         this.toggleCategories().$el.removeClass('is-selected');
     }
 
