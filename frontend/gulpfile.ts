@@ -149,6 +149,10 @@ const browserLibs: LibraryProps[] = [{
         browser: 'bulma-accordion/dist/js/bulma-accordion.min',
         global: 'bulmaAccordion',
         cdn: `${jsdelivrPattern}/dist/js/\${filenameMin}`,
+    }, {
+        module: 'select2',
+        global: '$',
+        cdn: `${cdnjsPattern}/js/\${filenameMin}`,
     }],
     browserLibsRootedPaths: string[] = [],
     cdnizerConfig = {files: browserLibs.map(lib => {

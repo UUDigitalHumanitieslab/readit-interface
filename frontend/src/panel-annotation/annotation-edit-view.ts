@@ -51,9 +51,13 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     initialize() {
         this.itemOptions = new ItemGraph();
         this.itemOptions.comparator = this.sortOptions;
-        this.itemPicker = new PickerView({collection: this.itemOptions});
+        this.itemPicker = new PickerView({
+            collection: this.itemOptions,
+            className: '',
+        });
         this.itemPicker.on('change', this.selectItem, this);
-        // this.itemPicker.$('select').select2();
+        // Replace Bulma select by select2 select. TODO: make this less hacky.
+        this.itemPicker.$('select').width('95%').select2();
         this.classPicker = new ClassPickerView({
             collection: getOntologyClasses(),
             preselection: this.model.get('class'),
@@ -85,6 +89,12 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             errorClass: "help is-danger",
             ignore: "",
         });
+        return this;
+    }
+
+    remove(): this {
+        this.itemPicker.$('select').select2('destroy');
+        super.remove();
         return this;
     }
 
