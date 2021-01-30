@@ -224,8 +224,8 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         if (this.itemEditor) {
             this.itemEditor.remove();
             delete this.itemEditor;
+            this.setItem();
         }
-        this.setItem();
         return this;
     }
 
