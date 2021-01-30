@@ -246,7 +246,8 @@ export function createPlaceholderAnnotation(source, range?, positionDetails?) {
         '@id': _.uniqueId('_:'),
         '@type': oa.Annotation,
         [oa.hasTarget]: specificResource,
-        [oa.hasBody]: [placeholderClass]
+        [oa.hasBody]: [placeholderClass],
+        [as.generator]: {'@id': vocab('self')},
     });
 }
 
