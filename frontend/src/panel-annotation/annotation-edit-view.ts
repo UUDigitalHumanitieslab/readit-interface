@@ -202,6 +202,13 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         this.setItem(item);
         this.itemEditor = new ItemEditor({model: item});
         this.$('.item-picker-container').after(this.itemEditor.el);
+        // Prevent a spurious `this.propagateItem()`, which would immediately
+        // remove the `itemEditor` again. This is a corner case that happens if
+        // the annotation started out complete but itemless and this is the
+        // first time that we're opening an `itemEditor` in the current panel.
+        this.stopListening(this.model, 'change:item');
+        // Note that we still listen for the general 'change' event, as we
+        // should!
         return this;
     }
 
