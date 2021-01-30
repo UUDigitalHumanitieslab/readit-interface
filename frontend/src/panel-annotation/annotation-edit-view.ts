@@ -46,6 +46,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     itemPicker: PickerView;
     itemOptions: ItemGraph;
     itemEditor: ItemEditor;
+    originalBodies: Node[];
 
     initialize() {
         this.itemOptions = new ItemGraph();
@@ -66,6 +67,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     processAnnotation(model: FlatItem, annotation: Node): void {
+        this.originalBodies = annotation.get(oa.hasBody) as Node[];
         this.metadataView = new ItemMetadataView({ model: annotation });
         this.metadataView.render();
         this.on('announceRoute', announce);
@@ -141,6 +143,13 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     reset(): this {
+        const annotation = this.model.get('annotation');
+        if (annotation) {
+            annotation.unset(oa.hasBody);
+            if (this.originalBodies) {
+                annotation.set(oa.hasBody, this.originalBodies);
+            }
+        }
         this.trigger('reset');
         return this;
     }
