@@ -203,3 +203,11 @@ export function getOntology(callback): void {
         /*error*/ callback
     );
 }
+
+/**
+ * Shorthand version of ldChannel.request('obtain') that can be used as a
+ * callback.
+ */
+export function obtain(id) {
+    return ldChannel.request('obtain', id);
+}

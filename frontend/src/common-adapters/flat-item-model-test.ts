@@ -124,18 +124,24 @@ describe('FlatItem', function() {
             '@type': ontologyClass.id,
             [skos.prefLabel]: {'@value': 'The slacker in Bohemia'},
         });
-        items.annotation.unset(oa.hasBody, items.item, {silent: true});
+        items.annotation.unset(oa.hasBody, items.item);
+        expect(flatAnno.has('item')).toBeFalsy();
         items.annotation.set(oa.hasBody, replacementItem);
-        await event(flatAnno, 'change');
+        await Promise.all([
+            event(flatAnno, 'change:label'), event(flatAnno, 'change:cssClass')
+        ]);
         expect(flatAnno.get('label')).toBe('The slacker in Bohemia');
         expect(flatAnno.get('item')).toBe(replacementItem);
         expect(flatAnno.get('cssClass')).toBe(expectedFlatAttributes.cssClass);
         expect(flatAnno.get('class')).toBe(ontologyClass);
 
         const replacementClass = new Node(readerClass);
-        items.annotation.unset(oa.hasBody, ontologyClass, {silent: true});
+        items.annotation.unset(oa.hasBody, ontologyClass);
+        expect(flatAnno.has('class')).toBeFalsy();
         items.annotation.set(oa.hasBody, replacementClass);
-        await event(flatAnno, 'change');
+        await Promise.all([
+            event(flatAnno, 'change:label'), event(flatAnno, 'change:cssClass')
+        ]);
         expect(flatAnno.get('label')).toBe('The slacker in Bohemia');
         expect(flatAnno.get('item')).toBe(replacementItem);
         expect(flatAnno.get('cssClass')).toBe('is-readit-reader');

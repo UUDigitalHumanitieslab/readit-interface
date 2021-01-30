@@ -1,4 +1,5 @@
-import { noop, each, includes } from 'lodash';
+import { noop, each, includes, zipObject } from 'lodash';
+import { ModelSetOptions } from 'backbone';
 
 import Model from '../core/model';
 import ldChannel from '../common-rdf/radio';
@@ -25,6 +26,14 @@ const F_SOURCE   = 1 << 3;
 const F_POS      = 1 << 4;
 const F_TEXT     = 1 << 5;
 const F_COMPLETE = F_ID | F_CSSCLASS | F_LABEL | F_SOURCE | F_POS | F_TEXT;
+
+/**
+ * The following constants are used in `updateBodies`.
+ */
+const bodyAttributes = zipObject([
+    'class', 'classLabel', 'cssClass', 'item', 'label'
+]);  // { class: undefined, classLabel: undefined, ... }
+const unsetFlag = {unset: true} as ModelSetOptions; // TODO: fix @types/backbone
 
 /**
  * Adapter that transforms a `Node` representing an `oa.Annotation`s into a
@@ -150,6 +159,9 @@ export default class FlatItem extends Model {
      */
     updateBodies(annotation: Node): void {
         const bodies = annotation.get(oa.hasBody) as Node[];
+        // The body attributes might no longer be valid, so we unset them.
+        this.set(bodyAttributes, unsetFlag);
+        // If they were still valid, they will be reset by the next line.
         each(bodies, body => body.when('@type', this.receiveBody, this));
         // An annotation can be complete without an item or even a class.
         if (bodies) {
