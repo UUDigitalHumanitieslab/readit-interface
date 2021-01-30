@@ -11,6 +11,8 @@
     </header>
 </div>
 <div class="panel-content">
+
+    {{#if itemSerial }}
     <section class="item-sections">
         <article class="item-section">
             <div class="item-section-header">
@@ -34,11 +36,12 @@
             </table>
         </article>
     </section>
+    {{/if}}
 
     <section class="metadataContainer"></section>
 
+    {{#if itemSerial }}
     <section class="item-sections">
-        {{#if itemSerial }}
         <article class="item-section has-mt-10">
             <div class="item-section-header" id="btnRelItems">
                 <p>Related items</p>
@@ -70,8 +73,9 @@
                 </span>
             </div>
         </article>
-        {{/if}}
     </section>
+    {{/if}}
+
 </div>
 {{#if annotationSerial }}
 <div class="panel-footer">
