@@ -128,10 +128,12 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             this.model,
             (error, results) => {
                 if (error) return console.debug(error);
-                // const anno = results.annotation;
-                // this.collection.underlying.add(anno);
-                // const flat = this.collection.get(anno.id);
-                explorerChannel.trigger('annotationEditView:saveNew', this, this.model, results.items);
+                explorerChannel.trigger(
+                    'annotationEditView:saveNew',
+                    this,
+                    this.model,
+                    results.items,
+                );
             }
         );
     }

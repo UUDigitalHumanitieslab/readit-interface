@@ -198,10 +198,7 @@ class ExplorerEventController {
     }
 
     saveNewAnnotation(editView: AnnoEditView, annotation: FlatItem, created: ItemGraph): void {
-        this.explorerView.removeOverlay(editView);
-        editView.collection.once('sort', () => {
-            annotation.trigger('focus', annotation);
-        });
+        annotation.trigger('focus', annotation);
         // TODO: re-enable the next line.
         // this.autoOpenRelationEditor(annotation.get('annotation'));
     }
