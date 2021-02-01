@@ -154,6 +154,17 @@ describe('Node', function() {
             this.node.unset('a', [2, 5, 7]);
             expect(this.node.get('a')).toEqual([1, 3, 4]);
         });
+
+        it('triggers a change event', function() {
+            this.node.set('a', [1, 2, 3, 4, 5]);
+            const spy = jasmine.createSpy();
+            this.node.on('change', spy);
+            expect(spy).not.toHaveBeenCalled();
+            this.node.unset('a', [2, 5, 7]);
+            expect(spy).toHaveBeenCalledTimes(1);
+            this.node.unset('a');
+            expect(spy).toHaveBeenCalledTimes(2);
+        });
     });
 
     describe('get', function() {

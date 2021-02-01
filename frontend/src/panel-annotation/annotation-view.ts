@@ -4,16 +4,17 @@ import { CompositeView } from '../core/view';
 import Node, { isNode } from '../common-rdf/node';
 import { owl, dcterms, rdfs } from '../common-rdf/ns';
 import FlatItem from '../common-adapters/flat-item-model';
+import FlatCollection from '../common-adapters/flat-annotation-collection';
 import explorerChannel from '../explorer/explorer-radio';
-import { announceRoute } from '../explorer/utilities';
 import { getLabelText } from '../utilities/annotation-utilities';
 import LabelView from '../label/label-view';
 import ItemMetadataView from '../item-metadata/item-metadata-view';
 import { getLabelFromId } from '../utilities/linked-data-utilities';
 
+import { announceRoute } from './utilities';
 import annotationTemplate from './annotation-template';
 
-const announce = announceRoute('item', ['model', 'id']);
+const announce = announceRoute(false);
 
 const excludedProperties = [
     '@id',
@@ -26,12 +27,15 @@ const excludedProperties = [
 ];
 
 export default class AnnotationView extends CompositeView<FlatItem> {
+    collection: FlatCollection;
     lblView: LabelView;
     itemMetadataView: ItemMetadataView;
     annotationMetadataView: ItemMetadataView;
 
     label: string;
     properties: any;
+    annotationSerial: string;
+    itemSerial: string;
 
     initialize() {
         this.properties = {};
@@ -47,17 +51,17 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     processAnnotation(model: FlatItem, annotation: Node): void {
-        const itemMetaView = this.annotationMetadataView;
-        if (itemMetaView) itemMetaView.remove();
-        if (annotation) this.annotationMetadataView = new ItemMetadataView({
-            model: annotation,
-            title: 'Annotation metadata'
-        }).render();
+        this.dispose('annotationMetadataView');
+        if (annotation) {
+            this.annotationMetadataView = new ItemMetadataView({
+                model: annotation,
+                title: 'Annotation metadata'
+            }).render();
+        }
     }
 
     processClass(model: FlatItem, cls: Node): void {
-        const label = this.lblView;
-        if (label) label.remove();
+        this.dispose('lblView');
         if (cls) this.lblView = new LabelView({
             model: cls,
             toolTipSetting: 'left'
@@ -65,9 +69,8 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     processItem(model: FlatItem, item: Node): void {
-        const itemMetaView = this.itemMetadataView;
+        this.dispose('itemMetadataView');
         const previousItem = model.previous('item');
-        if (itemMetaView) itemMetaView.remove();
         if (previousItem) this.stopListening(previousItem);
         if (item) {
             this.itemMetadataView = new ItemMetadataView({
@@ -101,6 +104,10 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     renderContainer(): this {
+        const annotation = this.model.get('annotation');
+        const item = this.model.get('item');
+        this.annotationSerial = annotation && getLabelFromId(annotation.id);
+        this.itemSerial = item && getLabelFromId(item.id);
         this.$el.html(this.template(this));
         return this;
     }
@@ -134,10 +141,10 @@ extend(AnnotationView.prototype, {
         selector: 'header aside',
     }, {
         view: 'itemMetadataView',
-        selector: '.itemMetadataContainer',
+        selector: '.metadataContainer',
     }, {
         view: 'annotationMetadataView',
-        selector: '.annotationMetadataContainer',
+        selector: '.metadataContainer',
     }],
     events: {
         'click #btnRelItems': 'onRelItemsClicked',

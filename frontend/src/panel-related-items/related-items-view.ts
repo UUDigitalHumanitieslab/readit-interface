@@ -8,7 +8,7 @@ import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
-import { getLabel } from '../utilities/linked-data-utilities';
+import { getLabel, getLabelFromId } from '../utilities/linked-data-utilities';
 
 import relatedItemsTemplate from './related-items-template';
 import RelatedItemsRelationView from './related-items-relation-view';
@@ -27,6 +27,7 @@ export interface ViewOptions extends BaseOpt {
 export default class RelatedItemsView extends CollectionView {
     model: Node;
     predicates: Graph;
+    itemSerial: string;
 
     constructor(options?: ViewOptions) {
         super(options);
@@ -71,6 +72,7 @@ export default class RelatedItemsView extends CollectionView {
     }
 
     renderContainer(): this {
+        this.itemSerial = getLabelFromId(this.model.id);
         this.$el.html(this.template(this));
         return this;
     }

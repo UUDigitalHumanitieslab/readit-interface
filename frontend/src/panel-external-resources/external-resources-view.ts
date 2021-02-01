@@ -1,16 +1,13 @@
-import { ViewOptions as BaseOpt } from 'backbone';
-import { extend } from 'lodash';
-import View from '../core/view';
-import Node from '../common-rdf/node';
-import ldChannel from '../common-rdf/radio';
+import { extend, map } from 'lodash';
+
+import { CompositeView } from '../core/view';
+import Node, { isNode } from '../common-rdf/node';
+import { rdfs, owl } from '../common-rdf/ns';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
+import { getLabelFromId } from '../utilities/linked-data-utilities';
 
 import externalResourcesTemplate from './external-resources-template';
-
-import { rdfs, owl } from '../common-rdf/ns';
-import { getLabelFromId } from '../utilities/linked-data-utilities';
-import ItemSummaryBlockView from '../item-summary-block/item-summary-block-view';
 
 const externalAttributes = [
     rdfs.seeAlso,
@@ -19,45 +16,28 @@ const externalAttributes = [
 
 const announce = announceRoute('item:external', ['model', 'id']);
 
-export interface ViewOptions extends BaseOpt<Node> {
-    model: Node;
-}
-
-export default class ExternalResourcesView extends View<Node> {
-    externalResources: {label: string, urls: string[]}[];
-    filteredNode: Node;
-    /**
-     * Keep track of the currently highlighted summary block
-     */
-    currentlyHighlighted: ItemSummaryBlockView;
-
-    constructor(options?: ViewOptions) {
-        super(options);
-    }
-
-    initialize(): this {
-        this.displayResources();
-        this.model.on('change', this.displayResources, this);
+export default class ExternalResourcesView extends CompositeView<Node> {
+    initialize() {
+        this.render().listenTo(this.model, 'change', this.render);
         this.on('announceRoute', announce);
-        return this;
     }
 
-    render(): this {
-        this.$el.html(this.template(this));
-        return this;
-    }
-
-    displayResources(): this {
-        this.externalResources = externalAttributes.map( attribute => {
-            if (this.model.get(attribute) === undefined) {
-                return;
-            }
+    renderContainer(): this {
+        const model = this.model;
+        const externalResources = map(externalAttributes, attribute => {
+            if (!model.has(attribute)) return;
             return {
                 label: getLabelFromId(attribute),
-                urls: this.model.get(attribute) as string[]
+                urls: map(
+                    model.get(attribute),
+                    url => isNode(url) ? url.id : url
+                ),
             }
         });
-        this.render();
+        this.$el.html(this.template({
+            externalResources,
+            itemSerial: getLabelFromId(model.id),
+        }));
         return this;
     }
 
@@ -65,10 +45,11 @@ export default class ExternalResourcesView extends View<Node> {
         explorerChannel.trigger('externalItems:edit', this);
     }
 }
+
 extend(ExternalResourcesView.prototype, {
-    tagName: 'div',
     className: 'related-items explorer-panel',
     template: externalResourcesTemplate,
+    subviews: [],
     events: {
         'click .btn-edit': 'onEditButtonClicked',
     },

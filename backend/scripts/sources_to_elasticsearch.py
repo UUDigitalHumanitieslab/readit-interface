@@ -73,7 +73,7 @@ def title_author_to_index():
     })
     subjects = set(sg.subjects())
     for s in subjects:
-        author = sg.value(s, SCHEMA.creator)
+        author = sg.value(s, SCHEMA.author)
         title = sg.value(s, SCHEMA.name)
         serial = get_serial_from_subject(s)
         document = es.search(body={

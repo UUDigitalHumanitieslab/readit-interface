@@ -22,11 +22,10 @@ export function getLabel(node: Node): string {
  * @param id the string representing the id of a linked data item.
  */
 export function getLabelFromId(id: string) {
-    let result;
+    if (!isString(id)) return;
     let index = id.lastIndexOf("#");
     if (index === -1) index = id.lastIndexOf("/");
-    if (index) result = id.substring(index + 1);
-    return result;
+    return id.substring(index + 1);
 }
 
 /**
@@ -203,4 +202,12 @@ export function getOntology(callback): void {
         },
         /*error*/ callback
     );
+}
+
+/**
+ * Shorthand version of ldChannel.request('obtain') that can be used as a
+ * callback.
+ */
+export function obtain(id) {
+    return ldChannel.request('obtain', id);
 }

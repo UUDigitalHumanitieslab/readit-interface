@@ -49,8 +49,10 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
     }
 
     _hideLoadingSpinner(): void {
-        this.loadingSpinnerView.remove();
-        delete this.loadingSpinnerView;
+        if (this.loadingSpinnerView) {
+            this.loadingSpinnerView.remove();
+            delete this.loadingSpinnerView;
+        }
         this.placeItems();
     }
 

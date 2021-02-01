@@ -4,7 +4,11 @@ import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
 import { FlatLdObject } from '../common-rdf/json';
 import { rdfs, skos, schema } from '../common-rdf/ns';
+import { placeholderClass }  from '../utilities/annotation-utilities';
+
 import CategoryColorsView from './category-colors-view';
+
+const placeholderStyle = `.is-readit-selection{background-color:${placeholderClass.get(schema.color)[0]}!important;}.hide-is-readit-selection.is-readit-selection,.hide-rit-any:not(.unhide-is-readit-selection).is-readit-selection{display:none!important;}`;
 
 function getDefaultNode(): Node {
     return new Node(getDefaultAttributes());
@@ -36,13 +40,15 @@ describe('CategoryColorsView', function() {
         this.view = new CategoryColorsView({ collection: graph });
     });
 
-    it('parses graphs into cssClass and color', function() {
+    it('parses graphs into cssClass and color, appending the placeholder', function() {
         let expected = {
             class: 'is-readit-content',
             color: 'hotpink'
         };
 
-        expect(this.view.collectColors()[0]).toEqual(expected);
+        const colors = this.view.collectColors();
+        expect(colors.length).toBe(2);
+        expect(colors[0]).toEqual(expected);
     });
 
     it('renders a HTML style tag with some CSS in it', function() {
@@ -51,7 +57,7 @@ describe('CategoryColorsView', function() {
         let html = this.view.$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
 
-        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}');
+        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}' + placeholderStyle);
     });
 
     it('renders a style tag with multiple CSS classes in it', function() {
@@ -69,7 +75,7 @@ describe('CategoryColorsView', function() {
         let html = view.$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
 
-        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}');
+        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}' + placeholderStyle);
     });
 
     it('excludes linked data items that are irrelevant', function() {
@@ -87,20 +93,22 @@ describe('CategoryColorsView', function() {
         let html = view.$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
 
-        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}.is-readit-test2{background-color:aliceblue!important;}.hide-is-readit-test2.is-readit-test2,.hide-rit-any:not(.unhide-is-readit-test2).is-readit-test2{display:none!important;}');
+        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}.is-readit-test2{background-color:aliceblue!important;}.hide-is-readit-test2.is-readit-test2,.hide-rit-any:not(.unhide-is-readit-test2).is-readit-test2{display:none!important;}' + placeholderStyle);
     });
 
     it('is self-rendering and self-updating', function() {
-        const originalHTML = this.view.$el.html();
+        const originalHTML = replaceNewLinesAndWhitespace(this.view.$el.html());
         expect(originalHTML.length).toBeGreaterThan(0);
 
         const newClass = getDefaultAttributes();
         newClass['@id'] = '2';
         newClass[skos.prefLabel][0]['@value'] = 'giraffe';
         this.view.collection.add(newClass);
-        const newHTML = this.view.$el.html();
-        expect(newHTML.length).toBe(originalHTML.length * 2);
-        expect(newHTML).toContain(originalHTML);
+        const newHTML = replaceNewLinesAndWhitespace(this.view.$el.html());
+        expect(newHTML.length).toBeGreaterThan(originalHTML.length);
+        const originalPrefix = originalHTML.slice(0, -placeholderStyle.length);
+        expect(newHTML).toContain(originalPrefix);
+        expect(newHTML).toContain(placeholderStyle);
     });
 
     function replaceNewLinesAndWhitespace(text: string) {
