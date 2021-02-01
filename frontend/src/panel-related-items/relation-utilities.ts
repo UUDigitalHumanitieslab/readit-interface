@@ -1,12 +1,12 @@
 import { forEach, some, keys, ListIterator } from 'lodash';
 
 import Collection from '../core/collection';
-import ldChannel from '../jsonld/radio';
-import { rdfs, owl, item } from '../jsonld/ns';
-import Graph from '../jsonld/graph';
-import Node from '../jsonld/node';
-import ItemGraph from '../utilities/item-graph';
-import { getLabel, getRdfSuperClasses } from '../utilities/utilities';
+import ldChannel from '../common-rdf/radio';
+import { rdfs, owl, item } from '../common-rdf/ns';
+import Graph from '../common-rdf/graph';
+import Node from '../common-rdf/node';
+import ItemGraph from '../common-adapters/item-graph';
+import { getLabel, getRdfSuperClasses } from '../utilities/linked-data-utilities';
 
 /**
  * Returns the inverse property of `direct` within the context of `ontology`.

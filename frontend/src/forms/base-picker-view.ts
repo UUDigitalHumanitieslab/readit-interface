@@ -6,10 +6,11 @@ import {
     ViewOptions as BViewOptions,
 } from 'backbone';
 
+
 import View, { CollectionView } from '../core/view';
-import Node from '../jsonld/node';
-import Graph from '../jsonld/graph';
-import { getLabel } from '../utilities/utilities';
+import Node from '../common-rdf/node';
+import Graph from '../common-rdf/graph';
+import { getLabel } from '../utilities/linked-data-utilities';
 import pickerTemplate from './base-picker-template';
 
 export interface PickerOptionOptions extends BViewOptions<Node> {

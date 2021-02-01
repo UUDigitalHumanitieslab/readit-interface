@@ -1,0 +1,84 @@
+<div class="panel-header">
+    <header>
+        <p class="title is-3">Edit Annotation</p>
+        <p class="subtitle is-7">(Find more info on what and how to annotate in
+            <a class="is-link" href="http://dhstatic.hum.uu.nl/readit/AnnotationGuide.pdf" target="_blank">the
+                Annotation Guide</a>)
+        </p>
+    </header>
+</div>
+<form class="anno-edit-form panel-form">
+    <div class="panel-content">
+        <div class="snippet-container">
+            {{! Snippet inserted here }}
+        </div>
+
+        <fieldset>
+            <div class="field">
+                <label class="label"></label>
+                <div class="control ontology-class-picker-container">
+                    {{! Ontology class picker is inserted here }}
+                </div>
+                {{! Fake input to utilize jquery validation on Bulma dropdown}}
+                <input class="hidden-input" type="text" id="{{cid}}-contology" required>
+            </div>
+        </fieldset>
+
+        <fieldset class="item-picker-container is-hidden">
+            <div class="field">
+                <label class="label">Which one?</label>
+                <div class="control">
+                    {{! Item picker will be inserted here }}
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label" for="{{cid}}-new-item">
+                    Doesn&rsquo;t exist yet?
+                </label>
+                <div class="control">
+                    <button type=button class="button" id="{{cid}}-new-item">
+                        Create new
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+        {{! Item editing form will be inserted here }}
+
+        <div class="metadata-container">
+            {{! metadata view inserted here}}
+        </div>
+        {{! Code below first implentation of a button to add related items.
+            Commented out for version 0.1.0 (i.e. Utrecht 2019 presentation), but might be useful in the future }}
+        {{!-- <section class="item-sections">
+            <article class="item-section has-mt-10">
+                <div class="item-section-header">
+                    <p>Add Related item</p>
+                    <span class="btn-rel-item icon is-large has-text-primary tooltip is-tooltip-left"
+                        data-tooltip="Add related item">
+                        <i class="fas fa-arrow-circle-right"></i>
+                    </span>
+                </div>
+            </article>
+        </section> --}}
+    </div>
+    <div class="panel-footer">
+        <nav class="level is-mobile">
+            <div class="level-left">
+                <div class="level-item">
+                    <button class="button btn-save submit" type=submit>Save</button>
+                </div>
+                <div class="level-item">
+                    <button type=reset class="button btn-cancel is-primary">Cancel</button>
+                </div>
+            </div>
+            <div class="level-right">
+                <div class="level-item">
+                    {{#userIsOwner}}<button type=button class="button is-danger">
+                        Delete
+                    </button>{{/userIsOwner}}
+                </div>
+            </div>
+        </nav>
+    </div>
+</form>

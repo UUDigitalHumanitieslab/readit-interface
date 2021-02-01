@@ -4,11 +4,11 @@ import { $, ViewOptions as BViewOptions } from 'backbone';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
-import FlatItem from '../annotation/flat-item-model';
-import FlatCollection from '../annotation/flat-annotation-collection';
+import FlatItem from '../common-adapters/flat-item-model';
+import FlatCollection from '../common-adapters/flat-annotation-collection';
 import SegmentModel from './text-segment-model';
 import LineSegment from './line-segment-view';
-import ToggleMixin from '../utilities/category-colors/category-toggle-mixin';
+import ToggleMixin from '../category-colors/category-toggle-mixin';
 import { getRange } from '../utilities/range-utilities';
 
 // Required options for TextSegmentView.
@@ -65,14 +65,17 @@ class TextSegmentView extends CollectionView<SegmentModel, LineSegment> {
      * and emphasize this segment with a border and greater opacity.
      */
     focus(annotation: FlatItem): void {
-        this.toggleCategories([annotation.get('cssClass')]);
+        annotation.whenever(
+            'cssClass', (a, cls) => this.toggleCategories([cls]), this
+        );
         this.$el.addClass('is-selected');
     }
 
     /**
      * Undo the effect of `focus`.
      */
-    blur(): void {
+    blur(annotation: FlatItem): void {
+        this.stopListening(annotation, 'change:cssClass');
         this.toggleCategories().$el.removeClass('is-selected');
     }
 

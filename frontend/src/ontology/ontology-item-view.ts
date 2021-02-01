@@ -1,7 +1,7 @@
 
 import { extend } from 'lodash';
 
-import LabelView from './label-view';
+import LabelView from '../label/label-view';
 
 export default class OntologyItemView extends LabelView {
 
