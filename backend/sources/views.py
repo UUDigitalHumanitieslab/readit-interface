@@ -171,6 +171,8 @@ class SourceHighlights(RDFView):
     '''
     def get_graph(self, request, **kwargs):
         query = request.GET.get('query')
+        if query == '':
+            query = '*'
         fields = request.GET.get('fields')
         source = request.GET.get('source')
         if not query or not source:
