@@ -1,7 +1,8 @@
 import { extend } from 'lodash';
+import { apiRoot } from 'config.json';
+
 import View from './../core/view';
 import Model from './../core/model';
-
 import feedbackTemplate from './feedback-template';
 
 export default class FeedbackView extends View {
@@ -71,6 +72,7 @@ export default class FeedbackView extends View {
         return this.trigger('close');
     }
 }
+
 extend(FeedbackView.prototype, {
     tagName: 'section',
     className: 'modal is-active',
@@ -78,7 +80,7 @@ extend(FeedbackView.prototype, {
     events: {
         submit: 'submit',
         'click .modal-close': 'close',
-        'click .btn-close': 'close'
+        'click .btn-close': 'close',
     },
-    feedbackUrl: 'api/feedback/'
+    feedbackUrl: `${apiRoot}feedback/`,
 });
