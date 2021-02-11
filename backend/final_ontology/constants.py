@@ -10,11 +10,11 @@ FINAL_ONTOLOGY_NS = '{}{}#'.format(
 # This is hardcoded, i.e., not a setting, because migrations depend
 # on the exact contents.
 SOURCE = op.join(settings.BASE_DIR, 'final_ontology',
-                 'mock-ontology-final.jsonld')
+                 'namespace_READIT_ongoing.jsonld')
 
 # Format must be a string that rdflib recognizes.
 SOURCE_FORMAT = 'json-ld'
 
 # Namespace prefix that is used in the source. If different from
 # ONTOLOGY_NS, this needs to be replaced.
-SOURCE_PREFIX = 'http://readit.example/final-ontology/'
+SOURCE_PREFIX = 'http://dataforhistory.org/read-it-ongoing/'
