@@ -7,7 +7,7 @@ import { source1instance } from '../mock-data/mock-sources';
 
 import ldChannel from '../common-rdf/radio';
 import { item, dcterms } from '../common-rdf/ns';
-import Node from '../common-rdf/Node';
+import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import FlatItem from '../common-adapters/flat-item-model';
 import {
