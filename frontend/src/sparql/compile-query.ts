@@ -1,5 +1,5 @@
 import user from '../global/user';
-import ldChannel from '../jsonld/radio';
+import ldChannel from '../common-rdf/radio';
 import annotationsTemplate from './query-templates/annotations-for-source-template';
 import itemsTemplate from './query-templates/items-for-source-template';
 

@@ -8,6 +8,7 @@ import ExplorerView from './explorer-view';
 import AnnotationView from '../panel-annotation/annotation-view';
 import ldChannel from '../common-rdf/radio';
 import Graph from '../common-rdf/graph';
+import { asURI } from '../utilities/linked-data-utilities';
 import SourceView from '../panel-source/source-view';
 import AnnotationListPanel from '../panel-annotation-list/annotation-list-panel';
 import SuggestionsView from '../panel-suggestions/suggestions-view';
@@ -30,6 +31,7 @@ import {
     isType,
     isOntologyClass,
 } from '../utilities/linked-data-utilities';
+import { itemsForSourceQuery } from '../sparql/compile-query';
 
 
 export default class ExplorerEventController {
