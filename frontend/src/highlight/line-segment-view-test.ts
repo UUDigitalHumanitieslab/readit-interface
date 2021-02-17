@@ -5,8 +5,8 @@ import mockOntology from '../mock-data/mock-ontology';
 import mockItems from '../mock-data/mock-items';
 
 import Model from '../core/model';
-import Graph from '../jsonld/graph';
-import FlatCollection from '../annotation/flat-annotation-collection';
+import Graph from '../common-rdf/graph';
+import FlatCollection from '../common-adapters/flat-annotation-collection';
 import LineSegment from './line-segment-view';
 
 const positioning = {

@@ -1,4 +1,4 @@
-import explorerChannel from './radio';
+import explorerChannel from './explorer-radio';
 import { announceRoute } from './utilities';
 
 describe('explorer utilities', function() {

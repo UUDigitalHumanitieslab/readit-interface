@@ -1,7 +1,7 @@
 import { get } from 'lodash';
 
-import { getLabelFromId } from '../utilities/utilities';
-import explorerChannel from './radio';
+import { getLabelFromId } from '../utilities/linked-data-utilities';
+import explorerChannel from './explorer-radio';
 import routePatterns from './route-patterns';
 
 /**

@@ -1,9 +1,9 @@
 import { extend } from 'lodash';
 
 import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
-import Node from '../jsonld/node';
-import Graph from '../jsonld/graph';
-import ItemSummaryBlockView from '../utilities/item-summary-block/item-summary-block-view';
+import Node from '../common-rdf/node';
+import Graph from '../common-rdf/graph';
+import ItemSummaryBlockView from '../item-summary-block/item-summary-block-view';
 
 import relatedItemsRelationTemplate from './related-items-relation-template';
 
