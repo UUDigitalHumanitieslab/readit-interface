@@ -68,6 +68,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         this.model.when('class', (model, cls) => this.selectClass(cls));
         bindAll(this, 'propagateItem');
         this.model.when('item', this.propagateItem, this);
+        this.render();
     }
 
     processAnnotation(model: FlatItem, annotation: Node): void {
