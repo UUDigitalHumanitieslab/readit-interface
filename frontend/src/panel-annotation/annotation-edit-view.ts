@@ -47,6 +47,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     itemOptions: ItemGraph;
     itemEditor: ItemEditor;
     originalBodies: Node[];
+    validator: JQueryValidation.Validator;
 
     initialize() {
         this.itemOptions = new ItemGraph();
@@ -83,10 +84,11 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     renderContainer(): this {
+        if (this.validator) this.validator.destroy();
         this.$el.html(this.template(this));
         this.selectClass(this.model.get('class'));
 
-        this.$(".anno-edit-form").validate({
+        this.validator = this.$(".anno-edit-form").validate({
             errorClass: "help is-danger",
             ignore: "",
         });
@@ -94,6 +96,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     remove(): this {
+        if (this.validator) this.validator.destroy();
         this.itemPicker.$('select').select2('destroy');
         super.remove();
         return this;
