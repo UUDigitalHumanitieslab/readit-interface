@@ -283,7 +283,6 @@ export default class ExplorerEventController {
  * specified source.
  */
 export function getItems(source: Node, callback): ItemGraph {
-    const items = new ItemGraph();
     const sparqlItems = new ItemGraph();
     const queryString = itemsForSourceQuery(asURI(source), {});
     sparqlItems.sparqlQuery(queryString).then(
@@ -292,14 +291,7 @@ export function getItems(source: Node, callback): ItemGraph {
         },
         /*error*/ callback
     );
-
-    items.query({ object: source, traverse: 1, revTraverse: 1 }).then(
-        function success() {
-            callback(null, items);
-        },
-        /*error*/ callback
-    );
-    return items;
+    return sparqlItems;
 }
 
 /**
