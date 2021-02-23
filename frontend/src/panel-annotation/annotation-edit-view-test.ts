@@ -36,6 +36,7 @@ describe('AnnotationEditView', function() {
         this.sources = new Graph([source1instance]);
         this.items = new Graph(mockItems);
         this.flatAnnotations = new FlatCollection(this.items);
+        this.flat = this.flatAnnotations.get(item('100'));
     });
 
     afterEach(function() {
@@ -59,12 +60,12 @@ describe('AnnotationEditView', function() {
 
     it('can be constructed with a pre-existing annotation', function() {
         expect(() => new AnnotationEditView({
-            model: this.flatAnnotations.get(item('100')),
+            model: this.flat,
         })).not.toThrow();
     });
 
     it('displays a delete button if the current user created the annotation', async function() {
-        const flat = this.flatAnnotations.get(item('100'));
+        const flat = this.flat;
         const creator = flat.get('creator') as Node;
         ldChannel.reply('current-user-uri', constant(creator.id));
         const view = new AnnotationEditView({ model: flat });
@@ -76,7 +77,7 @@ describe('AnnotationEditView', function() {
     });
 
     it('does not display a delete button otherwise', async function() {
-        const flat = this.flatAnnotations.get(item('100'));
+        const flat = this.flat;
         const view = new AnnotationEditView({ model: flat });
         await modelHasAttribute(flat, 'text');
         view.render();
