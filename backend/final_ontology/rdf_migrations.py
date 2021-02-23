@@ -12,7 +12,3 @@ class Migration(RDFMigration):
 
     def desired(self):
         return canonical_graph()
-
-    @on_add(NEW.readP17)
-    def replace_environment(self, actual, conjunctive):
-        delete_subjects(conjunctive, (NEW.readP17, None, None))

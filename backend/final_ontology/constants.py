@@ -10,10 +10,10 @@ FINAL_ONTOLOGY_NS = '{}{}#'.format(
 # This is hardcoded, i.e., not a setting, because migrations depend
 # on the exact contents.
 SOURCE = op.join(settings.BASE_DIR, 'final_ontology',
-                 'namespace_READIT_ongoing.jsonld')
+                 'REO_2.0.1.owl')
 
 # Format must be a string that rdflib recognizes.
-SOURCE_FORMAT = 'json-ld'
+SOURCE_FORMAT = 'application/rdf+xml'
 
 # Namespace prefix that is used in the source. If different from
 # ONTOLOGY_NS, this needs to be replaced.
