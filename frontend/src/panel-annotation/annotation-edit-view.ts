@@ -12,7 +12,6 @@ import PickerView from '../forms/base-picker-view';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import ItemGraph from '../common-adapters/item-graph';
 import ClassPickerView from '../forms/ontology-class-picker-view';
-import ItemMetadataView from '../item-metadata/item-metadata-view';
 import SnippetView from '../snippet/snippet-view';
 import { isRdfsClass, isBlank } from '../utilities/linked-data-utilities';
 import { placeholderClass } from '../utilities/annotation-utilities';
@@ -39,7 +38,6 @@ const announce = announceRoute(true);
 
 export default class AnnotationEditView extends CompositeView<FlatItem> {
     collection: FlatCollection;
-    metadataView: ItemMetadataView;
     classPicker: ClassPickerView;
     snippetView: SnippetView;
     userIsOwner: boolean;
@@ -74,8 +72,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
 
     processAnnotation(model: FlatItem, annotation: Node): void {
         this.originalBodies = annotation.get(oa.hasBody) as Node[];
-        this.metadataView = new ItemMetadataView({ model: annotation });
-        this.metadataView.render();
         this.on('announceRoute', announce);
         const creator = model.get('creator') as Node;
         const currentUser = ldChannel.request('current-user-uri');
@@ -302,9 +298,6 @@ extend(AnnotationEditView.prototype, {
     }, {
         view: 'snippetView',
         selector: '.snippet-container',
-    }, {
-        view: 'metadataView',
-        selector: '.metadata-container',
     }, {
         view: 'itemEditor',
         selector: '.item-picker-container',
