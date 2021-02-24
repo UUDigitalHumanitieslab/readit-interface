@@ -1,5 +1,9 @@
 from datetime import datetime, timezone
+from io import BytesIO
 
+from django.http import FileResponse
+
+from rest_framework.decorators import api_view, renderer_classes 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import *
@@ -176,6 +180,22 @@ class ItemsAPIRoot(RDFView):
         children = traverse_forward(full_graph, core, t)
         parents = traverse_backward(full_graph, core, r)
         return parents | core | children
+
+    def get(self, request, format=None, **kwargs):
+        data = self.get_graph(request, **kwargs)
+        params = request.query_params
+        if params.get('download'):
+            file_content = data.serialize()
+            with open('export.xml', 'wb') as f:
+                f.write(file_content)
+            response = FileResponse(open('export.xml', 'rb'))
+            response['Content-Type'] = 'application/rdf+xml'
+            response['filename'] = 'export.html'
+            response['Content-Disposition'] ='attachment'
+            response['Content-Length'] = len(file_content)
+            return response
+        #         #return Response(f.read(), headers={'Content-Disposition': 'attachment; filename="export.txt"'})
+        return Response(data)
 
     def post(self, request, format=None):
         data = graph_from_request(request)
