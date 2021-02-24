@@ -194,7 +194,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         const item = this.model.get('item');
         if (!item) return;
         this.itemPicker.val(item.id);
-        this.itemPicker.$el.trigger('change');
     }
 
     selectItem(itemPicker: PickerView, id: string): void {
