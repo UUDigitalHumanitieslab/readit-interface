@@ -2,6 +2,8 @@ import { extend } from 'lodash';
 
 import View from '../core/view';
 import ldChannel from '../common-rdf/radio';
+import { dcterms }  from '../common-rdf/ns';
+import Node from '../common-rdf/node';
 import { getLabel, getLabelFromId } from '../utilities/linked-data-utilities';
 import explorerChannel from '../explorer/explorer-radio';
 
@@ -26,8 +28,14 @@ export default class MetadataView extends View {
      * Class to show source's metadata
      */
     properties: any;
+    userIsOwner: boolean;
 
     initialize(): this {
+        const creators = this.model.get(dcterms.creator) as Node[];
+        if (creators && creators.length) {
+            const userUri = ldChannel.request('current-user-uri');
+            this.userIsOwner = (creators[0].id === userUri);
+        }
         this.properties = {};
         this.formatAttributes();
         this.render();
@@ -54,7 +62,7 @@ export default class MetadataView extends View {
             if (externalAttributes.includes(attributeLabel)) {
                 const nodeFromUri = ldChannel.request('obtain', value.id);
                 value = getLabel(nodeFromUri);
-            }          
+            }
             this.properties[attributeLabel] = value;
         }
             return this;
