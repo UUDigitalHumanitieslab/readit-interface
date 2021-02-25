@@ -16,6 +16,7 @@ const excludedProperties = [
 
 const excludedAttributes = [
     'fullText',
+    'text',
     'sameAs'
 ]
 
