@@ -1,6 +1,6 @@
 import { extend } from 'lodash';
 
-import { baseUrl } from 'config.json';
+import { baseUrl } from '../../config.json';
 
 import explorerChannel from '../explorer/explorer-radio';
 import FlatItem from '../common-adapters/flat-item-model';
@@ -21,11 +21,11 @@ export default class AnnotationListPanel extends CompositeView<FlatItem> {
             title: 'Annotations',
             downloadLink: downloadLink
         }
-        this.header = new HeaderView({model: headerInfo});
+        this.header = new HeaderView({ model: headerInfo });
         this.annotationList = new AnnotationListView({
             collection: this.collection,
             model: this.model
-        })
+        });
         this.render();
     }
 
@@ -45,8 +45,5 @@ extend(AnnotationListPanel.prototype, {
     {
         view: 'annotationList',
         selector: '.panel-content'
-    }],
-    events: {
-        'click .rdf-export': 'exportAnnotations'
-    }
+    }]
 });
