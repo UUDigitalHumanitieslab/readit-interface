@@ -1,6 +1,6 @@
 import { extend } from 'lodash';
 
-import { baseUrl } from '../../config.json';
+import { baseUrl } from 'config.json';
 
 import explorerChannel from '../explorer/explorer-radio';
 import FlatItem from '../common-adapters/flat-item-model';
@@ -11,12 +11,14 @@ import annotationListPanelTemplate from './annotation-list-panel-template';
 import AnnotationListView from './annotation-list-view';
 import HeaderView from '../panel-header/panel-header-view';
 
+const itemUrl = baseUrl + 'item/'
+
 export default class AnnotationListPanel extends CompositeView<FlatItem> {
     header: HeaderView;
     annotationList: AnnotationListView;
 
     initialize(): void {
-        const downloadLink = baseUrl + 'item/?o=' + this.model.id + '&t=1&r=1'; 
+        const downloadLink = itemUrl + '?o=' + this.model.id + '&t=1&r=1'; 
         const headerInfo = {
             title: 'Annotations',
             downloadLink: downloadLink
