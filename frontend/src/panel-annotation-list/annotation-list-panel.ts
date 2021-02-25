@@ -4,46 +4,48 @@ import { baseUrl } from 'config.json';
 
 import explorerChannel from '../explorer/explorer-radio';
 import FlatItem from '../common-adapters/flat-item-model';
-
-import AnnotationListView from './annotation-list-view';
-import annotationListPanelTemplate from './annotation-list-view';
 import ItemGraph from '../common-adapters/item-graph';
-import Graph from '../common-rdf/graph';
+import CompositeView from '../core/view';
 
-export default class AnnotationListPanel extends AnnotationListView {
+import annotationListPanelTemplate from './annotation-list-panel-template';
+import AnnotationListView from './annotation-list-view';
+import HeaderView from '../panel-header/panel-header-view';
+
+export default class AnnotationListPanel extends CompositeView<FlatItem> {
+    header: HeaderView;
+    annotationList: AnnotationListView;
+
+    initialize(): void {
+        const downloadLink = baseUrl + 'item/?o=' + this.model.id + '&t=1&r=1'; 
+        const headerInfo = {
+            title: 'Annotations',
+            downloadLink: downloadLink
+        }
+        this.header = new HeaderView({model: headerInfo});
+        this.annotationList = new AnnotationListView({
+            collection: this.collection,
+            model: this.model
+        })
+        this.render();
+    }
 
     renderContainer(): this {
         this.$el.html(this.template(this));
-        this.summaryList = this.$(this.container);
-        this.$('.header').addClass('panel-header');
-        this.$('.title').removeClass('is-3').addClass('is-4')
-        this.$('.header').prepend(`
-        <button class="button is-small rdf-export" type=button>
-            <span class="icon is-small">
-                <i class="fas fa-file-export"></i>
-            </span>
-        </button>
-        `)
-        this.$('.summary-list').addClass('panel-content');
         return this;
-    }
-
-    _handleFocus(model: FlatItem): void {
-        this.scrollTo(model);
-        explorerChannel.trigger('annotationList:showAnnotation', this, model);
-    }
-
-    exportAnnotations(): void {
-        const items = new ItemGraph();
-        items.query({ object: this.model, traverse: 1, revTraverse: 1, download: true }).then(
-        function error() {
-            console.debug(error);
-        });
     }
 }
 
 extend(AnnotationListPanel.prototype, {
     className: 'annotation-list explorer-panel',
+    template: annotationListPanelTemplate,
+    subviews: [{
+        view: 'header',
+        selector: '.panel-header'
+    },
+    {
+        view: 'annotationList',
+        selector: '.panel-content'
+    }],
     events: {
         'click .rdf-export': 'exportAnnotations'
     }

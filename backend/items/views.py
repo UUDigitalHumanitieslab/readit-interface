@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from io import BytesIO
 
-from django.http import FileResponse
+from django.http import HttpResponse
 
 from rest_framework.decorators import api_view, renderer_classes 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -186,13 +186,13 @@ class ItemsAPIRoot(RDFView):
         params = request.query_params
         if params.get('download'):
             file_content = data.serialize()
-            with open('export.xml', 'wb') as f:
-                f.write(file_content)
-            response = FileResponse(open('export.xml', 'rb'))
-            response['Content-Type'] = 'application/rdf+xml'
-            response['filename'] = 'export.html'
-            response['Content-Disposition'] ='attachment'
-            response['Content-Length'] = len(file_content)
+            # with open('export.xml', 'wb') as f:
+            #     f.write(file_content)
+            response = HttpResponse(file_content)
+            # response['Content-Type'] = 'application/rdf+xml'
+            # response['filename'] = 'export.xml'
+            response['Content-Disposition'] ='attachment; filename="export.xml"'
+            # response['Content-Length'] = len(file_content)
             return response
         #         #return Response(f.read(), headers={'Content-Disposition': 'attachment; filename="export.txt"'})
         return Response(data)

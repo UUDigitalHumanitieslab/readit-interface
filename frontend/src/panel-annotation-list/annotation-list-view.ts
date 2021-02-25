@@ -131,6 +131,11 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
         return this;
     }
 
+    // _handleFocus(model: FlatItem): void {
+    //     this.scrollTo(model);
+    //     explorerChannel.trigger('annotationList:showAnnotation', this, model);
+    // }
+
     onSummaryBlockedHover(annotation: FlatItem): this {
         this.trigger('hover', annotation);
         return this;
