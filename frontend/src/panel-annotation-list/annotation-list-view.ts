@@ -62,7 +62,7 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
 
     _handleBlur(lostFocus: FlatItem, gainedFocus?: FlatItem): void {
         if (!gainedFocus) {
-            explorerChannel.trigger('annotationList:hideAnnotation', this, lostFocus);
+            this.trigger('annotation:unfocussed', lostFocus)
         }
     }
 

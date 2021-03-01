@@ -9,7 +9,6 @@ export default class HeaderView extends View {
 
     initialize() {
         this.title = this.model['title'];
-        this.downloadLink = this.model['downloadLink'];
         this.render();
     }
 

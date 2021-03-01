@@ -19,14 +19,11 @@ const announce = announceRoute('source:annotated', ['model', 'id']);
 export default class AnnotationListPanel extends CompositeView<FlatItem> {
     header: HeaderView;
     annotationList: AnnotationListView;
+    downloadLink: string;
 
     initialize(): void {
-        const downloadLink = itemUrl + 'download?o=' + this.model.id + '&t=1&r=1'; 
-        const headerInfo = {
-            title: 'Annotations',
-            downloadLink: downloadLink
-        }
-        this.header = new HeaderView({ model: headerInfo });
+        this.downloadLink = itemUrl + 'download?o=' + this.model.id + '&t=1&r=1'; 
+        this.header = new HeaderView({ model: { title: 'Annotations' } });
         this.annotationList = new AnnotationListView({
             collection: this.collection,
             model: this.model
@@ -42,6 +39,10 @@ export default class AnnotationListPanel extends CompositeView<FlatItem> {
 
     openAnnotation(annotation: FlatItem): void {
         explorerChannel.trigger('annotationList:showAnnotation', this, annotation);
+    }
+
+    closeAnnotation(annotation: FlatItem): void {
+        explorerChannel.trigger('annotationList:hideAnnotation', this, annotation);
     }
 }
 
