@@ -1,10 +1,10 @@
 <header>
-    <h3 class="title is-3">{{title}}</h3>
     {{#if downloadLink}}
-        <a class="button is-small rdf-export" type=button href="{{downloadLink}}">
-            <span class="icon is-small">
+        <a class="rdf-export" href="{{downloadLink}}">
+            <span class="icon">
                 <i class="fas fa-file-export"></i>
             </span>
         </a>
     {{/if}}
+    <h3 class="title is-3">{{title}}</h3>
 </header>

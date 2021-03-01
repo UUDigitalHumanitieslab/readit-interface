@@ -9,7 +9,6 @@ import { announceRoute } from '../explorer/utilities';
 
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
-import annotationsTemplate from './annotation-list-template';
 
 const announce = announceRoute('source:annotated', ['model', 'id']);
 
@@ -58,7 +57,6 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
 
     _handleFocus(model: FlatItem): void {
         this.scrollTo(model);
-        explorerChannel.trigger('annotationList:showAnnotation', this, model);
         this.trigger('annotation:clicked', model);
     }
 
@@ -97,9 +95,9 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
             // Behaving like a CollectionView in this branch, but we always
             // combine sorting and placing because this method is bound to the
             // 'sort' event.
-            this.sortItems().summaryList.hide();
+            this.sortItems().$el.hide();
             super.placeItems();
-            this.summaryList.show();
+            this.$el.show();
         }
         return this;
     }
@@ -107,12 +105,6 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
     resetItems(): this {
         super.resetItems();
         this._hideLoadingSpinner();
-        return this;
-    }
-
-    renderContainer(): this {
-        this.$el.html(this.template(this));
-        this.summaryList = this.$(this.container);
         return this;
     }
 
@@ -126,17 +118,12 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
         const scrollToBlock = this._byId[annotation.cid];
 
         if (scrollToBlock) {
-            let scrollableEl = this.$('.panel-content');
+            let scrollableEl = this.$el;
             let scrollTarget = getScrollTop(scrollableEl, scrollToBlock.getTop(), scrollToBlock.getHeight());
             animatedScroll(ScrollType.Top, scrollableEl, scrollTarget);
         }
         return this;
     }
-
-    // _handleFocus(model: FlatItem): void {
-    //     this.scrollTo(model);
-    //     explorerChannel.trigger('annotationList:showAnnotation', this, model);
-    // }
 
     onSummaryBlockedHover(annotation: FlatItem): this {
         this.trigger('hover', annotation);
@@ -146,6 +133,4 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
 
 extend(AnnotationListView.prototype, {
     className: 'annotation-list',
-    template: annotationsTemplate,
-    container: '.summary-list',
 });

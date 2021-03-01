@@ -5,20 +5,23 @@ import { baseUrl } from 'config.json';
 import explorerChannel from '../explorer/explorer-radio';
 import FlatItem from '../common-adapters/flat-item-model';
 import ItemGraph from '../common-adapters/item-graph';
-import CompositeView from '../core/view';
+import { CompositeView } from '../core/view';
+import { announceRoute } from '../explorer/utilities';
+import { getScrollTop, animatedScroll, ScrollType } from '../utilities/scrolling-utilities';
 
 import annotationListPanelTemplate from './annotation-list-panel-template';
 import AnnotationListView from './annotation-list-view';
 import HeaderView from '../panel-header/panel-header-view';
 
 const itemUrl = baseUrl + 'item/'
+const announce = announceRoute('source:annotated', ['model', 'id']);
 
 export default class AnnotationListPanel extends CompositeView<FlatItem> {
     header: HeaderView;
     annotationList: AnnotationListView;
 
     initialize(): void {
-        const downloadLink = itemUrl + '?o=' + this.model.id + '&t=1&r=1'; 
+        const downloadLink = itemUrl + 'download?o=' + this.model.id + '&t=1&r=1'; 
         const headerInfo = {
             title: 'Annotations',
             downloadLink: downloadLink
@@ -28,17 +31,22 @@ export default class AnnotationListPanel extends CompositeView<FlatItem> {
             collection: this.collection,
             model: this.model
         });
-        this.render();
+        this.listenTo(this.annotationList, 'annotation:clicked', this.openAnnotation);
+        this.render().on('announceRoute', announce);
     }
 
     renderContainer(): this {
         this.$el.html(this.template(this));
         return this;
     }
+
+    openAnnotation(annotation: FlatItem): void {
+        explorerChannel.trigger('annotationList:showAnnotation', this, annotation);
+    }
 }
 
 extend(AnnotationListPanel.prototype, {
-    className: 'annotation-list explorer-panel',
+    className: 'annotation-panel explorer-panel',
     template: annotationListPanelTemplate,
     subviews: [{
         view: 'header',

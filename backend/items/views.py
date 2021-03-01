@@ -1,9 +1,9 @@
 from datetime import datetime, timezone
 from io import BytesIO
 
-from django.http import HttpResponse
+from django.http import FileResponse, HttpResponse
 
-from rest_framework.decorators import api_view, renderer_classes 
+from rest_framework.decorators import action, api_view, renderer_classes 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import *
@@ -181,22 +181,6 @@ class ItemsAPIRoot(RDFView):
         parents = traverse_backward(full_graph, core, r)
         return parents | core | children
 
-    def get(self, request, format=None, **kwargs):
-        data = self.get_graph(request, **kwargs)
-        params = request.query_params
-        if params.get('download'):
-            file_content = data.serialize()
-            # with open('export.xml', 'wb') as f:
-            #     f.write(file_content)
-            response = HttpResponse(file_content)
-            # response['Content-Type'] = 'application/rdf+xml'
-            # response['filename'] = 'export.xml'
-            response['Content-Disposition'] ='attachment; filename="export.xml"'
-            # response['Content-Length'] = len(file_content)
-            return response
-        #         #return Response(f.read(), headers={'Content-Disposition': 'attachment; filename="export.txt"'})
-        return Response(data)
-
     def post(self, request, format=None):
         data = graph_from_request(request)
         subjects = set(data.subjects())
@@ -216,6 +200,16 @@ class ItemsAPIRoot(RDFView):
         full_graph = super().get_graph(request)
         full_graph += result
         return Response(result, HTTP_201_CREATED)
+
+
+class ItemsAPIDownload(ItemsAPIRoot):
+    def get(self, request, format=None, **kwargs):
+        data = super().get_graph(request, **kwargs)
+        file_content = data.serialize()
+        response = HttpResponse(file_content)
+        response['Content-Type'] = 'application/rdf+xml'
+        response['Content-Disposition'] ='attachment; filename="export.xml"'
+        return response
 
 
 class ItemsAPISingular(RDFResourceView):
