@@ -90,7 +90,6 @@ export default class MetadataView extends View {
         button.addClass('is-loading');
         try {
             await this.model.destroy({wait: true});
-            this.trigger('source:destroy', this, this.model);
         } catch (e) {
             console.debug(e);
             button.prop('disabled', true);
