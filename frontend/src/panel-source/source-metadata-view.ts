@@ -46,6 +46,7 @@ export default class MetadataView extends View {
 
     render(): this {
         this.$el.html(this.template(this));
+        this.$('.btn-cancel, .btn-delete').hide();
         return this;
     }
 
@@ -74,6 +75,7 @@ export default class MetadataView extends View {
     }
 
     onEditClicked() {
+        this.$('.panel-footer button').toggle();
         explorerChannel.trigger('metadata:edit', this);
     }
 
