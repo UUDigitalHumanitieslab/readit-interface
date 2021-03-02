@@ -18,11 +18,17 @@ const excludedAttributes = [
     'fullText',
     'text',
     'sameAs'
-]
+];
 
 const externalAttributes = [
     'inLanguage'
-]
+];
+
+const sourceDeletionDialog = `
+Are you sure you want to delete this source?
+If you delete this source, all its annotation will be deleted as well, including any annotations that other users may have made.
+This cannot be undone.
+`;
 
 export default class MetadataView extends View {
     /**
@@ -74,11 +80,24 @@ export default class MetadataView extends View {
         this.trigger('metadata:hide', this);
     }
 
-    onEditClicked() {
+    toggleEditMode() {
         this.$('.panel-footer button').toggle();
-        explorerChannel.trigger('metadata:edit', this);
     }
 
+    async onDeleteClicked() {
+        if (!confirm(sourceDeletionDialog)) return;
+        const button = this.$('.btn-delete');
+        button.addClass('is-loading');
+        try {
+            await this.model.destroy({wait: true});
+            this.trigger('source:destroy', this, this.model);
+        } catch (e) {
+            console.debug(e);
+            button.prop('disabled', true);
+        } finally {
+            button.removeClass('is-loading');
+        }
+    }
 }
 
 extend(MetadataView.prototype, {
@@ -86,7 +105,9 @@ extend(MetadataView.prototype, {
     className: 'metadata-panel',
     template: metadataTemplate,
     events: {
-        'click .btn-edit': 'onEditClicked',
-        'click .btn-close': 'onCloseClicked'
+        'click .btn-close': 'onCloseClicked',
+        'click .btn-edit': 'toggleEditMode',
+        'click .btn-cancel': 'toggleEditMode',
+        'click .btn-delete': 'onDeleteClicked',
     }
 });
