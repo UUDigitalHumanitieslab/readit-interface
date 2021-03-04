@@ -38,25 +38,28 @@ export default class MetadataView extends View {
     userIsOwner: boolean;
 
     initialize(): this {
-        const creators = this.model.get(dcterms.creator) as Node[];
-        if (creators && creators.length) {
-            const userUri = ldChannel.request('current-user-uri');
-            this.userIsOwner = (creators[0].id === userUri);
-        }
-        this.properties = {};
-        this.formatAttributes();
-        this.render();
-        this.listenTo(this.model, 'change', this.render);
+        this.model.when(dcterms.creator, this.checkOwnership, this);
+        this.render().listenTo(this.model, 'change', this.render);
         return this;
     }
 
+    checkOwnership(model, creators: Node[]): void {
+        if (creators && creators.length) {
+            const creator = creators[0];
+            const creatorId = creator.id || creator['@id'];
+            const userUri = ldChannel.request('current-user-uri');
+            if (this.userIsOwner = (creatorId === userUri)) this.render();
+        }
+    }
+
     render(): this {
-        this.$el.html(this.template(this));
+        this.$el.html(this.template(this.formatAttributes()));
         this.$('.btn-cancel, .btn-delete').hide();
         return this;
     }
 
     formatAttributes(): this {
+        this.properties = {};
         for (let attribute in this.model.attributes) {
             // don't include @id, @value, fullText or sameAs info
             if (excludedProperties.includes(attribute)) {
@@ -73,7 +76,7 @@ export default class MetadataView extends View {
             }
             this.properties[attributeLabel] = value;
         }
-            return this;
+        return this;
     }
 
     onCloseClicked() {
