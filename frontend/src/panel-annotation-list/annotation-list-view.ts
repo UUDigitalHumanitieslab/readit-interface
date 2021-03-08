@@ -37,7 +37,6 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
             error: this._hideLoadingSpinner,
         }).listenTo(this.collection, {
             focus: this._handleFocus,
-            blur: this._handleBlur,
             // We work with a slightly modified list of event handlers compared
             // to what CollectionView binds by default.
             add: this.insertItem,
@@ -58,12 +57,6 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
     _handleFocus(model: FlatItem): void {
         this.scrollTo(model);
         this.trigger('annotation:clicked', model);
-    }
-
-    _handleBlur(lostFocus: FlatItem, gainedFocus?: FlatItem): void {
-        if (!gainedFocus) {
-            this.trigger('annotation:unfocussed', lostFocus)
-        }
     }
 
     makeItem(model: FlatItem): ItemSummaryBlock {
