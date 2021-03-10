@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
+from io import BytesIO
 
+from rest_framework.decorators import action, api_view, renderer_classes 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import *
@@ -196,6 +198,13 @@ class ItemsAPIRoot(RDFView):
         full_graph = super().get_graph(request)
         full_graph += result
         return Response(result, HTTP_201_CREATED)
+
+
+class ItemsAPIDownload(ItemsAPIRoot):
+    def get(self, request, format=None, **kwargs):
+        data = super().get_graph(request, **kwargs)
+        response = Response(data, headers={'Content-Disposition': 'attachment; filename="export.rdf"' })
+        return response
 
 
 class ItemsAPISingular(RDFResourceView):

@@ -1,10 +1,15 @@
-import { noop, each, includes } from 'lodash';
+import { noop, each, includes, zipObject } from 'lodash';
+import { ModelSetOptions } from 'backbone';
 
 import Model from '../core/model';
 import ldChannel from '../common-rdf/radio';
 import { rdf, dcterms, oa, vocab, readit, item } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
-import { getLabel, getCssClassName } from '../utilities/linked-data-utilities';
+import {
+    getLabel,
+    getCssClassName,
+    isBlank,
+} from '../utilities/linked-data-utilities';
 import fastTimeout from '../core/fastTimeout';
 
 /**
@@ -23,6 +28,14 @@ const F_TEXT     = 1 << 5;
 const F_COMPLETE = F_ID | F_CSSCLASS | F_LABEL | F_SOURCE | F_POS | F_TEXT;
 
 /**
+ * The following constants are used in `updateBodies`.
+ */
+const bodyAttributes = zipObject([
+    'class', 'classLabel', 'cssClass', 'item', 'label'
+]);  // { class: undefined, classLabel: undefined, ... }
+const unsetFlag = {unset: true} as ModelSetOptions; // TODO: fix @types/backbone
+
+/**
  * Adapter that transforms a `Node` representing an `oa.Annotation`s into a
  * flattened representation that is easier to process. Incomplete annotations
  * and unwrapped instances of node types that tend to be used as body or target
@@ -35,21 +48,24 @@ const F_COMPLETE = F_ID | F_CSSCLASS | F_LABEL | F_SOURCE | F_POS | F_TEXT;
  *
  * The RDF properties are mapped to model attributes as follows:
 
-    annotation    = (original annotation)
-    id            = @id
-    class         = oa.hasBody (if ontology class)
-    classLabel    = oa.hasBody (if ontology class) -> getLabel()
-    cssClass      = oa.hasBody (if ontology class) -> getCssClassName()
-    item          = oa.hasBody (if item)
-    label         = oa.hasBody (if item) -> getLabel()
-    source        = oa.hasTarget -> oa.hasSource
-    startPosition = oa.hasTarget -> oa.hasSelector (if vocab.TextPositionSelector) -> oa.start
-    endPosition   = oa.hasTarget -> oa.hasSelector (if vocab.TextPositionSelector) -> oa.end
-    text          = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.exact
-    prefix        = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.prefix
-    suffix        = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.suffix
-    creator       = dcterms.creator
-    created       = dcterms.created
+    annotation       = (original annotation)
+    id               = @id
+    class            = oa.hasBody (if ontology class)
+    classLabel       = oa.hasBody (if ontology class) -> getLabel()
+    cssClass         = oa.hasBody (if ontology class) -> getCssClassName()
+    item             = oa.hasBody (if item)
+    label            = oa.hasBody (if item) -> getLabel()
+    target           = oa.hasTarget
+    source           = oa.hasTarget -> oa.hasSource
+    positionSelector = oa.hasTarget -> oa.hasSelector (if vocab.TextPositionSelector)
+    startPosition    = oa.hasTarget -> oa.hasSelector (if vocab.TextPositionSelector) -> oa.start
+    endPosition      = oa.hasTarget -> oa.hasSelector (if vocab.TextPositionSelector) -> oa.end
+    quoteSelector    = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector)
+    text             = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.exact
+    prefix           = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.prefix
+    suffix           = oa.hasTarget -> oa.hasSelector (if oa.TextQuoteSelector) -> oa.suffix
+    creator          = dcterms.creator
+    created          = dcterms.created
 
  * For further processing convenience, the model triggers a `'complete'` event
  * when all of the following attributes have been collected: `id`, `cssClass`,
@@ -90,6 +106,7 @@ export default class FlatItem extends Model {
         this.underlying = node;
         this._completionFlags = 0;
         node.when('@type', this.receiveTopNode, this);
+        this.listenTo(node, 'change', this.updateMeta).updateMeta(node);
     }
 
     setOptionalFirst(source: Node, sourceAttr: string, targetAttr: string): this {
@@ -98,11 +115,19 @@ export default class FlatItem extends Model {
         return this;
     }
 
-    receiveTopNode(node: Node): void {
-        const id = node.id;
-        this.set({ id });
+    /**
+     * Keep meta attributes in sync with the top node. Triggers repeatedly.
+     */
+    updateMeta(node: Node) {
+        this.set('id', node.id);
         this.setOptionalFirst(node, dcterms.creator, 'creator');
         this.setOptionalFirst(node, dcterms.created, 'created');
+    }
+
+    /**
+     * Invoked once when this.underlying is more than just a placeholder.
+     */
+    receiveTopNode(node: Node): void {
         this._setCompletionFlag(F_ID);
         let missing;
         if (node.has('@type', oa.Annotation)) {
@@ -134,6 +159,9 @@ export default class FlatItem extends Model {
      */
     updateBodies(annotation: Node): void {
         const bodies = annotation.get(oa.hasBody) as Node[];
+        // The body attributes might no longer be valid, so we unset them.
+        this.set(bodyAttributes, unsetFlag);
+        // If they were still valid, they will be reset by the next line.
         each(bodies, body => body.when('@type', this.receiveBody, this));
         // An annotation can be complete without an item or even a class.
         if (bodies) {
@@ -149,6 +177,7 @@ export default class FlatItem extends Model {
      * Returns the body bit flag that was *not* completed.
      */
     receiveBody(body: Node): number {
+        if (isBlank(body)) return this.receiveItem(body);
         const id = body.id;
         if (id.startsWith(readit())) return this.receiveClass(body);
         if (id.startsWith(item())) return this.receiveItem(body);
@@ -193,6 +222,7 @@ export default class FlatItem extends Model {
      * Invoked once when the target is more than just a placeholder.
      */
     receiveTarget(target: Node): void {
+        this.set('target', target);
         const sources = target.get(oa.hasSource);
         if (sources && sources.length) {
             this.set('source', sources[0]);
@@ -231,7 +261,8 @@ export default class FlatItem extends Model {
         if (start && start.length && end && end.length) {
             this.set({
                 startPosition: start[0],
-                endPosition: end[0]
+                endPosition: end[0],
+                positionSelector: selector,
             });
             this._setCompletionFlag(F_POS);
         }
@@ -242,6 +273,7 @@ export default class FlatItem extends Model {
      * Invoked once when the TextQuoteSelector is more than just a placeholder.
      */
     receiveText(selector: Node): number {
+        this.set('quoteSelector', selector);
         this.setOptionalFirst(selector, oa.prefix, 'prefix');
         this.setOptionalFirst(selector, oa.suffix, 'suffix');
         const text = selector.get(oa.exact);

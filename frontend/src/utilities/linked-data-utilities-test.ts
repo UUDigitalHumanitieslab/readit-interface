@@ -129,6 +129,11 @@ describe('utilities', function () {
         it('returns the whole string if it lacks structure', function() {
             expect(getLabelFromId('1')).toBe('1');
         });
+
+        it('handles null and undefined', function() {
+            expect(getLabelFromId(undefined)).toBeUndefined();
+            expect(getLabelFromId(null)).toBeUndefined();
+        });
     });
 
     describe('getCssClassName', function () {

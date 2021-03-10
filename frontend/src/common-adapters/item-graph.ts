@@ -49,7 +49,11 @@ export interface TraversalParams {
     revTraverse?: number;
 }
 
-export type QueryParams = (QueryParamsURI | QueryParamsLiteral) & TraversalParams;
+export interface DownloadParam {
+    download?: boolean;
+}
+
+export type QueryParams = (QueryParamsURI | QueryParamsLiteral) & TraversalParams & DownloadParam;
 
 function isURIQuery(params: QueryParams): params is QueryParamsURI {
     return (params as QueryParamsURI).object !== undefined;
@@ -90,6 +94,7 @@ export default class ItemGraph extends Graph {
         if (params.predicate) data.p = asURI(params.predicate);
         if (isURIQuery(params)) data.o = asURI(params.object);
         if (isLiteralQuery(params)) data.o_literal = params.objectLiteral;
+        if (params.download) data.download = params.download;
         if (params.traverse) data.t = params.traverse;
         if (params.revTraverse) data.r = params.revTraverse;
         return this.promise = this.fetch({data});

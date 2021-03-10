@@ -2,13 +2,21 @@
     <header>
         <aside>{{! label view will be inserted here }}</aside>
         <h3 class="title is-3">{{label}}</h3>
+        <h6 class="subtitle is-6">{{#if annotationSerial }}
+            Annotation {{ annotationSerial }}{{#if itemSerial}},
+            identified as
+            {{/if}}{{/if}}{{#if itemSerial }}
+            item/{{ itemSerial }}
+        {{/if}}</h6>
     </header>
 </div>
 <div class="panel-content">
+
+    {{#if itemSerial }}
     <section class="item-sections">
         <article class="item-section">
             <div class="item-section-header">
-                <p>Properties</p>
+                <p>Item properties</p>
             </div>
             <table class="table is-bordered">
                 <thead>
@@ -28,14 +36,12 @@
             </table>
         </article>
     </section>
+    {{/if}}
 
-    <section>
-        <div class="itemMetadataContainer"></div>
-        <div class="annotationMetadataContainer"></div>
-    </section>
+    <section class="metadataContainer"></section>
 
+    {{#if itemSerial }}
     <section class="item-sections">
-        {{#if model.attributes.item}}
         <article class="item-section has-mt-10">
             <div class="item-section-header" id="btnRelItems">
                 <p>Related items</p>
@@ -47,7 +53,11 @@
         </article>
         <article class="item-section has-mt-10">
             <div class="item-section-header" id="btnAnnotations">
-                <p>Annotations</p>
+                <p>{{#if annotationSerial }}
+                    Other annotations
+                {{else}}
+                    Annotations
+                {{/if}}</p>
                 <span class="icon is-large has-text-primary tooltip is-tooltip-left"
                     data-tooltip="Open annotations">
                     <i class="fas fa-arrow-circle-right"></i>
@@ -63,10 +73,11 @@
                 </span>
             </div>
         </article>
-        {{/if}}
     </section>
+    {{/if}}
+
 </div>
-{{#if model.attributes.annotation}}
+{{#if annotationSerial }}
 <div class="panel-footer">
     <nav class="level is-mobile">
         <div class="level-left">

@@ -6,11 +6,17 @@ import router from '../global/exploration-router';
 import mainRouter from '../global/main-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
-import suggestionsPanel from '../global/suggestions-view';
 import welcomeView from '../global/welcome-view';
+import SuggestionsPanel from '../panel-suggestions/suggestions-view';
+import deparam from '../utilities/deparam';
 
 const browserHistory = window.history;
-const resetSuggestionsPanel = () => explorer.reset(suggestionsPanel);
+let suggestionsPanel: SuggestionsPanel;
+function resetSuggestionsPanel() {
+    suggestionsPanel = new SuggestionsPanel();
+    explorer.reset(suggestionsPanel);
+}
+
 /**
  * Common patterns for the explorer routes.
  */
@@ -22,20 +28,36 @@ function deepRoute(obtainAction, resetAction) {
 }
 const sourceRoute = partial(deepRoute, act.getSource);
 const itemRoute = partial(deepRoute, act.getItem);
+const queryRoute = partial(deepRoute, deparam);
+function annoRoute(resetAction) {
+    return (sourceSerial, itemSerial) => explorer.scrollOrAction(
+        browserHistory.state,
+        () => resetAction(
+            controller,
+            act.getSource(sourceSerial),
+            act.getItem(itemSerial)
+        )
+    );
+}
 
 mainRouter.on('route:explore', () => {
-    explorer.scrollOrAction(suggestionsPanel.cid, resetSuggestionsPanel);
+    explorer.scrollOrAction(suggestionsPanel && suggestionsPanel.cid, resetSuggestionsPanel);
 });
 
-router.on('route:source:bare',       sourceRoute(act.sourceWithoutAnnotations));
-router.on('route:source:annotated',  sourceRoute(act.sourceWithAnnotations));
-router.on('route:item',                itemRoute(act.item));
-router.on('route:item:edit',           itemRoute(act.itemInEditMode));
-router.on('route:item:related',        itemRoute(act.itemWithRelations));
-router.on('route:item:related:edit',   itemRoute(act.itemWithEditRelations));
-router.on('route:item:external',       itemRoute(act.itemWithExternal));
-router.on('route:item:external:edit',  itemRoute(act.itemWithEditExternal));
-router.on('route:item:annotations',    itemRoute(act.itemWithOccurrences));
+router.on({
+    'route:source:bare':            sourceRoute(act.sourceWithoutAnnotations),
+    'route:source:annotated':       sourceRoute(act.sourceWithAnnotations),
+    'route:annotation':             annoRoute(act.annotation),
+    'route:annotation:edit':        annoRoute(act.annotationInEditMode),
+    'route:item':                   itemRoute(act.item),
+    'route:item:edit':              itemRoute(act.itemInEditMode),
+    'route:item:related':           itemRoute(act.itemWithRelations),
+    'route:item:related:edit':      itemRoute(act.itemWithEditRelations),
+    'route:item:external':          itemRoute(act.itemWithExternal),
+    'route:item:external:edit':     itemRoute(act.itemWithEditExternal),
+    'route:item:annotations':       itemRoute(act.itemWithOccurrences),
+    'route:search:results:sources': queryRoute(act.searchResultsSources),
+});
 
 channel.on({
     'sourceview:showAnnotations': controller.reopenSourceAnnotations,

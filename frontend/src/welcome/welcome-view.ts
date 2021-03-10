@@ -23,15 +23,8 @@ export default class WelcomeView extends CompositeView {
         return this;
     }
 
-    async search(query: string, fields: string = 'all') {
-        const resultsCount = new Model();
-        await resultsCount.fetch({ 
-            url: 'source/results_count',
-            data: $.param({ query, fields })
-        });
-        if (resultsCount.get('value') !== 0) {
-            this.trigger('search:start', resultsCount, query, fields);
-        }
+    search(query: string, fields: string = 'all') {
+        this.trigger('search:start', { query, fields });
     }
 }
 

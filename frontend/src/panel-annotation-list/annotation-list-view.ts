@@ -9,7 +9,6 @@ import { announceRoute } from '../explorer/utilities';
 
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
-import annotationsTemplate from './annotation-list-template';
 
 const announce = announceRoute('source:annotated', ['model', 'id']);
 
@@ -38,7 +37,6 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
             error: this._hideLoadingSpinner,
         }).listenTo(this.collection, {
             focus: this._handleFocus,
-            blur: this._handleBlur,
             // We work with a slightly modified list of event handlers compared
             // to what CollectionView binds by default.
             add: this.insertItem,
@@ -49,19 +47,16 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
     }
 
     _hideLoadingSpinner(): void {
-        this.loadingSpinnerView.remove();
-        delete this.loadingSpinnerView;
+        if (this.loadingSpinnerView) {
+            this.loadingSpinnerView.remove();
+            delete this.loadingSpinnerView;
+        }
         this.placeItems();
     }
 
     _handleFocus(model: FlatItem): void {
+        this.scrollTo(model);
         this.trigger('annotation:clicked', model);
-    }
-
-    _handleBlur(lostFocus: FlatItem, gainedFocus?: FlatItem): void {
-        if (!gainedFocus) {
-            explorerChannel.trigger('annotationList:hideAnnotation', this, lostFocus);
-        }
     }
 
     makeItem(model: FlatItem): ItemSummaryBlock {
@@ -93,9 +88,9 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
             // Behaving like a CollectionView in this branch, but we always
             // combine sorting and placing because this method is bound to the
             // 'sort' event.
-            this.sortItems().summaryList.hide();
+            this.sortItems().$el.hide();
             super.placeItems();
-            this.summaryList.show();
+            this.$el.show();
         }
         return this;
     }
@@ -103,12 +98,6 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
     resetItems(): this {
         super.resetItems();
         this._hideLoadingSpinner();
-        return this;
-    }
-
-    renderContainer(): this {
-        this.$el.html(this.template(this));
-        this.summaryList = this.$(this.container);
         return this;
     }
 
@@ -122,7 +111,7 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
         const scrollToBlock = this._byId[annotation.cid];
 
         if (scrollToBlock) {
-            let scrollableEl = this.$('.panel-content');
+            let scrollableEl = this.$el;
             let scrollTarget = getScrollTop(scrollableEl, scrollToBlock.getTop(), scrollToBlock.getHeight());
             animatedScroll(ScrollType.Top, scrollableEl, scrollTarget);
         }
@@ -137,6 +126,4 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
 
 extend(AnnotationListView.prototype, {
     className: 'annotation-list',
-    template: annotationsTemplate,
-    container: '.summary-list',
 });

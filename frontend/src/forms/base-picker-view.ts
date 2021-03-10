@@ -1,10 +1,12 @@
 import {
     extend,
     defaultsDeep,
+    isEqual,
 } from 'lodash';
 import {
     ViewOptions as BViewOptions,
 } from 'backbone';
+
 
 import View, { CollectionView } from '../core/view';
 import Node from '../common-rdf/node';
@@ -91,11 +93,14 @@ export default class PickerView extends CollectionView<Node, PickerOptionView> {
     }
 
     val(): string | string[];
-    val(selection: string | string[]): void;
+    val(selection: string | string[]): this;
     val(selection?) {
         const field = this.$('select');
         if (selection != null) {
-            field.val(selection);
+            if (!isEqual(selection, this.val())) {
+                field.val(selection).trigger('change');
+            }
+            return this;
         } else {
             return field.val();
         }

@@ -1,4 +1,4 @@
-import { ViewOptions as BaseOpt } from 'backbone';
+import { $, ViewOptions as BaseOpt } from 'backbone';
 import {
     extend,
     bind,
@@ -24,6 +24,7 @@ export interface ViewOptions extends BaseOpt<Model> {
 
 export default class ExplorerView extends View {
     stacks: PanelStackView[];
+    $spacer: JQuery<HTMLElement>;
 
     /**
      * A reverse lookuptable containing each panel's cid as key,
@@ -42,16 +43,18 @@ export default class ExplorerView extends View {
         this.stacks = [];
         this.rltPanelStack = {};
         this.scroll = debounce(this.scroll, 100);
+        this.$spacer = $('<div>').addClass('spacer').appendTo(this.el);
         this.push(options.first);
 
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 500));
     }
 
     render(): View {
+        this.$spacer.detach();
         for (let panelStack of this.stacks) {
             panelStack.render().$el.appendTo(this.$el);
         }
-
+        this.$spacer.appendTo(this.el);
         this.scroll();
 
         return this;
@@ -106,7 +109,7 @@ export default class ExplorerView extends View {
         this.stacks.push(new PanelStackView({ first: panel }));
         let stack = this.stacks[position];
         this.rltPanelStack[panel.cid] = position;
-        stack.render().$el.appendTo(this.$el);
+        stack.render().$el.insertBefore(this.$spacer);
         panel.activate();
         this.trigger('push', panel, position);
         this.scroll();

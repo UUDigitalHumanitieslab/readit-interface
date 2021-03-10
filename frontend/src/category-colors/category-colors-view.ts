@@ -1,13 +1,14 @@
-import { extend, compact } from 'lodash';
+import { extend, compact, map } from 'lodash';
 import { ViewOptions as BaseOpt } from 'backbone';
 
 import View from '../core/view';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import { schema } from '../common-rdf/ns';
+import { getCssClassName, isRdfsClass } from '../utilities/linked-data-utilities';
+import { placeholderClass } from '../utilities/annotation-utilities';
 
 import categoryColorsTemplate from './category-colors-template';
-import { getCssClassName, isRdfsClass } from '../utilities/linked-data-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     collection: Graph;
@@ -30,11 +31,12 @@ export default class CategoryColorsView extends View {
     }
 
     collectColors() {
-        return compact(this.collection.map(node => {
+        const classes = this.collection.models.concat(placeholderClass);
+        return compact(map(classes, node => {
             if (isRdfsClass(node) && node.has(schema.color)) {
                 return {
                     class: getCssClassName(node),
-                    color: node.get(schema.color)[0] ,
+                    color: node.get(schema.color)[0],
                 };
             }
         }));

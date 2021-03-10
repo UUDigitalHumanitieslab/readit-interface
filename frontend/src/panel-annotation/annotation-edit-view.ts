@@ -1,6 +1,7 @@
-import { extend, invokeMap, bindAll } from 'lodash';
+import { extend, invokeMap, bindAll, uniqueId, after, once } from 'lodash';
+import 'select2';
 
-import { CompositeView, ViewOptions as BaseOpt } from '../core/view';
+import { CompositeView } from '../core/view';
 import ldChannel from '../common-rdf/radio';
 import { oa, rdf, skos } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
@@ -11,24 +12,18 @@ import PickerView from '../forms/base-picker-view';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import ItemGraph from '../common-adapters/item-graph';
 import ClassPickerView from '../forms/ontology-class-picker-view';
-import ItemMetadataView from '../item-metadata/item-metadata-view';
 import SnippetView from '../snippet/snippet-view';
-import { isRdfsClass } from '../utilities/linked-data-utilities';
+import { isRdfsClass, isBlank } from '../utilities/linked-data-utilities';
+import { placeholderClass } from '../utilities/annotation-utilities';
 import {
-    AnnotationPositionDetails,
-    getTargetDetails
-} from '../utilities/annotation-utilities';
-import {
-    composeAnnotation,
-    cloneTextQuoteSelector,
-    getAnonymousTextQuoteSelector
+    savePlaceholderAnnotation,
 } from '../utilities/annotation-creation-utilities';
 import explorerChannel from '../explorer/explorer-radio';
-import { announceRoute } from '../explorer/utilities';
 
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-item-collection';
 
+import { announceRoute } from './utilities';
 import annotationEditTemplate from './annotation-edit-template';
 
 /**
@@ -39,94 +34,103 @@ function getOntologyClasses() {
     return new FilteredCollection<Node, Graph>(ontology, isRdfsClass);
 }
 
-const announce = announceRoute('item:edit', ['model', 'id']);
-
-export interface ViewOptions extends BaseOpt {
-    /**
-     * The following options should be set in case of a new annotation (i.e.
-     * when the model is undefined). If you *also* pass a model, it will be
-     * ignored!
-     */
-    range?: Range;
-    previousAnnotation?: FlatItem;
-    positionDetails?: AnnotationPositionDetails;
-    source?: Node;
-}
+const announce = announceRoute(true);
 
 export default class AnnotationEditView extends CompositeView<FlatItem> {
     collection: FlatCollection;
-    positionDetails: AnnotationPositionDetails;
-    metadataView: ItemMetadataView;
     classPicker: ClassPickerView;
     snippetView: SnippetView;
     userIsOwner: boolean;
-    selectedClass: Node;
-    selectedItem: Node;
     itemPicker: PickerView;
     itemOptions: ItemGraph;
     itemEditor: ItemEditor;
+    originalBodies: Node[];
+    validator: JQueryValidation.Validator;
 
-    constructor(options: ViewOptions) {
-        super(options);
-    }
-
-    initialize(options: ViewOptions) {
+    initialize() {
         this.itemOptions = new ItemGraph();
-        this.itemPicker = new PickerView({collection: this.itemOptions});
-        this.itemPicker.on('change', this.selectItem, this);
-
-        if (options.positionDetails) {
-            this.positionDetails = options.positionDetails;
-            if (options.previousAnnotation) {
-                this.model = new FlatItem(cloneTextQuoteSelector(options.previousAnnotation));
-            }
-            else {
-                this.model = new FlatItem(getAnonymousTextQuoteSelector(options.range));
-            } 
-            this.model.set('source', options.source);
-        }        
-
+        this.itemOptions.comparator = this.sortOptions;
+        this.itemPicker = new PickerView({
+            collection: this.itemOptions,
+            className: '',
+        });
+        // Replace Bulma select by select2 select. TODO: make this less hacky.
+        this.itemPicker.$('select').width('95%').select2();
         this.classPicker = new ClassPickerView({
             collection: getOntologyClasses(),
             preselection: this.model.get('class'),
-        }).on('select', this.selectClass, this).render();
-
+        }).render();
         this.snippetView = new SnippetView({ model: this.model }).render();
 
         this.model.when('annotation', this.processAnnotation, this);
-        this.model.when('class', (model, cls) => this.selectClass(cls), this);
-        bindAll(this, 'propagateItem');
-        this.model.when('item', this.propagateItem, this);
+        this.model.when('class', this.processClass, this);
+        // Two conditions must be met before we run processItem:
+        const processItem = after(2, this.processItem);
+        // 1. the original item body of the annotation is known,
+        const triggerItemConfirmed = once(processItem);
+        this.model.when('item', triggerItemConfirmed, this);
+        //    OR we know that it has no item whatsoever;
+        this.listenToOnce(this.model, 'complete', triggerItemConfirmed);
+        // 2. this item is available to the itemPicker.
+        this.itemOptions.once('update', processItem, this);
+
+        this.render();
+        this.on('announceRoute', announce);
     }
 
     processAnnotation(model: FlatItem, annotation: Node): void {
-        this.metadataView = new ItemMetadataView({ model: annotation });
-        this.metadataView.render();
-        this.on('announceRoute', announce);
+        this.originalBodies = annotation.get(oa.hasBody) as Node[];
         const creator = model.get('creator') as Node;
         const currentUser = ldChannel.request('current-user-uri');
-        if (creator.id === currentUser) this.userIsOwner = true;
+        if (creator && (creator.id === currentUser)) this.userIsOwner = true;
         if (this.userIsOwner) this.render();
     }
 
-    renderContainer(): this {
-        this.$el.html(this.template(this));
-        if (this.selectedClass) this.selectClass(this.selectedClass);
+    processClass(model: FlatItem, cls: Node): void {
+        this.classPicker.select(cls);
+        this.selectClass(cls);
+        this.classPicker.on('select', this.changeClass, this);
+    }
 
-        this.$(".anno-edit-form").validate({
+    processItem(): void {
+        const item = this.model.get('item');
+        if (item) this.itemPicker.val(item.id);
+        this.itemPicker.on('change', this.selectItem, this);
+    }
+
+    renderContainer(): this {
+        if (this.validator) this.validator.destroy();
+        this.$el.html(this.template(this));
+        this.mirrorClassInput(this.model.get('class'));
+
+        this.validator = this.$(".anno-edit-form").validate({
             errorClass: "help is-danger",
             ignore: "",
         });
         return this;
     }
 
+    remove(): this {
+        if (this.validator) this.validator.destroy();
+        this.itemPicker.$('select').select2('destroy');
+        super.remove();
+        return this;
+    }
+
+    sortOptions(model1, model2): number {
+        if (model1.get(skos.prefLabel) < model2.get(skos.prefLabel)) {
+            return -1;
+        }
+        if (model1.get(skos.prefLabel) > model2.get(skos.prefLabel)) {
+            return 1;
+        }
+        else return 0;
+    }
+
     submit(): this {
-        if (this.model.isNew()) {
+        if (this.model.isNew() || isBlank(this.model.get('annotation'))) {
             this.submitNewAnnotation();
         } else {
-            const annotation = this.model.get('annotation');
-            annotation.unset(oa.hasBody);
-            annotation.set(oa.hasBody, this.selectedClass);
             this.submitItem().then(this.submitOldAnnotation.bind(this));
         }
         return this;
@@ -134,8 +138,9 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
 
     submitItem(): Promise<boolean> {
         let newItem = false;
-        const item = this.selectedItem;
+        const item = this.model.get('item');
         if (!item) return Promise.resolve(newItem);
+        if (isBlank(item)) item.unset('@id');
         if (item.isNew()) {
             newItem = true;
             if (!item.collection) this.itemOptions.add(item);
@@ -148,75 +153,99 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     submitNewAnnotation(): void {
-        composeAnnotation(
-            this.model.get('source'),
-            this.positionDetails,
-            this.snippetView.model.underlying as Node,
-            this.selectedClass,
-            this.selectedItem,
+        savePlaceholderAnnotation(
+            this.model,
             (error, results) => {
                 if (error) return console.debug(error);
-                const anno = results.annotation;
-                this.collection.underlying.add(anno);
-                const flat = this.collection.get(anno.id);
-                explorerChannel.trigger('annotationEditView:saveNew', this, flat, results.items);
+                explorerChannel.trigger(
+                    'annotationEditView:saveNew',
+                    this,
+                    this.model,
+                    results.items,
+                );
             }
         );
     }
 
     submitOldAnnotation(newItem: boolean): void {
         const annotation = this.model.get('annotation');
-        this.selectedItem && annotation.set(oa.hasBody, this.selectedItem);
+        if (newItem) {
+            // The item node may still be linked as a blank node. Relink.
+            const cls = this.model.get('class');
+            const item = this.model.get('item');
+            annotation.unset(oa.hasBody).set(oa.hasBody, [cls, item]);
+        }
         annotation.save({patch: true});
         explorerChannel.trigger('annotationEditView:save', this, this.model, newItem);
     }
 
     reset(): this {
+        const annotation = this.model.get('annotation');
+        if (annotation) {
+            annotation.unset(oa.hasBody);
+            if (this.originalBodies) {
+                annotation.set(oa.hasBody, this.originalBodies);
+            }
+        }
         this.trigger('reset');
         return this;
     }
 
+    mirrorClassInput(cls: Node): void {
+        if (cls) this.$('.hidden-input').val(cls.id).valid();
+    }
+
     selectClass(cls: Node): this {
-        this.$('.hidden-input').val(cls.id).valid();
-        this.selectedClass = cls;
-        this.classPicker.select(cls);
+        if (!cls || cls === placeholderClass) return this;
+        this.mirrorClassInput(cls);
         this.itemOptions.query({
             predicate: rdf.type,
             object: cls.id,
-        }).then(this.propagateItem);
+        });
         this.removeEditor();
         this.$('.item-picker-container').removeClass('is-hidden');
         return this;
     }
 
-    propagateItem(): void {
-        const item = this.model.get('item');
-        if (!item) return;
-        this.itemPicker.val(item.id);
-        this.itemPicker.$el.trigger('change');
+    changeClass(cls: Node): void {
+        const annotation = this.model.get('annotation');
+        annotation.unset(oa.hasBody);
+        annotation.set(oa.hasBody, cls);
+        this.selectClass(cls);
     }
 
     selectItem(itemPicker: PickerView, id: string): void {
         this.removeEditor();
-        this.selectedItem = this.itemOptions.get(id);
+        this.setItem(this.itemOptions.get(id));
+    }
+
+    setItem(selectedItem?: Node): void {
+        const previousItem = this.model.get('item');
+        if (previousItem === selectedItem) return;
+        const annotation = this.model.get('annotation');
+        previousItem && annotation.unset(oa.hasBody, previousItem);
+        selectedItem && annotation.set(oa.hasBody, selectedItem);
     }
 
     createItem(): this {
         if (this.itemEditor) return this;
-        this.selectedItem = new Node({
-            '@type': this.selectedClass.id,
+        const item = new Node({
+            '@id': uniqueId('_:'),
+            '@type': this.model.get('class').id,
             [skos.prefLabel]: '', // this prevents a failing getLabel
         });
-        this.itemEditor = new ItemEditor({model: this.selectedItem});
+        this.setItem(item);
+        this.itemEditor = new ItemEditor({model: item});
         this.$('.item-picker-container').after(this.itemEditor.el);
         return this;
     }
 
     removeEditor(): this {
-        if (!this.itemEditor) return this;
-        this.itemEditor.remove();
-        delete this.itemEditor;
-        delete this.selectedItem;
+        if (this.itemEditor) {
+            this.itemEditor.remove();
+            delete this.itemEditor;
+            this.setItem();
+        }
         return this;
     }
 
@@ -231,13 +260,21 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     onCancelClicked(event: JQueryEventObject): this {
         event.preventDefault();
         this.reset();
+        if (isBlank(this.model.underlying)) {
+            // Remove the placeholder.
+            this.collection.underlying.remove(this.model.underlying);
+        } 
         explorerChannel.trigger('annotationEditView:close', this);
         return this;
     }
 
     async onDelete(): Promise<void> {
         const annotation = this.model.get('annotation');
-        const details = getTargetDetails(annotation);
+        const details = [
+            this.model.get('quoteSelector'),
+            this.model.get('positionSelector'),
+            this.model.get('target'),
+        ];
         // We wait for the oa:Annotation to be destroyed, then destroy its
         // target and selectors without waiting whether deletion was successful.
         // Incomplete deletion should not trouble the user.
@@ -248,6 +285,12 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     onRelatedItemsClicked(event: JQueryEventObject): this {
         this.trigger('add-related-item', this.classPicker.getSelected());
         return this;
+    }
+
+    saveOnEnter(event) {
+        if (event.keyCode == 13) {
+            this.submit();
+        }
     }
 }
 
@@ -264,9 +307,6 @@ extend(AnnotationEditView.prototype, {
         view: 'snippetView',
         selector: '.snippet-container',
     }, {
-        view: 'metadataView',
-        selector: '.metadata-container',
-    }, {
         view: 'itemEditor',
         selector: '.item-picker-container',
         method: 'after',
@@ -277,5 +317,6 @@ extend(AnnotationEditView.prototype, {
         'click .panel-footer button.is-danger': 'onDelete',
         'click .btn-rel-items': 'onRelatedItemsClicked',
         'click .item-picker-container .field:last button': 'createItem',
+        'keyup input': 'saveOnEnter',
     },
 });

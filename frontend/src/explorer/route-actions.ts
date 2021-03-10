@@ -24,6 +24,18 @@ export function sourceWithAnnotations(control: Controller, node: Node) {
     return control.resetSourcePair(node);
 }
 
+export function annotation(control: Controller, source: Node, item: Node) {
+    const [sourcePanel, listPanel] = sourceWithAnnotations(control, source);
+    const flat = listPanel.collection.get(item.id) || new FlatItem(item);
+    return control.openSourceAnnotation(listPanel, flat);
+}
+
+export
+function annotationInEditMode(control: Controller, source: Node, item: Node) {
+    const itemPanel = annotation(control, source, item);
+    return control.editAnnotation(itemPanel, itemPanel.model);
+}
+
 export function item(control: Controller, node: Node) {
     return control.resetItem(node);
 }
@@ -52,4 +64,8 @@ export function itemWithOccurrences(control: Controller, node: Node) {
     // listItemAnnotations does not return the created panel
     // see #342
     control.listItemAnnotations(item(control, node), node);
+}
+
+export function searchResultsSources(control: Controller, queryParams: any) {
+    return control.resetSourceListFromSearchResults(queryParams);
 }

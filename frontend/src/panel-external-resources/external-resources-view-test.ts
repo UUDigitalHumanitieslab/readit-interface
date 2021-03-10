@@ -15,6 +15,9 @@ describe('ExternalResourcesView', function() {
 
     it('renders a list of external resource labels and urls', function() {
         const view = new ExternalResourcesView({ model: this.model });
-        expect(view.externalResources).toBeTruthy();
+        expect(view.$el.html()).toContain('sameAs');
+        expect(view.$el.html()).toContain(
+            'http://www.wikidata.org/entity/Q331656'
+        );
     });
 });
