@@ -83,15 +83,15 @@ extend(SuggestionsView.prototype, {
     subviews: [
     {
         view: 'sourceList',
-        selector: '.selections'
+        selector: '.source-suggestions'
     },
     {
         view: 'annotationList',
-        selector: '.selections'
+        selector: '.annotation-suggestions'
     },
     {
         view: 'ontologyList',
-        selector: '.selections'
+        selector: '.category-suggestions'
     },
     ]
 })
