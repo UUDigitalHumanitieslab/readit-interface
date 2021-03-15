@@ -345,10 +345,6 @@ function createSourceView(
     isEditable?: boolean,
 ): SourceView {
     let sourceItems = getItems(source);
-    // let sourceItems = getItemsOld(source, function(error, items) {
-    //     if (error) console.debug(error);
-    // });
-
 
     let annotations = new FlatAnnoCollection(sourceItems);
 
