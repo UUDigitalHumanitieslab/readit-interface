@@ -22,6 +22,6 @@ WHERE {
             ?e ?f.
     ?selector ?g ?h.
 }
-{{#if orderBy}}{{orderBy}}{{/if}}
+{{!-- {{#if orderBy}}ORDER BY {{orderBy}}{{else}}oa:start{{/if}} --}}
 {{#if limit}}LIMIT {{limit}}{{/if}}
 {{#if offset}}OFFSET {{offset}}{{/if}}

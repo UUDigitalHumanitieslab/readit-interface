@@ -27,7 +27,7 @@ import FlatItemCollection from '../common-adapters/flat-item-collection';
 import FlatAnnoCollection from '../common-adapters/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 import { createPlaceholderAnnotation } from '../utilities/annotation-creation-utilities';
-import { oa } from '../common-rdf/ns';
+import { as, oa } from '../common-rdf/ns';
 import SearchResultListView from '../panel-search-results/search-result-list-view';
 import SourceListPanel from '../panel-source-list/source-list-panel';
 import FilteredCollection from '../common-adapters/filtered-collection';
@@ -305,16 +305,33 @@ export default ExplorerEventController;
  * oa:TextQuoteSelectors and oa:TextPositionSelectors associated with the
  * specified source.
  */
-export function getItems(source: Node, callback): ItemGraph {
+export function getItems(source: Node): ItemGraph {
     const sparqlItems = new ItemGraph();
-    const queryString = itemsForSourceQuery(asURI(source), {});
-    sparqlItems.sparqlQuery(queryString).then(
-        function success() {
-            callback(null, sparqlItems);
-        },
-        /*error*/ callback
-    );
+    let offsetMultiplier = 0;
+    const limit = 10000;
+    
+    const runQueries = (): any => {
+        let queryString = itemsForSourceQuery(asURI(source), 
+            {limit: limit, offset: offsetMultiplier*limit}
+        );
+        return queryInBatches(sparqlItems, queryString).then(result => {
+            if (result) {
+                offsetMultiplier = offsetMultiplier + 1;
+                return runQueries();
+            }
+        })
+    }
+    runQueries();
     return sparqlItems;
+}
+
+function queryInBatches(items, queryString): JQuery.jqXHR {
+    return items.sparqlQuery(queryString).then((items, error) => {
+        if (error) {
+            console.trace(error);
+        }
+        else return items.length;
+    });
 }
 
 /**
@@ -327,9 +344,11 @@ function createSourceView(
     showHighlightsInitially?: boolean,
     isEditable?: boolean,
 ): SourceView {
-    let sourceItems = getItems(source, function(error, items) {
-        if (error) console.debug(error);
-    });
+    let sourceItems = getItems(source);
+    // let sourceItems = getItemsOld(source, function(error, items) {
+    //     if (error) console.debug(error);
+    // });
+
 
     let annotations = new FlatAnnoCollection(sourceItems);
 
