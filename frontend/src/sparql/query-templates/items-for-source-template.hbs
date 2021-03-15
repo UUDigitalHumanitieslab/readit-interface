@@ -20,8 +20,9 @@ WHERE {
     ?target oa:hasSource <{{sourceURI}}>;
             oa:hasSelector ?selector;
             ?e ?f.
-    ?selector ?g ?h.
+    ?selector ?g ?h;
+              oa:start ?start.
 }
-{{!-- {{#if orderBy}}ORDER BY {{orderBy}}{{else}}oa:start{{/if}} --}}
+{{#if orderBy}}{{orderBy}}{{else}}ORDER BY ?start{{/if}}
 {{#if limit}}LIMIT {{limit}}{{/if}}
 {{#if offset}}OFFSET {{offset}}{{/if}}
