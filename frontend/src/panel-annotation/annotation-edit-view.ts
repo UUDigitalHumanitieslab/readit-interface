@@ -1,4 +1,4 @@
-import { extend, invokeMap, bindAll, uniqueId } from 'lodash';
+import { extend, invokeMap, bindAll, uniqueId, after, once } from 'lodash';
 import 'select2';
 
 import { CompositeView } from '../core/view';
@@ -12,7 +12,6 @@ import PickerView from '../forms/base-picker-view';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import ItemGraph from '../common-adapters/item-graph';
 import ClassPickerView from '../forms/ontology-class-picker-view';
-import ItemMetadataView from '../item-metadata/item-metadata-view';
 import SnippetView from '../snippet/snippet-view';
 import { isRdfsClass, isBlank } from '../utilities/linked-data-utilities';
 import { placeholderClass } from '../utilities/annotation-utilities';
@@ -39,7 +38,6 @@ const announce = announceRoute(true);
 
 export default class AnnotationEditView extends CompositeView<FlatItem> {
     collection: FlatCollection;
-    metadataView: ItemMetadataView;
     classPicker: ClassPickerView;
     snippetView: SnippetView;
     userIsOwner: boolean;
@@ -47,6 +45,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     itemOptions: ItemGraph;
     itemEditor: ItemEditor;
     originalBodies: Node[];
+    validator: JQueryValidation.Validator;
 
     initialize() {
         this.itemOptions = new ItemGraph();
@@ -55,37 +54,56 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             collection: this.itemOptions,
             className: '',
         });
-        this.itemPicker.on('change', this.selectItem, this);
         // Replace Bulma select by select2 select. TODO: make this less hacky.
         this.itemPicker.$('select').width('95%').select2();
         this.classPicker = new ClassPickerView({
             collection: getOntologyClasses(),
             preselection: this.model.get('class'),
-        }).on('select', this.selectClass, this).render();
+        }).render();
         this.snippetView = new SnippetView({ model: this.model }).render();
 
         this.model.when('annotation', this.processAnnotation, this);
-        this.model.when('class', (model, cls) => this.selectClass(cls));
-        bindAll(this, 'propagateItem');
-        this.model.when('item', this.propagateItem, this);
+        this.model.when('class', this.processClass, this);
+        // Two conditions must be met before we run processItem:
+        const processItem = after(2, this.processItem);
+        // 1. the original item body of the annotation is known,
+        const triggerItemConfirmed = once(processItem);
+        this.model.when('item', triggerItemConfirmed, this);
+        //    OR we know that it has no item whatsoever;
+        this.listenToOnce(this.model, 'complete', triggerItemConfirmed);
+        // 2. this item is available to the itemPicker.
+        this.itemOptions.once('update', processItem, this);
+
+        this.render();
+        this.on('announceRoute', announce);
     }
 
     processAnnotation(model: FlatItem, annotation: Node): void {
         this.originalBodies = annotation.get(oa.hasBody) as Node[];
-        this.metadataView = new ItemMetadataView({ model: annotation });
-        this.metadataView.render();
-        this.on('announceRoute', announce);
         const creator = model.get('creator') as Node;
         const currentUser = ldChannel.request('current-user-uri');
         if (creator && (creator.id === currentUser)) this.userIsOwner = true;
         if (this.userIsOwner) this.render();
     }
 
-    renderContainer(): this {
-        this.$el.html(this.template(this));
-        this.selectClass(this.model.get('class'));
+    processClass(model: FlatItem, cls: Node): void {
+        this.classPicker.select(cls);
+        this.selectClass(cls);
+        this.classPicker.on('select', this.changeClass, this);
+    }
 
-        this.$(".anno-edit-form").validate({
+    processItem(): void {
+        const item = this.model.get('item');
+        if (item) this.itemPicker.val(item.id);
+        this.itemPicker.on('change', this.selectItem, this);
+    }
+
+    renderContainer(): this {
+        if (this.validator) this.validator.destroy();
+        this.$el.html(this.template(this));
+        this.mirrorClassInput(this.model.get('class'));
+
+        this.validator = this.$(".anno-edit-form").validate({
             errorClass: "help is-danger",
             ignore: "",
         });
@@ -93,6 +111,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     remove(): this {
+        if (this.validator) this.validator.destroy();
         this.itemPicker.$('select').select2('destroy');
         super.remove();
         return this;
@@ -172,29 +191,27 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         return this;
     }
 
+    mirrorClassInput(cls: Node): void {
+        if (cls) this.$('.hidden-input').val(cls.id).valid();
+    }
+
     selectClass(cls: Node): this {
         if (!cls || cls === placeholderClass) return this;
-        this.$('.hidden-input').val(cls.id).valid();
-        if (cls !== this.model.get('class')) {
-            const annotation = this.model.get('annotation');
-            annotation.unset(oa.hasBody);
-            annotation.set(oa.hasBody, cls);
-        }
-        this.classPicker.select(cls);
+        this.mirrorClassInput(cls);
         this.itemOptions.query({
             predicate: rdf.type,
             object: cls.id,
-        }).then(this.propagateItem);
+        });
         this.removeEditor();
         this.$('.item-picker-container').removeClass('is-hidden');
         return this;
     }
 
-    propagateItem(): void {
-        const item = this.model.get('item');
-        if (!item) return;
-        this.itemPicker.val(item.id);
-        this.itemPicker.$el.trigger('change');
+    changeClass(cls: Node): void {
+        const annotation = this.model.get('annotation');
+        annotation.unset(oa.hasBody);
+        annotation.set(oa.hasBody, cls);
+        this.selectClass(cls);
     }
 
     selectItem(itemPicker: PickerView, id: string): void {
@@ -220,13 +237,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         this.setItem(item);
         this.itemEditor = new ItemEditor({model: item});
         this.$('.item-picker-container').after(this.itemEditor.el);
-        // Prevent a spurious `this.propagateItem()`, which would immediately
-        // remove the `itemEditor` again. This is a corner case that happens if
-        // the annotation started out complete but itemless and this is the
-        // first time that we're opening an `itemEditor` in the current panel.
-        this.stopListening(this.model, 'change:item');
-        // Note that we still listen for the general 'change' event, as we
-        // should!
         return this;
     }
 
@@ -251,12 +261,10 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         event.preventDefault();
         this.reset();
         if (isBlank(this.model.underlying)) {
-            // Remove the placeholder. This will also pop the panels.
+            // Remove the placeholder.
             this.collection.underlying.remove(this.model.underlying);
-        } else {
-            // Not a placeholder, but still remove the panels.
-            explorerChannel.trigger('annotationEditView:close', this);
-        }
+        } 
+        explorerChannel.trigger('annotationEditView:close', this);
         return this;
     }
 
@@ -298,9 +306,6 @@ extend(AnnotationEditView.prototype, {
     }, {
         view: 'snippetView',
         selector: '.snippet-container',
-    }, {
-        view: 'metadataView',
-        selector: '.metadata-container',
     }, {
         view: 'itemEditor',
         selector: '.item-picker-container',

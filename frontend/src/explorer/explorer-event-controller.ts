@@ -50,12 +50,14 @@ class ExplorerEventController {
     pushSource(basePanel: View, source: Node): SourceView {
         const sourcePanel = createSourceView(source, true, true);
         this.explorerView.popUntil(basePanel).push(sourcePanel);
+        source.on('destroy', () => this.explorerView.popUntil(basePanel));
         return sourcePanel;
     }
 
     resetSource(source: Node, showHighlights: boolean): SourceView {
         const sourcePanel = createSourceView(source, showHighlights, true);
         this.explorerView.reset(sourcePanel);
+        source.on('destroy', this.showSuggestionsPanel, this);
         return sourcePanel;
     }
 
