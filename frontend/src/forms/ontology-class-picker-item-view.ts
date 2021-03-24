@@ -1,10 +1,10 @@
 import { extend, sortBy } from 'lodash';
 
 import { CompositeView } from '../core/view';
-import Node from '../common-rdf/node';
 import LabelView from '../label/label-view';
+import FlatItem from '../common-adapters/flat-item-model';
 
-export default class OntologyClassPickerItemView extends CompositeView<Node> {
+export default class OntologyClassPickerItemView extends CompositeView<FlatItem> {
     labelView: LabelView;
 
     initialize(): this {

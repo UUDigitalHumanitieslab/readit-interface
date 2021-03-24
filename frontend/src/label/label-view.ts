@@ -5,14 +5,15 @@ import View from '../core/view';
 import { skos } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import { getCssClassName, getLabel } from '../utilities/linked-data-utilities';
+import FlatItem from '../common-adapters/flat-item-model';
 
 type TooltipSetting = false | 'top' | 'bottom' | 'left' | 'right';
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt<FlatItem> {
     toolTipSetting?: TooltipSetting;
 }
 
-export default class LabelView extends View<Node> {
+export default class LabelView extends View<FlatItem> {
     label: string;
     cssClassName: string;
     toolTipSetting: TooltipSetting;
@@ -28,8 +29,8 @@ export default class LabelView extends View<Node> {
     }
 
     render(): this {
-        let label = getLabel(this.model);
-        let className = getCssClassName(this.model);
+        let label = this.model.get('label');
+        let className = this.model.get('cssClass');
         this.$el.html();
         this.$el.text(label);
         this.$el.addClass(className);

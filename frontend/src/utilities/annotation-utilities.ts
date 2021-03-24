@@ -1,3 +1,4 @@
+import FlatItem from '../common-adapters/flat-item-model';
 import Node from '../common-rdf/node';
 import { rdfs, skos, schema, readit } from '../common-rdf/ns';
 
@@ -17,6 +18,10 @@ export const placeholderClass = new Node({
     [skos.definition]: 'This annotation has not been tagged yet.',
     [schema.color]: '#accef7',
 });
+
+export const placeholderClassItem = new FlatItem(
+    placeholderClass
+);
 
 /**
  * Get a text that is usable as a label for an oa:Annotation,

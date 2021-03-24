@@ -14,6 +14,8 @@ import AnnotationListView from '../panel-annotation-list/annotation-list-view';
 import OntologyListView from '../ontology/ontology-list-view';
 import LabelView from '../label/label-view';
 import FlatAnnotationCollection from '../common-adapters/flat-annotation-collection';
+import FlatItemCollection from '../common-adapters/flat-item-collection';
+import FlatItem from '../common-adapters/flat-item-model';
 
 const announce = announceRoute('explore');
 const nSuggestions = 3;
@@ -24,7 +26,8 @@ export default class SuggestionsView extends CompositeView{
     sourceSuggestions: Graph;
     annotationGraph: Graph;
     annotationSuggestions: FlatAnnotationCollection;
-    categorySuggestions: Graph;
+    categoryGraph: Graph;
+    categorySuggestions: FlatItemCollection;
     sourceList: SourceListView;
     annotationList: AnnotationListView;
     ontologyList: OntologyListView;
@@ -34,7 +37,8 @@ export default class SuggestionsView extends CompositeView{
         this.sourceSuggestions = new Graph();
         this.annotationGraph = new Graph();
         this.annotationSuggestions = new FlatAnnotationCollection(this.annotationGraph);
-        this.categorySuggestions = new Graph();
+        this.categoryGraph = new Graph();
+        this.categorySuggestions = new FlatItemCollection(this.categoryGraph);
         this.getSuggestions();
         this.sourceList = new SourceListView({collection: this.sourceSuggestions});
         this.listenTo(this.sourceList, 'source:clicked', this.openSource);
@@ -52,7 +56,7 @@ export default class SuggestionsView extends CompositeView{
         this.annotationGraph.fetch({ url: itemSuggestionsUrl, data: param });
         const categories = await ldChannel.request('ontology:promise');
         const suggestions = sampleSize(filter(categories.models, isRdfsClass), nSuggestions);
-        this.categorySuggestions.set(suggestions);
+        this.categoryGraph.set(suggestions);
     }
 
     openSource(source: Node): void {

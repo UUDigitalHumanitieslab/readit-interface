@@ -14,7 +14,7 @@ import ItemGraph from '../common-adapters/item-graph';
 import ClassPickerView from '../forms/ontology-class-picker-view';
 import SnippetView from '../snippet/snippet-view';
 import { isRdfsClass, isBlank } from '../utilities/linked-data-utilities';
-import { placeholderClass } from '../utilities/annotation-utilities';
+import { placeholderClassItem } from '../utilities/annotation-utilities';
 import {
     savePlaceholderAnnotation,
 } from '../utilities/annotation-creation-utilities';
@@ -86,7 +86,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         if (this.userIsOwner) this.render();
     }
 
-    processClass(model: FlatItem, cls: Node): void {
+    processClass(model: FlatItem, cls: FlatItem): void {
         this.classPicker.select(cls);
         this.selectClass(cls);
         this.classPicker.on('select', this.changeClass, this);
@@ -191,12 +191,12 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         return this;
     }
 
-    mirrorClassInput(cls: Node): void {
+    mirrorClassInput(cls: FlatItem): void {
         if (cls) this.$('.hidden-input').val(cls.id).valid();
     }
 
-    selectClass(cls: Node): this {
-        if (!cls || cls === placeholderClass) return this;
+    selectClass(cls: FlatItem): this {
+        if (!cls || cls === placeholderClassItem) return this;
         this.mirrorClassInput(cls);
         this.itemOptions.query({
             predicate: rdf.type,
@@ -207,7 +207,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         return this;
     }
 
-    changeClass(cls: Node): void {
+    changeClass(cls: FlatItem): void {
         const annotation = this.model.get('annotation');
         annotation.unset(oa.hasBody);
         annotation.set(oa.hasBody, cls);
