@@ -61,7 +61,7 @@ export default class SuggestionsView extends CompositeView{
 
     openAnnotation(annotation: Node): void {
         this.$('.category-view.is-highlighted').removeClass('is-highlighted');
-        explorerChannel.trigger('annotationList:showAnnotation', this, annotation);
+        explorerChannel.trigger('annotationList:showAnnotation', this, annotation, this.annotationList.collection);
     }
 
     openRelevantAnnotations(label: LabelView, category: Node): void {
