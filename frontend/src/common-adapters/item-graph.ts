@@ -6,6 +6,9 @@ import Node, { isNode } from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import { asURI } from '../utilities/linked-data-utilities';
 
+import { sparqlRoot } from 'config.json';
+const sparqlItemsEndpoint = sparqlRoot + 'items/query'
+
 export interface QueryParamsURI {
     predicate?: Node | string;
     object?: Node | string;
@@ -101,7 +104,7 @@ export default class ItemGraph extends Graph {
     }
 
     sparqlQuery(query: string): JQuery.jqXHR {
-        return this.promise = this.fetch({ url: '/sparql/item/query', data: $.param({ query: query }), remove: false });
+        return this.promise = this.fetch({ url: sparqlItemsEndpoint, data: $.param({ query: query }), remove: false });
     }
 
     /**

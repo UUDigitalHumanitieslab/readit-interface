@@ -319,7 +319,7 @@ export function getItems(source: Node): ItemGraph {
                 offsetMultiplier = offsetMultiplier + 1;
                 return runQueries();
             }
-        })
+        });
     }
     runQueries();
     return sparqlItems;
