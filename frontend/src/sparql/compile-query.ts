@@ -23,7 +23,7 @@ export function itemsForSourceQuery(source: string, { ...options }: SPARQLQueryO
     let data = { sourceURI: source };
     const hasAllViewPerm = user.hasPermission('view_all_annotations');
     if (!hasAllViewPerm) data['userURI'] = ldChannel.request('current-user-uri');
-    const finalData = { ...data };
+    const finalData = { ...data, ...options };
 
     return itemsTemplate(finalData).replace(/ {2,}/g, ' '); // strip double spaces
 }
