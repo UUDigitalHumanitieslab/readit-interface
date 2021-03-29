@@ -25,13 +25,15 @@ import FlatCollection from '../common-adapters/flat-item-collection';
 
 import { announceRoute } from './utilities';
 import annotationEditTemplate from './annotation-edit-template';
+import FlatItemCollection from '../common-adapters/flat-item-collection';
 
 /**
  * Helper function in order to pass the right classes to the classPicker.
  */
 function getOntologyClasses() {
+    // TODO: request only items of type rdfs:class via SPARQL
     const ontology = ldChannel.request('ontology:graph') || new Graph();
-    return new FilteredCollection<Node, Graph>(ontology, isRdfsClass);
+    return new FlatItemCollection(ontology);
 }
 
 const announce = announceRoute(true);

@@ -45,7 +45,7 @@ export default class SuggestionsView extends CompositeView{
         this.annotationList = new AnnotationListView({collection: this.annotationSuggestions as FlatAnnotationCollection});
         this.listenTo(this.annotationList, 'annotation:clicked', this.openAnnotation);
         this.ontologyList = new OntologyListView({collection: this.categorySuggestions});
-        this.listenTo(this.ontologyList, 'category:clicked', this.openRelevantAnnotations);
+        // this.listenTo(this.ontologyList, 'category:clicked', this.openRelevantAnnotations);
         this.on('announceRoute', announce);
         this.render();
     }
@@ -68,9 +68,7 @@ export default class SuggestionsView extends CompositeView{
         explorerChannel.trigger('annotationList:showAnnotation', this, annotation, this.annotationList.collection);
     }
 
-    openRelevantAnnotations(label: LabelView, category: Node): void {
-        this.$('.is-highlighted').removeClass('is-highlighted');
-        label.$el.addClass('is-highlighted');
+    openRelevantAnnotations(category: FlatItem): void {
         explorerChannel.trigger('category:showRelevantAnnotations', this, category);
     }
 

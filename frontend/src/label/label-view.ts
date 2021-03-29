@@ -25,27 +25,30 @@ export default class LabelView extends View<FlatItem> {
         if (options && options.toolTipSetting !== undefined) {
             this.toolTipSetting = options.toolTipSetting;
         }
-        this.render().listenTo(this.model, 'change', this.render);
+        this.model.when('class', this.processClass, this);
+    }
+
+    processClass() {
+        this.label = this.model.get('classLabel');
+        this.cssClassName = this.model.get('cssClass');
+        this.addDefinition();
+        this.render();
     }
 
     render(): this {
-        let label = this.model.get('label');
-        let className = this.model.get('cssClass');
         this.$el.html();
-        this.$el.text(label);
-        this.$el.addClass(className);
-        this.addDefinition();
-
+        this.$el.text(this.label);
+        this.$el.addClass(this.cssClassName);
         return this;
     }
 
     addDefinition(): void {
-        if (this.hasTooltip() && this.model.has(skos.definition)) {
+        if (this.hasTooltip() && this.model.get('class').has(skos.definition)) {
             this.$el.addClass("tooltip");
             this.$el.addClass("is-tooltip");
             this.setTooltipOrientation();
 
-            let definition = this.model.get(skos.definition)[0] as string;
+            let definition = this.model.get('class').get(skos.definition)[0] as string;
             this.$el.attr("data-tooltip", definition);
 
             if (definition.length > 65) {

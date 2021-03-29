@@ -1,9 +1,10 @@
 import { extend } from 'lodash';
 
 import { CollectionView } from '../core/view';
-import Node from '../common-rdf/node';
 import OntologyItemView from './ontology-item-view';
 import FlatItem from '../common-adapters/flat-item-model';
+
+import explorerChannel from '../explorer/explorer-radio';
 
 export default class OntologyListView extends CollectionView<FlatItem, OntologyItemView> {
     initialize(): void {
@@ -14,12 +15,12 @@ export default class OntologyListView extends CollectionView<FlatItem, OntologyI
     }
 
     makeItem(model: FlatItem): OntologyItemView {
-        const label = new OntologyItemView({ model, tagName:'div', className: 'tag category-view'}).render();
+        const label = new OntologyItemView({ model, tagName:'div', className: 'tag category-view'});
         return label;
     }
 
-    categoryFocus(label: OntologyItemView, category: FlatItem): void {
-        this.trigger('category:clicked', label, category);
+    categoryFocus(category: FlatItem): void {
+        explorerChannel.trigger('category:showRelevantAnnotations', this, category);
     }
 }
 extend(OntologyListView.prototype, {

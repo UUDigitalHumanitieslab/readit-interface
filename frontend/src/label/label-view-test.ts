@@ -32,7 +32,6 @@ describe('LabelView', function () {
     it('includes a tooltip if a definition exists', function () {
         let item = getDefaultItem();
         let view = new LabelView({ model: item });
-
         expect(view.el.className).toContain('is-readit-content');
         expect(view.$el.attr('data-tooltip')).toEqual('This is a test definition');
     });
