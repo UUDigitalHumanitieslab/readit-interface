@@ -15,8 +15,8 @@ def find_dirty_triples():
     for triple in g:
         is_cleaned, cleaned_triple = xml_sanitize_triple(triple)
         if is_cleaned:
-            logger.warning(f'Dirty triple: {triple}' + '\n' + \
-            f'Clean triple: {cleaned_triple}')
+            logger.warning(
+                f'Dirty triple: {triple}\nClean triple: {cleaned_triple}')
 
 
 def clean_dirty_triples():
