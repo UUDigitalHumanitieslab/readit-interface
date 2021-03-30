@@ -12,11 +12,14 @@ logger = logging.getLogger('scripts')
 
 def find_dirty_triples():
     g = item_graph()
+    cleaned_cnt = 0
     for triple in g:
         is_cleaned, cleaned_triple = xml_sanitize_triple(triple)
         if is_cleaned:
-            logger.warning(
-                f'Dirty triple: {triple}\nClean triple: {cleaned_triple}')
+            cleaned_cnt += 1
+            logger.warning('Dirty triple: {}\nClean triple: {}'.format(
+                triple, cleaned_triple))
+    print('Done, found {} dirty triples.'.format(cleaned_cnt))
 
 
 def clean_dirty_triples():
