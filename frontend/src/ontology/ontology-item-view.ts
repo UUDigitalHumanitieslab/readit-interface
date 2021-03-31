@@ -25,7 +25,6 @@ export default class OntologyItemView extends LabelView {
     onClick(): this {
         const event = this.$el.hasClass('is-highlighted') ? 'blur' : 'focus';
         this.model.trigger(event, this.model);
-        // this.trigger('click', this, this.model);
         return this;
     }
 

@@ -205,7 +205,7 @@ class ExplorerEventController {
         // this.autoOpenRelationEditor(annotation.get('annotation'));
     }
 
-    showAnnotationsOfCategory(view: SuggestionsView, category: Node): SearchResultListView {
+    showAnnotationsOfCategory(view: SuggestionsView, category: FlatItem): SearchResultListView {
         let items = new ItemGraph();
         const url = '/item/' + category.id.split("#")[1];
         items.fetch({ url: url });
@@ -215,10 +215,7 @@ class ExplorerEventController {
             collection: flatItems,
             selectable: false,
         });
-        if (this.explorerView.stacks.length > 1) {
-            this.explorerView.pop();
-        }
-        this.explorerView.push(resultView);
+        this.explorerView.popUntil(view).push(resultView);
         return resultView;
     }
 

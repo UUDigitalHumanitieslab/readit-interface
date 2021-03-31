@@ -40,8 +40,10 @@ export default class SuggestionsView extends CompositeView{
         this.sourceSuggestions = new Graph();
         this.annotationGraph = new Graph();
         this.annotationSuggestions = new FlatAnnotationCollection(this.annotationGraph);
+        this.listenTo(this.annotationSuggestions, 'focus', this.openAnnotation);
         this.categoryGraph = new Graph();
         this.categorySuggestions = new FlatItemCollection(this.categoryGraph);
+        this.listenTo(this.categorySuggestions, 'focus', this.openRelevantAnnotations);
         this.getSuggestions();
         this.sourceList = new SourceListView({collection: this.sourceSuggestions});
         this.listenToOnce(this.sourceSuggestions, {
@@ -50,9 +52,7 @@ export default class SuggestionsView extends CompositeView{
         })
         this.listenTo(this.sourceList, 'source:clicked', this.openSource);
         this.annotationList = new AnnotationListView({collection: this.annotationSuggestions as FlatAnnotationCollection});
-        this.listenTo(this.annotationList, 'annotation:clicked', this.openAnnotation);
         this.ontologyList = new OntologyListView({collection: this.categorySuggestions});
-        // this.listenTo(this.ontologyList, 'category:clicked', this.openRelevantAnnotations);
         this.on('announceRoute', announce);
         this.render();
     }
@@ -74,6 +74,7 @@ export default class SuggestionsView extends CompositeView{
     }
 
     openSource(source: Node): void {
+        this.$('.is-highlighted').removeClass('is-highlighted');
         explorerChannel.trigger('source-list:click', this, source);
     }
 
@@ -83,6 +84,7 @@ export default class SuggestionsView extends CompositeView{
     }
 
     openRelevantAnnotations(category: FlatItem): void {
+        this.$('.item-sum-block.is-highlighted').removeClass('is-highlighted');
         explorerChannel.trigger('category:showRelevantAnnotations', this, category);
     }
 
