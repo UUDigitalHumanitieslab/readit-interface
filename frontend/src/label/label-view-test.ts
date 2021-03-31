@@ -1,4 +1,4 @@
-import { enableI18n } from '../test-util';
+import { enableI18n, event } from '../test-util';
 
 import { rdfs, skos } from './../common-rdf/ns';
 import { FlatLdObject } from '../common-rdf/json';
@@ -29,9 +29,10 @@ function getDefaultAttributes(): FlatLdObject {
 describe('LabelView', function () {
     beforeAll(enableI18n);
 
-    it('includes a tooltip if a definition exists', function () {
+    it('includes a tooltip if a definition exists', async function () {
         let item = getDefaultItem();
         let view = new LabelView({ model: item });
+        await event(item, 'complete:all');
         expect(view.el.className).toContain('is-readit-content');
         expect(view.$el.attr('data-tooltip')).toEqual('This is a test definition');
     });

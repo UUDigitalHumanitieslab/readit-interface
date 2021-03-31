@@ -66,6 +66,7 @@ export default class LabelView extends View<FlatItem> {
         this.$el.addClass(`is-tooltip${orientation}`);
         return this;
     }
+
 }
 extend(LabelView.prototype, {
     tagName: 'span',

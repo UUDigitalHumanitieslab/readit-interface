@@ -1,4 +1,5 @@
 
+import { timeStamp } from 'console';
 import { extend } from 'lodash';
 
 import LabelView from '../label/label-view';
@@ -21,11 +22,18 @@ export default class OntologyItemView extends LabelView {
         return this;
     }
 
+    onClick(): this {
+        const event = this.$el.hasClass('is-highlighted') ? 'blur' : 'focus';
+        this.model.trigger(event, this.model);
+        // this.trigger('click', this, this.model);
+        return this;
+    }
+
 }
 extend(LabelView.prototype, {
     tagName: 'span',
     className: 'tag',
     events: {
-        click: 'onClick'
+        'click': 'onClick',
     }
 });

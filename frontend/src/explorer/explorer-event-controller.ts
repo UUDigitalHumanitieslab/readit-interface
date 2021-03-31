@@ -215,7 +215,10 @@ class ExplorerEventController {
             collection: flatItems,
             selectable: false,
         });
-        this.explorerView.popUntil(view).push(resultView);
+        if (this.explorerView.stacks.length > 1) {
+            this.explorerView.pop();
+        }
+        this.explorerView.push(resultView);
         return resultView;
     }
 
