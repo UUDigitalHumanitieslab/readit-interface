@@ -1,4 +1,4 @@
-import { extend, invokeMap, bindAll, uniqueId, after, once } from 'lodash';
+import { extend, invokeMap, uniqueId, after, once } from 'lodash';
 import 'select2';
 
 import { CompositeView } from '../core/view';
@@ -9,7 +9,6 @@ import Graph from '../common-rdf/graph';
 
 import ItemEditor from '../item-edit/item-edit-view';
 import PickerView from '../forms/base-picker-view';
-import FilteredCollection from '../common-adapters/filtered-collection';
 import ItemGraph from '../common-adapters/item-graph';
 import ClassPickerView from '../forms/ontology-class-picker-view';
 import SnippetView from '../snippet/snippet-view';
@@ -27,15 +26,6 @@ import { announceRoute } from './utilities';
 import annotationEditTemplate from './annotation-edit-template';
 import FlatItemCollection from '../common-adapters/flat-item-collection';
 
-/**
- * Helper function in order to pass the right classes to the classPicker.
- */
-function getOntologyClasses() {
-    // TODO: request only items of type rdfs:class via SPARQL
-    const ontology = ldChannel.request('ontology:graph') || new Graph();
-    return new FlatItemCollection(ontology);
-}
-
 const announce = announceRoute(true);
 
 export default class AnnotationEditView extends CompositeView<FlatItem> {
@@ -48,6 +38,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     itemEditor: ItemEditor;
     originalBodies: Node[];
     validator: JQueryValidation.Validator;
+    ontologyClasses: Graph;
 
     initialize() {
         this.itemOptions = new ItemGraph();
@@ -58,9 +49,12 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         });
         // Replace Bulma select by select2 select. TODO: make this less hacky.
         this.itemPicker.$('select').width('95%').select2();
+        this.ontologyClasses = new Graph();
+        const categories = new FlatItemCollection(this.ontologyClasses);
+        this.getOntologyClasses();
         this.classPicker = new ClassPickerView({
-            collection: getOntologyClasses(),
-            preselection: this.model.get('class'),
+            collection: categories,
+            preselection: new FlatItem(this.model.get('class')),
         }).render();
         this.snippetView = new SnippetView({ model: this.model }).render();
 
@@ -86,6 +80,16 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         const currentUser = ldChannel.request('current-user-uri');
         if (creator && (creator.id === currentUser)) this.userIsOwner = true;
         if (this.userIsOwner) this.render();
+    }
+
+    /**
+    * Helper function in order to pass the right classes to the classPicker.
+    */
+    async getOntologyClasses() {
+        // TODO: request only items of type rdfs:class via SPARQL
+        const ontology = await ldChannel.request('ontology:promise');
+        this.ontologyClasses.set(ontology.models.filter( model => isRdfsClass(model)));
+        return ontology;
     }
 
     processClass(model: FlatItem, cls: FlatItem): void {
