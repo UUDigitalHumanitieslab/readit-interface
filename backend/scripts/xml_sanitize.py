@@ -26,8 +26,6 @@ from django.conf import settings
 from os import environ
 environ.setdefault('DJANGO_SETTINGS_MODULE', 'readit.settings')
 
-settings.RDFLIB_STORE.returnFormat = 'json'
-
 logger = logging.getLogger('scripts')
 
 
@@ -36,6 +34,8 @@ def find_dirty_triples(sanitize_graph=False, graph=item_graph):
     Finds triples containing XML invalid characters in specified graph (default 'items').
     If sanitize_graph=True, also replaces them by their cleaned counterpart.
     """
+    orig_returnFormat = settings.RDFLIB_STORE.returnFormat
+    settings.RDFLIB_STORE.returnFormat = 'json'
     g = graph()
     cleaned_cnt = 0
     for triple in g:
@@ -48,3 +48,4 @@ def find_dirty_triples(sanitize_graph=False, graph=item_graph):
                 g.remove(triple)
                 g.add(cleaned_triple)
     print('Done, found {} dirty triples.'.format(cleaned_cnt))
+    settings.RDFLIB_STORE.returnFormat = orig_returnFormat
