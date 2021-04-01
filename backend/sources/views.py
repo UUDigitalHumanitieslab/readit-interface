@@ -28,6 +28,7 @@ from vocab import namespace as vocab
 from staff.utils import submission_info
 from items.constants import ITEMS_NS
 from items.graph import graph as items_graph
+from sparql.utils import invalid_xml_remove
 from . import namespace as ns
 from .constants import SOURCES_NS
 from .graph import graph as sources_graph
@@ -315,7 +316,9 @@ class AddSource(RDFResourceView):
     parser_classes = [MultiPartParser]
 
     def store(self, source_file, source_id, source_language, author, title):
-        text = html.escape(str(source_file.read().decode('utf8')))
+        raw_text = str(source_file.read().decode('utf8'))
+        xml_sanitized_text = invalid_xml_remove(raw_text)
+        text = html.escape(xml_sanitized_text)
         es.index(settings.ES_ALIASNAME, {
             'id': source_id,
             'language': source_language,
