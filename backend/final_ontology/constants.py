@@ -10,7 +10,7 @@ FINAL_ONTOLOGY_NS = '{}{}#'.format(
 # This is hardcoded, i.e., not a setting, because migrations depend
 # on the exact contents.
 SOURCE = op.join(settings.BASE_DIR, 'final_ontology',
-                 'REO_2.4.owl')
+                 'REO_v2.4.owl')
 
 # Format must be a string that rdflib recognizes.
 SOURCE_FORMAT = 'application/rdf+xml'
