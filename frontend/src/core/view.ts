@@ -75,7 +75,23 @@ export default class View<M extends Model = Model> extends BView<M> {
  *     going on, this final step ensures that it is actually true.
  */
 // step 1: define class with the first parent class
-export class CompositeView<M extends Model = Model> extends View<M> {}
+export class CompositeView<M extends Model = Model> extends View<M> {
+    /**
+     * Properly dispose of a subview in cases where it is outlived by the
+     * parent view. This ensures that the .remove()d subview cannot
+     * accidentally be reinserted in the parent HTML.
+     */
+    dispose<Name extends keyof this>(subviewName: Name): this {
+        const subview = this[subviewName];
+        if (subview instanceof BView) {
+            subview.remove();
+            delete this[subviewName];
+        } else if (subview != null) {
+            console.warn(`Trying to dispose non-subview ${subviewName}`, this);
+        }
+        return this;
+    }
+}
 
 // step 2: declare interface with the second parent class
 export interface CompositeView<M extends Model = Model> extends BCompositeView<M> {

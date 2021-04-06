@@ -2,13 +2,13 @@ import { extend } from 'lodash';
 
 import Model from '../core/model';
 import { CompositeView } from '../core/view';
-import ldChannel from '../jsonld/radio';
-import { rdf } from '../jsonld/ns';
-import Node from '../jsonld/node';
-import Graph from '../jsonld/graph';
+import ldChannel from '../common-rdf/radio';
+import { rdf } from '../common-rdf/ns';
+import Node from '../common-rdf/node';
+import Graph from '../common-rdf/graph';
 import PickerView from '../forms/base-picker-view';
 import RangePicker from '../forms/range-picker-view';
-import ItemGraph from '../utilities/item-graph';
+import ItemGraph from '../common-adapters/item-graph';
 import relationTemplate from './relation-editor-template';
 
 // Selector of the control where the object picker is inserted.

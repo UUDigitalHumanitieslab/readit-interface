@@ -1,9 +1,8 @@
 import { extend } from 'lodash';
 
 import { CollectionView } from '../core/view';
-import Node from '../jsonld/node';
+import Node from '../common-rdf/node';
 import OntologyItemView from './ontology-item-view';
-import ontologyListTemplate from './ontology-list-template';
 
 export default class OntologyListView extends CollectionView<Node, OntologyItemView> {
     initialize(): void {
@@ -18,18 +17,11 @@ export default class OntologyListView extends CollectionView<Node, OntologyItemV
         return label;
     }
 
-    renderContainer(): this {
-        this.$el.html(this.template(this));
-        return this;
-    }
-
     categoryFocus(label: OntologyItemView, category: Node): void {
         this.trigger('category:clicked', label, category);
     }
 }
 extend(OntologyListView.prototype, {
     className: 'ontology-list',
-    template: ontologyListTemplate,
-    container: '.categories',
 })
    

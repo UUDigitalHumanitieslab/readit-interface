@@ -1,3 +1,3 @@
-import FooterView from '../layout/footer-view';
+import FooterView from '../footer/footer-view';
 
 export default new FooterView();

@@ -1,15 +1,17 @@
 import {
     extend,
     defaultsDeep,
+    isEqual,
 } from 'lodash';
 import {
     ViewOptions as BViewOptions,
 } from 'backbone';
 
+
 import View, { CollectionView } from '../core/view';
-import Node from '../jsonld/node';
-import Graph from '../jsonld/graph';
-import { getLabel } from '../utilities/utilities';
+import Node from '../common-rdf/node';
+import Graph from '../common-rdf/graph';
+import { getLabel } from '../utilities/linked-data-utilities';
 import pickerTemplate from './base-picker-template';
 
 export interface PickerOptionOptions extends BViewOptions<Node> {
@@ -91,11 +93,14 @@ export default class PickerView extends CollectionView<Node, PickerOptionView> {
     }
 
     val(): string | string[];
-    val(selection: string | string[]): void;
+    val(selection: string | string[]): this;
     val(selection?) {
         const field = this.$('select');
         if (selection != null) {
-            field.val(selection);
+            if (!isEqual(selection, this.val())) {
+                field.val(selection).trigger('change');
+            }
+            return this;
         } else {
             return field.val();
         }

@@ -30,6 +30,8 @@
     </section>
 
 </div>
-{{!-- <div class="panel-footer buttons is-right">
+<div class="panel-footer buttons is-right">{{#userIsOwner}}
+    <button type=button class="button btn-delete is-danger">Delete source</button>
+    <button type=reset class="button btn-cancel">Cancel</button>
     <button type=button class="button btn-edit">Edit</button>
-</div> --}}
+{{/userIsOwner}}</div>

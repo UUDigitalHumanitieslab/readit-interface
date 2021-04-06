@@ -1,8 +1,8 @@
 import { $ } from 'backbone';
 import { noop } from 'lodash';
 
-import Graph from '../jsonld/graph';
-import FlatCollection from '../annotation/flat-annotation-collection';
+import Graph from '../common-rdf/graph';
+import FlatCollection from '../common-adapters/flat-annotation-collection';
 import SegmentCollection from '../highlight/text-segment-collection';
 import HighlightableTextView from './highlightable-text-view';
 import { bigText } from '../highlight/chunk-consistency-test';

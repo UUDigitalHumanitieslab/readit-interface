@@ -13,7 +13,7 @@ import {
     xsd,
     oa,
     iso6391,
-} from '../jsonld/ns';
+} from '../common-rdf/ns';
 import mockSourceText from './mock-source-text';
 
 export const source1instance = {
@@ -25,7 +25,7 @@ export const source1instance = {
             "@value": "Corpus_50_exp_lectures_interligne1.5 (1).pdf"
         }
     ],
-    [schema.creator]: [
+    [schema.author]: [
         {
             "@type": xsd.string,
             "@value": "Tess T. Author"

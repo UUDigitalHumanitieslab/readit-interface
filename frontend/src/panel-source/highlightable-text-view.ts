@@ -4,7 +4,7 @@ import { SubViewDescription } from 'backbone-fractal/dist/composite-view';
 
 import Model from '../core/model';
 import { CompositeView } from './../core/view';
-import Node from '../jsonld/node';
+import Node from '../common-rdf/node';
 import SegmentModel from '../highlight/text-segment-model';
 import SegmentCollection from '../highlight/text-segment-collection';
 import HighlightLayer from './highlight-layer-view';
@@ -55,6 +55,7 @@ export default class HighlightableTextView extends CompositeView {
             textContainer: this.textWrapper,
         }).on('click', this.processClick, this);
         this.listenTo(this.collection.underlying, 'focus', this.scrollTo);
+        this.textWrapper.on('mouseup', (event) => this.onTextClicked(event));
     }
 
     prepareText(text: string): this {
@@ -165,16 +166,25 @@ export default class HighlightableTextView extends CompositeView {
         delete this.overlapDetailView;
     }
 
-    onTextSelected(event: JQueryEventObject): void {
-        event.preventDefault();
-        if (!this.isEditable) return;
-
+    onTextClicked(event): void {
         let selection = window.getSelection();
         let range = selection.getRangeAt(0).cloneRange();
 
-        // Ignore empty selections
-        if (range.startOffset === range.endOffset) return;
+        // check if text was selected
+        if (range.startOffset !== range.endOffset) {
+            this.onTextSelected(event, range);
+        }
+        else {
+            this.disablePointerEvents();
+            const element = document.elementFromPoint(event.clientX, event.clientY);
+            this.enablePointerEvents();
+            $(element).trigger('click');
+        }
+    }
 
+    onTextSelected(event, range): void {
+        event.preventDefault();
+        if (!this.isEditable) return;
         if (this.overlapDetailView) this.onCloseOverlapDetail();
         this.trigger('textSelected', range, getPositionDetailsFromRange(this.textWrapper, range));
     }
@@ -185,8 +195,6 @@ extend(HighlightableTextView.prototype, {
     tagName: 'div',
     className: 'highlightable-text',
     events: {
-        'mouseup .textWrapper': 'onTextSelected',
-        'contextmenu .textWrapper': 'onTextSelected',
     },
     _subviews: [{
         view: 'highlightLayer',
