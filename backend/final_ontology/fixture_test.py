@@ -3,9 +3,9 @@ from os.path import join
 from rdflib import Graph
 
 nsfile = join(settings.BASE_DIR, 'final_ontology',
-              'namespace_READIT_ongoing.rdf')
+              'REO_v2.4.owl')
 
 
 def test_fixture():
     g = Graph().parse(nsfile, format='xml')
-    assert len(g) == 285
+    assert len(g) == 580
