@@ -228,6 +228,9 @@ class ItemsAPISingular(RDFResourceView):
         subjects = set(override.subjects())
         if len(subjects) != 1 or subjects.pop() != identifier:
             raise ValidationError(MUST_EQUAL_IDENTIFIER_400)
+        for (p, o) in override.predicate_objects():
+            if isinstance(p, BNode) or isinstance(o, BNode):
+                raise ValidationError(BLANK_OBJECT_PREDICATE_400)
         added = sanitize(override - existing)
         removed = sanitize(existing - override)
         if len(added) == 0 and len(removed) == 0:
