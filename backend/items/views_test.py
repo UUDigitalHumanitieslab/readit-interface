@@ -155,3 +155,13 @@ def test_select_items_by_creator(auth_client, itemgraph_db):
     # empty set, expeted one result. Perhaps shouldn't put users as Literal?
     # ultimately, want to test len(query_result)==1
     assert len(query_result)==0
+
+
+def test_blanknodes(auth_client, sparqlstore):
+    triple = (BNode(), RDF.type, BNode())
+    input_graph = Graph()
+    input_graph.add(triple)
+    response, output_graph = submit_data(auth_client, input_graph, 'post')
+
+    assert response.status_code == 400
+    assert (None, None, Literal(BLANK_OBJECT_PREDICATE_400)) in output_graph
