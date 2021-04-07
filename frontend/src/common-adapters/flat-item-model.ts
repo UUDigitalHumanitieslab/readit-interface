@@ -19,13 +19,16 @@ import fastTimeout from '../core/fastTimeout';
  * In addition, you may want to review JavaScript's bitwise operators:
  * https://developer.mozilla.org/nl/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
  */
-const F_ID       = 1;
-const F_CSSCLASS = 1 << 1;
+const F_ID       = 1 << 0;
+const F_CLASS    = 1 << 1;
 const F_LABEL    = 1 << 2;
 const F_SOURCE   = 1 << 3;
-const F_POS      = 1 << 4;
-const F_TEXT     = 1 << 5;
-const F_COMPLETE = F_ID | F_CSSCLASS | F_LABEL | F_SOURCE | F_POS | F_TEXT;
+const F_STARTPOS = 1 << 4;
+const F_ENDPOS   = 1 << 5;
+const F_POS      = F_STARTPOS | F_ENDPOS;
+const F_TEXT     = 1 << 6;
+const F_TARGET   = F_SOURCE | F_POS | F_TEXT;
+const F_COMPLETE = F_ID | F_CLASS | F_LABEL | F_TARGET;
 
 /**
  * The following constants are used in `updateBodies`.
@@ -134,9 +137,9 @@ export default class FlatItem extends Model {
             this.receiveAnnotation(node);
         } else if (node.has('@type', oa.SpecificResource)) {
             this.receiveTarget(node);
-            this._setCompletionFlag(F_CSSCLASS | F_LABEL);
+            this._setCompletionFlag(F_CLASS | F_LABEL);
         } else if (missing = this.receiveSelector(node)) {
-            this._setCompletionFlag(missing | F_CSSCLASS | F_LABEL | F_SOURCE);
+            this._setCompletionFlag(missing | F_CLASS | F_LABEL | F_SOURCE);
         } else {
             this._setCompletionFlag(this.receiveBody(node));
             this._setCompletionFlag(F_SOURCE | F_POS | F_TEXT);
@@ -166,9 +169,9 @@ export default class FlatItem extends Model {
         // An annotation can be complete without an item or even a class.
         if (bodies) {
             if (bodies.length < 2) this._setCompletionFlag(F_LABEL);
-            if (bodies.length < 1) this._setCompletionFlag(F_CSSCLASS);
+            if (bodies.length < 1) this._setCompletionFlag(F_CLASS);
         } else {
-            this._setCompletionFlag(F_LABEL | F_CSSCLASS);
+            this._setCompletionFlag(F_LABEL | F_CLASS);
         }
     }
 
@@ -194,7 +197,7 @@ export default class FlatItem extends Model {
             classLabel: getLabel(body),
             cssClass: getCssClassName(body),
         });
-        this._setCompletionFlag(F_CSSCLASS);
+        this._setCompletionFlag(F_CLASS);
         return F_LABEL;
     }
 
