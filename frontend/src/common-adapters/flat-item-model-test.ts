@@ -192,8 +192,9 @@ describe('FlatItem', function() {
         flatAnno._completionFlags ^= 32;
         flatAnno._setCompletionFlag(32);
         // unset and reset all flags
+        const backup = flatAnno._completionFlags;
         flatAnno._completionFlags = 0;
-        flatAnno._setCompletionFlag(63);
+        flatAnno._setCompletionFlag(backup);
         await timeout(50);
         expect(spy).not.toHaveBeenCalled();
     });
