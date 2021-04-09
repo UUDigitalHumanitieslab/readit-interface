@@ -1,16 +1,14 @@
-import { noop, each, includes, zipObject } from 'lodash';
-import { ModelSetOptions } from 'backbone';
+import { noop, each, includes } from 'lodash';
 
 import Model from '../core/model';
+import { rdf, dcterms, oa, readit, item } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
-import { rdf, dcterms, oa, vocab, readit, item } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import {
     getLabel,
     getCssClassName,
     isBlank,
 } from '../utilities/linked-data-utilities';
-import fastTimeout from '../core/fastTimeout';
 
 /**
  * Flag bitmasks for tracking completion of a flat annotation. For a quick
@@ -30,13 +28,16 @@ const F_TEXT     = 1 << 6;
 const F_TARGET   = F_SOURCE | F_POS | F_TEXT;
 const F_COMPLETE = F_ID | F_CLASS | F_LABEL | F_TARGET;
 
-/**
- * The following constants are used in `updateBodies`.
- */
-const bodyAttributes = zipObject([
-    'class', 'classLabel', 'cssClass', 'item', 'label'
-]);  // { class: undefined, classLabel: undefined, ... }
-const unsetFlag = {unset: true} as ModelSetOptions; // TODO: fix @types/backbone
+// Which flag is completed for each given mapped flat attribute.
+const flagMapping = {
+    id: F_ID,
+    cssClass: F_CLASS,
+    label: F_LABEL,
+    source: F_SOURCE,
+    startPosition: F_STARTPOS,
+    endPosition: F_ENDPOS,
+    text: F_TEXT,
+};
 
 /**
  * Adapter that transforms a `Node` representing an `oa.Annotation`s into a
@@ -88,7 +89,7 @@ export default class FlatItem extends Model {
         return this._completionFlags === F_COMPLETE;
     }
 
-    // Private method for updating the completion bitfield.
+    // Private methods for updating the completion bitfield.
     _setCompletionFlag(flag: number): void {
         this._completionFlags |= flag;
         if (this.complete) {
@@ -96,7 +97,11 @@ export default class FlatItem extends Model {
             // After this, we never need to check the flags or trigger the
             // `'complete'` event again.
             this._setCompletionFlag = noop;
+            this._unsetCompletionFlag = noop;
         }
+    }
+    _unsetCompletionFlag(flag: number): void {
+        this._completionFlags &= ~flag;
     }
 
     /**
@@ -105,56 +110,89 @@ export default class FlatItem extends Model {
      * must be an instance of `oa.Annotation`.
      */
     constructor(node: Node, options?: any) {
-        super({ id: node.id }, options);
+        super({}, options);
         this.underlying = node;
+        // Track terminal completion.
         this._completionFlags = 0;
+        each(flagMapping, (flag, attribute) => this.once(
+            `change:${attribute}`,
+            () => this._setCompletionFlag(flag)
+        ));
+        // Track intermediate nodes.
+        this.on('change:annotation', this.updateAnnotation);
+        this.on('change:class', this.updateClass);
+        this.on('change:item', this.updateItem);
+        this.on('change:target', this.updateTarget);
+        this.on('change:positionSelector', this.updatePosition);
+        this.on('change:quoteSelector', this.updateText);
+        // Track changes in the top node.
+        this.trackProperty(node, '@id', 'id');
+        this.trackProperty(node, dcterms.creator, 'creator');
+        this.trackProperty(node, dcterms.created, 'created');
         node.when('@type', this.receiveTopNode, this);
-        this.listenTo(node, 'change', this.updateMeta).updateMeta(node);
+    }
+
+    /**
+     * Common update handling for (nested) properties for which we expect only
+     * a single literal value.
+     */
+    trackProperty(source: Node, sourceAttr: string, targetAttr: string): this {
+        source.whenever(
+            sourceAttr,
+            () => this.setOptionalFirst(source, sourceAttr, targetAttr),
+            this
+        );
+        return this;
     }
 
     setOptionalFirst(source: Node, sourceAttr: string, targetAttr: string): this {
         const value = source.get(sourceAttr);
-        if (value) this.set(targetAttr, value[0]);
+        if (value) {
+            this.set(targetAttr, sourceAttr === '@id' ? value : value[0]);
+        }
         return this;
     }
 
     /**
-     * Keep meta attributes in sync with the top node. Triggers repeatedly.
-     */
-    updateMeta(node: Node) {
-        this.set('id', node.id);
-        this.setOptionalFirst(node, dcterms.creator, 'creator');
-        this.setOptionalFirst(node, dcterms.created, 'created');
-    }
-
-    /**
-     * Invoked once when this.underlying is more than just a placeholder.
+     * Invoked once when this.underlying has an `@type`.
      */
     receiveTopNode(node: Node): void {
-        this._setCompletionFlag(F_ID);
-        let missing;
         if (node.has('@type', oa.Annotation)) {
             this.receiveAnnotation(node);
         } else if (node.has('@type', oa.SpecificResource)) {
             this.receiveTarget(node);
-            this._setCompletionFlag(F_CLASS | F_LABEL);
-        } else if (missing = this.receiveSelector(node)) {
-            this._setCompletionFlag(missing | F_CLASS | F_LABEL | F_SOURCE);
+        } else if (node.has('@type', oa.TextPositionSelector)) {
+            this.receivePosition(node);
+        } else if (node.has('@type', oa.TextQuoteSelector)) {
+            this.receiveText(node);
+        } else if (node.id.startsWith(readit())) {
+            this.receiveClass(node);
         } else {
-            this._setCompletionFlag(this.receiveBody(node));
-            this._setCompletionFlag(F_SOURCE | F_POS | F_TEXT);
+            this.receiveItem(node);
         }
     }
 
     /**
-     * Invoked once when the annotation is more than just a placeholder.
+     * Invoked once when `this.underlying` proves to be an oa:Annotation.
      */
     receiveAnnotation(annotation: Node): void {
         this.set({ annotation });
-        this.updateBodies(annotation);
-        this.listenTo(annotation, `change:${oa.hasBody}`, this.updateBodies);
-        const target = annotation.get(oa.hasTarget)[0] as Node;
-        target.when(oa.hasSelector, this.receiveTarget, this);
+        // Initially assume an annotation without bodies.
+        this._setCompletionFlag(F_CLASS | F_LABEL);
+    }
+
+    /**
+     * Invoked when the `annotation` attribute changes.
+     */
+    updateAnnotation(flat: this, annotation: Node): void {
+        const oldAnnotation = this.previous('annotation');
+        if (oldAnnotation) this.stopListening(oldAnnotation);
+        if (!annotation) {
+            this.unset('class').unset('item').unset('target');
+            return;
+        }
+        annotation.whenever(oa.hasBody, this.updateBodies, this);
+        this.trackProperty(annotation, oa.hasTarget, 'target');
     }
 
     /**
@@ -162,128 +200,195 @@ export default class FlatItem extends Model {
      */
     updateBodies(annotation: Node): void {
         const bodies = annotation.get(oa.hasBody) as Node[];
-        // The body attributes might no longer be valid, so we unset them.
-        this.set(bodyAttributes, unsetFlag);
-        // If they were still valid, they will be reset by the next line.
-        each(bodies, body => body.when('@type', this.receiveBody, this));
-        // An annotation can be complete without an item or even a class.
-        if (bodies) {
-            if (bodies.length < 2) this._setCompletionFlag(F_LABEL);
-            if (bodies.length < 1) this._setCompletionFlag(F_CLASS);
-        } else {
-            this._setCompletionFlag(F_LABEL | F_CLASS);
-        }
+        if (!includes(bodies, this.get('class'))) this.unset('class');
+        if (!includes(bodies, this.get('item'))) this.unset('item');
+        each(bodies, this.processBody.bind(this));
     }
 
     /**
-     * Invoked once for each oa.hasBody when it is more than just a placeholder.
-     * Returns the body bit flag that was *not* completed.
+     * Invoked once for each new oa.hasBody.
      */
-    receiveBody(body: Node): number {
-        if (isBlank(body)) return this.receiveItem(body);
+    processBody(body: Node) {
+        if (isBlank(body)) return this.set('item', body);
         const id = body.id;
-        if (id.startsWith(readit())) return this.receiveClass(body);
-        if (id.startsWith(item())) return this.receiveItem(body);
+        if (id.startsWith(readit())) return this.set('class', body);
+        if (id.startsWith(item())) return this.set('item', body);
         // We can add another line like the above to add support for
         // preannotations.
     }
 
     /**
-     * Invoked once when the class body is more than just a placeholder.
+     * Invoked once when `this.underlying` proves to be an ontology class.
      */
-    receiveClass(body: Node): number {
-        this.set({
-            class: body,
-            classLabel: getLabel(body),
-            cssClass: getCssClassName(body),
-        });
-        this._setCompletionFlag(F_CLASS);
-        return F_LABEL;
+    receiveClass(body: Node): void {
+        this.set({ class: body });
+        // Given that the top-level node is a class, we are never going to get
+        // any of the other things, so mark them completed.
+        this._setCompletionFlag(F_COMPLETE ^ F_CLASS);
     }
 
     /**
-     * Invoked once when the item body is more than just a placeholder.
+     * Invoked when the `class` attribute changes.
      */
-    receiveItem(body: Node): number {
-        if (!this.has('annotation')) {
-            // Bare item, so there is no containing annotation that has both a
-            // class and an item as bodies. Fetch the class through the item
-            // instead.
-            const ontoUri = body.get('@type')[0] as string;
-            const ontoClass = ldChannel.request('obtain', ontoUri) as Node;
-            ontoClass.when('@type', this.receiveClass, this);
+    updateClass(flat: this, classBody: Node): void {
+        const oldClassBody = this.previous('class');
+        if (oldClassBody) this.stopListening(oldClassBody);
+        if (!classBody) {
+            this.unset('classLabel').unset('cssClass');
+            return;
         }
-        this.set({
-            item: body,
-            label: getLabel(body),
-        });
-        this._setCompletionFlag(F_LABEL);
-        return 0;
+        this._unsetCompletionFlag(F_CLASS);
+        this.listenTo(classBody, 'change', this.updateClassLabels);
+        this.updateClassLabels(classBody);
     }
 
     /**
-     * Invoked once when the target is more than just a placeholder.
+     * Invoked when the attributes of the `class` change.
+     */
+    updateClassLabels(classBody: Node): void {
+        this.set({
+            classLabel: getLabel(classBody),
+            cssClass: getCssClassName(classBody),
+        });
+    }
+
+    /**
+     * Invoked once when `this.underlying` proves to be a bare item.
+     */
+    receiveItem(itemBody: Node): void {
+        this.set({ item: itemBody });
+        // Bare item, retrieve the class through the item.
+        itemBody.when('@type', this.receiveItemClass, this);
+        // Bare item, don't expect any other properties so mark them completed.
+        this._setCompletionFlag(F_TARGET);
+    }
+
+    /**
+     * Special case for obtaining the class when `this.underlying` is a bare
+     * item.
+     */
+    receiveItemClass(itemBody: Node, [ontoUri]: string[]): void {
+        this.set('class', ldChannel.request('obtain', ontoUri));
+    }
+
+    /**
+     * Invoked when the `item` attribute changes.
+     */
+    updateItem(flat: this, itemBody: Node): void {
+        const oldItemBody = this.previous('item');
+        if (oldItemBody) this.stopListening(oldItemBody);
+        if (!itemBody) {
+            this.unset('label');
+            return;
+        }
+        this._unsetCompletionFlag(F_LABEL);
+        this.listenTo(itemBody, 'change', this.updateItemLabel);
+        this.updateItemLabel(itemBody);
+    }
+
+    /**
+     * Invoked when the attributes of the `item` change.
+     */
+    updateItemLabel(itemBody: Node): void {
+        this.set({ label: getLabel(itemBody) });
+    }
+
+    /**
+     * Invoked once when `this.underlying` proves to be an oa:SpecificResource.
      */
     receiveTarget(target: Node): void {
         this.set('target', target);
-        const sources = target.get(oa.hasSource);
-        if (sources && sources.length) {
-            this.set('source', sources[0]);
-            this._setCompletionFlag(F_SOURCE);
+        // Bare oa:SpecificResource, so mark the other things as complete.
+        this._setCompletionFlag(F_COMPLETE ^ F_TARGET);
+    }
+
+    /**
+     * Invoked when the `target` attributes changes.
+     */
+    updateTarget(flat: this, target: Node): void {
+        const oldTarget = this.previous('target');
+        if (oldTarget) this.stopListening(oldTarget);
+        if (!target) {
+            this.unset('source').unset('positionSelector')
+                .unset('quoteSelector');
+            return;
         }
+        this._unsetCompletionFlag(F_TARGET);
+        this.trackProperty(target, oa.hasSource, 'source');
+        target.whenever(oa.hasSelector, this.updateSelectors, this);
+    }
+
+    /**
+     * Invoked every time oa.hasSelector changes.
+     */
+    updateSelectors(target: Node): void {
         const selectors = target.get(oa.hasSelector) as Node[];
+        each(['positionSelector', 'quoteSelector'], attr => {
+            if (!includes(selectors, this.get(attr))) this.unset(attr);
+        });
         each(selectors, selector => selector.when(
-            '@type',
-            this.receiveSelector,
-            this
+            '@type', this.processSelector, this
         ));
     }
 
     /**
      * Invoked once for each oa.hasSelector when it is more than just a
      * placeholder.
-     * Returns the selector bit flag that was *not* completed.
      */
-    receiveSelector(selector: Node): number {
-        const type = selector.get('@type') as string[];
-        if (includes(type, oa.TextPositionSelector)) {
-            return this.receivePosition(selector);
-        }
-        if (includes(type, oa.TextQuoteSelector)) {
-            return this.receiveText(selector);
+    processSelector(selector: Node): void {
+        if (selector.has('@type', oa.TextPositionSelector)) {
+            this.set('positionSelector', selector);
+        } else {
+            this.set('quoteSelector', selector);
         }
     }
 
     /**
-     * Invoked once when the TextPositionSelector is more than just a
-     * placeholder.
+     * Invoked once when `this.underlying` proves to be an
+     * oa:TextPositionSelector.
      */
-    receivePosition(selector: Node): number {
-        const start = selector.get(oa.start);
-        const end = selector.get(oa.end);
-        if (start && start.length && end && end.length) {
-            this.set({
-                startPosition: start[0],
-                endPosition: end[0],
-                positionSelector: selector,
-            });
-            this._setCompletionFlag(F_POS);
-        }
-        return F_TEXT;
+    receivePosition(selector: Node): void {
+        this.set('positionSelector', selector);
+        // Bare position selector, mark the other things as complete.
+        this._setCompletionFlag(F_COMPLETE ^ F_POS);
     }
 
     /**
-     * Invoked once when the TextQuoteSelector is more than just a placeholder.
+     * Invoked once when the `positionSelector` attributes changes.
      */
-    receiveText(selector: Node): number {
+    updatePosition(flat: this, selector: Node): void {
+        const oldSelector = this.previous('positionSelector');
+        if (oldSelector) this.stopListening(oldSelector);
+        if (!selector) {
+            this.unset('startPosition').unset('endPosition');
+            return;
+        }
+        this._unsetCompletionFlag(F_POS);
+        this.trackProperty(selector, oa.start, 'startPosition');
+        this.trackProperty(selector, oa.end, 'endPosition');
+    }
+
+    /**
+     * Invoked once when `this.underlying` proves to be an oa:TextQuoteSelector.
+     */
+    receiveText(selector: Node): void {
         this.set('quoteSelector', selector);
-        this.setOptionalFirst(selector, oa.prefix, 'prefix');
-        this.setOptionalFirst(selector, oa.suffix, 'suffix');
-        const text = selector.get(oa.exact);
-        if (text && text.length) {
-            this.set({ text: text[0] });
-            this._setCompletionFlag(F_TEXT);
+        this._setCompletionFlag(F_COMPLETE ^ F_TEXT);
+    }
+
+    /**
+     * Invoked once when the `quoteSelector` attribute changes.
+     */
+    updateText(flat: this, selector: Node): void {
+        const oldSelector = this.previous('quoteSelector');
+        if (oldSelector) this.stopListening(oldSelector);
+        if (!selector) {
+            this.unset('prefix').unset('suffix').unset('text');
+            return;
         }
-        return F_POS;
+        this._unsetCompletionFlag(F_TEXT);
+        this.trackProperty(selector, oa.prefix, 'prefix');
+        this.trackProperty(selector, oa.suffix, 'suffix');
+        this.trackProperty(selector, oa.exact, 'text');
     }
 }
