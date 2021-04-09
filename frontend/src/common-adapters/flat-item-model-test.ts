@@ -110,7 +110,6 @@ describe('FlatItem', function() {
             (index + 1) * 10
         ));
         await timeout(80);
-        expect(flatAnno.complete).toBe(false);
         ontologyClass.set(contentClass);
         await completion(flatAnno);
         expect(flatAnno.complete).toBe(true);
