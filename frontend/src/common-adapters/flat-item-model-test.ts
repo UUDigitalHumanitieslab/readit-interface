@@ -158,10 +158,9 @@ describe('FlatItem', function() {
         });
         items.annotation.unset(oa.hasBody, items.item);
         expect(flatAnno.has('item')).toBeFalsy();
+        const itemEvent = event(flatAnno, 'change:label');
         items.annotation.set(oa.hasBody, replacementItem);
-        await Promise.all([
-            event(flatAnno, 'change:label'), event(flatAnno, 'change:cssClass')
-        ]);
+        await itemEvent;
         expect(flatAnno.get('label')).toBe('The slacker in Bohemia');
         expect(flatAnno.get('item')).toBe(replacementItem);
         expect(flatAnno.get('cssClass')).toBe(expectedFlatAttributes.cssClass);
@@ -170,10 +169,9 @@ describe('FlatItem', function() {
         const replacementClass = new Node(readerClass);
         items.annotation.unset(oa.hasBody, ontologyClass);
         expect(flatAnno.has('class')).toBeFalsy();
+        const classEvent = event(flatAnno, 'change:cssClass');
         items.annotation.set(oa.hasBody, replacementClass);
-        await Promise.all([
-            event(flatAnno, 'change:label'), event(flatAnno, 'change:cssClass')
-        ]);
+        await classEvent;
         expect(flatAnno.get('label')).toBe('The slacker in Bohemia');
         expect(flatAnno.get('item')).toBe(replacementItem);
         expect(flatAnno.get('cssClass')).toBe('is-readit-reader');
