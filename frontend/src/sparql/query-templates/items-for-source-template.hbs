@@ -3,20 +3,20 @@ PREFIX {{label}}: <{{prefix}}>
 {{/each}}
 PREFIX schema: <http://schema.org/>
 PREFIX oa: <http://www.w3.org/ns/oa#>
-CONSTRUCT { 
+CONSTRUCT {
     ?annotation ?a ?b.
     ?body ?c ?d.
     ?target ?e ?f.
     ?selector ?g ?h.
-	}
+    }
 WHERE {
     ?annotation oa:hasBody ?body.
     OPTIONAL { ?body ?c ?d }.
     ?annotation oa:hasTarget ?target;
                 ?a ?b.
     {{#if userURI}}
-	?annotation 	schema:creator 	<{{userURI}}> 	.
-	{{/if}}
+    ?annotation schema:creator <{{userURI}}>.
+    {{/if}}
     ?target oa:hasSource <{{sourceURI}}>;
             oa:hasSelector ?selector;
             ?e ?f.
