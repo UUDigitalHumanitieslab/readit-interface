@@ -193,17 +193,31 @@ export default class FlatItem extends Model {
     }
 
     /**
+     * Standard update logic when one of the intermediate nodes changes.
+     */
+    rotateNode(
+        attribute: string, dependents: string[],
+        newNode: Node, unsetFlags: number
+    ): this {
+        const oldNode = this.previous(attribute);
+        if (oldNode) this.stopListening(oldNode);
+        if (newNode) {
+            this._unsetCompletionFlag(unsetFlags);
+        } else {
+            each(dependents, this.unset.bind(this));
+        }
+        return this;
+    }
+
+    /**
      * Invoked when the `annotation` attribute changes.
      */
     updateAnnotation(flat: this, annotation: Node): void {
-        const oldAnnotation = this.previous('annotation');
-        if (oldAnnotation) this.stopListening(oldAnnotation);
-        if (!annotation) {
-            this.unset('class').unset('item').unset('target');
-            return;
+        this.rotateNode('annotation', ['class','item','target'], annotation, 0);
+        if (annotation) {
+            annotation.whenever(oa.hasBody, this.updateBodies, this);
+            this.trackProperty(annotation, oa.hasTarget, 'target');
         }
-        annotation.whenever(oa.hasBody, this.updateBodies, this);
-        this.trackProperty(annotation, oa.hasTarget, 'target');
     }
 
     /**
@@ -232,15 +246,11 @@ export default class FlatItem extends Model {
      * Invoked when the `class` attribute changes.
      */
     updateClass(flat: this, classBody: Node): void {
-        const oldClassBody = this.previous('class');
-        if (oldClassBody) this.stopListening(oldClassBody);
-        if (!classBody) {
-            this.unset('classLabel').unset('cssClass');
-            return;
+        this.rotateNode('class', ['classLabel','cssClass'], classBody, F_CLASS);
+        if (classBody) {
+            this.listenTo(classBody, 'change', this.updateClassLabels);
+            this.updateClassLabels(classBody);
         }
-        this._unsetCompletionFlag(F_CLASS);
-        this.listenTo(classBody, 'change', this.updateClassLabels);
-        this.updateClassLabels(classBody);
     }
 
     /**
@@ -257,15 +267,11 @@ export default class FlatItem extends Model {
      * Invoked when the `item` attribute changes.
      */
     updateItem(flat: this, itemBody: Node): void {
-        const oldItemBody = this.previous('item');
-        if (oldItemBody) this.stopListening(oldItemBody);
-        if (!itemBody) {
-            this.unset('label');
-            return;
+        this.rotateNode('item', ['label'], itemBody, F_LABEL);
+        if (itemBody) {
+            this.listenTo(itemBody, 'change', this.updateItemLabel);
+            this.updateItemLabel(itemBody);
         }
-        this._unsetCompletionFlag(F_LABEL);
-        this.listenTo(itemBody, 'change', this.updateItemLabel);
-        this.updateItemLabel(itemBody);
     }
 
     /**
@@ -279,16 +285,13 @@ export default class FlatItem extends Model {
      * Invoked when the `target` attributes changes.
      */
     updateTarget(flat: this, target: Node): void {
-        const oldTarget = this.previous('target');
-        if (oldTarget) this.stopListening(oldTarget);
-        if (!target) {
-            this.unset('source').unset('positionSelector')
-                .unset('quoteSelector');
-            return;
+        this.rotateNode('target', [
+            'source', 'positionSelector', 'quoteSelector',
+        ], target, F_TARGET);
+        if (target) {
+            this.trackProperty(target, oa.hasSource, 'source');
+            target.whenever(oa.hasSelector, this.updateSelectors, this);
         }
-        this._unsetCompletionFlag(F_TARGET);
-        this.trackProperty(target, oa.hasSource, 'source');
-        target.whenever(oa.hasSelector, this.updateSelectors, this);
     }
 
     /**
@@ -320,30 +323,26 @@ export default class FlatItem extends Model {
      * Invoked once when the `positionSelector` attributes changes.
      */
     updatePosition(flat: this, selector: Node): void {
-        const oldSelector = this.previous('positionSelector');
-        if (oldSelector) this.stopListening(oldSelector);
-        if (!selector) {
-            this.unset('startPosition').unset('endPosition');
-            return;
+        this.rotateNode('positionSelector', [
+            'startPosition', 'endPosition',
+        ], selector, F_POS);
+        if (selector) {
+            this.trackProperty(selector, oa.start, 'startPosition');
+            this.trackProperty(selector, oa.end, 'endPosition');
         }
-        this._unsetCompletionFlag(F_POS);
-        this.trackProperty(selector, oa.start, 'startPosition');
-        this.trackProperty(selector, oa.end, 'endPosition');
     }
 
     /**
      * Invoked once when the `quoteSelector` attribute changes.
      */
     updateText(flat: this, selector: Node): void {
-        const oldSelector = this.previous('quoteSelector');
-        if (oldSelector) this.stopListening(oldSelector);
-        if (!selector) {
-            this.unset('prefix').unset('suffix').unset('text');
-            return;
+        this.rotateNode('quoteSelector', [
+            'prefix', 'suffix', 'text',
+        ], selector, F_TEXT);
+        if (selector) {
+            this.trackProperty(selector, oa.prefix, 'prefix');
+            this.trackProperty(selector, oa.suffix, 'suffix');
+            this.trackProperty(selector, oa.exact, 'text');
         }
-        this._unsetCompletionFlag(F_TEXT);
-        this.trackProperty(selector, oa.prefix, 'prefix');
-        this.trackProperty(selector, oa.suffix, 'suffix');
-        this.trackProperty(selector, oa.exact, 'text');
     }
 }
