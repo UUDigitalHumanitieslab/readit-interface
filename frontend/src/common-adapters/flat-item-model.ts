@@ -157,28 +157,39 @@ export default class FlatItem extends Model {
      * Invoked once when this.underlying has an `@type`.
      */
     receiveTopNode(node: Node): void {
+        // Below, each branch marks particular flags as completed in advance. We
+        // do this because we don't expect the corresponding attributes to be
+        // fulfilled, given the type of the top node.
         if (node.has('@type', oa.Annotation)) {
-            this.receiveAnnotation(node);
+            this.set('annotation', node);
+            // Initially assume an annotation without bodies.
+            this._setCompletionFlag(F_CLASS | F_LABEL);
         } else if (node.has('@type', oa.SpecificResource)) {
-            this.receiveTarget(node);
+            this.set('target', node);
+            this._setCompletionFlag(F_COMPLETE ^ F_TARGET);
         } else if (node.has('@type', oa.TextPositionSelector)) {
-            this.receivePosition(node);
+            this.set('positionSelector', node);
+            this._setCompletionFlag(F_COMPLETE ^ F_POS);
         } else if (node.has('@type', oa.TextQuoteSelector)) {
-            this.receiveText(node);
+            this.set('quoteSelector', node);
+            this._setCompletionFlag(F_COMPLETE ^ F_TEXT);
         } else if (node.id.startsWith(readit())) {
-            this.receiveClass(node);
+            this.set('class', node);
+            this._setCompletionFlag(F_COMPLETE ^ F_CLASS);
         } else {
-            this.receiveItem(node);
+            this.set('item', node);
+            // Bare item, retrieve the class through the item.
+            node.when('@type', this.receiveItemClass, this);
+            this._setCompletionFlag(F_TARGET);
         }
     }
 
     /**
-     * Invoked once when `this.underlying` proves to be an oa:Annotation.
+     * Special case for obtaining the class when `this.underlying` is a bare
+     * item.
      */
-    receiveAnnotation(annotation: Node): void {
-        this.set({ annotation });
-        // Initially assume an annotation without bodies.
-        this._setCompletionFlag(F_CLASS | F_LABEL);
+    receiveItemClass(itemBody: Node, [ontoUri]: string[]): void {
+        this.set('class', ldChannel.request('obtain', ontoUri));
     }
 
     /**
@@ -218,16 +229,6 @@ export default class FlatItem extends Model {
     }
 
     /**
-     * Invoked once when `this.underlying` proves to be an ontology class.
-     */
-    receiveClass(body: Node): void {
-        this.set({ class: body });
-        // Given that the top-level node is a class, we are never going to get
-        // any of the other things, so mark them completed.
-        this._setCompletionFlag(F_COMPLETE ^ F_CLASS);
-    }
-
-    /**
      * Invoked when the `class` attribute changes.
      */
     updateClass(flat: this, classBody: Node): void {
@@ -253,25 +254,6 @@ export default class FlatItem extends Model {
     }
 
     /**
-     * Invoked once when `this.underlying` proves to be a bare item.
-     */
-    receiveItem(itemBody: Node): void {
-        this.set({ item: itemBody });
-        // Bare item, retrieve the class through the item.
-        itemBody.when('@type', this.receiveItemClass, this);
-        // Bare item, don't expect any other properties so mark them completed.
-        this._setCompletionFlag(F_TARGET);
-    }
-
-    /**
-     * Special case for obtaining the class when `this.underlying` is a bare
-     * item.
-     */
-    receiveItemClass(itemBody: Node, [ontoUri]: string[]): void {
-        this.set('class', ldChannel.request('obtain', ontoUri));
-    }
-
-    /**
      * Invoked when the `item` attribute changes.
      */
     updateItem(flat: this, itemBody: Node): void {
@@ -291,15 +273,6 @@ export default class FlatItem extends Model {
      */
     updateItemLabel(itemBody: Node): void {
         this.set({ label: getLabel(itemBody) });
-    }
-
-    /**
-     * Invoked once when `this.underlying` proves to be an oa:SpecificResource.
-     */
-    receiveTarget(target: Node): void {
-        this.set('target', target);
-        // Bare oa:SpecificResource, so mark the other things as complete.
-        this._setCompletionFlag(F_COMPLETE ^ F_TARGET);
     }
 
     /**
@@ -344,16 +317,6 @@ export default class FlatItem extends Model {
     }
 
     /**
-     * Invoked once when `this.underlying` proves to be an
-     * oa:TextPositionSelector.
-     */
-    receivePosition(selector: Node): void {
-        this.set('positionSelector', selector);
-        // Bare position selector, mark the other things as complete.
-        this._setCompletionFlag(F_COMPLETE ^ F_POS);
-    }
-
-    /**
      * Invoked once when the `positionSelector` attributes changes.
      */
     updatePosition(flat: this, selector: Node): void {
@@ -366,14 +329,6 @@ export default class FlatItem extends Model {
         this._unsetCompletionFlag(F_POS);
         this.trackProperty(selector, oa.start, 'startPosition');
         this.trackProperty(selector, oa.end, 'endPosition');
-    }
-
-    /**
-     * Invoked once when `this.underlying` proves to be an oa:TextQuoteSelector.
-     */
-    receiveText(selector: Node): void {
-        this.set('quoteSelector', selector);
-        this._setCompletionFlag(F_COMPLETE ^ F_TEXT);
     }
 
     /**
