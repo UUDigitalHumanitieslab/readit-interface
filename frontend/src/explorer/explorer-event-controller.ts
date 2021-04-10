@@ -309,9 +309,9 @@ export function getItems(source: Node): ItemGraph {
     const sparqlItems = new ItemGraph();
     let offsetMultiplier = 0;
     const limit = 10000;
-    
+
     const runQueries = (): any => {
-        let queryString = itemsForSourceQuery(asURI(source), 
+        let queryString = itemsForSourceQuery(asURI(source),
             {limit: limit, offset: offsetMultiplier*limit}
         );
         return queryInBatches(sparqlItems, queryString).then(result => {
