@@ -11,6 +11,7 @@ import ExplorerView from './explorer-view';
 import AnnotationView from '../panel-annotation/annotation-view';
 import ldChannel from '../common-rdf/radio';
 import Graph from '../common-rdf/graph';
+import { asURI } from '../utilities/linked-data-utilities';
 import SourceView from '../panel-source/source-view';
 import AnnotationListPanel from '../panel-annotation-list/annotation-list-panel';
 import SuggestionsView from '../panel-suggestions/suggestions-view';
@@ -26,7 +27,7 @@ import FlatItemCollection from '../common-adapters/flat-item-collection';
 import FlatAnnoCollection from '../common-adapters/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 import { createPlaceholderAnnotation } from '../utilities/annotation-creation-utilities';
-import { oa } from '../common-rdf/ns';
+import { as, oa } from '../common-rdf/ns';
 import SearchResultListView from '../panel-search-results/search-result-list-view';
 import SourceListPanel from '../panel-source-list/source-list-panel';
 import FilteredCollection from '../common-adapters/filtered-collection';
@@ -34,7 +35,7 @@ import {
     isType,
     isOntologyClass,
 } from '../utilities/linked-data-utilities';
-import { create } from 'lodash';
+import { itemsForSourceQuery } from '../sparql/compile-query';
 
 interface ExplorerEventController extends Events {}
 class ExplorerEventController {
@@ -306,15 +307,33 @@ export default ExplorerEventController;
  * oa:TextQuoteSelectors and oa:TextPositionSelectors associated with the
  * specified source.
  */
-export function getItems(source: Node, callback): ItemGraph {
-    const items = new ItemGraph();
-    items.query({ object: source, traverse: 1, revTraverse: 1 }).then(
-        function success() {
-            callback(null, items);
-        },
-        /*error*/ callback
-    );
-    return items;
+export function getItems(source: Node): ItemGraph {
+    const sparqlItems = new ItemGraph();
+    let offsetMultiplier = 0;
+    const limit = 10000;
+
+    const runQueries = (): any => {
+        let queryString = itemsForSourceQuery(asURI(source),
+            {limit: limit, offset: offsetMultiplier*limit}
+        );
+        return queryInBatches(sparqlItems, queryString).then(result => {
+            if (result) {
+                offsetMultiplier = offsetMultiplier + 1;
+                return runQueries();
+            }
+        });
+    }
+    runQueries();
+    return sparqlItems;
+}
+
+function queryInBatches(items, queryString): JQuery.jqXHR {
+    return items.sparqlQuery(queryString).then((items, error) => {
+        if (error) {
+            console.trace(error);
+        }
+        else return items.length;
+    });
 }
 
 /**
@@ -327,9 +346,7 @@ function createSourceView(
     showHighlightsInitially?: boolean,
     isEditable?: boolean,
 ): SourceView {
-    let sourceItems = getItems(source, function(error, items) {
-        if (error) console.debug(error);
-    });
+    let sourceItems = getItems(source);
 
     let annotations = new FlatAnnoCollection(sourceItems);
 

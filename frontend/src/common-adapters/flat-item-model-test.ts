@@ -1,4 +1,7 @@
-import { mapValues, invert, pick, assign, omit, each, delay } from 'lodash';
+import {
+    mapValues, invert, pick, assign, omit, each, delay,
+    map, partition, keys, random,
+} from 'lodash';
 import { Events } from 'backbone';
 
 import { event, timeout, startStore, endStore } from '../test-util';
@@ -7,6 +10,7 @@ import mockItems from '../mock-data/mock-items';
 import { skos, dcterms, oa, readit, item } from '../common-rdf/ns';
 import { asNative } from '../common-rdf/conversion';
 import Node from '../common-rdf/node';
+import Graph from '../common-rdf/graph';
 import FlatItem from './flat-item-model';
 
 interface NodeMap {
@@ -106,11 +110,39 @@ describe('FlatItem', function() {
             (index + 1) * 10
         ));
         await timeout(80);
-        expect(flatAnno.complete).toBe(false);
         ontologyClass.set(contentClass);
         await completion(flatAnno);
         expect(flatAnno.complete).toBe(true);
         expect(flatAnno.attributes).toEqual(expectedFlatAttributes);
+    });
+
+    describe('completes even in the face of fragmented resources', function() {
+        const resourceAttributes = itemAttributes.concat(contentClass);
+        const coinflip = () => random(1);
+        const partitionKeys = attr => partition(keys(attr), coinflip);
+
+        // This is a fuzz test. Ten repetitions with random sampling.
+        for (let i = 0; i < 10; ++i) {
+            it(`fuzz ${i}`, async function() {
+                // For each item/class, we partition the keys randomly.
+                const chunks = map(resourceAttributes, partitionKeys);
+                // Next, we create two partial representations of the resources.
+                // Together, they contain all properties.
+                const [firstBatch, secondBatch] = map([0, 1], (order) => {
+                    return map(resourceAttributes, (attr, index) => {
+                        // We include `@id` in both sets so that Backbone is
+                        // able to merge them again.
+                        return pick(attr, chunks[index][order], '@id');
+                    });
+                });
+                const graph = new Graph(firstBatch);
+                const flatAnno = new FlatItem(graph.at(0));
+                await timeout(10);
+                graph.set(secondBatch as unknown as Node[]);
+                await completion(flatAnno);
+                expect(flatAnno.attributes).toEqual(expectedFlatAttributes);
+            });
+        }
     });
 
     it('updates the class and item after the fact', async function() {
@@ -126,10 +158,9 @@ describe('FlatItem', function() {
         });
         items.annotation.unset(oa.hasBody, items.item);
         expect(flatAnno.has('item')).toBeFalsy();
+        const itemEvent = event(flatAnno, 'change:label');
         items.annotation.set(oa.hasBody, replacementItem);
-        await Promise.all([
-            event(flatAnno, 'change:label'), event(flatAnno, 'change:cssClass')
-        ]);
+        await itemEvent;
         expect(flatAnno.get('label')).toBe('The slacker in Bohemia');
         expect(flatAnno.get('item')).toBe(replacementItem);
         expect(flatAnno.get('cssClass')).toBe(expectedFlatAttributes.cssClass);
@@ -138,10 +169,9 @@ describe('FlatItem', function() {
         const replacementClass = new Node(readerClass);
         items.annotation.unset(oa.hasBody, ontologyClass);
         expect(flatAnno.has('class')).toBeFalsy();
+        const classEvent = event(flatAnno, 'change:cssClass');
         items.annotation.set(oa.hasBody, replacementClass);
-        await Promise.all([
-            event(flatAnno, 'change:label'), event(flatAnno, 'change:cssClass')
-        ]);
+        await classEvent;
         expect(flatAnno.get('label')).toBe('The slacker in Bohemia');
         expect(flatAnno.get('item')).toBe(replacementItem);
         expect(flatAnno.get('cssClass')).toBe('is-readit-reader');
@@ -159,8 +189,9 @@ describe('FlatItem', function() {
         flatAnno._completionFlags ^= 32;
         flatAnno._setCompletionFlag(32);
         // unset and reset all flags
+        const backup = flatAnno._completionFlags;
         flatAnno._completionFlags = 0;
-        flatAnno._setCompletionFlag(63);
+        flatAnno._setCompletionFlag(backup);
         await timeout(50);
         expect(spy).not.toHaveBeenCalled();
     });

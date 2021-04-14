@@ -3,6 +3,7 @@ import { extend, filter, sampleSize } from 'lodash';
 import { baseUrl } from 'config.json';
 import { CompositeView } from './../core/view';
 import Graph from '../common-rdf/graph';
+import ItemGraph from '../common-adapters/item-graph';
 import explorerChannel from '../explorer/explorer-radio';
 import ldChannel from '../common-rdf/radio';
 import { isRdfsClass } from '../utilities/linked-data-utilities';
@@ -22,7 +23,7 @@ const itemSuggestionsUrl = baseUrl + 'item/suggestion';
 
 export default class SuggestionsView extends CompositeView{
     sourceSuggestions: Graph;
-    annotationGraph: Graph;
+    annotationGraph: ItemGraph;
     annotationSuggestions: FlatAnnotationCollection;
     categorySuggestions: Graph;
     sourceList: SourceListView;
@@ -30,9 +31,10 @@ export default class SuggestionsView extends CompositeView{
     ontologyList: OntologyListView;
 
 
+
     initialize(){
         this.sourceSuggestions = new Graph();
-        this.annotationGraph = new Graph();
+        this.annotationGraph = new ItemGraph();
         this.annotationSuggestions = new FlatAnnotationCollection(this.annotationGraph);
         this.categorySuggestions = new Graph();
         this.getSuggestions();
