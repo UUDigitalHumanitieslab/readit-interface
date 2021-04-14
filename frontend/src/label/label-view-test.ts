@@ -1,4 +1,4 @@
-import { enableI18n, event } from '../test-util';
+import { enableI18n, event, timeout } from '../test-util';
 
 import { rdfs, skos } from './../common-rdf/ns';
 import { FlatLdObject } from '../common-rdf/json';
@@ -29,29 +29,28 @@ function getDefaultAttributes(): FlatLdObject {
 describe('LabelView', function () {
     beforeAll(enableI18n);
 
-    it('includes a tooltip if a definition exists', async function () {
-        let item = getDefaultItem();
-        let view = new LabelView({ model: item });
-        await event(item, 'complete:all');
+    beforeEach( async function() {
+        this.item = getDefaultItem();
+        await event(this.item, 'complete');
+    });
+
+    it('includes a tooltip if a definition exists', function () {
+        let view = new LabelView({ model: this.item });
         expect(view.el.className).toContain('is-readit-content');
         expect(view.$el.attr('data-tooltip')).toEqual('This is a test definition');
     });
 
-    it('does not include a tooltip if a definition does not exist', function () {
+    it('does not include a tooltip if a definition does not exist', async function () {
         let attributes = getDefaultAttributes();
-        delete attributes[skos.definition];
-        let item = new FlatItem(new Node(attributes));
-
-        let view = new LabelView({ model: item });
-
+        delete attributes[skos.definition]; 
+        let view = new LabelView({ model: new FlatItem(new Node(attributes))});
+        await event(view.model, 'complete');
         expect(view.el.className).toContain('is-readit-content');
         expect(view.$el.attr('data-tooltip')).toBeUndefined();
     });
 
     it('excludes a tooltip if told so', function () {
-        let item = getDefaultItem();
-        let view = new LabelView({ model: item, toolTipSetting: false });
-
+        let view = new LabelView({ model: this.item, toolTipSetting: false });
         expect(view.el.className).toContain('is-readit-content');
         expect(view.$el.attr('data-tooltip')).toBeUndefined();
     });

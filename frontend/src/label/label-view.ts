@@ -3,8 +3,6 @@ import { extend } from 'lodash';
 import View from '../core/view';
 
 import { skos } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
-import { getCssClassName, getLabel } from '../utilities/linked-data-utilities';
 import FlatItem from '../common-adapters/flat-item-model';
 
 type TooltipSetting = false | 'top' | 'bottom' | 'left' | 'right';
