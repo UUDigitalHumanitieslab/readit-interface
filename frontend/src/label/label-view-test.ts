@@ -1,10 +1,11 @@
 import { enableI18n, event, timeout } from '../test-util';
 
-import { rdfs, skos } from './../common-rdf/ns';
+import { readit, rdfs, skos } from './../common-rdf/ns';
 import { FlatLdObject } from '../common-rdf/json';
 import Node from '../common-rdf/node';
 import LabelView from './label-view';
 import FlatItem from '../common-adapters/flat-item-model';
+import { hasUncaughtExceptionCaptureCallback } from 'process';
 
 function getDefaultItem(): FlatItem {
     return new FlatItem(new Node(getDefaultAttributes()));
@@ -12,7 +13,7 @@ function getDefaultItem(): FlatItem {
 
 function getDefaultAttributes(): FlatLdObject {
     return {
-        '@id': 'uniqueID',
+        '@id': readit('test'),
         "@type": [rdfs.Class],
         [skos.prefLabel]: [
             { '@value': 'Content' },
@@ -31,13 +32,18 @@ describe('LabelView', function () {
 
     beforeEach( async function() {
         this.item = getDefaultItem();
-        await event(this.item, 'complete');
+        this.view = new LabelView({ model: this.item });
+        const origProcessClass = this.view.processClass;
+        spyOn(this.view, 'processClass').and.callFake(function() {
+            const result = origProcessClass.apply(this, arguments);
+            this.trigger('processed');
+        });
     });
 
-    it('includes a tooltip if a definition exists', function () {
-        let view = new LabelView({ model: this.item });
-        expect(view.el.className).toContain('is-readit-content');
-        expect(view.$el.attr('data-tooltip')).toEqual('This is a test definition');
+    it('includes a tooltip if a definition exists', async function () {
+        await event(this.view, 'processed');
+        expect(this.view.el.className).toContain('is-readit-content');
+        expect(this.view.$el.attr('data-tooltip')).toEqual('This is a test definition');
     });
 
     it('does not include a tooltip if a definition does not exist', async function () {
