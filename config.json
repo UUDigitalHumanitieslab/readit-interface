@@ -5,5 +5,6 @@
   "apiRoot": "/api/",
   "authRoot": "/rest-auth/",
   "proxyRoot": "/proxy/",
+  "sparqlRoot": "/sparql/",
   "nsRoot": "http://localhost:8000/"
 }
