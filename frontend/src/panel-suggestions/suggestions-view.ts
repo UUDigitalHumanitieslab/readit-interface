@@ -32,8 +32,6 @@ export default class SuggestionsView extends CompositeView{
     annotationList: AnnotationListView;
     ontologyList: OntologyListView;
 
-
-
     initialize(){
         this.sourceSuggestions = new Graph();
         this.annotationGraph = new ItemGraph();
@@ -58,13 +56,6 @@ export default class SuggestionsView extends CompositeView{
         const categories = await ldChannel.request('ontology:promise');
         const suggestions = sampleSize(filter(categories.models, isRdfsClass), nSuggestions);
         this.categoryGraph.set(suggestions);
-    }
-
-    _hideLoadingSpinner(): void {
-        if (this.loadingSpinnerView) {
-            this.loadingSpinnerView.remove();
-            delete this.loadingSpinnerView;
-        }
     }
 
     openSource(source: Node): void {

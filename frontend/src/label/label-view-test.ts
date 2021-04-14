@@ -34,14 +34,15 @@ describe('LabelView', function () {
         this.item = getDefaultItem();
         this.view = new LabelView({ model: this.item });
         const origProcessClass = this.view.processClass;
-        spyOn(this.view, 'processClass').and.callFake(function() {
-            const result = origProcessClass.apply(this, arguments);
-            this.trigger('processed');
-        });
+        // spyOn(this.view, 'processClass').and.callFake(function() {
+        //     const result = origProcessClass.apply(this, arguments);
+        //     this.trigger('processed');
+        // });
     });
 
     it('includes a tooltip if a definition exists', async function () {
-        await event(this.view, 'processed');
+        // await event(this.view, 'processed');
+        await event(this.item, 'complete');
         expect(this.view.el.className).toContain('is-readit-content');
         expect(this.view.$el.attr('data-tooltip')).toEqual('This is a test definition');
     });
