@@ -21,6 +21,6 @@ when(ready, i18nPromise).done(function () {
         root: baseUrl,
         pushState: true,
     });
-
+    if (!success) history.trigger('notfound');
     prefetch();
 });

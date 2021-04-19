@@ -11,8 +11,9 @@ import mainRouter from '../global/main-router';
 import explorationRouter from '../global/exploration-router';
 import userFsm from '../global/user-fsm';
 import explorerView from '../global/explorer-view';
+import notFoundView from '../global/notfound-view';
 
-history.once('route', () => {
+history.once('route notfound', () => {
     menuView.render().$el.appendTo('#header');
     footerView.render().$el.appendTo('.footer');
     categoryStyles.$el.appendTo('body');
@@ -23,6 +24,7 @@ history.once('route', () => {
     explorerView.setHeight(availableHeight).render();
     uploadSourceForm.setHeight(availableHeight);
 });
+history.on('notfound', () => userFsm.handle('notfound'));
 
 mainRouter.on('route:home', () => mainRouter.navigate('search', {
     trigger: true,
@@ -46,6 +48,8 @@ userFsm.on('exit:uploading', () => {
 });
 userFsm.on('enter:exploring', () => explorerView.$el.appendTo('#main'));
 userFsm.on('exit:exploring', () => explorerView.$el.detach());
+userFsm.on('enter:lost', () => notFoundView.$el.appendTo('#main'));
+userFsm.on('exit:lost', () => notFoundView.$el.detach());
 
 menuView.on('feedback', () => feedbackView.render().$el.appendTo('body'));
 
