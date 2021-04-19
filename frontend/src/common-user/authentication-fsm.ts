@@ -12,6 +12,7 @@ export default Fsm.extend({
     states: {
         unauthenticated: {
             login: 'attemptLogin',
+            loginSuccess: 'authenticated',
             register: 'registering',
         },
         attemptLogin: {
