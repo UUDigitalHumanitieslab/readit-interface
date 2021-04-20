@@ -6,6 +6,7 @@ import { owl, dcterms, rdfs } from '../common-rdf/ns';
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
 import explorerChannel from '../explorer/explorer-radio';
+import { report404 } from '../explorer/utilities';
 import { getLabelText } from '../utilities/annotation-utilities';
 import LabelView from '../label/label-view';
 import ItemMetadataView from '../item-metadata/item-metadata-view';
@@ -47,6 +48,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         model.whenever('item', this.processItem, this);
         model.whenever('label', this.processLabel, this);
         model.whenever('text', this.processText, this);
+        this.listenToOnce(model.underlying, 'error', report404);
         this.render().listenTo(model, 'change', this.render);
     }
 
