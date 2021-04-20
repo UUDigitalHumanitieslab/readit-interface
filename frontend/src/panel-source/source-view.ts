@@ -73,7 +73,7 @@ class SourcePanel extends CompositeView {
         super(options);
         this.validate();
         this.toolbarModel = new Model({
-            metadata: false, 
+            metadata: false,
             annotations: options.showHighlightsInitially || false
         });
         this.toolbar = new SourceToolbarView({ model: this.toolbarModel }).render();
@@ -117,10 +117,9 @@ class SourcePanel extends CompositeView {
             // Traversing the JSON serialization, instead of a regular
             // `model.get`, because the URI dereferences to plain text instead
             // of a RDF-formatted resource and this would trip up the
-            // `Store.obtain()` call. TODO: replace this with a nicer API,
-            // perhaps `model.getRaw()`.
+            // `Store.obtain()` call.
             $.get(
-                this.model.toJSON()[vocab('fullText')][0]['@id'] as string
+                this.model.getRaw(vocab('fullText'))[0]['@id'] as string
             ).then(this._createHtv.bind(this));
         }
         return this;
