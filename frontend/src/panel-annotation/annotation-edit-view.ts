@@ -53,9 +53,8 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         const categories = new FlatItemCollection(this.ontologyClasses);
         this.getOntologyClasses();
         this.classPicker = new ClassPickerView({
-            collection: categories,
-            preselection: new FlatItem(this.model.get('class')),
-        }).render();
+            collection: categories
+        });
         this.snippetView = new SnippetView({ model: this.model }).render();
 
         this.model.when('annotation', this.processAnnotation, this);
@@ -92,7 +91,8 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         return ontology;
     }
 
-    processClass(model: FlatItem, cls: FlatItem): void {
+    processClass(model: FlatItem, selClass: Node): void {
+        const cls = new FlatItem(selClass);
         this.classPicker.select(cls);
         this.selectClass(cls);
         this.classPicker.on('select', this.changeClass, this);
@@ -241,7 +241,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             [skos.prefLabel]: '', // this prevents a failing getLabel
         });
         this.setItem(item);
-        this.itemEditor = new ItemEditor({model: item});
+        this.itemEditor = new ItemEditor({model: new FlatItem(item)});
         this.$('.item-picker-container').after(this.itemEditor.el);
         return this;
     }

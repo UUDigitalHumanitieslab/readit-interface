@@ -26,9 +26,7 @@ export default class OntologyClassPickerView extends CollectionView<
     }
 
     initialize(options: ViewOptions): this {
-        const preselection = options.preselection;
-        this.initItems().initCollectionEvents().select(preselection);
-        this.selected = preselection;
+        this.initItems().render().initCollectionEvents();
         this.externalCloseHandler = $(document).click(() => this.hideDropdown());
         return this;
     }
@@ -73,6 +71,7 @@ export default class OntologyClassPickerView extends CollectionView<
                 item.deactivate();
             }
         });
+        this.render();
     }
 
     setLabel(item: FlatItem): this {

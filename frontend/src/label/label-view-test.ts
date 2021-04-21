@@ -32,19 +32,15 @@ describe('LabelView', function () {
 
     beforeEach( async function() {
         this.item = getDefaultItem();
-        this.view = new LabelView({ model: this.item });
-        const origProcessClass = this.view.processClass;
-        // spyOn(this.view, 'processClass').and.callFake(function() {
-        //     const result = origProcessClass.apply(this, arguments);
-        //     this.trigger('processed');
-        // });
+
     });
 
     it('includes a tooltip if a definition exists', async function () {
         // await event(this.view, 'processed');
+        let view = new LabelView({ model: this.item });
         await event(this.item, 'complete');
-        expect(this.view.el.className).toContain('is-readit-content');
-        expect(this.view.$el.attr('data-tooltip')).toEqual('This is a test definition');
+        expect(view.el.className).toContain('is-readit-content');
+        expect(view.$el.attr('data-tooltip')).toEqual('This is a test definition');
     });
 
     it('does not include a tooltip if a definition does not exist', async function () {
@@ -56,8 +52,9 @@ describe('LabelView', function () {
         expect(view.$el.attr('data-tooltip')).toBeUndefined();
     });
 
-    it('excludes a tooltip if told so', function () {
+    it('excludes a tooltip if told so', async function () {
         let view = new LabelView({ model: this.item, toolTipSetting: false });
+        await event(this.item, 'complete');
         expect(view.el.className).toContain('is-readit-content');
         expect(view.$el.attr('data-tooltip')).toBeUndefined();
     });
