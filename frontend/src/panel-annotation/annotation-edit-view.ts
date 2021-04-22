@@ -8,7 +8,7 @@ import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 
 import ItemEditor from '../item-edit/item-edit-view';
-import PickerView from '../forms/base-picker-view';
+import PickerView from '../forms/select2-picker-view';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import ItemGraph from '../common-adapters/item-graph';
 import ClassPickerView from '../forms/ontology-class-picker-view';
@@ -50,12 +50,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     initialize() {
         this.itemOptions = new ItemGraph();
         this.itemOptions.comparator = this.sortOptions;
-        this.itemPicker = new PickerView({
-            collection: this.itemOptions,
-            className: '',
-        });
-        // Replace Bulma select by select2 select. TODO: make this less hacky.
-        this.itemPicker.$('select').width('95%').select2();
+        this.itemPicker = new PickerView({ collection: this.itemOptions });
         this.classPicker = new ClassPickerView({
             collection: getOntologyClasses(),
             preselection: this.model.get('class'),
@@ -112,7 +107,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
 
     remove(): this {
         if (this.validator) this.validator.destroy();
-        this.itemPicker.$('select').select2('destroy');
         super.remove();
         return this;
     }
@@ -263,7 +257,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         if (isBlank(this.model.underlying)) {
             // Remove the placeholder.
             this.collection.underlying.remove(this.model.underlying);
-        } 
+        }
         explorerChannel.trigger('annotationEditView:close', this);
         return this;
     }
