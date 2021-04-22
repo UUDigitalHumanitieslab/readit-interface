@@ -13,8 +13,9 @@ import suggestionsTemplate from './suggestions-template';
 import SourceListView from '../panel-source-list/source-list-view';
 import AnnotationListView from '../panel-annotation-list/annotation-list-view';
 import OntologyListView from '../ontology/ontology-list-view';
-import LabelView from '../label/label-view';
 import FlatAnnotationCollection from '../common-adapters/flat-annotation-collection';
+import FlatItemCollection from '../common-adapters/flat-item-collection';
+import FlatItem from '../common-adapters/flat-item-model';
 
 const announce = announceRoute('explore');
 const nSuggestions = 3;
@@ -25,25 +26,25 @@ export default class SuggestionsView extends CompositeView{
     sourceSuggestions: Graph;
     annotationGraph: ItemGraph;
     annotationSuggestions: FlatAnnotationCollection;
-    categorySuggestions: Graph;
+    categoryGraph: Graph;
+    categorySuggestions: FlatItemCollection;
     sourceList: SourceListView;
     annotationList: AnnotationListView;
     ontologyList: OntologyListView;
-
-
 
     initialize(){
         this.sourceSuggestions = new Graph();
         this.annotationGraph = new ItemGraph();
         this.annotationSuggestions = new FlatAnnotationCollection(this.annotationGraph);
-        this.categorySuggestions = new Graph();
+        this.listenTo(this.annotationSuggestions, 'focus', this.openAnnotation);
+        this.categoryGraph = new Graph();
+        this.categorySuggestions = new FlatItemCollection(this.categoryGraph);
+        this.listenTo(this.categorySuggestions, 'focus', this.openRelevantAnnotations);
         this.getSuggestions();
         this.sourceList = new SourceListView({collection: this.sourceSuggestions});
         this.listenTo(this.sourceList, 'source:clicked', this.openSource);
         this.annotationList = new AnnotationListView({collection: this.annotationSuggestions as FlatAnnotationCollection});
-        this.listenTo(this.annotationList, 'annotation:clicked', this.openAnnotation);
         this.ontologyList = new OntologyListView({collection: this.categorySuggestions});
-        this.listenTo(this.ontologyList, 'category:clicked', this.openRelevantAnnotations);
         this.on('announceRoute', announce);
         this.render();
     }
@@ -54,21 +55,21 @@ export default class SuggestionsView extends CompositeView{
         this.annotationGraph.fetch({ url: itemSuggestionsUrl, data: param });
         const categories = await ldChannel.request('ontology:promise');
         const suggestions = sampleSize(filter(categories.models, isRdfsClass), nSuggestions);
-        this.categorySuggestions.set(suggestions);
+        this.categoryGraph.set(suggestions);
     }
 
     openSource(source: Node): void {
+        this.$('.is-highlighted').removeClass('is-highlighted');
         explorerChannel.trigger('source-list:click', this, source);
     }
 
     openAnnotation(annotation: Node): void {
         this.$('.category-view.is-highlighted').removeClass('is-highlighted');
-        explorerChannel.trigger('annotationList:showAnnotation', this, annotation);
+        explorerChannel.trigger('annotationList:showAnnotation', this, annotation, this.annotationList.collection);
     }
 
-    openRelevantAnnotations(label: LabelView, category: Node): void {
-        this.$('.is-highlighted').removeClass('is-highlighted');
-        label.$el.addClass('is-highlighted');
+    openRelevantAnnotations(category: FlatItem): void {
+        this.$('.item-sum-block.is-highlighted').removeClass('is-highlighted');
         explorerChannel.trigger('category:showRelevantAnnotations', this, category);
     }
 

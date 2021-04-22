@@ -206,7 +206,7 @@ class ExplorerEventController {
         // this.autoOpenRelationEditor(annotation.get('annotation'));
     }
 
-    showAnnotationsOfCategory(view: SuggestionsView, category: Node): SearchResultListView {
+    showAnnotationsOfCategory(view: SuggestionsView, category: FlatItem): SearchResultListView {
         let items = new ItemGraph();
         const url = '/item/' + category.id.split("#")[1];
         items.fetch({ url: url });
@@ -243,8 +243,8 @@ class ExplorerEventController {
         }
     }
 
-    openSourceAnnotation(listView: AnnotationListPanel, model: FlatItem): AnnotationView {
-        const { collection } = listView;
+    openSourceAnnotation(listView: AnnotationListPanel, model: FlatItem, annoCollection: Collection<FlatItem>): AnnotationView {
+        const collection = annoCollection;
         let newDetailView = new AnnotationView({ model, collection });
         this.explorerView.popUntil(listView).push(newDetailView);
         // Focus might not work if the collection isn't complete yet. In that
@@ -295,7 +295,7 @@ class ExplorerEventController {
         );
         collection.underlying.add(annotation);
         const flat = collection.get(annotation.id);
-        const newAnnotationView = this.openSourceAnnotation(listPanel, flat);
+        const newAnnotationView = this.openSourceAnnotation(listPanel, flat, collection);
         return this.editAnnotation(newAnnotationView, flat);
     }
 }

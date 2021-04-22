@@ -1,38 +1,28 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
 import { CollectionView } from '../core/view';
-import Node from '../common-rdf/node';
 import LabelView from '../label/label-view';
 
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 import ontologyClassPickerTemplate from './ontology-class-picker-template';
-
-export interface ViewOptions extends BaseOpt<Node> {
-    preselection?: Node;
-}
+import FlatItem from '../common-adapters/flat-item-model';
 
 export default class OntologyClassPickerView extends CollectionView<
-    Node,
+    FlatItem,
     OntologyClassPickerItemView
 > {
-    selected: Node;
+    selected: FlatItem;
     label: any;
     externalCloseHandler: any;
 
-    constructor(options: ViewOptions) {
-        super(options);
-    }
 
-    initialize(options: ViewOptions): this {
-        const preselection = options.preselection;
-        this.initItems().initCollectionEvents().select(preselection);
-        this.selected = preselection;
+    initialize(): this {
+        this.initItems().render().initCollectionEvents();
         this.externalCloseHandler = $(document).click(() => this.hideDropdown());
         return this;
     }
 
-    makeItem(model: Node): OntologyClassPickerItemView {
+    makeItem(model: FlatItem): OntologyClassPickerItemView {
         return new OntologyClassPickerItemView({ model }).on({
             click: this.onItemClicked,
             activated: this.onItemActivated,
@@ -57,11 +47,11 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
-    getSelected(): Node {
+    getSelected(): FlatItem {
         return this.selected;
     }
 
-    select(newValue: Node) {
+    select(newValue: FlatItem) {
         if (newValue === this.selected) return;
         this.selected = newValue;
         this.items.forEach((item) => {
@@ -72,13 +62,14 @@ export default class OntologyClassPickerView extends CollectionView<
                 item.deactivate();
             }
         });
+        this.render();
     }
 
-    setLabel(node: Node): this {
+    setLabel(item: FlatItem): this {
         let dropdownLabel = this.$('.dropdown-label-tag');
         if (this.label) this.label.remove();
         dropdownLabel.text('');
-        this.label = new LabelView({ model: node });
+        this.label = new LabelView({ model: item });
         this.label.$el.appendTo(dropdownLabel);
         return this;
     }

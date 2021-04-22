@@ -33,7 +33,7 @@ export default class AnnotationListPanel extends CompositeView<FlatItem> {
     }
 
     openAnnotation(annotation: FlatItem): void {
-        explorerChannel.trigger('annotationList:showAnnotation', this, annotation);
+        explorerChannel.trigger('annotationList:showAnnotation', this, annotation, this.collection);
     }
 
     closeAnnotation(annotation: FlatItem): void {
