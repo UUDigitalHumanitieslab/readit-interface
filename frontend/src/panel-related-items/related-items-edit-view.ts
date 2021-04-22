@@ -11,8 +11,9 @@ import Graph from '../common-rdf/graph';
 import ItemGraph from '../common-adapters/item-graph';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
+import { applicablePredicates, relationsFromModel } from '../utilities/relation-utilities';
+
 import RelationEditor from './relation-editor-view';
-import { applicablePredicates, relationsFromModel } from './relation-utilities';
 import relatedItemsTemplate from './related-items-edit-template';
 
 const announce = announceRoute('item:related:edit', ['model', 'id']);
