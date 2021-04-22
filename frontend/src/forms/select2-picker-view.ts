@@ -1,4 +1,3 @@
-import { extend } from 'lodash';
 import 'select2';
 
 import BasePicker from './base-picker-view';
@@ -13,7 +12,7 @@ export default class Select2PickerView extends BasePicker {
     }
 
     afterRender(): this {
-        this.$('select').select2();
+        this.$('select').select2({ dropdownAutoWidth: true });
         return this;
     }
 
@@ -22,7 +21,3 @@ export default class Select2PickerView extends BasePicker {
         return super.remove();
     }
 }
-
-extend(Select2PickerView.prototype, {
-    className: 'readit-picker',
-});
