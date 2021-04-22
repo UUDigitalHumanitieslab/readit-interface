@@ -33,7 +33,7 @@ export default class ItemEditor extends CompositeView<FlatItem> {
             id: `category-${this.cid}`,
         });
         this.render();
-        this.model.when('item', this.itemLabelFromModel, this);
+        this.model.whenever('label', this.itemLabelFromModel, this);
     }
 
     renderContainer(): this {
@@ -42,8 +42,7 @@ export default class ItemEditor extends CompositeView<FlatItem> {
     }
 
     itemLabelFromModel(): this {
-        const item = this.model.get('item');
-        this.labelField().val(item.get(skos.prefLabel));
+        this.labelField().val(this.model.get('label'));
         return this;
     }
 

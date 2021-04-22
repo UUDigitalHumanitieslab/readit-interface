@@ -1,17 +1,11 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 
 import { CollectionView } from '../core/view';
-import Node from '../common-rdf/node';
 import LabelView from '../label/label-view';
 
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 import ontologyClassPickerTemplate from './ontology-class-picker-template';
 import FlatItem from '../common-adapters/flat-item-model';
-
-export interface ViewOptions extends BaseOpt<FlatItem> {
-    preselection?: FlatItem;
-}
 
 export default class OntologyClassPickerView extends CollectionView<
     FlatItem,
@@ -21,11 +15,8 @@ export default class OntologyClassPickerView extends CollectionView<
     label: any;
     externalCloseHandler: any;
 
-    constructor(options: ViewOptions) {
-        super(options);
-    }
 
-    initialize(options: ViewOptions): this {
+    initialize(): this {
         this.initItems().render().initCollectionEvents();
         this.externalCloseHandler = $(document).click(() => this.hideDropdown());
         return this;

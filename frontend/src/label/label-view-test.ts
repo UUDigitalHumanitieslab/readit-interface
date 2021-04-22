@@ -1,11 +1,10 @@
-import { enableI18n, event, timeout } from '../test-util';
+import { enableI18n, event } from '../test-util';
 
 import { readit, rdfs, skos } from './../common-rdf/ns';
 import { FlatLdObject } from '../common-rdf/json';
 import Node from '../common-rdf/node';
 import LabelView from './label-view';
 import FlatItem from '../common-adapters/flat-item-model';
-import { hasUncaughtExceptionCaptureCallback } from 'process';
 
 function getDefaultItem(): FlatItem {
     return new FlatItem(new Node(getDefaultAttributes()));
@@ -36,7 +35,6 @@ describe('LabelView', function () {
     });
 
     it('includes a tooltip if a definition exists', async function () {
-        // await event(this.view, 'processed');
         let view = new LabelView({ model: this.item });
         await event(this.item, 'complete');
         expect(view.el.className).toContain('is-readit-content');
