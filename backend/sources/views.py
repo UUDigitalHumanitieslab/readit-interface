@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import html
 import functools
 import operator
+import requests
 
 from django.http import HttpResponse, JsonResponse
 from django.core.files.storage import default_storage
@@ -28,12 +29,14 @@ from vocab import namespace as vocab
 from staff.utils import submission_info
 from items.constants import ITEMS_NS
 from items.graph import graph as items_graph
+from nlp_ontology.graph import graph as nlp_graph
 from . import namespace as ns
 from .constants import SOURCES_NS
 from .graph import graph as sources_graph
 from .utils import get_media_filename, get_serial_from_subject
 from .models import SourcesCounter
 from .permissions import UploadSourcePermission, DeleteSourcePermission
+from .tasks import poll_automated_annotations
 
 es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
 
@@ -315,6 +318,9 @@ class AddSource(RDFResourceView):
     parser_classes = [MultiPartParser]
 
     def store(self, source_file, source_id, source_language, author, title):
+        """ sanitize and store the text in an Elasticsearch index
+        return the sanitized text
+        """
         text = html.escape(str(source_file.read().decode('utf8')))
         es.index(settings.ES_ALIASNAME, {
             'id': source_id,
@@ -324,6 +330,7 @@ class AddSource(RDFResourceView):
             'text': text,
             'text_{}'.format(source_language): text
         })
+        return text
 
     def is_valid(self, data):
         is_valid = True
@@ -403,6 +410,24 @@ class AddSource(RDFResourceView):
                 optionals.append((new_subject, uris[u], URIRef(value)))
 
         return optionals
+    
+    def query_automated_annotations(self, file_obj, uri):
+        headers = {'Authorization': 'Token token={}'.format(settings.IRISA_TOKEN)}
+        queue = "standard" if len(file_obj.read()) < 50000 else "batch"
+        job_parameters = ("--source-number {}".format(uri.split('/')[-1]))
+        files = {
+            'job[webapp_id]': (None, '1042'),
+            'job[queue]': (None, queue),
+            'files[0]': ('file', file_obj),
+            'job[param]': (None, job_parameters)
+        }
+        response = requests.post(settings.IRISA_URL, headers=headers, files=files)
+        if response:
+            job_id = response.json().get('id')
+            # set the time for the query timeout: 
+            # 20 minutes for small texts, 24 hours for large texts
+            timeout = 120 if queue=='standard' else 86400
+            poll_automated_annotations(job_id, timeout).delay()
 
     def post(self, request, format=None):
         data = request.data
@@ -418,6 +443,8 @@ class AddSource(RDFResourceView):
         # store the file in ES index
         self.store(data['source'], get_serial_from_subject(new_subject),
         data['language'], data['author'], data['title'])
+
+        self.query_automated_annotations(data['source'], counter.__str__())
 
         # TODO: voor author en editor een instantie van SCHEMA.Person maken? Of iets uit CIDOC/ontologie?
         # create graph
