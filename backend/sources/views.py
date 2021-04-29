@@ -28,8 +28,6 @@ from rdf.utils import graph_from_triples, prune_triples_cascade, get_conjunctive
 from vocab import namespace as vocab
 from staff.utils import submission_info
 from items.constants import ITEMS_NS
-from items.graph import graph as items_graph
-from nlp_ontology.graph import graph as nlp_graph
 from . import namespace as ns
 from .constants import SOURCES_NS
 from .graph import graph as sources_graph
@@ -411,23 +409,23 @@ class AddSource(RDFResourceView):
 
         return optionals
     
-    def query_automated_annotations(self, file_obj, uri):
+    def query_automated_annotations(self, text, uploaded_file, uri):
         headers = {'Authorization': 'Token token={}'.format(settings.IRISA_TOKEN)}
-        queue = "standard" if len(file_obj.read()) < 50000 else "batch"
+        queue = "standard" if len(text) < 50000 else "batch"
         job_parameters = ("--source-number {}".format(uri.split('/')[-1]))
         files = {
             'job[webapp_id]': (None, '1042'),
             'job[queue]': (None, queue),
-            'files[0]': ('file', file_obj),
+            'files[0]': ('file', text.encode('utf-8')),
             'job[param]': (None, job_parameters)
         }
-        response = requests.post(settings.IRISA_URL, headers=headers, files=files)
+        response = requests.post('{}/jobs'.format(settings.IRISA_URL), headers=headers, files=files)
         if response:
             job_id = response.json().get('id')
             # set the time for the query timeout: 
             # 20 minutes for small texts, 24 hours for large texts
             timeout = 120 if queue=='standard' else 86400
-            poll_automated_annotations(job_id, timeout).delay()
+            poll_automated_annotations.delay(job_id, timeout)
 
     def post(self, request, format=None):
         data = request.data
@@ -441,10 +439,10 @@ class AddSource(RDFResourceView):
         new_subject = URIRef(str(counter))
 
         # store the file in ES index
-        self.store(data['source'], get_serial_from_subject(new_subject),
+        sanitized_text = self.store(data['source'], get_serial_from_subject(new_subject),
         data['language'], data['author'], data['title'])
 
-        self.query_automated_annotations(data['source'], counter.__str__())
+        self.query_automated_annotations(sanitized_text, data['source'], counter.__str__())
 
         # TODO: voor author en editor een instantie van SCHEMA.Person maken? Of iets uit CIDOC/ontologie?
         # create graph

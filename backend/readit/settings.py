@@ -47,8 +47,8 @@ CELERY_BROKER_URL = 'amqp://'
 CELERY_BACKEND = 'amqp'
 
 IRISA_WAIT = 300 # wait for 5 minutes between requests to Irisa API
-# Set these environment variables
-IRISA_URL = os.environ.get('IRISA_URL')
+IRISA_URL = 'https://allgo18.inria.fr/api/v1'
+# set IRISA_TOKEN as env variable
 IRISA_TOKEN = os.environ.get('IRISA_TOKEN')
 
 # Application definition
