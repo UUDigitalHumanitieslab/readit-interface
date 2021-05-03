@@ -142,9 +142,9 @@ def replace_bnodes(parsed_data):
     result = Graph()
     for abbreviation, ns in DEFAULT_NS.items():
         result.bind(abbreviation, ns)
-    for s, p, o in filter(is_unreserved, parsed_data):
+    for s, p, o in filter(is_unreserved, data):
         result.add((new_subject, p, o))
-    return result, new_subject
+    return result
 
 
 class ItemsAPIRoot(RDFView):
