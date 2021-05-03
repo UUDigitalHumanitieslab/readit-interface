@@ -6,7 +6,7 @@ from django.conf import settings
 from rdflib import Graph, BNode, URIRef
 
 from readit import celery_app
-from items import graph as item_graph
+from items.graph import graph as item_graph
 from items.models import ItemCounter
 
 @celery_app.task
@@ -24,8 +24,8 @@ def poll_automated_annotations(job_id, timeout):
             g = Graph()
             g.parse(data=result.text, format='turtle')
             result_graph = replace_bnodes(g)
-            item_graph = item_graph()
-            item_graph += result_graph
+            graph = item_graph()
+            graph += result_graph
             break
         else:
             waited += settings.IRISA_WAIT
@@ -46,8 +46,8 @@ def replace_bnodes(graph):
         if isinstance(o, BNode):
             if not o in bnodes.keys():
                 counter.increment()
-                bnodes[s] = URIRef(str(counter))
-            new_object = bnodes[s]
+                bnodes[o] = URIRef(str(counter))
+            new_object = bnodes[o]
         output_graph.add((new_subject or s, p, new_object or o))
     return output_graph
 

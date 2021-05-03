@@ -413,7 +413,6 @@ class AddSource(RDFResourceView):
     def query_automated_annotations(self, text, uploaded_file, uri):
         headers = {'Authorization': 'Token token={}'.format(settings.IRISA_TOKEN)}
         queue = "standard" if len(text) < 50000 else "batch"
-        print(headers, queue, text)
         job_parameters = ("--has-source {}".format(quote(uri, '')))
         files = {
             'job[webapp_id]': (None, '1042'),
@@ -422,7 +421,6 @@ class AddSource(RDFResourceView):
             'job[param]': (None, job_parameters)
         }
         response = requests.post('{}/jobs'.format(settings.IRISA_URL), headers=headers, files=files)
-        print(response.text)
         if response:  
             job_id = response.json().get('id')
             # set the time for the query timeout: 
