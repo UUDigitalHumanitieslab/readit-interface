@@ -4,6 +4,7 @@ import html
 import functools
 import operator
 import requests
+from requests.utils import quote
 
 from django.http import HttpResponse, JsonResponse
 from django.core.files.storage import default_storage
@@ -412,7 +413,7 @@ class AddSource(RDFResourceView):
     def query_automated_annotations(self, text, uploaded_file, uri):
         headers = {'Authorization': 'Token token={}'.format(settings.IRISA_TOKEN)}
         queue = "standard" if len(text) < 50000 else "batch"
-        job_parameters = ("--source-number {}".format(uri.split('/')[-1]))
+        job_parameters = ("--has-source {}".format(quote(uri, '')))
         files = {
             'job[webapp_id]': (None, '1042'),
             'job[queue]': (None, queue),
@@ -420,12 +421,14 @@ class AddSource(RDFResourceView):
             'job[param]': (None, job_parameters)
         }
         response = requests.post('{}/jobs'.format(settings.IRISA_URL), headers=headers, files=files)
-        if response:
+        if response:  
             job_id = response.json().get('id')
             # set the time for the query timeout: 
             # 20 minutes for small texts, 24 hours for large texts
             timeout = 120 if queue=='standard' else 86400
             poll_automated_annotations.delay(job_id, timeout)
+        else:
+            logger.warning("Failed to send request for automated annotations for source {}".format(uri))
 
     def post(self, request, format=None):
         data = request.data
