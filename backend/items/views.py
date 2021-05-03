@@ -131,21 +131,6 @@ def save_snapshot(identifier, previous, request):
     ))
     append_triples(g, ((body, p, o) for (s, p, o) in previous))
 
-def replace_bnodes(parsed_data):
-    '''
-    given parsed_data,
-    replace blank nodes with unique Ids
-    '''
-    counter = ItemCounter.current
-    counter.increment()
-    new_subject = URIRef(str(counter))
-    result = Graph()
-    for abbreviation, ns in DEFAULT_NS.items():
-        result.bind(abbreviation, ns)
-    for s, p, o in filter(is_unreserved, data):
-        result.add((new_subject, p, o))
-    return result
-
 
 class ItemsAPIRoot(RDFView):
     """ By default, list an empty graph. """
@@ -202,7 +187,14 @@ class ItemsAPIRoot(RDFView):
         if len(subjects) != 1 or not isinstance(subjects.pop(), BNode):
             raise ValidationError(MUST_SINGLE_BLANK_400)
         user, now = submission_info(request)
-        result, new_subject = replace_bnodes(data)
+        counter = ItemCounter.current
+        counter.increment()
+        new_subject = URIRef(str(counter))
+        result = Graph()
+        for abbreviation, ns in DEFAULT_NS.items():
+            result.bind(abbreviation, ns)
+        for s, p, o in filter(is_unreserved, data):
+            result.add((new_subject, p, o))
         result.add((new_subject, DCTERMS.creator, user))
         result.add((new_subject, DCTERMS.created, now))
         full_graph = super().get_graph(request)
