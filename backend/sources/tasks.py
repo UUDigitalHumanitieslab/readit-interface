@@ -7,6 +7,7 @@ from rdflib import Graph
 
 from readit import celery_app
 from items import graph as item_graph
+from items.views import replace_bnodes
 
 @celery_app.task
 def poll_automated_annotations(job_id, timeout):
@@ -16,17 +17,16 @@ def poll_automated_annotations(job_id, timeout):
         'Authorization': 'Token token={}'.format(settings.IRISA_TOKEN)
     }
     waited = 0
+    time.sleep(10) # wait for ten seconds to make sure url exists
     while waited < timeout:
         result = requests.get(url, headers=headers)
-        print(url, headers, result.text)
-        if result:
+        if result and result.text:
             g = Graph()
-            g.parse(result.text, format='turtle')
+            g.parse(data=result.text, format='turtle')
+            result, new_subject = replace_bnodes(g)
             item_graph = item_graph()
-            item_graph += g
-            print("success")
+            item_graph += result
             break
         else:
             waited += settings.IRISA_WAIT
-            print(waited)
             time.sleep(settings.IRISA_WAIT)
