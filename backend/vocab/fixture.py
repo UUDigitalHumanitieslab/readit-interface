@@ -50,6 +50,8 @@ def triples():
 
         ( my.self,             is_a,          AS.Application ),
         ( my.self,             FOAF.homepage, APP_URI ),
+
+        (my.needs_verification, is_a,          Class),
     ]
 
 

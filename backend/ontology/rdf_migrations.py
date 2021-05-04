@@ -1,12 +1,23 @@
+from django.conf import settings
+from items.graph import graph as item_graph
+from rdf.migrations import RDFMigration, on_add, on_remove
+from rdf.ns import *
+from rdf.utils import (append_triples, graph_from_triples, prune_triples,
+                       prune_triples_cascade)
+from rdflib import Literal
 from rdflib.namespace import Namespace
 
 from . import namespace as READIT
-from .graph import graph
 from .fixture import canonical_graph
-from rdf.migrations import *
-from rdf.utils import append_triples, prune_triples, prune_triples_cascade, graph_from_triples
-from rdf.ns import *
-from items.graph import graph as item_graph
+from .graph import graph
+
+# Color palette
+ORANGE = '#E69F00'
+SKY_BLUE = '#56B4E9'
+BLUISH_GREEN = '#009E73'
+YELLOW = '#F0E442'
+REDDISH_PURPLE = '#CC79A7'
+
 
 CIDOC = Namespace('http://www.cidoc-crm.org/cidoc-crm/')
 DELETE_CLASS_ANNOS_UPDATE = '''
@@ -24,6 +35,56 @@ DELETE {
     ?selector ?e ?f.
 }
 '''
+
+SKINNY_REO_CLASS_MAPPING = {
+    READIT.act_of_reading: READIT.E7,
+    READIT.content: READIT.F2,
+    READIT.medium: READIT.REO41,
+    READIT.reader: READIT.E21,
+    READIT.reader_properties: READIT.E21,
+    READIT.reading_circumstances: READIT.E7,
+    READIT.reading_response: READIT.REO42,
+    READIT.resource_properties: READIT.REO14,
+}
+
+REPLACE_OBJECT_UPDATE = '''
+    DELETE {
+        ?s ?p ?before .
+    }
+    INSERT {
+        ?s ?p ?after .
+    }
+    WHERE {
+        ?s ?p ?before .
+    }
+'''
+
+ADD_COLOR_UPDATE = '''
+    INSERT {
+        ?subject schema:color ?colorcode .
+    }
+    WHERE {
+        ?subject ?p ?o .
+    }
+'''
+
+
+def insert_color_triple(subject, colorcode, input_graph=None):
+    context = input_graph if input_graph else graph()
+    context.update(ADD_COLOR_UPDATE,
+                   initBindings={
+                       'subject': subject,
+                       'colorcode': Literal(colorcode)
+                   },
+                   initNs={'schema': SCHEMA})
+
+
+def replace_objects(before, after, graph=None):
+    context = graph if graph else settings.RDFLIB_STORE
+    context.update(REPLACE_OBJECT_UPDATE, initBindings={
+        'before': before,
+        'after': after
+    })
 
 
 def replace_object(graph, before, after):
@@ -168,3 +229,44 @@ class Migration(RDFMigration):
             initNs={'oa': OA},
             initBindings={'body': READIT.reading_testimony},
         )
+
+    # # # # # # # # # # # # # #
+    # Skinny to REO migration #
+    # # # # # # # # # # # # # #
+
+    @on_add(READIT.E7)
+    def add_E7(self, actual, conjunctive):
+        """ Part of the migration from property-skinny to REO """
+        replace_objects(READIT.act_of_reading, READIT.E7)
+        replace_objects(READIT.reading_circumstances, READIT.E7)
+
+    @on_add(READIT.F2)
+    def add_F2(self, actual, conjunctive):
+        """ Part of the migration from property-skinny to REO """
+        replace_objects(READIT.content, READIT.F2)
+
+    @on_add(READIT.REO41)
+    def add_REO41(self, actual, conjunctive):
+        """ Part of the migration from property-skinny to REO """
+        replace_objects(READIT.medium, READIT.REO41)
+
+    @on_add(READIT.E21)
+    def add_E21(self, actual, conjunctive):
+        """ Part of the migration from property-skinny to REO """
+        replace_objects(READIT.reader, READIT.E21)
+        replace_objects(READIT.reader_properties, READIT.E21)
+
+    @on_add(READIT.REO14)
+    def add_REO14(self, actual, conjunctive):
+        """ Part of the migration from property-skinny to REO """
+        replace_objects(READIT.resource_properties, READIT.REO14)
+
+    @on_add(READIT.REO42)
+    def add_REO42(self, actual, conjunctive):
+        """ Part of the migration from property-skinny to REO """
+        replace_objects(READIT.reading_response, READIT.REO42)
+
+
+
+
+
