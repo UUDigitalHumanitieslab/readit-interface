@@ -239,37 +239,45 @@ class Migration(RDFMigration):
 
     @on_add(READIT.E7)
     def add_E7(self, actual, conjunctive):
-        """ Part of the migration from property-skinny to REO """
+        """ E7 Activity
+        Part of the migration from property-skinny to REO """
         replace_objects(READIT.act_of_reading, READIT.E7)
         replace_objects(READIT.reading_circumstances, READIT.E7)
+        assign_color(READIT.E7, ORANGE)
 
     @on_add(READIT.F2)
     def add_F2(self, actual, conjunctive):
-        """ Part of the migration from property-skinny to REO """
+        """ F2 Expression
+        Part of the migration from property-skinny to REO """
         replace_objects(READIT.content, READIT.F2)
+        assign_color(READIT.F2, SKY_BLUE)
 
     @on_add(READIT.REO41)
     def add_REO41(self, actual, conjunctive):
-        """ Part of the migration from property-skinny to REO """
+        """ REO41 Medium
+        Part of the migration from property-skinny to REO """
         replace_objects(READIT.medium, READIT.REO41)
 
     @on_add(READIT.E21)
     def add_E21(self, actual, conjunctive):
-        """ Part of the migration from property-skinny to REO """
+        """ E21 Person
+        Part of the migration from property-skinny to REO """
         replace_objects(READIT.reader, READIT.E21)
         replace_objects(READIT.reader_properties, READIT.E21)
+        assign_color(READIT.E21, BLUISH_GREEN)
 
     @on_add(READIT.REO14)
     def add_REO14(self, actual, conjunctive):
-        """ Part of the migration from property-skinny to REO """
+        """ REO14 Provenance
+        Part of the migration from property-skinny to REO """
         replace_objects(READIT.resource_properties, READIT.REO14)
 
     @on_add(READIT.REO42)
     def add_REO42(self, actual, conjunctive):
-        """ Part of the migration from property-skinny to REO """
+        """ REO42 Effects/Outcomes (deprecated)
+        Serves as temporary container for annotations of REO12 and REO23
+        Part of the migration from property-skinny to REO """
         replace_objects(READIT.reading_response, READIT.REO42)
-
-
-
-
+        assign_color(READIT.REO12, YELLOW)
+        assign_color(READIT.REO23, REDDISH_PURPLE)
 
