@@ -59,24 +59,27 @@ REPLACE_OBJECT_UPDATE = '''
     }
 '''
 
-ADD_COLOR_UPDATE = '''
+ASSIGN_COLOR_UPDATE = '''
     INSERT {
         ?subject schema:color ?colorcode .
+        ?child   schema:color ?colorcode .
     }
     WHERE {
-        ?subject ?p ?o .
+       { ?subject ?p ?o . }
+       UNION
+       { ?child rdfs:subClassOf ?subject }
     }
 '''
 
 
-def insert_color_triple(subject, colorcode, input_graph=None):
+def assign_color(subject, colorcode, input_graph=None):
     context = input_graph if input_graph else graph()
-    context.update(ADD_COLOR_UPDATE,
-                   initBindings={
-                       'subject': subject,
-                       'colorcode': Literal(colorcode)
-                   },
-                   initNs={'schema': SCHEMA})
+    bindings = {'subject': subject, 'colorcode': Literal(colorcode)}
+    namespaces = {'schema': SCHEMA, 'rdfs': RDFS}
+
+    context.update(ASSIGN_COLOR_UPDATE,
+                   initBindings=bindings,
+                   initNs=namespaces)
 
 
 def replace_objects(before, after, graph=None):

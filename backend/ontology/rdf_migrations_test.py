@@ -87,13 +87,18 @@ def test_replace_object_sparql():
 
 def test_insert_color():
     before = graph_from_triples(
-        ((READIT.EXAMPLE, RDF.type, RDFS.Class),)
+        ((READIT.EXAMPLE, RDF.type, RDFS.Class),
+         (READIT.EXAMPLE_CHILD, RDF.type, RDFS.Class),
+         (READIT.EXAMPLE_CHILD, RDFS.subClassOf, READIT.EXAMPLE))
     )
     after = graph_from_triples(
         ((READIT.EXAMPLE, RDF.type, RDFS.Class),
-         (READIT.EXAMPLE, SCHEMA.color, Literal("#009e74")))
+         (READIT.EXAMPLE, SCHEMA.color, Literal("#009e74")),
+         (READIT.EXAMPLE_CHILD, RDF.type, RDFS.Class),
+         (READIT.EXAMPLE_CHILD, RDFS.subClassOf, READIT.EXAMPLE),
+         (READIT.EXAMPLE_CHILD, SCHEMA.color, Literal("#009e74"))
+         )
     )
 
-    assert len(before ^ after) == 1
-    insert_color_triple(READIT.EXAMPLE, "#009e74", before)
+    assign_color(READIT.EXAMPLE, "#009e74", before)
     assert len(before ^ after) == 0
