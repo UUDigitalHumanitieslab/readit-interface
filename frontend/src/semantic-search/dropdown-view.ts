@@ -3,6 +3,7 @@ import { SubViewDescription } from 'backbone-fractal/dist/composite-view';
 import 'select2';
 
 import Model from '../core/model';
+import Collection from '../core/collection';
 import View, { CompositeView, CollectionView } from '../core/view';
 import { xsd, rdfs } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
@@ -102,7 +103,14 @@ export default class Dropdown extends CompositeView {
             const criterion = applicableTo(range.id);
             this.filterGroup = new OptionGroup({
                 model: groupLabels.get('filter'),
-                collection: new FilteredCollection(filters, criterion),
+                // For some reason, TS decided to reinterpret
+                // `FilteredCollection`'s first parameter type as
+                // `Backbone.Collection<Model> and `filters` as a
+                // `Collection<Backbone.Model>`, which gave a lot of trouble.
+                // While there is no reason for TS to make these inferences in
+                // the first place, reaffirming that `filters` is a regular
+                // `Collection<Model>` does solve the issue. Damn you TS!
+                collection: new FilteredCollection(filters as Collection, criterion),
             });
             const predicates = applicablePredicates(range);
             this.listenTo(predicates, 'update', this.restoreSelection);
