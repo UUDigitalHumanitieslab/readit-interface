@@ -425,7 +425,7 @@ class AddSource(RDFResourceView):
             job_id = response.json().get('id')
             # set the time for the query timeout: 
             # 20 minutes for small texts, 24 hours for large texts
-            timeout = 120 if queue=='standard' else 86400
+            timeout = 1200 if queue=='standard' else 86400
             poll_automated_annotations.delay(job_id, timeout)
         else:
             logger.warning("Failed to send request for automated annotations for source {}".format(uri))
