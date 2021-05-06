@@ -72,6 +72,12 @@
             </div>
             <div class="level-right">
                 <div class="level-item">
+                    <label class="checkbox">
+                        <input type="checkbox" checked={{needsVerification}}>
+                        Needs verification
+                    </label>
+                </div>
+                <div class="level-item">
                     {{#userIsOwner}}<button type=button class="button is-danger">
                         Delete
                     </button>{{/userIsOwner}}

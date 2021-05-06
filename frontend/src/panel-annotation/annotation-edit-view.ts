@@ -33,6 +33,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     classPicker: ClassPickerView;
     snippetView: SnippetView;
     userIsOwner: boolean;
+    needsVerification: boolean;
     itemPicker: PickerView;
     itemOptions: ItemGraph;
     itemEditor: ItemEditor;
@@ -51,7 +52,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             collection: categories
         });
         this.snippetView = new SnippetView({ model: this.model }).render();
-
+        this.needsVerification = true;
         this.model.when('annotation', this.processAnnotation, this);
         this.model.when('class', this.processClass, this);
         // Two conditions must be met before we run processItem:
