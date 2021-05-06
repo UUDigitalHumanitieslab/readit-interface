@@ -16,8 +16,8 @@ def poll_automated_annotations(job_id, timeout):
         'Accept': 'application/json',
         'Authorization': 'Token token={}'.format(settings.IRISA_TOKEN)
     }
-    waited = 0
     time.sleep(10) # wait for ten seconds to make sure url exists
+    waited = 10 # keep track of time waited in total
     while waited < timeout:
         result = requests.get(url, headers=headers)
         if result and result.text:
