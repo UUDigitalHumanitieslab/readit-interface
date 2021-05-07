@@ -1,6 +1,6 @@
 import { constant } from 'lodash';
 
-import { enableI18n, startStore, endStore } from '../test-util';
+import { enableI18n, startStore, endStore, event } from '../test-util';
 import mockOntology from '../mock-data/mock-ontology';
 
 import Model from '../core/model';
@@ -24,8 +24,15 @@ describe('semantic search DropdownView', function() {
 
     afterEach(endStore);
 
-    it('can be constructed in isolation', function() {
+    it('can be constructed in isolation', async function() {
         const view = new Dropdown();
+        await event(view.typeGroup.collection, 'complete:all');
         expect(view.$('select optgroup').length).toBe(2);
+        expect(view.$('optgroup:first-child').prop('label')).toBe('apply logic');
+        expect(view.$('optgroup:first-child option').length).toBe(3);
+        expect(view.$('optgroup:nth-child(2)').prop('label')).toBe('expect type');
+        expect(view.$('optgroup:nth-child(2) option').length).toBe(3);
+        expect(view.$('optgroup:nth-child(2)').text()).toContain('Reader');
+        expect(view.$('optgroup:nth-child(2)').text()).not.toContain('Person');
     });
 });
