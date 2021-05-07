@@ -112,7 +112,7 @@ export default class Dropdown extends CompositeView {
                 // `Collection<Model>` does solve the issue. Damn you TS!
                 collection: new FilteredCollection(filters as Collection, criterion),
             });
-            const predicates = applicablePredicates(range);
+            const predicates = applicablePredicates(range.id);
             this.listenTo(predicates, 'update', this.restoreSelection);
             this.predicateGroup = new OptionGroup({
                 model: groupLabels.get('predicate'),
