@@ -42,7 +42,7 @@ describe('semantic search DropdownView', function() {
             precedent: ldChannel.request('obtain', readit('Reader')),
         });
         const view = new Dropdown({ model });
-        await event(view.predicateGroup.collection, 'complete:all');
+        await event(view.predicateGroup.collection.at(0), 'change:classLabel');
         expect(view.$('select optgroup').length).toBe(3);
         expect(view.$('optgroup:first-child').prop('label')).toBe('apply logic');
         expect(view.$('optgroup:first-child option').length).toBe(3);
@@ -51,7 +51,7 @@ describe('semantic search DropdownView', function() {
         expect(view.$('optgroup:nth-child(2)').text()).toContain('Is exactly');
         expect(view.$('optgroup:nth-child(2)').text()).not.toContain('Is less than');
         expect(view.$('optgroup:nth-child(3)').prop('label')).toBe('traverse predicate');
-        expect(view.$('optgroup:nth-child(3) option').length).toBe(1);
+        expect(view.$('optgroup:nth-child(3) option').length).toBe(2);
         expect(view.$('optgroup:nth-child(3)').text()).toContain('description of');
     });
 });
