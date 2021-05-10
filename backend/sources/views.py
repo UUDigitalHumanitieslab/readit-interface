@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime, timezone
 import html
@@ -37,9 +38,9 @@ from .models import SourcesCounter
 from .permissions import UploadSourcePermission, DeleteSourcePermission
 from .tasks import poll_automated_annotations
 
-es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
+es = Elasticsearch(
+    hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
 
-import logging
 # Get sources logger for logging on server
 logger = logging.getLogger(__name__)
 
@@ -110,10 +111,10 @@ def inject_fulltext(input, inline, request):
         serial = get_serial_from_subject(s)
         if inline:
             result = es.search(body={
-                "query" : {
-                    "term" : { "id" : serial }
-                    }
-                }, index=settings.ES_ALIASNAME)
+                "query": {
+                    "term": {"id": serial}
+                }
+            }, index=settings.ES_ALIASNAME)
             f = result['hits']['hits'][0]['_source']['text']
             text_triples.add((s, SCHEMA.text, Literal(f)))
         else:
@@ -157,7 +158,8 @@ class SourceSelection(RDFView):
         page = request.GET.get('page')
         if page:
             from_value = (int(page)-1) * settings.RESULTS_PER_PAGE
-        results = es.search(body=body, index=settings.ES_ALIASNAME, size=settings.RESULTS_PER_PAGE, from_=from_value)
+        results = es.search(body=body, index=settings.ES_ALIASNAME,
+                            size=settings.RESULTS_PER_PAGE, from_=from_value)
         if results['hits']['total']['value'] == 0:
             return Graph()
         selected_sources = select_sources_elasticsearch(results)
@@ -171,6 +173,7 @@ class SourceHighlights(RDFView):
     view to perform query highlighting in the full text source
     with Elasticsearch
     '''
+
     def get_graph(self, request, **kwargs):
         query = request.GET.get('query')
         if query == '':
@@ -192,9 +195,9 @@ class SourceHighlights(RDFView):
     def construct_es_body(self, serial, query, fields):
         if fields == 'all':
             fields_query = {
-                    "text*" : {},
-                    "author": {},
-                    "title": {}
+                "text*": {},
+                "author": {},
+                "title": {}
             }
         elif fields == 'author':
             fields_query = {
@@ -218,7 +221,7 @@ class SourceHighlights(RDFView):
                         "query": query
                     }
                 },
-                "fields" : fields_query,
+                "fields": fields_query,
                 "fragment_size": 50,
                 "number_of_fragments": 3,
                 "pre_tags": ["<mark>"],
@@ -230,9 +233,9 @@ class SourceHighlights(RDFView):
     def construct_highlight_graph(self, highlights):
         hg = Graph()
         for key in highlights.keys():
-            if key=='author':
+            if key == 'author':
                 obj = SCHEMA.author
-            elif key=='title':
+            elif key == 'title':
                 obj = DCTERMS.title
             else:
                 obj = SCHEMA.text
@@ -240,11 +243,11 @@ class SourceHighlights(RDFView):
             hg.add((subj, RDF.type, OA.Annotation))
             hg.add((subj, OA.hasTarget, obj))
             for highlight in highlights.get(key):
-                if obj==SCHEMA.text:
+                if obj == SCHEMA.text:
                     # add ellipses to start or end of string
                     if not highlight[0].isupper():
                         highlight = '(...) {}'.format(highlight)
-                    if not highlight[-1] in ['?','.','!']:
+                    if not highlight[-1] in ['?', '.', '!']:
                         highlight = '{} (...)'.format(highlight)
                 hg.add((subj, OA.hasBody, Literal(highlight)))
         return hg
@@ -272,7 +275,7 @@ class SourcesAPISingular(RDFResourceView):
         serial = get_serial_from_subject(source_uri)
         es.delete_by_query(
             index=settings.ES_ALIASNAME,
-            body= { "query": {
+            body={"query": {
                 "match": {
                     "id": serial
                 }
@@ -284,8 +287,8 @@ class SourcesAPISingular(RDFResourceView):
 def source_fulltext(request, serial, query=None):
     """ API endpoint for fetching the full text of a single source. """
     body = {
-        "query" : {
-            "term" : { "id" : serial }
+        "query": {
+            "term": {"id": serial}
         }
     }
     result = es.search(body=body, index=settings.ES_ALIASNAME)
@@ -298,7 +301,8 @@ def source_fulltext(request, serial, query=None):
 
 def select_sources_elasticsearch(results):
     endpoint = sources_graph()
-    selection = '\n'.join(list(map(format_ids_and_relevances, results['hits']['hits'])))
+    selection = '\n'.join(
+        list(map(format_ids_and_relevances, results['hits']['hits'])))
     query = '{}{}{}{}'.format(
         SELECT_SOURCES_QUERY_START,
         SELECT_SOURCES_QUERY_MIDDLE_RELEVANCE,
@@ -334,7 +338,8 @@ class AddSource(RDFResourceView):
     def is_valid(self, data):
         is_valid = True
         missing_fields = []
-        required_fields = ['title', 'author', 'source', 'language', 'type', 'pubdate']
+        required_fields = ['title', 'author',
+                           'source', 'language', 'type', 'pubdate']
 
         for f in required_fields:
             if not data.get(f, False):
@@ -409,9 +414,10 @@ class AddSource(RDFResourceView):
                 optionals.append((new_subject, uris[u], URIRef(value)))
 
         return optionals
-    
+
     def query_automated_annotations(self, text, uploaded_file, uri):
-        headers = {'Authorization': 'Token token={}'.format(settings.IRISA_TOKEN)}
+        headers = {'Authorization': 'Token token={}'.format(
+            settings.IRISA_TOKEN)}
         queue = "standard" if len(text) < 50000 else "batch"
         job_parameters = ("--has-source {}".format(quote(uri, '')))
         files = {
@@ -420,21 +426,24 @@ class AddSource(RDFResourceView):
             'files[0]': ('file', text.encode('utf-8')),
             'job[param]': (None, job_parameters)
         }
-        response = requests.post('{}/jobs'.format(settings.IRISA_URL), headers=headers, files=files)
-        if response:  
+        response = requests.post(
+            '{}/jobs'.format(settings.IRISA_URL), headers=headers, files=files)
+        if response:
             job_id = response.json().get('id')
-            # set the time for the query timeout: 
+            # set the time for the query timeout:
             # 20 minutes for small texts, 24 hours for large texts
-            timeout = 1200 if queue=='standard' else 86400
+            timeout = 1200 if queue == 'standard' else 86400
             poll_automated_annotations.delay(job_id, timeout)
         else:
-            logger.warning("Failed to send request for automated annotations for source {}".format(uri))
+            logger.warning(
+                "Failed to send request for automated annotations for source {}".format(uri))
 
     def post(self, request, format=None):
         data = request.data
         is_valid, missing_fields = self.is_valid(data)
         if not is_valid:
-            raise ValidationError(detail="Missing fields: {}".format(", ".join(missing_fields)))
+            raise ValidationError(
+                detail="Missing fields: {}".format(", ".join(missing_fields)))
 
         # get unique URI for source
         counter = SourcesCounter.current
@@ -443,9 +452,10 @@ class AddSource(RDFResourceView):
 
         # store the file in ES index
         sanitized_text = self.store(data['source'], get_serial_from_subject(new_subject),
-        data['language'], data['author'], data['title'])
+                                    data['language'], data['author'], data['title'])
 
-        self.query_automated_annotations(sanitized_text, data['source'], counter.__str__())
+        self.query_automated_annotations(
+            sanitized_text, data['source'], counter.__str__())
 
         # TODO: voor author en editor een instantie van SCHEMA.Person maken? Of iets uit CIDOC/ontologie?
         # create graph
@@ -481,5 +491,6 @@ def construct_es_body(request):
 def get_number_search_results(request):
     body = construct_es_body(request)
     results = es.search(body=body, index=settings.ES_ALIASNAME, size=0)
-    response = {'total_results': results['hits']['total']['value'], 'results_per_page': settings.RESULTS_PER_PAGE}
+    response = {'total_results': results['hits']['total']
+                ['value'], 'results_per_page': settings.RESULTS_PER_PAGE}
     return JsonResponse(response)
