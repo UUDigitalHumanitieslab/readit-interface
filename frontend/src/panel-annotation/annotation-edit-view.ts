@@ -52,7 +52,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             collection: categories
         });
         this.snippetView = new SnippetView({ model: this.model }).render();
-        this.needsVerification = true;
         this.model.when('annotation', this.processAnnotation, this);
         this.model.when('class', this.processClass, this);
         // Two conditions must be met before we run processItem:
@@ -75,6 +74,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         const currentUser = ldChannel.request('current-user-uri');
         if (creator && (creator.id === currentUser)) this.userIsOwner = true;
         if (this.userIsOwner) this.render();
+        this.needsVerification = model.get('needsVerification');
     }
 
     /**
@@ -83,7 +83,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     async getOntologyClasses() {
         // TODO: request only items of type rdfs:class via SPARQL
         const ontology = await ldChannel.request('ontology:promise');
-        this.ontologyClasses.set(ontology.models.filter( model => isRdfsClass(model)));
+        this.ontologyClasses.set(ontology.models.filter(model => isRdfsClass(model)));
         return ontology;
     }
 
@@ -176,7 +176,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             const item = this.model.get('item');
             annotation.unset(oa.hasBody).set(oa.hasBody, [cls, item]);
         }
-        annotation.save({patch: true});
+        annotation.save({ patch: true });
         explorerChannel.trigger('annotationEditView:save', this, this.model, newItem);
     }
 
@@ -236,7 +236,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             [skos.prefLabel]: '', // this prevents a failing getLabel
         });
         this.setItem(item);
-        this.itemEditor = new ItemEditor({model: new FlatItem(item)});
+        this.itemEditor = new ItemEditor({ model: new FlatItem(item) });
         this.$('.item-picker-container').after(this.itemEditor.el);
         return this;
     }

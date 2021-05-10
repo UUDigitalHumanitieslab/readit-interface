@@ -17,15 +17,15 @@ import {
  * In addition, you may want to review JavaScript's bitwise operators:
  * https://developer.mozilla.org/nl/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
  */
-const F_ID       = 1 << 0;
-const F_CLASS    = 1 << 1;
-const F_LABEL    = 1 << 2;
-const F_SOURCE   = 1 << 3;
+const F_ID = 1 << 0;
+const F_CLASS = 1 << 1;
+const F_LABEL = 1 << 2;
+const F_SOURCE = 1 << 3;
 const F_STARTPOS = 1 << 4;
-const F_ENDPOS   = 1 << 5;
-const F_POS      = F_STARTPOS | F_ENDPOS;
-const F_TEXT     = 1 << 6;
-const F_TARGET   = F_SOURCE | F_POS | F_TEXT;
+const F_ENDPOS = 1 << 5;
+const F_POS = F_STARTPOS | F_ENDPOS;
+const F_TEXT = 1 << 6;
+const F_TARGET = F_SOURCE | F_POS | F_TEXT;
 const F_COMPLETE = F_ID | F_CLASS | F_LABEL | F_TARGET;
 
 // Which flag is completed for each given mapped flat attribute.
@@ -125,6 +125,7 @@ export default class FlatItem extends Model {
         this.on('change:target', this.updateTarget);
         this.on('change:positionSelector', this.updatePosition);
         this.on('change:quoteSelector', this.updateText);
+        this.on('change:needsVerification', this.updateVerificationStatus);
         // Track changes in the top node.
         this.trackProperty(node, '@id', 'id');
         this.trackProperty(node, dcterms.creator, 'creator');
@@ -213,7 +214,7 @@ export default class FlatItem extends Model {
      * Invoked when the `annotation` attribute changes.
      */
     updateAnnotation(flat: this, annotation: Node): void {
-        this.rotateNode('annotation', ['class','item','target'], annotation, 0);
+        this.rotateNode('annotation', ['class', 'item', 'target'], annotation, 0);
         if (annotation) {
             annotation.whenever(oa.hasBody, this.updateBodies, this);
             this.trackProperty(annotation, oa.hasTarget, 'target');
@@ -246,7 +247,7 @@ export default class FlatItem extends Model {
      * Invoked when the `class` attribute changes.
      */
     updateClass(flat: this, classBody: Node): void {
-        this.rotateNode('class', ['classLabel','cssClass'], classBody, F_CLASS);
+        this.rotateNode('class', ['classLabel', 'cssClass'], classBody, F_CLASS);
         if (classBody) {
             this.listenTo(classBody, 'change', this.updateClassLabels);
             this.updateClassLabels(classBody);
@@ -344,5 +345,12 @@ export default class FlatItem extends Model {
             this.trackProperty(selector, oa.suffix, 'suffix');
             this.trackProperty(selector, oa.exact, 'text');
         }
+    }
+
+    /**
+     * Invoked once when the `updateVerification` attribute changes.
+     */
+    updateVerificationStatus(needsVerification: Node): void {
+        this.set('needsVerification', needsVerification);
     }
 }

@@ -26,33 +26,34 @@ def triples():
     XPathSelector = OA.XPathSelector
 
     return [
-        ( my.Source,           is_a,          Class ),
-        ( my.Source,           subClassOf,    SCHEMA.CreativeWork ),
+        (my.Source,           is_a,          Class),
+        (my.Source,           subClassOf,    SCHEMA.CreativeWork),
 
-        ( my.RangeSelector,    is_a,          Class ),
-        ( my.RangeSelector,    subClassOf,    OA.RangeSelector ),
+        (my.RangeSelector,    is_a,          Class),
+        (my.RangeSelector,    subClassOf,    OA.RangeSelector),
 
-        ( my.hasStartSelector, is_a,          Property ),
-        ( my.hasStartSelector, subPropertyOf, OA.hasStartSelector ),
-        ( my.hasStartSelector, hasDomain,     my.RangeSelector ),
-        ( my.hasStartSelector, hasRange,      XPathSelector ),
+        (my.hasStartSelector, is_a,          Property),
+        (my.hasStartSelector, subPropertyOf, OA.hasStartSelector),
+        (my.hasStartSelector, hasDomain,     my.RangeSelector),
+        (my.hasStartSelector, hasRange,      XPathSelector),
 
-        ( my.hasEndSelector,   is_a,          Property ),
-        ( my.hasEndSelector,   subPropertyOf, OA.hasEndSelector ),
-        ( my.hasEndSelector,   hasDomain,     my.RangeSelector ),
-        ( my.hasEndSelector,   hasRange,      XPathSelector ),
+        (my.hasEndSelector,   is_a,          Property),
+        (my.hasEndSelector,   subPropertyOf, OA.hasEndSelector),
+        (my.hasEndSelector,   hasDomain,     my.RangeSelector),
+        (my.hasEndSelector,   hasRange,      XPathSelector),
 
-        ( my.fullText,         is_a,          Property ),
-        ( my.fullText,         hasDomain,     my.Source ),
-        ( my.fullText,         hasRange,      SCHEMA.Text ),
+        (my.fullText,         is_a,          Property),
+        (my.fullText,         hasDomain,     my.Source),
+        (my.fullText,         hasRange,      SCHEMA.Text),
 
-        ( my.relevance,        hasRange,      XSD.float ),
+        (my.relevance,        hasRange,      XSD.float),
 
-        ( my.self,             is_a,          AS.Application ),
-        ( my.self,             FOAF.homepage, APP_URI ),
+        (my.self,             is_a,          AS.Application),
+        (my.self,             FOAF.homepage, APP_URI),
 
-        ( my.needsVerification, is_a,         Property ),
-        ( my.needsVerification, hasDomain,     OA.Annotation )
+        (my.needsVerification, is_a,         Property),
+        (my.needsVerification, hasDomain,    OA.Annotation),
+        (my.needsVerification, hasRange,     XSD.boolean),
     ]
 
 
