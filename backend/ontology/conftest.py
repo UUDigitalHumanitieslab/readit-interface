@@ -1,9 +1,10 @@
 import pytest
 from items import namespace as item
-from rdf.ns import DCTERMS, RDF, RDFS, SCHEMA, SKOS
+from rdf.ns import DCTERMS, OA, RDF, RDFS, SCHEMA, SKOS, XSD
 from rdf.utils import graph_from_triples
 from rdflib import BNode, Literal
 from staff import namespace as staff
+from vocab import namespace as vocab
 
 from . import namespace as READIT
 
@@ -80,14 +81,34 @@ def color_triples():
 @pytest.fixture
 def object_triples():
     return (
-        graph_from_triples(
-            ((BLESSINGTON, RDF.type, READIT.reader),
-             (BLESSINGTON, READIT.carries_out, READ_FRENCH_POEMS),
-                (READ_FRENCH_POEMS, RDF.type, READIT.reading_session))
-        ),
-        graph_from_triples(
-            ((BLESSINGTON, RDF.type, READIT.person),
-             (BLESSINGTON, READIT.carries_out, READ_FRENCH_POEMS),
-                (READ_FRENCH_POEMS, RDF.type, READIT.reading_session))
-        )
+        graph_from_triples((
+            (BLESSINGTON, RDF.type, READIT.reader),
+            (BLESSINGTON, READIT.carries_out, READ_FRENCH_POEMS),
+            (READ_FRENCH_POEMS, RDF.type, READIT.reading_session)
+        )),
+        graph_from_triples((
+            (BLESSINGTON, RDF.type, READIT.person),
+            (BLESSINGTON, READIT.carries_out, READ_FRENCH_POEMS),
+            (READ_FRENCH_POEMS, RDF.type, READIT.reading_session)
+        ))
+    )
+
+
+@pytest.fixture
+def annotation_triples():
+    return (
+        graph_from_triples((
+            (item.subject1, RDF.type, OA.Annotation),
+            (item.subject1, OA.hasBody, READIT.reader),
+            (item.subject2, RDF.type, OA.Annotation),
+            (item.subject2, OA.hasBody, READIT.otherClass)
+        )),
+        graph_from_triples((
+            (item.subject1, RDF.type, OA.Annotation),
+            (item.subject1, OA.hasBody, READIT.reader),
+            (item.subject1, vocab.needsVerification,
+             Literal("true", datatype=XSD.boolean)),
+            (item.subject2, RDF.type, OA.Annotation),
+            (item.subject2, OA.hasBody, READIT.otherClass)
+        ))
     )

@@ -1,10 +1,12 @@
 from rdflib import ConjunctiveGraph, BNode, Literal
+from ontology.conftest import annotation_triples
 
 from rdf.ns import *
 from rdf.utils import graph_from_triples
 from . import namespace as READIT
 from .rdf_migrations import *
 from items import namespace as item
+from vocab import namespace as vocab
 
 BLESSINGTON = BNode()
 READ_FRENCH_POEMS = BNode()
@@ -89,4 +91,10 @@ def test_delete_items(linked_item_triples):
     delete_linked_items(READIT.had_response, actual)
     assert len(actual ^ desired) == 1
     delete_linked_items(READIT.involved, actual)
+    assert len(actual ^ desired) == 0
+
+
+def test_needs_verification(annotation_triples):
+    actual, desired = annotation_triples
+    annotations_need_verification(READIT.reader, actual)
     assert len(actual ^ desired) == 0

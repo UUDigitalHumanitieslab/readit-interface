@@ -6,7 +6,8 @@ from rdf.utils import (append_triples, graph_from_triples, prune_triples,
                        prune_triples_cascade)
 from rdflib import Literal
 from rdflib.namespace import Namespace
-from staff import namespace as STAFF
+from staff import namespace as staff
+from vocab import namespace as vocab
 
 from . import namespace as READIT
 from .fixture import canonical_graph
@@ -18,9 +19,9 @@ SKY_BLUE = '#56B4E9'
 BLUISH_GREEN = '#009E73'
 YELLOW = '#F0E442'
 REDDISH_PURPLE = '#CC79A7'
+VERMILLION = '#D55E00'
 
 
-CIDOC = Namespace('http://www.cidoc-crm.org/cidoc-crm/')
 DELETE_CLASS_ANNOS_UPDATE = '''
 DELETE {
     ?annotation ?a ?b.
@@ -89,6 +90,25 @@ WHERE {
 }
 '''
 
+ANNO_NEEDS_VERIFICATION_UPDATE = '''
+INSERT {
+    ?anno ?needs_veri true
+}
+WHERE {
+    ?anno a oa:Annotation ;
+    oa:hasBody ?class .
+}
+
+'''
+
+
+def annotations_need_verification(anno_class, input_graph=None):
+    context = input_graph if input_graph else item_graph()
+    bindings = {'class': anno_class, 'needs_veri': vocab.needsVerification}
+    namespaces = {'oa': OA}
+    context.update(ANNO_NEEDS_VERIFICATION_UPDATE,
+                   initBindings=bindings, initNs=namespaces)
+
 
 def delete_linked_items(property, input_graph=None):
     """ Delete any triples with predicate 'property'.
@@ -96,10 +116,11 @@ def delete_linked_items(property, input_graph=None):
     created by the developers (assumed example data).
     """
     context = input_graph if input_graph else item_graph()
-    bindings = {'prop': property, 'dhdevelopers': STAFF.dhdevelopers}
+    bindings = {'prop': property, 'dhdevelopers': staff.dhdevelopers}
     namespaces = {'dcterms': DCTERMS}
     context.update(DELETE_LINKED_ITEMS_UPDATE,
                    initBindings=bindings, initNs=namespaces)
+
 
 def assign_color(subject, colorcode, input_graph=None):
     context = input_graph if input_graph else graph()
@@ -111,8 +132,8 @@ def assign_color(subject, colorcode, input_graph=None):
                    initNs=namespaces)
 
 
-def replace_objects(before, after, graph=None):
-    context = graph if graph else settings.RDFLIB_STORE
+def replace_objects(before, after, input_graph=None):
+    context = input_graph if input_graph else settings.RDFLIB_STORE
     context.update(REPLACE_OBJECT_UPDATE, initBindings={
         'before': before,
         'after': after
@@ -267,20 +288,22 @@ class Migration(RDFMigration):
     # Map classes & assign colors #
     # # # # # # # # # # # # # # # #
 
-    @on_add(READIT.E7)
+    @on_add(CIDOC.E7)
     def add_E7(self, actual, conjunctive):
         """ E7 Activity
         Part of the migration from property-skinny to REO """
         replace_objects(READIT.act_of_reading, READIT.E7)
         replace_objects(READIT.reading_circumstances, READIT.E7)
         assign_color(READIT.E7, ORANGE)
+        annotations_need_verification(READIT.E7)
 
-    @on_add(READIT.F2)
+    @on_add(FRBROO.F2)
     def add_F2(self, actual, conjunctive):
         """ F2 Expression
         Part of the migration from property-skinny to REO """
-        replace_objects(READIT.content, READIT.F2)
-        assign_color(READIT.F2, SKY_BLUE)
+        replace_objects(READIT.content, FRBROO.F2)
+        assign_color(FRBROO.F2, SKY_BLUE)
+        annotations_need_verification(FRBROO.F2)
 
     @on_add(READIT.REO41)
     def add_REO41(self, actual, conjunctive):
@@ -288,13 +311,14 @@ class Migration(RDFMigration):
         Part of the migration from property-skinny to REO """
         replace_objects(READIT.medium, READIT.REO41)
 
-    @on_add(READIT.E21)
+    @on_add(CIDOC.E21)
     def add_E21(self, actual, conjunctive):
         """ E21 Person
         Part of the migration from property-skinny to REO """
-        replace_objects(READIT.reader, READIT.E21)
-        replace_objects(READIT.reader_properties, READIT.E21)
-        assign_color(READIT.E21, BLUISH_GREEN)
+        replace_objects(READIT.reader, CIDOC.E21)
+        replace_objects(READIT.reader_properties, CIDOC.E21)
+        assign_color(CIDOC.E21, BLUISH_GREEN)
+        annotations_need_verification(CIDOC.E21)
 
     @on_add(READIT.REO14)
     def add_REO14(self, actual, conjunctive):
@@ -308,8 +332,10 @@ class Migration(RDFMigration):
         Serves as temporary container for annotations of REO12 and REO23
         Part of the migration from property-skinny to REO """
         replace_objects(READIT.reading_response, READIT.REO42)
+        assign_color(READIT.REO42, VERMILLION)
         assign_color(READIT.REO12, YELLOW)
         assign_color(READIT.REO23, REDDISH_PURPLE)
+        annotations_need_verification(READIT.REO42)
 
     # # # # # # # # # # # # # #
     # Skinny to REO migration #
