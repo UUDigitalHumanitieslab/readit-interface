@@ -18,6 +18,7 @@ def linked_item_triples():
             (item.subject1, RDF.type, READIT.reader),
             (item.subject1, READIT.had_response, item.subject2),
             (item.subject1, READIT.had_response, item.subject3),
+            (item.subject1, READIT.had_response, item.subject5),
 
             (item.subject2, RDF.type, READIT.reading_response),
             (item.subject2, RDFS.label, Literal("remember")),
@@ -31,9 +32,13 @@ def linked_item_triples():
             (item.subject4, RDF.type, READIT.content),
             (item.subject4, SKOS.prefLabel, Literal("Title of book")),
             (item.subject4, DCTERMS.creator, staff.dhdevelopers),
+
+            (item.subject5, RDF.type, READIT.reading_response),
+            (item.subject5, RDFS.label, Literal("thought about")),
         )),
         graph_from_triples((
             (item.subject1, RDF.type, READIT.reader),
+            (item.subject1, READIT.had_response, item.subject5),
 
             (item.subject2, RDF.type, READIT.reading_response),
             (item.subject2, RDFS.label, Literal("remember")),
@@ -46,6 +51,9 @@ def linked_item_triples():
             (item.subject4, RDF.type, READIT.content),
             (item.subject4, SKOS.prefLabel, Literal("Title of book")),
             (item.subject4, DCTERMS.creator, staff.dhdevelopers),
+
+            (item.subject5, RDF.type, READIT.reading_response),
+            (item.subject5, RDFS.label, Literal("thought about")),
         ))
     )
 
