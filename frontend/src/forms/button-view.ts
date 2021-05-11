@@ -16,6 +16,16 @@ export default class Button extends View {
         return this;
     }
 
+    enable(): this {
+        this.$('button').prop('disabled', false);
+        return this;
+    }
+
+    disable(): this {
+        this.$('button').prop('disabled', true);
+        return this;
+    }
+
     onClick(): void {
         this.trigger('click', this);
     }
