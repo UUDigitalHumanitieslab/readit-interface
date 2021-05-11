@@ -4,6 +4,7 @@ from rdf.ns import *
 from rdf.utils import graph_from_triples
 from . import namespace as READIT
 from .rdf_migrations import *
+from items import namespace as item
 
 BLESSINGTON = BNode()
 READ_FRENCH_POEMS = BNode()
@@ -43,6 +44,7 @@ def test_replace_predicate():
     )
     assert len(BEFORE ^ AFTER) == 0
 
+
 def test_replace_property_of():
     BALD = BNode()
     BOOK = BNode()
@@ -55,50 +57,36 @@ def test_replace_property_of():
         (BOOK, RDF.type, READIT.medium),
         (HEAVY, RDF.type, READIT.resource_properties),
         (HEAVY, READIT.property_of, BOOK),
-        (HEAVY, READIT.property_of, BLESSINGTON), # should be deleted
-        (BALD, READIT.property_of, BOOK), # should be deleted
+        (HEAVY, READIT.property_of, BLESSINGTON),  # should be deleted
+        (BALD, READIT.property_of, BOOK),  # should be deleted
     ), ConjunctiveGraph)
 
     m = Migration()
     m.replace_property_of(graph_from_triples(()), conjunctive)
 
     assert len(list(conjunctive.quads((None, READIT.property_of, None)))) == 0
-    assert len(list(conjunctive.quads((None, READIT.property_of_reader, None)))) == 1
-    assert len(list(conjunctive.quads((None, READIT.property_of_resource, None)))) == 1
+    assert len(list(conjunctive.quads(
+        (None, READIT.property_of_reader, None)))) == 1
+    assert len(list(conjunctive.quads(
+        (None, READIT.property_of_resource, None)))) == 1
 
 
-def test_replace_object_sparql():
-    before = graph_from_triples(
-        ((BLESSINGTON, RDF.type, READIT.reader),
-         (BLESSINGTON, READIT.carries_out, READ_FRENCH_POEMS),
-         (READ_FRENCH_POEMS, RDF.type, READIT.reading_session))
-    )
-    after = graph_from_triples(
-        ((BLESSINGTON, RDF.type, READIT.person),
-         (BLESSINGTON, READIT.carries_out, READ_FRENCH_POEMS),
-         (READ_FRENCH_POEMS, RDF.type, READIT.reading_session))
-    )
-
-    assert len(before ^ after) == 2
-    # replace_object_sparql(before, READIT.reader, READIT.person)
-    replace_objects(READIT.reader, READIT.person, before)
-    assert len(before ^ after) == 0
+def test_replace_object_sparql(object_triples):
+    actual, desired = object_triples
+    assert len(actual ^ desired) == 2
+    replace_objects(READIT.reader, READIT.person, actual)
+    assert len(actual ^ desired) == 0
 
 
-def test_insert_color():
-    before = graph_from_triples(
-        ((READIT.EXAMPLE, RDF.type, RDFS.Class),
-         (READIT.EXAMPLE_CHILD, RDF.type, RDFS.Class),
-         (READIT.EXAMPLE_CHILD, RDFS.subClassOf, READIT.EXAMPLE))
-    )
-    after = graph_from_triples(
-        ((READIT.EXAMPLE, RDF.type, RDFS.Class),
-         (READIT.EXAMPLE, SCHEMA.color, Literal("#009e74")),
-         (READIT.EXAMPLE_CHILD, RDF.type, RDFS.Class),
-         (READIT.EXAMPLE_CHILD, RDFS.subClassOf, READIT.EXAMPLE),
-         (READIT.EXAMPLE_CHILD, SCHEMA.color, Literal("#009e74"))
-         )
-    )
+def test_insert_color(color_triples):
+    actual, desired = color_triples
+    assign_color(READIT.EXAMPLE, "#009e74", actual)
+    assert len(actual ^ desired) == 0
 
-    assign_color(READIT.EXAMPLE, "#009e74", before)
-    assert len(before ^ after) == 0
+
+def test_delete_items(linked_item_triples):
+    actual, desired = linked_item_triples
+    delete_linked_items(READIT.had_response, actual)
+    assert len(actual ^ desired) == 1
+    delete_linked_items(READIT.involved, actual)
+    assert len(actual ^ desired) == 0

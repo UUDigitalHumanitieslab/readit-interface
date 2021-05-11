@@ -6,6 +6,7 @@ from rdf.utils import (append_triples, graph_from_triples, prune_triples,
                        prune_triples_cascade)
 from rdflib import Literal
 from rdflib.namespace import Namespace
+from staff import namespace as STAFF
 
 from . import namespace as READIT
 from .fixture import canonical_graph
@@ -71,6 +72,34 @@ ASSIGN_COLOR_UPDATE = '''
     }
 '''
 
+DELETE_LINKED_ITEMS_UPDATE = '''
+DELETE {
+        ?s ?prop ?target .
+    }
+WHERE {
+  { ?s ?prop ?target .
+    ?target dcterms:type "example data" ;
+    ?p ?o .
+  }
+  UNION
+  { ?s ?prop ?target .
+    ?target dcterms:creator ?dhdevelopers ;
+    ?p ?o .
+  }
+}
+'''
+
+
+def delete_linked_items(property, input_graph=None):
+    """ Delete any triples with predicate 'property'.
+    Only if the target is either example data or
+    created by the developers (assumed example data).
+    """
+    context = input_graph if input_graph else item_graph()
+    bindings = {'prop': property, 'dhdevelopers': STAFF.dhdevelopers}
+    namespaces = {'dcterms': DCTERMS}
+    context.update(DELETE_LINKED_ITEMS_UPDATE,
+                   initBindings=bindings, initNs=namespaces)
 
 def assign_color(subject, colorcode, input_graph=None):
     context = input_graph if input_graph else graph()
@@ -233,9 +262,10 @@ class Migration(RDFMigration):
             initBindings={'body': READIT.reading_testimony},
         )
 
-    # # # # # # # # # # # # # #
-    # Skinny to REO migration #
-    # # # # # # # # # # # # # #
+    # # # # # # # # # # # # # # # #
+    # Skinny to REO migration     #
+    # Map classes & assign colors #
+    # # # # # # # # # # # # # # # #
 
     @on_add(READIT.E7)
     def add_E7(self, actual, conjunctive):
@@ -281,3 +311,87 @@ class Migration(RDFMigration):
         assign_color(READIT.REO12, YELLOW)
         assign_color(READIT.REO23, REDDISH_PURPLE)
 
+    # # # # # # # # # # # # # #
+    # Skinny to REO migration #
+    # Remove linked items     #
+    # # # # # # # # # # # # # #
+
+    @on_remove(READIT.outcome_of)
+    def remove_outcome_of():
+        delete_linked_items(READIT.outcome_of)
+
+    @on_remove(READIT.involved)
+    def remove_involved():
+        delete_linked_items(READIT.involved)
+
+    @on_remove(READIT.influenced)
+    def remove_influenced():
+        delete_linked_items(READIT.influenced)
+
+    @on_remove(READIT.had_reader_property)
+    def remove_had_reader_property():
+        delete_linked_items(READIT.had_reader_property)
+
+    @on_remove(READIT.had_response)
+    def remove_had_response():
+        delete_linked_items(READIT.had_response)
+
+    @on_remove(READIT.property_of_reader)
+    def remove_property_of_reader():
+        delete_linked_items(READIT.property_of_reader)
+
+    @on_remove(READIT.enabled_to_read)
+    def remove_enabled_to_read():
+        delete_linked_items(READIT.enabled_to_read)
+
+    @on_remove(READIT.carried_out)
+    def remove_carried_out():
+        delete_linked_items(READIT.carried_out)
+
+    @on_remove(READIT.had_resource_property)
+    def remove_had_resource_property():
+        delete_linked_items(READIT.had_resource_property)
+
+    @on_remove(READIT.provided_access_to)
+    def remove_provided_access_to():
+        delete_linked_items(READIT.provided_access_to)
+
+    @on_remove(READIT.provided_access_by)
+    def remove_provided_access_by():
+        delete_linked_items(READIT.provided_access_by)
+
+    @on_remove(READIT.carried_out_by)
+    def remove_carried_out_by():
+        delete_linked_items(READIT.carried_out_by)
+
+    @on_remove(READIT.read_by)
+    def remove_read_by():
+        delete_linked_items(READIT.read_by)
+
+    @on_remove(READIT.involved_in)
+    def remove_involved_in():
+        delete_linked_items(READIT.involved_in)
+
+    @on_remove(READIT.influenced_by)
+    def remove_influenced_by():
+        delete_linked_items(READIT.influenced_by)
+
+    @on_remove(READIT.had_outcome)
+    def remove_had_outcome():
+        delete_linked_items(READIT.had_outcome)
+
+    @on_remove(READIT.response_of)
+    def remove_response_of():
+        delete_linked_items(READIT.response_of)
+
+    @on_remove(READIT.read_through)
+    def remove_read_through():
+        delete_linked_items(READIT.read_through)
+
+    @on_remove(READIT.property_of_resource)
+    def remove_property_of_resource():
+        delete_linked_items(READIT.property_of_resource)
+
+    @on_remove(READIT.read)
+    def remove_read():
+        delete_linked_items(READIT.read)
