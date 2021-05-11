@@ -1,28 +1,9 @@
 import { extend } from 'lodash';
 
-import View from '../core/view';
-
+import ButtonView from './button-view';
 import removeButtonTemplate from './remove-button-template';
 
-export default class RemoveButton extends View {
-    initialize(): void {
-        this.render();
-    }
-
-    render(): this {
-        this.$el.html(this.template({}));
-        return this;
-    }
-
-    onClick(): void {
-        this.trigger('click', this);
-    }
-}
-
+export default class RemoveButton extends ButtonView {}
 extend(RemoveButton.prototype, {
-    className: 'control',
     template: removeButtonTemplate,
-    events: {
-        click: 'onClick',
-    },
 });
