@@ -1,7 +1,7 @@
 import { noop, each, includes } from 'lodash';
 
 import Model from '../core/model';
-import { rdf, dcterms, oa, readit, item } from '../common-rdf/ns';
+import { rdf, dcterms, oa, readit, item, vocab } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import {
@@ -125,7 +125,6 @@ export default class FlatItem extends Model {
         this.on('change:target', this.updateTarget);
         this.on('change:positionSelector', this.updatePosition);
         this.on('change:quoteSelector', this.updateText);
-        this.on('change:needsVerification', this.updateVerificationStatus);
         // Track changes in the top node.
         this.trackProperty(node, '@id', 'id');
         this.trackProperty(node, dcterms.creator, 'creator');
@@ -218,6 +217,7 @@ export default class FlatItem extends Model {
         if (annotation) {
             annotation.whenever(oa.hasBody, this.updateBodies, this);
             this.trackProperty(annotation, oa.hasTarget, 'target');
+            this.trackProperty(annotation, vocab.needsVerification, 'needsVerification');
         }
     }
 
@@ -345,12 +345,5 @@ export default class FlatItem extends Model {
             this.trackProperty(selector, oa.suffix, 'suffix');
             this.trackProperty(selector, oa.exact, 'text');
         }
-    }
-
-    /**
-     * Invoked once when the `updateVerification` attribute changes.
-     */
-    updateVerificationStatus(needsVerification: Node): void {
-        this.set('needsVerification', needsVerification);
     }
 }

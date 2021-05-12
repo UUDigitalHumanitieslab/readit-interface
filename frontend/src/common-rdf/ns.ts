@@ -502,6 +502,7 @@ export const vocabPrefix = READIT + 'vocab#';
 
 export const vocabTerms = [
     'relevance',
+    'needsVerification'
 ] as const;
 
 export const vocab = Vocabulary(vocabPrefix, vocabTerms);
