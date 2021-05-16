@@ -17,16 +17,21 @@ describe('semantic search DropdownView', function() {
     beforeEach(function() {
         const ontology = new Graph(mockOntology);
         ldChannel.reply('ontology:graph', constant(ontology));
+        ldChannel.reply(
+            'ontology:promise', constant(Promise.resolve(ontology))
+        );
     });
 
     afterEach(function() {
         ldChannel.stopReplying('ontology:graph');
+        ldChannel.stopReplying('ontology:promise');
     });
 
     afterEach(endStore);
 
     it('can be constructed in isolation', async function() {
         const view = new Dropdown();
+        await event(view, 'ready');
         await event(view.typeGroup.collection, 'complete:all');
         expect(view.$('select optgroup').length).toBe(2);
         expect(view.$('optgroup:first-child').prop('label')).toBe('apply logic');
@@ -46,6 +51,7 @@ describe('semantic search DropdownView', function() {
                 precedent: ldChannel.request('obtain', readit(term)),
             });
             const view = new Dropdown({ model });
+            await event(view, 'ready');
             await event(view.predicateGroup.collection.at(0), 'change:classLabel');
             expect(view.$('select optgroup').length).toBe(3);
             expect(view.$('optgroup:first-child').prop('label')).toBe('apply logic');

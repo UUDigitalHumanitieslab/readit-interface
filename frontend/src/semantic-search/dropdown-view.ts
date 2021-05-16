@@ -35,11 +35,12 @@ function applicableTo(range: string): (Model) => boolean {
     }
 }
 
-function normalizeRange(model: Model): Graph {
+async function normalizeRange(model: Model): Promise<Graph> {
     let range;
     const precedent = model.get('precedent');
     if (precedent) range = precedent.get(rdfs.range) || [precedent];
-    if (!range) range = ldChannel.request('ontology:graph').filter(isRdfsClass);
+    const ontology = await ldChannel.request('ontology:promise');
+    if (!range) range = ontology.filter(isRdfsClass);
     range = getRdfSubClasses(range);
     const rangeGraph = new Graph(range)
     each(range, cls => {
@@ -85,14 +86,14 @@ export default class Dropdown extends CompositeView {
     groupOrder: Array<keyof Dropdown>;
     val: BasePicker['val'];
 
-    initialize(): void {
+    async initialize(): Promise<void> {
         this.model = this.model || new Model();
         this.restoreSelection = debounce(this.restoreSelection, 50);
         this.logicGroup = new OptionGroup({
             model: groupLabels.get('logic'),
             collection: logic,
         });
-        let range: Graph | Node = normalizeRange(this.model);
+        let range: Graph | Node = await normalizeRange(this.model);
         if (range.length > 1) {
             this.typeGroup = new OptionGroup({
                 model: groupLabels.get('type'),
@@ -140,6 +141,11 @@ export default class Dropdown extends CompositeView {
         return this;
     }
 
+    afterRender(): this {
+        Select2Picker.prototype.afterRender.call(this);
+        return this.trigger('ready', this);
+    }
+
     remove(): this {
         this.$('select').select2('destroy');
         return super.remove();
@@ -170,5 +176,4 @@ extend(Dropdown.prototype, {
     events: { change: 'forwardChange' },
     val: BasePicker.prototype.val,
     beforeRender: Select2Picker.prototype.beforeRender,
-    afterRender: Select2Picker.prototype.afterRender,
 });
