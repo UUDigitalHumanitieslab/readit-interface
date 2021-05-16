@@ -60,6 +60,7 @@ export default class Multifield extends CompositeView {
 }
 
 extend(Multifield.prototype, {
+    className: 'rit-multifield',
     template: multifieldTemplate,
     subviews: [{
         view: 'collectionView',

@@ -30,7 +30,9 @@ export default class SemanticSearchView extends CompositeView {
 
     branchout(model: Model): Multifield {
         const collectionView = new Multibranch({ model });
-        return new Multifield({ collectionView });
+        const multifield = new Multifield({ collectionView });
+        multifield.$el.addClass('control');
+        return multifield;
     }
 }
 
