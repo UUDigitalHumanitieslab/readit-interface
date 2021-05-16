@@ -1,3 +1,5 @@
+import { each } from 'lodash';
+import { history } from 'backbone';
 import { t } from 'i18next';
 
 import Collection from '../core/collection';
@@ -5,61 +7,73 @@ import { xsd } from '../common-rdf/ns';
 
 export const logic = new Collection([{
     id: 'logic:and',
-    label: t('filters.and', 'AND'),
+    label: 'AND',
+    i18nKey: 'filters.and',
 }, {
     id: 'logic:or',
-    label: t('filters.or', 'OR'),
+    label: 'OR',
+    i18nKey: 'filters.or',
 }, {
     id: 'logic:not',
-    label: t('filters.not', 'NOT'),
+    label: 'NOT',
+    i18nKey: 'filters.not',
 }]);
 
 export const filters = new Collection([{
     id: 'filter:equals',
-    label: t('filters.equals', 'Is exactly'),
+    label: 'Is exactly',
+    i18nKey: 'filters.equals',
     uris: true,
     literals: true,
 }, {
     id: 'filter:less',
-    label: t('filters.less', 'Is less than'),
+    label: 'Is less than',
+    i18nKey: 'filters.less',
     uris: false,
     literals: true,
 }, {
     id: 'filter:greater',
-    label: t('filters.greater', 'Is greater than'),
+    label: 'Is greater than',
+    i18nKey: 'filters.greater',
     uris: false,
     literals: true,
 }, {
     id: 'filter:isIRI',
-    label: t('filters.isDefined', 'Is defined'),
+    label: 'Is defined',
+    i18nKey: 'filters.isDefined',
     uris: true,
     literals: false,
 }, {
     id: 'filter:isLiteral',
-    label: t('filters.isDefined', 'Is defined'),
+    label: 'Is defined',
+    i18nKey: 'filters.isDefined',
     uris: false,
     literals: true,
 }, {
     id: 'filter:stringStarts',
-    label: t('filters.startsWith', 'Starts with'),
+    label: 'Starts with',
+    i18nKey: 'filters.startsWith',
     uris: false,
     literals: true,
     restrict: [xsd.string],
 }, {
     id: 'filter:stringEnds',
-    label: t('filters.endsWith', 'Ends with'),
+    label: 'Ends with',
+    i18nKey: 'filters.endsWith',
     uris: false,
     literals: true,
     restrict: [xsd.string],
 }, {
     id: 'filter:stringContains',
-    label: t('filters.contains', 'Contains'),
+    label: 'Contains',
+    i18nKey: 'filters.contains',
     uris: false,
     literals: true,
     restrict: [xsd.string],
 }, {
     id: 'filter:regex',
-    label: t('filters.matchRegex', 'Matches regular expression'),
+    label: 'Matches regular expression',
+    i18nKey: 'filters.matchRegex',
     uris: false,
     literals: true,
     restrict: [xsd.string],
@@ -67,14 +81,33 @@ export const filters = new Collection([{
 
 export const groupLabels = new Collection([{
     id: 'logic',
-    label: t('filters.groupLogic', 'apply logic'),
+    label: 'apply logic',
+    i18nKey: 'filters.groupLogic',
 }, {
     id: 'filter',
-    label: t('filters.groupFilters', 'apply filter'),
+    label: 'apply filter',
+    i18nKey: 'filters.groupFilters',
 }, {
     id: 'type',
-    label: t('filters.groupType', 'expect type'),
+    label: 'expect type',
+    i18nKey: 'filters.groupType',
 }, {
     id: 'predicate',
-    label: t('filters.groupPredicates', 'traverse predicate'),
+    label: 'traverse predicate',
+    i18nKey: 'filters.groupPredicates',
 }]);
+
+function translateLabel(model) {
+    const { label, i18nKey } = model.attributes;
+    model.set('label', t(i18nKey, label));
+}
+
+function translateCollection(collection) {
+    collection.each(translateLabel);
+}
+
+function translateAll() {
+    each([logic, filters, groupLabels], translateCollection);
+}
+
+history.once('route notfound', translateAll);
