@@ -20,6 +20,7 @@ import {
 import { applicablePredicates } from '../utilities/relation-utilities';
 
 import { logic, filters, groupLabels } from './dropdown-constants';
+import dropdownTemplate from './dropdown-template';
 
 /**
  * Generate a filter predicate for selecting filters that apply to a given
@@ -137,7 +138,7 @@ export default class Dropdown extends CompositeView {
     }
 
     renderContainer(): this {
-        this.$el.append('<select>');
+        this.$el.html(this.template({}));
         return this;
     }
 
@@ -171,7 +172,8 @@ export default class Dropdown extends CompositeView {
 }
 
 extend(Dropdown.prototype, {
-    className: 'select readit-picker',
+    className: 'control',
+    template: dropdownTemplate,
     groupOrder: ['logicGroup', 'typeGroup', 'filterGroup', 'predicateGroup'],
     events: { change: 'forwardChange' },
     val: BasePicker.prototype.val,
