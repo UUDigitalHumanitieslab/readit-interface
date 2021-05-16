@@ -10,10 +10,11 @@ import Dropdown from './dropdown-view';
 
 export default class Chain extends CollectionView {
     initialize(): void {
+        this.model = this.model || new Model();
         let collection = this.collection;
         if (!collection) {
             this.collection = collection = new Collection([
-                { precedent: this.model } as unknown as Model,
+                { precedent: this.model.get('precedent') } as unknown as Model,
             ]);
         }
         this.initItems().render().initCollectionEvents();

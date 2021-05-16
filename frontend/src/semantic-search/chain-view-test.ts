@@ -3,6 +3,7 @@ import { constant } from 'lodash';
 import { enableI18n, startStore, endStore, event } from '../test-util';
 import mockOntology from '../mock-data/mock-ontology';
 
+import Model from '../core/model';
 import ldChannel from '../common-rdf/radio';
 import { readit } from '../common-rdf/ns';
 import Graph from '../common-rdf/graph';
@@ -39,7 +40,8 @@ describe('semantic search ChainView', function() {
 
     it('can be constructed with a preselection', async function() {
         const Reader = ldChannel.request('obtain', readit('Reader'));
-        const view = new Chain({ model: Reader });
+        const model = new Model({ precedent: Reader });
+        const view = new Chain({ model });
         expect(view.items.length).toBe(1);
         await event(view.items[0], 'ready');
         expect(view.items[0]['predicateGroup']).toBeDefined();
