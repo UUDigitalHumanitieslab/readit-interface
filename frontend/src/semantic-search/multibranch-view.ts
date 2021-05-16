@@ -11,6 +11,7 @@ import MultibranchRow from './multibranch-row-view';
  */
 export default class Multibranch extends CollectionView {
     initialize(): void {
+        if (!this.model) this.model = new Model();
         if (!this.collection) {
             this.collection = new Collection();
             this.addRow();
