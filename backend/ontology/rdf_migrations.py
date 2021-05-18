@@ -288,14 +288,14 @@ class Migration(RDFMigration):
     # Map classes & assign colors #
     # # # # # # # # # # # # # # # #
 
-    @on_add(CIDOC.E7)
+    @on_add(CIDOC.E7_Activity)
     def add_E7(self, actual, conjunctive):
         """ E7 Activity
         Part of the migration from property-skinny to REO """
-        replace_objects(READIT.act_of_reading, CIDOC.E7)
-        replace_objects(READIT.reading_circumstances, CIDOC.E7)
-        assign_color(CIDOC.E7, ORANGE)
-        annotations_need_verification(CIDOC.E7)
+        replace_objects(READIT.act_of_reading, CIDOC.E7_Activity)
+        replace_objects(READIT.reading_circumstances, CIDOC.E7_Activity)
+        assign_color(CIDOC.E7_Activity, ORANGE)
+        annotations_need_verification(CIDOC.E7_Activity)
 
     @on_add(FRBROO.F2)
     def add_F2(self, actual, conjunctive):
@@ -311,14 +311,14 @@ class Migration(RDFMigration):
         Part of the migration from property-skinny to REO """
         replace_objects(READIT.medium, READIT.REO41)
 
-    @on_add(CIDOC.E21)
+    @on_add(CIDOC.E21_Person)
     def add_E21(self, actual, conjunctive):
         """ E21 Person
         Part of the migration from property-skinny to REO """
-        replace_objects(READIT.reader, CIDOC.E21)
-        replace_objects(READIT.reader_properties, CIDOC.E21)
-        assign_color(CIDOC.E21, BLUISH_GREEN)
-        annotations_need_verification(CIDOC.E21)
+        replace_objects(READIT.reader, CIDOC.E21_Person)
+        replace_objects(READIT.reader_properties, CIDOC.E21_Person)
+        assign_color(CIDOC.E21_Person, BLUISH_GREEN)
+        annotations_need_verification(CIDOC.E21_Person)
 
     @on_add(READIT.REO14)
     def add_REO14(self, actual, conjunctive):
