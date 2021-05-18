@@ -7,6 +7,7 @@ import { xsd } from '../common-rdf/ns';
 
 import semChannel from './radio';
 import Dropdown from './dropdown-view';
+import FilterInput from './filter-input-view';
 
 export default class Chain extends CollectionView {
     initialize(): void {
@@ -22,11 +23,12 @@ export default class Chain extends CollectionView {
     }
 
     makeItem(model: Model): View {
-        const action = model.get('action');
-        switch (action) {
-        case 'and':
-        case 'or':
+        const scheme = model.get('scheme');
+        if (scheme === 'logic' && model.get('action') !== 'not') {
             return semChannel.request('branchout', model);
+        }
+        if (scheme === 'filter') {
+            return new FilterInput({ model });
         }
         return new Dropdown({ model });
     }
@@ -34,17 +36,13 @@ export default class Chain extends CollectionView {
     updateControls(model, selection): void {
         const collection = this.collection;
         while (collection.last() !== model) collection.pop();
+        if (!selection) return;
+        const [scheme, action] = selection.id.split(':');
         const precedent = model.get('precedent');
-        const [scheme, action] = selection ? selection.id.split(':') : [];
         const newModel = new Model();
-        switch (scheme) {
-        case 'logic':
-            newModel.set({ precedent });
-            if (action !== 'not') newModel.set({ scheme, action });
-            break;
-        case 'filter':
-            // TODO
-        default:
+        if (scheme === 'logic' || scheme === 'filter') {
+            newModel.set({ precedent, scheme, action });
+        } else {
             newModel.set('precedent', selection);
         }
         collection.push(newModel);
