@@ -167,6 +167,14 @@ export default class Dropdown extends CompositeView {
             ldChannel.request('obtain', id)
         );
         this.model.set('selection', model);
+        if (
+            this.predicateGroup &&
+            this.predicateGroup.collection.has(model.id)
+        ) {
+            this.model.set('traversal', true);
+        } else {
+            this.model.unset('traversal');
+        }
         this.trigger('change', this, model, event);
     }
 }
