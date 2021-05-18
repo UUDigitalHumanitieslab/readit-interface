@@ -12,12 +12,13 @@ import FilterInput from './filter-input-view';
 export default class Chain extends CollectionView {
     initialize(): void {
         this.model = this.model || new Model();
-        let collection = this.collection;
+        let collection = this.collection || this.model.get('chain');
         if (!collection) {
-            this.collection = collection = new Collection([
+            collection = new Collection([
                 { precedent: this.model.get('precedent') } as unknown as Model,
             ]);
         }
+        this.model.set('chain', this.collection = collection);
         this.initItems().render().initCollectionEvents();
         this.listenTo(collection, 'change:selection', this.updateControls);
     }
