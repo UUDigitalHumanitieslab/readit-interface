@@ -41,7 +41,8 @@ def es_index_name():
 def es_client(settings, es_index_name):
     from elasticsearch import Elasticsearch
     from elasticsearch.client import IndicesClient
-    es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
+    es = Elasticsearch(
+        hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
     ind_client = IndicesClient(es)
     ind_client.create(index=es_index_name)
     yield es

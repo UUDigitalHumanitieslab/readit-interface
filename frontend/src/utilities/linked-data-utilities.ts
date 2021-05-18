@@ -121,7 +121,7 @@ export function getRdfSuperClasses(clss: NodeLike[]): Node[] {
     const seed = map(clss, cls => ldChannel.request('obtain', cls));
     // Next lines handle test environments without a store.
     if (seed[0] == null) return clss.map(cls =>
-        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : {'@id': cls})
+        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : { '@id': cls })
     );
 
     function traverseParents(cls) {
@@ -146,7 +146,7 @@ export function getRdfSubClasses(clss: NodeLike[]): Node[] {
     const seed = map(clss, cls => ldChannel.request('obtain', cls));
     // Next lines handle test environments without a store.
     if (seed[0] == null) return clss.map(cls =>
-        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : {'@id': cls})
+        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : { '@id': cls })
     );
 
     function traverseChildren(cls) {
@@ -168,7 +168,7 @@ export function isType(node: Node, type: string): boolean {
     const initialTypes = node.get('@type') as string[];
     if (!initialTypes) return false;
     const allTypes = getRdfSuperClasses(initialTypes);
-    return some(allTypes, {'id': type});
+    return some(allTypes, { 'id': type });
 }
 
 /**
