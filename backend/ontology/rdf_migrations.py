@@ -65,11 +65,16 @@ ASSIGN_COLOR_UPDATE = '''
     INSERT {
         ?subject schema:color ?colorcode .
         ?child   schema:color ?colorcode .
+        ?grandchild schema:color ?colorcode .
     }
     WHERE {
        { ?subject ?p ?o . }
        UNION
-       { ?child rdfs:subClassOf ?subject }
+       { ?child rdfs:subClassOf ?subject . }
+       UNION
+       {
+           ?child rdfs:subClassOf ?subject .
+           ?grandchild rdfs:subClassOf ?child . }
     }
 '''
 
