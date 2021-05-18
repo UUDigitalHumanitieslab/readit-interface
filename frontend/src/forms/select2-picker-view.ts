@@ -20,4 +20,9 @@ export default class Select2PickerView extends BasePicker {
         this.$('select').select2('destroy');
         return super.remove();
     }
+
+    open(): this {
+        this.$('select').select2('open');
+        return this;
+    }
 }

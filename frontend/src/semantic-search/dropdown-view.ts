@@ -86,6 +86,7 @@ export default class Dropdown extends CompositeView {
     predicateGroup: View;
     groupOrder: Array<keyof Dropdown>;
     val: BasePicker['val'];
+    open: Select2Picker['open'];
 
     async initialize(): Promise<void> {
         this.model = this.model || new Model();
@@ -122,6 +123,9 @@ export default class Dropdown extends CompositeView {
             });
         }
         this.render();
+        if (this.model.has('precedent') && !this.model.has('selection')) (
+            this.typeGroup || this.predicateGroup
+        ).collection.once('complete:all', this.open, this);
     }
 
     subviews(): SubViewDescription[] {
@@ -185,5 +189,6 @@ extend(Dropdown.prototype, {
     groupOrder: ['logicGroup', 'typeGroup', 'filterGroup', 'predicateGroup'],
     events: { change: 'forwardChange' },
     val: BasePicker.prototype.val,
+    open: Select2Picker.prototype.open,
     beforeRender: Select2Picker.prototype.beforeRender,
 });

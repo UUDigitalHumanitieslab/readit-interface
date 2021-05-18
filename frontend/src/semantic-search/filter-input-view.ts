@@ -19,16 +19,26 @@ export default class FilterInput extends CompositeView {
             this.$el.hide();
             return;
         }
+        let items;
         if (action === 'equals') {
             let range = precedent.get(rdfs.range);
             range = range ? range[0].id : precedent.id;
             if (!range.startsWith(xsd())) {
-                const items = new ItemGraph();
+                items = new ItemGraph();
                 items.sparqlQuery(filterInputQueryTemplate({ type: range }));
                 this.subviews.push(new Select2Picker({ collection: items }));
             }
         }
         this.render();
+        let value;
+        if (value = this.model.get('value')) {
+            this.$('select, input').val(value);
+        } else if (items) {
+            const dropdown = this.subviews[0];
+            items.once('update', dropdown.open, dropdown);
+        } else {
+            this.$('input').focus();
+        }
     }
 
     renderContainer(): this {
