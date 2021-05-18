@@ -124,6 +124,7 @@ export const owlTerms = [
     'AsymmetricProperty',
     'Axiom',
     'cardinality',
+    'Class',
     'complementOf',
     'datatypeComplementOf',
     'DatatypeProperty',

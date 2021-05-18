@@ -4,7 +4,7 @@ import ldChannel from '../common-rdf/radio';
 import { Identifier, isIdentifier } from '../common-rdf/json';
 import Node, { isNode, NodeLike } from '../common-rdf/node';
 import Graph, { ReadOnlyGraph } from '../common-rdf//graph';
-import { skos, rdfs, readit, dcterms } from '../common-rdf/ns';
+import { skos, rdfs, readit, dcterms, owl } from '../common-rdf/ns';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -59,6 +59,15 @@ export function asURI(source: Node | string): string {
  */
 export function isRdfsClass(node: Node): boolean {
     return node.has(rdfs.subClassOf) || node.has('@type', rdfs.Class);
+}
+
+/**
+ * Check if a node is a owl:Class, i.e. has owl:Class as (one of its) type(s) or
+ * has a non-empty rdfs:subClassOf property.
+ * @param node The node to evaluate
+ */
+export function isOwlClass(node: Node): boolean {
+    return node.has(rdfs.subClassOf) || node.has('@type', owl.Class);
 }
 
 /**
