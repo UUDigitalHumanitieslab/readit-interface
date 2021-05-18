@@ -10,7 +10,7 @@ from staff import namespace as staff
 from vocab import namespace as vocab
 
 from . import namespace as READIT
-from .fixture import canonical_graph
+from .fixture import canonical_graph, reo_graph
 from .graph import graph
 
 # Color palette
@@ -133,7 +133,7 @@ def assign_color(subject, colorcode, input_graph=None):
 
 
 def replace_objects(before, after, input_graph=None):
-    context = input_graph if input_graph else settings.RDFLIB_STORE
+    context = input_graph if input_graph else item_graph()
     context.update(REPLACE_OBJECT_UPDATE, initBindings={
         'before': before,
         'after': after
@@ -211,7 +211,7 @@ def is_type(graph, subject, _type):
 
 class Migration(RDFMigration):
     actual = staticmethod(graph)
-    desired = staticmethod(canonical_graph)
+    desired = staticmethod(reo_graph)
 
     @on_add(READIT.carried_out)
     def replace_CIDOC_carries_out(self, actual, conjunctive):
@@ -292,10 +292,10 @@ class Migration(RDFMigration):
     def add_E7(self, actual, conjunctive):
         """ E7 Activity
         Part of the migration from property-skinny to REO """
-        replace_objects(READIT.act_of_reading, READIT.E7)
-        replace_objects(READIT.reading_circumstances, READIT.E7)
-        assign_color(READIT.E7, ORANGE)
-        annotations_need_verification(READIT.E7)
+        replace_objects(READIT.act_of_reading, CIDOC.E7)
+        replace_objects(READIT.reading_circumstances, CIDOC.E7)
+        assign_color(CIDOC.E7, ORANGE)
+        annotations_need_verification(CIDOC.E7)
 
     @on_add(FRBROO.F2)
     def add_F2(self, actual, conjunctive):
@@ -343,81 +343,81 @@ class Migration(RDFMigration):
     # # # # # # # # # # # # # #
 
     @on_remove(READIT.outcome_of)
-    def remove_outcome_of():
+    def remove_outcome_of(self, actual, conjunctive):
         delete_linked_items(READIT.outcome_of)
 
     @on_remove(READIT.involved)
-    def remove_involved():
+    def remove_involved(self, actual, conjunctive):
         delete_linked_items(READIT.involved)
 
     @on_remove(READIT.influenced)
-    def remove_influenced():
+    def remove_influenced(self, actual, conjunctive):
         delete_linked_items(READIT.influenced)
 
     @on_remove(READIT.had_reader_property)
-    def remove_had_reader_property():
+    def remove_had_reader_property(self, actual, conjunctive):
         delete_linked_items(READIT.had_reader_property)
 
     @on_remove(READIT.had_response)
-    def remove_had_response():
+    def remove_had_response(self, actual, conjunctive):
         delete_linked_items(READIT.had_response)
 
     @on_remove(READIT.property_of_reader)
-    def remove_property_of_reader():
+    def remove_property_of_reader(self, actual, conjunctive):
         delete_linked_items(READIT.property_of_reader)
 
     @on_remove(READIT.enabled_to_read)
-    def remove_enabled_to_read():
+    def remove_enabled_to_read(self, actual, conjunctive):
         delete_linked_items(READIT.enabled_to_read)
 
     @on_remove(READIT.carried_out)
-    def remove_carried_out():
+    def remove_carried_out(self, actual, conjunctive):
         delete_linked_items(READIT.carried_out)
 
     @on_remove(READIT.had_resource_property)
-    def remove_had_resource_property():
+    def remove_had_resource_property(self, actual, conjunctive):
         delete_linked_items(READIT.had_resource_property)
 
     @on_remove(READIT.provided_access_to)
-    def remove_provided_access_to():
+    def remove_provided_access_to(self, actual, conjunctive):
         delete_linked_items(READIT.provided_access_to)
 
     @on_remove(READIT.provided_access_by)
-    def remove_provided_access_by():
+    def remove_provided_access_by(self, actual, conjunctive):
         delete_linked_items(READIT.provided_access_by)
 
     @on_remove(READIT.carried_out_by)
-    def remove_carried_out_by():
+    def remove_carried_out_by(self, actual, conjunctive):
         delete_linked_items(READIT.carried_out_by)
 
     @on_remove(READIT.read_by)
-    def remove_read_by():
+    def remove_read_by(self, actual, conjunctive):
         delete_linked_items(READIT.read_by)
 
     @on_remove(READIT.involved_in)
-    def remove_involved_in():
+    def remove_involved_in(self, actual, conjunctive):
         delete_linked_items(READIT.involved_in)
 
     @on_remove(READIT.influenced_by)
-    def remove_influenced_by():
+    def remove_influenced_by(self, actual, conjunctive):
         delete_linked_items(READIT.influenced_by)
 
     @on_remove(READIT.had_outcome)
-    def remove_had_outcome():
+    def remove_had_outcome(self, actual, conjunctive):
         delete_linked_items(READIT.had_outcome)
 
     @on_remove(READIT.response_of)
-    def remove_response_of():
+    def remove_response_of(self, actual, conjunctive):
         delete_linked_items(READIT.response_of)
 
     @on_remove(READIT.read_through)
-    def remove_read_through():
+    def remove_read_through(self, actual, conjunctive):
         delete_linked_items(READIT.read_through)
 
     @on_remove(READIT.property_of_resource)
-    def remove_property_of_resource():
+    def remove_property_of_resource(self, actual, conjunctive):
         delete_linked_items(READIT.property_of_resource)
 
     @on_remove(READIT.read)
-    def remove_read():
+    def remove_read(self, actual, conjunctive):
         delete_linked_items(READIT.read)
