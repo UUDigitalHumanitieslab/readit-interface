@@ -14,6 +14,7 @@ export default class SemanticSearchView extends CompositeView {
 
     initialize(): void {
         this.topChain = new Chain({ model: this.model });
+        this.model = this.topChain.model;
         semChannel.reply('branchout', this.branchout, this);
         this.render();
     }
@@ -34,9 +35,15 @@ export default class SemanticSearchView extends CompositeView {
         multifield.$el.addClass('control');
         return multifield;
     }
+
+    onSubmit(event): void {
+        event.preventDefault();
+        console.debug(JSON.stringify(this.model, null, 4));
+    }
 }
 
 extend(SemanticSearchView.prototype, {
+    tagName: 'form',
     className: 'rit-semantic-search',
     template: semTemplate,
     subviews: [{
@@ -44,4 +51,7 @@ extend(SemanticSearchView.prototype, {
         method: 'after',
         selector: '.subtitle',
     }],
+    events: {
+        submit: 'onSubmit',
+    },
 });
