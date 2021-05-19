@@ -530,7 +530,7 @@ export const readit = Vocabulary(readitPrefix, ontologyNotHardcoded);
 
 export const nlpOntologyPrefix = READIT + 'nlp-ontology#';
 
-export const nlpOntology = Vocabulary(nlpOntologyPrefix, ontologyNotHardcoded);
+export const nlp = Vocabulary(nlpOntologyPrefix, ontologyNotHardcoded);
 
 /**
  * READ-IT items

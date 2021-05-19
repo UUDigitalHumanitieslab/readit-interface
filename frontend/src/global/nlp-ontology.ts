@@ -25,7 +25,7 @@
  */
 
 import ldChannel from '../common-rdf/radio';
-import { nlpOntology } from '../common-rdf/ns';
+import { nlp } from '../common-rdf/ns';
 import Graph from '../common-rdf/graph';
 
 const nlpOntology = new Graph();
@@ -37,7 +37,7 @@ let promise: PromiseLike<Graph> = null;
  */
 function ensurePromise(): PromiseLike<Graph> {
     if (promise) return promise;
-    promise = nlpOntology.fetch({ url: nlpOntology() }).then(handleSuccess, handleError);
+    promise = nlpOntology.fetch({ url: nlp() }).then(handleSuccess, handleError);
     return promise;
 }
 
@@ -59,6 +59,6 @@ function handleError(error: any): any {
 /**
  * Registering our services with the radio channel.
  */
-ldChannel.once('cache:ontology', ensurePromise);
-ldChannel.reply('ontology:promise', ensurePromise);
-ldChannel.reply('ontology:graph', () => (ensurePromise(), nlpOntology));
+ldChannel.once('cache:nlp-ontology', ensurePromise);
+ldChannel.reply('nlp-ontology:promise', ensurePromise);
+ldChannel.reply('nlp-ontology:graph', () => (ensurePromise(), nlpOntology));
