@@ -80,12 +80,6 @@ def test_replace_object_sparql(object_triples):
     assert len(actual ^ desired) == 0
 
 
-def test_insert_color(color_triples):
-    actual, desired = color_triples
-    assign_color(READIT.EXAMPLE, "#009e74", actual)
-    assert len(actual ^ desired) == 0
-
-
 def test_delete_items(linked_item_triples):
     actual, desired = linked_item_triples
     delete_linked_items(READIT.had_response, actual)

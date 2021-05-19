@@ -1,17 +1,22 @@
 from django.conf import settings
+from rdflib.graph import Graph
 from items.graph import graph as item_graph
+from ontology.constants import ONTOLOGY_NS
 from rdf.migrations import RDFMigration, on_add, on_remove
-from rdf.ns import *
+from rdf.ns import (OA, CIDOC, RDF, DCTERMS, SCHEMA, ERLANGEN, FRBROO)
 from rdf.utils import (append_triples, graph_from_triples, prune_triples,
                        prune_triples_cascade)
 from rdflib import Literal
-from rdflib.namespace import Namespace
 from staff import namespace as staff
 from vocab import namespace as vocab
 
 from . import namespace as READIT
 from .fixture import canonical_graph, reo_graph
 from .graph import graph
+import sys
+import os.path as op
+
+from rdf.management.commands.rdfmigrate import Command
 
 # Color palette
 ORANGE = '#E69F00'
@@ -38,17 +43,6 @@ DELETE {
 }
 '''
 
-SKINNY_REO_CLASS_MAPPING = {
-    READIT.act_of_reading: READIT.E7,
-    READIT.content: READIT.F2,
-    READIT.medium: READIT.REO41,
-    READIT.reader: READIT.E21,
-    READIT.reader_properties: READIT.E21,
-    READIT.reading_circumstances: READIT.E7,
-    READIT.reading_response: READIT.REO42,
-    READIT.resource_properties: READIT.REO14,
-}
-
 REPLACE_OBJECT_UPDATE = '''
     DELETE {
         ?s ?p ?before .
@@ -61,21 +55,15 @@ REPLACE_OBJECT_UPDATE = '''
     }
 '''
 
-ASSIGN_COLOR_UPDATE = '''
-    INSERT {
-        ?subject schema:color ?colorcode .
-        ?child   schema:color ?colorcode .
-        ?grandchild schema:color ?colorcode .
-    }
-    WHERE {
-       { ?subject ?p ?o . }
-       UNION
-       { ?child rdfs:subClassOf ?subject . }
-       UNION
-       {
-           ?child rdfs:subClassOf ?subject .
-           ?grandchild rdfs:subClassOf ?child . }
-    }
+COLOR_SUPERCLASS_UPDATE = '''
+INSERT {
+    ?superclass schema:color ?colorcode .
+    ?subclass schema:color ?colorcode .
+}
+WHERE {
+    OPTIONAL{ ?subclass ?prefclass ?superclass . }
+    ?superclass ?p ?o .
+}
 '''
 
 DELETE_LINKED_ITEMS_UPDATE = '''
@@ -103,8 +91,49 @@ WHERE {
     ?anno a oa:Annotation ;
     oa:hasBody ?class .
 }
-
 '''
+
+
+def add_reo_superclass(superclass, replaces, subclasses, colorcode):
+    """ Add a REO superclass to the ontology:
+        - Replaces object in annotations of this annotation
+        - Sets the superclass as preffered for relevant subclasses
+        - Assigns color to superclass and relevant subclasses
+        - Annotations of the new class need verification
+    """
+    for rep in replaces:
+        replace_objects(rep, superclass)
+    for subclass in subclasses:
+        set_pref_superclass(subclass, superclass)
+    set_superclass_color(superclass, colorcode)
+    annotations_need_verification(superclass)
+
+
+def reset_ontology():
+    # For testing purposes only
+    settings.RDFLIB_STORE.update('CLEAR GRAPH <{}>'.format(ONTOLOGY_NS))
+    assert len(graph()) == 0
+    c = Command(stdout=sys.stdout)
+    m = Migration()
+    m.desired = canonical_graph
+    c.migrate_graph(m)
+
+
+def set_pref_superclass(subclass, superclass, input_graph=None):
+    # For a mysterious reason, this fails when using initBindings
+    context = input_graph if input_graph else graph()
+    query = 'INSERT DATA {{ <{}> <{}> <{}> }}'.format(
+        subclass, vocab.hasPrefSuperClass, superclass)
+    context.update(query)
+
+
+def set_superclass_color(superclass, colorcode, input_graph=None):
+    context = input_graph if input_graph else graph()
+    bindings = {'superclass': superclass, 'colorcode': Literal(
+        colorcode), 'prefclass': vocab.hasPrefSuperClass}
+    namespaces = {'schema': SCHEMA}
+    context.update(COLOR_SUPERCLASS_UPDATE,
+                   initBindings=bindings, initNs=namespaces)
 
 
 def annotations_need_verification(anno_class, input_graph=None):
@@ -129,12 +158,9 @@ def delete_linked_items(property, input_graph=None):
 
 def assign_color(subject, colorcode, input_graph=None):
     context = input_graph if input_graph else graph()
-    bindings = {'subject': subject, 'colorcode': Literal(colorcode)}
-    namespaces = {'schema': SCHEMA, 'rdfs': RDFS}
-
-    context.update(ASSIGN_COLOR_UPDATE,
-                   initBindings=bindings,
-                   initNs=namespaces)
+    query = 'INSERT DATA {{ <{}> <{}> "{}" }}'.format(
+        subject, SCHEMA.color , colorcode)
+    context.update(query)
 
 
 def replace_objects(before, after, input_graph=None):
@@ -290,139 +316,94 @@ class Migration(RDFMigration):
 
     # # # # # # # # # # # # # # # #
     # Skinny to REO migration     #
-    # Map classes & assign colors #
+    # Superclasses #
     # # # # # # # # # # # # # # # #
+    @on_add(CIDOC.E21_Person)
+    def add_E21(self, actual, conjunctive):
+        replaces = (READIT.reader, READIT.reader_properties)
+        preffered_by = (
+            READIT.REO5, ERLANGEN.E67_Birth, ERLANGEN.E69_Death, READIT.REO35,
+            READIT.REO10, READIT.REO36, READIT.REO37, READIT.REO38,
+            READIT.REO11, READIT.REO39, READIT.REO19, READIT.REO2,
+            READIT.REO15
+        )
+        add_reo_superclass(CIDOC.E21_Person, replaces,
+                           preffered_by, BLUISH_GREEN)
 
     @on_add(CIDOC.E7_Activity)
     def add_E7(self, actual, conjunctive):
-        """ E7 Activity
-        Part of the migration from property-skinny to REO """
-        replace_objects(READIT.act_of_reading, CIDOC.E7_Activity)
-        replace_objects(READIT.reading_circumstances, CIDOC.E7_Activity)
-        assign_color(CIDOC.E7_Activity, ORANGE)
-        annotations_need_verification(CIDOC.E7_Activity)
+        replaces = (READIT.act_of_reading, READIT.reading_circumstances)
+        preffered_by = (
+            CIDOC.E53_Place, CIDOC.E50_Date, READIT.REO3, READIT.REO9,
+            READIT.REO8, READIT.REO13, READIT.REO18, READIT.REO17,
+            READIT.REO7, READIT.REO4
+        )
+        add_reo_superclass(CIDOC.E7_Activity, replaces, preffered_by, ORANGE)
 
     @on_add(FRBROO.F2)
     def add_F2(self, actual, conjunctive):
-        """ F2 Expression
-        Part of the migration from property-skinny to REO """
-        replace_objects(READIT.content, FRBROO.F2)
-        assign_color(FRBROO.F2, SKY_BLUE)
-        annotations_need_verification(FRBROO.F2)
+        """ F2 Expression """
+        replaces = (READIT.content, )
+        preffered_by = (
+            ERLANGEN.E35_Title, CIDOC.E39_Actor, READIT.REO6, READIT.REO16,
+            READIT.REO41, READIT.REO40, CIDOC.E56_Language, READIT.REO14
+        )
+        add_reo_superclass(FRBROO.F2, replaces, preffered_by, SKY_BLUE)
 
-    @on_add(READIT.REO41)
-    def add_REO41(self, actual, conjunctive):
-        """ REO41 Medium
-        Part of the migration from property-skinny to REO """
-        replace_objects(READIT.medium, READIT.REO41)
+    @on_add(READIT.REO23)
+    def add_REO23(self, actual, conjunctive):
+        """ REO23 Effects (internal processes) """
+        replaces = []  # replaces in REO42
+        preffered_by = (
+            READIT.REO27, READIT.REO20, READIT.REO21,
+            READIT.REO28, READIT.REO29, READIT.REO30
+        )
+        add_reo_superclass(READIT.REO23, replaces,
+                           preffered_by, REDDISH_PURPLE)
 
-    @on_add(CIDOC.E21_Person)
-    def add_E21(self, actual, conjunctive):
-        """ E21 Person
-        Part of the migration from property-skinny to REO """
-        replace_objects(READIT.reader, CIDOC.E21_Person)
-        replace_objects(READIT.reader_properties, CIDOC.E21_Person)
-        assign_color(CIDOC.E21_Person, BLUISH_GREEN)
-        annotations_need_verification(CIDOC.E21_Person)
+    @on_add(READIT.REO12)
+    def add_REO12(self, actual, conjunctive):
+        """ REO12 Outcomes (external processes) """
+        replaces = []  # replaces in REO42
+        preffered_by = (
+            READIT.REO22, READIT.REO26, READIT.REO31,
+            READIT.REO32, READIT.REO33
+        )
+        add_reo_superclass(READIT.REO12, replaces, preffered_by, YELLOW)
 
-    @on_add(READIT.REO14)
-    def add_REO14(self, actual, conjunctive):
-        """ REO14 Provenance
-        Part of the migration from property-skinny to REO """
-        replace_objects(READIT.resource_properties, READIT.REO14)
+    # # # # # # # # # # # # # # #
+    # Skinny to REO migration #
+    # Other classses         #
+    # # # # # # # # # # # # # # #
 
     @on_add(READIT.REO42)
     def add_REO42(self, actual, conjunctive):
         """ REO42 Effects/Outcomes (deprecated)
-        Serves as temporary container for annotations of REO12 and REO23
-        Part of the migration from property-skinny to REO """
+        Serves as temporary container for annotations of REO12 and REO23 """
         replace_objects(READIT.reading_response, READIT.REO42)
-        assign_color(READIT.REO42, VERMILLION)
-        assign_color(READIT.REO12, YELLOW)
-        assign_color(READIT.REO23, REDDISH_PURPLE)
         annotations_need_verification(READIT.REO42)
+        assign_color(READIT.REO42, REDDISH_PURPLE)
 
-    # # # # # # # # # # # # # #
-    # Skinny to REO migration #
-    # Remove linked items     #
-    # # # # # # # # # # # # # #
+    @on_add(READIT.REO41)
+    def add_REO41(self, actual, conjunctive):
+        """ REO41 Medium """
+        replace_objects(READIT.medium, READIT.REO41)
+
+    @on_add(READIT.REO14)
+    def add_REO14(self, actual, conjunctive):
+        """ REO14 Provenance """
+        replace_objects(READIT.resource_properties, READIT.REO14)
+
+    # # # # # # # # # # # # # # #
+    # Skinny to REO migration   #
+    # Remove linked items       #
+    # # # # # # # # # # # # # # #
 
     @on_remove(READIT.outcome_of)
-    def remove_outcome_of(self, actual, conjunctive):
-        delete_linked_items(READIT.outcome_of)
-
-    @on_remove(READIT.involved)
-    def remove_involved(self, actual, conjunctive):
-        delete_linked_items(READIT.involved)
-
-    @on_remove(READIT.influenced)
-    def remove_influenced(self, actual, conjunctive):
-        delete_linked_items(READIT.influenced)
-
-    @on_remove(READIT.had_reader_property)
-    def remove_had_reader_property(self, actual, conjunctive):
-        delete_linked_items(READIT.had_reader_property)
-
-    @on_remove(READIT.had_response)
-    def remove_had_response(self, actual, conjunctive):
-        delete_linked_items(READIT.had_response)
-
-    @on_remove(READIT.property_of_reader)
-    def remove_property_of_reader(self, actual, conjunctive):
-        delete_linked_items(READIT.property_of_reader)
-
-    @on_remove(READIT.enabled_to_read)
-    def remove_enabled_to_read(self, actual, conjunctive):
-        delete_linked_items(READIT.enabled_to_read)
-
-    @on_remove(READIT.carried_out)
-    def remove_carried_out(self, actual, conjunctive):
-        delete_linked_items(READIT.carried_out)
-
-    @on_remove(READIT.had_resource_property)
-    def remove_had_resource_property(self, actual, conjunctive):
-        delete_linked_items(READIT.had_resource_property)
-
-    @on_remove(READIT.provided_access_to)
-    def remove_provided_access_to(self, actual, conjunctive):
-        delete_linked_items(READIT.provided_access_to)
-
-    @on_remove(READIT.provided_access_by)
-    def remove_provided_access_by(self, actual, conjunctive):
-        delete_linked_items(READIT.provided_access_by)
-
-    @on_remove(READIT.carried_out_by)
-    def remove_carried_out_by(self, actual, conjunctive):
-        delete_linked_items(READIT.carried_out_by)
-
-    @on_remove(READIT.read_by)
-    def remove_read_by(self, actual, conjunctive):
-        delete_linked_items(READIT.read_by)
-
-    @on_remove(READIT.involved_in)
-    def remove_involved_in(self, actual, conjunctive):
-        delete_linked_items(READIT.involved_in)
-
-    @on_remove(READIT.influenced_by)
-    def remove_influenced_by(self, actual, conjunctive):
-        delete_linked_items(READIT.influenced_by)
-
-    @on_remove(READIT.had_outcome)
-    def remove_had_outcome(self, actual, conjunctive):
-        delete_linked_items(READIT.had_outcome)
-
-    @on_remove(READIT.response_of)
-    def remove_response_of(self, actual, conjunctive):
-        delete_linked_items(READIT.response_of)
-
-    @on_remove(READIT.read_through)
-    def remove_read_through(self, actual, conjunctive):
-        delete_linked_items(READIT.read_through)
-
-    @on_remove(READIT.property_of_resource)
-    def remove_property_of_resource(self, actual, conjunctive):
-        delete_linked_items(READIT.property_of_resource)
-
-    @on_remove(READIT.read)
-    def remove_read(self, actual, conjunctive):
-        delete_linked_items(READIT.read)
+    def remove_skinny_items(self, actual, conjunctive):
+        skinny_source = op.join(
+            settings.BASE_DIR, 'ontology', 'mock-ontology.jsonld')
+        skinny_graph = Graph().parse(skinny_source, format='json-ld')
+        skinny_properties = skinny_graph.subjects(RDF.type, RDF.Property)
+        for prop in skinny_properties:
+            delete_linked_items(prop)
