@@ -12,10 +12,12 @@ import categoryColorsTemplate from './category-colors-template';
 
 export interface ViewOptions extends BaseOpt<Node> {
     collection: Graph;
+    nlpCollection: Graph;
 }
 
 export default class CategoryColorsView extends View {
-    collection: Graph
+    collection: Graph;
+    nlpCollection: Graph;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -33,7 +35,8 @@ export default class CategoryColorsView extends View {
     collectColors() {
         const classes = this.collection.models.concat(placeholderClass);
         return compact(map(classes, node => {
-            if (isRdfsClass(node) && node.has(schema.color)) {
+            if (node.has(schema.color)) {
+                // if (isRdfsClass(node) && node.has(schema.color)) {
                 return {
                     class: getCssClassName(node),
                     color: node.get(schema.color)[0],
