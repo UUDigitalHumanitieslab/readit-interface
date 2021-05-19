@@ -46,10 +46,10 @@ RDFLIB_STORE = SPARQLUpdateStore(
 CELERY_BROKER_URL = 'amqp://'
 CELERY_BACKEND = 'amqp'
 
-IRISA_WAIT = 300  # wait for 5 minutes between requests to Irisa API
+IRISA_WAIT = 300 # wait for 5 minutes between requests to Irisa API
 IRISA_URL = 'https://allgo18.inria.fr/api/v1'
 # set IRISA_TOKEN as env variable
-IRISA_TOKEN = 'w3ixcA51dOrMWEKNFfxYYxWvEVAiGJUI'
+IRISA_TOKEN = os.environ.get('IRISA_TOKEN')
 
 # Application definition
 
@@ -224,7 +224,7 @@ LOGGING = {
     'formatters': {
         'standard': {
             'format': '\n --> %(asctime)s %(levelname)s in '
-            '%(pathname)s:%(lineno)d\n%(message)s',
+                        '%(pathname)s:%(lineno)d\n%(message)s',
         },
     },
     'handlers': {
