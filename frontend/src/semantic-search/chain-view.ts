@@ -41,9 +41,13 @@ export default class Chain extends CollectionView {
         const [scheme, action] = selection.id.split(':');
         const precedent = model.get('precedent');
         const newModel = new Model();
-        if (scheme === 'logic' || scheme === 'filter') {
+        switch (scheme) {
+        case 'filter':
+            newModel.set('filter', selection);
+        case 'logic':
             newModel.set({ precedent, scheme, action });
-        } else {
+            break;
+        default:
             newModel.set('precedent', selection);
         }
         collection.push(newModel);
