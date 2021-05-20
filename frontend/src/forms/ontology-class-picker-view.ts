@@ -7,6 +7,11 @@ import LabelView from '../label/label-view';
 
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 import ontologyClassPickerTemplate from './ontology-class-picker-template';
+import { owl, schema, vocab } from '../common-rdf/ns';
+
+import FilteredCollection from '../common-adapters/filtered-collection';
+import Graph from '../common-rdf/graph';
+import { isRdfsClass } from '../utilities/linked-data-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     preselection?: Node;
@@ -19,12 +24,14 @@ export default class OntologyClassPickerView extends CollectionView<
     selected: Node;
     label: any;
     externalCloseHandler: any;
+    leafNodes: FilteredCollection<Node, Graph>;
 
     constructor(options: ViewOptions) {
         super(options);
     }
 
     initialize(options: ViewOptions): this {
+        this.filterOntology(this.collection);
         const preselection = options.preselection;
         this.initItems().initCollectionEvents().select(preselection);
         this.selected = preselection;
@@ -32,12 +39,34 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
-    makeItem(model: Node, level: number = 0): OntologyClassPickerItemView {
+    makeItem(model: Node): OntologyClassPickerItemView {
+        const level = this.isLeaf(model) ? 1 : 0;
         return new OntologyClassPickerItemView({ model, level }).on({
-            click: this.onItemClicked,
-            hover: this.onItemHovered,
+            click: level === 0 ? this.onSuperclassClick : this.onItemClicked,
+            hover: level === 0 ? this.onSuperclassHovered : undefined,
             activated: this.onItemActivated,
         }, this);
+    }
+
+    isOntologyClass(node) {
+        return isRdfsClass(node) && node.has(schema.color) && !(node.get(owl.deprecated));
+    }
+
+    isLeaf(node) {
+        return node.has(vocab.hasPrefSuperClass);
+    }
+
+    isNonLeaf(node) {
+        return !node.has(vocab.hasPrefSuperClass);
+    }
+
+    /**
+     * Separate the ontology into leaf and non-leaf nodes
+     * @param collection
+     */
+    filterOntology(collection) {
+        this.leafNodes = new FilteredCollection(collection, this.isLeaf);
+        this.collection = new FilteredCollection<Node, Graph>(collection, this.isNonLeaf);
     }
 
     renderContainer(): this {
@@ -95,30 +124,26 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
+    onSuperclassClick(event: any): this {
+        return this;
+    }
+
     onItemClicked(view: OntologyClassPickerItemView): this {
         this.select(view.model);
         return this;
     }
 
-    /**
-     * on hover, bring up subcategories, if they exist;
-     * remove previously shown subcategories, with the exception of
-     * siblings of the current node
-     * @param model 
-     */
-    onItemHovered(model: Node) {
-        // check if any other subcategories are displayed, if so, remove them
-        // don't remove siblings of current model, however.
-        let removedCategories = this.collection.filter( category => {
-            const nodeLevel = Number(category.get('level')[0]);
-            return nodeLevel != 0 && category.get('parent') != model.get('parent')
+    onSuperclassHovered(model: Node) {
+        this.leafNodes.forEach(node => {
+            const isDirectChild = (node.get(vocab.hasPrefSuperClass)[0] == model);
+            if (isDirectChild) {
+                const modelIndex = this.collection.indexOf(model);
+                this.collection.add(node, { at: modelIndex + 1 });
+            } else {
+                this.collection.remove(node);
+            }
         });
-        if (removedCategories) this.collection.remove(removedCategories);
-        const subcategories = this.model.get('subcategories') as Node[];
-        if (subcategories) {
-            const modelIndex = this.collection.indexOf(model);
-            this.collection.add(subcategories, { at: modelIndex });
-        }
+
     }
 
     onItemActivated(view: OntologyClassPickerItemView): this {

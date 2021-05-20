@@ -3,7 +3,7 @@ import 'select2';
 
 import { CompositeView } from '../core/view';
 import ldChannel from '../common-rdf/radio';
-import { oa, rdf, skos } from '../common-rdf/ns';
+import { oa, owl, rdf, schema, skos } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 
@@ -29,9 +29,11 @@ import annotationEditTemplate from './annotation-edit-template';
 /**
  * Helper function in order to pass the right classes to the classPicker.
  */
-function getOntologyClasses() {
+export function getOntologyClasses() {
     const ontology = ldChannel.request('ontology:graph') || new Graph();
-    return new FilteredCollection<Node, Graph>(ontology, isRdfsClass);
+    return new FilteredCollection<Node, Graph>(ontology, node => {
+        return isRdfsClass(node) && node.has(schema.color) && !(node.get(owl.deprecated));
+    });
 }
 
 const announce = announceRoute(true);

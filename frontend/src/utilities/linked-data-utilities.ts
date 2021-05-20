@@ -37,7 +37,7 @@ export function getCssClassName(node: Node): string {
     let label = getLabel(node);
 
     if (label) {
-        label = label.replace(new RegExp(' ', 'g'), '').toLowerCase();
+        label = label.replace(new RegExp(' ', 'g'), '').replace(new RegExp('[\(\)\/]', 'g'), '').toLowerCase();
         return `is-readit-${label}`;
     }
 
@@ -53,21 +53,12 @@ export function asURI(source: Node | string): string {
 }
 
 /**
- * Check if a node is a rdfs:Class, i.e. has rdfs:Class as (one of its) type(s) or
+ * Check if a node is a rdfs:Class, i.e. has rdfs:Class or owl:Class as (one of its) type(s) or
  * has a non-empty rdfs:subClassOf property.
  * @param node The node to evaluate
  */
 export function isRdfsClass(node: Node): boolean {
-    return node.has(rdfs.subClassOf) || node.has('@type', rdfs.Class);
-}
-
-/**
- * Check if a node is a owl:Class, i.e. has owl:Class as (one of its) type(s) or
- * has a non-empty rdfs:subClassOf property.
- * @param node The node to evaluate
- */
-export function isOwlClass(node: Node): boolean {
-    return node.has(rdfs.subClassOf) || node.has('@type', owl.Class);
+    return node.has(rdfs.subClassOf) || node.has('@type', owl.Class) || node.has('@type', rdfs.Class);
 }
 
 /**
