@@ -7,6 +7,4 @@ class ListOntology(RDFView):
     """ List the full ontology in RDF. """
 
     def graph(self):
-        g = graph()
-        g += nlp_graph()
-        return g
+        return graph()
