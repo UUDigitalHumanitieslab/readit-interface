@@ -9,7 +9,7 @@ from readit import celery_app
 from ontology.fixture import replace_prefix
 from items.graph import graph as item_graph
 from items.models import ItemCounter
-from .constants import *
+from .constants import NLP_NS, INSTANCE_NLP_NS
 
 
 @celery_app.task
@@ -28,7 +28,7 @@ def poll_automated_annotations(job_id, timeout):
             g = Graph()
             g.parse(data=result.text, format='turtle')
             g = replace_bnodes(g)
-            g = replace_prefix(g)
+            g = replace_prefix(g, NLP_NS, INSTANCE_NLP_NS)
             graph = item_graph()
             graph += g
             break
