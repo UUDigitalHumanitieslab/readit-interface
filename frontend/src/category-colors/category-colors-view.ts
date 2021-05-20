@@ -23,7 +23,6 @@ export default class CategoryColorsView extends View {
 
     initialize(): void {
         this.render().listenTo(this.collection, 'update reset', this.render);
-        // this.listenTo(this.nlpCollection, 'update reset', this.test);
     }
 
     render(): View {
@@ -33,7 +32,7 @@ export default class CategoryColorsView extends View {
 
 
     collectColors() {
-        const classes = this.collection.models;
+        const classes = this.collection.models.concat(placeholderClass);
         return compact(map(classes, node => {
             if (node.has(schema.color)) {
                 return {

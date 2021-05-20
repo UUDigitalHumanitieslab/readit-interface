@@ -36,7 +36,7 @@ describe('CategoryColorsView', function () {
     beforeAll(enableI18n);
 
     beforeEach(function () {
-        let graph = new Graph([getDefaultNode(), placeholderClass]);
+        let graph = new Graph([getDefaultNode()]);
         this.view = new CategoryColorsView({ collection: graph });
     });
 
@@ -69,7 +69,7 @@ describe('CategoryColorsView', function () {
         delete attributes2[schema.color]
         let node2 = new Node(attributes2);
 
-        let graph = new Graph([node1, node2, placeholderClass]);
+        let graph = new Graph([node1, node2]);
         let view = new CategoryColorsView({ collection: graph });
 
         let html = view.$el.html();
@@ -87,7 +87,7 @@ describe('CategoryColorsView', function () {
         attributes2[schema.color] = [{ '@value': 'aliceblue' }];
         let node2 = new Node(attributes2);
 
-        let graph = new Graph([node1, node2, placeholderClass]);
+        let graph = new Graph([node1, node2]);
         let view = new CategoryColorsView({ collection: graph });
 
         let html = view.$el.html();

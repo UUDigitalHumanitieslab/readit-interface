@@ -51,8 +51,6 @@ def replace_bnodes(graph):
             if not o in bnodes.keys():
                 bnodes[o] = generate_uri()
             new_object = bnodes[o]
-        elif o.startswith(NLP_NS):
-            new_object = replace_nlp_namespace(o)
         output_graph.add((new_subject or s, p, new_object or o))
     return output_graph
 
@@ -61,8 +59,3 @@ def generate_uri():
     counter = ItemCounter.current
     counter.increment()
     return URIRef(str(counter))
-
-
-def replace_nlp_namespace(object):
-    return URIRef('{}#{}'.format(
-        INSTANCE_NLP_NS, object.split('#')[-1]))

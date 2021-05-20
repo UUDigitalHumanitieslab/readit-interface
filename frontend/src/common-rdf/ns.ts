@@ -528,7 +528,8 @@ const ontologyNotHardcoded = [] as const;
 
 export const readit = Vocabulary(readitPrefix, ontologyNotHardcoded);
 
-export const nlpOntologyPrefix = READIT + 'nlp-ontology#';
+export const nlpOntologyPrefix = 'https://read-it.hum.uu.nl/nlp-ontology#';
+// export const nlpOntologyPrefix = READIT + 'nlp-ontology#'
 
 export const nlp = Vocabulary(nlpOntologyPrefix, ontologyNotHardcoded);
 

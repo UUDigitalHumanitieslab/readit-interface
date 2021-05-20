@@ -4,7 +4,7 @@ import ldChannel from '../common-rdf/radio';
 import { Identifier, isIdentifier } from '../common-rdf/json';
 import Node, { isNode, NodeLike } from '../common-rdf/node';
 import Graph, { ReadOnlyGraph } from '../common-rdf//graph';
-import { skos, rdfs, readit, dcterms } from '../common-rdf/ns';
+import { skos, rdfs, readit, dcterms, nlp } from '../common-rdf/ns';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -38,7 +38,12 @@ export function getCssClassName(node: Node): string {
 
     if (label) {
         label = label.replace(new RegExp(' ', 'g'), '').toLowerCase();
-        return `is-readit-${label}`;
+        if (node.id.startsWith(nlp())) {
+            return `is-nlp-${label}`
+        }
+        else {
+            return `is-readit-${label}`;
+        }
     }
 
     return null;
