@@ -6,9 +6,9 @@ from django.conf import settings
 from rdflib import Graph, BNode, URIRef
 
 from readit import celery_app
+from ontology.fixture import replace_prefix
 from items.graph import graph as item_graph
 from items.models import ItemCounter
-from ontology.fixture import replace_prefix
 from .constants import *
 
 
@@ -28,7 +28,7 @@ def poll_automated_annotations(job_id, timeout):
             g = Graph()
             g.parse(data=result.text, format='turtle')
             g = replace_bnodes(g)
-            g = replace_prefix(g, NLP_NS, INSTANCE_NLP_NS)
+            g = replace_prefix(g)
             graph = item_graph()
             graph += g
             break
