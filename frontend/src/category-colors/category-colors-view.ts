@@ -36,7 +36,6 @@ export default class CategoryColorsView extends View {
         const classes = this.collection.models.concat(placeholderClass);
         return compact(map(classes, node => {
             if (node.has(schema.color)) {
-                // if (isRdfsClass(node) && node.has(schema.color)) {
                 return {
                     class: getCssClassName(node),
                     color: node.get(schema.color)[0],

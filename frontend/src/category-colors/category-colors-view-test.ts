@@ -4,7 +4,7 @@ import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
 import { FlatLdObject } from '../common-rdf/json';
 import { rdfs, skos, schema } from '../common-rdf/ns';
-import { placeholderClass }  from '../utilities/annotation-utilities';
+import { placeholderClass } from '../utilities/annotation-utilities';
 
 import CategoryColorsView from './category-colors-view';
 
@@ -24,23 +24,23 @@ function getDefaultAttributes(): FlatLdObject {
             { '@value': 'Content' },
         ],
         [skos.definition]: [
-            { '@value': 'This is a test definition'}
+            { '@value': 'This is a test definition' }
         ],
         [schema.color]: [
-            { '@value': 'hotpink'}
+            { '@value': 'hotpink' }
         ]
     }
 }
 
-describe('CategoryColorsView', function() {
+describe('CategoryColorsView', function () {
     beforeAll(enableI18n);
 
-    beforeEach(function() {
+    beforeEach(function () {
         let graph = new Graph([getDefaultNode()]);
-        this.view = new CategoryColorsView({ collection: graph });
+        this.view = new CategoryColorsView({ collection: graph, nlpCollection: graph });
     });
 
-    it('parses graphs into cssClass and color, appending the placeholder', function() {
+    it('parses graphs into cssClass and color, appending the placeholder', function () {
         let expected = {
             class: 'is-readit-content',
             color: 'hotpink'
@@ -51,7 +51,7 @@ describe('CategoryColorsView', function() {
         expect(colors[0]).toEqual(expected);
     });
 
-    it('renders a HTML style tag with some CSS in it', function() {
+    it('renders a HTML style tag with some CSS in it', function () {
         expect(this.view.$el.prop("tagName")).toEqual('STYLE');
 
         let html = this.view.$el.html();
@@ -60,7 +60,7 @@ describe('CategoryColorsView', function() {
         expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}' + placeholderStyle);
     });
 
-    it('renders a style tag with multiple CSS classes in it', function() {
+    it('renders a style tag with multiple CSS classes in it', function () {
         let node1 = getDefaultNode();
 
         let attributes2 = getDefaultAttributes();
@@ -70,7 +70,7 @@ describe('CategoryColorsView', function() {
         let node2 = new Node(attributes2);
 
         let graph = new Graph([node1, node2]);
-        let view = new CategoryColorsView({collection: graph});
+        let view = new CategoryColorsView({ collection: graph, nlpCollection: graph });
 
         let html = view.$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
@@ -78,17 +78,17 @@ describe('CategoryColorsView', function() {
         expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}' + placeholderStyle);
     });
 
-    it('excludes linked data items that are irrelevant', function() {
+    it('excludes linked data items that are irrelevant', function () {
         let node1 = getDefaultNode();
 
         let attributes2 = getDefaultAttributes();
         attributes2['@id'] = 'anotherUniqueId';
-        attributes2[skos.prefLabel] = [{'@value': 'Test2'}];
-        attributes2[schema.color] = [{'@value':'aliceblue'}];
+        attributes2[skos.prefLabel] = [{ '@value': 'Test2' }];
+        attributes2[schema.color] = [{ '@value': 'aliceblue' }];
         let node2 = new Node(attributes2);
 
         let graph = new Graph([node1, node2]);
-        let view = new CategoryColorsView({collection: graph});
+        let view = new CategoryColorsView({ collection: graph, nlpCollection: graph });
 
         let html = view.$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
@@ -96,7 +96,7 @@ describe('CategoryColorsView', function() {
         expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}.is-readit-test2{background-color:aliceblue!important;}.hide-is-readit-test2.is-readit-test2,.hide-rit-any:not(.unhide-is-readit-test2).is-readit-test2{display:none!important;}' + placeholderStyle);
     });
 
-    it('is self-rendering and self-updating', function() {
+    it('is self-rendering and self-updating', function () {
         const originalHTML = replaceNewLinesAndWhitespace(this.view.$el.html());
         expect(originalHTML.length).toBeGreaterThan(0);
 
