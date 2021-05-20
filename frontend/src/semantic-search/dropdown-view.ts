@@ -95,7 +95,11 @@ export default class Dropdown extends CompositeView {
             model: groupLabels.get('logic'),
             collection: logic,
         });
-        let range: Graph | Node = await normalizeRange(this.model);
+        let range: Graph | Node = this.model.get('range') as Graph;
+        if (!range) {
+            range = await normalizeRange(this.model);
+            this.model.set('range', range);
+        }
         if (range.length > 1) {
             this.typeGroup = new OptionGroup({
                 model: groupLabels.get('type'),
