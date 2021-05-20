@@ -13,7 +13,7 @@ import FilteredCollection from '../common-adapters/filtered-collection';
 import ItemGraph from '../common-adapters/item-graph';
 import ClassPickerView from '../forms/ontology-class-picker-view';
 import SnippetView from '../snippet/snippet-view';
-import { isRdfsClass, isBlank } from '../utilities/linked-data-utilities';
+import { isRdfsClass, isBlank, isAnnotationCategory } from '../utilities/linked-data-utilities';
 import { placeholderClass } from '../utilities/annotation-utilities';
 import {
     savePlaceholderAnnotation,
@@ -31,9 +31,7 @@ import annotationEditTemplate from './annotation-edit-template';
  */
 export function getOntologyClasses() {
     const ontology = ldChannel.request('ontology:graph') || new Graph();
-    return new FilteredCollection<Node, Graph>(ontology, node => {
-        return isRdfsClass(node) && node.has(schema.color) && !(node.get(owl.deprecated));
-    });
+    return new FilteredCollection<Node, Graph>(ontology, isAnnotationCategory);
 }
 
 const announce = announceRoute(true);

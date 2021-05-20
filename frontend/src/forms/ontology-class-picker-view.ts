@@ -7,11 +7,10 @@ import LabelView from '../label/label-view';
 
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 import ontologyClassPickerTemplate from './ontology-class-picker-template';
-import { owl, schema, vocab } from '../common-rdf/ns';
+import { vocab } from '../common-rdf/ns';
 
 import FilteredCollection from '../common-adapters/filtered-collection';
 import Graph from '../common-rdf/graph';
-import { isRdfsClass } from '../utilities/linked-data-utilities';
 
 export interface ViewOptions extends BaseOpt<Node> {
     preselection?: Node;
@@ -46,10 +45,6 @@ export default class OntologyClassPickerView extends CollectionView<
             hover: level === 0 ? this.onSuperclassHovered : undefined,
             activated: this.onItemActivated,
         }, this);
-    }
-
-    isOntologyClass(node) {
-        return isRdfsClass(node) && node.has(schema.color) && !(node.get(owl.deprecated));
     }
 
     isLeaf(node) {
