@@ -36,8 +36,8 @@ describe('CategoryColorsView', function () {
     beforeAll(enableI18n);
 
     beforeEach(function () {
-        let graph = new Graph([getDefaultNode()]);
-        this.view = new CategoryColorsView({ collection: graph, nlpCollection: graph });
+        let graph = new Graph([getDefaultNode(), placeholderClass]);
+        this.view = new CategoryColorsView({ collection: graph });
     });
 
     it('parses graphs into cssClass and color, appending the placeholder', function () {
@@ -69,8 +69,8 @@ describe('CategoryColorsView', function () {
         delete attributes2[schema.color]
         let node2 = new Node(attributes2);
 
-        let graph = new Graph([node1, node2]);
-        let view = new CategoryColorsView({ collection: graph, nlpCollection: graph });
+        let graph = new Graph([node1, node2, placeholderClass]);
+        let view = new CategoryColorsView({ collection: graph });
 
         let html = view.$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
@@ -87,8 +87,8 @@ describe('CategoryColorsView', function () {
         attributes2[schema.color] = [{ '@value': 'aliceblue' }];
         let node2 = new Node(attributes2);
 
-        let graph = new Graph([node1, node2]);
-        let view = new CategoryColorsView({ collection: graph, nlpCollection: graph });
+        let graph = new Graph([node1, node2, placeholderClass]);
+        let view = new CategoryColorsView({ collection: graph });
 
         let html = view.$el.html();
         let actual = replaceNewLinesAndWhitespace(html);

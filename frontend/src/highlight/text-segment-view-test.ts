@@ -25,7 +25,7 @@ describe('TextSegmentView', function () {
         this.lineHeight = lineHeightProbe.height();
         lineHeightProbe.remove();
         this.ontology = new Graph(mockOntology);
-        this.style = new CategoryStyle({ collection: this.ontology, nlpCollection: this.ontology }).render();
+        this.style = new CategoryStyle({ collection: this.ontology }).render();
         this.style.$el.appendTo('body');
         this.container = $('<div>').width('70ex').appendTo('body');
         this.text = $('<pre>').css('white-space', 'pre-wrap').text(loremIpsum).appendTo(this.container);

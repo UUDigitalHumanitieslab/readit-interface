@@ -49,7 +49,7 @@ describe('CategoryToggleMixin', function () {
         this.ontology = new Graph(mockOntology);
         this.classes = compact(this.ontology.map(getCssClassName));
         expect(this.classes.length).toBeGreaterThan(1);
-        this.styling = new CategoryStyling({ collection: this.ontology, nlpCollection: this.ontology });
+        this.styling = new CategoryStyling({ collection: this.ontology });
         $('body').append(this.styling.render().el);
     });
 

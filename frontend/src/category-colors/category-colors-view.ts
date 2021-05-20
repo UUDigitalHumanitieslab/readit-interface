@@ -5,19 +5,17 @@ import View from '../core/view';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import { schema } from '../common-rdf/ns';
-import { getCssClassName, isRdfsClass } from '../utilities/linked-data-utilities';
+import { getCssClassName } from '../utilities/linked-data-utilities';
 import { placeholderClass } from '../utilities/annotation-utilities';
 
 import categoryColorsTemplate from './category-colors-template';
 
 export interface ViewOptions extends BaseOpt<Node> {
     collection: Graph;
-    nlpCollection: Graph;
 }
 
 export default class CategoryColorsView extends View {
     collection: Graph;
-    nlpCollection: Graph;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -25,6 +23,7 @@ export default class CategoryColorsView extends View {
 
     initialize(): void {
         this.render().listenTo(this.collection, 'update reset', this.render);
+        // this.listenTo(this.nlpCollection, 'update reset', this.test);
     }
 
     render(): View {
@@ -32,8 +31,9 @@ export default class CategoryColorsView extends View {
         return this;
     }
 
+
     collectColors() {
-        const classes = this.collection.models.concat(placeholderClass);
+        const classes = this.collection.models;
         return compact(map(classes, node => {
             if (node.has(schema.color)) {
                 return {
