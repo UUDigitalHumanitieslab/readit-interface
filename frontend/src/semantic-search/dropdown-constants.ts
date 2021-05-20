@@ -25,30 +25,35 @@ export const filters = new Collection([{
     i18nKey: 'filters.equals',
     uris: true,
     literals: true,
+    operator: '=',
 }, {
     id: 'filter:less',
     label: 'Is less than',
     i18nKey: 'filters.less',
     uris: false,
     literals: true,
+    operator: '<',
 }, {
     id: 'filter:greater',
     label: 'Is greater than',
     i18nKey: 'filters.greater',
     uris: false,
     literals: true,
+    operator: '>',
 }, {
     id: 'filter:isIRI',
     label: 'Is defined',
     i18nKey: 'filters.isDefined',
     uris: true,
     literals: false,
+    function: 'isIRI',
 }, {
     id: 'filter:isLiteral',
     label: 'Is defined',
     i18nKey: 'filters.isDefined',
     uris: false,
     literals: true,
+    function: 'isLiteral',
 }, {
     id: 'filter:stringStarts',
     label: 'Starts with',
@@ -56,6 +61,7 @@ export const filters = new Collection([{
     uris: false,
     literals: true,
     restrict: [xsd.string],
+    function: 'strStarts',
 }, {
     id: 'filter:stringEnds',
     label: 'Ends with',
@@ -63,6 +69,7 @@ export const filters = new Collection([{
     uris: false,
     literals: true,
     restrict: [xsd.string],
+    function: 'strEnds',
 }, {
     id: 'filter:stringContains',
     label: 'Contains',
@@ -70,6 +77,7 @@ export const filters = new Collection([{
     uris: false,
     literals: true,
     restrict: [xsd.string],
+    function: 'contains',
 }, {
     id: 'filter:regex',
     label: 'Matches regular expression',
@@ -77,6 +85,7 @@ export const filters = new Collection([{
     uris: false,
     literals: true,
     restrict: [xsd.string],
+    function: 'regex',
 }]);
 
 export const groupLabels = new Collection([{
