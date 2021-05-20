@@ -179,10 +179,10 @@ export default class FlatItem extends Model {
     receiveBody(body: Node): number {
         if (isBlank(body)) return this.receiveItem(body);
         const id = body.id;
-        if (id.startsWith(readit())) return this.receiveClass(body);
         if (id.startsWith(item())) return this.receiveItem(body);
         // We can add another line like the above to add support for
         // preannotations.
+        this.receiveClass(body);
     }
 
     /**
