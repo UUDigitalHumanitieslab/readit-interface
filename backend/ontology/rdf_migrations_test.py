@@ -92,3 +92,21 @@ def test_needs_verification(annotation_triples):
     actual, desired = annotation_triples
     annotations_need_verification(READIT.reader, actual)
     assert len(actual ^ desired) == 0
+
+
+def test_cidoc_property_inversion():
+    before = graph_from_triples((
+        (CIDOC.P100_was_death_of, RDFS.domain, ERLANGEN.E69_Death),
+        (CIDOC.P100_was_death_of, RDFS.range, CIDOC.E21_Person),
+        (CIDOC.P100i_died_in, RDFS.domain, CIDOC.E21_Person),
+        (CIDOC.P100i_died_in, RDFS.range, ERLANGEN.E69_Death),
+    ))
+    after = graph_from_triples((
+        (CIDOC.P100_was_death_of, RDFS.domain, ERLANGEN.E69_Death),
+        (CIDOC.P100_was_death_of, RDFS.range, CIDOC.E21_Person),
+        (CIDOC.P100i_died_in, RDFS.domain, CIDOC.E21_Person),
+        (CIDOC.P100i_died_in, RDFS.range, ERLANGEN.E69_Death),
+        (CIDOC.P100i_died_in, OWL.inverseOf, CIDOC.P100_was_death_of),
+    ))
+    invert_cidoc_property(CIDOC.P100_was_death_of, CIDOC.P100i_died_in, before)
+    assert len(before ^ after) == 0

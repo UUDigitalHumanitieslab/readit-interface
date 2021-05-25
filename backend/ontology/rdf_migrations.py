@@ -1,9 +1,10 @@
 from django.conf import settings
 from rdflib.graph import Graph
+from rdflib.term import URIRef
 from items.graph import graph as item_graph
 from ontology.constants import ONTOLOGY_NS
 from rdf.migrations import RDFMigration, on_add, on_remove
-from rdf.ns import (OA, CIDOC, RDF, DCTERMS, SCHEMA, ERLANGEN, FRBROO)
+from rdf.ns import (OA, CIDOC, RDF, RDFS, DCTERMS, SCHEMA, ERLANGEN, FRBROO, OWL)
 from rdf.utils import (append_triples, graph_from_triples, prune_triples,
                        prune_triples_cascade)
 from rdflib import Literal
@@ -26,6 +27,23 @@ YELLOW = '#F0E442'
 REDDISH_PURPLE = '#CC79A7'
 VERMILLION = '#D55E00'
 
+# Mapping of CIDOC properties to their inversions
+CIDOC_INVERSE_MAP = (
+    (CIDOC.P100_was_death_of, CIDOC.P100i_died_in),
+    (CIDOC.P102_has_title, CIDOC.P102i_is_title_of),
+    (CIDOC.P128_carries, CIDOC.P128i_is_carried_by),
+    (CIDOC.P129_is_about, CIDOC.P129i_is_subject_of),
+    (CIDOC.P14_carried_out_by, CIDOC.P14i_performed),
+    (CIDOC.P15_was_influenced_by, CIDOC.P15i_influenced),
+    (CIDOC.P5_consists_of, CIDOC.P5i_forms_part_of),
+    (CIDOC.P67_refers_to, CIDOC.P67i_is_referred_to_by),
+    (CIDOC.P7_took_place_at, CIDOC.P7i_witnessed),
+    (CIDOC.P78_is_identified_by, CIDOC.P78i_identifies),
+    (CIDOC.P87_is_identified_by, CIDOC.P87i_identifies),
+    (CIDOC.P98_brought_into_life, CIDOC.P98i_was_born),
+    (URIRef('{}{}'.format(CIDOC, 'P4_has_time-span')),
+     URIRef('{}{}'.format(CIDOC, 'P4i_is_time-span_of'))),
+)
 
 DELETE_CLASS_ANNOS_UPDATE = '''
 DELETE {
@@ -119,6 +137,13 @@ def reset_ontology():
     c.migrate_graph(m)
 
 
+def invert_cidoc_property(direct, inverse, input_graph=None):
+    context = input_graph if input_graph else graph()
+    query = 'INSERT DATA {{ <{}> <{}> <{}> }}'.format(
+        inverse, OWL.inverseOf, direct)
+    context.update(query)
+
+
 def set_pref_superclass(subclass, superclass, input_graph=None):
     # For a mysterious reason, this fails when using initBindings
     context = input_graph if input_graph else graph()
@@ -159,7 +184,7 @@ def delete_linked_items(property, input_graph=None):
 def assign_color(subject, colorcode, input_graph=None):
     context = input_graph if input_graph else graph()
     query = 'INSERT DATA {{ <{}> <{}> "{}" }}'.format(
-        subject, SCHEMA.color , colorcode)
+        subject, SCHEMA.color, colorcode)
     context.update(query)
 
 
@@ -396,7 +421,7 @@ class Migration(RDFMigration):
 
     # # # # # # # # # # # # # # #
     # Skinny to REO migration   #
-    # Remove linked items       #
+    # Misc      #
     # # # # # # # # # # # # # # #
 
     @on_remove(READIT.outcome_of)
@@ -407,3 +432,10 @@ class Migration(RDFMigration):
         skinny_properties = skinny_graph.subjects(RDF.type, RDF.Property)
         for prop in skinny_properties:
             delete_linked_items(prop)
+
+    @ on_add(CIDOC.P100_was_death_of)
+    def cidoc_property_inversions(self, actual, conjunctive):
+        """ CIDOC properties miss explicit inverse relations,
+        manually add these. """
+        for (direct, inverted) in CIDOC_INVERSE_MAP:
+            invert_cidoc_property(direct, inverted)
