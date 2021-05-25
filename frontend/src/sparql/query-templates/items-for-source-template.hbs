@@ -1,6 +1,4 @@
-{{#each namespaces}}
-PREFIX {{label}}: <{{prefix}}>
-{{/each}}
+{{>sparqlPreamble}}
 PREFIX schema: <http://schema.org/>
 PREFIX oa: <http://www.w3.org/ns/oa#>
 CONSTRUCT {
