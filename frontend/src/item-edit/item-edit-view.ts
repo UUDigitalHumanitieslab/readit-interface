@@ -4,10 +4,10 @@ import { ViewOptions as BViewOptions } from 'backbone';
 import { CompositeView } from '../core/view';
 import ldChannel from '../common-rdf/radio';
 import { skos } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
 import Label from '../label/label-view';
 import { getLabel } from '../utilities/linked-data-utilities';
 import editorTemplate from './item-edit-template';
+import FlatItem from '../common-adapters/flat-item-model';
 
 export const labelLanguage = 'en';
 
@@ -16,11 +16,11 @@ function hasLabelLanguage(label: string) {
     return !language || language === labelLanguage;
 }
 
-export interface ViewOptions extends BViewOptions<Node> {
-    model: Node;  // required
+export interface ViewOptions extends BViewOptions<FlatItem> {
+    model: FlatItem;  // required
 }
 
-export default class ItemEditor extends CompositeView<Node> {
+export default class ItemEditor extends CompositeView<FlatItem> {
     categoryLabel: Label;
 
     constructor(options: ViewOptions) {
@@ -28,17 +28,12 @@ export default class ItemEditor extends CompositeView<Node> {
     }
 
     initialize(options: ViewOptions): void {
-        const types = this.model.get('@type');
-        if (!types || !types.length) {
-            throw new Error('Cannot edit an untyped item');
-        }
-        const category = ldChannel.request('obtain', types[0]);
         this.categoryLabel = new Label({
-            model: category,
+            model: this.model,
             id: `category-${this.cid}`,
         });
-        this.render().itemLabelFromModel();
-        this.listenTo(this.model, 'change', this.itemLabelFromModel);
+        this.render();
+        this.model.whenever('label', this.itemLabelFromModel, this);
     }
 
     renderContainer(): this {
@@ -47,19 +42,20 @@ export default class ItemEditor extends CompositeView<Node> {
     }
 
     itemLabelFromModel(): this {
-        this.labelField().val(getLabel(this.model));
+        this.labelField().val(this.model.get('label'));
         return this;
     }
 
     itemLabelFromForm(): this {
-        const existingLabels = this.model.get(skos.prefLabel) as string[];
+        const item = this.model.get('item');
+        const existingLabels = item.get(skos.prefLabel) as string[];
         if (existingLabels && existingLabels.length) {
             const obsoleteLabels = existingLabels.filter(hasLabelLanguage);
             obsoleteLabels.forEach(
-                label => this.model.unset(skos.prefLabel, label, {silent: true})
+                label => item.unset(skos.prefLabel, label, {silent: true})
             );
         }
-        this.model.set(skos.prefLabel, {
+        item.set(skos.prefLabel, {
             '@value': this.labelField().val(),
             '@language': labelLanguage,
         });

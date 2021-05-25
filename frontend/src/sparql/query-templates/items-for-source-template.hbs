@@ -1,0 +1,28 @@
+{{#each namespaces}}
+PREFIX {{label}}: <{{prefix}}>
+{{/each}}
+PREFIX schema: <http://schema.org/>
+PREFIX oa: <http://www.w3.org/ns/oa#>
+CONSTRUCT {
+    ?annotation ?a ?b.
+    ?body ?c ?d.
+    ?target ?e ?f.
+    ?selector ?g ?h.
+    }
+WHERE {
+    ?annotation oa:hasBody ?body.
+    OPTIONAL { ?body ?c ?d }.
+    ?annotation oa:hasTarget ?target;
+                ?a ?b.
+    {{#if userURI}}
+    ?annotation schema:creator <{{userURI}}>.
+    {{/if}}
+    ?target oa:hasSource <{{sourceURI}}>;
+            oa:hasSelector ?selector;
+            ?e ?f.
+    ?selector ?g ?h;
+              oa:start ?start.
+}
+{{#if orderBy}}{{orderBy}}{{else}}ORDER BY ?start{{/if}}
+{{#if limit}}LIMIT {{limit}}{{/if}}
+{{#if offset}}OFFSET {{offset}}{{/if}}

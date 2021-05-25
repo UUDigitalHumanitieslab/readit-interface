@@ -1,39 +1,27 @@
-import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-
+import FilteredCollection from '../common-adapters/filtered-collection';
+import FlatItem from '../common-adapters/flat-item-model';
+import Graph from '../common-rdf/graph';
+import { vocab } from '../common-rdf/ns';
 import { CollectionView } from '../core/view';
-import Node from '../common-rdf/node';
 import LabelView from '../label/label-view';
-
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 import ontologyClassPickerTemplate from './ontology-class-picker-template';
-import { vocab } from '../common-rdf/ns';
 
-import FilteredCollection from '../common-adapters/filtered-collection';
-import Graph from '../common-rdf/graph';
-
-export interface ViewOptions extends BaseOpt<Node> {
-    preselection?: Node;
-}
 
 export default class OntologyClassPickerView extends CollectionView<
-    Node,
+    FlatItem,
     OntologyClassPickerItemView
 > {
-    selected: Node;
+    selected: FlatItem;
     label: any;
     externalCloseHandler: any;
-    leafNodes: FilteredCollection<Node, Graph>;
+    leafNodes: FilteredCollection<FlatItem>;
 
-    constructor(options: ViewOptions) {
-        super(options);
-    }
 
-    initialize(options: ViewOptions): this {
+    initialize(): this {
         this.filterOntology(this.collection);
-        const preselection = options.preselection;
-        this.initItems().initCollectionEvents().select(preselection);
-        this.selected = preselection;
+        this.initItems().render().initCollectionEvents();
         this.externalCloseHandler = $(document).click(() => this.hideDropdown());
         return this;
     }
@@ -61,7 +49,7 @@ export default class OntologyClassPickerView extends CollectionView<
      */
     filterOntology(collection) {
         this.leafNodes = new FilteredCollection(collection, this.isLeaf);
-        this.collection = new FilteredCollection<Node, Graph>(collection, this.isNonLeaf);
+        this.collection = new FilteredCollection<FlatItem>(collection, this.isNonLeaf);
     }
 
     renderContainer(): this {
@@ -82,11 +70,11 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
-    getSelected(): Node {
+    getSelected(): FlatItem {
         return this.selected;
     }
 
-    select(newValue: Node) {
+    select(newValue: FlatItem) {
         if (newValue === this.selected) return;
         this.selected = newValue;
         this.items.forEach((item) => {
@@ -97,13 +85,14 @@ export default class OntologyClassPickerView extends CollectionView<
                 item.deactivate();
             }
         });
+        this.render();
     }
 
-    setLabel(node: Node): this {
+    setLabel(item: FlatItem): this {
         let dropdownLabel = this.$('.dropdown-label-tag');
         if (this.label) this.label.remove();
         dropdownLabel.text('');
-        this.label = new LabelView({ model: node });
+        this.label = new LabelView({ model: item });
         this.label.$el.appendTo(dropdownLabel);
         return this;
     }
@@ -128,7 +117,7 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
-    onSuperclassHovered(model: Node) {
+    onSuperclassHovered(model: FlatItem) {
         this.leafNodes.forEach(node => {
             const isDirectChild = (node.get(vocab.hasPrefSuperClass)[0] == model);
             if (isDirectChild) {

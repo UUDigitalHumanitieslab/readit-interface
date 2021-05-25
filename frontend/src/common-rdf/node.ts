@@ -172,6 +172,13 @@ export default class Node extends Model {
     }
 
     /**
+     * Sometimes, we still want the original, less-intelligent .get behavior.
+     */
+    getRaw(key: string): OptimizedNative {
+        return super.get(key);
+    }
+
+    /**
      * Adapt the has method to JSON-LD array semantics.
      */
     has(predicate: string, object?: any): boolean {

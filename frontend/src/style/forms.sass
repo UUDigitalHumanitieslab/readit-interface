@@ -1,3 +1,5 @@
+@import bulma-custom
+
 .form-feedback-bar
     p
         margin-left: 0.25em
@@ -32,3 +34,19 @@
 
 .upload-source-form p.filename
     padding: 7px
+
+.readit-picker.select
+    span.select2
+        @extend .input
+        box-shadow: none
+        padding-right: 2.5em
+        padding-left: .75em
+        &.select2-container .select2-selection--single
+            border: none
+            .select2-selection__rendered
+                padding: 0
+            .select2-selection__arrow
+                width: 43px
+                height: 100%
+                b
+                    border: none

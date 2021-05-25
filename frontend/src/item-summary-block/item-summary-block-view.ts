@@ -11,19 +11,6 @@ import { getCssClassName, getLabel } from '../utilities/linked-data-utilities';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
 
-// Internal function to wrap an item as a surrogate FlatItem so we can
-// assume the same attributes when rendering.
-function wrapItem(item: Node): Model {
-    const cls = ldChannel.request('obtain', item.get('@type')[0] as string);
-    return new Model({
-        item: item,
-        label: getLabel(item),
-        class: cls,
-        classLabel: getLabel(cls),
-        cssClass: getCssClassName(cls),
-    });
-}
-
 export interface ViewOptions extends BViewOptions {
     // The model is required. It should be either an annotation that has an item
     // body or just a bare item. In the first case, it should preferably be a
@@ -41,24 +28,10 @@ export default class ItemSummaryBlockView extends View {
         super(options);
     }
 
-    initialize(options: ViewOptions): this {
-        if (this.model instanceof FlatItem) {
-            this._renderWhenComplete();
-        } else {
-            if (this.model.has('@type')) {
-                this._wrapModel();
-            } else {
-                this.listenToOnce(this.model, 'change:@type', this._wrapModel);
-            }
+    initialize(options: ViewOptions) {
+        if (this.model instanceof Node) {
+            this.model = new FlatItem(this.model);
         }
-        // This is called inside `render` because `render` itself is called when
-        // the model is definitive. We want it take effect only once, however.
-        this._bindModelEvents = once(this._bindModelEvents);
-        return this;
-    }
-
-    // Internal method, only appropriate when the model is a flat annotation.
-    _renderWhenComplete(): void {
         if (this.model['complete']) {
             this.render();
         } else {
@@ -66,18 +39,12 @@ export default class ItemSummaryBlockView extends View {
         }
     }
 
-    // Internal method, called once the `@type` is known if `this.model` starts
-    // out as a `Node`.
-    _wrapModel(): void {
-        const type = this.model.get('@type') as string[];
-        if (includes(type, oa.Annotation)) {
-            this.model = new FlatItem(this.model as Node);
-            this._renderWhenComplete();
-        } else {
-            this.model = wrapItem(this.model as Node);
-            this.setClass = this.model.get('cssClass');
-            this.render();
-        }
+    _startListening(): void {
+        this.render().listenTo(this.model, {
+            change: this.render,
+            focus: this.select,
+            blur: this.unSelect,
+        });
     }
 
     render(): this {
@@ -88,16 +55,7 @@ export default class ItemSummaryBlockView extends View {
         }
         this.$el.addClass(this.model.get('cssClass'));
         this.setClass = currentClass;
-        this._bindModelEvents();
         return this;
-    }
-
-    _bindModelEvents(): void {
-        this.listenTo(this.model, {
-            change: this.render,
-            focus: this.select,
-            blur: this.unSelect,
-        });
     }
 
     select(): this {

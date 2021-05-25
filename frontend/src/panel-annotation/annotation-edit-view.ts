@@ -1,4 +1,4 @@
-import { extend, invokeMap, bindAll, uniqueId, after, once } from 'lodash';
+import { extend, invokeMap, uniqueId, after, once } from 'lodash';
 import 'select2';
 
 import { CompositeView } from '../core/view';
@@ -8,13 +8,12 @@ import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 
 import ItemEditor from '../item-edit/item-edit-view';
-import PickerView from '../forms/base-picker-view';
-import FilteredCollection from '../common-adapters/filtered-collection';
+import PickerView from '../forms/select2-picker-view';
 import ItemGraph from '../common-adapters/item-graph';
 import ClassPickerView from '../forms/ontology-class-picker-view';
 import SnippetView from '../snippet/snippet-view';
 import { isRdfsClass, isBlank, isAnnotationCategory } from '../utilities/linked-data-utilities';
-import { placeholderClass } from '../utilities/annotation-utilities';
+import { placeholderClassItem } from '../utilities/annotation-utilities';
 import {
     savePlaceholderAnnotation,
 } from '../utilities/annotation-creation-utilities';
@@ -22,9 +21,11 @@ import explorerChannel from '../explorer/explorer-radio';
 
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-item-collection';
+import FlatItemCollection from '../common-adapters/flat-item-collection';
 
 import { announceRoute } from './utilities';
 import annotationEditTemplate from './annotation-edit-template';
+import FilteredCollection from '../common-adapters/filtered-collection';
 
 /**
  * Helper function in order to pass the right classes to the classPicker.
@@ -33,6 +34,7 @@ export function getOntologyClasses() {
     const ontology = ldChannel.request('ontology:graph') || new Graph();
     return new FilteredCollection<Node, Graph>(ontology, isAnnotationCategory);
 }
+
 
 const announce = announceRoute(true);
 
@@ -46,20 +48,18 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     itemEditor: ItemEditor;
     originalBodies: Node[];
     validator: JQueryValidation.Validator;
+    ontologyClasses: Graph;
 
     initialize() {
         this.itemOptions = new ItemGraph();
         this.itemOptions.comparator = this.sortOptions;
-        this.itemPicker = new PickerView({
-            collection: this.itemOptions,
-            className: '',
-        });
-        // Replace Bulma select by select2 select. TODO: make this less hacky.
-        this.itemPicker.$('select').width('95%').select2();
+        this.itemPicker = new PickerView({ collection: this.itemOptions });
+        this.ontologyClasses = new Graph();
+        const categories = new FlatItemCollection(this.ontologyClasses);
+        this.getOntologyClasses();
         this.classPicker = new ClassPickerView({
-            collection: getOntologyClasses(),
-            preselection: this.model.get('class'),
-        }).render();
+            collection: categories
+        });
         this.snippetView = new SnippetView({ model: this.model }).render();
 
         this.model.when('annotation', this.processAnnotation, this);
@@ -86,7 +86,18 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         if (this.userIsOwner) this.render();
     }
 
-    processClass(model: FlatItem, cls: Node): void {
+    /**
+    * Helper function in order to pass the right classes to the classPicker.
+    */
+    async getOntologyClasses() {
+        // TODO: request only items of type rdfs:class via SPARQL
+        const ontology = await ldChannel.request('ontology:promise');
+        this.ontologyClasses.set(ontology.models.filter( model => isRdfsClass(model)));
+        return ontology;
+    }
+
+    processClass(model: FlatItem, selClass: Node): void {
+        const cls = new FlatItem(selClass);
         this.classPicker.select(cls);
         this.selectClass(cls);
         this.classPicker.on('select', this.changeClass, this);
@@ -112,7 +123,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
 
     remove(): this {
         if (this.validator) this.validator.destroy();
-        this.itemPicker.$('select').select2('destroy');
         super.remove();
         return this;
     }
@@ -191,12 +201,12 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         return this;
     }
 
-    mirrorClassInput(cls: Node): void {
+    mirrorClassInput(cls: FlatItem): void {
         if (cls) this.$('.hidden-input').val(cls.id).valid();
     }
 
-    selectClass(cls: Node): this {
-        if (!cls || cls === placeholderClass) return this;
+    selectClass(cls: FlatItem): this {
+        if (!cls || cls === placeholderClassItem) return this;
         this.mirrorClassInput(cls);
         this.itemOptions.query({
             predicate: rdf.type,
@@ -207,7 +217,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         return this;
     }
 
-    changeClass(cls: Node): void {
+    changeClass(cls: FlatItem): void {
         const annotation = this.model.get('annotation');
         annotation.unset(oa.hasBody);
         annotation.set(oa.hasBody, cls);
@@ -235,7 +245,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             [skos.prefLabel]: '', // this prevents a failing getLabel
         });
         this.setItem(item);
-        this.itemEditor = new ItemEditor({model: item});
+        this.itemEditor = new ItemEditor({model: new FlatItem(item)});
         this.$('.item-picker-container').after(this.itemEditor.el);
         return this;
     }
@@ -263,7 +273,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         if (isBlank(this.model.underlying)) {
             // Remove the placeholder.
             this.collection.underlying.remove(this.model.underlying);
-        } 
+        }
         explorerChannel.trigger('annotationEditView:close', this);
         return this;
     }

@@ -2,14 +2,14 @@ import { extend, sortBy } from 'lodash';
 import { ViewOptions as BaseOpt } from 'backbone';
 
 import { CompositeView } from '../core/view';
-import Node from '../common-rdf/node';
 import LabelView from '../label/label-view';
+import FlatItem from '../common-adapters/flat-item-model';
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt<FlatItem> {
     level: number;
 }
 
-export default class OntologyClassPickerItemView extends CompositeView<Node> {
+export default class OntologyClassPickerItemView extends CompositeView<FlatItem> {
     labelView: LabelView;
 
     initialize(options: ViewOptions): this {

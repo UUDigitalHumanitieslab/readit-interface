@@ -1,16 +1,14 @@
-import { noop, each, includes, zipObject } from 'lodash';
-import { ModelSetOptions } from 'backbone';
+import { noop, each, includes } from 'lodash';
 
 import Model from '../core/model';
+import { rdf, dcterms, oa, readit, item } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
-import { rdf, dcterms, oa, vocab, readit, item } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import {
     getLabel,
     getCssClassName,
     isBlank,
 } from '../utilities/linked-data-utilities';
-import fastTimeout from '../core/fastTimeout';
 
 /**
  * Flag bitmasks for tracking completion of a flat annotation. For a quick
@@ -19,21 +17,27 @@ import fastTimeout from '../core/fastTimeout';
  * In addition, you may want to review JavaScript's bitwise operators:
  * https://developer.mozilla.org/nl/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators
  */
-const F_ID       = 1;
-const F_CSSCLASS = 1 << 1;
+const F_ID       = 1 << 0;
+const F_CLASS    = 1 << 1;
 const F_LABEL    = 1 << 2;
 const F_SOURCE   = 1 << 3;
-const F_POS      = 1 << 4;
-const F_TEXT     = 1 << 5;
-const F_COMPLETE = F_ID | F_CSSCLASS | F_LABEL | F_SOURCE | F_POS | F_TEXT;
+const F_STARTPOS = 1 << 4;
+const F_ENDPOS   = 1 << 5;
+const F_POS      = F_STARTPOS | F_ENDPOS;
+const F_TEXT     = 1 << 6;
+const F_TARGET   = F_SOURCE | F_POS | F_TEXT;
+const F_COMPLETE = F_ID | F_CLASS | F_LABEL | F_TARGET;
 
-/**
- * The following constants are used in `updateBodies`.
- */
-const bodyAttributes = zipObject([
-    'class', 'classLabel', 'cssClass', 'item', 'label'
-]);  // { class: undefined, classLabel: undefined, ... }
-const unsetFlag = {unset: true} as ModelSetOptions; // TODO: fix @types/backbone
+// Which flag is completed for each given mapped flat attribute.
+const flagMapping = {
+    id: F_ID,
+    cssClass: F_CLASS,
+    label: F_LABEL,
+    source: F_SOURCE,
+    startPosition: F_STARTPOS,
+    endPosition: F_ENDPOS,
+    text: F_TEXT,
+};
 
 /**
  * Adapter that transforms a `Node` representing an `oa.Annotation`s into a
@@ -85,7 +89,7 @@ export default class FlatItem extends Model {
         return this._completionFlags === F_COMPLETE;
     }
 
-    // Private method for updating the completion bitfield.
+    // Private methods for updating the completion bitfield.
     _setCompletionFlag(flag: number): void {
         this._completionFlags |= flag;
         if (this.complete) {
@@ -93,7 +97,11 @@ export default class FlatItem extends Model {
             // After this, we never need to check the flags or trigger the
             // `'complete'` event again.
             this._setCompletionFlag = noop;
+            this._unsetCompletionFlag = noop;
         }
+    }
+    _unsetCompletionFlag(flag: number): void {
+        this._completionFlags &= ~flag;
     }
 
     /**
@@ -102,56 +110,114 @@ export default class FlatItem extends Model {
      * must be an instance of `oa.Annotation`.
      */
     constructor(node: Node, options?: any) {
-        super({ id: node.id }, options);
+        super({}, options);
         this.underlying = node;
+        // Track terminal completion.
         this._completionFlags = 0;
+        each(flagMapping, (flag, attribute) => this.once(
+            `change:${attribute}`,
+            () => this._setCompletionFlag(flag)
+        ));
+        // Track intermediate nodes.
+        this.on('change:annotation', this.updateAnnotation);
+        this.on('change:class', this.updateClass);
+        this.on('change:item', this.updateItem);
+        this.on('change:target', this.updateTarget);
+        this.on('change:positionSelector', this.updatePosition);
+        this.on('change:quoteSelector', this.updateText);
+        // Track changes in the top node.
+        this.trackProperty(node, '@id', 'id');
+        this.trackProperty(node, dcterms.creator, 'creator');
+        this.trackProperty(node, dcterms.created, 'created');
         node.when('@type', this.receiveTopNode, this);
-        this.listenTo(node, 'change', this.updateMeta).updateMeta(node);
+    }
+
+    /**
+     * Common update handling for (nested) properties for which we expect only
+     * a single literal value.
+     */
+    trackProperty(source: Node, sourceAttr: string, targetAttr: string): this {
+        source.whenever(
+            sourceAttr,
+            () => this.setOptionalFirst(source, sourceAttr, targetAttr),
+            this
+        );
+        return this;
     }
 
     setOptionalFirst(source: Node, sourceAttr: string, targetAttr: string): this {
         const value = source.get(sourceAttr);
-        if (value) this.set(targetAttr, value[0]);
+        if (value) {
+            this.set(targetAttr, sourceAttr === '@id' ? value : value[0]);
+        }
         return this;
     }
 
     /**
-     * Keep meta attributes in sync with the top node. Triggers repeatedly.
-     */
-    updateMeta(node: Node) {
-        this.set('id', node.id);
-        this.setOptionalFirst(node, dcterms.creator, 'creator');
-        this.setOptionalFirst(node, dcterms.created, 'created');
-    }
-
-    /**
-     * Invoked once when this.underlying is more than just a placeholder.
+     * Invoked once when this.underlying has an `@type`.
      */
     receiveTopNode(node: Node): void {
-        this._setCompletionFlag(F_ID);
-        let missing;
+        // Below, each branch marks particular flags as completed in advance. We
+        // do this because we don't expect the corresponding attributes to be
+        // fulfilled, given the type of the top node.
         if (node.has('@type', oa.Annotation)) {
-            this.receiveAnnotation(node);
+            this.set('annotation', node);
+            // Initially assume an annotation without bodies.
+            this._setCompletionFlag(F_CLASS | F_LABEL);
         } else if (node.has('@type', oa.SpecificResource)) {
-            this.receiveTarget(node);
-            this._setCompletionFlag(F_CSSCLASS | F_LABEL);
-        } else if (missing = this.receiveSelector(node)) {
-            this._setCompletionFlag(missing | F_CSSCLASS | F_LABEL | F_SOURCE);
+            this.set('target', node);
+            this._setCompletionFlag(F_COMPLETE ^ F_TARGET);
+        } else if (node.has('@type', oa.TextPositionSelector)) {
+            this.set('positionSelector', node);
+            this._setCompletionFlag(F_COMPLETE ^ F_POS);
+        } else if (node.has('@type', oa.TextQuoteSelector)) {
+            this.set('quoteSelector', node);
+            this._setCompletionFlag(F_COMPLETE ^ F_TEXT);
+        } else if (node.id.startsWith(readit())) {
+            this.set('class', node);
+            this._setCompletionFlag(F_COMPLETE ^ F_CLASS);
         } else {
-            this._setCompletionFlag(this.receiveBody(node));
-            this._setCompletionFlag(F_SOURCE | F_POS | F_TEXT);
+            this.set('item', node);
+            // Bare item, retrieve the class through the item.
+            node.when('@type', this.receiveItemClass, this);
+            this._setCompletionFlag(F_TARGET);
         }
     }
 
     /**
-     * Invoked once when the annotation is more than just a placeholder.
+     * Special case for obtaining the class when `this.underlying` is a bare
+     * item.
      */
-    receiveAnnotation(annotation: Node): void {
-        this.set({ annotation });
-        this.updateBodies(annotation);
-        this.listenTo(annotation, `change:${oa.hasBody}`, this.updateBodies);
-        const target = annotation.get(oa.hasTarget)[0] as Node;
-        target.when(oa.hasSelector, this.receiveTarget, this);
+    receiveItemClass(itemBody: Node, [ontoUri]: string[]): void {
+        this.set('class', ldChannel.request('obtain', ontoUri));
+    }
+
+    /**
+     * Standard update logic when one of the intermediate nodes changes.
+     */
+    rotateNode(
+        attribute: string, dependents: string[],
+        newNode: Node, unsetFlags: number
+    ): this {
+        const oldNode = this.previous(attribute);
+        if (oldNode) this.stopListening(oldNode);
+        if (newNode) {
+            this._unsetCompletionFlag(unsetFlags);
+        } else {
+            each(dependents, this.unset.bind(this));
+        }
+        return this;
+    }
+
+    /**
+     * Invoked when the `annotation` attribute changes.
+     */
+    updateAnnotation(flat: this, annotation: Node): void {
+        this.rotateNode('annotation', ['class','item','target'], annotation, 0);
+        if (annotation) {
+            annotation.whenever(oa.hasBody, this.updateBodies, this);
+            this.trackProperty(annotation, oa.hasTarget, 'target');
+        }
     }
 
     /**
@@ -159,128 +225,124 @@ export default class FlatItem extends Model {
      */
     updateBodies(annotation: Node): void {
         const bodies = annotation.get(oa.hasBody) as Node[];
-        // The body attributes might no longer be valid, so we unset them.
-        this.set(bodyAttributes, unsetFlag);
-        // If they were still valid, they will be reset by the next line.
-        each(bodies, body => body.when('@type', this.receiveBody, this));
-        // An annotation can be complete without an item or even a class.
-        if (bodies) {
-            if (bodies.length < 2) this._setCompletionFlag(F_LABEL);
-            if (bodies.length < 1) this._setCompletionFlag(F_CSSCLASS);
-        } else {
-            this._setCompletionFlag(F_LABEL | F_CSSCLASS);
-        }
+        if (!includes(bodies, this.get('class'))) this.unset('class');
+        if (!includes(bodies, this.get('item'))) this.unset('item');
+        each(bodies, this.processBody.bind(this));
     }
 
     /**
-     * Invoked once for each oa.hasBody when it is more than just a placeholder.
-     * Returns the body bit flag that was *not* completed.
+     * Invoked once for each new oa.hasBody.
      */
-    receiveBody(body: Node): number {
-        if (isBlank(body)) return this.receiveItem(body);
+    processBody(body: Node) {
+        if (isBlank(body)) return this.set('item', body);
         const id = body.id;
-        if (id.startsWith(item())) return this.receiveItem(body);
+        if (id.startsWith(item())) return this.set('item', body);
         // We can add another line like the above to add support for
         // preannotations.
-        this.receiveClass(body);
+        if (id.startsWith(readit())) return this.set('class', body);
     }
 
     /**
-     * Invoked once when the class body is more than just a placeholder.
+     * Invoked when the `class` attribute changes.
      */
-    receiveClass(body: Node): number {
-        this.set({
-            class: body,
-            classLabel: getLabel(body),
-            cssClass: getCssClassName(body),
-        });
-        this._setCompletionFlag(F_CSSCLASS);
-        return F_LABEL;
-    }
-
-    /**
-     * Invoked once when the item body is more than just a placeholder.
-     */
-    receiveItem(body: Node): number {
-        if (!this.has('annotation')) {
-            // Bare item, so there is no containing annotation that has both a
-            // class and an item as bodies. Fetch the class through the item
-            // instead.
-            const ontoUri = body.get('@type')[0] as string;
-            const ontoClass = ldChannel.request('obtain', ontoUri) as Node;
-            ontoClass.when('@type', this.receiveClass, this);
+    updateClass(flat: this, classBody: Node): void {
+        this.rotateNode('class', ['classLabel','cssClass'], classBody, F_CLASS);
+        if (classBody) {
+            this.listenTo(classBody, 'change', this.updateClassLabels);
+            this.updateClassLabels(classBody);
         }
-        this.set({
-            item: body,
-            label: getLabel(body),
-        });
-        this._setCompletionFlag(F_LABEL);
-        return 0;
     }
 
     /**
-     * Invoked once when the target is more than just a placeholder.
+     * Invoked when the attributes of the `class` change.
      */
-    receiveTarget(target: Node): void {
-        this.set('target', target);
-        const sources = target.get(oa.hasSource);
-        if (sources && sources.length) {
-            this.set('source', sources[0]);
-            this._setCompletionFlag(F_SOURCE);
+    updateClassLabels(classBody: Node): void {
+        this.set({
+            classLabel: getLabel(classBody),
+            cssClass: getCssClassName(classBody),
+        });
+    }
+
+    /**
+     * Invoked when the `item` attribute changes.
+     */
+    updateItem(flat: this, itemBody: Node): void {
+        this.rotateNode('item', ['label'], itemBody, F_LABEL);
+        if (itemBody) {
+            this.listenTo(itemBody, 'change', this.updateItemLabel);
+            this.updateItemLabel(itemBody);
         }
+    }
+
+    /**
+     * Invoked when the attributes of the `item` change.
+     */
+    updateItemLabel(itemBody: Node): void {
+        this.set({ label: getLabel(itemBody) });
+    }
+
+    /**
+     * Invoked when the `target` attributes changes.
+     */
+    updateTarget(flat: this, target: Node): void {
+        this.rotateNode('target', [
+            'source', 'positionSelector', 'quoteSelector',
+        ], target, F_TARGET);
+        if (target) {
+            this.trackProperty(target, oa.hasSource, 'source');
+            target.whenever(oa.hasSelector, this.updateSelectors, this);
+        }
+    }
+
+    /**
+     * Invoked every time oa.hasSelector changes.
+     */
+    updateSelectors(target: Node): void {
         const selectors = target.get(oa.hasSelector) as Node[];
+        each(['positionSelector', 'quoteSelector'], attr => {
+            if (!includes(selectors, this.get(attr))) this.unset(attr);
+        });
         each(selectors, selector => selector.when(
-            '@type',
-            this.receiveSelector,
-            this
+            '@type', this.processSelector, this
         ));
     }
 
     /**
      * Invoked once for each oa.hasSelector when it is more than just a
      * placeholder.
-     * Returns the selector bit flag that was *not* completed.
      */
-    receiveSelector(selector: Node): number {
-        const type = selector.get('@type') as string[];
-        if (includes(type, oa.TextPositionSelector)) {
-            return this.receivePosition(selector);
-        }
-        if (includes(type, oa.TextQuoteSelector)) {
-            return this.receiveText(selector);
+    processSelector(selector: Node): void {
+        if (selector.has('@type', oa.TextPositionSelector)) {
+            this.set('positionSelector', selector);
+        } else {
+            this.set('quoteSelector', selector);
         }
     }
 
     /**
-     * Invoked once when the TextPositionSelector is more than just a
-     * placeholder.
+     * Invoked once when the `positionSelector` attributes changes.
      */
-    receivePosition(selector: Node): number {
-        const start = selector.get(oa.start);
-        const end = selector.get(oa.end);
-        if (start && start.length && end && end.length) {
-            this.set({
-                startPosition: start[0],
-                endPosition: end[0],
-                positionSelector: selector,
-            });
-            this._setCompletionFlag(F_POS);
+    updatePosition(flat: this, selector: Node): void {
+        this.rotateNode('positionSelector', [
+            'startPosition', 'endPosition',
+        ], selector, F_POS);
+        if (selector) {
+            this.trackProperty(selector, oa.start, 'startPosition');
+            this.trackProperty(selector, oa.end, 'endPosition');
         }
-        return F_TEXT;
     }
 
     /**
-     * Invoked once when the TextQuoteSelector is more than just a placeholder.
+     * Invoked once when the `quoteSelector` attribute changes.
      */
-    receiveText(selector: Node): number {
-        this.set('quoteSelector', selector);
-        this.setOptionalFirst(selector, oa.prefix, 'prefix');
-        this.setOptionalFirst(selector, oa.suffix, 'suffix');
-        const text = selector.get(oa.exact);
-        if (text && text.length) {
-            this.set({ text: text[0] });
-            this._setCompletionFlag(F_TEXT);
+    updateText(flat: this, selector: Node): void {
+        this.rotateNode('quoteSelector', [
+            'prefix', 'suffix', 'text',
+        ], selector, F_TEXT);
+        if (selector) {
+            this.trackProperty(selector, oa.prefix, 'prefix');
+            this.trackProperty(selector, oa.suffix, 'suffix');
+            this.trackProperty(selector, oa.exact, 'text');
         }
-        return F_POS;
     }
 }
