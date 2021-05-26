@@ -50,4 +50,5 @@ def test_highlight_body(es_client, es_index_name):
 
 
 def test_irisa_token():
-    assert settings.IRISA_TOKEN
+    """ This test is expected to fail with default settings """
+    assert settings.IRISA_TOKEN != None

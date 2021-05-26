@@ -17,5 +17,11 @@ def test_replace_bnodes(sourcegraphdb):
     g.parse(data=test_output, format='turtle')
     new_graph = replace_bnodes(g)
     assert len(list(g.subjects())) == len(list(new_graph.subjects()))
+
+
+def test_replace_namespace(sourcegraphdb):
+    g = Graph()
+    g.parse(data=test_output, format="turtle")
+    new_graph = replace_prefix(g, nlp_reference, TEST_NS)
     assert not new_graph.value(
         predicate=OA.hasBody, object=URIRef(nlp_reference))
