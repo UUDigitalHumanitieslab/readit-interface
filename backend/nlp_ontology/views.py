@@ -1,7 +1,3 @@
-from rdflib import Graph
-
-from django.conf import settings
-
 from rdf.views import RDFView
 from .graph import graph
 
