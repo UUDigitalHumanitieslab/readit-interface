@@ -2,7 +2,7 @@ import pytest
 from items import namespace as item
 from rdf.ns import FOAF, SCHEMA
 from rdf.utils import graph_from_triples
-from rdflib import Graph, Literal
+from rdflib import Literal
 from sparql.conftest import sparql_client, sparql_user
 
 from . import namespace as my
