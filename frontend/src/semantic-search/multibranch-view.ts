@@ -27,7 +27,7 @@ export default class Multibranch extends CollectionView {
 
     addRow(): this {
         this.collection.push(
-            { precedent: this.model.get('precedent') } as unknown as Model
+            this.model.pick(['precedent', 'range']) as unknown as Model
         );
         return this;
     }

@@ -15,7 +15,7 @@ export default class Chain extends CollectionView {
         let collection = this.collection || this.model.get('chain');
         if (!collection) {
             collection = new Collection([
-                { precedent: this.model.get('precedent') } as unknown as Model,
+                this.model.pick(['precedent', 'range']) as unknown as Model,
             ]);
         }
         this.model.set('chain', this.collection = collection);
@@ -40,12 +40,13 @@ export default class Chain extends CollectionView {
         if (!selection) return;
         const [scheme, action] = selection.id.split(':');
         const precedent = model.get('precedent');
+        const range = model.get('range');
         const newModel = new Model();
         switch (scheme) {
         case 'filter':
             newModel.set('filter', selection);
         case 'logic':
-            newModel.set({ precedent, scheme, action });
+            newModel.set({ precedent, range, scheme, action });
             break;
         default:
             newModel.set('precedent', selection);

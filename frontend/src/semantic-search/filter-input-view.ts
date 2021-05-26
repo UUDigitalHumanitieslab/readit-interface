@@ -14,18 +14,17 @@ export default class FilterInput extends CompositeView {
 
     initialize(): void {
         this.subviews = [];
-        const { precedent, action } = this.model.attributes;
+        const { precedent, range, action } = this.model.attributes;
         if (action === 'isIRI' || action === 'isLiteral') {
             this.$el.hide();
             return;
         }
         let items;
         if (action === 'equals') {
-            let range = precedent.get(rdfs.range);
-            range = range ? range[0].id : precedent.id;
-            if (!range.startsWith(xsd())) {
+            const rangeId = range.first().id;
+            if (!rangeId.startsWith(xsd())) {
                 items = new ItemGraph();
-                items.sparqlQuery(filterInputQueryTemplate({ type: range }));
+                items.sparqlQuery(filterInputQueryTemplate({ type: rangeId }));
                 this.subviews.push(new Select2Picker({ collection: items }));
             }
         }
