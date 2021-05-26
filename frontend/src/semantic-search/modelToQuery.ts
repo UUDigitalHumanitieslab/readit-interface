@@ -50,7 +50,7 @@ export function serializeIri(iri: string, ns: nsTable): string {
     return short || `<${iri}>`;
 }
 
-function serializeLiteral(
+export function serializeLiteral(
     literal: string, datatype: string, ns: nsTable
 ): string {
     switch (datatype) {
@@ -66,7 +66,7 @@ function nextVariable(): string {
     return uniqueId('?x');
 }
 
-function serializePredicate(predicate: Node, ns: nsTable): string {
+export function serializePredicate(predicate: Node, ns: nsTable): string {
     const inverse = predicate.get(owl.inverseOf) as Node[];
     if (inverse && inverse.length) return `^${serializeIri(inverse[0].id, ns)}`;
     return serializeIri(predicate.id, ns);
@@ -84,7 +84,7 @@ function tagPattern(pattern: string): TaggedPattern {
     return { tag: 'pattern', pattern };
 }
 
-function serializeExpression(filter: Model, args: string[]): TaggedExpression {
+export function serializeExpression(filter: Model, args: string[]): TaggedExpression {
     const func = filter.get('function') || '';
     const op = filter.get('operator');
     const sep = op ? ` ${op} ` : ', ';
@@ -103,7 +103,7 @@ function joinTagged<K extends keyof Branches>(key: K) {
 const joinE = joinTagged('expression');
 const joinP = joinTagged('pattern');
 
-function combineAnd({ expression, pattern }: Branches): TaggedSyntax {
+export function combineAnd({ expression, pattern }: Branches): TaggedSyntax {
     const exp = expression ? `(${joinE(expression, ' && ')})` : '';
     const pat = pattern ? joinP(pattern, '') : '';
     if (exp) {
@@ -113,7 +113,7 @@ function combineAnd({ expression, pattern }: Branches): TaggedSyntax {
     return tagPattern(pat);
 }
 
-function combineOr({ expression, pattern }: Branches): TaggedSyntax {
+export function combineOr({ expression, pattern }: Branches): TaggedSyntax {
     if (expression) {
         const patExp = pattern ? map(pattern, patternAsExpression) : [];
         return tagExpression(`${joinE(expression.concat(patExp), ' || ')}`);
