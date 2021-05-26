@@ -67,25 +67,25 @@ const sourceDir = `src`,
         target: `es5`,
         lib: ['DOM', 'ES5', 'ES6', 'DOM.Iterable', 'ScriptHost'],
         resolveJsonModule: true,
-        paths: {configModuleName: indexConfig},
+        paths: { configModuleName: indexConfig },
         baseUrl: '.',
     },
     aliasOptions = {
-        aliases: {[configModuleName]: `./${indexConfig}`},
-        appliesTo: {excludeExtensions: ['.json']},
+        aliases: { [configModuleName]: `./${indexConfig}` },
+        appliesTo: { excludeExtensions: ['.json'] },
     },
     unittestBundleName = 'tests.js',
     unittestEntriesGlob = `${sourceDir}/**/*-test.ts`,
     reporterEntry = `${sourceDir}/terminalReporter.ts`,
     reporterBundleName = 'terminalReporter.js',
-    templateRenameOptions = {extname: '.ts'},
+    templateRenameOptions = { extname: '.ts' },
     templateSourceGlob = `${sourceDir}/**/*-template.hbs`,
     templateOutputGlob = `${sourceDir}/**/*-template${templateRenameOptions.extname}`,
     templateModuleType = 'es6',
     templateCacheName = 'templates',
     hbsModuleTail = 'dist/handlebars.runtime',
     hbsModule = `handlebars/${hbsModuleTail}`,
-    hbsKnownHelpers = {i18n: true, static: true},
+    hbsKnownHelpers = { i18n: true, static: true, startsWith: true },
     hbsGlobal = 'Handlebars',
     i18nModuleTail = 'dist/umd/i18next',
     i18nModule = `i18next/${i18nModuleTail}`,
@@ -96,7 +96,7 @@ const sourceDir = `src`,
     production = argv.production || false,
     proxyConfig = argv.proxy,
     serverRoot = argv.root,
-    ports = {frontend: 8080},
+    ports = { frontend: 8080 },
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
     unpkgPattern = 'https://unpkg.com/${package}@${version}',
     cdnjsBase = 'https://cdnjs.cloudflare.com/ajax/libs',
@@ -105,66 +105,68 @@ const sourceDir = `src`,
 // Libraries which are inserted through <script> tags rather than being bundled
 // by Browserify. They will be inserted in the order shown.
 const browserLibs: LibraryProps[] = [{
-        module: 'jquery',
-        browser: 'jquery/dist/jquery.min',
-        global: '$',
-        cdn: `${cdnjsPattern}/\${filenameMin}`,
-    }, {
-        module: 'lodash',
-        global: '_',
-        alias: ['underscore'],
-        cdn: `${jsdelivrPattern}/\${filenameMin}`,
-    }, {
-        module: 'backbone',
-        global: 'Backbone',
-        cdn: `${cdnjsBase}/backbone.js/\${version}/backbone-min.js`,
-    }, {
-        module: hbsModule,
-        global: hbsGlobal,
-        package: 'handlebars',
-        cdn: `${jsdelivrPattern}/${hbsModuleTail}.min.js`,
-    }, {
-        module: 'i18next',
-        browser: i18nModule,
-        global: 'i18next',
-        cdn: `${cdnjsPattern}/\${filenameMin}`,
-    }, {
-        module: 'jsonld',
-        browser: 'jsonld/dist/jsonld.min',
-        global: 'jsonld',
-        cdn: `${jsdelivrPattern}/dist/\${filenameMin}`,
-    }, {
-        module: 'jquery-validation',
-        browser: 'jquery-validation/dist/jquery.validate.min',
-        global: 'jquery-validation',
-        cdn: `${cdnjsBase}/jquery-validate/\${version}/jquery.validate.min.js`,
-    }, {
-        module: 'jquery-validation-addons',
-        package: 'jquery-validation',
-        browser: 'jquery-validation/dist/additional-methods.min',
-        global: 'jquery-validation-addons',
-        cdn: `${cdnjsBase}/jquery-validate/\${version}/additional-methods.min.js`,
-    }, {
-        module: 'bulma-accordion',
-        browser: 'bulma-accordion/dist/js/bulma-accordion.min',
-        global: 'bulmaAccordion',
-        cdn: `${jsdelivrPattern}/dist/js/\${filenameMin}`,
-    }, {
-        module: 'select2',
-        global: '$',
-        cdn: `${cdnjsPattern}/js/\${filenameMin}`,
-    }],
+    module: 'jquery',
+    browser: 'jquery/dist/jquery.min',
+    global: '$',
+    cdn: `${cdnjsPattern}/\${filenameMin}`,
+}, {
+    module: 'lodash',
+    global: '_',
+    alias: ['underscore'],
+    cdn: `${jsdelivrPattern}/\${filenameMin}`,
+}, {
+    module: 'backbone',
+    global: 'Backbone',
+    cdn: `${cdnjsBase}/backbone.js/\${version}/backbone-min.js`,
+}, {
+    module: hbsModule,
+    global: hbsGlobal,
+    package: 'handlebars',
+    cdn: `${jsdelivrPattern}/${hbsModuleTail}.min.js`,
+}, {
+    module: 'i18next',
+    browser: i18nModule,
+    global: 'i18next',
+    cdn: `${cdnjsPattern}/\${filenameMin}`,
+}, {
+    module: 'jsonld',
+    browser: 'jsonld/dist/jsonld.min',
+    global: 'jsonld',
+    cdn: `${jsdelivrPattern}/dist/\${filenameMin}`,
+}, {
+    module: 'jquery-validation',
+    browser: 'jquery-validation/dist/jquery.validate.min',
+    global: 'jquery-validation',
+    cdn: `${cdnjsBase}/jquery-validate/\${version}/jquery.validate.min.js`,
+}, {
+    module: 'jquery-validation-addons',
+    package: 'jquery-validation',
+    browser: 'jquery-validation/dist/additional-methods.min',
+    global: 'jquery-validation-addons',
+    cdn: `${cdnjsBase}/jquery-validate/\${version}/additional-methods.min.js`,
+}, {
+    module: 'bulma-accordion',
+    browser: 'bulma-accordion/dist/js/bulma-accordion.min',
+    global: 'bulmaAccordion',
+    cdn: `${jsdelivrPattern}/dist/js/\${filenameMin}`,
+}, {
+    module: 'select2',
+    global: '$',
+    cdn: `${cdnjsPattern}/js/\${filenameMin}`,
+}],
     browserLibsRootedPaths: string[] = [],
-    cdnizerConfig = {files: browserLibs.map(lib => {
-        let mod = lib.module,
-            browser = lib.browser || mod,
-            pkg = lib.package || mod;
-        return {
-            file: `/**/${browser}.*`,
-            package: pkg,
-            cdn: lib.cdn,
-        };
-    })};
+    cdnizerConfig = {
+        files: browserLibs.map(lib => {
+            let mod = lib.module,
+                browser = lib.browser || mod,
+                pkg = lib.package || mod;
+            return {
+                file: `/**/${browser}.*`,
+                package: pkg,
+                cdn: lib.cdn,
+            };
+        })
+    };
 
 browserLibs.forEach(lib => {
     let browser = lib.browser || lib.module;
@@ -219,7 +221,7 @@ const unittestUrl = configJSON.then(json => {
 });
 
 function decoratedBrowserify(options, constructor = browserify) {
-    return (function() {
+    return (function () {
         let bundler;
         return () => bundler || (bundler = constructor(options)
             .plugin(tsify, tsOptions)
@@ -229,7 +231,7 @@ function decoratedBrowserify(options, constructor = browserify) {
                 only: [problemLibsRegex],
             })
             .transform(aliasify, aliasOptions)
-            .transform(exposify, {global: true})
+            .transform(exposify, { global: true })
         );
     }());
 }
@@ -271,7 +273,7 @@ export function template() {
             },
         }))
         .pipe(plugins.defineModule(templateModuleType, {
-            require: {[hbsGlobal]: hbsModule},
+            require: { [hbsGlobal]: hbsModule },
         }))
         .pipe(plugins.rename(templateRenameOptions))
         .pipe(dest(sourceDir));
@@ -300,8 +302,8 @@ function jsUnittest() {
 
 export function terminalReporter() {
     return src(reporterEntry)
-        .pipe(plugins.changed(buildDir, {extension: '.js'}))
-        .pipe(through2.obj(function(chunk, enc, cb) {
+        .pipe(plugins.changed(buildDir, { extension: '.js' }))
+        .pipe(through2.obj(function (chunk, enc, cb) {
             reporterModules().bundle()
                 .on('error', reportBundleError)
                 .pipe(vinylStream(reporterBundleName))
@@ -320,7 +322,7 @@ export function style() {
     if (production) postcssPlugins.push(cssnano());
     return src(mainStylesheet)
         .pipe(ifNotProd(plugins.sourcemaps.init()))
-        .pipe(plugins.sass({includePaths: [nodeDir]}))
+        .pipe(plugins.sass({ includePaths: [nodeDir] }))
         .pipe(plugins.postcss(postcssPlugins))
         .pipe(plugins.rename(cssBundleName))
         .pipe(ifNotProd(plugins.sourcemaps.write('.')))
@@ -332,7 +334,7 @@ function renderHtml(template, targetDir, extraData) {
         json => src(template)
             .pipe(plugins.hb().data(json).data(extraData))
             .pipe(ifProd(plugins.cdnizer(cdnizerConfig)))
-            .pipe(plugins.rename({extname: '.html'}))
+            .pipe(plugins.rename({ extname: '.html' }))
             .pipe(dest(targetDir))
     ).then(
         pipe => pipe.on('data', resolve).on('error', reject),
@@ -349,7 +351,7 @@ export function index() {
     });
 };
 
-export const specRunner = (function() {
+export const specRunner = (function () {
     let runnerPromise;
 
     function specRunner() {
@@ -411,7 +413,7 @@ export function serve(done) {
     if (proxyConfig) {
         const proxyData = JSON.parse(readFileSync(proxyConfig, 'utf-8'));
         serverOptions.middleware = (connect, connectOptions) => proxyData.map(
-            ({context, options}) => proxy(context, options)
+            ({ context, options }) => proxy(context, options)
         );
     }
     plugins.connect.server(serverOptions);
@@ -436,13 +438,13 @@ function adoptName(originalTask, wrappedTask) {
 }
 
 function reload(inputTask) {
-    return adoptName(inputTask, function() {
+    return adoptName(inputTask, function () {
         return inputTask().pipe(plugins.connect.reload());
     });
 }
 
 function streamFromPromise(promise) {
-    const stream = new Readable({objectMode: true, read(){}});
+    const stream = new Readable({ objectMode: true, read() { } });
     promise.then(result => {
         stream.push(result);
         stream.push(null);
@@ -451,7 +453,7 @@ function streamFromPromise(promise) {
 }
 
 function reloadPr(inputTask) {
-    return adoptName(inputTask, function() {
+    return adoptName(inputTask, function () {
         return streamFromPromise(inputTask()).pipe(plugins.connect.reload());
     });
 }
