@@ -46,7 +46,7 @@ function selector(classNames: string[]): string {
 
 describe('CategoryToggleMixin', function () {
     beforeAll(function () {
-        this.ontology = new Graph(mockOntology);
+        this.ontology = new Graph(mockOntology.slice(0, 4));
         this.classes = compact(this.ontology.map(getCssClassName));
         expect(this.classes.length).toBeGreaterThan(1);
         this.styling = new CategoryStyling({ collection: this.ontology });

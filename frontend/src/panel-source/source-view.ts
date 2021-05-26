@@ -12,7 +12,7 @@ import ToggleMixin from '../category-colors/category-toggle-mixin';
 import SegmentCollection from '../highlight/text-segment-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 import explorerChannel from '../explorer/explorer-radio';
-import { announceRoute } from '../explorer/utilities';
+import { announceRoute, report404 } from '../explorer/utilities';
 
 import HighlightableTextView from './highlightable-text-view';
 import SourceToolbarView from '../toolbar/toolbar-view';
@@ -102,6 +102,7 @@ class SourcePanel extends CompositeView {
         // Trigger #3. Might be sync or async.
         this.model.when('@type', this.processText, this);
 
+        this.listenToOnce(this.model, 'error', report404);
         this.metaView.on('metadata:hide', this.hideMetadata, this);
         this.metaView.on('metadata:edit', this.editMetadata, this);
         this.listenTo(this.toolbarModel, 'change:metadata', this.toggleMetadata);
