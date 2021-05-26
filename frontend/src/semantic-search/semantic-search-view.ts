@@ -5,6 +5,7 @@ import { CompositeView } from '../core/view';
 import Multifield from '../forms/multifield-view';
 
 import semChannel from './radio';
+import modelToQuery from './modelToQuery';
 import Chain from './chain-view';
 import Multibranch from './multibranch-view';
 import semTemplate from './semantic-search-template';
@@ -38,7 +39,7 @@ export default class SemanticSearchView extends CompositeView {
 
     onSubmit(event): void {
         event.preventDefault();
-        console.debug(JSON.stringify(this.model, null, 4));
+        console.debug(modelToQuery(this.model));
     }
 }
 
