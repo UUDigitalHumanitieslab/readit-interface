@@ -3,16 +3,16 @@ import { extend, map, after, bind } from 'lodash';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
-import ldChannel from '../jsonld/radio';
-import Graph from '../jsonld/graph';
-import Node from '../jsonld/node';
-import explorerChannel from '../explorer/radio';
+import ldChannel from '../common-rdf/radio';
+import Graph from '../common-rdf/graph';
+import Node from '../common-rdf/node';
+import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
-import { getLabel } from '../utilities/utilities';
+import { getLabel, getLabelFromId } from '../utilities/linked-data-utilities';
+import { applicablePredicates, relationsFromModel } from '../utilities/relation-utilities';
 
 import relatedItemsTemplate from './related-items-template';
 import RelatedItemsRelationView from './related-items-relation-view';
-import { applicablePredicates, relationsFromModel } from './relation-utilities';
 
 const announce = announceRoute('item:related', ['model', 'id']);
 const getPredicateId = r => r.get('predicate').id;
@@ -27,6 +27,7 @@ export interface ViewOptions extends BaseOpt {
 export default class RelatedItemsView extends CollectionView {
     model: Node;
     predicates: Graph;
+    itemSerial: string;
 
     constructor(options?: ViewOptions) {
         super(options);
@@ -71,6 +72,7 @@ export default class RelatedItemsView extends CollectionView {
     }
 
     renderContainer(): this {
+        this.itemSerial = getLabelFromId(this.model.id);
         this.$el.html(this.template(this));
         return this;
     }

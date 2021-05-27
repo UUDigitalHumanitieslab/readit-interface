@@ -1,4 +1,4 @@
-import UserFsm from '../user/user-fsm';
+import UserFsm from '../common-user/user-fsm';
 
 export default new UserFsm({
     // Deep-extend. Includes all states and transitions from UserFsm.

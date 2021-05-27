@@ -16,7 +16,7 @@ QUERY_PATTERN = '/{}?'.format(ITEMS_ROUTE) + '{}'
 
 def test_is_unreserved():
     assert     is_unreserved((None, SCHEMA.CreativeWork, None))
-    assert     is_unreserved((None, SCHEMA.creator, None))
+    assert     is_unreserved((None, SCHEMA.author, None))
     assert     is_unreserved((None, SCHEMA.datePublished, None))
     assert     is_unreserved((None, SCHEMA.name, None))
     assert     is_unreserved((None, OA.Annotation, None))
@@ -155,3 +155,24 @@ def test_select_items_by_creator(auth_client, itemgraph_db):
     # empty set, expeted one result. Perhaps shouldn't put users as Literal?
     # ultimately, want to test len(query_result)==1
     assert len(query_result)==0
+
+
+def test_blanknodes_post(auth_client, sparqlstore):
+    triple = (BNode(), RDF.type, BNode())
+    input_graph = Graph()
+    input_graph.add(triple)
+    response, output_graph = submit_data(auth_client, input_graph, 'post')
+
+    assert response.status_code == 400
+    assert (None, None, Literal(BLANK_OBJECT_PREDICATE_400)) in output_graph
+
+
+def test_blanknodes_put(auth_client, sparqlstore):
+    g = graph()
+    g.add((ITEM['42'], RDF.type, Literal("Icecream")))
+
+    override = Graph()
+    override.add((ITEM['42'], RDF.type, BNode()))
+    response, output_graph = submit_data(auth_client, override, 'put', 42)
+    assert response.status_code == 400
+    assert (None, None, Literal(BLANK_OBJECT_PREDICATE_400)) in output_graph

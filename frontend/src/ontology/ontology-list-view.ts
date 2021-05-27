@@ -1,35 +1,23 @@
 import { extend } from 'lodash';
 
 import { CollectionView } from '../core/view';
-import Node from '../jsonld/node';
 import OntologyItemView from './ontology-item-view';
-import ontologyListTemplate from './ontology-list-template';
+import FlatItem from '../common-adapters/flat-item-model';
+import FlatItemCollection from '../common-adapters/flat-item-collection';
 
-export default class OntologyListView extends CollectionView<Node, OntologyItemView> {
+export default class OntologyListView extends CollectionView<FlatItem, OntologyItemView> {
+    collection: FlatItemCollection;
+    
     initialize(): void {
         this.initItems().render().initCollectionEvents();
-        this.listenTo(this.collection, {
-            focus: this.categoryFocus
-        });
     }
 
-    makeItem(model: Node): OntologyItemView {
-        const label = new OntologyItemView({ model, tagName:'div', className: 'tag category-view'}).render();
+    makeItem(model: FlatItem): OntologyItemView {
+        const label = new OntologyItemView({ model, tagName:'div', className: 'tag category-view'});
         return label;
-    }
-
-    renderContainer(): this {
-        this.$el.html(this.template(this));
-        return this;
-    }
-
-    categoryFocus(label: OntologyItemView, category: Node): void {
-        this.trigger('category:clicked', label, category);
     }
 }
 extend(OntologyListView.prototype, {
     className: 'ontology-list',
-    template: ontologyListTemplate,
-    container: '.categories',
 })
    

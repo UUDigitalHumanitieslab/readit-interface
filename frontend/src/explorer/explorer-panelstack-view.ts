@@ -2,7 +2,7 @@ import { extend } from 'lodash';
 import { ViewOptions as BaseOpt } from 'backbone';
 
 import View from './../core/view';
-import Node from './../jsonld/node';
+import Node from './../common-rdf/node';
 
 
 export interface ViewOptions extends BaseOpt<Node> {
@@ -26,7 +26,7 @@ export default class PanelStackView extends View {
     pop(): View {
         let wasLastPanel = this.hasOnlyOnePanel();
         let poppedPanel = this.panels.pop().remove() as View;
-        if (wasLastPanel) this.$el.remove();
+        if (wasLastPanel) this.remove();
         else this.getTopPanel().$el.appendTo(this.$el);
         return poppedPanel;
     }

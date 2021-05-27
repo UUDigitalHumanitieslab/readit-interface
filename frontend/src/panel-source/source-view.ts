@@ -2,21 +2,20 @@ import { after, once, extend } from 'lodash';
 import { ViewOptions as BaseOpt, $ } from 'backbone';
 import { SubViewDescription } from 'backbone-fractal/dist/composite-view';
 
-import Model from './../core/model';
-import { CompositeView } from './../core/view';
-import { schema, vocab } from './../jsonld/ns';
-import Node from './../jsonld/node';
-import FlatItem from '../annotation/flat-item-model';
-import FlatCollection from '../annotation/flat-annotation-collection';
-import ToggleMixin from '../utilities/category-colors/category-toggle-mixin';
+import Model from '../core/model';
+import { CompositeView } from '../core/view';
+import { schema, vocab } from '../common-rdf/ns';
+import Node from '../common-rdf/node';
+import FlatItem from '../common-adapters/flat-item-model';
+import FlatCollection from '../common-adapters/flat-annotation-collection';
+import ToggleMixin from '../category-colors/category-toggle-mixin';
 import SegmentCollection from '../highlight/text-segment-collection';
-import { isType } from './../utilities/utilities';
-import { AnnotationPositionDetails } from '../utilities/annotation/annotation-utilities';
-import explorerChannel from '../explorer/radio';
-import { announceRoute } from '../explorer/utilities';
+import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
+import explorerChannel from '../explorer/explorer-radio';
+import { announceRoute, report404 } from '../explorer/utilities';
 
 import HighlightableTextView from './highlightable-text-view';
-import SourceToolbarView from './toolbar/source-toolbar-view';
+import SourceToolbarView from '../toolbar/toolbar-view';
 import MetadataView from './source-metadata-view';
 import sourceTemplate from './source-template';
 
@@ -59,25 +58,12 @@ class SourcePanel extends CompositeView {
 
     metaView: MetadataView;
 
-    /**
-     * Keep track of visiblility of the highlights;
-     */
-    isShowingHighlights: boolean;
-
-    // Keep track of visiblility of the metadata.
-    isShowingMetadata: boolean;
-
     // Keep track of visiblility of the view mode.
     isInFullScreenViewMode: boolean;
 
-    // Highlight clicking mode allows the user to click highlights and see their
-    // details. If this is false, we're in highlight text selection mode, which
-    // allows users to select text in highlights. Defaults to false, i.e. text
-    // selection mode.
-    isInHighlightClickingMode: boolean;
-
     toolbar: SourceToolbarView;
     sourceContainer: any;
+    toolbarModel: Model;
 
     // Method that is repeatedly invoked to track whether we can already safely
     // render highlights. Dynamically generated inside the constructor.
@@ -86,18 +72,18 @@ class SourcePanel extends CompositeView {
     constructor(options?: ViewOptions) {
         super(options);
         this.validate();
-
-        this.toolbar = new SourceToolbarView().render();
+        this.toolbarModel = new Model({
+            metadata: false,
+            annotations: options.showHighlightsInitially || false
+        });
+        this.toolbar = new SourceToolbarView({ model: this.toolbarModel }).render();
         this.isEditable = options.isEditable || false;
-        this.isShowingHighlights = options.showHighlightsInitially || false;
         this.metaView = new MetadataView({
             model: this.model
         });
         this.render();
 
-        if (this.isShowingHighlights) {
-            this.toggleToolbarItemSelected('annotations');
-        } else {
+        if (!options.showHighlightsInitially) {
             this.hideHighlights();
         }
 
@@ -116,8 +102,11 @@ class SourcePanel extends CompositeView {
         // Trigger #3. Might be sync or async.
         this.model.when('@type', this.processText, this);
 
-        this.metaView.on('metadata:hide', this.toggleMetadata, this);
+        this.listenToOnce(this.model, 'error', report404);
+        this.metaView.on('metadata:hide', this.hideMetadata, this);
         this.metaView.on('metadata:edit', this.editMetadata, this);
+        this.listenTo(this.toolbarModel, 'change:metadata', this.toggleMetadata);
+        this.listenTo(this.toolbarModel, 'change:annotations', this.toggleHighlights);
         this.on('announceRoute', announce);
     }
 
@@ -129,10 +118,9 @@ class SourcePanel extends CompositeView {
             // Traversing the JSON serialization, instead of a regular
             // `model.get`, because the URI dereferences to plain text instead
             // of a RDF-formatted resource and this would trip up the
-            // `Store.obtain()` call. TODO: replace this with a nicer API,
-            // perhaps `model.getRaw()`.
+            // `Store.obtain()` call.
             $.get(
-                this.model.toJSON()[vocab('fullText')][0]['@id'] as string
+                this.model.getRaw(vocab('fullText'))[0]['@id'] as string
             ).then(this._createHtv.bind(this));
         }
         return this;
@@ -153,7 +141,6 @@ class SourcePanel extends CompositeView {
             collection: new SegmentCollection(this.collection),
             isEditable: this.isEditable
         }).on('textSelected', this.onTextSelected, this);
-        this.bindToToolbarEvents(this.toolbar);
         this.render()._triggerHighlighting();
     }
 
@@ -203,45 +190,11 @@ class SourcePanel extends CompositeView {
         return this;
     }
 
-    // TODO: share information between the panel and the toolbar using a model
-    // and move all responsibility for the appearance and behaviour of the
-    // toolbar to the toolbar.
-    bindToToolbarEvents(toolbar: SourceToolbarView): SourceToolbarView {
-        this.listenTo(toolbar, 'highlightClickingMode', this.htv.disablePointerEvents);
-        this.listenTo(toolbar, 'highlightTextSelectionMode', this.htv.enablePointerEvents);
-        return toolbar;
-    }
-
     /**
      * Pass events from HighlightableTextView
      */
     onTextSelected(range: Range, posDetails: AnnotationPositionDetails): void {
         explorerChannel.trigger('sourceview:textSelected', this, this.model, range, posDetails);
-    }
-
-    /**
-     * Toggle highlights on and off.
-     */
-    toggleHighlights(): this {
-        if (this.isShowingHighlights) {
-            this.hideHighlights();
-            explorerChannel.trigger('sourceview:hideAnnotations', this);
-        }
-        else {
-            this.showHighlights();
-            explorerChannel.trigger('sourceview:showAnnotations', this, true);
-        }
-        this.toggleToolbarItemSelected('annotations');
-        this.isShowingHighlights = !this.isShowingHighlights;
-        return this;
-    }
-
-    // TODO: share information between the panel and the toolbar using a model
-    // and move all responsibility for the appearance and behaviour of the
-    // toolbar to the toolbar.
-    toggleToolbarItemSelected(name: string): this {
-        this.$(`.toolbar-${name}`).toggleClass("is-active");
-        return this;
     }
 
     showHighlights(): this {
@@ -254,27 +207,39 @@ class SourcePanel extends CompositeView {
         return this;
     }
 
+    hideMetadata(): this {
+        this.toolbarModel.set('metadata', false);
+        return this;
+    }
+
     editMetadata(): this {
         // TO DO
         return this;
     }
 
     toggleMetadata(): this {
-        if (this.isShowingMetadata) {
-            this.metaView.$el.hide();
-            this.htv.$el.show();
-        } else {
+        if (this.toolbarModel.get('metadata')===true) {
             this.htv.$el.hide();
             this.metaView.$el.show();
+        } else {
+            this.metaView.$el.hide();
+            this.htv.$el.show();
         }
-        this.isShowingMetadata = !this.isShowingMetadata;
-        this.toggleToolbarItemSelected('metadata');
-
         return this;
     }
 
-    toggleHighlightMode(): this {
-        this.isInHighlightClickingMode = !this.isInHighlightClickingMode;
+    /**
+     * Toggle highlights on and off.
+     */
+    toggleHighlights(): this {
+        if (this.toolbarModel.get('annotations') === true) {
+            this.showHighlights();
+            explorerChannel.trigger('sourceview:showAnnotations', this, true);
+        }
+        else {
+            this.hideHighlights();
+            explorerChannel.trigger('sourceview:hideAnnotations', this);
+        }
         return this;
     }
 
@@ -288,8 +253,4 @@ export default SourcePanel;
 extend(SourcePanel.prototype, ToggleMixin.prototype, {
     className: 'source explorer-panel',
     template: sourceTemplate,
-    events: {
-        'click .toolbar-metadata': 'toggleMetadata',
-        'click .toolbar-annotations': 'toggleHighlights',
-    }
 });

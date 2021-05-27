@@ -4,7 +4,7 @@ import html
 import functools
 import operator
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.files.storage import default_storage
 from django.conf import settings
 from django.contrib.admin.utils import flatten
@@ -28,6 +28,7 @@ from vocab import namespace as vocab
 from staff.utils import submission_info
 from items.constants import ITEMS_NS
 from items.graph import graph as items_graph
+from sparql.utils import invalid_xml_remove
 from . import namespace as ns
 from .constants import SOURCES_NS
 from .graph import graph as sources_graph
@@ -36,6 +37,10 @@ from .models import SourcesCounter
 from .permissions import UploadSourcePermission, DeleteSourcePermission
 
 es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
+
+import logging
+# Get sources logger for logging on server
+logger = logging.getLogger(__name__)
 
 SELECT_SOURCES_QUERY_START = '''
 CONSTRUCT {
@@ -146,17 +151,12 @@ class SourceSelection(RDFView):
     ''' list all sources related to a search query. '''
 
     def get_graph(self, request, **kwargs):
-        query_string = request.GET.get('query')
-        fields = request.GET.get('queryfields')
-        if query_string == '':
-            clause = {"match_all": {}}
-        else:
-            es_query = {"query": query_string}
-            if fields != 'all':
-                es_query['fields'] = [fields]
-            clause = {"simple_query_string": es_query}
-        body = {"query": clause}
-        results = es.search(body=body, index=settings.ES_ALIASNAME)
+        body = construct_es_body(request)
+        from_value = 0
+        page = request.GET.get('page')
+        if page:
+            from_value = (int(page)-1) * settings.RESULTS_PER_PAGE
+        results = es.search(body=body, index=settings.ES_ALIASNAME, size=settings.RESULTS_PER_PAGE, from_=from_value)
         if results['hits']['total']['value'] == 0:
             return Graph()
         selected_sources = select_sources_elasticsearch(results)
@@ -172,6 +172,8 @@ class SourceHighlights(RDFView):
     '''
     def get_graph(self, request, **kwargs):
         query = request.GET.get('query')
+        if query == '':
+            query = '*'
         fields = request.GET.get('fields')
         source = request.GET.get('source')
         if not query or not source:
@@ -314,7 +316,9 @@ class AddSource(RDFResourceView):
     parser_classes = [MultiPartParser]
 
     def store(self, source_file, source_id, source_language, author, title):
-        text = html.escape(str(source_file.read().decode('utf8')))
+        raw_text = str(source_file.read().decode('utf8'))
+        xml_sanitized_text = invalid_xml_remove(raw_text)
+        text = html.escape(xml_sanitized_text)
         es.index(settings.ES_ALIASNAME, {
             'id': source_id,
             'language': source_language,
@@ -375,7 +379,6 @@ class AddSource(RDFResourceView):
             (new_subject, RDF.type, URIRef(self.resolve_type(data['type']))),
             (new_subject, SCHEMA.name, Literal(data['title'])),
             (new_subject, SCHEMA.author, Literal(data['author'])),
-            (new_subject, SCHEMA.creator, Literal(data['author'])),
             (new_subject, SCHEMA.inLanguage, URIRef(
                 self.resolve_language(data['language']))),
             (new_subject, SCHEMA.datePublished, Literal(
@@ -434,3 +437,24 @@ class AddSource(RDFResourceView):
         full_graph += result
 
         return Response(result, HTTP_201_CREATED)
+
+
+def construct_es_body(request):
+    query_string = request.GET.get('query')
+    fields = request.GET.get('fields')
+    if query_string == '':
+        clause = {"match_all": {}}
+    else:
+        es_query = {"query": query_string}
+        if fields != 'all':
+            es_query['fields'] = [fields]
+        clause = {"simple_query_string": es_query}
+    body = {"query": clause}
+    return body
+
+
+def get_number_search_results(request):
+    body = construct_es_body(request)
+    results = es.search(body=body, index=settings.ES_ALIASNAME, size=0)
+    response = {'total_results': results['hits']['total']['value'], 'results_per_page': settings.RESULTS_PER_PAGE}
+    return JsonResponse(response)
