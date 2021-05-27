@@ -8,6 +8,7 @@ import {
     getLabel,
     getCssClassName,
     isBlank,
+    isRdfsClass,
 } from '../utilities/linked-data-utilities';
 
 /**
@@ -173,7 +174,7 @@ export default class FlatItem extends Model {
         } else if (node.has('@type', oa.TextQuoteSelector)) {
             this.set('quoteSelector', node);
             this._setCompletionFlag(F_COMPLETE ^ F_TEXT);
-        } else if (node.id.startsWith(readit())) {
+        } else if (isRdfsClass(node)) {
             this.set('class', node);
             this._setCompletionFlag(F_COMPLETE ^ F_CLASS);
         } else {
@@ -239,7 +240,7 @@ export default class FlatItem extends Model {
         if (id.startsWith(item())) return this.set('item', body);
         // We can add another line like the above to add support for
         // preannotations.
-        if (id.startsWith(readit())) return this.set('class', body);
+        return this.set('class', body);
     }
 
     /**

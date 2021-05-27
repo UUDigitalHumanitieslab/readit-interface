@@ -32,7 +32,7 @@ import FilteredCollection from '../common-adapters/filtered-collection';
  */
 export function getOntologyClasses() {
     const ontology = ldChannel.request('ontology:graph') || new Graph();
-    return new FilteredCollection<Node, Graph>(ontology, isAnnotationCategory);
+    return new FilteredCollection<FlatItem>(ontology, isAnnotationCategory);
 }
 
 
@@ -92,7 +92,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     async getOntologyClasses() {
         // TODO: request only items of type rdfs:class via SPARQL
         const ontology = await ldChannel.request('ontology:promise');
-        this.ontologyClasses.set(ontology.models.filter( model => isRdfsClass(model)));
+        this.ontologyClasses.set(ontology.models.filter(model => isAnnotationCategory(model)));
         return ontology;
     }
 

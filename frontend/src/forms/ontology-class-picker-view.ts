@@ -2,6 +2,7 @@ import { extend } from 'lodash';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatItem from '../common-adapters/flat-item-model';
 import Graph from '../common-rdf/graph';
+import Node from '../common-rdf/node';
 import { vocab } from '../common-rdf/ns';
 import { CollectionView } from '../core/view';
 import LabelView from '../label/label-view';
@@ -26,7 +27,7 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
-    makeItem(model: Node): OntologyClassPickerItemView {
+    makeItem(model: FlatItem): OntologyClassPickerItemView {
         const level = this.isLeaf(model) ? 1 : 0;
         return new OntologyClassPickerItemView({ model, level }).on({
             click: level === 0 ? this.onSuperclassClick : this.onItemClicked,
@@ -35,12 +36,12 @@ export default class OntologyClassPickerView extends CollectionView<
         }, this);
     }
 
-    isLeaf(node) {
-        return node.has(vocab.hasPrefSuperClass);
+    isLeaf(node: FlatItem) {
+        return node.underlying.has(vocab.hasPrefSuperClass);
     }
 
     isNonLeaf(node) {
-        return !node.has(vocab.hasPrefSuperClass);
+        return !node.underlying.has(vocab.hasPrefSuperClass);
     }
 
     /**
@@ -48,7 +49,7 @@ export default class OntologyClassPickerView extends CollectionView<
      * @param collection
      */
     filterOntology(collection) {
-        this.leafNodes = new FilteredCollection(collection, this.isLeaf);
+        this.leafNodes = new FilteredCollection<FlatItem>(collection, this.isLeaf);
         this.collection = new FilteredCollection<FlatItem>(collection, this.isNonLeaf);
     }
 
@@ -119,8 +120,9 @@ export default class OntologyClassPickerView extends CollectionView<
 
     onSuperclassHovered(model: FlatItem) {
         this.leafNodes.forEach(node => {
-            const isDirectChild = (node.get(vocab.hasPrefSuperClass)[0] == model);
-            if (isDirectChild) {
+            const prefParent = node.underlying.get(vocab.hasPrefSuperClass)[0] as FlatItem;
+
+            if (prefParent.id == model.id) {
                 const modelIndex = this.collection.indexOf(model);
                 this.collection.add(node, { at: modelIndex + 1 });
             } else {
