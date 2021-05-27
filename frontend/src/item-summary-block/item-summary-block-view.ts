@@ -37,6 +37,7 @@ export default class ItemSummaryBlockView extends View {
         } else {
             this.listenToOnce(this.model, 'complete', this.render);
         }
+        this.listenTo(this.model, 'change:cssClass', this.updateClass);
     }
 
     _startListening(): void {
@@ -49,6 +50,11 @@ export default class ItemSummaryBlockView extends View {
 
     render(): this {
         this.$el.html(this.template(this.model.attributes));
+        this.updateClass();
+        return this;
+    }
+
+    updateClass(): this {
         let currentClass = this.model.get('cssClass');
         if (this.setClass != currentClass) {
             this.$el.removeClass(this.setClass);
