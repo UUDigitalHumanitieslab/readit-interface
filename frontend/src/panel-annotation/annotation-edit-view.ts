@@ -185,7 +185,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             const item = this.model.get('item');
             annotation.unset(oa.hasBody).set(oa.hasBody, [cls, item]);
         }
-        annotation.save({patch: true});
+        annotation.save({ patch: true });
         explorerChannel.trigger('annotationEditView:save', this, this.model, newItem);
     }
 
@@ -220,7 +220,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     changeClass(cls: FlatItem): void {
         const annotation = this.model.get('annotation');
         annotation.unset(oa.hasBody);
-        annotation.set(oa.hasBody, cls);
+        annotation.set(oa.hasBody, cls.underlying);
         this.selectClass(cls);
     }
 
@@ -245,7 +245,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             [skos.prefLabel]: '', // this prevents a failing getLabel
         });
         this.setItem(item);
-        this.itemEditor = new ItemEditor({model: new FlatItem(item)});
+        this.itemEditor = new ItemEditor({ model: new FlatItem(item) });
         this.$('.item-picker-container').after(this.itemEditor.el);
         return this;
     }
