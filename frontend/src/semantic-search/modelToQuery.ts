@@ -107,7 +107,7 @@ export function combineAnd({ expression, pattern }: Branches): TaggedSyntax {
     const exp = expression ? `(${joinE(expression, ' && ')})` : '';
     const pat = pattern ? joinP(pattern, '') : '';
     if (exp) {
-        if (pat) return tagExpression(`${pat}FILTER ${exp}\n`);
+        if (pat) return tagPattern(`${pat}FILTER ${exp}\n`);
         return tagExpression(exp);
     }
     return tagPattern(pat);
@@ -116,9 +116,9 @@ export function combineAnd({ expression, pattern }: Branches): TaggedSyntax {
 export function combineOr({ expression, pattern }: Branches): TaggedSyntax {
     if (expression) {
         const patExp = pattern ? map(pattern, patternAsExpression) : [];
-        return tagExpression(`${joinE(expression.concat(patExp), ' || ')}`);
+        return tagExpression(`(${joinE(expression.concat(patExp), ' || ')})`);
     }
-    return tagPattern(`{\n${joinP(pattern, '} UNION {\n')}}`);
+    return tagPattern(`{\n${joinP(pattern, '} UNION {\n')}}\n`);
 }
 
 const combine = {
