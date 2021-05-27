@@ -28,6 +28,7 @@
     "start-back": "yarn django runserver & yarn django livereload & yarn watch-test-back",
     "watch-back": "yarn livereload-back & yarn watch-test-back",
     "watch-front": "yarn gulp watch --port 8000 --config ../config.json",
+    "watch-front-notest": "yarn gulp watchNoTest --port 8000 --config ../config.json",
     "start": "yarn watch-front & yarn serve-back & yarn watch-back",
     "dist": "yarn gulp dist",
     "dist-p": "yarn dist --production --config ../config.json",
