@@ -138,7 +138,7 @@ function negate(syntax: TaggedSyntax): TaggedExpression {
     );
 }
 
-function serializeChain(
+export function serializeChain(
     entry: Model, variableIn: string, ns: nsTable, index: number = 0
 ): TaggedSyntax {
     const chain = entry.get('chain');
