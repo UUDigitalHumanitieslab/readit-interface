@@ -36,6 +36,7 @@ import {
     isOntologyClass,
 } from '../utilities/linked-data-utilities';
 import { itemsForSourceQuery } from '../sparql/compile-query';
+import modelToQuery from '../semantic-search/modelToQuery';
 
 interface ExplorerEventController extends Events {}
 class ExplorerEventController {
@@ -88,6 +89,19 @@ class ExplorerEventController {
         const model = new Model(params);
         const sourceListPanel = new SourceListPanel({ model });
         this.explorerView.reset(sourceListPanel);
+    }
+
+    resetSemanticSearch(model: Model): SearchResultListView {
+        const query = modelToQuery(model);
+        const items = new ItemGraph();
+        items.sparqlQuery(query);
+        const collection = new FlatItemCollection(items);
+        const resultsView = new SearchResultListView({
+            collection,
+            selectable: false,
+        });
+        this.explorerView.reset(resultsView);
+        return resultsView;
     }
 
     showSuggestionsPanel() {

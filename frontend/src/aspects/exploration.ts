@@ -7,6 +7,7 @@ import mainRouter from '../global/main-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
 import welcomeView from '../global/welcome-view';
+import semanticSearchView from '../global/semantic-search';
 import SuggestionsPanel from '../panel-suggestions/suggestions-view';
 import deparam from '../utilities/deparam';
 
@@ -89,5 +90,8 @@ channel.on('currentRoute', (route, panel) => {
     // panel.
     browserHistory.replaceState(panel.cid, document.title);
 });
+
 welcomeView.on({'search:start': controller.resetSourceListFromSearchResults}, controller);
 welcomeView.on({'suggestions:show': controller.showSuggestionsPanel}, controller);
+
+semanticSearchView.on('search', controller.resetSemanticSearch, controller);
