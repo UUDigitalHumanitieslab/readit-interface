@@ -2,12 +2,16 @@
 This module represents what we believe *should* be in .graph.graph().
 """
 
-from rdflib import Graph, URIRef, Literal
+import re
 
+import requests
 from rdf.ns import *
+from rdflib import Graph, Literal, URIRef
 
 from . import namespace as my
-from .constants import SOURCE, SOURCE_FORMAT, SOURCE_PREFIX, ONTOLOGY_NS
+from .constants import (OLD_SOURCE, OLD_SOURCE_PREFIX, ONTOLOGY_NS, SOURCE,
+                        SOURCE_CLASS_PREFIX, SOURCE_FORMAT, SOURCE_PREFIX,
+                        SOURCE_PROPERTY_PREFIX)
 
 REPARSE_FORMAT = 'n3'
 
@@ -39,7 +43,20 @@ def canonical_graph():
     URIRefs.
     """
     g = Graph()
-    g.parse(SOURCE, format=SOURCE_FORMAT)
-    if SOURCE_PREFIX != ONTOLOGY_NS:
-        return replace_prefix(g, SOURCE_PREFIX, ONTOLOGY_NS)
+    g.parse(OLD_SOURCE, format='json-ld')
+    if OLD_SOURCE_PREFIX != ONTOLOGY_NS:
+        return replace_prefix(g, OLD_SOURCE_PREFIX, ONTOLOGY_NS)
     return g
+
+
+def reo_graph():
+    source = requests.get(SOURCE).text
+    to_replace = (SOURCE_PROPERTY_PREFIX, SOURCE_CLASS_PREFIX,
+                  SOURCE_PREFIX)
+    replaced_source = re.sub((r'|').join(to_replace), ONTOLOGY_NS, source)
+
+    g = Graph()
+    g.parse(data=replaced_source, format=SOURCE_FORMAT)
+    return g
+
+

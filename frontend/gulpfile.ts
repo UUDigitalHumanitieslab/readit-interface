@@ -491,6 +491,24 @@ export const watch = series(fullStatic, function watch(done) {
     });
 });
 
+export const watchNoTest = series(fullStatic, function watch(done) {
+    watchBundle(tsModules(), reload(jsBundle));
+
+    jsBundle();
+
+    const styleWatch = watchApi(styleSourceGlob, reload(style));
+    const templateWatch = watchApi(templateSourceGlob, template);
+    const indexWatch = watchApi([indexConfig, indexTemplate], reloadPr(index));
+
+    exitController.once('signal', () => {
+        [
+            tsModules(), tsTestModules(), reporterModules(), styleWatch,
+            templateWatch, indexWatch
+        ].forEach(watcher => watcher.close());
+        done();
+    });
+});
+
 export function clean() {
     return del([
         `${buildDir}/**`,

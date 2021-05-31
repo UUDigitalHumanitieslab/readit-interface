@@ -3,7 +3,7 @@ import 'select2';
 
 import { CompositeView } from '../core/view';
 import ldChannel from '../common-rdf/radio';
-import { oa, rdf, skos } from '../common-rdf/ns';
+import { oa, owl, rdf, schema, skos } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 
@@ -12,7 +12,7 @@ import PickerView from '../forms/select2-picker-view';
 import ItemGraph from '../common-adapters/item-graph';
 import ClassPickerView from '../forms/ontology-class-picker-view';
 import SnippetView from '../snippet/snippet-view';
-import { isRdfsClass, isBlank } from '../utilities/linked-data-utilities';
+import { isRdfsClass, isBlank, isAnnotationCategory } from '../utilities/linked-data-utilities';
 import { placeholderClassItem } from '../utilities/annotation-utilities';
 import {
     savePlaceholderAnnotation,
@@ -21,10 +21,20 @@ import explorerChannel from '../explorer/explorer-radio';
 
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-item-collection';
+import FlatItemCollection from '../common-adapters/flat-item-collection';
 
 import { announceRoute } from './utilities';
 import annotationEditTemplate from './annotation-edit-template';
-import FlatItemCollection from '../common-adapters/flat-item-collection';
+import FilteredCollection from '../common-adapters/filtered-collection';
+
+/**
+ * Helper function in order to pass the right classes to the classPicker.
+ */
+export function getOntologyClasses() {
+    const ontology = ldChannel.request('ontology:graph') || new Graph();
+    return new FilteredCollection<FlatItem>(ontology, isAnnotationCategory);
+}
+
 
 const announce = announceRoute(true);
 
@@ -82,7 +92,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     async getOntologyClasses() {
         // TODO: request only items of type rdfs:class via SPARQL
         const ontology = await ldChannel.request('ontology:promise');
-        this.ontologyClasses.set(ontology.models.filter(model => isRdfsClass(model)));
+        this.ontologyClasses.set(ontology.models.filter(model => isAnnotationCategory(model)));
         return ontology;
     }
 
