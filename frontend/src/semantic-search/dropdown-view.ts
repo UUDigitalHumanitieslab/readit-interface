@@ -39,15 +39,14 @@ function applicableTo(range: string): (Model) => boolean {
 async function normalizeRange(model: Model): Promise<Graph> {
     let range;
     const precedent = model.get('precedent');
-    if (precedent) range = precedent.get(rdfs.range) || [precedent];
-    const ontology = await ldChannel.request('ontology:promise');
-    if (!range) range = ontology.filter(isRdfsClass);
-    range = getRdfSubClasses(range);
+    if (precedent) {
+        range = precedent.get(rdfs.range);
+        range = range ? getRdfSubClasses(range) : [precedent];
+    } else {
+        const ontology = await ldChannel.request('ontology:promise');
+        range = ontology.filter(isRdfsClass);
+    }
     const rangeGraph = new Graph(range)
-    each(range, cls => {
-        const superClasses = cls.get(rdfs.subClassOf);
-        each(superClasses, rangeGraph.remove.bind(rangeGraph));
-    });
     return rangeGraph;
 }
 
