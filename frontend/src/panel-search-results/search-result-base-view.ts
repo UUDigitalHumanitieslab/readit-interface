@@ -2,9 +2,9 @@ import { extend, after, constant } from 'lodash';
 
 import View, { CompositeView, ViewOptions as BaseOpt } from '../core/view';
 import FlatItem from '../common-adapters/flat-item-model';
+import SearchResultItemView from '../item-summary-block/item-summary-block-view';
 
 import SearchResultSourceView from './search-result-source-view';
-import SearchResultItemView from './search-result-item-view';
 import searchResultBaseTemplate from './search-result-base-template';
 
 export interface ViewOptions extends BaseOpt {
