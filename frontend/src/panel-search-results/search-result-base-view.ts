@@ -40,6 +40,7 @@ export default class SearchResultView extends CompositeView<FlatItem> {
         if (!model.has('annotation')) {
             ctor = SearchResultItemView
             this.$el.removeClass('search-result box');
+            this.undelegate('click');
         }
         this.contentView = new ctor({ model }).render();
         this.render().activateContent();

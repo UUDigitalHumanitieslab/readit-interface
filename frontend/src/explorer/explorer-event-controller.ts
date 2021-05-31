@@ -125,6 +125,10 @@ class ExplorerEventController {
                 const flat = collection.get(annotation.id);
                 flat.trigger('focus', flat);
             });
+        } else {
+            const itemPanel = new AnnotationView({ model: result });
+            this.explorerView.popUntil(searchResults).push(itemPanel);
+            return itemPanel;
         }
     }
 
