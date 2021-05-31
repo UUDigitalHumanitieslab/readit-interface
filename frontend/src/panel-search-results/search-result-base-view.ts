@@ -36,11 +36,11 @@ export default class SearchResultView extends CompositeView<FlatItem> {
     }
 
     setContentView(model: FlatItem): void {
-        const ctor = (
-            model.has('annotation') ?
-            SearchResultSourceView :
-            SearchResultItemView
-        );
+        let ctor: any = SearchResultSourceView;
+        if (!model.has('annotation')) {
+            ctor = SearchResultItemView
+            this.$el.removeClass('search-result box');
+        }
         this.contentView = new ctor({ model }).render();
         this.render().activateContent();
     }
