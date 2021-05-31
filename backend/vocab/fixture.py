@@ -50,6 +50,15 @@ def triples():
 
         ( my.self,             is_a,          AS.Application ),
         ( my.self,             FOAF.homepage, APP_URI ),
+
+        (my.needsVerification, is_a,          Property),
+        (my.needsVerification, hasDomain,     OA.Annotation),
+        (my.needsVerification, hasRange,      XSD.boolean),
+
+        (my.hasPrefSuperClass, is_a,          Property),
+        (my.hasPrefSuperClass, hasDomain,     Class),
+        (my.hasPrefSuperClass, hasRange,      Class),
+        (my.hasPrefSuperClass, RDFS.comment,  Literal("The preffered superclass for use in the interface.")),
     ]
 
 
