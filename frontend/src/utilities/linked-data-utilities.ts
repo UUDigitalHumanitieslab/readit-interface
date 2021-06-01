@@ -4,7 +4,7 @@ import ldChannel from '../common-rdf/radio';
 import { Identifier, isIdentifier } from '../common-rdf/json';
 import Node, { isNode, NodeLike } from '../common-rdf/node';
 import Graph, { ReadOnlyGraph } from '../common-rdf//graph';
-import { skos, rdfs, readit, dcterms, nlp } from '../common-rdf/ns';
+import { nlp, skos, rdfs, readit, dcterms, owl, schema } from '../common-rdf/ns';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -58,12 +58,20 @@ export function asURI(source: Node | string): string {
 }
 
 /**
- * Check if a node is a rdfs:Class, i.e. has rdfs:Class as (one of its) type(s) or
+ * Check if a node is a rdfs:Class, i.e. has rdfs:Class or owl:Class as (one of its) type(s) or
  * has a non-empty rdfs:subClassOf property.
  * @param node The node to evaluate
  */
 export function isRdfsClass(node: Node): boolean {
-    return node.has(rdfs.subClassOf) || node.has('@type', rdfs.Class);
+    return node.has(rdfs.subClassOf) || node.has('@type', owl.Class) || node.has('@type', rdfs.Class);
+}
+
+/**
+ * Check if a node is an annotation category used in the class picker when editing annotations.
+ * @param node The node to evaluate
+ */
+export function isAnnotationCategory(node: Node): boolean {
+    return isRdfsClass(node) && node.has(schema.color) && !(node.get(owl.deprecated));
 }
 
 /**
@@ -188,6 +196,8 @@ export function isBlank(node: Node) {
 /**
  * Establish whether a node is in the ontology graph, i.e. is an ontology class
  * (as opposed to an instance of one of the ontology's classes).
+ * Note: this is too restrictive, ontology classes are not necessarily in the
+ * READIT namespace. This function is not used in the application, so WONTFIX for now.
  * @param node The linked data item to investigate.
  */
 export function isOntologyClass(node: Node): boolean {

@@ -6,7 +6,7 @@ import Graph from '../common-rdf/graph';
 import ItemGraph from '../common-adapters/item-graph';
 import explorerChannel from '../explorer/explorer-radio';
 import ldChannel from '../common-rdf/radio';
-import { isRdfsClass } from '../utilities/linked-data-utilities';
+import { isAnnotationCategory } from '../utilities/linked-data-utilities';
 import { announceRoute } from '../explorer/utilities';
 
 import suggestionsTemplate from './suggestions-template';
@@ -54,7 +54,7 @@ export default class SuggestionsView extends CompositeView{
         this.sourceSuggestions.fetch({ url: sourceSuggestionsURL, data: param });
         this.annotationGraph.fetch({ url: itemSuggestionsUrl, data: param });
         const categories = await ldChannel.request('ontology:promise');
-        const suggestions = sampleSize(filter(categories.models, isRdfsClass), nSuggestions);
+        const suggestions = sampleSize(filter(categories.models, isAnnotationCategory), nSuggestions);
         this.categoryGraph.set(suggestions);
     }
 

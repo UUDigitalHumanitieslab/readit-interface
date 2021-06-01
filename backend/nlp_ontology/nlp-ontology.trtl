@@ -16,16 +16,17 @@ ns2:definition a ns4:AnnotationProperty ;
     rdfs:range xsd:float .
 
 <https://read-it.hum.uu.nl/nlp-ontology#date> a ns4:Class ;
+    ns3:color "#E69F00" ;
     rdfs:subClassOf <https://read-it.hum.uu.nl/nlp-ontology#named_entity> ;
     ns2:definition "Absolute or relative dates or periods" .
 
 <https://read-it.hum.uu.nl/nlp-ontology#event> a ns4:Class ;
-    ns3:color "#9DCEAC" ;
+    ns3:color "#E69F00" ;
     rdfs:subClassOf <https://read-it.hum.uu.nl/nlp-ontology#named_entity> ;
     ns2:definition "Named hurricanes, battles, wars, sports events, etc." .
 
 <https://read-it.hum.uu.nl/nlp-ontology#fac> a ns4:Class ;
-    ns3:color "#F38F8F" ;
+    ns3:color "#E69F00" ;
     rdfs:subClassOf <https://read-it.hum.uu.nl/nlp-ontology#named_entity> ;
     ns2:definition "Buildings, airports, highways, bridges, etc." .
 
@@ -35,28 +36,28 @@ ns2:definition a ns4:AnnotationProperty ;
     ns2:definition "Named documents made into laws." .
 
 <https://read-it.hum.uu.nl/nlp-ontology#localization> a ns4:Class ;
-    ns3:color "#EC7671" ;
+    ns3:color "#E69F00" ;
     rdfs:subClassOf <https://read-it.hum.uu.nl/nlp-ontology#named_entity> ;
     ns2:definition "Countries, cities, states, mountain ranges, bodies of water, ..." .
 
 <https://read-it.hum.uu.nl/nlp-ontology#organization> a ns4:Class ;
-    ns3:color "#93E6DF" ;
+    ns3:color "#E69F00" ;
     rdfs:subClassOf <https://read-it.hum.uu.nl/nlp-ontology#named_entity> ;
     ns2:definition "Companies, agencies, institutions, etc." .
 
 <https://read-it.hum.uu.nl/nlp-ontology#person> a ns4:Class ;
-    ns3:color "#ABD4E7" ;
+    ns3:color "#009E73" ;
     rdfs:subClassOf <https://read-it.hum.uu.nl/nlp-ontology#named_entity> ;
     ns2:definition "People, including fictional" .
 
 <https://read-it.hum.uu.nl/nlp-ontology#reading_testimony> a ns4:Class ;
-    ns3:color "#E5BF8C" ;
+    ns3:color "#CC79A7" ;
     rdfs:subClassOf <https://read-it.hum.uu.nl/nlp-ontology#nlp_result> .
 
 <https://read-it.hum.uu.nl/nlp-ontology#test> a <http://purl.org/dc/terms/test> .
 
 <https://read-it.hum.uu.nl/nlp-ontology#time> a ns4:Class ;
-    ns3:color "#7EEE84" ;
+    ns3:color "#E69F00" ;
     rdfs:subClassOf <https://read-it.hum.uu.nl/nlp-ontology#named_entity> ;
     ns2:definition "Times smaller than a day" .
 
@@ -65,7 +66,7 @@ ns2:definition a ns4:AnnotationProperty ;
     rdfs:range xsd:string .
 
 <https://read-it.hum.uu.nl/nlp-ontology#work_of_art> a ns4:Class ;
-    ns3:color "#C3A9F3" ;
+    ns3:color "#56B4E9" ;
     rdfs:subClassOf <https://read-it.hum.uu.nl/nlp-ontology#named_entity> ;
     ns2:definition "Titles of books, songs, etc." .
 
