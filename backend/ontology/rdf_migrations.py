@@ -350,7 +350,8 @@ class Migration(RDFMigration):
             READIT.REO5, ERLANGEN.E67_Birth, ERLANGEN.E69_Death, READIT.REO35,
             READIT.REO10, READIT.REO36, READIT.REO37, READIT.REO38,
             READIT.REO11, READIT.REO39, READIT.REO19, READIT.REO2,
-            READIT.REO15
+            READIT.REO15, URIRef('{}{}'.format(
+                READIT, 'REO43_Appellation_(temporal_entity)')),
         )
         add_reo_superclass(CIDOC.E21_Person, replaces,
                            preffered_by, BLUISH_GREEN)
