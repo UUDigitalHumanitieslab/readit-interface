@@ -35,7 +35,7 @@ describe('semantic search ChainView', function() {
         expect(view.items.length).toBe(1);
         await event(view.items[0], 'ready');
         expect(view.items[0]['typeGroup']).toBeDefined();
-        expect(view.items[0]['typeGroup'].collection.length).toBe(3);
+        expect(view.items[0]['typeGroup'].collection.length).toBe(4);
     });
 
     it('can be constructed with a preselection', async function() {
