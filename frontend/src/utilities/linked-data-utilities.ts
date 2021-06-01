@@ -4,7 +4,7 @@ import ldChannel from '../common-rdf/radio';
 import { Identifier, isIdentifier } from '../common-rdf/json';
 import Node, { isNode, NodeLike } from '../common-rdf/node';
 import Graph, { ReadOnlyGraph } from '../common-rdf//graph';
-import { skos, rdfs, readit, dcterms, owl, schema } from '../common-rdf/ns';
+import { nlp, skos, rdfs, readit, dcterms, owl, schema } from '../common-rdf/ns';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -38,7 +38,12 @@ export function getCssClassName(node: Node): string {
 
     if (label) {
         label = label.replace(new RegExp(' ', 'g'), '').replace(new RegExp('[\(\)\/]', 'g'), '').toLowerCase();
-        return `is-readit-${label}`;
+        if (node.id.startsWith(nlp())) {
+            return `is-nlp-${label}`
+        }
+        else {
+            return `is-readit-${label}`;
+        }
     }
 
     return null;
@@ -129,7 +134,7 @@ export function getRdfSuperClasses(clss: NodeLike[]): Node[] {
     const seed = map(clss, cls => ldChannel.request('obtain', cls));
     // Next lines handle test environments without a store.
     if (seed[0] == null) return clss.map(cls =>
-        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : {'@id': cls})
+        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : { '@id': cls })
     );
 
     function traverseParents(cls) {
@@ -154,7 +159,7 @@ export function getRdfSubClasses(clss: NodeLike[]): Node[] {
     const seed = map(clss, cls => ldChannel.request('obtain', cls));
     // Next lines handle test environments without a store.
     if (seed[0] == null) return clss.map(cls =>
-        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : {'@id': cls})
+        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : { '@id': cls })
     );
 
     function traverseChildren(cls) {
@@ -176,7 +181,7 @@ export function isType(node: Node, type: string): boolean {
     const initialTypes = node.get('@type') as string[];
     if (!initialTypes) return false;
     const allTypes = getRdfSuperClasses(initialTypes);
-    return some(allTypes, {'id': type});
+    return some(allTypes, { 'id': type });
 }
 
 /**

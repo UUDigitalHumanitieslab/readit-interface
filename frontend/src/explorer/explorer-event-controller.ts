@@ -5,12 +5,9 @@ import View from '../core/view';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import Node from '../common-rdf/node';
-import userChannel from '../common-user/user-radio';
 
 import ExplorerView from './explorer-view';
 import AnnotationView from '../panel-annotation/annotation-view';
-import ldChannel from '../common-rdf/radio';
-import Graph from '../common-rdf/graph';
 import { asURI } from '../utilities/linked-data-utilities';
 import SourceView from '../panel-source/source-view';
 import AnnotationListPanel from '../panel-annotation-list/annotation-list-panel';
@@ -27,17 +24,16 @@ import FlatItemCollection from '../common-adapters/flat-item-collection';
 import FlatAnnoCollection from '../common-adapters/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 import { createPlaceholderAnnotation } from '../utilities/annotation-creation-utilities';
-import { as, oa } from '../common-rdf/ns';
+import { oa } from '../common-rdf/ns';
 import SearchResultListView from '../panel-search-results/search-result-list-view';
 import SourceListPanel from '../panel-source-list/source-list-panel';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import {
-    isType,
     isOntologyClass,
 } from '../utilities/linked-data-utilities';
 import { itemsForSourceQuery } from '../sparql/compile-query';
 
-interface ExplorerEventController extends Events {}
+interface ExplorerEventController extends Events { }
 class ExplorerEventController {
     /**
      * The explorer view instance to manage events for
@@ -150,7 +146,7 @@ class ExplorerEventController {
         const items = new ItemGraph();
         items.query({
             predicate: oa.hasBody,
-            object: item ,
+            object: item,
         }).catch(console.error);
         const flatItems = new FlatItemCollection(items);
         const filteredItems = new FilteredCollection(flatItems, 'annotation');
@@ -314,7 +310,7 @@ export function getItems(source: Node): ItemGraph {
 
     const runQueries = (): any => {
         let queryString = itemsForSourceQuery(asURI(source),
-            {limit: limit, offset: offsetMultiplier*limit}
+            { limit: limit, offset: offsetMultiplier * limit }
         );
         return queryInBatches(sparqlItems, queryString).then(result => {
             if (result) {

@@ -4,7 +4,6 @@ import { CollectionView } from '../core/view';
 import { getScrollTop, animatedScroll, ScrollType } from '../utilities/scrolling-utilities';
 import ItemSummaryBlock from '../item-summary-block/item-summary-block-view';
 import LoadingSpinnerView from '../loading-spinner/loading-spinner-view';
-import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
 
 import FlatItem from '../common-adapters/flat-item-model';
