@@ -37,7 +37,7 @@ export function getCssClassName(node: Node): string {
     let label = getLabel(node);
 
     if (label) {
-        label = label.replace(new RegExp(' ', 'g'), '').toLowerCase();
+        label = label.replace(new RegExp(' ', 'g'), '').replace(new RegExp('[\(\)\/]', 'g'), '').toLowerCase();
         if (node.id.startsWith(nlp())) {
             return `is-nlp-${label}`
         }
