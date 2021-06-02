@@ -3,9 +3,7 @@ from celery import Celery
 
 
 # set the Django settings module for the 'celery' program.
-# if no environment variable is set yet, set it to the settings next to this file.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', os.environ.get(
-    'DJANGO_SETTINGS_MODULE', 'readit.settings'))
+os.environ['DJANGO_SETTINGS_MODULE'] = 'readit.settings'
 
 app = Celery('readit')
 
