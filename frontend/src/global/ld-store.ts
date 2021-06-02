@@ -19,6 +19,9 @@ const defaultGraphs = [
     'http://dublincore.org/2012/06/14/dcterms.ttl',
     'http://dublincore.org/2012/06/14/dctype.ttl',
     'http://dublincore.org/2012/06/14/dcelements.ttl',
+    'http://www.cidoc-crm.org/sites/default/files/cidoc_crm_v6.2.1-2018April.rdfs',
+    'http://iflastandards.info/ns/fr/frbr/frbroo.xml',
+    'http://erlangen-crm.org/current/',
     // activitystreams appears to consist of only a context.
     // as(),
     // We do not prefetch schema.org, because it is large and we do
