@@ -433,7 +433,7 @@ class Migration(RDFMigration):
         for prop in skinny_properties:
             delete_linked_items(prop)
 
-    @ on_add(CIDOC.P100_was_death_of)
+    @on_add(CIDOC.P100_was_death_of)
     def cidoc_property_inversions(self, actual, conjunctive):
         """ CIDOC properties miss explicit inverse relations,
         manually add these. """

@@ -191,6 +191,7 @@ export const skosTerms = [
     'hiddenLabel',
     'historyNote',
     'narrower',
+    'notation',
     'prefLabel',
     'related',
     'scopeNote',
