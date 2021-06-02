@@ -32,6 +32,7 @@ import {
     isOntologyClass,
 } from '../utilities/linked-data-utilities';
 import { itemsForSourceQuery } from '../sparql/compile-query';
+import modelToQuery from '../semantic-search/modelToQuery';
 
 interface ExplorerEventController extends Events { }
 class ExplorerEventController {
@@ -86,6 +87,19 @@ class ExplorerEventController {
         this.explorerView.reset(sourceListPanel);
     }
 
+    resetSemanticSearch(model: Model): SearchResultListView {
+        const query = modelToQuery(model);
+        const items = new ItemGraph();
+        items.sparqlQuery(query);
+        const collection = new FlatItemCollection(items);
+        const resultsView = new SearchResultListView({
+            collection,
+            selectable: false,
+        });
+        this.explorerView.reset(resultsView);
+        return resultsView;
+    }
+
     showSuggestionsPanel() {
         const suggestionsView = new SuggestionsView();
         this.explorerView.reset(suggestionsView);
@@ -107,6 +121,10 @@ class ExplorerEventController {
                 const flat = collection.get(annotation.id);
                 flat.trigger('focus', flat);
             });
+        } else {
+            const itemPanel = new AnnotationView({ model: result });
+            this.explorerView.popUntil(searchResults).push(itemPanel);
+            return itemPanel;
         }
     }
 

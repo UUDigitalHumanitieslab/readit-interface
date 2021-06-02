@@ -20,6 +20,7 @@ import {
 import { applicablePredicates } from '../utilities/relation-utilities';
 
 import { logic, filters, groupLabels } from './dropdown-constants';
+import dropdownTemplate from './dropdown-template';
 
 /**
  * Generate a filter predicate for selecting filters that apply to a given
@@ -35,17 +36,17 @@ function applicableTo(range: string): (Model) => boolean {
     }
 }
 
-function normalizeRange(model: Model): Graph {
+async function normalizeRange(model: Model): Promise<Graph> {
     let range;
     const precedent = model.get('precedent');
-    if (precedent) range = precedent.get(rdfs.range) || [precedent];
-    if (!range) range = ldChannel.request('ontology:graph').filter(isRdfsClass);
-    range = getRdfSubClasses(range);
+    if (precedent) {
+        range = precedent.get(rdfs.range);
+        range = range ? getRdfSubClasses(range) : [precedent];
+    } else {
+        const ontology = await ldChannel.request('ontology:promise');
+        range = ontology.filter(isRdfsClass);
+    }
     const rangeGraph = new Graph(range)
-    each(range, cls => {
-        const superClasses = cls.get(rdfs.subClassOf);
-        each(superClasses, rangeGraph.remove.bind(rangeGraph));
-    });
     return rangeGraph;
 }
 
@@ -84,15 +85,20 @@ export default class Dropdown extends CompositeView {
     predicateGroup: View;
     groupOrder: Array<keyof Dropdown>;
     val: BasePicker['val'];
+    open: Select2Picker['open'];
 
-    initialize(): void {
+    async initialize(): Promise<void> {
         this.model = this.model || new Model();
         this.restoreSelection = debounce(this.restoreSelection, 50);
         this.logicGroup = new OptionGroup({
             model: groupLabels.get('logic'),
             collection: logic,
         });
-        let range: Graph | Node = normalizeRange(this.model);
+        let range: Graph | Node = this.model.get('range') as Graph;
+        if (!range) {
+            range = await normalizeRange(this.model);
+            this.model.set('range', range);
+        }
         if (range.length > 1) {
             this.typeGroup = new OptionGroup({
                 model: groupLabels.get('type'),
@@ -120,6 +126,9 @@ export default class Dropdown extends CompositeView {
             });
         }
         this.render();
+        if (this.model.has('precedent') && !this.model.has('selection')) (
+            this.typeGroup || this.predicateGroup
+        ).collection.once('complete:all', this.open, this);
     }
 
     subviews(): SubViewDescription[] {
@@ -136,8 +145,13 @@ export default class Dropdown extends CompositeView {
     }
 
     renderContainer(): this {
-        this.$el.append('<select>');
+        this.$el.html(this.template({}));
         return this;
+    }
+
+    afterRender(): this {
+        Select2Picker.prototype.afterRender.call(this);
+        return this.trigger('ready', this);
     }
 
     remove(): this {
@@ -160,15 +174,24 @@ export default class Dropdown extends CompositeView {
             ldChannel.request('obtain', id)
         );
         this.model.set('selection', model);
+        if (
+            this.predicateGroup &&
+            this.predicateGroup.collection.has(model.id)
+        ) {
+            this.model.set('traversal', true);
+        } else {
+            this.model.unset('traversal');
+        }
         this.trigger('change', this, model, event);
     }
 }
 
 extend(Dropdown.prototype, {
-    className: 'select readit-picker',
+    className: 'control',
+    template: dropdownTemplate,
     groupOrder: ['logicGroup', 'typeGroup', 'filterGroup', 'predicateGroup'],
     events: { change: 'forwardChange' },
     val: BasePicker.prototype.val,
+    open: Select2Picker.prototype.open,
     beforeRender: Select2Picker.prototype.beforeRender,
-    afterRender: Select2Picker.prototype.afterRender,
 });

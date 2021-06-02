@@ -1,0 +1,8 @@
+{{>sparqlPreamble}}
+
+CONSTRUCT {
+    ?item ?p ?o
+} FROM {{{sourceGraph}}} WHERE {
+    ?item ?p ?o.
+    {{{body}}}
+}
