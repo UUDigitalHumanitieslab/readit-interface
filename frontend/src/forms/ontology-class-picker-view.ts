@@ -3,7 +3,7 @@ import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatItem from '../common-adapters/flat-item-model';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
-import { vocab } from '../common-rdf/ns';
+import { skos } from '../common-rdf/ns';
 import { CollectionView } from '../core/view';
 import LabelView from '../label/label-view';
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
@@ -30,18 +30,18 @@ export default class OntologyClassPickerView extends CollectionView<
     makeItem(model: FlatItem): OntologyClassPickerItemView {
         const level = this.isLeaf(model) ? 1 : 0;
         return new OntologyClassPickerItemView({ model, level }).on({
-            click: level === 0 ? this.onSuperclassClick : this.onItemClicked,
+            click: this.onItemClicked,
             hover: level === 0 ? this.onSuperclassHovered : undefined,
             activated: this.onItemActivated,
         }, this);
     }
 
     isLeaf(node: FlatItem) {
-        return node.underlying.has(vocab.hasPrefSuperClass);
+        return node.underlying.has(skos.related);
     }
 
     isNonLeaf(node) {
-        return !node.underlying.has(vocab.hasPrefSuperClass);
+        return !node.underlying.has(skos.related);
     }
 
     /**
@@ -120,7 +120,7 @@ export default class OntologyClassPickerView extends CollectionView<
 
     onSuperclassHovered(model: FlatItem) {
         this.leafNodes.forEach(node => {
-            const prefParent = node.underlying.get(vocab.hasPrefSuperClass)[0] as FlatItem;
+            const prefParent = node.underlying.get(skos.related)[0] as FlatItem;
 
             if (prefParent.id == model.id) {
                 const modelIndex = this.collection.indexOf(model);
