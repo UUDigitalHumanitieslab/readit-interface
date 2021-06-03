@@ -21,15 +21,15 @@
         "bulma": "^0.7.1",
         "bulma-accordion": "^2.0.1",
         "bulma-tooltip": "^2.0.2",
-        "handlebars": "^4.7.6",
+        "handlebars": "^4.7.7",
         "handlebars-i18next": "^1.0.1",
         "i18next": "^11.6.0",
         "i18next-browser-languagedetector": "^2.2.3",
         "jquery": "^3.5.1",
-        "jquery-validation": "^1.19.1",
+        "jquery-validation": "^1.19.3",
         "js-cookie": "^2.2.0",
         "jsonld": "^1.5.1",
-        "lodash": "^4.17.20",
+        "lodash": "^4.17.21",
         "rangy": "^1.3.0",
         "rdf-parse": "^1.1.1",
         "select2": "^4.0.13",
@@ -91,5 +91,10 @@
         "vinyl-source-stream": "^2.0.0",
         "watchify": "^3.11.0",
         "yargs": "^12.0.1"
+    },
+    "peerDependencies": {
+        "@comunica/bus-http": "^1.0.0",
+        "@comunica/bus-init": "^1.0.0",
+        "@comunica/core": "^1.0.0"
     }
 }
