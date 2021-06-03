@@ -4,7 +4,8 @@ from rdflib.term import URIRef
 from items.graph import graph as item_graph
 from ontology.constants import ONTOLOGY_NS
 from rdf.migrations import RDFMigration, on_add, on_remove
-from rdf.ns import (OA, CIDOC, RDF, RDFS, DCTERMS, SCHEMA, ERLANGEN, FRBROO, OWL)
+from rdf.ns import (OA, CIDOC, RDF, DCTERMS,
+                    SCHEMA, ERLANGEN, FRBROO, OWL, SKOS)
 from rdf.utils import (append_triples, graph_from_triples, prune_triples,
                        prune_triples_cascade)
 from rdflib import Literal
@@ -79,7 +80,7 @@ INSERT {
     ?subclass schema:color ?colorcode .
 }
 WHERE {
-    OPTIONAL{ ?subclass ?prefclass ?superclass . }
+    OPTIONAL{ ?subclass ?related ?superclass . }
     ?superclass ?p ?o .
 }
 '''
@@ -122,7 +123,7 @@ def add_reo_superclass(superclass, replaces, subclasses, colorcode):
     for rep in replaces:
         replace_objects(rep, superclass)
     for subclass in subclasses:
-        set_pref_superclass(subclass, superclass)
+        check_superclass(subclass, superclass)
     set_superclass_color(superclass, colorcode)
     annotations_need_verification(superclass)
 
@@ -144,18 +145,16 @@ def invert_cidoc_property(direct, inverse, input_graph=None):
     context.update(query)
 
 
-def set_pref_superclass(subclass, superclass, input_graph=None):
-    # For a mysterious reason, this fails when using initBindings
+def check_superclass(subclass, superclass, input_graph=None):
     context = input_graph if input_graph else graph()
-    query = 'INSERT DATA {{ <{}> <{}> <{}> }}'.format(
-        subclass, vocab.hasPrefSuperClass, superclass)
-    context.update(query)
+    # Doublecheck the super/sub categories
+    assert (subclass, SKOS.related, superclass) in context
 
 
 def set_superclass_color(superclass, colorcode, input_graph=None):
     context = input_graph if input_graph else graph()
     bindings = {'superclass': superclass, 'colorcode': Literal(
-        colorcode), 'prefclass': vocab.hasPrefSuperClass}
+        colorcode), 'related': SKOS.related}
     namespaces = {'schema': SCHEMA}
     context.update(COLOR_SUPERCLASS_UPDATE,
                    initBindings=bindings, initNs=namespaces)
@@ -350,7 +349,8 @@ class Migration(RDFMigration):
             READIT.REO5, ERLANGEN.E67_Birth, ERLANGEN.E69_Death, READIT.REO35,
             READIT.REO10, READIT.REO36, READIT.REO37, READIT.REO38,
             READIT.REO11, READIT.REO39, READIT.REO19, READIT.REO2,
-            READIT.REO15
+            READIT.REO15, URIRef('{}{}'.format(
+                READIT, 'REO43_Appellation_(temporal_entity)')),
         )
         add_reo_superclass(CIDOC.E21_Person, replaces,
                            preffered_by, BLUISH_GREEN)
@@ -433,7 +433,7 @@ class Migration(RDFMigration):
         for prop in skinny_properties:
             delete_linked_items(prop)
 
-    @ on_add(CIDOC.P100_was_death_of)
+    @on_add(CIDOC.P100_was_death_of)
     def cidoc_property_inversions(self, actual, conjunctive):
         """ CIDOC properties miss explicit inverse relations,
         manually add these. """

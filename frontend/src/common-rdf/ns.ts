@@ -191,6 +191,7 @@ export const skosTerms = [
     'hiddenLabel',
     'historyNote',
     'narrower',
+    'notation',
     'prefLabel',
     'related',
     'scopeNote',
@@ -504,7 +505,6 @@ export const vocabPrefix = READIT + 'vocab#';
 
 export const vocabTerms = [
     'relevance',
-    'hasPrefSuperClass'
 ] as const;
 
 export const vocab = Vocabulary(vocabPrefix, vocabTerms);
