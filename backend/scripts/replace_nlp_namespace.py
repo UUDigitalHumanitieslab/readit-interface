@@ -18,7 +18,7 @@ from django.conf import settings
 from rdflib import Graph
 
 from ontology.fixture import replace_prefix
-from sources.constants import NLP_NS, INSTANCE_NLP_NS
+from nlp_ontology.constants import NLP_NS, INSTANCE_NLP_NS, NLP_ONTOLOGY_NS
 
 def replace_nlp_namespace():
     g = Graph(settings.RDFLIB_STORE, NLP_ONTOLOGY_NS)

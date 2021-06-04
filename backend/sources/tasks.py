@@ -10,7 +10,7 @@ from readit import celery_app
 from ontology.fixture import replace_prefix
 from items.graph import graph as item_graph
 from items.models import ItemCounter
-from .constants import NLP_NS, INSTANCE_NLP_NS
+from nlp_ontology.constants import NLP_NS, INSTANCE_NLP_NS
 
 logger = logging.getLogger(__name__)
 
