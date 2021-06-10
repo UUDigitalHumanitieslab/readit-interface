@@ -28,7 +28,6 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
 
     initialize(): void {
         this._byId = {};
-        this.loadingSpinnerView = new LoadingSpinnerView().render();
         this.initItems().render();
         this.loadingSpinnerView.activate();
         this.listenToOnce(this.collection.underlying, {
@@ -43,6 +42,12 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
             sort: this.placeItems,
             reset: this.resetItems
         }).on('announceRoute', announce);
+    }
+
+    renderContainer(): this {
+        this.loadingSpinnerView = new LoadingSpinnerView().render();
+        this.$el.append(this.loadingSpinnerView.$el);
+        return this;
     }
 
     _hideLoadingSpinner(): void {
