@@ -124,9 +124,11 @@ export const owlTerms = [
     'AsymmetricProperty',
     'Axiom',
     'cardinality',
+    'Class',
     'complementOf',
     'datatypeComplementOf',
     'DatatypeProperty',
+    'deprecated',
     'differentFrom',
     'equivalentClass',
     'equivalentProperty',
@@ -189,6 +191,7 @@ export const skosTerms = [
     'hiddenLabel',
     'historyNote',
     'narrower',
+    'notation',
     'prefLabel',
     'related',
     'scopeNote',
@@ -528,6 +531,10 @@ export const readitPrefix = READIT + 'ontology#';
 const ontologyNotHardcoded = [] as const;
 
 export const readit = Vocabulary(readitPrefix, ontologyNotHardcoded);
+
+export const nlpOntologyPrefix = READIT + 'nlp-ontology#'
+
+export const nlp = Vocabulary(nlpOntologyPrefix, ontologyNotHardcoded);
 
 /**
  * READ-IT items

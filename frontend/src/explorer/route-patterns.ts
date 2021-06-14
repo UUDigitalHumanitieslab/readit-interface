@@ -11,4 +11,5 @@ export default {
     'item:external:edit':     'explore/item/:serial/external/edit',
     'item:annotations':       'explore/item/:serial/annotations',
     'search:results:sources': 'explore/sources?*queryParams',
+    'search:results:semantic': 'explore/query',
 };

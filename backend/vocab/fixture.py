@@ -51,9 +51,9 @@ def triples():
         (my.self,             is_a,          AS.Application),
         (my.self,             FOAF.homepage, APP_URI),
 
-        (my.needsVerification, is_a,         Property),
-        (my.needsVerification, hasDomain,    OA.Annotation),
-        (my.needsVerification, hasRange,     XSD.boolean),
+        (my.needsVerification, is_a,          Property),
+        (my.needsVerification, hasDomain,     OA.Annotation),
+        (my.needsVerification, hasRange,      XSD.boolean),
     ]
 
 

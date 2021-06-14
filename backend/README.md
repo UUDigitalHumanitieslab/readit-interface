@@ -18,6 +18,7 @@ You need to install the following software:
  - virtualenv
  - [Apache Jena Fuseki][fuseki] (see [notes](#notes-for-setting-up-fuseki) below) (requires Java)
  -  - Elasticsearch 7 (see [notes](backend/README.md#setting-up-elasticsearch) below), (requires Java)
+ - RabbitMQ or other message broker and Celery (see [notes](backend/README.md#setting-up-celery) below)
  - WSGI-compatible webserver (deployment only)
  - [Visual C++ for Python][14] (Windows only)
 
@@ -120,6 +121,16 @@ If you have sources in the `media/sources` folder, you can add them to the Elast
 >>> from scripts.sources_to_elasticsearch import text_to_index
 >>> text_to_index()
 ```
+
+### Setting up Celery
+- Install [RabbitMQ](https://www.rabbitmq.com/) or another message broker.
+- Adjust settings in Celery accordingly (see [Celery documentation](https://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#choosing-a-broker)).
+- Activate your virtual environment, make sure you installed all Python packages, then run:
+```sh
+$ cd backend
+$ celery -A readit worker -l INFO
+```
+
 
 ## How it works
 

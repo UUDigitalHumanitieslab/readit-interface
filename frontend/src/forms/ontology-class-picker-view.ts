@@ -1,11 +1,14 @@
 import { extend } from 'lodash';
-
+import FilteredCollection from '../common-adapters/filtered-collection';
+import FlatItem from '../common-adapters/flat-item-model';
+import Graph from '../common-rdf/graph';
+import Node from '../common-rdf/node';
+import { skos } from '../common-rdf/ns';
 import { CollectionView } from '../core/view';
 import LabelView from '../label/label-view';
-
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 import ontologyClassPickerTemplate from './ontology-class-picker-template';
-import FlatItem from '../common-adapters/flat-item-model';
+
 
 export default class OntologyClassPickerView extends CollectionView<
     FlatItem,
@@ -14,19 +17,40 @@ export default class OntologyClassPickerView extends CollectionView<
     selected: FlatItem;
     label: any;
     externalCloseHandler: any;
+    leafNodes: FilteredCollection<FlatItem>;
 
 
     initialize(): this {
+        this.filterOntology(this.collection);
         this.initItems().render().initCollectionEvents();
         this.externalCloseHandler = $(document).click(() => this.hideDropdown());
         return this;
     }
 
     makeItem(model: FlatItem): OntologyClassPickerItemView {
-        return new OntologyClassPickerItemView({ model }).on({
+        const level = this.isLeaf(model) ? 1 : 0;
+        return new OntologyClassPickerItemView({ model, level }).on({
             click: this.onItemClicked,
+            hover: level === 0 ? this.onSuperclassHovered : undefined,
             activated: this.onItemActivated,
         }, this);
+    }
+
+    isLeaf(node: FlatItem) {
+        return node.underlying.has(skos.related);
+    }
+
+    isNonLeaf(node) {
+        return !node.underlying.has(skos.related);
+    }
+
+    /**
+     * Separate the ontology into leaf and non-leaf nodes
+     * @param collection
+     */
+    filterOntology(collection) {
+        this.leafNodes = new FilteredCollection<FlatItem>(collection, this.isLeaf);
+        this.collection = new FilteredCollection<FlatItem>(collection, this.isNonLeaf);
     }
 
     renderContainer(): this {
@@ -85,9 +109,27 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
+    onSuperclassClick(event: any): this {
+        return this;
+    }
+
     onItemClicked(view: OntologyClassPickerItemView): this {
         this.select(view.model);
         return this;
+    }
+
+    onSuperclassHovered(model: FlatItem) {
+        this.leafNodes.forEach(node => {
+            const prefParent = node.underlying.get(skos.related)[0] as FlatItem;
+
+            if (prefParent.id == model.id) {
+                const modelIndex = this.collection.indexOf(model);
+                this.collection.add(node, { at: modelIndex + 1 });
+            } else {
+                this.collection.remove(node);
+            }
+        });
+
     }
 
     onItemActivated(view: OntologyClassPickerItemView): this {

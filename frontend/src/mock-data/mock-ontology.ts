@@ -152,4 +152,5 @@ export default [
     mediumClass,
     readerClass,
     personClass,
+    descriptionOfProperty,
 ]

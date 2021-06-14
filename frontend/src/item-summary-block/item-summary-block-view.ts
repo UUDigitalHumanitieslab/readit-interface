@@ -1,13 +1,9 @@
-import { once, includes, extend } from 'lodash';
+import { extend } from 'lodash';
 import { ViewOptions as BViewOptions } from 'backbone';
 
-import Model from '../core/model';
 import View from '../core/view';
-import { oa } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
-import ldChannel from '../common-rdf/radio';
 import FlatItem from '../common-adapters/flat-item-model';
-import { getCssClassName, getLabel } from '../utilities/linked-data-utilities';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
 
@@ -33,9 +29,9 @@ export default class ItemSummaryBlockView extends View {
             this.model = new FlatItem(this.model);
         }
         if (this.model['complete']) {
-            this.render();
+            this._startListening();
         } else {
-            this.listenToOnce(this.model, 'complete', this.render);
+            this.listenToOnce(this.model, 'complete', this._startListening);
         }
     }
 

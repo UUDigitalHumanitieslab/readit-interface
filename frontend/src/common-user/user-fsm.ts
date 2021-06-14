@@ -13,6 +13,7 @@ const unprivilegedState = {
     explore: requireAuthorization,
     upload: requireAuthorization,
     confirm: 'confirming',
+    notfound: 'lost',
 };
 
 /**
@@ -25,6 +26,7 @@ const privilegedState = {
     explore: 'exploring',
     upload: 'uploading',
     confirm: 'confirming',
+    notfound: 'lost',
 };
 
 /**
@@ -44,5 +46,6 @@ export default AuthorizationFsm.extend({
         exploring: privilegedState,
         uploading: privilegedState,
         confirming: unprivilegedState,
+        lost: unprivilegedState,
     },
 });

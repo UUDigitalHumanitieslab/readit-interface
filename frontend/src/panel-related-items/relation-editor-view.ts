@@ -8,6 +8,7 @@ import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import PickerView from '../forms/base-picker-view';
 import RangePicker from '../forms/range-picker-view';
+import RemoveButton from '../forms/remove-button-view';
 import ItemGraph from '../common-adapters/item-graph';
 import relationTemplate from './relation-editor-template';
 
@@ -18,12 +19,14 @@ export default class RelationEditor extends CompositeView {
     collection: Graph;
     predicatePicker: PickerView;
     objectPicker: RangePicker;
+    removeButton: RemoveButton;
 
     initialize() {
         this.predicatePicker = new PickerView({collection: this.collection});
         this.predicatePicker.on('change', this.updatePredicate, this);
         if (!this.model) this.model = new Model();
         this.predicateFromModel(this.model).objectFromModel(this.model);
+        this.removeButton = new RemoveButton().on('click', this.close, this);
         this.render();
     }
 
@@ -86,14 +89,11 @@ export default class RelationEditor extends CompositeView {
 extend(RelationEditor.prototype, {
     className: 'field has-addons rit-relation-editor',
     template: relationTemplate,
-    events: {
-        'click button.is-danger': 'close',
-    },
     subviews: [{
         view: 'predicatePicker',
         selector: '.control:first-child',
     }, {
         view: 'objectPicker',
         selector: objectControl,
-    }],
+    }, 'removeButton'],
 });
