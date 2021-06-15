@@ -11,6 +11,7 @@ import FilterInput from './filter-input-view';
 
 export default class Chain extends CollectionView {
     initialize(): void {
+        semChannel.trigger('demand:increase');
         this.model = this.model || new Model();
         let collection = this.collection || this.model.get('chain');
         if (!collection) {
@@ -52,6 +53,11 @@ export default class Chain extends CollectionView {
             newModel.set('precedent', selection);
         }
         collection.push(newModel);
+    }
+
+    remove(): this {
+        semChannel.trigger('demand:decrease');
+        return super.remove();
     }
 }
 
