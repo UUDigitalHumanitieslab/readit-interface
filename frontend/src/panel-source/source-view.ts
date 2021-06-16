@@ -75,6 +75,7 @@ class SourcePanel extends CompositeView {
     constructor(options?: ViewOptions) {
         super(options);
         this.validate();
+        this.loadingSpinnerView = new LoadingSpinnerView();
         this.toolbarModel = new Model({
             metadata: false,
             annotations: options.showHighlightsInitially || false
@@ -84,6 +85,7 @@ class SourcePanel extends CompositeView {
         this.metaView = new MetadataView({
             model: this.model
         });
+
         this.render();
 
         if (!options.showHighlightsInitially) {
@@ -91,8 +93,6 @@ class SourcePanel extends CompositeView {
         }
 
         this.metaView.$el.hide();
-
-        this.loadingSpinnerView.activate();
 
         // Will be called three times: once when the annotations are complete,
         // once when this view is activated, and once when the text is complete.
@@ -200,9 +200,15 @@ class SourcePanel extends CompositeView {
         this.$el.html(this.template({
             title: names ? names[0] : ''
         }));
-        this.loadingSpinnerView = new LoadingSpinnerView().render();
-        this.$el.append(this.loadingSpinnerView.$el);
+        if (this.loadingSpinnerView) {
+            this.$('.source-container').prepend(this.loadingSpinnerView.$el);
+        }
         return this;
+    }
+
+    remove(): this {
+        if (this.loadingSpinnerView) this.loadingSpinnerView.remove();
+        return super.remove();
     }
 
     /**

@@ -32,8 +32,8 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
             this.collection.sort();
         }
         else this.collection.comparator = this.sortByDate;
+        this.loadingSpinnerView = new LoadingSpinnerView();
         this.initItems().render().initCollectionEvents();
-        this.initializeLoadingSpinner();
         this.listenToOnce(this.collection, 'sync', this.renderSourceList);
         this.on('announceRoute', announce);
         return this;
@@ -47,15 +47,17 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
         return view;
     }
 
-    initializeLoadingSpinner() {
-        this.loadingSpinnerView = new LoadingSpinnerView().render();
-        this.$el.append(this.loadingSpinnerView.$el);
-        this.loadingSpinnerView.activate();
-    }
-
     renderContainer(): this {
         this.$el.html(this.template(this));
+        if (this.loadingSpinnerView) {
+            this.loadingSpinnerView.$el.appendTo(this.$el);
+        }
         return this;
+    }
+
+    remove(): this {
+        if (this.loadingSpinnerView) this.loadingSpinnerView.remove();
+        return super.remove();
     }
 
     renderSourceList() {

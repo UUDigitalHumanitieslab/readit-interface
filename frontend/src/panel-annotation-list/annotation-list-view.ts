@@ -28,8 +28,8 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
 
     initialize(): void {
         this._byId = {};
+        this.loadingSpinnerView = new LoadingSpinnerView();
         this.initItems().render();
-        this.loadingSpinnerView.activate();
         this.listenToOnce(this.collection.underlying, {
             sync: this._hideLoadingSpinner,
             error: this._hideLoadingSpinner,
@@ -42,12 +42,6 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
             sort: this.placeItems,
             reset: this.resetItems
         }).on('announceRoute', announce);
-    }
-
-    renderContainer(): this {
-        this.loadingSpinnerView = new LoadingSpinnerView().render();
-        this.$el.append(this.loadingSpinnerView.$el);
-        return this;
     }
 
     _hideLoadingSpinner(): void {
@@ -87,7 +81,7 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
 
     placeItems(): this {
         if (this.loadingSpinnerView) {
-            this.loadingSpinnerView.$el.appendTo(this.summaryList);
+            this.loadingSpinnerView.$el.appendTo(this.$el);
         } else {
             // Behaving like a CollectionView in this branch, but we always
             // combine sorting and placing because this method is bound to the
