@@ -1,7 +1,7 @@
 import { noop, each, includes } from 'lodash';
 
 import Model from '../core/model';
-import { rdf, dcterms, oa, readit, item, nlp } from '../common-rdf/ns';
+import { dcterms, oa, item, vocab } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import {

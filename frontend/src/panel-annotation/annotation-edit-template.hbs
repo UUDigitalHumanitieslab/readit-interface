@@ -5,6 +5,10 @@
             <a class="is-link" href="http://dhstatic.hum.uu.nl/readit/AnnotationGuide.pdf" target="_blank">the
                 Annotation Guide</a>)
         </p>
+        <label class="checkbox">
+            <input type="checkbox" class="verification-checkbox" checked={{needsVerification}}>
+            Needs verification
+        </label>
     </header>
 </div>
 <form class="anno-edit-form panel-form">
@@ -71,12 +75,6 @@
                 </div>
             </div>
             <div class="level-right">
-                <div class="level-item">
-                    <label class="checkbox">
-                        <input type="checkbox" class="verification-checkbox" checked={{needsVerification}}>
-                        Needs verification
-                    </label>
-                </div>
                 <div class="level-item">
                     {{#userIsOwner}}<button type=button class="button is-danger">
                         Delete
