@@ -86,6 +86,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         if (creator && (creator.id === currentUser)) this.userIsOwner = true;
         if (this.userIsOwner) this.render();
         this.needsVerification = model.get('needsVerification');
+        if (this.needsVerification) this.render();
     }
 
     /**
