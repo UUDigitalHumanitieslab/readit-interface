@@ -1,7 +1,7 @@
 import { noop, each, includes } from 'lodash';
 
 import Model from '../core/model';
-import { rdf, dcterms, oa, readit, item, nlp } from '../common-rdf/ns';
+import { dcterms, oa, item, vocab } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import {
@@ -218,6 +218,7 @@ export default class FlatItem extends Model {
         if (annotation) {
             annotation.whenever(oa.hasBody, this.updateBodies, this);
             this.trackProperty(annotation, oa.hasTarget, 'target');
+            this.trackProperty(annotation, vocab.needsVerification, 'needsVerification');
         }
     }
 

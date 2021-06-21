@@ -3,7 +3,7 @@ import 'select2';
 
 import { CompositeView } from '../core/view';
 import ldChannel from '../common-rdf/radio';
-import { oa, owl, rdf, schema, skos } from '../common-rdf/ns';
+import { oa, rdf, skos, vocab } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 
@@ -12,7 +12,7 @@ import PickerView from '../forms/select2-picker-view';
 import ItemGraph from '../common-adapters/item-graph';
 import ClassPickerView from '../forms/ontology-class-picker-view';
 import SnippetView from '../snippet/snippet-view';
-import { isRdfsClass, isBlank, isAnnotationCategory } from '../utilities/linked-data-utilities';
+import { isBlank, isAnnotationCategory } from '../utilities/linked-data-utilities';
 import { placeholderClassItem } from '../utilities/annotation-utilities';
 import {
     savePlaceholderAnnotation,
@@ -43,6 +43,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     classPicker: ClassPickerView;
     snippetView: SnippetView;
     userIsOwner: boolean;
+    needsVerification: boolean;
     itemPicker: PickerView;
     itemOptions: ItemGraph;
     itemEditor: ItemEditor;
@@ -61,9 +62,9 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             collection: categories
         });
         this.snippetView = new SnippetView({ model: this.model }).render();
-
         this.model.when('annotation', this.processAnnotation, this);
         this.model.when('class', this.processClass, this);
+        this.model.on('change:needsVerification', this.changeVerification, this);
         // Two conditions must be met before we run processItem:
         const processItem = after(2, this.processItem);
         // 1. the original item body of the annotation is known,
@@ -84,6 +85,8 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         const currentUser = ldChannel.request('current-user-uri');
         if (creator && (creator.id === currentUser)) this.userIsOwner = true;
         if (this.userIsOwner) this.render();
+        this.needsVerification = model.get('needsVerification');
+        if (this.needsVerification) this.render();
     }
 
     /**
@@ -224,6 +227,10 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         this.selectClass(cls);
     }
 
+    changeVerification(model: FlatItem): void {
+        this.needsVerification = model.get('needsVerification');
+    }
+
     selectItem(itemPicker: PickerView, id: string): void {
         this.removeEditor();
         this.setItem(this.itemOptions.get(id));
@@ -297,6 +304,12 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         return this;
     }
 
+    onVerificationChanged() {
+        this.model.underlying.unset(vocab.needsVerification);
+        this.needsVerification = !this.needsVerification;
+        this.model.underlying.set(vocab.needsVerification, this.needsVerification);
+    }
+
     saveOnEnter(event) {
         if (event.keyCode == 13) {
             this.submit();
@@ -328,5 +341,6 @@ extend(AnnotationEditView.prototype, {
         'click .btn-rel-items': 'onRelatedItemsClicked',
         'click .item-picker-container .field:last button': 'createItem',
         'keyup input': 'saveOnEnter',
+        'change .verification-checkbox': 'onVerificationChanged'
     },
 });

@@ -37,6 +37,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     properties: any;
     annotationSerial: string;
     itemSerial: string;
+    needsVerification: boolean;
 
     initialize() {
         this.properties = {};
@@ -48,6 +49,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         model.whenever('item', this.processItem, this);
         model.whenever('label', this.processLabel, this);
         model.whenever('text', this.processText, this);
+        model.whenever('needsVerification', this.processVerificationStatus, this);
         this.listenToOnce(model.underlying, 'error', report404);
         this.render().listenTo(model, 'change', this.render);
     }
@@ -103,6 +105,11 @@ export default class AnnotationView extends CompositeView<FlatItem> {
 
     processText(model: FlatItem, text: string): void {
         this.label = getLabelText(text);
+    }
+
+    processVerificationStatus(model: FlatItem): void {
+        this.needsVerification = model.get('needsVerification');
+        if (this.needsVerification) this.render();
     }
 
     renderContainer(): this {
