@@ -214,6 +214,7 @@ export function serializeChain(
 ): TaggedSyntax {
     const chain = entry.get('chain');
     if (!chain) return;
+    let lastAssertedType = '';
     const predicates: Node[] = [];
     const args: string[] = [];
     let variableOut: string = variableIn;
@@ -253,20 +254,24 @@ export function serializeChain(
             // Add another property to traverse.
             predicates.push(model.get('selection'));
             if (variableOut === variableIn) variableOut = nextVariable();
+        } else if (model.get('assertion')) {
+            lastAssertedType = model.get('selection').id;
         }
         // You may wonder why there is no final `else` clause. The reason is
-        // that some models in a chain only serve a purpose for the UI. Those
-        // are (1) the models corresponding to an "expect type" choice, which
-        // are currently left implicit in the SPARQL query (since the traversed
-        // properties already imply a type), and (2) filter selections, which
-        // are always followed by another model with `scheme === 'filter'`.
+        // that filter selections only serve a purpose for the UI. Those are
+        // always followed by another model with `scheme === 'filter'`.
         ++index;
     }
     if (!tail) throw new RangeError(
         `Incomplete chain: ${JSON.stringify(chain, null, 4)}`
     );
-    if (!predicates.length) return tail;
-    const head = `${variableIn} ${serializePath(predicates, ns)} ${variableOut}.\n`;
+    let head = '';
+    if (predicates.length) {
+        head = `${variableIn} ${serializePath(predicates, ns)} ${variableOut}.\n`;
+    } else {
+        if (!lastAssertedType || tail.tag === 'pattern') return tail;
+        head = `${variableIn} a ${serializeIri(lastAssertedType, ns)}.\n`
+    }
     return tagPattern(
         tail.tag === 'expression' ?
         `${head}FILTER ${tail.expression}\n` :
