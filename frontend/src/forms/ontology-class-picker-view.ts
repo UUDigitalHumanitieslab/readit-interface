@@ -8,6 +8,7 @@ import { CollectionView } from '../core/view';
 import LabelView from '../label/label-view';
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 import ontologyClassPickerTemplate from './ontology-class-picker-template';
+import OntologyClassPickerChildrenView from './ontology-class-picker-children-view';
 
 
 export default class OntologyClassPickerView extends CollectionView<
@@ -18,6 +19,7 @@ export default class OntologyClassPickerView extends CollectionView<
     label: any;
     externalCloseHandler: any;
     leafNodes: FilteredCollection<FlatItem>;
+    childrenPicker: OntologyClassPickerChildrenView;
 
 
     initialize(): this {
@@ -65,6 +67,7 @@ export default class OntologyClassPickerView extends CollectionView<
     }
 
     remove(): this {
+        if (this.childrenPicker) this.childrenPicker.remove();
         this.externalCloseHandler.off();
         if (this.label) this.label.remove();
         super.remove();
@@ -119,17 +122,13 @@ export default class OntologyClassPickerView extends CollectionView<
     }
 
     onSuperclassHovered(model: FlatItem) {
-        this.leafNodes.forEach(node => {
+        const children = new FilteredCollection<FlatItem>(this.leafNodes, node => {
             const prefParent = node.underlying.get(skos.related)[0] as FlatItem;
+            return prefParent.id == model.id;
+        })
 
-            if (prefParent.id == model.id) {
-                const modelIndex = this.collection.indexOf(model);
-                this.collection.add(node, { at: modelIndex + 1 });
-            } else {
-                this.collection.remove(node);
-            }
-        });
-
+        this.childrenPicker = new OntologyClassPickerChildrenView({ collection: children });
+        this.$('.sub-picker').html(this.childrenPicker.el);
     }
 
     onItemActivated(view: OntologyClassPickerItemView): this {
@@ -141,8 +140,8 @@ export default class OntologyClassPickerView extends CollectionView<
 extend(OntologyClassPickerView.prototype, {
     className: 'ontology-class-picker',
     template: ontologyClassPickerTemplate,
-    container: '.dropdown-content',
+    container: '.super-picker',
     events: {
         'click': 'onClick',
-    }
+    },
 });
