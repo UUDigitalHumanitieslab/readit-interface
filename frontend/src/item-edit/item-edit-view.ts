@@ -2,12 +2,11 @@ import { extend } from 'lodash';
 import { ViewOptions as BViewOptions } from 'backbone';
 
 import { CompositeView } from '../core/view';
-import ldChannel from '../common-rdf/radio';
 import { skos } from '../common-rdf/ns';
 import Label from '../label/label-view';
-import { getLabel } from '../utilities/linked-data-utilities';
 import editorTemplate from './item-edit-template';
 import FlatItem from '../common-adapters/flat-item-model';
+import LinkedItemsMultifield from './linked-items-multifield';
 
 export const labelLanguage = 'en';
 
@@ -22,6 +21,7 @@ export interface ViewOptions extends BViewOptions<FlatItem> {
 
 export default class ItemEditor extends CompositeView<FlatItem> {
     categoryLabel: Label;
+    itemMultifield: LinkedItemsMultifield;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -32,6 +32,9 @@ export default class ItemEditor extends CompositeView<FlatItem> {
             model: this.model,
             id: `category-${this.cid}`,
         });
+        this.itemMultifield = new LinkedItemsMultifield({
+            model: this.model.underlying
+        })
         this.render();
         this.model.whenever('label', this.itemLabelFromModel, this);
     }
@@ -84,6 +87,10 @@ extend(ItemEditor.prototype, {
         selector() {
             return `label[for="category-${this.cid}"]`;
         },
-        method: 'after',
+        method: 'after'
+    },
+        {
+            view: 'itemMultifield',
+            selector: '.item-multifield'
     }],
 });
