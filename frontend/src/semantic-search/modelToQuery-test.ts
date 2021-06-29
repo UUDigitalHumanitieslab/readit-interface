@@ -412,6 +412,50 @@ describe('semantic search query serialization', function() {
                 ),
             });
         });
+
+        it('injects type assertions where possible and necessary', function() {
+            const firstClass = this.ontology.first();
+            const secondClass = this.ontology.at(1);
+            const p1 = serializeIri(firstClass.id, ns);
+            const p2 = serializeIri(secondClass.id, ns);
+            const entry = new Model({
+                chain: new Collection([{
+                    range: new Graph([{ '@id': rdfs.range }]),
+                    assertion: true,
+                    selection: firstClass,
+                }, {
+                    scheme: 'logic',
+                    action: 'and',
+                    branches: new Collection([{
+                        chain: new Collection([{
+                            range: new Graph([{ '@id': rdfs.range }]),
+                            assertion: true,
+                            selection: secondClass,
+                        }, {
+                            scheme: 'filter',
+                            filter: new Model({ function: 'isIri' }),
+                            range: new Graph([{ '@id': rdfs.range }]),
+                        }]),
+                    }, {
+                        chain: new Collection([{
+                            scheme: 'filter',
+                            filter: new Model({ operator: '=' }),
+                            range: new Graph([{ '@id': rdfs.range }]),
+                            value: owl.inverseOf,
+                        }]),
+                    }]),
+                }]),
+            });
+            const v = predictVariables(2);
+            expect(serializeChain(entry, '?a', ns)).toEqual({
+                tag: 'pattern',
+                pattern: (
+                    `?a a ${p2}.\n` +
+                    `FILTER isIri(?a)\n` +
+                    `FILTER (?a = ${serializeIri(owl.inverseOf, ns)})\n`
+                ),
+            });
+        });
     });
 
     describe('modelToQuery', function() {
