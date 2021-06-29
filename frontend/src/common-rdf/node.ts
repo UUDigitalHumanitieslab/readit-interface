@@ -51,8 +51,11 @@ type UnoptimizedNative = Exclude<OptimizedNative, Identifier | OptimizedNativeAr
 export type Native = UnoptimizedNative | Node | NativeArray;
 export interface NativeArray extends Array<Native> { }
 
+// The Node.get method can optionally filter by @type OR @language.
+// @language implies xsd:string, so the @type is ignored in this case.
 export interface NodeGetOptions {
     '@type'?: string;
+    '@language'?: string | string[];
 }
 export interface TypeFilter {
     (value: OptimizedNative): boolean;
