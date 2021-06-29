@@ -174,14 +174,16 @@ export default class Dropdown extends CompositeView {
             ldChannel.request('obtain', id)
         );
         this.model.set('selection', model);
-        if (
-            this.predicateGroup &&
-            this.predicateGroup.collection.has(model.id)
-        ) {
-            this.model.set('traversal', true);
-        } else {
-            this.model.unset('traversal');
-        }
+        each({
+            traversal: this.predicateGroup,
+            assertion: this.typeGroup,
+        }, (group, key) => {
+            if (group && group.collection.has(model.id)) {
+                this.model.set(key, true);
+            } else {
+                this.model.unset(key);
+            }
+        });
         this.trigger('change', this, model, event);
     }
 }
