@@ -5,6 +5,12 @@ import { t } from 'i18next';
 import Collection from '../core/collection';
 import { xsd } from '../common-rdf/ns';
 
+/**
+ * In this module, we define the logic operators, filters and option groups
+ * that are available inside the Dropdown view. Each model has a `label` and an
+ * `i18nKey`. The labels get translated automatically when i18next is ready.
+ */
+
 export const logic = new Collection([{
     id: 'logic:and',
     label: 'AND',
@@ -19,6 +25,10 @@ export const logic = new Collection([{
     i18nKey: 'filters.not',
 }]);
 
+// The `uris`, `literals` and `restrict` attributes of each filter enable the
+// Dropdown view to determine whether a filter is applicable to the current
+// selection. The `operator` and `function` attributes inform SPARQL generation
+// in the modelToQuery algorithm.
 export const filters = new Collection([{
     id: 'filter:equals',
     label: 'Is exactly',

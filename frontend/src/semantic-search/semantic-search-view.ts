@@ -9,6 +9,14 @@ import Chain from './chain-view';
 import Multibranch from './multibranch-view';
 import semTemplate from './semantic-search-template';
 
+/**
+ * SemanticSearchView represents the semantic search form as a whole. It
+ * consists of a single Chain (which can branch out to arbitrary width and
+ * depth) and a submit button. SemanticSearchView is in charge of creating all
+ * Multibranches inside the Chain. It also ensures that the submit button is
+ * only enabled when the form is complete. Both of these features are
+ * coordinated with the subviews through the semChannel.
+ */
 export default class SemanticSearchView extends CompositeView {
     topChain: Chain;
     // Counters to keep track of form completeness.
