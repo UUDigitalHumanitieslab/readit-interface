@@ -8,7 +8,9 @@ import semChannel from './radio';
 import MultibranchRow from './multibranch-row-view';
 
 /**
- * .rowManager of Chains in a Multifield.
+ * Multibranch is the .rowManager of Chains in a Multifield (see `../forms/`).
+ * This containing Multifield is in turn appended as the final element of a
+ * Chain when the user selects an AND/OR operator in the previous Dropdown.
  */
 export default class Multibranch extends CollectionView {
     initialize(): void {
