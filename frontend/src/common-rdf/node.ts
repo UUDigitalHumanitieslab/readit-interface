@@ -4,6 +4,9 @@ import {
     mapValues,
     filter,
     forEach,
+    indexOf,
+    groupBy,
+    compact,
     some,
     unionWith,
     differenceWith,
@@ -19,7 +22,7 @@ import {
     isPlainObject,
 } from 'lodash';
 import {
-    compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
+    // compact,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
     expand,   // (jsonld, options?, callback?) => Promise<jsonld>
     flatten,  // (jsonld, ctx, options?, callback?) => Promise<jsonld>
     processContext,  // (activeCtx, localCtx, options?, callback?) => Promise<ctx>
@@ -167,8 +170,19 @@ export default class Node extends Model {
     ): T extends '@id' ? string : NativeArray {
         let value = super.get(key);
         if (isArray(value) && key !== '@type') {
-            let type = options && options['@type'];
-            if (!isUndefined(type)) value = filter(value, typeFilter(type));
+            if (options) {
+                let { '@type': type, '@language': language } = options;
+                if (language) {
+                    if (isString(language)) language = [language];
+                    const tiers: any = groupBy(value, languageCategory(language));
+                    tiers.length = language.length;
+                    value = [];
+                    value = value.concat.apply(value, compact(tiers));
+                    return value.concat(tiers.generic || [], tiers[-1] || []);
+                } else if (!isUndefined(type)) {
+                    value = filter(value, typeFilter(type));
+                }
+            }
             return map(value, id2node.bind(this)) as T extends '@id' ? string : NativeArray;
         }
         return value;
@@ -274,4 +288,13 @@ function typeFilter(typeName: string): TypeFilter {
     if (typeName === xsd.integer || typeName === xsd.double) return isNumber;
     if (typeName === xsd.string) return isString;
     return value => value['@type'] === typeName;
+}
+
+function languageCategory(preferredLanguages: string[]) {
+    return function(value: OptimizedNative): string | number {
+        if (!isString(value)) return 'nostring';
+        const language = value['@language'];
+        if (!language) return 'generic';
+        return indexOf(preferredLanguages, language);
+    };
 }
