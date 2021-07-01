@@ -4,6 +4,7 @@ import {
     getLabelFromId,
     getCssClassName,
     isRdfsClass,
+    isRdfProperty,
     isOntologyClass,
     isBlank,
     transitiveClosure,
@@ -171,6 +172,29 @@ describe('utilities', function () {
             let node = new Node(attributes);
 
             expect(isRdfsClass(node)).toBeFalsy();
+        });
+    });
+
+    describe('isRdfProperty', function() {
+        it('recognizes straight-on properties', function() {
+            const yes = new Node({ '@type': rdf.Property }), no = new Node();
+            expect(isRdfProperty(yes)).toBeTruthy();
+            expect(isRdfProperty(no)).toBeFalsy();
+        });
+
+        it('recognizes OWL object properties', function() {
+            const owlProp = new Node({ '@type': owl.ObjectProperty });
+            expect(isRdfProperty(owlProp)).toBeTruthy();
+        });
+
+        it('recognizes subproperties', function() {
+            const subProp = new Node({ [rdfs.subPropertyOf]: rdfs.range });
+            expect(isRdfProperty(subProp)).toBeTruthy();
+        });
+
+        it('recognizes inverse properties', function() {
+            const inverseProp = new Node({ [owl.inverseOf]: rdfs.range });
+            expect(isRdfProperty(inverseProp)).toBeTruthy();
         });
     });
 

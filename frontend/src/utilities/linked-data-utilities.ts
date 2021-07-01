@@ -4,7 +4,9 @@ import ldChannel from '../common-rdf/radio';
 import { Identifier, isIdentifier } from '../common-rdf/json';
 import Node, { isNode, NodeLike } from '../common-rdf/node';
 import Graph, { ReadOnlyGraph } from '../common-rdf//graph';
-import { nlp, skos, rdfs, readit, dcterms, owl, schema } from '../common-rdf/ns';
+import {
+    nlp, skos, rdf, rdfs, readit, dcterms, owl, schema,
+} from '../common-rdf/ns';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -64,6 +66,16 @@ export function asURI(source: Node | string): string {
  */
 export function isRdfsClass(node: Node): boolean {
     return node.has(rdfs.subClassOf) || node.has('@type', owl.Class) || node.has('@type', rdfs.Class);
+}
+
+/**
+ * Check if a node is a rdf:Property, i.e., has rdf:Property or
+ * owl:ObjectProperty as (one of its) type(s) or has a non-empty
+ * rdfs:subPropertyOf or owl:inverseOf property.
+ * @param node The node to evaluate
+ */
+export function isRdfProperty(node: Node): boolean {
+    return node.has(rdfs.subPropertyOf) || node.has(owl.inverseOf) || node.has('@type', rdf.Property) || node.has('@type', owl.ObjectProperty);
 }
 
 /**
