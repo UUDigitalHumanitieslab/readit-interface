@@ -1,5 +1,5 @@
 import { extend } from 'lodash';
-import { ViewOptions as BViewOptions } from 'backbone';
+import { Collection, ViewOptions as BViewOptions } from 'backbone';
 
 import { CompositeView } from '../core/view';
 import { skos } from '../common-rdf/ns';
@@ -33,7 +33,8 @@ export default class ItemEditor extends CompositeView<FlatItem> {
             id: `category-${this.cid}`,
         });
         this.itemMultifield = new LinkedItemsMultifield({
-            model: this.model.underlying
+            model: this.model.underlying,
+            collection: new Collection()
         })
         this.render();
         this.model.whenever('label', this.itemLabelFromModel, this);
@@ -71,7 +72,7 @@ export default class ItemEditor extends CompositeView<FlatItem> {
 
     submit(event: JQuery.TriggeredEvent): void {
         event.preventDefault();
-        this.trigger('submit', this);
+        this.itemMultifield.commitChanges();
     }
 }
 

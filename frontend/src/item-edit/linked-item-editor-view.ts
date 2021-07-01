@@ -24,9 +24,9 @@ export default class LinkedItemEditor extends CompositeView {
         this.predicatePicker = new PickerView({ collection: this.collection });
         this.predicatePicker.on('change', this.updatePredicate, this);
         if (!this.model) this.model = new Model();
-        this.predicateFromModel(this.model).objectFromModel(this.model);
+        // this.predicateFromModel(this.model).objectFromModel(this.model);
         this.removeButton = new RemoveButton().on('click', this.close, this);
-        this.literalField = new InputField();
+        this.literalField = new InputField().on('change', this.updateObject, this);
         this.render();
     }
 
@@ -38,16 +38,11 @@ export default class LinkedItemEditor extends CompositeView {
     updatePredicate(picker: PickerView, id: string): void {
         const predicate = this.collection.get(id);
         this.model.set('predicate', predicate);
-        this.model.unset('object');
-        this.resetObjectPicker(predicate);
+        if (this.model.has('object')) this.model.unset('object');
     }
 
-    updateObject(picker: RangePicker, id: string): void {
-        this.model.set('object', picker.collection.get(id));
-    }
-
-    resetObjectPicker(predicate: Node): this {
-        return this;
+    updateObject(labelField: InputField, val: string): void {
+        this.model.set('object', val);
     }
 
     createPicker(predicate: Node): RangePicker {
@@ -61,12 +56,11 @@ export default class LinkedItemEditor extends CompositeView {
         selectedPredicate || (selectedPredicate = model.get('predicate'));
         if (!selectedPredicate) return this;
         this.predicatePicker.val(selectedPredicate.id);
-        return this.resetObjectPicker(selectedPredicate);
+        return this;
     }
 
-    objectFromModel(model: Model, selectedObject?: Node): this {
-        selectedObject || (selectedObject = model.get('object'));
-        // selectedObject && this.objectPicker.val(selectedObject.id)
+    objectFromModel(model: Model, setLiteral: string): this {
+        setLiteral || (setLiteral = model.get('object'));
         return this;
     }
 

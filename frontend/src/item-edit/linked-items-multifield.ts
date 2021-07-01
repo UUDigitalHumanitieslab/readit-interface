@@ -1,10 +1,10 @@
-import { extend, after, bind } from 'lodash';
+import { extend, after, bind, intersection, some, startsWith, isEqual } from 'lodash';
 import * as a$ from 'async';
 
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
-import { owl } from '../common-rdf/ns';
+import { owl, rdf, rdfs, xsd, xsdPrefix, xsdTerms } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
@@ -13,6 +13,8 @@ import { applicablePredicates, relationsFromModel } from '../utilities/relation-
 
 import LinkedItemEditor from './linked-item-editor-view';
 import AddButton from '../forms/add-button-view';
+import FilteredCollection from '../common-adapters/filtered-collection';
+import { getRdfSuperClasses } from '../utilities/linked-data-utilities';
 
 // Callback used in the commitChanges method.
 const commitCallback = a$.asyncify(n => n.save());
@@ -28,23 +30,27 @@ export default
     addButton: AddButton;
 
     initialize(): void {
-        // Start collecting relations only after both the full ontology has been
-        // fetched and the type of the model is known. Otherwise,
-        // `this.predicates` will remain empty.
-        const kickoff = after(2, bind(this.initAsync, this));
-        ldChannel.request('ontology:promise').then(kickoff);
-        this.model.when('@type', kickoff);
+        this.getPredicates().then(() => this.initItems().render().initCollectionEvents());
         this.changes = new Collection();
         this.addButton = new AddButton().on(
             'click', this.addRow, this
         ).render();
+        this.$el.append(this.addButton.el);
     }
 
-    initAsync(): void {
-        this.predicates = applicablePredicates(this.model);
-        this.collection = relationsFromModel(this.model, this.predicates);
-        this.initItems().render().initCollectionEvents();
-        this.$el.append(this.addButton.el);
+    async getPredicates() {
+        const parents = getRdfSuperClasses(this.model.get('@type') as string[]);
+        this.predicates = await ldChannel.request('visit', store => new FilteredCollection(store, node => {
+            if (node.has(rdfs.domain) && intersection(node.get(rdfs.domain), parents).length) {
+                if (!node.has(rdfs.range)) {
+                    return true;
+                }
+                else {
+                    return some(node.get(rdfs.range), n => (n.id === rdfs.Literal || startsWith(n.id, xsdPrefix)));
+                }
+            }
+            else return false;
+        }));
     }
 
     makeItem(model: Model): LinkedItemEditor {
@@ -59,8 +65,10 @@ export default
         return this;
     }
 
-    removeLinkedItem(item: Model): this {
-        this.registerUnset(item.attributes);
+    removeLinkedItem(view: LinkedItemEditor, item: Model): this {
+        if (item.attributes) {
+            this.registerUnset(item.attributes);
+        }
         this.collection.remove(item);
         return this;
     }
