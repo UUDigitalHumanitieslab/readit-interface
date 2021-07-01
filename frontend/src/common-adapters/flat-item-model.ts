@@ -239,7 +239,7 @@ export default class FlatItem extends Model {
     processBody(body: Node) {
         if (isBlank(body)) return this.set('item', body);
         const id = body.id;
-        if (id.startsWith(item())) return this.set('item', body);
+        if (id && id.startsWith(item())) return this.set('item', body);
         // We can add another line like the above to add support for
         // preannotations.
         return this.set('class', body);
