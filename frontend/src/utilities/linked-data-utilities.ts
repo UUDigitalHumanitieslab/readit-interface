@@ -60,8 +60,8 @@ export function asURI(source: Node | string): string {
 }
 
 /**
- * Check if a node is a rdfs:Class, i.e. has rdfs:Class or owl:Class as (one of its) type(s) or
- * has a non-empty rdfs:subClassOf property.
+ * Check if a node is a rdfs:Class, i.e., has rdfs:Class or owl:Class as (one of
+ * its) type(s) or has a non-empty rdfs:subClassOf property.
  * @param node The node to evaluate
  */
 export function isRdfsClass(node: Node): boolean {
@@ -79,7 +79,8 @@ export function isRdfProperty(node: Node): boolean {
 }
 
 /**
- * Check if a node is an annotation category used in the class picker when editing annotations.
+ * Check if a node is an annotation category used in the class picker when
+ * editing annotations.
  * @param node The node to evaluate
  */
 export function isAnnotationCategory(node: Node): boolean {

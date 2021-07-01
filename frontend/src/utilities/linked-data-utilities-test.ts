@@ -1,4 +1,10 @@
-import { rdf, rdfs, skos, item } from '../common-rdf/ns';
+import { startStore, endStore } from '../test-util';
+
+import { rdf, rdfs, owl, skos, item } from '../common-rdf/ns';
+import { FlatLdObject, FlatLdGraph } from '../common-rdf/json';
+import Node from '../common-rdf/node';
+import Graph from '../common-rdf/graph';
+
 import {
     getLabel,
     getLabelFromId,
@@ -11,10 +17,6 @@ import {
     getRdfSuperClasses,
     getRdfSubClasses,
 } from './linked-data-utilities';
-import { FlatLdObject, FlatLdGraph } from '../common-rdf/json';
-import Node from '../common-rdf/node';
-import Graph from '../common-rdf/graph';
-import { startStore, endStore } from '../test-util';
 
 function getDefaultNode(): Node {
     return new Node(getDefaultAttributes());
