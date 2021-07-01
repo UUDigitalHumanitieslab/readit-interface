@@ -1,19 +1,22 @@
-import { rdf, rdfs, skos, item } from '../common-rdf/ns';
+import { startStore, endStore } from '../test-util';
+
+import { rdf, rdfs, owl, skos, item } from '../common-rdf/ns';
+import { FlatLdObject, FlatLdGraph } from '../common-rdf/json';
+import Node from '../common-rdf/node';
+import Graph from '../common-rdf/graph';
+
 import {
     getLabel,
     getLabelFromId,
     getCssClassName,
     isRdfsClass,
+    isRdfProperty,
     isOntologyClass,
     isBlank,
     transitiveClosure,
     getRdfSuperClasses,
     getRdfSubClasses,
 } from './linked-data-utilities';
-import { FlatLdObject, FlatLdGraph } from '../common-rdf/json';
-import Node from '../common-rdf/node';
-import Graph from '../common-rdf/graph';
-import { startStore, endStore } from '../test-util';
 
 function getDefaultNode(): Node {
     return new Node(getDefaultAttributes());
@@ -171,6 +174,29 @@ describe('utilities', function () {
             let node = new Node(attributes);
 
             expect(isRdfsClass(node)).toBeFalsy();
+        });
+    });
+
+    describe('isRdfProperty', function() {
+        it('recognizes straight-on properties', function() {
+            const yes = new Node({ '@type': rdf.Property }), no = new Node();
+            expect(isRdfProperty(yes)).toBeTruthy();
+            expect(isRdfProperty(no)).toBeFalsy();
+        });
+
+        it('recognizes OWL object properties', function() {
+            const owlProp = new Node({ '@type': owl.ObjectProperty });
+            expect(isRdfProperty(owlProp)).toBeTruthy();
+        });
+
+        it('recognizes subproperties', function() {
+            const subProp = new Node({ [rdfs.subPropertyOf]: rdfs.range });
+            expect(isRdfProperty(subProp)).toBeTruthy();
+        });
+
+        it('recognizes inverse properties', function() {
+            const inverseProp = new Node({ [owl.inverseOf]: rdfs.range });
+            expect(isRdfProperty(inverseProp)).toBeTruthy();
         });
     });
 

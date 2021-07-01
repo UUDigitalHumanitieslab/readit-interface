@@ -2,7 +2,7 @@ import { forEach, some, keys, ListIterator, isString } from 'lodash';
 
 import Collection from '../core/collection';
 import ldChannel from '../common-rdf/radio';
-import { rdfs, owl, item } from '../common-rdf/ns';
+import { rdf, rdfs, owl, item } from '../common-rdf/ns';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
 import ItemGraph from '../common-adapters/item-graph';
@@ -48,6 +48,7 @@ export function applicablePredicates(model: Node | string): Graph {
     ontology.filter(matchRelatee(rdfs.range, allTypes)).forEach(direct => {
         let inverse = getInverse(direct, ontology);
         if (!inverse) inverse = new Node({
+            '@type': rdf.Property,
             [rdfs.label]: `inverse of ${getLabel(direct)}`,
             [owl.inverseOf]: direct,
         });
