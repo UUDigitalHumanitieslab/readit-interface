@@ -1,4 +1,5 @@
 import { find, includes, map, compact, some, isString } from 'lodash';
+import * as i18next from 'i18next';
 
 import ldChannel from '../common-rdf/radio';
 import { Identifier, isIdentifier } from '../common-rdf/json';
@@ -15,7 +16,9 @@ export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('nam
  */
 export function getLabel(node: Node): string {
     let labelKey = find(labelKeys, key => node.has(key));
-    if (labelKey) return node.get(labelKey)[0] as string;
+    if (labelKey) return node.get(labelKey, {
+        '@language': i18next.languages,
+    })[0] as string;
     return getLabelFromId(node.get('@id'));
 }
 
