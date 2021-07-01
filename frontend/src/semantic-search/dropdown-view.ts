@@ -147,9 +147,12 @@ export default class Dropdown extends CompositeView {
         this.render();
         // Conditionally open the dropdown on creation. This helps the user to
         // type her way through the form, saving keystrokes.
-        if (this.model.has('precedent') && !this.model.has('selection')) (
-            this.typeGroup || this.predicateGroup
-        ).collection.once('complete:all', this.open, this);
+        if (this.model.has('precedent') && !this.model.has('selection')) {
+            this.listenToOnce(
+                (this.typeGroup || this.predicateGroup).collection,
+                'complete:all', this.open
+            );
+        }
     }
 
     subviews(): SubViewDescription[] {
