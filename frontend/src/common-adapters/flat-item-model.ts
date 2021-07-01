@@ -9,6 +9,7 @@ import {
     getCssClassName,
     isBlank,
     isRdfsClass,
+    isRdfProperty,
 } from '../utilities/linked-data-utilities';
 
 /**
@@ -174,7 +175,7 @@ export default class FlatItem extends Model {
         } else if (node.has('@type', oa.TextQuoteSelector)) {
             this.set('quoteSelector', node);
             this._setCompletionFlag(F_COMPLETE ^ F_TEXT);
-        } else if (isRdfsClass(node)) {
+        } else if (isRdfsClass(node) || isRdfProperty(node)) {
             this.set('class', node);
             this._setCompletionFlag(F_COMPLETE ^ F_CLASS);
         } else {
