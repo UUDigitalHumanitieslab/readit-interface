@@ -28,6 +28,7 @@ import { announceRoute } from './utilities';
 import annotationEditTemplate from './annotation-edit-template';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import Collection from '../core/collection';
+import { truncateSync } from 'fs';
 
 /**
  * Helper function in order to pass the right classes to the classPicker.
@@ -251,6 +252,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         const annotation = this.model.get('annotation');
         previousItem && annotation.unset(oa.hasBody, previousItem);
         selectedItem && annotation.set(oa.hasBody, selectedItem);
+        this.resetItemMultifield(selectedItem);
     }
 
     createItem(): this {
@@ -263,6 +265,15 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         this.setItem(item);
         this.itemEditView = new ItemEditView({ model: new FlatItem(item) });
         this.$('.item-picker-container').after(this.itemEditView.el);
+        return this;
+    }
+
+    resetItemMultifield(item: Node): this {
+        this.itemMultifield = new LinkedItemsMultifield({
+            model: item,
+            collection: new Collection()
+        });
+        this.render();
         return this;
     }
 
