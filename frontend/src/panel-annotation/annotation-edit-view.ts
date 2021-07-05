@@ -7,7 +7,8 @@ import { oa, rdf, skos, vocab } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 
-import ItemEditor from '../item-edit/item-edit-view';
+import ItemEditView from '../item-edit/item-edit-view';
+import LinkedItemsMultifield from '../item-edit/linked-items-multifield';
 import PickerView from '../forms/select2-picker-view';
 import ItemGraph from '../common-adapters/item-graph';
 import ClassPickerView from '../forms/ontology-class-picker-view';
@@ -26,6 +27,7 @@ import FlatItemCollection from '../common-adapters/flat-item-collection';
 import { announceRoute } from './utilities';
 import annotationEditTemplate from './annotation-edit-template';
 import FilteredCollection from '../common-adapters/filtered-collection';
+import Collection from '../core/collection';
 
 /**
  * Helper function in order to pass the right classes to the classPicker.
@@ -46,7 +48,8 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     needsVerification: boolean;
     itemPicker: PickerView;
     itemOptions: ItemGraph;
-    itemEditor: ItemEditor;
+    itemEditView: ItemEditView;
+    itemMultifield: LinkedItemsMultifield;
     originalBodies: Node[];
     validator: JQueryValidation.Validator;
     ontologyClasses: Graph;
@@ -62,6 +65,10 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             collection: categories
         });
         this.snippetView = new SnippetView({ model: this.model }).render();
+        this.itemMultifield = new LinkedItemsMultifield({
+            model: this.model.get('item'),
+            collection: new Collection()
+        })
         this.model.when('annotation', this.processAnnotation, this);
         this.model.when('class', this.processClass, this);
         this.model.on('change:needsVerification', this.changeVerification, this);
@@ -141,6 +148,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     submit(): this {
+        this.itemMultifield.commitChanges();
         if (this.model.isNew() || isBlank(this.model.get('annotation'))) {
             this.submitNewAnnotation();
         } else {
@@ -151,6 +159,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
 
     submitItem(): Promise<boolean> {
         let newItem = false;
+        this.itemMultifield.commitChanges();
         const item = this.model.get('item');
         if (!item) return Promise.resolve(newItem);
         if (isBlank(item)) item.unset('@id');
@@ -245,22 +254,22 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     createItem(): this {
-        if (this.itemEditor) return this;
+        if (this.itemEditView) return this;
         const item = new Node({
             '@id': uniqueId('_:'),
             '@type': this.model.get('class').id,
             [skos.prefLabel]: '', // this prevents a failing getLabel
         });
         this.setItem(item);
-        this.itemEditor = new ItemEditor({ model: new FlatItem(item) });
-        this.$('.item-picker-container').after(this.itemEditor.el);
+        this.itemEditView = new ItemEditView({ model: new FlatItem(item) });
+        this.$('.item-picker-container').after(this.itemEditView.el);
         return this;
     }
 
     removeEditor(): this {
-        if (this.itemEditor) {
-            this.itemEditor.remove();
-            delete this.itemEditor;
+        if (this.itemEditView) {
+            this.itemEditView.remove();
+            delete this.itemEditView;
             this.setItem();
         }
         return this;
@@ -330,10 +339,15 @@ extend(AnnotationEditView.prototype, {
         view: 'snippetView',
         selector: '.snippet-container',
     }, {
-        view: 'itemEditor',
+        view: 'itemEditView',
         selector: '.item-picker-container',
         method: 'after',
-    }],
+        },
+        {
+            view: 'itemMultifield',
+            selector: '.item-multifield'
+        }
+    ],
     events: {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',

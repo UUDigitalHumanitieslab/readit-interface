@@ -22,11 +22,12 @@ export default class LinkedItemEditor extends CompositeView {
 
     initialize() {
         this.predicatePicker = new PickerView({ collection: this.collection });
-        this.predicatePicker.on('change', this.updatePredicate, this);
-        if (!this.model) this.model = new Model();
-        // this.predicateFromModel(this.model).objectFromModel(this.model);
+        this.literalField = new InputField();
         this.removeButton = new RemoveButton().on('click', this.close, this);
-        this.literalField = new InputField().on('change', this.updateObject, this);
+        if (!this.model) this.model = new Model();
+        this.predicateFromModel(this.model).objectFromModel(this.model);
+        this.literalField.on('change', this.updateObject, this);
+        this.predicatePicker.on('change', this.updatePredicate, this);
         this.render();
     }
 
@@ -59,8 +60,10 @@ export default class LinkedItemEditor extends CompositeView {
         return this;
     }
 
-    objectFromModel(model: Model, setLiteral: string): this {
+    objectFromModel(model: Model, setLiteral?: string): this {
         setLiteral || (setLiteral = model.get('object'));
+        if (!setLiteral) return this;
+        this.literalField.setValue(setLiteral);
         return this;
     }
 

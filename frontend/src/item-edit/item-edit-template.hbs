@@ -1,9 +1,4 @@
 <div class="field">
-    <label for="category-{{cid}}" class="label">Category</label>
-    {{! label view will be inserted here }}
-</div>
-
-<div class="field">
     <label for="label-{{cid}}" class="label">Preferred label (English)</label>
     <div class="control">
         <input type=text required id="label-{{cid}}" class="input">
@@ -18,24 +13,4 @@
             rel="noopener noreferrer"
         ><code>skos:prefLabel</code></a> with language <code>en</code>.
     </label>
-</div>
-
-<div class="field">
-    <label for="property-{{cid}}" class="label">Other properties</label>
-    <div class="item-multifield">
-        {{! Item Multifield inserted here}}
-    </div>
-</div>
-
-<div class="field">
-    <label for="related-{{cid}}" class="label">Related items</label>
-    <div class="control">
-        <input
-            type=text
-            readonly
-            value="You can add related items after saving."
-            id="related-{{cid}}"
-            class="input is-static"
-        >
-    </div>
 </div>

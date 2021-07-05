@@ -1,4 +1,4 @@
-import { extend, after, bind, intersection, some, startsWith, isEqual } from 'lodash';
+import { extend, intersection, some, startsWith } from 'lodash';
 import * as a$ from 'async';
 
 import Model from '../core/model';
@@ -9,12 +9,12 @@ import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import ItemGraph from '../common-adapters/item-graph';
-import { applicablePredicates, relationsFromModel } from '../utilities/relation-utilities';
 
 import LinkedItemEditor from './linked-item-editor-view';
 import AddButton from '../forms/add-button-view';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import { getRdfSuperClasses } from '../utilities/linked-data-utilities';
+import { NativeArray } from '../common-rdf/conversion';
 
 // Callback used in the commitChanges method.
 const commitCallback = a$.asyncify(n => n.save());
@@ -30,7 +30,10 @@ export default
     addButton: AddButton;
 
     initialize(): void {
-        this.getPredicates().then(() => this.initItems().render().initCollectionEvents());
+        this.getPredicates().then(() => {
+            this.getItems(this.model, this.predicates);
+            this.initItems().render().initCollectionEvents();
+        });
         this.changes = new Collection();
         this.addButton = new AddButton().on(
             'click', this.addRow, this
@@ -51,6 +54,22 @@ export default
             }
             else return false;
         }));
+    }
+
+    getItems(model: Node, predicates: Graph): this {
+        predicates.forEach(p => {
+            if (model.get(p.id)) {
+                const propertyArray = model.get(p.id) as NativeArray;
+                propertyArray.forEach(m => {
+                    this.collection.add(new Model({
+                        predicate: p,
+                        object: m
+                    })
+                    )
+                });
+            }
+        });
+        return this;
     }
 
     makeItem(model: Model): LinkedItemEditor {
@@ -92,15 +111,8 @@ export default
         const affectedItems = new ItemGraph();
         this.changes.forEach(update => {
             const { action, predicate, object } = update.attributes;
-            let inverse: Node | Node[] = predicate.get(owl.inverseOf) as Node[];
-            if (inverse) {
-                inverse = inverse[0];
-                object[action](inverse.id, this.model);
-                affectedItems.add(object);
-            } else {
-                this.model[action](predicate.id, object);
-                affectedItems.add(this.model);
-            }
+            this.model[action](predicate.id, object);
+            affectedItems.add(this.model);
         });
         return a$.eachLimit(affectedItems.models, 4, commitCallback).then(
             () => this.changes.reset()

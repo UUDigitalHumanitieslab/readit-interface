@@ -19,7 +19,7 @@
 
         <fieldset>
             <div class="field">
-                <label class="label"></label>
+                <label for="category-{{cid}}" class="label">Category</label>
                 <div class="control ontology-class-picker-container">
                     {{! Ontology class picker is inserted here }}
                 </div>
@@ -29,17 +29,11 @@
         </fieldset>
 
         <fieldset class="item-picker-container is-hidden">
-            <div class="field">
-                <label class="label">Which one?</label>
+            <label class="label">Label</label>
+            <div class="field has-addons">
                 <div class="control">
                     {{! Item picker will be inserted here }}
                 </div>
-            </div>
-
-            <div class="field">
-                <label class="label" for="{{cid}}-new-item">
-                    Doesn&rsquo;t exist yet?
-                </label>
                 <div class="control">
                     <button type=button class="button" id="{{cid}}-new-item">
                         Create new
@@ -47,22 +41,14 @@
                 </div>
             </div>
         </fieldset>
-
         {{! Item editing form will be inserted here }}
+        <div class="item-multifield">
+            <label class="label">Other properties</label>
+            {{! Item multifield will be inserted here }}
+        </div>
 
-        {{! Code below first implentation of a button to add related items.
-        Commented out for version 0.1.0 (i.e. Utrecht 2019 presentation), but might be useful in the future }}
-        {{!-- <section class="item-sections">
-            <article class="item-section has-mt-10">
-                <div class="item-section-header">
-                    <p>Add Related item</p>
-                    <span class="btn-rel-item icon is-large has-text-primary tooltip is-tooltip-left"
-                        data-tooltip="Add related item">
-                        <i class="fas fa-arrow-circle-right"></i>
-                    </span>
-                </div>
-            </article>
-        </section> --}}
+        </div>
+
     </div>
     <div class="panel-footer">
         <nav class="level is-mobile">

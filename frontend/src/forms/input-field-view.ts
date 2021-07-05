@@ -6,6 +6,11 @@ export default class InputField extends View {
         this.trigger('change', this, this.el.value, event);
     }
 
+    setValue(value: string) {
+        this.$el.val(value);
+        this.render();
+    }
+
 }
 extend(InputField.prototype, {
     tagName: 'input',
