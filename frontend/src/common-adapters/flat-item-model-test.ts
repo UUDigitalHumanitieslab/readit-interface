@@ -5,8 +5,13 @@ import {
 import { Events } from 'backbone';
 
 import { event, timeout, startStore, endStore } from '../test-util';
-import { contentClass, readerClass } from '../mock-data/mock-ontology';
+import {
+    contentClass,
+    readerClass,
+    descriptionOfProperty,
+} from '../mock-data/mock-ontology';
 import mockItems from '../mock-data/mock-items';
+
 import { skos, dcterms, oa, readit, item } from '../common-rdf/ns';
 import { asNative } from '../common-rdf/conversion';
 import Node from '../common-rdf/node';
@@ -238,6 +243,20 @@ describe('FlatItem', function() {
             'creator',
             'created'
         )));
+    });
+
+    it('can flatten a bare property', async function() {
+        const ontologyProp = new Node(descriptionOfProperty);
+        const flatProp = new FlatItem(ontologyProp);
+        await completion(flatProp);
+        expect(flatProp.attributes).toEqual({
+            id: ontologyProp.id,
+            class: ontologyProp,
+            classLabel: 'description of',
+            cssClass: 'is-readit-descriptionof',
+            creator: expectedFlatAttributes.creator,
+            created: expectedFlatAttributes.created,
+        });
     });
 
     it('can flatten a bare target', async function() {

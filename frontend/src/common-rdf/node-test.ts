@@ -1,4 +1,4 @@
-import { cloneDeep, get, set, initial, omit } from 'lodash';
+import { cloneDeep, get, set, initial, omit, map } from 'lodash';
 import { Model } from 'backbone';
 import { compact } from 'jsonld';
 
@@ -12,7 +12,7 @@ import {
 import context from '../mock-data/mock-context';
 
 import ldChannel from './radio';
-import { item, readit, staff, owl, dcterms, xsd } from './ns';
+import { item, readit, staff, owl, dcterms, xsd, skos } from './ns';
 import * as conversionModule from './conversion';
 import Node from './node';
 
@@ -217,6 +217,30 @@ describe('Node', function() {
             expectFilteredMatch(dcterms.created, null, 0);
             expectFilteredMatch(dcterms.title, xsd.string, 1);
             expectFilteredMatch(dcterms.title, '@id', 0);
+        });
+
+        it('can alternatively order by preferred language', function() {
+            const values = [
+                100,
+                { '@value': 'Sinaasappel', '@language': 'nl' },
+                'Orange',
+                { '@value': 'Portakal', '@language': 'tr' },
+            ];
+            const native = map(values, conversionModule.asNative);
+            const node = new Node({ [skos.prefLabel]: values });
+            expect(node.get(skos.prefLabel)).toEqual(native);
+            expect(node.get(skos.prefLabel, { '@type': xsd.string }))
+                .toEqual([ native[1], native[2], native[3] ]);
+            expect(node.get(skos.prefLabel, { '@language': 'nl' }))
+                .toEqual([ native[1], native[2], native[3] ]);
+            expect(node.get(skos.prefLabel, { '@language': 'tr' }))
+                .toEqual([ native[3], native[2], native[1] ]);
+            expect(node.get(skos.prefLabel, { '@language': 'en' }))
+                .toEqual([ native[2], native[1], native[3] ]);
+            expect(node.get(skos.prefLabel, { '@language': ['tr', 'nl'] }))
+                .toEqual([ native[3], native[1], native[2] ]);
+            expect(node.get(skos.prefLabel, { '@language': ['nl', 'tr'] }))
+                .toEqual([ native[1], native[3], native[2] ]);
         });
     });
 

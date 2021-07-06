@@ -36,6 +36,7 @@ describe('semantic search ChainView', function() {
         await event(view.items[0], 'ready');
         expect(view.items[0]['typeGroup']).toBeDefined();
         expect(view.items[0]['typeGroup'].collection.length).toBe(4);
+        view.remove();
     });
 
     it('can be constructed with a preselection', async function() {
@@ -46,6 +47,7 @@ describe('semantic search ChainView', function() {
         await event(view.items[0], 'ready');
         expect(view.items[0]['predicateGroup']).toBeDefined();
         expect(view.items[0]['predicateGroup'].collection.length).toBe(2);
+        view.remove();
     });
 
     it('appends dropdowns as choices are made', async function() {
@@ -58,5 +60,6 @@ describe('semantic search ChainView', function() {
         await event(dropdown2, 'ready');
         expect(dropdown2.predicateGroup).toBeDefined();
         expect(dropdown2.predicateGroup.collection.length).toBe(2);
+        view.remove();
     });
 });
