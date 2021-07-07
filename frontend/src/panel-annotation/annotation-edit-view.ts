@@ -225,7 +225,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             predicate: rdf.type,
             object: cls.id,
         });
-        this.removeEditor();
+        this.resetItem();
         this.$('.item-picker-container').removeClass('is-hidden');
         return this;
     }
@@ -242,7 +242,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     selectItem(itemPicker: PickerView, id: string): void {
-        this.removeEditor();
+        this.resetEditor();
         this.setItem(this.itemOptions.get(id));
     }
 
@@ -277,7 +277,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         return this;
     }
 
-    removeEditor(): this {
+    resetLabelEditor(): this {
         if (this.itemEditView) {
             this.itemEditView.remove();
             delete this.itemEditView;
@@ -319,11 +319,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         invokeMap(details, 'destroy');
     }
 
-    onRelatedItemsClicked(event: JQueryEventObject): this {
-        this.trigger('add-related-item', this.classPicker.getSelected());
-        return this;
-    }
-
     onVerificationChanged() {
         this.model.underlying.unset(vocab.needsVerification);
         this.needsVerification = !this.needsVerification;
@@ -351,8 +346,7 @@ extend(AnnotationEditView.prototype, {
         selector: '.snippet-container',
     }, {
         view: 'itemEditView',
-        selector: '.item-picker-container',
-        method: 'after',
+        selector: '.item-label',
         },
         {
             view: 'itemMultifield',
