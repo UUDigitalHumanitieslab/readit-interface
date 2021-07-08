@@ -23,7 +23,7 @@ export default class LinkedItemEditor extends CompositeView {
     initialize() {
         this.predicatePicker = new PickerView({ collection: this.collection });
         this.literalField = new InputField();
-        this.removeButton = new RemoveButton().on('click', this.close, this);
+        this.removeButton = new RemoveButton({ model: this.model.get('required') }).on('click', this.close, this);
         if (!this.model) this.model = new Model();
         this.predicateFromModel(this.model).objectFromModel(this.model);
         this.literalField.on('change', this.updateObject, this);

@@ -28,7 +28,6 @@ import { announceRoute } from './utilities';
 import annotationEditTemplate from './annotation-edit-template';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import Collection from '../core/collection';
-import { truncateSync } from 'fs';
 
 /**
  * Helper function in order to pass the right classes to the classPicker.
@@ -37,7 +36,6 @@ export function getOntologyClasses() {
     const ontology = ldChannel.request('ontology:graph') || new Graph();
     return new FilteredCollection<FlatItem>(ontology, isAnnotationCategory);
 }
-
 
 const announce = announceRoute(true);
 
@@ -149,18 +147,17 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     submit(): this {
-        this.itemMultifield.commitChanges();
         if (this.model.isNew() || isBlank(this.model.get('annotation'))) {
             this.submitNewAnnotation();
         } else {
             this.submitItem().then(this.submitOldAnnotation.bind(this));
         }
+        this.itemMultifield.commitChanges();
         return this;
     }
 
     submitItem(): Promise<boolean> {
         let newItem = false;
-        this.itemMultifield.commitChanges();
         const item = this.model.get('item');
         if (!item) return Promise.resolve(newItem);
         if (isBlank(item)) item.unset('@id');
@@ -225,8 +222,8 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             predicate: rdf.type,
             object: cls.id,
         });
-        this.resetLabelEditor();
         this.$('.item-picker-container').removeClass('is-hidden');
+        this.$('.item-edit-container').addClass('is-hidden');
         return this;
     }
 
@@ -242,7 +239,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     selectItem(itemPicker: PickerView, id: string): void {
-        this.resetLabelEditor();
         this.setItem(this.itemOptions.get(id));
     }
 
@@ -252,19 +248,24 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         const annotation = this.model.get('annotation');
         previousItem && annotation.unset(oa.hasBody, previousItem);
         selectedItem && annotation.set(oa.hasBody, selectedItem);
-        this.resetItemMultifield(selectedItem);
     }
 
     createItem(): this {
-        if (this.itemEditView) return this;
         const item = new Node({
             '@id': uniqueId('_:'),
             '@type': this.model.get('class').id,
             [skos.prefLabel]: '', // this prevents a failing getLabel
         });
         this.setItem(item);
-        this.itemEditView = new ItemEditView({ model: new FlatItem(item) });
-        this.$('.item-picker-container').after(this.itemEditView.el);
+        this.editItem(item);
+        return this;
+    }
+
+    editItem(item?: Node): this {
+        if (!item) {
+            item = this.model.get('item');
+        }
+        this.resetItemMultifield(item);
         return this;
     }
 
@@ -274,15 +275,8 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             collection: new Collection()
         });
         this.render();
-        return this;
-    }
-
-    resetLabelEditor(): this {
-        if (this.itemEditView) {
-            this.itemEditView.remove();
-            delete this.itemEditView;
-            this.setItem();
-        }
+        this.$('.item-edit-container').removeClass('is-hidden');
+        this.$('.item-picker-container').removeClass('is-hidden');
         return this;
     }
 
@@ -302,6 +296,12 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             this.collection.underlying.remove(this.model.underlying);
         }
         explorerChannel.trigger('annotationEditView:close', this);
+        return this;
+    }
+
+    onEditItemClicked(event: JQueryEventObject): this {
+        event.preventDefault();
+        this.editItem();
         return this;
     }
 
@@ -344,21 +344,18 @@ extend(AnnotationEditView.prototype, {
     }, {
         view: 'snippetView',
         selector: '.snippet-container',
-    }, {
-        view: 'itemEditView',
-        selector: '.item-label',
-        },
-        {
-            view: 'itemMultifield',
-            selector: '.item-multifield'
-        }
+        }, {
+        view: 'itemMultifield',
+        selector: '.item-multifield'
+    }
     ],
     events: {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
         'click .panel-footer button.is-danger': 'onDelete',
         'click .btn-rel-items': 'onRelatedItemsClicked',
-        'click .item-picker-container .field:last button': 'createItem',
+        'click .edit-item-button': 'onEditItemClicked',
+        'click .create-item-button': 'createItem',
         'keyup input': 'saveOnEnter',
         'change .verification-checkbox': 'onVerificationChanged'
     },

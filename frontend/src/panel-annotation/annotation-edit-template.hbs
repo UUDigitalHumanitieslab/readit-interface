@@ -29,24 +29,26 @@
         </fieldset>
 
         <fieldset class="item-picker-container is-hidden">
-            <label class="label">Label</label>
+            <label class="label">Which one?</label>
             <div class="field has-addons">
                 <div class="control">
                     {{! Item picker will be inserted here }}
                 </div>
                 <div class="control">
-                    <button type=button class="button" id="{{cid}}-new-item">
+                    <button type=button class="button create-item-button" id="{{cid}}-create-item">
                         Create new
+                    </button>
+                </div>
+                <div class="control">
+                    <button type=button class="button edit-item-button is-primary" id="{{cid}}-edit-item">
+                        Edit
                     </button>
                 </div>
             </div>
         </fieldset>
-        <fieldset>
-            <div class="item-label">
-                {{! Item editing form will be inserted here }}
-            </div>
+        <fieldset class="item-edit-container is-hidden">
             <div class="item-multifield">
-            <label class="label">Other properties</label>
+            <label class="label">Edit properties</label>
             {{! Item multifield will be inserted here }}
             </div>
         </fieldset>

@@ -4,7 +4,7 @@ import * as a$ from 'async';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
-import { owl, rdf, rdfs, xsd, xsdPrefix, xsdTerms } from '../common-rdf/ns';
+import { owl, rdf, rdfs, skos, xsd, xsdPrefix, xsdTerms } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
@@ -13,7 +13,7 @@ import ItemGraph from '../common-adapters/item-graph';
 import LinkedItemEditor from './linked-item-editor-view';
 import AddButton from '../forms/add-button-view';
 import FilteredCollection from '../common-adapters/filtered-collection';
-import { getRdfSuperClasses } from '../utilities/linked-data-utilities';
+import { getRdfSuperClasses, isRdfProperty } from '../utilities/linked-data-utilities';
 import { NativeArray } from '../common-rdf/conversion';
 
 // Callback used in the commitChanges method.
@@ -43,32 +43,51 @@ export default
 
     async getPredicates() {
         const parents = getRdfSuperClasses(this.model.get('@type') as string[]);
-        this.predicates = await ldChannel.request('visit', store => new FilteredCollection(store, node => {
-            if (node.has(rdfs.domain) && intersection(node.get(rdfs.domain), parents).length) {
-                if (!node.has(rdfs.range)) {
-                    return true;
-                }
-                else {
-                    return some(node.get(rdfs.range), n => (n.id === rdfs.Literal || startsWith(n.id, xsdPrefix)));
-                }
+        this.predicates = await ldChannel.request('visit', store => new FilteredCollection(store, node => isRdfProperty(node) && this.isEditableProperty(node, parents)
+        ));
+    }
+
+    isEditableProperty(node: Node, parents) {
+        if (node.has(rdfs.domain) && intersection(node.get(rdfs.domain), parents).length) {
+            if (!node.has(rdfs.range)) {
+                return true;
             }
-            else return false;
-        }));
+            else {
+                return some(node.get(rdfs.range), <Node>(n) => (n.id === rdfs.Literal || startsWith(n.id, xsdPrefix)));
+            }
+        }
+        // make sure all label types are editable properties
+        if (node.has(rdfs.subPropertyOf) && node.get(rdfs.subPropertyOf)[0].id === rdfs.label) {
+            return true;
+        }
+        else return false;
     }
 
     getItems(model: Node, predicates: Graph): this {
         predicates.forEach(p => {
+            let required = false;
             if (model.get(p.id)) {
+                if (p.id === skos.prefLabel) {
+                    required = true;
+                }
                 const propertyArray = model.get(p.id) as NativeArray;
                 propertyArray.forEach(m => {
                     this.collection.add(new Model({
                         predicate: p,
-                        object: m
+                        object: m,
+                        required: required
                     })
                     )
                 });
             }
         });
+        if (this.collection.length === 0) {
+            // skos.prefLabel is always visible
+            this.collection.add(new Model({
+                predicate: skos.prefLabel,
+                required: true
+            }));
+        }
         return this;
     }
 
