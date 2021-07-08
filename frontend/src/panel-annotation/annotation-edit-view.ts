@@ -225,7 +225,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             predicate: rdf.type,
             object: cls.id,
         });
-        this.resetItem();
+        this.resetLabelEditor();
         this.$('.item-picker-container').removeClass('is-hidden');
         return this;
     }
@@ -242,7 +242,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     selectItem(itemPicker: PickerView, id: string): void {
-        this.resetEditor();
+        this.resetLabelEditor();
         this.setItem(this.itemOptions.get(id));
     }
 
