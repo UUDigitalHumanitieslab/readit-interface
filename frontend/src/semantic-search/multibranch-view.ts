@@ -4,10 +4,13 @@ import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
 
+import semChannel from './radio';
 import MultibranchRow from './multibranch-row-view';
 
 /**
- * .rowManager of Chains in a Multifield.
+ * Multibranch is the .rowManager of Chains in a Multifield (see `../forms/`).
+ * This containing Multifield is in turn appended as the final element of a
+ * Chain when the user selects an AND/OR operator in the previous Dropdown.
  */
 export default class Multibranch extends CollectionView {
     initialize(): void {
@@ -18,6 +21,8 @@ export default class Multibranch extends CollectionView {
             this.addRow();
         }
         this.model.set('branches', this.collection = collection);
+        this.listenTo(this.model, 'change:lengthy', this.reportSupply);
+        this.listenTo(collection, 'update reset', this.checkSupply).checkSupply();
         this.initItems().render().initCollectionEvents();
     }
 
@@ -35,6 +40,19 @@ export default class Multibranch extends CollectionView {
     removeRow(row: MultibranchRow, model: Model): this {
         this.collection.remove(model);
         return this;
+    }
+
+    reportSupply(model, lengthy: boolean): void {
+        semChannel.trigger(`supply:${lengthy ? 'in' : 'de'}crease`);
+    }
+
+    checkSupply(): void {
+        this.model.set('lengthy', !!this.collection.length);
+    }
+
+    remove(): this {
+        this.model.set('lengthy', false);
+        return super.remove();
     }
 }
 

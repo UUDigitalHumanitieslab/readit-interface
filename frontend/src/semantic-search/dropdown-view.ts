@@ -36,6 +36,10 @@ function applicableTo(range: string): (Model) => boolean {
     }
 }
 
+/**
+ * Given a dropdown model, determine the classes that the current selection may
+ * belong to. In case of insufficient information, assume all ontology classes.
+ */
 async function normalizeRange(model: Model): Promise<Graph> {
     let range;
     const precedent = model.get('precedent');
@@ -78,15 +82,26 @@ extend(OptionGroup.prototype, {
     subview: Option,
 });
 
+/**
+ * Dropdown is a select2 form element composed out of OptionGroups. It inherits
+ * some methods from BasePicker and Select2Picker. Every time the user picks an
+ * option in a Dropdown, the containing Chain adds another form element after
+ * it.
+ */
 export default class Dropdown extends CompositeView {
+    // An option group for each of the four types of selection narrowing aids.
     logicGroup: View;
     filterGroup: View;
     typeGroup: View;
     predicateGroup: View;
+
+    // Declaring these members to make TS aware of prototype extensions.
     groupOrder: Array<keyof Dropdown>;
     val: BasePicker['val'];
     open: Select2Picker['open'];
 
+    // initialize is unusually complex because we need to determine which
+    // options are applicable to the preceding selection.
     async initialize(): Promise<void> {
         this.model = this.model || new Model();
         this.restoreSelection = debounce(this.restoreSelection, 50);
@@ -100,11 +115,15 @@ export default class Dropdown extends CompositeView {
             this.model.set('range', range);
         }
         if (range.length > 1) {
+            // If more than one possible type could come out of the preceding
+            // selection, don't present filter or property traversal options but
+            // ask the user to narrow the selection to a single type instead.
             this.typeGroup = new OptionGroup({
                 model: groupLabels.get('type'),
                 collection: new FlatCollection(range),
             });
         } else {
+            // Otherwise, omit the type group since there is only one type.
             range = range.at(0);
             const criterion = applicableTo(range.id);
             this.filterGroup = new OptionGroup({
@@ -126,9 +145,14 @@ export default class Dropdown extends CompositeView {
             });
         }
         this.render();
-        if (this.model.has('precedent') && !this.model.has('selection')) (
-            this.typeGroup || this.predicateGroup
-        ).collection.once('complete:all', this.open, this);
+        // Conditionally open the dropdown on creation. This helps the user to
+        // type her way through the form, saving keystrokes.
+        if (this.model.has('precedent') && !this.model.has('selection')) {
+            this.listenToOnce(
+                (this.typeGroup || this.predicateGroup).collection,
+                'complete:all', this.open
+            );
+        }
     }
 
     subviews(): SubViewDescription[] {
@@ -165,6 +189,7 @@ export default class Dropdown extends CompositeView {
         return this;
     }
 
+    // Handler for the form control's 'change' event.
     forwardChange(event): void {
         const id = this.val() as string;
         const scheme = id.split(':')[0];
@@ -174,14 +199,16 @@ export default class Dropdown extends CompositeView {
             ldChannel.request('obtain', id)
         );
         this.model.set('selection', model);
-        if (
-            this.predicateGroup &&
-            this.predicateGroup.collection.has(model.id)
-        ) {
-            this.model.set('traversal', true);
-        } else {
-            this.model.unset('traversal');
-        }
+        each({
+            traversal: this.predicateGroup,
+            assertion: this.typeGroup,
+        }, (group, key) => {
+            if (group && group.collection.has(model.id)) {
+                this.model.set(key, true);
+            } else {
+                this.model.unset(key);
+            }
+        });
         this.trigger('change', this, model, event);
     }
 }

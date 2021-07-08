@@ -40,6 +40,7 @@ describe('semantic search DropdownView', function() {
         expect(view.$('optgroup:nth-child(3) option').length).toBe(4);
         expect(view.$('optgroup:nth-child(3)').text()).toContain('Reader');
         expect(view.$('optgroup:nth-child(3)').text()).toContain('Person');
+        view.remove();
     });
 
     it('can be constructed with a property', async function() {
@@ -56,6 +57,7 @@ describe('semantic search DropdownView', function() {
         expect(view.$('optgroup:nth-child(3) option').length).toBe(2);
         expect(view.$('optgroup:nth-child(3)').text()).toContain('Reader');
         expect(view.$('optgroup:nth-child(3)').text()).toContain('Person');
+        view.remove();
     });
 
     it(`can be constructed with a single class`, async function() {
@@ -75,5 +77,6 @@ describe('semantic search DropdownView', function() {
         expect(view.$('optgroup:nth-child(4)').prop('label')).toBe('traverse predicate');
         expect(view.$('optgroup:nth-child(4) option').length).toBe(2);
         expect(view.$('optgroup:nth-child(4)').text()).toContain('description of');
+        view.remove();
     });
 });

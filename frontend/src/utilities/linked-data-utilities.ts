@@ -1,10 +1,13 @@
 import { find, includes, map, compact, some, isString } from 'lodash';
+import * as i18next from 'i18next';
 
 import ldChannel from '../common-rdf/radio';
 import { Identifier, isIdentifier } from '../common-rdf/json';
 import Node, { isNode, NodeLike } from '../common-rdf/node';
 import Graph, { ReadOnlyGraph } from '../common-rdf//graph';
-import { nlp, skos, rdfs, readit, dcterms, owl, schema } from '../common-rdf/ns';
+import {
+    nlp, skos, rdf, rdfs, readit, dcterms, owl, schema,
+} from '../common-rdf/ns';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -13,7 +16,9 @@ export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('nam
  */
 export function getLabel(node: Node): string {
     let labelKey = find(labelKeys, key => node.has(key));
-    if (labelKey) return node.get(labelKey)[0] as string;
+    if (labelKey) return node.get(labelKey, {
+        '@language': i18next.languages,
+    })[0] as string;
     return getLabelFromId(node.get('@id'));
 }
 
@@ -38,7 +43,8 @@ export function getCssClassName(node: Node): string {
 
     if (label) {
         label = label.replace(new RegExp(' ', 'g'), '').replace(new RegExp('[\(\)\/]', 'g'), '').toLowerCase();
-        if (node.id.startsWith(nlp())) {
+        const id = node.id;
+        if (id && id.startsWith(nlp())) {
             return `is-nlp-${label}`
         }
         else {
@@ -58,8 +64,8 @@ export function asURI(source: Node | string): string {
 }
 
 /**
- * Check if a node is a rdfs:Class, i.e. has rdfs:Class or owl:Class as (one of its) type(s) or
- * has a non-empty rdfs:subClassOf property.
+ * Check if a node is a rdfs:Class, i.e., has rdfs:Class or owl:Class as (one of
+ * its) type(s) or has a non-empty rdfs:subClassOf property.
  * @param node The node to evaluate
  */
 export function isRdfsClass(node: Node): boolean {
@@ -67,7 +73,18 @@ export function isRdfsClass(node: Node): boolean {
 }
 
 /**
- * Check if a node is an annotation category used in the class picker when editing annotations.
+ * Check if a node is a rdf:Property, i.e., has rdf:Property or
+ * owl:ObjectProperty as (one of its) type(s) or has a non-empty
+ * rdfs:subPropertyOf or owl:inverseOf property.
+ * @param node The node to evaluate
+ */
+export function isRdfProperty(node: Node): boolean {
+    return node.has(rdfs.subPropertyOf) || node.has(owl.inverseOf) || node.has('@type', rdf.Property) || node.has('@type', owl.ObjectProperty);
+}
+
+/**
+ * Check if a node is an annotation category used in the class picker when
+ * editing annotations.
  * @param node The node to evaluate
  */
 export function isAnnotationCategory(node: Node): boolean {
