@@ -23,7 +23,7 @@ export default class OntologyClassPickerChildrenView extends CollectionView<
     makeItem(model: FlatItem): OntologyClassPickerItemView {
         return new OntologyClassPickerItemView({ model, level: 0 }).on({
             click: this.onItemClicked,
-            activated: this.onItemActivated,
+            // activated: this.onItemActivated,
         }, this);
     }
 
@@ -66,17 +66,17 @@ export default class OntologyClassPickerChildrenView extends CollectionView<
     //     return this;
     // }
 
-    onItemClicked(view: OntologyClassPickerItemView): this {
+    onItemClicked(model: FlatItem): this {
         // this.select(view.model);
-        this.trigger('selected', view.model);
+        this.trigger('selected', model);
         return this;
     }
 
-    onItemActivated(view: OntologyClassPickerItemView): this {
-        // this.setLabel(view.model);
-        this.trigger('activated', view.model)
-        return this;
-    }
+    // onItemActivated(view: OntologyClassPickerItemView): this {
+    //     // this.setLabel(view.model);
+    //     this.trigger('activated', view.model)
+    //     return this;
+    // }
 }
 
 extend(OntologyClassPickerChildrenView.prototype, {

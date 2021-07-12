@@ -34,7 +34,7 @@ export default class OntologyClassPickerView extends CollectionView<
         return new OntologyClassPickerItemView({ model, level }).on({
             click: this.onItemClicked,
             hover: level === 0 ? this.onSuperclassHovered : undefined,
-            activated: this.onItemActivated,
+            // activated: this.onItemActivated,
         }, this);
     }
 
@@ -81,14 +81,7 @@ export default class OntologyClassPickerView extends CollectionView<
     select(newValue: FlatItem) {
         if (newValue === this.selected) return;
         this.selected = newValue;
-        this.items.forEach((item) => {
-            if (item.model === newValue) {
-                item.activate();
-                this.trigger('select', newValue);
-            } else {
-                item.deactivate();
-            }
-        });
+        this.trigger('select', newValue);
         this.render();
     }
 
@@ -116,25 +109,25 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
-    onItemClicked(view: OntologyClassPickerItemView): this {
-        this.select(view.model);
-        return this;
-    }
-
-    onItemActivated(view: OntologyClassPickerItemView): this {
-        this.setLabel(view.model);
-        return this;
-    }
-
-    onChildItemClicked(model: FlatItem): this {
+    onItemClicked(model: FlatItem): this {
         this.select(model);
         return this;
     }
 
-    onChildItemActivated(model: FlatItem): this {
-        this.setLabel(model);
-        return this;
-    }
+    // onItemActivated(view: OntologyClassPickerItemView): this {
+    //     this.setLabel(view.model);
+    //     return this;
+    // }
+
+    // onChildItemClicked(model: FlatItem): this {
+    //     this.select(model);
+    //     return this;
+    // }
+
+    // onChildItemActivated(model: FlatItem): this {
+    //     this.setLabel(model);
+    //     return this;
+    // }
 
     onSuperclassHovered(model: FlatItem) {
         const children = new FilteredCollection<FlatItem>(this.leafNodes, node => {
@@ -144,8 +137,8 @@ export default class OntologyClassPickerView extends CollectionView<
 
         this.childrenPicker = new OntologyClassPickerChildrenView({ collection: children })
             .on({
-                'selected': this.onChildItemClicked,
-                'activated': this.onChildItemActivated
+                'selected': this.onItemClicked,
+                // 'activated': this.onChildItemActivated
             }, this);
 
 

@@ -13,8 +13,8 @@ export default class OntologyClassPickerItemView extends CompositeView<FlatItem>
     labelView: LabelView;
 
     initialize(options: ViewOptions): this {
-        const specifyMargin = 'is-level-' + options.level;
-        this.$el.addClass(specifyMargin);
+        // const specifyMargin = 'is-level-' + options.level;
+        // this.$el.addClass(specifyMargin);
         this.labelView = new LabelView({
             model: this.model,
             toolTipSetting: false
@@ -22,20 +22,20 @@ export default class OntologyClassPickerItemView extends CompositeView<FlatItem>
         return this.render();
     }
 
-    activate(): this {
-        this.$el.addClass('is-active');
-        this.trigger('activated', this);
-        return this;
-    }
+    // activate(): this {
+    //     this.$el.addClass('is-active');
+    //     this.trigger('activated', this);
+    //     return this;
+    // }
 
-    deactivate(): this {
-        this.$el.removeClass('is-active');
-        this.trigger('deactivated', this);
-        return this;
-    }
+    // deactivate(): this {
+    //     this.$el.removeClass('is-active');
+    //     this.trigger('deactivated', this);
+    //     return this;
+    // }
 
     onClick(event: Event): this {
-        this.trigger('click', this);
+        this.trigger('click', this.model);
         return this;
     }
 
