@@ -121,20 +121,38 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
+    onItemActivated(view: OntologyClassPickerItemView): this {
+        this.setLabel(view.model);
+        return this;
+    }
+
+    onChildItemClicked(model: FlatItem): this {
+        this.select(model);
+        return this;
+    }
+
+    onChildItemActivated(model: FlatItem): this {
+        this.setLabel(model);
+        return this;
+    }
+
     onSuperclassHovered(model: FlatItem) {
         const children = new FilteredCollection<FlatItem>(this.leafNodes, node => {
             const prefParent = node.underlying.get(skos.related)[0] as FlatItem;
             return prefParent.id == model.id;
         })
 
-        this.childrenPicker = new OntologyClassPickerChildrenView({ collection: children });
+        this.childrenPicker = new OntologyClassPickerChildrenView({ collection: children })
+            .on({
+                'selected': this.onChildItemClicked,
+                'activated': this.onChildItemActivated
+            }, this);
+
+
         this.$('.sub-picker').html(this.childrenPicker.el);
     }
 
-    onItemActivated(view: OntologyClassPickerItemView): this {
-        this.setLabel(view.model);
-        return this;
-    }
+
 }
 
 extend(OntologyClassPickerView.prototype, {

@@ -10,7 +10,7 @@ export default class OntologyClassPickerChildrenView extends CollectionView<
     FlatItem,
     OntologyClassPickerItemView
 > {
-    selected: FlatItem;
+    // selected: FlatItem;
     label: any;
     externalCloseHandler: any;
 
@@ -27,11 +27,11 @@ export default class OntologyClassPickerChildrenView extends CollectionView<
         }, this);
     }
 
-    placeItems(): this {
-        super.placeItems();
-        if (this.selected) this.setLabel(this.selected);
-        return this;
-    }
+    // placeItems(): this {
+    //     super.placeItems();
+    //     // if (this.selected) this.setLabel(this.selected);
+    //     return this;
+    // }
 
     remove(): this {
         if (this.label) this.label.remove();
@@ -39,40 +39,42 @@ export default class OntologyClassPickerChildrenView extends CollectionView<
         return this;
     }
 
-    getSelected(): FlatItem {
-        return this.selected;
-    }
+    // getSelected(): FlatItem {
+    //     return this.selected;
+    // }
 
-    select(newValue: FlatItem) {
-        if (newValue === this.selected) return;
-        this.selected = newValue;
-        this.items.forEach((item) => {
-            if (item.model === newValue) {
-                item.activate();
-                this.trigger('select', newValue);
-            } else {
-                item.deactivate();
-            }
-        });
-        this.render();
-    }
+    // select(newValue: FlatItem) {
+    //     if (newValue === this.selected) return;
+    //     this.selected = newValue;
+    //     this.items.forEach((item) => {
+    //         if (item.model === newValue) {
+    //             item.activate();
+    //             this.trigger('select', newValue);
+    //         } else {
+    //             item.deactivate();
+    //         }
+    //     });
+    //     this.render();
+    // }
 
-    setLabel(item: FlatItem): this {
-        let dropdownLabel = this.$('.dropdown-label-tag');
-        if (this.label) this.label.remove();
-        dropdownLabel.text('');
-        this.label = new LabelView({ model: item });
-        this.label.$el.appendTo(dropdownLabel);
-        return this;
-    }
+    // setLabel(item: FlatItem): this {
+    //     let dropdownLabel = this.$('.dropdown-label-tag');
+    //     if (this.label) this.label.remove();
+    //     dropdownLabel.text('');
+    //     this.label = new LabelView({ model: item });
+    //     this.label.$el.appendTo(dropdownLabel);
+    //     return this;
+    // }
 
     onItemClicked(view: OntologyClassPickerItemView): this {
-        this.select(view.model);
+        // this.select(view.model);
+        this.trigger('selected', view.model);
         return this;
     }
 
     onItemActivated(view: OntologyClassPickerItemView): this {
-        this.setLabel(view.model);
+        // this.setLabel(view.model);
+        this.trigger('activated', view.model)
         return this;
     }
 }
@@ -80,7 +82,4 @@ export default class OntologyClassPickerChildrenView extends CollectionView<
 extend(OntologyClassPickerChildrenView.prototype, {
     className: 'ontology-class-picker',
     tagName: 'div',
-    events: {
-        'click': 'onClick',
-    }
 });
