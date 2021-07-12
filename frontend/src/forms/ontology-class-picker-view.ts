@@ -1,8 +1,6 @@
 import { extend } from 'lodash';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatItem from '../common-adapters/flat-item-model';
-import Graph from '../common-rdf/graph';
-import Node from '../common-rdf/node';
 import { skos } from '../common-rdf/ns';
 import { CollectionView } from '../core/view';
 import LabelView from '../label/label-view';
