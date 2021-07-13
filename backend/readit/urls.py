@@ -25,6 +25,7 @@ from ontology import ONTOLOGY_ROUTE
 from nlp_ontology import NLP_ONTOLOGY_ROUTE
 from sources import SOURCES_ROUTE
 from items import ITEMS_ROUTE
+from items.views import SemanticQueryViewSet
 from sparql import SPARQL_ROUTE
 from .index import index, specRunner
 from .utils import decode_and_proxy
@@ -32,6 +33,7 @@ from feedback.views import FeedbackViewSet
 
 api_router = routers.DefaultRouter()  # register viewsets with this router
 api_router.register(r'feedback', FeedbackViewSet, basename='feedback')
+api_router.register(r'query', SemanticQueryViewSet, basename='query')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
