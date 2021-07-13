@@ -9,6 +9,8 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import *
 from rest_framework.exceptions import ValidationError, NotFound, PermissionDenied
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 
 from rdflib import Graph, URIRef, BNode, Literal
 from rdflib.query import ResultException
@@ -24,8 +26,9 @@ from ontology import namespace as ontology
 from sources import namespace as source
 from . import namespace as my
 from .graph import graph, history
-from .models import ItemCounter, EditCounter
+from .models import ItemCounter, EditCounter, SemanticQuery
 from .permissions import *
+from .serializers import SemanticQuerySerializer
 
 MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank node.'
 MUST_EQUAL_IDENTIFIER_400 = 'PUT must affect exactly the resource URI.'
@@ -304,3 +307,11 @@ class ItemsOfCategory(RDFView):
                     break
                 [user_items.add(triple) for triple in items.triples((s, None, None))]
         return user_items
+
+
+class SemanticQueryViewSet(
+    CreateModelMixin, ListModelMixin, RetrieveModelMixin,
+    GenericViewSet,
+):
+    queryset = SemanticQuery.objects.all()
+    serializer_class = SemanticQuerySerializer
