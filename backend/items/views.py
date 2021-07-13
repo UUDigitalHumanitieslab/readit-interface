@@ -4,7 +4,7 @@ from rdflib.plugins.sparql.parser import BlankNode
 
 from django.http import FileResponse, HttpResponse
 
-from rest_framework.decorators import action, api_view, renderer_classes 
+from rest_framework.decorators import action, api_view, renderer_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import *
@@ -267,7 +267,7 @@ class ItemSuggestion(RDFView):
     def graph(self):
         return graph()
 
-    def get_graph(self, request, **kwargs):  
+    def get_graph(self, request, **kwargs):
         items = self.graph()
         if not request.user.has_perm('rdflib_django.view_all_annotations'):
             user, now = submission_info(request)
@@ -287,7 +287,7 @@ class ItemsOfCategory(RDFView):
     def graph(self):
         return graph()
 
-    def get_graph(self, request, category, **kwargs):  
+    def get_graph(self, request, category, **kwargs):
         items = self.graph()
         bindings = {'category': ontology[category]}
         if not request.user.has_perm('rdflib_django.view_all_annotations'):
