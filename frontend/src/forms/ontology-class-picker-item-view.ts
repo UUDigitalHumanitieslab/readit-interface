@@ -5,16 +5,10 @@ import { CompositeView } from '../core/view';
 import LabelView from '../label/label-view';
 import FlatItem from '../common-adapters/flat-item-model';
 
-export interface ViewOptions extends BaseOpt<FlatItem> {
-    level: number;
-}
-
 export default class OntologyClassPickerItemView extends CompositeView<FlatItem> {
     labelView: LabelView;
 
-    initialize(options: ViewOptions): this {
-        // const specifyMargin = 'is-level-' + options.level;
-        // this.$el.addClass(specifyMargin);
+    initialize(): this {
         this.labelView = new LabelView({
             model: this.model,
             toolTipSetting: false

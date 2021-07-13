@@ -19,7 +19,7 @@ export default class OntologyClassPickerChildrenView extends CollectionView<
     }
 
     makeItem(model: FlatItem): OntologyClassPickerItemView {
-        return new OntologyClassPickerItemView({ model, level: 0 }).on({
+        return new OntologyClassPickerItemView({ model }).on({
             click: this.onItemClicked,
             // activated: this.onItemActivated,
         }, this);

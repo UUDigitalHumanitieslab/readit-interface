@@ -28,10 +28,9 @@ export default class OntologyClassPickerView extends CollectionView<
     }
 
     makeItem(model: FlatItem): OntologyClassPickerItemView {
-        const level = this.isLeaf(model) ? 1 : 0;
-        return new OntologyClassPickerItemView({ model, level }).on({
+        return new OntologyClassPickerItemView({ model }).on({
             click: this.onItemClicked,
-            hover: level === 0 ? this.onSuperclassHovered : undefined,
+            hover: this.isNonLeaf(model) ? this.onSuperclassHovered : undefined,
             // activated: this.onItemActivated,
         }, this);
     }
