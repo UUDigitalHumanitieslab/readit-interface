@@ -7,7 +7,6 @@ import { oa, rdf, skos, vocab } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 
-import ItemEditView from '../item-edit/item-edit-view';
 import LinkedItemsMultifield from '../item-edit/linked-items-multifield';
 import PickerView from '../forms/select2-picker-view';
 import ItemGraph from '../common-adapters/item-graph';
@@ -28,6 +27,7 @@ import { announceRoute } from './utilities';
 import annotationEditTemplate from './annotation-edit-template';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import Collection from '../core/collection';
+import Notification from '../notification/notification-view';
 
 /**
  * Helper function in order to pass the right classes to the classPicker.
@@ -47,10 +47,10 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     needsVerification: boolean;
     itemPicker: PickerView;
     itemOptions: ItemGraph;
-    itemEditView: ItemEditView;
     itemMultifield: LinkedItemsMultifield;
     originalBodies: Node[];
-    validator: JQueryValidation.Validator;
+    classValidator: Notification;
+    prefLabelValidator: Notification;
     ontologyClasses: Graph;
 
     initialize() {
@@ -65,11 +65,12 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         });
         this.snippetView = new SnippetView({ model: this.model }).render();
         this.itemMultifield = new LinkedItemsMultifield({
-            model: this.model.get('item'),
+            model: new Node(),
             collection: new Collection()
         })
         this.model.when('annotation', this.processAnnotation, this);
         this.model.when('class', this.processClass, this);
+        this.model.when('item', this.processItem, this)
         this.model.on('change:needsVerification', this.changeVerification, this);
         // Two conditions must be met before we run processItem:
         const processItem = after(2, this.processItem);
@@ -114,24 +115,30 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
 
     processItem(): void {
         const item = this.model.get('item');
-        if (item) this.itemPicker.val(item.id);
+        if (item) {
+            this.itemPicker.val(item.id);
+            this.$('edit-item-button').removeClass('is-hidden');
+        }
+        else {
+            this.$('edit-item-button').addClass('is-hidden');
+        }
         this.itemPicker.on('change', this.selectItem, this);
+        this.itemMultifield.model = item;
     }
 
     renderContainer(): this {
-        if (this.validator) this.validator.destroy();
         this.$el.html(this.template(this));
         this.mirrorClassInput(this.model.get('class'));
-
-        this.validator = this.$(".anno-edit-form").validate({
-            errorClass: "help is-danger",
-            ignore: "",
-        });
         return this;
     }
 
     remove(): this {
-        if (this.validator) this.validator.destroy();
+        if (this.classValidator) {
+            this.classValidator.remove();
+        }
+        if (this.prefLabelValidator) {
+            this.prefLabelValidator.remove();
+        }
         super.remove();
         return this;
     }
@@ -147,11 +154,36 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     submit(): this {
+        if (this.model.get('classLabel') === 'Selection') {
+            if (this.classValidator) {
+                this.classValidator.remove();
+                delete this.classValidator;
+            }
+            this.classValidator = new Notification({ model: { notification: 'You need to define a class to save a new annotation.' } });
+            this.$('.ontology-class-picker-container').append(this.classValidator.el);
+            if (this.$('rit-relation-editor')) {
+                if (!this.itemMultifield.validatePrefLabel()) {
+                    if (this.prefLabelValidator) {
+                        this.prefLabelValidator.remove();
+                        delete this.prefLabelValidator;
+                    }
+                    this.prefLabelValidator = new Notification({
+                        model: {
+                            notification: 'You need to define a preferred label before saving a new item'
+                        }
+                    })
+                    this.$('.item-edit-container').append(this.prefLabelValidator.el);
+
+                }
+            }
+            return this;
+        }
         if (this.model.isNew() || isBlank(this.model.get('annotation'))) {
             this.submitNewAnnotation();
         } else {
             this.submitItem().then(this.submitOldAnnotation.bind(this));
         }
+        this.$('edit-item-button').removeClass('is-hidden');
         this.itemMultifield.commitChanges();
         return this;
     }
@@ -351,11 +383,11 @@ extend(AnnotationEditView.prototype, {
     ],
     events: {
         'submit': 'onSaveClicked',
-        'click .btn-cancel': 'onCancelClicked',
+        'click .panel-footer button.btn-cancel': 'onCancelClicked',
         'click .panel-footer button.is-danger': 'onDelete',
         'click .btn-rel-items': 'onRelatedItemsClicked',
-        'click .edit-item-button': 'onEditItemClicked',
-        'click .create-item-button': 'createItem',
+        'click .item-picker-container .field .edit-item-button': 'onEditItemClicked',
+        'click .item-picker-container .field .create-item-button': 'createItem',
         'keyup input': 'saveOnEnter',
         'change .verification-checkbox': 'onVerificationChanged'
     },

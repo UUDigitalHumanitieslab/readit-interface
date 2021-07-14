@@ -19,10 +19,6 @@ export interface PickerOptionOptions extends BViewOptions<Node> {
     label?: string;
 }
 
-const defaultOptionAttributes = {
-    selected: false,
-};
-
 export class PickerOptionView extends View<Node> {
     label: string;
 

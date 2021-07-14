@@ -57,7 +57,7 @@ export default
             }
         }
         // make sure all label types are editable properties
-        if (node.has(rdfs.subPropertyOf) && node.get(rdfs.subPropertyOf)[0].id === rdfs.label) {
+        if (node.has(rdfs.subPropertyOf) && (<Node>node.get(rdfs.subPropertyOf)[0]).id === rdfs.label) {
             return true;
         }
         else return false;
@@ -65,29 +65,19 @@ export default
 
     getItems(model: Node, predicates: Graph): this {
         predicates.forEach(p => {
-            let required = false;
             if (model.get(p.id)) {
-                if (p.id === skos.prefLabel) {
-                    required = true;
-                }
                 const propertyArray = model.get(p.id) as NativeArray;
                 propertyArray.forEach(m => {
                     this.collection.add(new Model({
                         predicate: p,
                         object: m,
-                        required: required
                     })
                     )
                 });
             }
         });
-        if (this.collection.length === 0) {
-            // skos.prefLabel is always visible
-            this.collection.add(new Model({
-                predicate: skos.prefLabel,
-                required: true
-            }));
-        }
+        // disable the remove button for the first prefLabel in the collection
+        this.collection.filter(model => model.get('predicate').id === skos.prefLabel)[0].set('required', true);
         return this;
     }
 
@@ -122,8 +112,13 @@ export default
     }
 
     registerUnset(attributes): void {
-        if (!attributes.object) return;
+        if (attributes.object === undefined) return;
         this.changes.push(extend({ action: 'unset' }, attributes));
+    }
+
+    validatePrefLabel(): boolean {
+        const prefLabels = this.collection.filter(model => model.get('predicate') && model.get('predicate').id === skos.prefLabel);
+        return some(prefLabels, label => label.get('object'))
     }
 
     commitChanges(): PromiseLike<void> {
