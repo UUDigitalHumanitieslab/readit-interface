@@ -1,4 +1,13 @@
-import { pick, extend, map, mapValues, has, isArray, isObject } from 'lodash';
+import {
+    pick,
+    extend,
+    map,
+    mapValues,
+    has,
+    isArray,
+    isObject ,
+    isFunction,
+} from 'lodash';
 
 import Model from '../core/model';
 import Collection from '../core/collection';
@@ -9,6 +18,7 @@ import { logic, filters } from './dropdown-constants';
 
 function pruneResources(json: any): any {
     if (!isObject(json)) return json;
+    if (isFunction(json['toJSON'])) return pruneResources(json['toJSON']());
     if (isArray(json)) return map(json, pruneResources);
     if (has(json, '@id')) return pick(json, '@id');
     if (has(json, 'id')) return pick(json, 'id');
