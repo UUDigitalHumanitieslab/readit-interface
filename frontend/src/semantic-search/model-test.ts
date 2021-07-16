@@ -18,6 +18,10 @@ describe('semantic search model', function() {
         this.model = new SemanticQuery({
             id: '1',
             label: 'test 123',
+            // A hand-written example of what the IR of a very simple query
+            // looks like. This is intended to have a complete set of models and
+            // attributes as they would be encountered in a real scenario,
+            // though not all values are entirely accurate.
             query: new Model({
                 chain: new Collection([{
                     range: this.ontology,
@@ -62,6 +66,7 @@ describe('semantic search model', function() {
         this.minimalJSON = {
             id: '1',
             label: 'test 123',
+            // Leaner backend serialization of the same query as above.
             query: {
                 chain: [{
                     range: idOnlyOntology,
