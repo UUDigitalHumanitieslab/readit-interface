@@ -26,7 +26,7 @@ export default function abstractDeepEqual(left: any, right: any): boolean {
     if (isFunction(left)) return false;
     // in remaining cases, we require equal types and equal content
     if (left.constructor !== right.constructor) return false;
-    if (isFunction(left.valueOf)) {
+    if (isFunction(left.valueOf) && isFunction(right.valueOf)) {
         // Some special built-in types such as `Date` as well as object wrappers
         // such as `String` have a "backdoor" of sorts that enable us to make
         // efficient primitive value comparisons.
@@ -36,7 +36,7 @@ export default function abstractDeepEqual(left: any, right: any): boolean {
         }
     }
     // the Backbone-aware part: ignore everything except for the content
-    if (isFunction(left['toJSON'])) {
+    if (isFunction(left['toJSON']) && isFunction(right['toJSON'])) {
         return abstractDeepEqual(left['toJSON'](), right['toJSON']());
     }
     // We end up iterating both values either as plain arrays or plain objects.
