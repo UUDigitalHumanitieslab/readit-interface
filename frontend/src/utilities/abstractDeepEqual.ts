@@ -1,5 +1,4 @@
 import { keys, every, isObject, isFunction, isNumber } from 'lodash';
-import { Model, Collection } from 'backbone';
 
 /**
  * Recursively compare the contents of two nested data structures.
@@ -37,11 +36,8 @@ export default function abstractDeepEqual(left: any, right: any): boolean {
         }
     }
     // the Backbone-aware part: ignore everything except for the content
-    if (left instanceof Model) {
-        return abstractDeepEqual(left['attributes'], right['attributes']);
-    }
-    if (left instanceof Collection) {
-        return abstractDeepEqual(left['models'], right['models']);
+    if (isFunction(left['toJSON'])) {
+        return abstractDeepEqual(left['toJSON'](), right['toJSON']());
     }
     // We end up iterating both values either as plain arrays or plain objects.
     // We want to avoid a situation where one is iterated as array while the
