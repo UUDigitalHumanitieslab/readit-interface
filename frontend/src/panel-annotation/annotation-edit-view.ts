@@ -307,10 +307,8 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     resetItemMultifield(item: Node): this {
-        this.itemCollectionView = new LinkedItemsCollectionView({
-            model: item,
-            collection: new Collection()
-        });
+        this.itemCollectionView.model = item;
+        this.itemCollectionView.collection.reset();
         this.render();
         this.$('.item-edit-container').removeClass('is-hidden');
         this.$('.item-picker-container').removeClass('is-hidden');
@@ -333,12 +331,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             this.collection.underlying.remove(this.model.underlying);
         }
         explorerChannel.trigger('annotationEditView:close', this);
-        return this;
-    }
-
-    onEditItemClicked(event: JQueryEventObject): this {
-        event.preventDefault();
-        this.editItem();
         return this;
     }
 
@@ -391,7 +383,7 @@ extend(AnnotationEditView.prototype, {
         'click .panel-footer button.btn-cancel': 'onCancelClicked',
         'click .panel-footer button.is-danger': 'onDelete',
         'click .btn-rel-items': 'onRelatedItemsClicked',
-        'click .item-picker-container .field .edit-item-button': 'onEditItemClicked',
+        'click .item-picker-container .field .edit-item-button': 'editItem',
         'click .item-picker-container .field .create-item-button': 'createItem',
         'keyup input': 'saveOnEnter',
         'change .verification-checkbox': 'onVerificationChanged'

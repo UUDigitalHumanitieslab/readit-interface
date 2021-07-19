@@ -2,11 +2,9 @@ import { extend } from 'lodash';
 
 import Model from '../core/model';
 import { CompositeView } from '../core/view';
-import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import PickerView from '../forms/base-picker-view';
-import RangePicker from '../forms/range-picker-view';
 import RemoveButton from '../forms/remove-button-view';
 import linkedItemTemplate from './linked-item-editor-template';
 import InputField from '../forms/input-field-view';
@@ -24,10 +22,6 @@ export default class LinkedItemEditor extends CompositeView {
         this.predicatePicker = new PickerView({ collection: this.collection });
         this.literalField = new InputField();
         this.removeButton = new RemoveButton().on('click', this.close, this);
-        if (this.model && this.model.get('required')) {
-            this.removeButton.disable();
-            this.predicatePicker.$('select').attr('disabled', 'true');
-        }
         this.predicateFromModel(this.model).objectFromModel(this.model);
         this.literalField.on('change', this.updateObject, this);
         this.predicatePicker.on('change', this.updatePredicate, this);
