@@ -42,18 +42,11 @@ export default class LinkedItemEditor extends CompositeView {
     updatePredicate(picker: PickerView, id: string): void {
         const predicate = this.collection.get(id);
         this.model.set('predicate', predicate);
-        if (this.model.has('object')) this.model.unset('object');
+        this.model.unset('object');
     }
 
     updateObject(labelField: InputField, val: string): void {
         this.model.set('object', val);
-    }
-
-    createPicker(predicate: Node): RangePicker {
-        return ldChannel.request('visit', store => new RangePicker({
-            model: predicate,
-            collection: store,
-        }));
     }
 
     predicateFromModel(model: Model, selectedPredicate?: Node): this {
@@ -76,7 +69,7 @@ export default class LinkedItemEditor extends CompositeView {
 }
 
 extend(LinkedItemEditor.prototype, {
-    className: 'field has-addons rit-relation-editor',
+    className: 'field has-addons rit-linked-items-editor',
     template: linkedItemTemplate,
     subviews: [{
         view: 'predicatePicker',

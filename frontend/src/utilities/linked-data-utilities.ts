@@ -8,6 +8,7 @@ import Graph, { ReadOnlyGraph } from '../common-rdf//graph';
 import {
     nlp, skos, rdf, rdfs, readit, dcterms, owl, schema,
 } from '../common-rdf/ns';
+import FilteredCollection from '../common-adapters/filtered-collection';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -199,6 +200,17 @@ export function isType(node: Node, type: string): boolean {
     if (!initialTypes) return false;
     const allTypes = getRdfSuperClasses(initialTypes);
     return some(allTypes, { 'id': type });
+}
+
+/**
+ * Get all known RDF properties
+ * @param clss (URIs of) RDF classes of which to obtain all ancestors.
+ * @return a deduplicated array of all ancestors of clss, including clss.
+ */
+export function getRdfSuperProperties(): Node[] {
+    return ldChannel.request('visit', store => new FilteredCollection(store, node => {
+        isRdfProperty(node) || node.has(rdfs.subPropertyOf) && isRdfProperty(<Node>node.get(rdfs.subPropertyOf)[0])
+    }))
 }
 
 /**

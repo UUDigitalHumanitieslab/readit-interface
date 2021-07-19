@@ -7,7 +7,8 @@ import { oa, rdf, skos, vocab } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 
-import LinkedItemsMultifield from '../item-edit/linked-items-multifield';
+import LinkedItemsCollectionView from '../item-edit/linked-items-collection-view';
+import Multifield from '../forms/multifield-view';
 import PickerView from '../forms/select2-picker-view';
 import ItemGraph from '../common-adapters/item-graph';
 import ClassPickerView from '../forms/ontology-class-picker-view';
@@ -47,7 +48,8 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     needsVerification: boolean;
     itemPicker: PickerView;
     itemOptions: ItemGraph;
-    itemMultifield: LinkedItemsMultifield;
+    itemCollectionView: LinkedItemsCollectionView;
+    itemMultifield: Multifield;
     originalBodies: Node[];
     classValidator: Notification;
     prefLabelValidator: Notification;
@@ -64,10 +66,13 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             collection: categories
         });
         this.snippetView = new SnippetView({ model: this.model }).render();
-        this.itemMultifield = new LinkedItemsMultifield({
+        this.itemCollectionView = new LinkedItemsCollectionView({
             model: new Node(),
             collection: new Collection()
-        })
+        });
+        this.itemMultifield = new Multifield({
+            collectionView: this.itemCollectionView
+        });
         this.model.when('annotation', this.processAnnotation, this);
         this.model.when('class', this.processClass, this);
         this.model.when('item', this.processItem, this)
@@ -161,8 +166,8 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             }
             this.classValidator = new Notification({ model: { notification: 'You need to define a class to save a new annotation.' } });
             this.$('.ontology-class-picker-container').append(this.classValidator.el);
-            if (this.$('rit-relation-editor')) {
-                if (!this.itemMultifield.validatePrefLabel()) {
+            if (this.$('rit-linked-items-editor')) {
+                if (!this.itemCollectionView.validatePrefLabel()) {
                     if (this.prefLabelValidator) {
                         this.prefLabelValidator.remove();
                         delete this.prefLabelValidator;
@@ -184,7 +189,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             this.submitItem().then(this.submitOldAnnotation.bind(this));
         }
         this.$('edit-item-button').removeClass('is-hidden');
-        this.itemMultifield.commitChanges();
+        this.itemCollectionView.commitChanges();
         return this;
     }
 
@@ -302,7 +307,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     resetItemMultifield(item: Node): this {
-        this.itemMultifield = new LinkedItemsMultifield({
+        this.itemCollectionView = new LinkedItemsCollectionView({
             model: item,
             collection: new Collection()
         });
