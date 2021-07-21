@@ -66,13 +66,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             collection: categories
         });
         this.snippetView = new SnippetView({ model: this.model }).render();
-        this.itemCollectionView = new LinkedItemsCollectionView({
-            model: new Node(),
-            collection: new Collection()
-        });
-        this.itemMultifield = new Multifield({
-            collectionView: this.itemCollectionView
-        });
         this.model.when('annotation', this.processAnnotation, this);
         this.model.when('class', this.processClass, this);
         this.model.when('item', this.processItem, this)
@@ -128,7 +121,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             this.$('edit-item-button').addClass('is-hidden');
         }
         this.itemPicker.on('change', this.selectItem, this);
-        this.itemMultifield.model = item;
     }
 
     renderContainer(): this {
@@ -302,14 +294,26 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         if (!item) {
             item = this.model.get('item');
         }
-        this.resetItemMultifield(item);
+        this.setItemMultifield(item);
         return this;
     }
 
-    resetItemMultifield(item: Node): this {
-        this.itemCollectionView.model = item;
-        this.itemCollectionView.collection.reset();
-        this.render();
+    onEditItemClicked(event: JQueryEventObject): this {
+        this.editItem();
+        return this;
+    }
+
+    setItemMultifield(item: Node): this {
+        if (this.itemCollectionView) this.itemCollectionView.remove();
+        if (this.itemMultifield) this.itemMultifield.remove();
+        this.itemCollectionView = new LinkedItemsCollectionView({
+            model: item,
+            collection: new Collection()
+        });
+        this.itemMultifield = new Multifield({
+            collectionView: this.itemCollectionView
+        });
+        this.$('.item-edit-container').append(this.itemMultifield.el);
         this.$('.item-edit-container').removeClass('is-hidden');
         this.$('.item-picker-container').removeClass('is-hidden');
         return this;
@@ -375,6 +379,7 @@ extend(AnnotationEditView.prototype, {
         selector: '.snippet-container',
         }, {
         view: 'itemMultifield',
+        place: false,
         selector: '.item-multifield'
     }
     ],
@@ -383,7 +388,7 @@ extend(AnnotationEditView.prototype, {
         'click .panel-footer button.btn-cancel': 'onCancelClicked',
         'click .panel-footer button.is-danger': 'onDelete',
         'click .btn-rel-items': 'onRelatedItemsClicked',
-        'click .item-picker-container .field .edit-item-button': 'editItem',
+        'click .item-picker-container .field .edit-item-button': 'onEditItemClicked',
         'click .item-picker-container .field .create-item-button': 'createItem',
         'keyup input': 'saveOnEnter',
         'change .verification-checkbox': 'onVerificationChanged'
