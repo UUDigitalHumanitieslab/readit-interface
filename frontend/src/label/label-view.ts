@@ -2,7 +2,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 import View from '../core/view';
 
-import { skos } from '../common-rdf/ns';
+import { rdfs, skos } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import { getCssClassName, getLabel } from '../utilities/linked-data-utilities';
 
@@ -12,6 +12,10 @@ export interface ViewOptions extends BaseOpt<Node> {
     toolTipSetting?: TooltipSetting;
 }
 
+/**
+ * LabelView is responsible of rendering colored labels for class pickers, and accompanying tooltips.
+ * It accepts an optional variable 'toolTipSetting', which can be 'top', 'bottom', 'left' or 'right'.
+ */
 export default class LabelView extends View<Node> {
     label: string;
     cssClassName: string;
@@ -20,7 +24,7 @@ export default class LabelView extends View<Node> {
     constructor(options?: ViewOptions) {
         super(options);
 
-        this.toolTipSetting = 'top';
+        this.toolTipSetting = 'right';
         if (options && options.toolTipSetting !== undefined) {
             this.toolTipSetting = options.toolTipSetting;
         }
@@ -39,12 +43,12 @@ export default class LabelView extends View<Node> {
     }
 
     addDefinition(): void {
-        if (this.hasTooltip() && this.model.has(skos.definition)) {
+        if (this.hasTooltip() && (this.model.has(skos.definition) || this.model.has(rdfs.comment))) {
             this.$el.addClass("tooltip");
             this.$el.addClass("is-tooltip");
             this.setTooltipOrientation();
 
-            let definition = this.model.get(skos.definition)[0] as string;
+            let definition = (this.model.get(skos.definition) ? this.model.get(skos.definition)[0] : this.model.get(rdfs.comment)[0]) as string;
             this.$el.attr("data-tooltip", definition);
 
             if (definition.length > 65) {

@@ -9,8 +9,7 @@ export default class OntologyClassPickerItemView extends CompositeView<Node> {
 
     initialize(): this {
         this.labelView = new LabelView({
-            model: this.model,
-            toolTipSetting: false
+            model: this.model
         });
         return this.render();
     }
