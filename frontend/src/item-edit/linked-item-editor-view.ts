@@ -8,6 +8,9 @@ import PickerView from '../forms/base-picker-view';
 import RemoveButton from '../forms/remove-button-view';
 import linkedItemTemplate from './linked-item-editor-template';
 import InputField from '../forms/input-field-view';
+import { rdfs, xsd } from '../common-rdf/ns';
+import { RSA_X931_PADDING } from 'constants';
+import { NativeArray } from '../common-rdf/conversion';
 
 // Selector of the control where the object picker is inserted.
 const objectControl = '.control:nth-child(2)';
@@ -17,6 +20,7 @@ export default class LinkedItemEditor extends CompositeView {
     predicatePicker: PickerView;
     removeButton: RemoveButton;
     literalField: InputField;
+    helpText: string;
 
     initialize() {
         this.predicatePicker = new PickerView({ collection: this.collection });
@@ -37,6 +41,10 @@ export default class LinkedItemEditor extends CompositeView {
         const predicate = this.collection.get(id);
         this.model.set('predicate', predicate);
         this.model.unset('object');
+        const permittedType = predicate.get(rdfs.range);
+        this.setHelpText(permittedType);
+        this.$('p.help').removeClass('is-hidden');
+        this.render();
     }
 
     updateObject(labelField: InputField, val: string): void {
@@ -57,13 +65,30 @@ export default class LinkedItemEditor extends CompositeView {
         return this;
     }
 
+    setHelpText(permittedType: string | NativeArray): void {
+        this.helpText = 'This predicate permits '
+        switch (permittedType) {
+            case xsd.dateTime || xsd.time:
+                this.helpText += 'date / time strings';
+            case xsd.decimal || xsd.integer:
+                this.helpText += 'numbers';
+            case xsd.float || xsd.double:
+                this.helpText += 'floating point numbers';
+            case xsd.string || rdfs.Literal:
+                this.helpText += 'strings';
+                break;
+            default:
+                this.helpText += 'any data type';
+        }
+    }
+
     close(): void {
         this.trigger('remove', this, this.model);
     }
 }
 
 extend(LinkedItemEditor.prototype, {
-    className: 'field has-addons rit-linked-items-editor',
+    className: 'field rit-linked-items-editor',
     template: linkedItemTemplate,
     subviews: [{
         view: 'predicatePicker',
@@ -71,5 +96,10 @@ extend(LinkedItemEditor.prototype, {
     }, {
         view: 'literalField',
         selector: objectControl,
-    }, 'removeButton'],
+        }, {
+            view: 'removeButton',
+            selector: '.field.has-addons',
+            method: 'append'
+        }
+    ],
 });

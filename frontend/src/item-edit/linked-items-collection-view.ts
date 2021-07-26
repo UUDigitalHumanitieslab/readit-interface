@@ -8,15 +8,11 @@ import { rdfs, skos, xsd } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
-import ItemGraph from '../common-adapters/item-graph';
 
 import LinkedItemEditor from './linked-item-editor-view';
 import AddButton from '../forms/add-button-view';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import { getRdfSuperClasses, isRdfProperty } from '../utilities/linked-data-utilities';
-
-// Callback used in the commitChanges method.
-const commitCallback = a$.asyncify(n => n.save());
 
 /**
  * View class that displays a LinkedItemEditor for each linked item.
@@ -39,7 +35,8 @@ export default
 
     async getPredicates() {
         const parents = getRdfSuperClasses(this.model.get('@type') as string[]);
-        this.predicates = ldChannel.request('visit', store => new FilteredCollection(store, node => this.isEditableProperty(node, parents)
+        this.predicates = ldChannel.request('visit', store => new FilteredCollection(
+            store, node => this.isEditableProperty(node, parents)
         ));
     }
 
@@ -93,6 +90,7 @@ export default
 
     registerSet(attributes): void {
         if (!attributes.object) return;
+        // do some logic here to choose correct data type
         this.changes.push(extend({ action: 'set' }, attributes));
     }
 

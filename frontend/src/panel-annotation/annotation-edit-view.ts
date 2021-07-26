@@ -28,7 +28,6 @@ import { announceRoute } from './utilities';
 import annotationEditTemplate from './annotation-edit-template';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import Collection from '../core/collection';
-import Notification from '../notification/notification-view';
 
 /**
  * Helper function in order to pass the right classes to the classPicker.
@@ -51,8 +50,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     itemCollectionView: LinkedItemsCollectionView;
     itemMultifield: Multifield;
     originalBodies: Node[];
-    classValidator: Notification;
-    prefLabelValidator: Notification;
     ontologyClasses: Graph;
 
     initialize() {
@@ -130,12 +127,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     remove(): this {
-        if (this.classValidator) {
-            this.classValidator.remove();
-        }
-        if (this.prefLabelValidator) {
-            this.prefLabelValidator.remove();
-        }
         super.remove();
         return this;
     }
@@ -152,35 +143,21 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
 
     submit(): this {
         if (this.model.get('classLabel') === 'Selection') {
-            if (this.classValidator) {
-                this.classValidator.remove();
-                delete this.classValidator;
-            }
-            this.classValidator = new Notification({ model: { notification: 'You need to define a class to save a new annotation.' } });
-            this.$('.ontology-class-picker-container').append(this.classValidator.el);
-            if (this.$('rit-linked-items-editor')) {
-                if (!this.itemCollectionView.validatePrefLabel()) {
-                    if (this.prefLabelValidator) {
-                        this.prefLabelValidator.remove();
-                        delete this.prefLabelValidator;
-                    }
-                    this.prefLabelValidator = new Notification({
-                        model: {
-                            notification: 'You need to define a preferred label before saving a new item'
-                        }
-                    })
-                    this.$('.item-edit-container').append(this.prefLabelValidator.el);
-
-                }
+            this.$('p.class-unset').removeClass('is-hidden');
+            return this;
+        }
+        if (this.$('rit-linked-items-editor')) {
+            if (!this.itemCollectionView.validatePrefLabel()) {
+                this.$('p.label-unset').removeClass('is-hidden');
             }
             return this;
         }
+
         if (this.model.isNew() || isBlank(this.model.get('annotation'))) {
             this.submitNewAnnotation();
         } else {
             this.submitItem().then(this.submitOldAnnotation.bind(this));
         }
-        this.$('edit-item-button').removeClass('is-hidden');
         this.itemCollectionView.commitChanges();
         return this;
     }
@@ -253,6 +230,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         });
         this.$('.item-picker-container').removeClass('is-hidden');
         this.$('.item-edit-container').addClass('is-hidden');
+        this.$('p.class-unset').addClass('is-hidden');
         return this;
     }
 

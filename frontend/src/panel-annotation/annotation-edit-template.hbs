@@ -25,32 +25,38 @@
                 </div>
                 {{! Fake input to utilize jquery validation on Bulma dropdown}}
                 <input class="hidden-input" type="text" id="{{cid}}-contology" required>
+                <p class="help is-danger class-unset is-hidden">Choose a category before saving.</p>
             </div>
         </fieldset>
 
-        <fieldset class="item-picker-container is-hidden field">
-            <label class="label">Which one?</label>
-            <div class="field has-addons">
-                <div class="control">
-                    {{! Item picker will be inserted here }}
-                </div>
-                <div class="control">
-                    <button type=button class="button create-item-button" id="{{cid}}-create-item">
-                        Create new
-                    </button>
-                </div>
-                <div class="control">
-                    <button type=button class="button edit-item-button is-primary" id="{{cid}}-edit-item">
-                        Edit
-                    </button>
+        <fieldset class="item-picker-container is-hidden">
+            <div class=" field">
+                <label class="label">Which one?</label>
+                <div class="field has-addons">
+                    <div class="control">
+                        {{! Item picker will be inserted here }}
+                    </div>
+                    <div class="control">
+                        <button type=button class="button create-item-button" id="{{cid}}-create-item">
+                            Create new
+                        </button>
+                    </div>
+                    <div class="control">
+                        <button type=button class="button edit-item-button is-primary" id="{{cid}}-edit-item">
+                            Edit
+                        </button>
+                    </div>
                 </div>
             </div>
         </fieldset>
         <fieldset class="item-edit-container is-hidden">
-            <div class="item-multifield">
-            <label class="label">Edit properties</label>
-            {{! Item multifield will be inserted here }}
-            </div>
+            <div class="field">
+                <label class="label">Edit properties</label>
+                <div class="item-multifield">
+                {{! Item multifield will be inserted here }}
+                </div>
+                <p class="help is-danger label-unset is-hidden">Choose a preferred label before saving.</p>
+                </div>
         </fieldset>
 
         </div>
