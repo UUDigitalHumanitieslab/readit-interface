@@ -2,8 +2,8 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
 import View from '../core/view';
 
-import { skos } from '../common-rdf/ns';
 import FlatItem from '../common-adapters/flat-item-model';
+import { rdfs, skos } from '../common-rdf/ns';
 
 type TooltipSetting = false | 'top' | 'bottom' | 'left' | 'right';
 
@@ -19,7 +19,7 @@ export default class LabelView extends View<FlatItem> {
     constructor(options?: ViewOptions) {
         super(options);
 
-        this.toolTipSetting = 'top';
+        this.toolTipSetting = 'right';
         if (options && options.toolTipSetting !== undefined) {
             this.toolTipSetting = options.toolTipSetting;
         }
@@ -41,12 +41,12 @@ export default class LabelView extends View<FlatItem> {
     }
 
     addDefinition(): void {
-        if (this.hasTooltip() && this.model.get('class').has(skos.definition)) {
+        if (this.hasTooltip() && (this.model.get('class').has(skos.definition) || this.model.get('class').has(rdfs.comment))) {
             this.$el.addClass("tooltip");
             this.$el.addClass("is-tooltip");
             this.setTooltipOrientation();
 
-            let definition = this.model.get('class').get(skos.definition)[0] as string;
+            let definition = (this.model.get('class').get(skos.definition) ? this.model.get('class').get(skos.definition)[0] : this.model.get('class').get(rdfs.comment)[0]) as string;
             this.$el.attr("data-tooltip", definition);
 
             if (definition.length > 65) {

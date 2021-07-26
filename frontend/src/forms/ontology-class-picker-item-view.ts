@@ -16,8 +16,7 @@ export default class OntologyClassPickerItemView extends CompositeView<FlatItem>
         const specifyMargin = 'is-level-' + options.level;
         this.$el.addClass(specifyMargin);
         this.labelView = new LabelView({
-            model: this.model,
-            toolTipSetting: false
+            model: this.model
         });
         return this.render();
     }
