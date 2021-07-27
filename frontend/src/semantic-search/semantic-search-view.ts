@@ -5,6 +5,7 @@ import { CompositeView } from '../core/view';
 import Multifield from '../forms/multifield-view';
 
 import semChannel from './radio';
+import Query from './model';
 import Chain from './chain-view';
 import Multibranch from './multibranch-view';
 import semTemplate from './semantic-search-template';
@@ -17,7 +18,7 @@ import semTemplate from './semantic-search-template';
  * only enabled when the form is complete. Both of these features are
  * coordinated with the subviews through the semChannel.
  */
-export default class SemanticSearchView extends CompositeView {
+export default class SemanticSearchView extends CompositeView<Query> {
     topChain: Chain;
     // Counters to keep track of form completeness.
     // The number of chains currently present in the form.
@@ -35,8 +36,9 @@ export default class SemanticSearchView extends CompositeView {
             'supply:decrease': this.decreaseSupply,
         });
         semChannel.reply('branchout', this.branchout, this);
-        this.topChain = new Chain({ model: this.model });
-        this.model = this.topChain.model;
+        this.model = this.model || new Query();
+        this.topChain = new Chain({ model: this.model.get('query') });
+        this.model.set('query', this.topChain.model);
         this.render();
     }
 
