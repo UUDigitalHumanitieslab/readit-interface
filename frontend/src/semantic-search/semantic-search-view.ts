@@ -43,7 +43,7 @@ export default class SemanticSearchView extends CompositeView<Query> {
     }
 
     renderContainer(): this {
-        this.$el.html(this.template({}));
+        this.$el.html(this.template({ label: this.model.get('label'), }));
         this.checkCompleteness();
         return this;
     }
@@ -94,6 +94,7 @@ export default class SemanticSearchView extends CompositeView<Query> {
 
     onSubmit(event): void {
         event.preventDefault();
+        this.model.set('label', this.$('input[name="label"]').val());
         this.trigger('search', this.model);
     }
 }
