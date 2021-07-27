@@ -1,4 +1,4 @@
-import { extend, intersection, map, some, startsWith } from 'lodash';
+import { extend, flatten, intersection, map, some, startsWith } from 'lodash';
 import * as a$ from 'async';
 
 import Model from '../core/model';
@@ -12,7 +12,7 @@ import Graph from '../common-rdf/graph';
 import LinkedItemEditor from './linked-item-editor-view';
 import AddButton from '../forms/add-button-view';
 import FilteredCollection from '../common-adapters/filtered-collection';
-import { getRdfSuperClasses, isRdfProperty } from '../utilities/linked-data-utilities';
+import { getRdfParentNodes, isRdfProperty } from '../utilities/linked-data-utilities';
 
 /**
  * View class that displays a LinkedItemEditor for each linked item.
@@ -34,24 +34,21 @@ export default
     }
 
     async getPredicates() {
-        const parents = getRdfSuperClasses(this.model.get('@type') as string[]);
+        const parents = getRdfParentNodes(this.model.get('@type') as string[]);
         this.predicates = ldChannel.request('visit', store => new FilteredCollection(
             store, node => this.isEditableProperty(node, parents)
         ));
     }
 
     isEditableProperty(node: Node, parents) {
-        if (isRdfProperty(node) && node.has(rdfs.domain) && intersection(node.get(rdfs.domain), parents).length) {
+        const domains = flatten(getRdfParentNodes([node], rdfs.subPropertyOf).map(n => n.get(rdfs.domain)));
+        if (isRdfProperty(node) && intersection(domains, parents).length) {
             if (!node.has(rdfs.range)) {
                 return true;
             }
             else {
                 return some(node.get(rdfs.range), <Node>(n) => (n.id === rdfs.Literal || startsWith(n.id, xsd())));
             }
-        }
-        // make sure all label types are editable properties
-        if (node.has(rdfs.subPropertyOf) && (<Node>node.get(rdfs.subPropertyOf)[0]).id === rdfs.label) {
-            return true;
         }
         else return false;
     }

@@ -70,10 +70,8 @@ export default class LinkedItemEditor extends CompositeView {
         switch (permittedType) {
             case xsd.dateTime || xsd.time:
                 this.helpText += 'date / time strings';
-            case xsd.decimal || xsd.integer:
+            case xsd.decimal || xsd.integer || xsd.float || xsd.double:
                 this.helpText += 'numbers';
-            case xsd.float || xsd.double:
-                this.helpText += 'floating point numbers';
             case xsd.string || rdfs.Literal:
                 this.helpText += 'strings';
                 break;

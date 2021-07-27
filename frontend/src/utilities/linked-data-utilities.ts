@@ -112,7 +112,7 @@ export interface GraphTraversal {
  * set of all things that are connected by a given relationship.
  * The transitive closure over parent-of, starting from you, is the
  * complete set of all your ancestors.
- * For an example of usage, see the getRdfSuperClasses source code.
+ * For an example of usage, see the getRdfParentNodes source code.
  * @param seeds the Nodes from which to start following the relationship.
  * @param traverse a function that, given a Node, returns its related Nodes.
  * @return a deduplicated array of all related Nodes, including the seeds.
@@ -139,24 +139,24 @@ export function transitiveClosure(
 }
 
 /**
- * Get all known RDF classes that are ancestors of the passed class(es).
+ * Get all known RDF classes or properties that are ancestors of the passed node(s).
  * "Known" here means that only the information that is synchronously
- * available from the store is taken into account, although classes
+ * available from the store is taken into account, although properties or classes
  * that were not previously in the store will be fetched as a side
  * effect.
- * @param clss (URIs of) RDF classes of which to obtain all ancestors.
- * @return a deduplicated array of all ancestors of clss, including clss.
+ * @param nodes (URIs of) RDF classes or properties of which to obtain all ancestors.
+ * @return a deduplicated array of all ancestors of nodes, including nodes.
  */
-export function getRdfSuperClasses(clss: NodeLike[]): Node[] {
-    if (!clss || clss.length === 0) return clss as Node[];
-    const seed = map(clss, cls => ldChannel.request('obtain', cls));
+export function getRdfParentNodes(nodes: NodeLike[], filterBy = rdfs.subClassOf): Node[] {
+    if (!nodes || nodes.length === 0) return nodes as Node[];
+    const seed = map(nodes, node => ldChannel.request('obtain', node));
     // Next lines handle test environments without a store.
-    if (seed[0] == null) return clss.map(cls =>
-        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : { '@id': cls })
+    if (seed[0] == null) return nodes.map(node =>
+        isNode(node) ? node : new Node(isIdentifier(node) ? node : { '@id': node })
     );
 
-    function traverseParents(cls) {
-        const getDirectParents = store => store.get(cls).get(rdfs.subClassOf);
+    function traverseParents(node) {
+        const getDirectParents = store => store.get(node).get(filterBy);
         return ldChannel.request('visit', getDirectParents);
     }
 
@@ -198,19 +198,8 @@ export function getRdfSubClasses(clss: NodeLike[]): Node[] {
 export function isType(node: Node, type: string): boolean {
     const initialTypes = node.get('@type') as string[];
     if (!initialTypes) return false;
-    const allTypes = getRdfSuperClasses(initialTypes);
+    const allTypes = getRdfParentNodes(initialTypes);
     return some(allTypes, { 'id': type });
-}
-
-/**
- * Get all known RDF properties
- * @param clss (URIs of) RDF classes of which to obtain all ancestors.
- * @return a deduplicated array of all ancestors of clss, including clss.
- */
-export function getRdfSuperProperties(): Node[] {
-    return ldChannel.request('visit', store => new FilteredCollection(store, node => {
-        isRdfProperty(node) || node.has(rdfs.subPropertyOf) && isRdfProperty(<Node>node.get(rdfs.subPropertyOf)[0])
-    }))
 }
 
 /**
