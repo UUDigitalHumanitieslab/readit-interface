@@ -147,13 +147,15 @@ export function transitiveClosure(
  * @param nodes (URIs of) RDF classes or properties of which to obtain all ancestors.
  * @return a deduplicated array of all ancestors of nodes, including nodes.
  */
-export function getRdfParentNodes(nodes: NodeLike[], filterBy = rdfs.subClassOf): Node[] {
+export function getRdfParentNodes(nodes: NodeLike[], superRelationship?: string): Node[] {
     if (!nodes || nodes.length === 0) return nodes as Node[];
     const seed = map(nodes, node => ldChannel.request('obtain', node));
     // Next lines handle test environments without a store.
     if (seed[0] == null) return nodes.map(node =>
         isNode(node) ? node : new Node(isIdentifier(node) ? node : { '@id': node })
     );
+
+    const filterBy = superRelationship ? superRelationship : rdfs.subClassOf;
 
     function traverseParents(node) {
         const getDirectParents = store => store.get(node).get(filterBy);

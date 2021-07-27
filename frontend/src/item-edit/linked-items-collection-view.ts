@@ -41,8 +41,11 @@ export default
     }
 
     isEditableProperty(node: Node, parents) {
+        if (!isRdfProperty(node)) {
+            return false;
+        }
         const domains = flatten(getRdfParentNodes([node], rdfs.subPropertyOf).map(n => n.get(rdfs.domain)));
-        if (isRdfProperty(node) && intersection(domains, parents).length) {
+        if (intersection(domains, parents).length) {
             if (!node.has(rdfs.range)) {
                 return true;
             }
