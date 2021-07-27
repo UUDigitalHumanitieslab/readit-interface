@@ -2,20 +2,21 @@ import re
 
 from django.http.response import HttpResponseBase
 from pyparsing import ParseException
-from rdflib import BNode, Literal
-from rdflib.plugins.sparql.parser import parseUpdate
-from requests.exceptions import HTTPError
-from rest_framework.exceptions import APIException
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
 from rdf.ns import HTTP, HTTPSC, RDF
 from rdf.renderers import TurtleRenderer
 from rdf.utils import graph_from_triples
 from rdf.views import custom_exception_handler as turtle_exception_handler
+from rdflib import BNode, Literal
+from rdflib.plugins.sparql.parser import parseUpdate
+from requests.exceptions import HTTPError
+from rest_framework.exceptions import APIException, NotAcceptable, ParseError
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .constants import UPDATE_NOT_SUPPORTED, UPDATE_NOT_SUPPORTED_PATTERN
-from .exceptions import NoParamError, NotSupportedSPARQLError, ParseSPARQLError
+from .constants import (BLANK_NODE_PATTERN, UPDATE_NOT_SUPPORTED,
+                        UPDATE_NOT_SUPPORTED_PATTERN)
+from .exceptions import (BlankNodeError, NoParamError, ParseSPARQLError,
+                         UnsupportedUpdateError)
 from .negotiation import SPARQLContentNegotiator
 from .permissions import SPARQLPermission
 
@@ -27,26 +28,37 @@ class SPARQLUpdateAPIView(APIView):
     def get_exception_handler(self):
         return turtle_exception_handler
 
-    def is_supported(self, updatestring):
+    def check_supported(self, updatestring):
         # check the entire string for unsupported keywords
         if re.match(UPDATE_NOT_SUPPORTED_PATTERN, updatestring):
             # do a dry-run parse of the updatestring
             parse_request = parseUpdate(updatestring).request
             # check if the parse contains any unsupported operations
+            if any(part.name in UPDATE_NOT_SUPPORTED for part in parse_request):
+                raise UnsupportedUpdateError(
+                    'Update operation is not supported.'
+                )
+
+        # Do a quick check for blank nodes
+        if re.search(BLANK_NODE_PATTERN, updatestring):
+            parse_request = parseUpdate(updatestring).request
             for part in parse_request:
-                if part.name in UPDATE_NOT_SUPPORTED:
-                    return False
-        return True
+                if any(
+                        isinstance(term, BNode)
+                        for triple in part.quads.triples
+                        for term in triple
+                ):
+                    raise BlankNodeError()
+
+        return
 
     def execute_update(self, updatestring):
         graph = self.graph()
 
-        if not self.is_supported(updatestring):
-            raise NotSupportedSPARQLError('Update operation is not supported.')
-
         try:
-            return graph.update(updatestring)
-        except ParseException as p_e:
+            self.check_supported(updatestring)
+            graph.update(updatestring)
+        except (ParseException, ParseError) as p_e:
             # Raised when SPARQL syntax is not valid, or parsing fails
             graph.rollback()
             raise ParseSPARQLError(p_e)
@@ -68,7 +80,6 @@ class SPARQLUpdateAPIView(APIView):
         if not sparql_string:
             # POST must contain an update
             raise NoParamError()
-
         blank = BNode()
         status = 200
         response = graph_from_triples(
@@ -79,8 +90,8 @@ class SPARQLUpdateAPIView(APIView):
                 (blank, HTTP.sc, HTTPSC.OK),
             )
         )
-
         self.execute_update(sparql_string)
+
         return Response(response)
 
     def graph(self):
@@ -88,38 +99,18 @@ class SPARQLUpdateAPIView(APIView):
 
 
 class SPARQLQueryAPIView(APIView):
-    renderer_classes = (TurtleRenderer,)
+    renderer_classes = SPARQLContentNegotiator.rdf_renderers + \
+        SPARQLContentNegotiator.results_renderers
     content_negotiation_class = SPARQLContentNegotiator
 
     def get_exception_handler(self):
+        ''' Errors are returned as turtle, even when the original querytype
+        does not satisfy could not be rendered in this format. A hard
+        overwrite of renderer is necessary. Ideally, this should render errors
+        in a querytype-compatibleway. '''
+        self.request.accepted_renderer = TurtleRenderer()
+        self.request.accepted_media_type = TurtleRenderer.media_type
         return turtle_exception_handler
-
-    def finalize_response(self, request, response, *args, **kwargs):
-        """
-        Adapts APIView method to additionaly perform content negotation
-        when a query type was set
-        """
-        assert isinstance(response, HttpResponseBase), (
-            "Expected a `Response`, `HttpResponse` or `HttpStreamingResponse` "
-            "to be returned from the view, but received a `%s`" % type(
-                response)
-        )
-
-        if isinstance(response, Response):
-            # re-perform content negotiation if a query type was set
-            if not getattr(request, "accepted_renderer", None) or \
-                    self.request.data.get("query_type", None):
-                neg = self.perform_content_negotiation(request, force=True)
-                request.accepted_renderer, request.accepted_media_type = neg
-
-            response.accepted_renderer = request.accepted_renderer
-            response.accepted_media_type = request.accepted_media_type
-            response.renderer_context = self.get_renderer_context()
-
-        for key, value in self.headers.items():
-            response[key] = value
-
-        return response
 
     def execute_query(self, querystring):
         """ Attempt to query a graph with a SPARQL-Query string
@@ -134,6 +125,11 @@ class SPARQLQueryAPIView(APIView):
                 query_results = graph.query(querystring)
                 query_type = query_results.type
             self.request.data["query_type"] = query_type
+            
+            # re-perform content negotiation to determine if
+            # querytype satisfies accept header
+            neg = self.perform_content_negotiation(self.request)
+            self.request.accepted_renderer, self.request.accepted_media_type = neg
             return query_results
 
         except ParseException as p_e:
@@ -146,6 +142,9 @@ class SPARQLQueryAPIView(APIView):
                 raise ParseSPARQLError(h_e)
             else:
                 raise APIException(h_e)
+        except NotAcceptable:
+            graph.rollback()
+            raise
         except Exception as n_e:
             graph.rollback()
             raise APIException(n_e)
@@ -158,6 +157,9 @@ class SPARQLQueryAPIView(APIView):
             on query type and header 'Accept.
         """
         sparql_string = request.query_params.get("query")
+        if request.data:
+            raise ParseSPARQLError(
+                "GET request should provide query in parameter, not request body.")
         query_results = self.execute_query(sparql_string)
 
         return Response(query_results)

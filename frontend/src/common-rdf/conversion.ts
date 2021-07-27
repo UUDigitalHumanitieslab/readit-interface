@@ -23,8 +23,8 @@ import { xsd } from './ns';
 
 // Native includes Identifier as an optimization.
 export type Native = number | boolean | null | string |
-                     Number | Boolean | Object | String |
-                     Date | Identifier | NativeArray;
+    Number | Boolean | Object | String |
+    Date | Identifier | NativeArray;
 export interface NativeArray extends Array<Native> { };
 
 interface Conversion {
@@ -70,7 +70,8 @@ const knownConversions: ConversionTable = {
             return { '@value': bool.valueOf() };
         },
         fromLD(value: FlatTypedLiteral): boolean {
-            return !!value['@value'];
+            const raw = value['@value'];
+            return raw === 'false' ? false : !!raw;
         },
     },
     [xsd.string]: {

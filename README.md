@@ -12,6 +12,7 @@ You need to install the following software:
  - virtualenv
  - [Apache Jena Fuseki][fuseki] (see [notes in the backend README](backend/README.md#notes-for-setting-up-fuseki))
  - Elasticsearch 7 (see [notes in the backend README](backend/README.md#setting-up-elasticsearch))
+ - RabbitMQ or other message broker and Celery (see [notes](backend/README.md#setting-up-celery))
  - WSGI-compatible webserver (deployment only)
  - [Visual C++ for Python][1] (Windows only)
  - Node.js >= 8

@@ -27,7 +27,7 @@ export function sourceWithAnnotations(control: Controller, node: Node) {
 export function annotation(control: Controller, source: Node, item: Node) {
     const [sourcePanel, listPanel] = sourceWithAnnotations(control, source);
     const flat = listPanel.collection.get(item.id) || new FlatItem(item);
-    return control.openSourceAnnotation(listPanel, flat);
+    return control.openSourceAnnotation(listPanel, flat, listPanel.collection);
 }
 
 export

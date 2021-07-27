@@ -1,17 +1,18 @@
-import { enableI18n } from '../test-util';
+import { enableI18n, event } from '../test-util';
 
-import { rdfs, skos } from './../common-rdf/ns';
+import { readit, rdfs, skos } from './../common-rdf/ns';
 import { FlatLdObject } from '../common-rdf/json';
 import Node from '../common-rdf/node';
 import LabelView from './label-view';
+import FlatItem from '../common-adapters/flat-item-model';
 
-function getDefaultNode(): Node {
-    return new Node(getDefaultAttributes());
+function getDefaultItem(): FlatItem {
+    return new FlatItem(new Node(getDefaultAttributes()));
 }
 
 function getDefaultAttributes(): FlatLdObject {
     return {
-        '@id': 'uniqueID',
+        '@id': readit('test'),
         "@type": [rdfs.Class],
         [skos.prefLabel]: [
             { '@value': 'Content' },
@@ -28,29 +29,30 @@ function getDefaultAttributes(): FlatLdObject {
 describe('LabelView', function () {
     beforeAll(enableI18n);
 
-    it('includes a tooltip if a definition exists', function () {
-        let node = getDefaultNode();
-        let view = new LabelView({ model: node });
+    beforeEach( async function() {
+        this.item = getDefaultItem();
 
+    });
+
+    it('includes a tooltip if a definition exists', async function () {
+        let view = new LabelView({ model: this.item });
+        await event(this.item, 'complete');
         expect(view.el.className).toContain('is-readit-content');
         expect(view.$el.attr('data-tooltip')).toEqual('This is a test definition');
     });
 
-    it('does not include a tooltip if a definition does not exists', function () {
+    it('does not include a tooltip if a definition does not exist', async function () {
         let attributes = getDefaultAttributes();
-        delete attributes[skos.definition];
-        let node = new Node(attributes);
-
-        let view = new LabelView({ model: node });
-
+        delete attributes[skos.definition]; 
+        let view = new LabelView({ model: new FlatItem(new Node(attributes))});
+        await event(view.model, 'complete');
         expect(view.el.className).toContain('is-readit-content');
         expect(view.$el.attr('data-tooltip')).toBeUndefined();
     });
 
-    it('excludes a tooltip if told so', function () {
-        let node = getDefaultNode();
-        let view = new LabelView({ model: node, toolTipSetting: false });
-
+    it('excludes a tooltip if told so', async function () {
+        let view = new LabelView({ model: this.item, toolTipSetting: false });
+        await event(this.item, 'complete');
         expect(view.el.className).toContain('is-readit-content');
         expect(view.$el.attr('data-tooltip')).toBeUndefined();
     });

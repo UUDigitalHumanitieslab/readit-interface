@@ -24,6 +24,9 @@ const priorityOverrides = {
     'application/n-quads': 0.6,
 };
 
+// CIDOC serves its rdf/xml with a text/html content type. ARGH!
+const rdfPattern = /<\?xml[^]+<rdf:rdf[^]+<\/rdf:rdf/i;
+
 const defaultSyncOptions = (function() {
     let optionsPromise: any;
 
@@ -85,6 +88,11 @@ export function transform(jqXHR: JQuery.jqXHR): Promise<[
         [plaintext, context] = combineContext(jqXHR);
     } else {
         plaintext = jqXHR.responseText;
+    }
+    if (contentType === 'text/html' && rdfPattern.test(plaintext)) {
+        // Workaround for improper content negotiation in CIDOC and possibly
+        // other vocabularies.
+        contentType = 'application/rdf+xml';
     }
     const input = streamify(plaintext);
     const serializer = new Serializer();

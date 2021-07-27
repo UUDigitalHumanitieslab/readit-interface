@@ -9,10 +9,10 @@ import Node from '../common-rdf/node';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
 import { getLabel, getLabelFromId } from '../utilities/linked-data-utilities';
+import { applicablePredicates, relationsFromModel } from '../utilities/relation-utilities';
 
 import relatedItemsTemplate from './related-items-template';
 import RelatedItemsRelationView from './related-items-relation-view';
-import { applicablePredicates, relationsFromModel } from './relation-utilities';
 
 const announce = announceRoute('item:related', ['model', 'id']);
 const getPredicateId = r => r.get('predicate').id;

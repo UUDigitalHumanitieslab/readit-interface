@@ -114,8 +114,6 @@ describe('AnnotationEditView', function() {
         });
         // Create the view and watch some events.
         const flat = this.flat;
-        const changeSpy = jasmine.createSpy('changeSpy');
-        flat.on('complete', () => flat.on('change', changeSpy));
         const view = new AnnotationEditView({ model: flat });
         view.itemOptions.on('request', respond);
         // A storm of events ensues. Wait until everything settles down.
@@ -130,8 +128,7 @@ describe('AnnotationEditView', function() {
         maybeChangeItem.off();
         // At this point, our annotation *should* be unchanged, but there was a
         // time when this wasn't true. See #425.
-        expect(changeSpy).not.toHaveBeenCalled();
-        expect(flat.has('item')).toBeTruthy();
+        expect(flat.get('item')).toBe(this.item);
         // Trigger another storm of events.
         view.$('.btn-cancel').click();
         // Again, wait until everything settles down.
@@ -144,6 +141,5 @@ describe('AnnotationEditView', function() {
         expect(flat.get('item')).toBe(this.item);
         // Final cleanup.
         view.itemOptions.off('request', respond);
-        flat.off('change', changeSpy);
     });
 });

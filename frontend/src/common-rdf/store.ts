@@ -89,10 +89,25 @@ export default class Store extends Graph {
     }
 
     /**
-     * Like import, but send the request through our own proxy.
+     * Like import, but send the request through our own proxy or report 404.
      */
-    importViaProxy(url: string): this {
-        this.fetch(defaults({url: `${proxyRoot}${encodeURIComponent(url)}`}, fetchOptions));
+    importViaProxy(url: string, xhr?: JQuery.jqXHR): this {
+        if (xhr && xhr.status === 404) {
+            const notFoundResource = this.get(url);
+            // The error event triggers on the store instead of on the
+            // `notFoundResource`. Notify client code that is interested in this
+            // particular resource.
+            notFoundResource.trigger('error', notFoundResource, xhr, {});
+            // We remove the resource for two reasons: (1) it doesn't exist so
+            // there is no point in holding on to it and (2) if the same
+            // resource is requested again later, the need to re-fetch it
+            // ensures that the error will also be re-triggered.
+            this.remove(notFoundResource);
+        } else {
+            this.fetch(defaults({
+                url: `${proxyRoot}${encodeURIComponent(url)}`,
+            }, fetchOptions));
+        }
         return this;
     }
 

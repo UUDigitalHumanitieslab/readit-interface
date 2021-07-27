@@ -1,13 +1,20 @@
 import { extend, sortBy } from 'lodash';
+import { ViewOptions as BaseOpt } from 'backbone';
 
 import { CompositeView } from '../core/view';
-import Node from '../common-rdf/node';
 import LabelView from '../label/label-view';
+import FlatItem from '../common-adapters/flat-item-model';
 
-export default class OntologyClassPickerItemView extends CompositeView<Node> {
+export interface ViewOptions extends BaseOpt<FlatItem> {
+    level: number;
+}
+
+export default class OntologyClassPickerItemView extends CompositeView<FlatItem> {
     labelView: LabelView;
 
-    initialize(): this {
+    initialize(options: ViewOptions): this {
+        const specifyMargin = 'is-level-' + options.level;
+        this.$el.addClass(specifyMargin);
         this.labelView = new LabelView({
             model: this.model
         });
@@ -26,8 +33,13 @@ export default class OntologyClassPickerItemView extends CompositeView<Node> {
         return this;
     }
 
-    onClick(event: any): this {
+    onClick(event: Event): this {
         this.trigger('click', this);
+        return this;
+    }
+
+    onHover(): this {
+        this.trigger('hover', this.model);
         return this;
     }
 }
@@ -37,5 +49,6 @@ extend(OntologyClassPickerItemView.prototype, {
     subviews: ['labelView'],
     events: {
         'mousedown': 'onClick',
+        'mouseover': 'onHover'
     }
 });

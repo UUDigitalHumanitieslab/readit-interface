@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from io import BytesIO
+from rdflib.plugins.sparql.parser import BlankNode
 
 from django.http import FileResponse, HttpResponse
 
@@ -29,6 +30,7 @@ from .permissions import *
 MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank node.'
 MUST_EQUAL_IDENTIFIER_400 = 'PUT must affect exactly the resource URI.'
 MUST_BE_OWNER_403 = 'PUT is only allowed to the resource owner.'
+BLANK_OBJECT_PREDICATE_400 = 'Blank nodes in the predicate or object positions are not allowed.'
 
 ANNOTATION_CUTOFF = 10 # don't return more than 10 annotations when querying by category
 
@@ -186,6 +188,9 @@ class ItemsAPIRoot(RDFView):
         subjects = set(data.subjects())
         if len(subjects) != 1 or not isinstance(subjects.pop(), BNode):
             raise ValidationError(MUST_SINGLE_BLANK_400)
+        for (p, o) in data.predicate_objects():
+            if isinstance(p, BNode) or isinstance(o, BNode):
+                raise ValidationError(BLANK_OBJECT_PREDICATE_400)
         user, now = submission_info(request)
         counter = ItemCounter.current
         counter.increment()
@@ -228,6 +233,9 @@ class ItemsAPISingular(RDFResourceView):
         subjects = set(override.subjects())
         if len(subjects) != 1 or subjects.pop() != identifier:
             raise ValidationError(MUST_EQUAL_IDENTIFIER_400)
+        for (p, o) in override.predicate_objects():
+            if isinstance(p, BNode) or isinstance(o, BNode):
+                raise ValidationError(BLANK_OBJECT_PREDICATE_400)
         added = sanitize(override - existing)
         removed = sanitize(existing - override)
         if len(added) == 0 and len(removed) == 0:
