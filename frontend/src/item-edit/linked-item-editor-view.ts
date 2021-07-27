@@ -9,7 +9,6 @@ import RemoveButton from '../forms/remove-button-view';
 import linkedItemTemplate from './linked-item-editor-template';
 import InputField from '../forms/input-field-view';
 import { rdfs, xsd } from '../common-rdf/ns';
-import { RSA_X931_PADDING } from 'constants';
 import { NativeArray } from '../common-rdf/conversion';
 
 // Selector of the control where the object picker is inserted.
