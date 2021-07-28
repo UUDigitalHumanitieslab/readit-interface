@@ -4,13 +4,19 @@ import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
 import FlatItem from '../common-adapters/flat-item-model';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
+import SemanticQuery from '../semantic-search/model';
 
 import searchResultListTemplate from './search-result-list-template';
 import SearchResultView from './search-result-base-view';
 
-// TODO: the search results list is general enough to be used for other purposes
-// than item annotations. Fix the route announcement when we decide to do this.
-const announce = announceRoute('item:annotations', ['model', 'id']);
+const announceAnno = announceRoute('item:annotations', ['model', 'id']);
+const announceQuery = announceRoute('search:results:semantic', ['model', 'id']);
+
+function announce(): void {
+    if (this.model instanceof SemanticQuery) {
+        this.model.when('id', announceQuery, this);
+    } else announceAnno.call(this);
+}
 
 export interface ViewOptions extends BaseOpt {
     selectable: boolean;
