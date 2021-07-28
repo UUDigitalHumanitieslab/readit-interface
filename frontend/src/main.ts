@@ -12,6 +12,7 @@ import user from './global/user';
 import { prefetch } from './global/ld-store';
 import './global/item-cache';
 import './global/history-notfound-trigger';
+import './global/user-semantic-queries';
 import './aspects/navigation';
 import './aspects/authentication';
 import './aspects/registration';
