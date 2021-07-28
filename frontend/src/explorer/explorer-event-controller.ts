@@ -95,6 +95,7 @@ class ExplorerEventController {
         if (model.isNew()) model.save();
         const collection = new FlatItemCollection(items);
         const resultsView = new SearchResultListView({
+            model,
             collection,
             selectable: false,
         });
