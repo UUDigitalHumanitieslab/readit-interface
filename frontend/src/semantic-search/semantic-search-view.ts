@@ -97,6 +97,12 @@ export default class SemanticSearchView extends CompositeView<Query> {
         this.model.set('label', this.$('input[name="label"]').val());
         this.trigger('search', this.model);
     }
+
+    onChange(event): void {
+        // If the label or anything about the query changes, we remove the id in
+        // order to ensure that the query will be saved with a new id.
+        this.model.unset('id');
+    }
 }
 
 extend(SemanticSearchView.prototype, {
@@ -110,5 +116,6 @@ extend(SemanticSearchView.prototype, {
     }],
     events: {
         submit: 'onSubmit',
+        change: 'onChange',
     },
 });
