@@ -23,16 +23,13 @@ export default class WelcomeView extends CompositeView {
         this.render();
         this.$('.tabs li[data-tab="searchboxView"]').addClass('is-active');
         this.semSearchView.$el.hide();
-        this.searchboxView.on("searchClicked", this.search, this);
+        this.searchboxView.on('all', this.trigger, this);
+        this.semSearchView.on('all', this.trigger, this);
     }
 
     renderContainer() {
         this.$el.html(this.template(this));
         return this;
-    }
-
-    search(query: string, fields: string = 'all') {
-        this.trigger('search:start', { query, fields });
     }
 
     toggleTab(event): void {

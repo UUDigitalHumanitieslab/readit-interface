@@ -95,7 +95,7 @@ export default class SemanticSearchView extends CompositeView<Query> {
     onSubmit(event): void {
         event.preventDefault();
         this.model.set('label', this.$('input[name="label"]').val());
-        this.trigger('search', this.model);
+        this.trigger('search:semantic', this.model);
     }
 
     onChange(event): void {
