@@ -37,6 +37,7 @@ export default class SemanticSearchView extends CompositeView<Query> {
         });
         semChannel.reply('branchout', this.branchout, this);
         this.model = this.model || new Query();
+        semChannel.trigger('addUserQuery', this.model);
         this.topChain = new Chain({ model: this.model.get('query') });
         this.model.set('query', this.topChain.model);
         this.render();

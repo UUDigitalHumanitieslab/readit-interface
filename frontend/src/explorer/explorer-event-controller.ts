@@ -92,6 +92,7 @@ class ExplorerEventController {
         const query = modelToQuery(model.get('query'));
         const items = new ItemGraph();
         items.sparqlQuery(query);
+        if (model.isNew()) model.save();
         const collection = new FlatItemCollection(items);
         const resultsView = new SearchResultListView({
             collection,
