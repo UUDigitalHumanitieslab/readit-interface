@@ -28,7 +28,7 @@ from . import namespace as my
 from .graph import graph, history
 from .models import ItemCounter, EditCounter, SemanticQuery
 from .permissions import *
-from .serializers import SemanticQuerySerializer
+from .serializers import SemanticQuerySerializer, SemanticQuerySerializerFull
 
 MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank node.'
 MUST_EQUAL_IDENTIFIER_400 = 'PUT must affect exactly the resource URI.'
@@ -314,4 +314,9 @@ class SemanticQueryViewSet(
     GenericViewSet,
 ):
     queryset = SemanticQuery.objects.all()
-    serializer_class = SemanticQuerySerializer
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return SemanticQuerySerializerFull
+        else:
+            return SemanticQuerySerializer
