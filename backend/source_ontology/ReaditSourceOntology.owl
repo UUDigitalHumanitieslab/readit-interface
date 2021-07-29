@@ -1,0 +1,404 @@
+@prefix : <https://read-it.acc.hum.uu.nl/source-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <https://read-it.acc.hum.uu.nl/source-ontology#> .
+
+<https://read-it.acc.hum.uu.nl/source-ontology#> rdf:type owl:Ontology .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://www.w3.org/2004/02/skos/core#notation
+<http://www.w3.org/2004/02/skos/core#notation> rdf:type owl:AnnotationProperty ;
+                                               rdfs:subPropertyOf rdfs:comment .
+
+
+#################################################################
+#    Datatypes
+#################################################################
+
+###  http://www.w3.org/2001/XMLSchema#date
+xsd:date rdf:type rdfs:Datatype .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://schema.org/inLanguage
+<http://schema.org/inLanguage> rdf:type owl:ObjectProperty .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#language
+:language rdf:type owl:ObjectProperty ;
+          rdfs:subPropertyOf <http://schema.org/inLanguage> ;
+          rdfs:domain :Source ;
+          rdfs:range <http://id.loc.gov/vocabulary/iso639-1/iso639-1_Language> ;
+          rdfs:label "language"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#sourceType
+:sourceType rdf:type owl:ObjectProperty ;
+            rdfs:domain :Source ;
+            rdfs:range :TFO_TextForm ;
+            rdfs:label "source type"@en .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://schema.org/author
+<http://schema.org/author> rdf:type owl:DatatypeProperty .
+
+
+###  http://schema.org/dateCreated
+<http://schema.org/dateCreated> rdf:type owl:DatatypeProperty .
+
+
+###  http://schema.org/datePublished
+<http://schema.org/datePublished> rdf:type owl:DatatypeProperty .
+
+
+###  http://schema.org/editor
+<http://schema.org/editor> rdf:type owl:DatatypeProperty .
+
+
+###  http://schema.org/encodingFormat
+<http://schema.org/encodingFormat> rdf:type owl:DatatypeProperty .
+
+
+###  http://schema.org/identifier
+<http://schema.org/identifier> rdf:type owl:DatatypeProperty .
+
+
+###  http://schema.org/image
+<http://schema.org/image> rdf:type owl:DatatypeProperty .
+
+
+###  http://schema.org/name
+<http://schema.org/name> rdf:type owl:DatatypeProperty .
+
+
+###  http://schema.org/publisher
+<http://schema.org/publisher> rdf:type owl:DatatypeProperty .
+
+
+###  http://schema.org/thumbnail
+<http://schema.org/thumbnail> rdf:type owl:DatatypeProperty .
+
+
+###  http://schema.org/uploadDate
+<http://schema.org/uploadDate> rdf:type owl:DatatypeProperty .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#author
+:author rdf:type owl:DatatypeProperty ;
+        rdfs:subPropertyOf <http://schema.org/author> ;
+        rdfs:domain :Source ;
+        rdfs:range xsd:string ;
+        rdfs:label "author"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#dateCreated
+:dateCreated rdf:type owl:DatatypeProperty ;
+             rdfs:subPropertyOf <http://schema.org/dateCreated> ;
+             rdfs:domain :Source ;
+             rdfs:range xsd:date ,
+                        xsd:string ;
+             rdfs:comment "Creation date of the source. Allowed values are dates in various formats (e.g. \"07/07/2021\", \"July 7th 2021\"), as well as free-form text (e.g. \"first half the 18th century\")."@en ;
+             rdfs:label "creation date"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#datePublished
+:datePublished rdf:type owl:DatatypeProperty ;
+               rdfs:subPropertyOf <http://schema.org/datePublished> ;
+               rdfs:domain :Source ;
+               rdfs:range xsd:date ,
+                          xsd:string ;
+               rdfs:comment "Publication date of the source. Allowed values are dates in various formats (e.g. \"07/07/2021\", \"July 7th 2021\"), as well as free-form text (e.g. \"first half of the 18th century\")."@en ;
+               rdfs:label "publication date"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#dateRetrieved
+:dateRetrieved rdf:type owl:DatatypeProperty ;
+               rdfs:domain :Source ;
+               rdfs:range xsd:date ,
+                          xsd:dateTime ,
+                          xsd:string ;
+               rdfs:comment "Retrieval date of the source. Allowed values are dates in various formats (e.g. \"07/07/2021\", \"July 7th 2021\"), datetimes (e.g. \"2021-07-07T08:41:49+0000\") as well as free-form text (e.g. \"this week\")."@en ;
+               rdfs:label "retrieval date"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#dateUploaded
+:dateUploaded rdf:type owl:DatatypeProperty ;
+              rdfs:subPropertyOf <http://schema.org/uploadDate> ;
+              rdfs:domain :Source ;
+              rdfs:range xsd:date ;
+              rdfs:comment "Upload date of the source. This is automatically set on uploading, in ISO8601 format."@en ;
+              rdfs:label "upload date"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#editor
+:editor rdf:type owl:DatatypeProperty ;
+        rdfs:subPropertyOf <http://schema.org/editor> ;
+        rdfs:domain :Source ;
+        rdfs:range xsd:string ;
+        rdfs:label "editor"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#encodingFormat
+:encodingFormat rdf:type owl:DatatypeProperty ;
+                rdfs:subPropertyOf <http://schema.org/encodingFormat> ;
+                rdfs:domain :Source ;
+                rdfs:range xsd:anyURI ,
+                           xsd:string ;
+                rdfs:label "encoding format (MIME type)" .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#image
+:image rdf:type owl:DatatypeProperty ;
+       rdfs:subPropertyOf <http://schema.org/image> ;
+       rdfs:domain :Source ;
+       rdfs:range xsd:anyURI ;
+       rdfs:label "image URL"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#publisher
+:publisher rdf:type owl:DatatypeProperty ;
+           rdfs:subPropertyOf <http://schema.org/publisher> ;
+           rdfs:domain :Source ;
+           rdfs:range xsd:string ;
+           rdfs:label "publisher"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#repository
+:repository rdf:type owl:DatatypeProperty ;
+            rdfs:domain :Source ;
+            rdfs:range xsd:string ;
+            rdfs:label "repository"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#thumbnail
+:thumbnail rdf:type owl:DatatypeProperty ;
+           rdfs:subPropertyOf <http://schema.org/thumbnail> ;
+           rdfs:domain :Source ;
+           rdfs:range xsd:anyURI ;
+           rdfs:label "thumbnail URL"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#title
+:title rdf:type owl:DatatypeProperty ;
+       rdfs:subPropertyOf <http://schema.org/name> ;
+       rdfs:domain :Source ;
+       rdfs:range xsd:string ;
+       rdfs:label "title"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#url
+:url rdf:type owl:DatatypeProperty ;
+     rdfs:subPropertyOf <http://schema.org/identifier> ;
+     rdfs:domain :Source ;
+     rdfs:range xsd:anyURI ;
+     rdfs:label "url"@en .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://id.loc.gov/vocabulary/iso639-1/iso639-1_Language
+<http://id.loc.gov/vocabulary/iso639-1/iso639-1_Language> rdf:type owl:Class ;
+                                                          rdfs:label "ISO6391 Language" .
+
+
+###  http://schema.org/CreativeWork
+<http://schema.org/CreativeWork> rdf:type owl:Class .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#Source
+:Source rdf:type owl:Class ;
+        rdfs:subClassOf <http://schema.org/CreativeWork> .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO01_Advertisment
+:TFO01_Advertisment rdf:type owl:Class ;
+                    rdfs:subClassOf :TFO_TextForm ;
+                    <http://www.w3.org/2004/02/skos/core#notation> "TFO01"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO02_Book
+:TFO02_Book rdf:type owl:Class ;
+            rdfs:subClassOf :TFO_TextForm ;
+            <http://www.w3.org/2004/02/skos/core#notation> "TFO02"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO03_Broadsheet
+:TFO03_Broadsheet rdf:type owl:Class ;
+                  rdfs:subClassOf :TFO_TextForm ;
+                  <http://www.w3.org/2004/02/skos/core#notation> "TFO03"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO04_Codex
+:TFO04_Codex rdf:type owl:Class ;
+             rdfs:subClassOf :TFO_TextForm ;
+             <http://www.w3.org/2004/02/skos/core#notation> "TFO04"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO05_Dazibaos
+:TFO05_Dazibaos rdf:type owl:Class ;
+                rdfs:subClassOf :TFO_TextForm ;
+                <http://www.w3.org/2004/02/skos/core#notation> "TFO05"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO06_DigitizedMaterial
+:TFO06_DigitizedMaterial rdf:type owl:Class ;
+                         rdfs:subClassOf :TFO_TextForm ;
+                         <http://www.w3.org/2004/02/skos/core#notation> "TFO06"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO07_EpitaphsInscriptions
+:TFO07_EpitaphsInscriptions rdf:type owl:Class ;
+                            rdfs:subClassOf :TFO_TextForm ;
+                            <http://www.w3.org/2004/02/skos/core#notation> "TFO07"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO08_Fax
+:TFO08_Fax rdf:type owl:Class ;
+           rdfs:subClassOf :TFO_TextForm ;
+           <http://www.w3.org/2004/02/skos/core#notation> "TFO08"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO09_Festschrift
+:TFO09_Festschrift rdf:type owl:Class ;
+                   rdfs:subClassOf :TFO_TextForm ;
+                   <http://www.w3.org/2004/02/skos/core#notation> "TFO09"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO10_Form
+:TFO10_Form rdf:type owl:Class ;
+            rdfs:subClassOf :TFO_TextForm ;
+            <http://www.w3.org/2004/02/skos/core#notation> "TFO10"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO11_Graffito
+:TFO11_Graffito rdf:type owl:Class ;
+                rdfs:subClassOf :TFO_TextForm ;
+                <http://www.w3.org/2004/02/skos/core#notation> "TFO11"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO12_Handbill
+:TFO12_Handbill rdf:type owl:Class ;
+                rdfs:subClassOf :TFO_TextForm ;
+                <http://www.w3.org/2004/02/skos/core#notation> "TFO12"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO13_Journals
+:TFO13_Journals rdf:type owl:Class ;
+                rdfs:subClassOf :TFO_TextForm ;
+                <http://www.w3.org/2004/02/skos/core#notation> "TFO13"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO14_Leaflets
+:TFO14_Leaflets rdf:type owl:Class ;
+                rdfs:subClassOf :TFO_TextForm ;
+                <http://www.w3.org/2004/02/skos/core#notation> "TFO14"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO15_Letter
+:TFO15_Letter rdf:type owl:Class ;
+              rdfs:subClassOf :TFO_TextForm ;
+              <http://www.w3.org/2004/02/skos/core#notation> "TFO15"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO16_Magazines
+:TFO16_Magazines rdf:type owl:Class ;
+                 rdfs:subClassOf :TFO_TextForm ;
+                 <http://www.w3.org/2004/02/skos/core#notation> "TFO16"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO17_Newspaper
+:TFO17_Newspaper rdf:type owl:Class ;
+                 rdfs:subClassOf :TFO_TextForm ;
+                 <http://www.w3.org/2004/02/skos/core#notation> "TFO17"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO18_Pamphlet
+:TFO18_Pamphlet rdf:type owl:Class ;
+                rdfs:subClassOf :TFO_TextForm ;
+                <http://www.w3.org/2004/02/skos/core#notation> "TFO18"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO19_Photocopies
+:TFO19_Photocopies rdf:type owl:Class ;
+                   rdfs:subClassOf :TFO_TextForm ;
+                   <http://www.w3.org/2004/02/skos/core#notation> "TFO19"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO20_Poster
+:TFO20_Poster rdf:type owl:Class ;
+              rdfs:subClassOf :TFO_TextForm ;
+              <http://www.w3.org/2004/02/skos/core#notation> "TFO20"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO21_Programmes
+:TFO21_Programmes rdf:type owl:Class ;
+                  rdfs:subClassOf :TFO_TextForm ;
+                  <http://www.w3.org/2004/02/skos/core#notation> "TFO21"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO22_Roll
+:TFO22_Roll rdf:type owl:Class ;
+            rdfs:subClassOf :TFO_TextForm ;
+            <http://www.w3.org/2004/02/skos/core#notation> "TFO22"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO23_Samizdats
+:TFO23_Samizdats rdf:type owl:Class ;
+                 rdfs:subClassOf :TFO_TextForm ;
+                 <http://www.w3.org/2004/02/skos/core#notation> "TFO23"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO24_SerialPeriodical
+:TFO24_SerialPeriodical rdf:type owl:Class ;
+                        rdfs:subClassOf :TFO_TextForm ;
+                        <http://www.w3.org/2004/02/skos/core#notation> "TFO24"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO25_Sheet
+:TFO25_Sheet rdf:type owl:Class ;
+             rdfs:subClassOf :TFO_TextForm ;
+             <http://www.w3.org/2004/02/skos/core#notation> "TFO25"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO26_Ticket
+:TFO26_Ticket rdf:type owl:Class ;
+              rdfs:subClassOf :TFO_TextForm ;
+              <http://www.w3.org/2004/02/skos/core#notation> "TFO26"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO27_Unknown
+:TFO27_Unknown rdf:type owl:Class ;
+               rdfs:subClassOf :TFO_TextForm ;
+               <http://www.w3.org/2004/02/skos/core#notation> "TFO27"@en .
+
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm
+:TFO_TextForm rdf:type owl:Class .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  https://read-it.acc.hum.uu.nl/source-ontology#PlainTextSource
+:PlainTextSource rdf:type owl:NamedIndividual ,
+                          :Source ;
+                 :encodingFormat "text/plain"^^xsd:string .
+
+
+###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi
