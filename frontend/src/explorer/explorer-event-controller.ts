@@ -89,9 +89,11 @@ class ExplorerEventController {
     }
 
     resetSemanticSearch(model: SemanticQuery): SearchResultListView {
-        const query = modelToQuery(model.get('query'));
         const items = new ItemGraph();
-        items.sparqlQuery(query);
+        model.when(
+            'query',
+            (model, query) => items.sparqlQuery(modelToQuery(query))
+        );
         if (model.isNew()) model.save();
         const collection = new FlatItemCollection(items);
         const resultsView = new SearchResultListView({
