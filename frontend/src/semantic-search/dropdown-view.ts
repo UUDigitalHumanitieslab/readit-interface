@@ -221,4 +221,5 @@ extend(Dropdown.prototype, {
     val: BasePicker.prototype.val,
     open: Select2Picker.prototype.open,
     beforeRender: Select2Picker.prototype.beforeRender,
+    destroySelect: Select2Picker.prototype.destroySelect,
 });
