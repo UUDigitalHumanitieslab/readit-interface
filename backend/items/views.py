@@ -315,6 +315,13 @@ class SemanticQueryViewSet(
 ):
     queryset = SemanticQuery.objects.all()
 
+    def get_queryset(self):
+        if self.action == 'list':
+            if self.request.user.is_anonymous:
+                return self.queryset.none()
+            return self.queryset.filter(creator=self.request.user)
+        return self.queryset
+
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return SemanticQuerySerializerFull
