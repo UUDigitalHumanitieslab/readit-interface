@@ -22,7 +22,8 @@ export function announceRoute(route: string, path?: string[]) {
      * @fires Events#currentRoute
      */
     return function(): void {
-        const serial = getLabelFromId(get(this, path, ''));
+        const pathResult = get(this, path, '');
+        const serial = getLabelFromId(pathResult) || pathResult;
         const route = pattern.replace(':serial', serial);
 
         /**

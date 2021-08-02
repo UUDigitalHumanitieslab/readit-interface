@@ -5,6 +5,7 @@ import { CompositeView } from '../core/view';
 import Multifield from '../forms/multifield-view';
 
 import semChannel from './radio';
+import Query from './model';
 import Chain from './chain-view';
 import Multibranch from './multibranch-view';
 import semTemplate from './semantic-search-template';
@@ -17,7 +18,7 @@ import semTemplate from './semantic-search-template';
  * only enabled when the form is complete. Both of these features are
  * coordinated with the subviews through the semChannel.
  */
-export default class SemanticSearchView extends CompositeView {
+export default class SemanticSearchView extends CompositeView<Query> {
     topChain: Chain;
     // Counters to keep track of form completeness.
     // The number of chains currently present in the form.
@@ -35,13 +36,15 @@ export default class SemanticSearchView extends CompositeView {
             'supply:decrease': this.decreaseSupply,
         });
         semChannel.reply('branchout', this.branchout, this);
-        this.topChain = new Chain({ model: this.model });
-        this.model = this.topChain.model;
+        this.model = this.model || new Query();
+        semChannel.trigger('addUserQuery', this.model);
+        this.topChain = new Chain({ model: this.model.get('query') });
+        this.model.set('query', this.topChain.model);
         this.render();
     }
 
     renderContainer(): this {
-        this.$el.html(this.template({}));
+        this.$el.html(this.template({ label: this.model.get('label'), }));
         this.checkCompleteness();
         return this;
     }
@@ -92,7 +95,14 @@ export default class SemanticSearchView extends CompositeView {
 
     onSubmit(event): void {
         event.preventDefault();
-        this.trigger('search', this.model);
+        this.model.set('label', this.$('input[name="label"]').val());
+        this.trigger('search:semantic', this.model);
+    }
+
+    onChange(event): void {
+        // If the label or anything about the query changes, we remove the id in
+        // order to ensure that the query will be saved with a new id.
+        this.model.unset('id');
     }
 }
 
@@ -107,5 +117,6 @@ extend(SemanticSearchView.prototype, {
     }],
     events: {
         submit: 'onSubmit',
+        change: 'onChange',
     },
 });
