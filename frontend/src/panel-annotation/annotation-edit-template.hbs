@@ -5,10 +5,6 @@
             <a class="is-link" href="http://dhstatic.hum.uu.nl/readit/AnnotationGuide.pdf" target="_blank">the
                 Annotation Guide</a>)
         </p>
-        <label class="checkbox">
-            <input type="checkbox" class="verification-checkbox" {{#if needsVerification}} checked {{/if}}>
-            Needs verification
-        </label>
     </header>
 </div>
 <form class="anno-edit-form panel-form">
@@ -17,7 +13,7 @@
             {{! Snippet inserted here }}
         </div>
 
-        <fieldset>
+        <fieldset class="field">
             <div class="field">
                 <label class="label"></label>
                 <div class="control ontology-class-picker-container">
@@ -26,9 +22,17 @@
                 {{! Fake input to utilize jquery validation on Bulma dropdown}}
                 <input class="hidden-input" type="text" id="{{cid}}-contology" required>
             </div>
+            <div class="field">
+                <div class="control">
+                    <label class="checkbox">
+                        <input type="checkbox" class="verification-checkbox" {{#if needsVerification}} checked{{/if}}>
+                        Needs verification
+                    </label>
+                </div>
+            </div>
         </fieldset>
 
-        <fieldset class="item-picker-container is-hidden">
+        <fieldset class="item-picker-container is-hidden field">
             <div class="field">
                 <label class="label">Which one?</label>
                 <div class="control">
