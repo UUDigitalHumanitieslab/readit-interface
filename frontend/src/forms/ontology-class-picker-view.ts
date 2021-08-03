@@ -133,7 +133,12 @@ export default class OntologyClassPickerView extends CollectionView<
         if (this.selected) this.selected.trigger('focus', this.selected);
         this.items.filter(view => view.model == model)[0].onFocus(); // Trigger focus for parent
         this.$('.sub-picker').append(this.childrenPicker.el);
-        setTimeout(() => this.$('.sub-content').removeClass('is-hidden'), 20);
+        setTimeout(() => {
+            this.$('.sub-content').removeClass('is-hidden');
+            // When the submenu is displayed, scroll to selected child element
+            this.childrenPicker.scrollToChild(this.selected);
+        }, 20);
+
     }
 
 
