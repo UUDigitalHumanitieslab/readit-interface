@@ -80,7 +80,12 @@ export default class OntologyClassPickerView extends CollectionView<
         this.selected = newValue;
         this.selected.trigger('focus', this.selected);
         this.trigger('select', newValue);
-        this.render();
+        if (this.isLeaf(this.selected)) this.showChildMenu(this.selected);
+    }
+
+    showChildMenu(model: FlatItem) {
+        const prefParent = this.getPrefParent(model);
+        this.onSuperclassHovered(this.collection.get(prefParent.id));
     }
 
     setLabel(item: FlatItem): this {
@@ -115,6 +120,7 @@ export default class OntologyClassPickerView extends CollectionView<
 
     onSuperclassHovered(model: FlatItem) {
         this.$('.sub-content').addClass('is-hidden');
+        this.$('.dropdown-item').removeClass('is-active');
         const children = new FilteredCollection<FlatItem>(this.leafNodes, node => {
             const prefParent = this.getPrefParent(node);
             return prefParent.id == model.id;
@@ -125,6 +131,7 @@ export default class OntologyClassPickerView extends CollectionView<
                 'selected': this.onItemClicked,
             }, this);
         if (this.selected) this.selected.trigger('focus', this.selected);
+        this.items.filter(view => view.model == model)[0].onFocus(); // Trigger focus for parent
         this.$('.sub-picker').append(this.childrenPicker.el);
         setTimeout(() => this.$('.sub-content').removeClass('is-hidden'), 20);
     }
