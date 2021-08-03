@@ -1,11 +1,11 @@
 import { extend } from 'lodash';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatItem from '../common-adapters/flat-item-model';
-import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
 import { skos } from '../common-rdf/ns';
 import { CollectionView } from '../core/view';
 import LabelView from '../label/label-view';
+import OntologyClassPickerChildrenView from './ontology-class-picker-children-view';
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 import ontologyClassPickerTemplate from './ontology-class-picker-template';
 
@@ -18,21 +18,20 @@ export default class OntologyClassPickerView extends CollectionView<
     label: any;
     externalCloseHandler: any;
     leafNodes: FilteredCollection<FlatItem>;
-
+    childrenPicker: OntologyClassPickerChildrenView;
+    collection: FilteredCollection<FlatItem>;
 
     initialize(): this {
         this.filterOntology(this.collection);
         this.initItems().render().initCollectionEvents();
-        this.externalCloseHandler = $(document).click(() => this.hideDropdown());
+        this.externalCloseHandler = $(document).on('click', () => this.hideDropdown());
         return this;
     }
 
     makeItem(model: FlatItem): OntologyClassPickerItemView {
-        const level = this.isLeaf(model) ? 1 : 0;
-        return new OntologyClassPickerItemView({ model, level }).on({
+        return new OntologyClassPickerItemView({ model }).on({
             click: this.onItemClicked,
-            hover: level === 0 ? this.onSuperclassHovered : undefined,
-            activated: this.onItemActivated,
+            hover: this.isNonLeaf(model) ? this.onSuperclassHovered : undefined,
         }, this);
     }
 
@@ -65,6 +64,7 @@ export default class OntologyClassPickerView extends CollectionView<
     }
 
     remove(): this {
+        if (this.childrenPicker) this.childrenPicker.remove();
         this.externalCloseHandler.off();
         if (this.label) this.label.remove();
         super.remove();
@@ -78,15 +78,14 @@ export default class OntologyClassPickerView extends CollectionView<
     select(newValue: FlatItem) {
         if (newValue === this.selected) return;
         this.selected = newValue;
-        this.items.forEach((item) => {
-            if (item.model === newValue) {
-                item.activate();
-                this.trigger('select', newValue);
-            } else {
-                item.deactivate();
-            }
-        });
-        this.render();
+        this.selected.trigger('focus', this.selected);
+        this.trigger('select', newValue);
+        if (this.isLeaf(this.selected)) this.showChildMenu(this.selected);
+    }
+
+    showChildMenu(model: FlatItem) {
+        const prefParent = this.getPrefParent(model);
+        this.onSuperclassHovered(this.collection.get(prefParent.id));
     }
 
     setLabel(item: FlatItem): this {
@@ -100,6 +99,7 @@ export default class OntologyClassPickerView extends CollectionView<
 
     hideDropdown(): this {
         this.$('.dropdown').removeClass('is-active');
+        this.$('.sub-content').addClass('is-hidden');
         return this;
     }
 
@@ -109,40 +109,46 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
-    onSuperclassClick(event: any): this {
+    onItemClicked(model: FlatItem): this {
+        this.select(model);
         return this;
     }
 
-    onItemClicked(view: OntologyClassPickerItemView): this {
-        this.select(view.model);
-        return this;
+    getPrefParent(node: FlatItem) {
+        return node.underlying.get(skos.related)[0] as Node;
     }
 
     onSuperclassHovered(model: FlatItem) {
-        this.leafNodes.forEach(node => {
-            const prefParent = node.underlying.get(skos.related)[0] as FlatItem;
-
-            if (prefParent.id == model.id) {
-                const modelIndex = this.collection.indexOf(model);
-                this.collection.add(node, { at: modelIndex + 1 });
-            } else {
-                this.collection.remove(node);
-            }
+        this.$('.sub-content').addClass('is-hidden');
+        this.$('.dropdown-item').removeClass('is-active');
+        const children = new FilteredCollection<FlatItem>(this.leafNodes, node => {
+            const prefParent = this.getPrefParent(node);
+            return prefParent.id == model.id;
         });
+        if (this.childrenPicker) this.childrenPicker.remove();
+        this.childrenPicker = new OntologyClassPickerChildrenView({ collection: children })
+            .on({
+                'selected': this.onItemClicked,
+            }, this);
+        if (this.selected) this.selected.trigger('focus', this.selected);
+        this.items.filter(view => view.model == model)[0].onFocus(); // Trigger focus for parent
+        this.$('.sub-picker').append(this.childrenPicker.el);
+        setTimeout(() => {
+            this.$('.sub-content').removeClass('is-hidden');
+            // When the submenu is displayed, scroll to selected child element
+            this.childrenPicker.scrollToChild(this.selected);
+        }, 20);
 
     }
 
-    onItemActivated(view: OntologyClassPickerItemView): this {
-        this.setLabel(view.model);
-        return this;
-    }
+
 }
 
 extend(OntologyClassPickerView.prototype, {
     className: 'ontology-class-picker',
     template: ontologyClassPickerTemplate,
-    container: '.dropdown-content',
+    container: '.super-picker',
     events: {
         'click': 'onClick',
-    }
+    },
 });
