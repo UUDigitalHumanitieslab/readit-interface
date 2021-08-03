@@ -1,12 +1,13 @@
 import { extend } from 'lodash';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatItem from '../common-adapters/flat-item-model';
+import Node from '../common-rdf/node';
 import { skos } from '../common-rdf/ns';
 import { CollectionView } from '../core/view';
 import LabelView from '../label/label-view';
+import OntologyClassPickerChildrenView from './ontology-class-picker-children-view';
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 import ontologyClassPickerTemplate from './ontology-class-picker-template';
-import OntologyClassPickerChildrenView from './ontology-class-picker-children-view';
 
 
 export default class OntologyClassPickerView extends CollectionView<
@@ -18,12 +19,12 @@ export default class OntologyClassPickerView extends CollectionView<
     externalCloseHandler: any;
     leafNodes: FilteredCollection<FlatItem>;
     childrenPicker: OntologyClassPickerChildrenView;
-
+    collection: FilteredCollection<FlatItem>;
 
     initialize(): this {
         this.filterOntology(this.collection);
         this.initItems().render().initCollectionEvents();
-        this.externalCloseHandler = $(document).click(() => this.hideDropdown());
+        this.externalCloseHandler = $(document).on('click', () => this.hideDropdown());
         return this;
     }
 
@@ -31,7 +32,6 @@ export default class OntologyClassPickerView extends CollectionView<
         return new OntologyClassPickerItemView({ model }).on({
             click: this.onItemClicked,
             hover: this.isNonLeaf(model) ? this.onSuperclassHovered : undefined,
-            // activated: this.onItemActivated,
         }, this);
     }
 
@@ -78,6 +78,7 @@ export default class OntologyClassPickerView extends CollectionView<
     select(newValue: FlatItem) {
         if (newValue === this.selected) return;
         this.selected = newValue;
+        this.selected.trigger('focus', this.selected);
         this.trigger('select', newValue);
         this.render();
     }
@@ -93,6 +94,7 @@ export default class OntologyClassPickerView extends CollectionView<
 
     hideDropdown(): this {
         this.$('.dropdown').removeClass('is-active');
+        this.$('.sub-content').addClass('is-hidden');
         return this;
     }
 
@@ -102,44 +104,29 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
-    onSuperclassClick(event: any): this {
-        return this;
-    }
-
     onItemClicked(model: FlatItem): this {
         this.select(model);
         return this;
     }
 
-    // onItemActivated(view: OntologyClassPickerItemView): this {
-    //     this.setLabel(view.model);
-    //     return this;
-    // }
-
-    // onChildItemClicked(model: FlatItem): this {
-    //     this.select(model);
-    //     return this;
-    // }
-
-    // onChildItemActivated(model: FlatItem): this {
-    //     this.setLabel(model);
-    //     return this;
-    // }
+    getPrefParent(node: FlatItem) {
+        return node.underlying.get(skos.related)[0] as Node;
+    }
 
     onSuperclassHovered(model: FlatItem) {
+        this.$('.sub-content').addClass('is-hidden');
         const children = new FilteredCollection<FlatItem>(this.leafNodes, node => {
-            const prefParent = node.underlying.get(skos.related)[0] as FlatItem;
+            const prefParent = this.getPrefParent(node);
             return prefParent.id == model.id;
-        })
-
+        });
+        if (this.childrenPicker) this.childrenPicker.remove();
         this.childrenPicker = new OntologyClassPickerChildrenView({ collection: children })
             .on({
                 'selected': this.onItemClicked,
-                // 'activated': this.onChildItemActivated
             }, this);
-
-
-        this.$('.sub-picker').html(this.childrenPicker.el);
+        if (this.selected) this.selected.trigger('focus', this.selected);
+        this.$('.sub-picker').append(this.childrenPicker.el);
+        setTimeout(() => this.$('.sub-content').removeClass('is-hidden'), 20);
     }
 
 
