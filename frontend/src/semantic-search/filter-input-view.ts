@@ -53,10 +53,11 @@ export default class FilterInput extends CompositeView {
         let value;
         if (value = this.model.get('value')) {
             this.model.set('hasValue', true);
-            // The dual 'select, input' selector ensures that we can access the
-            // internal form element regardless of whether we are doing
-            // Select2Picker or <input type=text>.
-            this.$('select, input').val(value);
+            if (items) {
+                items.once('update', () => this.$('select').val(value));
+            } else {
+                this.$('input').val(value);
+            }
         } else if (items) {
             const dropdown = this.subviews[0];
             items.once('update', dropdown.open, dropdown);

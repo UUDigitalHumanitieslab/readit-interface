@@ -27,6 +27,12 @@ describe('explorer utilities', function() {
             expectRoute.call(this, handler, 'explore/item/20');
         });
 
+        it('permits plain serial numbers', function() {
+            this.mockPanel.model.id = 20;
+            const handler = announceRoute('item', ['model', 'id']);
+            expectRoute.call(this, handler, 'explore/item/20');
+        });
+
         it('permits plain routes', function() {
             const handler = announceRoute('explore');
             expectRoute.call(this, handler, 'explore');

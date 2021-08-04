@@ -102,7 +102,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     processClass(model: FlatItem, selClass: Node): void {
-        const cls = new FlatItem(selClass);
+        const cls = this.classPicker.collection._underlying.get(selClass.id);
         this.classPicker.select(cls);
         this.selectClass(cls);
         this.classPicker.on('select', this.changeClass, this);
