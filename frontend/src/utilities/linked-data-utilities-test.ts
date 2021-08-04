@@ -14,7 +14,7 @@ import {
     isOntologyClass,
     isBlank,
     transitiveClosure,
-    getRdfParentNodes,
+    getRdfSuperClasses,
     getRdfSubClasses,
 } from './linked-data-utilities';
 
@@ -254,13 +254,13 @@ describe('utilities', function () {
             });
         });
 
-        describe('getRdfParentNodes', function () {
+        describe('getRdfSuperClasses', function() {
             beforeEach(startStore);
             beforeEach(init);
             afterEach(endStore);
 
             it('finds all known ancestors for given classes', function() {
-                expectIds(getRdfParentNodes(['carnivore']), [
+                expectIds(getRdfSuperClasses(['carnivore']), [
                     'animal', 'carnivore', 'organism',
                 ]);
             });

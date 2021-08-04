@@ -12,7 +12,7 @@ import Graph from '../common-rdf/graph';
 import LinkedItemEditor from './linked-item-editor-view';
 import AddButton from '../forms/add-button-view';
 import FilteredCollection from '../common-adapters/filtered-collection';
-import { getRdfParentNodes, isRdfProperty } from '../utilities/linked-data-utilities';
+import { getRdfSuperClasses, getRdfSuperProperties, isRdfProperty } from '../utilities/linked-data-utilities';
 
 /**
  * View class that displays a LinkedItemEditor for each linked item.
@@ -34,7 +34,7 @@ export default
     }
 
     async getPredicates() {
-        const parents = getRdfParentNodes(this.model.get('@type') as string[]);
+        const parents = getRdfSuperClasses(this.model.get('@type') as string[]);
         this.predicates = ldChannel.request('visit', store => new FilteredCollection(
             store, node => this.isEditableProperty(node, parents)
         ));
@@ -44,7 +44,7 @@ export default
         if (!isRdfProperty(node)) {
             return false;
         }
-        const domains = flatten(getRdfParentNodes([node], rdfs.subPropertyOf).map(n => n.get(rdfs.domain)));
+        const domains = flatten(getRdfSuperProperties([node]).map(n => n.get(rdfs.domain)));
         if (intersection(domains, parents).length) {
             if (!node.has(rdfs.range)) {
                 return true;

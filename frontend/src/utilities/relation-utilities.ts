@@ -6,7 +6,7 @@ import { rdf, rdfs, owl, item } from '../common-rdf/ns';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
 import ItemGraph from '../common-adapters/item-graph';
-import { getLabel, getRdfParentNodes } from '../utilities/linked-data-utilities';
+import { getLabel, getRdfSuperClasses } from '../utilities/linked-data-utilities';
 
 /**
  * Returns the inverse property of `direct` within the context of `ontology`.
@@ -39,7 +39,7 @@ export function matchRelatee(direction: string, types: Node[]) {
  */
 export function applicablePredicates(model: Node | string): Graph {
     const seed = isString(model) ? [model] : model.get('@type') as string[];
-    const allTypes = getRdfParentNodes(seed);
+    const allTypes = getRdfSuperClasses(seed);
     const predicates = new Graph();
     const ontology = ldChannel.request('ontology:graph') as Graph;
     // predicates that can have model in subject position
