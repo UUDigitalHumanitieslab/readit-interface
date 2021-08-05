@@ -331,28 +331,9 @@ export function getItems(source: Node): ItemGraph {
     let offsetMultiplier = 0;
     const limit = 10000;
 
-    const runQueries = (): any => {
-        let queryString = itemsForSourceQuery(asURI(source),
-            { limit: limit, offset: offsetMultiplier * limit }
-        );
-        return queryInBatches(sparqlItems, queryString).then(result => {
-            if (result) {
-                offsetMultiplier = offsetMultiplier + 1;
-                return runQueries();
-            }
-        });
-    }
-    runQueries();
+    let queryString = itemsForSourceQuery(asURI(source), {});
+    sparqlItems.sparqlQuery(queryString);
     return sparqlItems;
-}
-
-function queryInBatches(items, queryString): JQuery.jqXHR {
-    return items.sparqlQuery(queryString).then((items, error) => {
-        if (error) {
-            console.trace(error);
-        }
-        else return items.length;
-    });
 }
 
 /**
