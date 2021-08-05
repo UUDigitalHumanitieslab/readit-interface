@@ -78,6 +78,7 @@ export default class OntologyClassPickerView extends CollectionView<
     select(newValue: FlatItem) {
         if (newValue === this.selected) return;
         this.selected = newValue;
+        this.setLabel(this.selected);
         this.selected.trigger('focus', this.selected);
         this.trigger('select', newValue);
         if (this.isLeaf(this.selected)) this.showChildMenu(this.selected);
