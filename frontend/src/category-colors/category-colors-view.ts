@@ -5,7 +5,7 @@ import View from '../core/view';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import { schema } from '../common-rdf/ns';
-import { getCssClassName, isAnnotationCategory } from '../utilities/linked-data-utilities';
+import { getCssClassName, isRdfsClass } from '../utilities/linked-data-utilities';
 import { placeholderClass } from '../utilities/annotation-utilities';
 
 import categoryColorsTemplate from './category-colors-template';
@@ -34,7 +34,7 @@ export default class CategoryColorsView extends View {
     collectColors() {
         const classes = this.collection.models.concat(placeholderClass);
         return compact(map(classes, node => {
-            if (isAnnotationCategory(node)) {
+            if (isRdfsClass(node) && node.has(schema.color)) {
                 return {
                     class: getCssClassName(node),
                     color: node.get(schema.color)[0],
