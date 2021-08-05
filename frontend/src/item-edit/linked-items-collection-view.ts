@@ -6,6 +6,7 @@ import {
     startsWith,
     chain,
     find,
+    includes,
 } from 'lodash';
 import * as a$ from 'async';
 
@@ -20,6 +21,7 @@ import Graph from '../common-rdf/graph';
 import LinkedItemEditor from './linked-item-editor-view';
 import AddButton from '../forms/add-button-view';
 import FilteredCollection from '../common-adapters/filtered-collection';
+import excludedProperties from '../item-metadata/excluded-properties';
 import { getRdfSuperClasses, getRdfSuperProperties, isRdfProperty } from '../utilities/linked-data-utilities';
 
 // Helper functions for the isEditableProperty method.
@@ -61,6 +63,7 @@ export default
 
     isEditableProperty(node: Node, parents) {
         if (!isRdfProperty(node)) return false;
+        if (includes(excludedProperties, node.id)) return false;
         const superProperties = chain(getRdfSuperProperties([node]));
         const domains = superProperties.map(getDomains)
             .flatten().compact().value();
