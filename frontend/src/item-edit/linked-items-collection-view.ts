@@ -1,4 +1,12 @@
-import { extend, flatten, intersection, map, some, startsWith } from 'lodash';
+import {
+    extend,
+    intersection,
+    map,
+    some,
+    startsWith,
+    chain,
+    find,
+} from 'lodash';
 import * as a$ from 'async';
 
 import Model from '../core/model';
@@ -13,6 +21,17 @@ import LinkedItemEditor from './linked-item-editor-view';
 import AddButton from '../forms/add-button-view';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import { getRdfSuperClasses, getRdfSuperProperties, isRdfProperty } from '../utilities/linked-data-utilities';
+
+// Helper functions for the isEditableProperty method.
+function isLiteralProperty(property: Node): boolean {
+    return property.id === rdfs.Literal || startsWith(property.id, xsd());
+}
+function getDomains(property: Node): Node[] {
+    return property.get(rdfs.domain) as Node[];
+}
+function getRanges(property: Node): Node[] {
+    return property.get(rdfs.range) as Node[];
+}
 
 /**
  * View class that displays a LinkedItemEditor for each linked item.
@@ -41,19 +60,19 @@ export default
     }
 
     isEditableProperty(node: Node, parents) {
-        if (!isRdfProperty(node)) {
-            return false;
-        }
-        const domains = flatten(getRdfSuperProperties([node]).map(n => n.get(rdfs.domain)));
-        if (intersection(domains, parents).length) {
-            if (!node.has(rdfs.range)) {
-                return true;
-            }
-            else {
-                return some(node.get(rdfs.range), <Node>(n) => (n.id === rdfs.Literal || startsWith(n.id, xsd())));
-            }
-        }
-        else return false;
+        if (!isRdfProperty(node)) return false;
+        const superProperties = chain(getRdfSuperProperties([node]));
+        const domains = superProperties.map(getDomains)
+            .flatten().compact().value();
+        if (
+            domains.length &&
+            !find(domains, d => d.id === rdfs.Resource) &&
+            !intersection(domains, parents).length
+        ) return false;
+        const ranges = superProperties.map(getRanges)
+            .flatten().compact().value();
+        if (!ranges.length) return true
+        return some(ranges, isLiteralProperty);
     }
 
     getItems(model: Node, predicates: Graph): this {
