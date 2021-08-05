@@ -2,9 +2,9 @@ import { extend, after, constant } from 'lodash';
 
 import View, { CompositeView, ViewOptions as BaseOpt } from '../core/view';
 import FlatItem from '../common-adapters/flat-item-model';
+import SearchResultItemView from '../item-summary-block/item-summary-block-view';
 
 import SearchResultSourceView from './search-result-source-view';
-import SearchResultItemView from './search-result-item-view';
 import searchResultBaseTemplate from './search-result-base-template';
 
 export interface ViewOptions extends BaseOpt {
@@ -36,11 +36,12 @@ export default class SearchResultView extends CompositeView<FlatItem> {
     }
 
     setContentView(model: FlatItem): void {
-        const ctor = (
-            model.has('annotation') ?
-            SearchResultSourceView :
-            SearchResultItemView
-        );
+        let ctor: any = SearchResultSourceView;
+        if (!model.has('annotation')) {
+            ctor = SearchResultItemView
+            this.$el.removeClass('search-result box');
+            this.undelegate('click');
+        }
         this.contentView = new ctor({ model }).render();
         this.render().activateContent();
     }

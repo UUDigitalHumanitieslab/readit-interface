@@ -1,8 +1,8 @@
-import { forEach, some, keys, ListIterator } from 'lodash';
+import { forEach, some, keys, ListIterator, isString } from 'lodash';
 
 import Collection from '../core/collection';
 import ldChannel from '../common-rdf/radio';
-import { rdfs, owl, item } from '../common-rdf/ns';
+import { rdf, rdfs, owl, item } from '../common-rdf/ns';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
 import ItemGraph from '../common-adapters/item-graph';
@@ -33,11 +33,13 @@ export function matchRelatee(direction: string, types: Node[]) {
 }
 
 /**
- * Returns a Graph with all direct and inverse predicates applicable to model.
+ * Returns a Graph with all direct and inverse predicates applicable to `model`.
+ * If `model` is a bare string, it is assumed to name the range type.
  * This function runs entirely sync.
  */
-export function applicablePredicates(model: Node): Graph {
-    const allTypes = getRdfSuperClasses(model.get('@type') as string[]);
+export function applicablePredicates(model: Node | string): Graph {
+    const seed = isString(model) ? [model] : model.get('@type') as string[];
+    const allTypes = getRdfSuperClasses(seed);
     const predicates = new Graph();
     const ontology = ldChannel.request('ontology:graph') as Graph;
     // predicates that can have model in subject position
@@ -46,6 +48,7 @@ export function applicablePredicates(model: Node): Graph {
     ontology.filter(matchRelatee(rdfs.range, allTypes)).forEach(direct => {
         let inverse = getInverse(direct, ontology);
         if (!inverse) inverse = new Node({
+            '@type': rdf.Property,
             [rdfs.label]: `inverse of ${getLabel(direct)}`,
             [owl.inverseOf]: direct,
         });

@@ -1,11 +1,13 @@
 import { extend } from 'lodash';
 
-import externalResourceEditItemTemplate from './external-resource-edit-item-template';
 import { CompositeView } from '../core/view';
 import PickerView from '../forms/base-picker-view';
+import RemoveButton from '../forms/remove-button-view';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
 import { owl, rdfs } from '../common-rdf/ns';
+
+import externalResourceEditItemTemplate from './external-resource-edit-item-template';
 
 const externalAttributes = [
     rdfs.seeAlso,
@@ -14,6 +16,7 @@ const externalAttributes = [
 
 export default class ExternalResourceEditItem extends CompositeView {
     predicatePicker: PickerView;
+    removeButton: RemoveButton;
     predicates: Graph;
     url: string;
 
@@ -30,6 +33,7 @@ export default class ExternalResourceEditItem extends CompositeView {
             this.predicatePicker.val(this.model.get('predicate'));
         }
         this.predicatePicker.on('change', this.updatePredicate, this);
+        this.removeButton = new RemoveButton().on('click', this.close, this);
         this.render();
     }
 
@@ -38,9 +42,8 @@ export default class ExternalResourceEditItem extends CompositeView {
         return this;
     }
 
-    removeExternalResource(): this {
+    close(): void {
         this.trigger('remove', this, this.model);
-        return this;
     }
 
     updatePredicate(view: PickerView, id: string): void {
@@ -63,12 +66,11 @@ extend(ExternalResourceEditItem.prototype, {
     subviews: [{
         view: 'predicatePicker',
         selector: '.control:first-child',
-    },],
+    }, 'removeButton'],
     events: {
         'change input': 'changeUrl',
-        'click .remove': 'removeExternalResource'
-    }
-})
+    },
+});
 
 if (window['DEBUGGING']) {
     window['ExternalResourceEditItem'] = ExternalResourceEditItem;

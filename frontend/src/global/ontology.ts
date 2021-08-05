@@ -43,7 +43,7 @@ let promise: PromiseLike<Graph> = null;
  */
 function ensurePromise(): PromiseLike<Graph> {
     if (promise) return promise;
-    promise = ontology.fetch({url: readit()}).then(handleSuccess, handleError);
+    promise = ontology.fetch({ url: readit() }).then(handleSuccess, handleError);
     return promise;
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "READ-IT-application",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Public interface for READ-IT",
   "author": "UU Digital Humanities Lab",
   "license": "BSD-3-Clause",
@@ -28,6 +28,7 @@
     "start-back": "yarn django runserver & yarn django livereload & yarn watch-test-back",
     "watch-back": "yarn livereload-back & yarn watch-test-back",
     "watch-front": "yarn gulp watch --port 8000 --config ../config.json",
+    "watch-front-notest": "yarn gulp watchNoTest --port 8000 --config ../config.json",
     "start": "yarn watch-front & yarn serve-back & yarn watch-back",
     "dist": "yarn gulp dist",
     "dist-p": "yarn dist --production --config ../config.json",

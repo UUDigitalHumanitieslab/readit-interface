@@ -1,8 +1,16 @@
 from django.conf import settings
 from rdflib import Graph
 
-from .constants import NLP_ONTOLOGY_NS
+from ontology.fixture import replace_prefix
+from .constants import NLP_ONTOLOGY_NS, NLP_NS, INSTANCE_NLP_NS
 
 
 def graph():
-    return Graph(settings.RDFLIB_STORE, NLP_ONTOLOGY_NS)
+    if settings.DEBUG == True:
+        # return nlp ontology for local testing
+        g = Graph()
+        g.parse('nlp_ontology/nlp-ontology.trtl', format='turtle')
+    else:
+        g = Graph(settings.RDFLIB_STORE, NLP_ONTOLOGY_NS)
+    g = replace_prefix(g, NLP_NS, INSTANCE_NLP_NS)
+    return g

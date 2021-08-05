@@ -16,3 +16,12 @@ registerI18nHelper(Handlebars, i18next);
  * config.staticRoot.
  */
 Handlebars.registerHelper('static', staticHelper);
+
+/**
+ * {{#startsWith fullString 'beginningOfString'}} is used to match classes which should have a certain style
+ */
+Handlebars.registerHelper('startsWith', function (full, part, options) {
+    if (full.startsWith(part)) {
+        return options.fn(this);
+    }
+})

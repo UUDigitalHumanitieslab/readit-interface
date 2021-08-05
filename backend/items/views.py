@@ -1,13 +1,16 @@
 from datetime import datetime, timezone
 from io import BytesIO
+from rdflib.plugins.sparql.parser import BlankNode
 
 from django.http import FileResponse, HttpResponse
 
-from rest_framework.decorators import action, api_view, renderer_classes 
+from rest_framework.decorators import action, api_view, renderer_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.status import *
 from rest_framework.exceptions import ValidationError, NotFound, PermissionDenied
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 
 from rdflib import Graph, URIRef, BNode, Literal
 from rdflib.query import ResultException
@@ -23,12 +26,14 @@ from ontology import namespace as ontology
 from sources import namespace as source
 from . import namespace as my
 from .graph import graph, history
-from .models import ItemCounter, EditCounter
+from .models import ItemCounter, EditCounter, SemanticQuery
 from .permissions import *
+from .serializers import SemanticQuerySerializer, SemanticQuerySerializerFull
 
 MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank node.'
 MUST_EQUAL_IDENTIFIER_400 = 'PUT must affect exactly the resource URI.'
 MUST_BE_OWNER_403 = 'PUT is only allowed to the resource owner.'
+BLANK_OBJECT_PREDICATE_400 = 'Blank nodes in the predicate or object positions are not allowed.'
 
 ANNOTATION_CUTOFF = 10 # don't return more than 10 annotations when querying by category
 
@@ -186,6 +191,9 @@ class ItemsAPIRoot(RDFView):
         subjects = set(data.subjects())
         if len(subjects) != 1 or not isinstance(subjects.pop(), BNode):
             raise ValidationError(MUST_SINGLE_BLANK_400)
+        for (p, o) in data.predicate_objects():
+            if isinstance(p, BNode) or isinstance(o, BNode):
+                raise ValidationError(BLANK_OBJECT_PREDICATE_400)
         user, now = submission_info(request)
         counter = ItemCounter.current
         counter.increment()
@@ -228,6 +236,9 @@ class ItemsAPISingular(RDFResourceView):
         subjects = set(override.subjects())
         if len(subjects) != 1 or subjects.pop() != identifier:
             raise ValidationError(MUST_EQUAL_IDENTIFIER_400)
+        for (p, o) in override.predicate_objects():
+            if isinstance(p, BNode) or isinstance(o, BNode):
+                raise ValidationError(BLANK_OBJECT_PREDICATE_400)
         added = sanitize(override - existing)
         removed = sanitize(existing - override)
         if len(added) == 0 and len(removed) == 0:
@@ -259,7 +270,7 @@ class ItemSuggestion(RDFView):
     def graph(self):
         return graph()
 
-    def get_graph(self, request, **kwargs):  
+    def get_graph(self, request, **kwargs):
         items = self.graph()
         if not request.user.has_perm('rdflib_django.view_all_annotations'):
             user, now = submission_info(request)
@@ -279,7 +290,7 @@ class ItemsOfCategory(RDFView):
     def graph(self):
         return graph()
 
-    def get_graph(self, request, category, **kwargs):  
+    def get_graph(self, request, category, **kwargs):
         items = self.graph()
         bindings = {'category': ontology[category]}
         if not request.user.has_perm('rdflib_django.view_all_annotations'):
@@ -296,3 +307,23 @@ class ItemsOfCategory(RDFView):
                     break
                 [user_items.add(triple) for triple in items.triples((s, None, None))]
         return user_items
+
+
+class SemanticQueryViewSet(
+    CreateModelMixin, ListModelMixin, RetrieveModelMixin,
+    GenericViewSet,
+):
+    queryset = SemanticQuery.objects.all()
+
+    def get_queryset(self):
+        if self.action == 'list':
+            if self.request.user.is_anonymous:
+                return self.queryset.none()
+            return self.queryset.filter(creator=self.request.user)
+        return self.queryset
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return SemanticQuerySerializerFull
+        else:
+            return SemanticQuerySerializer

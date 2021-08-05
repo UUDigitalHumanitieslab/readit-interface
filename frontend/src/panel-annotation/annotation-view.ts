@@ -6,6 +6,7 @@ import { owl, dcterms, rdfs } from '../common-rdf/ns';
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
 import explorerChannel from '../explorer/explorer-radio';
+import { report404 } from '../explorer/utilities';
 import { getLabelText } from '../utilities/annotation-utilities';
 import LabelView from '../label/label-view';
 import ItemMetadataView from '../item-metadata/item-metadata-view';
@@ -36,6 +37,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     properties: any;
     annotationSerial: string;
     itemSerial: string;
+    needsVerification: boolean;
 
     initialize() {
         this.properties = {};
@@ -47,10 +49,12 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         model.whenever('item', this.processItem, this);
         model.whenever('label', this.processLabel, this);
         model.whenever('text', this.processText, this);
+        model.whenever('needsVerification', this.processVerificationStatus, this);
+        this.listenToOnce(model.underlying, 'error', report404);
         this.render().listenTo(model, 'change', this.render);
     }
 
-    processAnnotation(model: FlatItem, annotation: Node): void {
+    processAnnotation(annotation: FlatItem): void {
         this.dispose('annotationMetadataView');
         if (annotation) {
             this.annotationMetadataView = new ItemMetadataView({
@@ -60,7 +64,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         }
     }
 
-    processClass(model: FlatItem, cls: Node): void {
+    processClass(cls: FlatItem): void {
         this.dispose('lblView');
         if (cls) this.lblView = new LabelView({
             model: cls,
@@ -68,7 +72,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         });
     }
 
-    processItem(model: FlatItem, item: Node): void {
+    processItem(model: FlatItem, item: FlatItem): void {
         this.dispose('itemMetadataView');
         const previousItem = model.previous('item');
         if (previousItem) this.stopListening(previousItem);
@@ -82,7 +86,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         }
     }
 
-    collectDetails(item: Node): void {
+    collectDetails(item: FlatItem): void {
         for (let attribute in item.attributes) {
             if (includes(excludedProperties, attribute)) continue;
             let attributeLabel = getLabelFromId(attribute);
@@ -101,6 +105,11 @@ export default class AnnotationView extends CompositeView<FlatItem> {
 
     processText(model: FlatItem, text: string): void {
         this.label = getLabelText(text);
+    }
+
+    processVerificationStatus(model: FlatItem): void {
+        this.needsVerification = model.get('needsVerification');
+        if (this.needsVerification) this.render();
     }
 
     renderContainer(): this {

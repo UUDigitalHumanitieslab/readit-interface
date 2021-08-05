@@ -5,7 +5,7 @@ from django.contrib.auth.models import Permission, User
 from rdflib import Literal
 
 from nlp_ontology import namespace as my
-from nlp_ontology.graph import graph
+from sources.graph import graph
 from rdf.ns import RDF, SCHEMA
 from rdf.utils import graph_from_triples
 from sources.constants import SOURCES_NS
@@ -124,7 +124,11 @@ def accept_headers():
         'turtle': 'text/turtle',
         'sparql_json': 'application/sparql-results+json',
         'sparql_xml': 'application/sparql-results+xml',
-        'json': 'application/json'
+        'sparql_csv': 'text/csv',
+        'json': 'application/json',
+        'rdfxml': 'application/rdf+xml',
+        'ntriples': 'application/n-triples',
+        'jsonld': 'application/ld+json'
     }
     return SimpleNamespace(**values)
 
@@ -157,3 +161,13 @@ def unsupported_queries():
     }
 
     return queries
+
+
+@pytest.fixture
+def blanknode_queries():
+    triples = (
+        ('[ :p "v" ]'),
+        ('[] :p "v"'),
+        ('_:b57 :p "v"'),
+    )
+    return ['INSERT DATA {{ {} }}'.format(t) for t in triples]

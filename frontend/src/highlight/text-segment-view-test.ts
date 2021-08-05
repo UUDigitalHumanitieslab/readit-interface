@@ -4,7 +4,6 @@ import { onlyIf } from '../test-util';
 import loremIpsum from '../lorem-ipsum';
 import mockOntology from '../mock-data/mock-ontology';
 
-import Collection from '../core/collection';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import CategoryStyle from '../category-colors/category-colors-view';
@@ -18,10 +17,10 @@ const attributes = {
     cssClass: 'is-readit-content',
 };
 
-describe('TextSegmentView', function() {
+describe('TextSegmentView', function () {
     const it = onlyIf(document.createRange, 'This suite requires Range support.');
 
-    beforeAll(function() {
+    beforeAll(function () {
         const lineHeightProbe = $('<span>bla</span>').appendTo('body');
         this.lineHeight = lineHeightProbe.height();
         lineHeightProbe.remove();
@@ -38,7 +37,7 @@ describe('TextSegmentView', function() {
         this.offset = this.wrapper.get(0);
     });
 
-    beforeEach(function() {
+    beforeEach(function () {
         this.annotation = new FlatItem(new Node());
         this.annotation.set(attributes);
         this.segment = new Segment(attributes);
@@ -51,41 +50,41 @@ describe('TextSegmentView', function() {
         spyOn(this.view, 'position').and.callThrough();
     });
 
-    afterEach(function() {
+    afterEach(function () {
         this.view.remove();
     });
 
-    afterAll(function() {
+    afterAll(function () {
         this.wrapper.remove();
         this.text.remove();
         this.container.remove();
         this.style.remove();
     });
 
-    it('does not call this.position() until it has been activated', function() {
+    it('does not call this.position() until it has been activated', function () {
         this.segment.annotations.add(this.annotation);
         expect(this.view.position).not.toHaveBeenCalled();
     });
 
-    it('does not call this.position() until it has an annotation', function() {
+    it('does not call this.position() until it has an annotation', function () {
         this.view.activate();
         expect(this.view.position).not.toHaveBeenCalled();
     });
 
-    it('calls this.position() once annotated and activated', function() {
+    it('calls this.position() once annotated and activated', function () {
         this.segment.annotations.add(this.annotation);
         this.view.activate();
         expect(this.view.position).toHaveBeenCalled();
     });
 
-    it('calls this.position() once activated and annotated', function() {
+    it('calls this.position() once activated and annotated', function () {
         this.view.activate();
         this.segment.annotations.add(this.annotation);
         expect(this.view.position).toHaveBeenCalled();
     });
 
-    describe('activate', function() {
-        it('is idempotent', function() {
+    describe('activate', function () {
+        it('is idempotent', function () {
             this.view.activate().activate();
             this.segment.annotations.add(this.annotation);
             this.view.activate().activate();
@@ -93,8 +92,8 @@ describe('TextSegmentView', function() {
         });
     });
 
-    describe('position', function() {
-        it('creates correctly positioned line segment views', function() {
+    describe('position', function () {
+        it('creates correctly positioned line segment views', function () {
             this.segment.annotations.add([this.annotation, this.annotation]);
             this.view.position(this.segment);
             const lineSegments = this.view.$el.children();

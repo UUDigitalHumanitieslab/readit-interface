@@ -1,5 +1,23 @@
 <div class="welcome">
     <div class="welcome-image">
-        <figure class='image'><img src="{{static 'image/Read-IT-logo-bg.svg'}}" alt="Read-It"></figure>
+        <figure class='image'>
+            <img src="{{static 'image/Read-IT-logo-bg.svg'}}" alt="Read-It">
+        </figure>
+        <div class="tabs">
+            <ul>
+                <li data-tab=searchboxView><a>
+                    <span class="icon is-small">
+                        <i class="fas fa-quote-right" aria-hidden=true></i>
+                    </span>
+                    <span>{{#i18n 'search-tab-text'}}Textual search{{/i18n}}</span>
+                </a></li>
+                <li data-tab=semSearchView><a>
+                    <span class="icon is-small">
+                        <i class="fas fa-code-branch" aria-hidden=true></i>
+                    </span>
+                    <span>{{#i18n 'search-tab-semantic'}}Semantic search{{/i18n}}</span>
+                </a></li>
+            </ul>
+        </div>
     </div>
 </div>

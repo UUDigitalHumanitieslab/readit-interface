@@ -38,7 +38,7 @@ export default class SearchResultItemView extends CompositeView<FlatItem> {
         return this;
     }
 
-    setLabel(model: FlatItem, ontologyClass: Node): void {
+    setLabel(ontologyClass: FlatItem): void {
         this.labelView = new LabelView({ model: ontologyClass });
     }
 
@@ -47,7 +47,7 @@ export default class SearchResultItemView extends CompositeView<FlatItem> {
         return this;
     }
 
-    collectDetails(model: FlatItem, item: Node): void {
+    collectDetails(item: FlatItem): void {
         const attributes = keys(item.attributes);
         const properties = {};
         let propertyCount = 0;

@@ -12,12 +12,13 @@ import ToggleMixin from '../category-colors/category-toggle-mixin';
 import SegmentCollection from '../highlight/text-segment-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 import explorerChannel from '../explorer/explorer-radio';
-import { announceRoute } from '../explorer/utilities';
+import { announceRoute, report404 } from '../explorer/utilities';
 
 import HighlightableTextView from './highlightable-text-view';
 import SourceToolbarView from '../toolbar/toolbar-view';
 import MetadataView from './source-metadata-view';
 import sourceTemplate from './source-template';
+import LoadingSpinnerView from '../loading-spinner/loading-spinner-view';
 
 const announce = announceRoute('source:bare', ['model', 'id']);
 
@@ -46,7 +47,7 @@ export interface ViewOptions extends BaseOpt<Model> {
  * For now, it is just show all/hide all, but in the future, we can use this to
  * selectively show only specific types of annotations as well.
  */
-interface SourcePanel extends ToggleMixin {}
+interface SourcePanel extends ToggleMixin { }
 class SourcePanel extends CompositeView {
     model: Node;
     collection: FlatCollection;
@@ -57,6 +58,8 @@ class SourcePanel extends CompositeView {
     htv: HighlightableTextView;
 
     metaView: MetadataView;
+
+    loadingSpinnerView: LoadingSpinnerView;
 
     // Keep track of visiblility of the view mode.
     isInFullScreenViewMode: boolean;
@@ -72,8 +75,9 @@ class SourcePanel extends CompositeView {
     constructor(options?: ViewOptions) {
         super(options);
         this.validate();
+        this.loadingSpinnerView = new LoadingSpinnerView();
         this.toolbarModel = new Model({
-            metadata: false, 
+            metadata: false,
             annotations: options.showHighlightsInitially || false
         });
         this.toolbar = new SourceToolbarView({ model: this.toolbarModel }).render();
@@ -81,6 +85,7 @@ class SourcePanel extends CompositeView {
         this.metaView = new MetadataView({
             model: this.model
         });
+
         this.render();
 
         if (!options.showHighlightsInitially) {
@@ -102,6 +107,7 @@ class SourcePanel extends CompositeView {
         // Trigger #3. Might be sync or async.
         this.model.when('@type', this.processText, this);
 
+        this.listenToOnce(this.model, 'error', report404);
         this.metaView.on('metadata:hide', this.hideMetadata, this);
         this.metaView.on('metadata:edit', this.editMetadata, this);
         this.listenTo(this.toolbarModel, 'change:metadata', this.toggleMetadata);
@@ -117,12 +123,12 @@ class SourcePanel extends CompositeView {
             // Traversing the JSON serialization, instead of a regular
             // `model.get`, because the URI dereferences to plain text instead
             // of a RDF-formatted resource and this would trip up the
-            // `Store.obtain()` call. TODO: replace this with a nicer API,
-            // perhaps `model.getRaw()`.
+            // `Store.obtain()` call.
             $.get(
-                this.model.toJSON()[vocab('fullText')][0]['@id'] as string
+                this.model.getRaw(vocab('fullText'))[0]['@id'] as string
             ).then(this._createHtv.bind(this));
         }
+        this._hideLoadingSpinner();
         return this;
     }
 
@@ -142,6 +148,13 @@ class SourcePanel extends CompositeView {
             isEditable: this.isEditable
         }).on('textSelected', this.onTextSelected, this);
         this.render()._triggerHighlighting();
+    }
+
+    _hideLoadingSpinner(): void {
+        if (this.loadingSpinnerView) {
+            this.loadingSpinnerView.remove();
+            delete this.loadingSpinnerView;
+        }
     }
 
     /**
@@ -187,7 +200,15 @@ class SourcePanel extends CompositeView {
         this.$el.html(this.template({
             title: names ? names[0] : ''
         }));
+        if (this.loadingSpinnerView) {
+            this.$('.source-container').prepend(this.loadingSpinnerView.$el);
+        }
         return this;
+    }
+
+    remove(): this {
+        if (this.loadingSpinnerView) this.loadingSpinnerView.remove();
+        return super.remove();
     }
 
     /**
@@ -218,7 +239,7 @@ class SourcePanel extends CompositeView {
     }
 
     toggleMetadata(): this {
-        if (this.toolbarModel.get('metadata')===true) {
+        if (this.toolbarModel.get('metadata') === true) {
             this.htv.$el.hide();
             this.metaView.$el.show();
         } else {

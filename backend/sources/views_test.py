@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from rdf.ns import *
 
@@ -47,3 +48,7 @@ def test_highlight_body(es_client, es_index_name):
     assert len(results['hits']['hits'])
     assert 'highlight' in results['hits']['hits'][0]
 
+
+def test_irisa_token():
+    """ This test is expected to fail with default settings """
+    assert settings.IRISA_TOKEN != None

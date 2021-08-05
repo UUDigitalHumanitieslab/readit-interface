@@ -1,4 +1,5 @@
-import { map } from 'lodash';
+import { map, pick, partial } from 'lodash';
+import * as _ from 'lodash';
 
 import { event, timeout, startStore, endStore } from '../test-util';
 import { oa, item } from '../common-rdf/ns';
@@ -31,13 +32,13 @@ describe('FlatAnnotationCollection', function() {
     it('adds flat annotations when types are known', async function() {
         const spy = jasmine.createSpy();
         this.flat.on('add complete', spy);
-        this.items.set(itemData);
+        this.items.set(map(itemData, partial(pick, _, ['@id', '@type'])));
         expect(this.flat.length).toBe(numAnnotations);
         await timeout(50);
         // We don't expect `'add'` events in this case, because these
         // annotations were passed to the collection during initialization.
-        // Also, we don't expect `'complete'` because the ontology data are
-        // still missing.
+        // Also, we don't expect `'complete'` because most of the required data
+        // are still missing.
         expect(spy).not.toHaveBeenCalled();
     });
 

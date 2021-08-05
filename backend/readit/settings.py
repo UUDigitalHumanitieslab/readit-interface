@@ -42,6 +42,18 @@ RDFLIB_STORE = SPARQLUpdateStore(
     update_endpoint='{}/update'.format(RDFLIB_STORE_PREFIX),
 )
 
+# Celery configuration
+CELERY_BROKER_URL = 'amqp://'
+CELERY_BACKEND = 'amqp'
+# set task timeout to more than 24 hours - make sure long tasks won't be aborted
+CELERY_TASK_TIME_LIMIT = 86401
+
+
+IRISA_WAIT = 300  # wait for 5 minutes between requests to Irisa API
+IRISA_URL = 'https://allgo18.inria.fr/api/v1'
+# set IRISA_TOKEN as env variable
+IRISA_TOKEN = os.environ.get('IRISA_TOKEN')
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -215,7 +227,7 @@ LOGGING = {
     'formatters': {
         'standard': {
             'format': '\n --> %(asctime)s %(levelname)s in '
-                        '%(pathname)s:%(lineno)d\n%(message)s',
+            '%(pathname)s:%(lineno)d\n%(message)s',
         },
     },
     'handlers': {
@@ -307,5 +319,10 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'scripts': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        }
     },
 }

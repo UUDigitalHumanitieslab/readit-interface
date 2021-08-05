@@ -38,8 +38,9 @@ describe('ItemSummaryBlock', function() {
         expectSuccessfulRender(view);
     });
 
-    it('can be constructed with an ontology class instance', function() {
+    it('can be constructed with an ontology class instance', async function() {
         const view = new ItemSummaryBlock({ model: this.items.at(1) });
+        await event(view.model, 'complete');
         expectSuccessfulRender(view);
     });
 });

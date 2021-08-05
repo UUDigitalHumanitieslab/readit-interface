@@ -1,4 +1,5 @@
 import { get } from 'lodash';
+import { history, Model } from 'backbone';
 
 import { getLabelFromId } from '../utilities/linked-data-utilities';
 import explorerChannel from './explorer-radio';
@@ -21,7 +22,8 @@ export function announceRoute(route: string, path?: string[]) {
      * @fires Events#currentRoute
      */
     return function(): void {
-        const serial = getLabelFromId(get(this, path, ''));
+        const pathResult = get(this, path, '');
+        const serial = getLabelFromId(pathResult) || pathResult;
         const route = pattern.replace(':serial', serial);
 
         /**
@@ -30,4 +32,14 @@ export function announceRoute(route: string, path?: string[]) {
          */
         explorerChannel.trigger('currentRoute', route, this);
     }
+}
+
+/**
+ * Reusable method for panel views to report that their `.model` doesn't exist.
+ * Not all panels need to use this; only the leftmost (and bottom-most) panel
+ * for each model in question.
+ */
+export function report404(model: Model): void {
+    history.trigger('notfound');
+    explorerChannel.trigger('notfound', this, model);
 }
