@@ -4,7 +4,7 @@ import Model from '../core/model';
 import { CompositeView } from '../core/view';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
-import PickerView from '../forms/base-picker-view';
+import Select2Picker from '../forms/select2-picker-view';
 import RemoveButton from '../forms/remove-button-view';
 import linkedItemTemplate from './linked-item-editor-template';
 import InputField from '../forms/input-field-view';
@@ -16,13 +16,13 @@ const objectControl = '.control:nth-child(2)';
 
 export default class LinkedItemEditor extends CompositeView {
     collection: Graph;
-    predicatePicker: PickerView;
+    predicatePicker: Select2Picker;
     removeButton: RemoveButton;
     literalField: InputField;
     helpText: string;
 
     initialize() {
-        this.predicatePicker = new PickerView({ collection: this.collection });
+        this.predicatePicker = new Select2Picker({collection: this.collection});
         this.literalField = new InputField();
         this.removeButton = new RemoveButton().on('click', this.close, this);
         this.predicateFromModel(this.model).objectFromModel(this.model);
@@ -36,7 +36,7 @@ export default class LinkedItemEditor extends CompositeView {
         return this;
     }
 
-    updatePredicate(picker: PickerView, id: string): void {
+    updatePredicate(picker: Select2Picker, id: string): void {
         const predicate = this.collection.get(id);
         this.model.set('predicate', predicate);
         this.model.unset('object');
