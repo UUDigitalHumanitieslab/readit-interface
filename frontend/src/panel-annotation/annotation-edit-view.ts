@@ -146,11 +146,13 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             this.$('p.class-unset').removeClass('is-hidden');
             return this;
         }
-        if (this.$('rit-linked-items-editor')) {
+        const item = this.model.get('item');
+        if (this.itemCollectionView && this.itemCollectionView.model === item) {
             if (!this.itemCollectionView.validatePrefLabel()) {
                 this.$('p.label-unset').removeClass('is-hidden');
+                return this;
             }
-            return this;
+            this.itemCollectionView.commitChanges();
         }
 
         if (this.model.isNew() || isBlank(this.model.get('annotation'))) {
@@ -158,7 +160,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         } else {
             this.submitItem().then(this.submitOldAnnotation.bind(this));
         }
-        this.itemCollectionView.commitChanges();
         return this;
     }
 
