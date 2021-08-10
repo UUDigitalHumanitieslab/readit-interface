@@ -11,6 +11,9 @@ export default class InputField extends View {
         this.render();
     }
 
+    getValue(): string {
+        return this.$el.val() as string;
+    }
 }
 extend(InputField.prototype, {
     tagName: 'input',
