@@ -77,6 +77,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     collectDetails(item: FlatItem): void {
+        this.properties = {};
         for (let attribute in item.attributes) {
             if (includes(excludedProperties, attribute)) continue;
             let attributeLabel = getLabelFromId(attribute);
