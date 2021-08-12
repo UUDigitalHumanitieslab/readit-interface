@@ -27,7 +27,7 @@ export default class LinkedItemEditor extends CompositeView {
         this.predicateFromModel(this.model).objectFromModel(this.model);
         this.literalField.on('change', this.updateObject, this);
         this.predicatePicker.on('change', this.updatePredicate, this);
-        this.render();
+        this.render().updateRange();
     }
 
     renderContainer(): this {
@@ -39,8 +39,19 @@ export default class LinkedItemEditor extends CompositeView {
         const predicate = this.collection.get(id);
         this.model.set('predicate', predicate);
         this.model.unset('object');
-        const permittedType = predicate.get(rdfs.range);
-        this.setHelpText(permittedType);
+        this.updateRange();
+    }
+
+    updateRange(): this {
+        const predicate = this.model.get('predicate');
+        if (!predicate) {
+            this.$('p.help').text('');
+            return this;
+        }
+        const range = predicate.get(rdfs.range);
+        this.model.set({ range }, { silent: true });
+        this.setHelpText(range);
+        return this;
     }
 
     updateObject(labelField: InputField, val: string): void {
