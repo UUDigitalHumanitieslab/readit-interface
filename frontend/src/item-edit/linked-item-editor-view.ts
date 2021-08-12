@@ -19,7 +19,6 @@ export default class LinkedItemEditor extends CompositeView {
     predicatePicker: Select2Picker;
     removeButton: RemoveButton;
     literalField: InputField;
-    helpText: string;
 
     initialize() {
         this.predicatePicker = new Select2Picker({collection: this.collection});
@@ -42,8 +41,6 @@ export default class LinkedItemEditor extends CompositeView {
         this.model.unset('object');
         const permittedType = predicate.get(rdfs.range);
         this.setHelpText(permittedType);
-        this.$('p.help').removeClass('is-hidden');
-        this.render();
     }
 
     updateObject(labelField: InputField, val: string): void {
@@ -65,18 +62,19 @@ export default class LinkedItemEditor extends CompositeView {
     }
 
     setHelpText(permittedType: string | NativeArray): void {
-        this.helpText = 'This predicate permits '
+        let helpText = 'This predicate permits '
         switch (permittedType) {
             case xsd.dateTime || xsd.time:
-                this.helpText += 'date / time strings';
+                helpText += 'date / time strings';
             case xsd.decimal || xsd.integer || xsd.float || xsd.double:
-                this.helpText += 'numbers';
+                helpText += 'numbers';
             case xsd.string || rdfs.Literal:
-                this.helpText += 'strings';
+                helpText += 'strings';
                 break;
             default:
-                this.helpText += 'any data type';
+                helpText += 'any data type';
         }
+        this.$('p.help').text(helpText);
     }
 
     close(): void {
