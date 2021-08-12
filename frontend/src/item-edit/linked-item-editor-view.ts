@@ -12,7 +12,7 @@ import { rdfs, xsd } from '../common-rdf/ns';
 import { NativeArray } from '../common-rdf/conversion';
 
 // Selector of the control where the object picker is inserted.
-const objectControl = '.control:nth-child(2)';
+const objectControl = '.field.has-addons .control:nth-child(2)';
 
 export default class LinkedItemEditor extends CompositeView {
     collection: Graph;
@@ -87,7 +87,7 @@ extend(LinkedItemEditor.prototype, {
     template: linkedItemTemplate,
     subviews: [{
         view: 'predicatePicker',
-        selector: '.control:first-child',
+        selector: '.field.has-addons .control:first-child',
     }, {
         view: 'literalField',
         selector: objectControl,
