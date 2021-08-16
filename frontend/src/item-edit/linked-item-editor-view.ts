@@ -4,12 +4,13 @@ import Model from '../core/model';
 import { CompositeView } from '../core/view';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
-import Select2Picker from '../forms/select2-picker-view';
-import RemoveButton from '../forms/remove-button-view';
-import linkedItemTemplate from './linked-item-editor-template';
-import InputField from '../forms/input-field-view';
 import { rdfs, xsd } from '../common-rdf/ns';
 import { NativeArray } from '../common-rdf/conversion';
+import Select2Picker from '../forms/select2-picker-view';
+import RemoveButton from '../forms/remove-button-view';
+import InputField from '../forms/input-field-view';
+
+import linkedItemTemplate from './linked-item-editor-template';
 
 // Selector of the control where the object picker is inserted.
 const objectControl = '.field.has-addons .control:nth-child(2)';
