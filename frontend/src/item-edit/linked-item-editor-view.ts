@@ -1,4 +1,4 @@
-import { extend } from 'lodash';
+import { extend, chain } from 'lodash';
 
 import Model from '../core/model';
 import { CompositeView } from '../core/view';
@@ -9,6 +9,7 @@ import { NativeArray } from '../common-rdf/conversion';
 import Select2Picker from '../forms/select2-picker-view';
 import RemoveButton from '../forms/remove-button-view';
 import InputField from '../forms/input-field-view';
+import { getRdfSuperProperties } from '../utilities/linked-data-utilities';
 
 import linkedItemTemplate from './linked-item-editor-template';
 
@@ -25,6 +26,7 @@ export default class LinkedItemEditor extends CompositeView {
         this.predicatePicker = new Select2Picker({collection: this.collection});
         this.literalField = new InputField();
         this.removeButton = new RemoveButton().on('click', this.close, this);
+        this.model.set('range', new Graph, { silent: true });
         this.predicateFromModel(this.model).objectFromModel(this.model);
         this.literalField.on('change', this.updateObject, this);
         this.predicatePicker.on('change', this.updatePredicate, this);
@@ -49,9 +51,15 @@ export default class LinkedItemEditor extends CompositeView {
             this.$('p.help').text('');
             return this;
         }
-        const range = predicate.get(rdfs.range);
-        this.model.set({ range }, { silent: true });
-        this.setHelpText(range);
+        const allProperties = getRdfSuperProperties([predicate]);
+        this.model.get('range').set(
+            chain(allProperties)
+            .map(n => n.get(rdfs.range))
+            .flatten()
+            .compact()
+            .value()
+        );
+        this.setHelpText();
         return this;
     }
 
@@ -73,19 +81,22 @@ export default class LinkedItemEditor extends CompositeView {
         return this;
     }
 
-    setHelpText(permittedType: string | NativeArray): void {
+    setHelpText(): void {
+        const range = this.model.get('range');
         let helpText = 'This predicate permits '
-        switch (permittedType) {
-            case xsd.dateTime || xsd.time:
-                helpText += 'date / time strings';
-            case xsd.decimal || xsd.integer || xsd.float || xsd.double:
-                helpText += 'numbers';
-            case xsd.string || rdfs.Literal:
-                helpText += 'strings';
-                break;
-            default:
-                helpText += 'any data type';
+        if (range.get(xsd.dateTime) || range.get(xsd.time)) {
+            helpText += 'date / time strings';
         }
+        if (
+            range.get(xsd.decimal) || range.get(xsd.integer) ||
+            range.get(xsd.float) || range.get(xsd.double)
+        ) {
+            helpText += 'numbers';
+        }
+        if (range.get(xsd.string) || range.get(rdfs.Literal)) {
+            helpText += 'strings';
+        }
+        if (helpText.length === 23) helpText += 'any data type';
         this.$('p.help').text(helpText);
     }
 
