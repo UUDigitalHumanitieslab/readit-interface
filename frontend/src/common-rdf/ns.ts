@@ -578,3 +578,22 @@ export const source = Vocabulary(sourcePrefix, sourcesNotHardcoded);
  *  Probably not the best possible, but it will do for now.
  */
 export const UNKNOWN = 'https://www.wikidata.org/wiki/Q24238356'
+
+export const nsMap = {
+    rdf: rdfPrefix,
+    rdfs: rdfsPrefix,
+    xsd: xsdPrefix,
+    owl: owlPrefix,
+    skos: skosPrefix,
+    frbr: frbrPrefix,
+    cidoc: cidocPrefix,
+    oa: oaPrefix,
+    as: asPrefix,
+    dc: dcPrefix,
+    dcterms: dctermsPrefix,
+    dctypes: dctypesPrefix,
+    foaf: foafPrefix,
+    schema: schemaPrefix,
+    iso6391: iso6391Prefix,
+    readit: readitPrefix,
+};
