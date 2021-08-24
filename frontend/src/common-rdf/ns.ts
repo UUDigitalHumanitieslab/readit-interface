@@ -241,6 +241,20 @@ export const frbrTerms = [
 export const frbr = Vocabulary(frbrPrefix, frbrTerms);
 
 /**
+ * International Committee for Documentation, Conceptual Reference Model
+ * (CIDOC-CRM)
+ * http://www.cidoc-crm.org
+ * Used in the final ontology.
+ */
+
+const cidocPrefix = 'http://www.cidoc-crm.org/cidoc-crm/';
+
+const cidocTerms = [
+] as const;
+
+export const cidoc = Vocabulary(cidocPrefix, cidocTerms);
+
+/**
  * Web Annotation Vocabulary
  * https://www.w3.org/TR/2017/REC-annotation-vocab-20170223/
  */
