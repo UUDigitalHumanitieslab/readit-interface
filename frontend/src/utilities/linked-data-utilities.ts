@@ -1,4 +1,4 @@
-import { find, includes, map, compact, some, isString } from 'lodash';
+import { find, findKey, includes, map, compact, some, isString } from 'lodash';
 import * as i18next from 'i18next';
 
 import ldChannel from '../common-rdf/radio';
@@ -6,7 +6,7 @@ import { Identifier, isIdentifier } from '../common-rdf/json';
 import Node, { isNode, NodeLike } from '../common-rdf/node';
 import Graph, { ReadOnlyGraph } from '../common-rdf//graph';
 import {
-    nlp, skos, rdf, rdfs, readit, dcterms, owl, schema,
+    nlp, skos, rdf, rdfs, readit, dcterms, owl, schema, nsMap,
 } from '../common-rdf/ns';
 import FilteredCollection from '../common-adapters/filtered-collection';
 
@@ -32,6 +32,17 @@ export function getLabelFromId(id: string) {
     let index = id.lastIndexOf("#");
     if (index === -1) index = id.lastIndexOf("/");
     return id.substring(index + 1);
+}
+
+/**
+ * Obtain ns:term notation for terms in known namespaces.
+ * Falls back to <http(s)://full-uri> notation for URIs in unknown namespaces.
+ */
+export function getTurtleTerm(term: string | Node): string {
+    const uri = asURI(term);
+    const prefix = findKey(nsMap, p => uri.startsWith(p));
+    if (prefix) return `${prefix}:${uri.slice(nsMap[prefix].length)}`;
+    return `<${uri}>`;
 }
 
 /**
