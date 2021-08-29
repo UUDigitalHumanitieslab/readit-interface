@@ -13,7 +13,7 @@ import * as a$ from 'async';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
-import { rdfs, skos, xsd } from '../common-rdf/ns';
+import { rdfs, owl, skos, xsd } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
@@ -27,6 +27,9 @@ import { getRdfSuperClasses, getRdfSuperProperties, isRdfProperty } from '../uti
 // Helper functions for the isEditableProperty method.
 function isLiteralProperty(property: Node): boolean {
     return property.id === rdfs.Literal || startsWith(property.id, xsd());
+}
+function isInverseProperty(property: Node): boolean {
+    return property.has(owl.inverseOf);
 }
 function getDomains(property: Node): Node[] {
     return property.get(rdfs.domain) as Node[];
@@ -74,7 +77,9 @@ export default
         ) return false;
         const ranges = superProperties.map(getRanges)
             .flatten().compact().value();
-        if (!ranges.length) return true
+        if (!ranges.length && !superProperties.some(isInverseProperty)) {
+            return true
+        }
         return some(ranges, isLiteralProperty);
     }
 
