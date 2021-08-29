@@ -52,6 +52,17 @@
         <fieldset class="item-edit-container is-hidden">
             <div class="field">
                 <label class="label">Edit properties</label>
+                <p class="help">
+                    {{#i18n 'xsd_available_types_before_link'}}See{{/i18n}}
+                    <a href="https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/#built-in-datatypes" target=_blank>
+                        {{#i18n 'xsd_available_types_link'}}
+                        the XML Schema recommendation
+                        {{/i18n}}
+                    </a>
+                    {{#i18n 'xsd_available_types_after_link'}}
+                    for an overview of the available types and their lexical representations.
+                    {{/i18n}}
+                </p>
                 <div class="item-multifield">
                 {{! Item multifield will be inserted here }}
                 </div>
