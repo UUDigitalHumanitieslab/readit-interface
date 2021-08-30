@@ -13,7 +13,7 @@
             {{! Snippet inserted here }}
         </div>
 
-        <fieldset>
+        <fieldset class="field">
             <div class="field">
                 <label class="label"></label>
                 <div class="control ontology-class-picker-container">
@@ -22,9 +22,17 @@
                 {{! Fake input to utilize jquery validation on Bulma dropdown}}
                 <input class="hidden-input" type="text" id="{{cid}}-contology" required>
             </div>
+            <div class="field">
+                <div class="control">
+                    <label class="checkbox">
+                        <input type="checkbox" class="verification-checkbox" {{#if needsVerification}} checked{{/if}}>
+                        Needs verification
+                    </label>
+                </div>
+            </div>
         </fieldset>
 
-        <fieldset class="item-picker-container is-hidden">
+        <fieldset class="item-picker-container is-hidden field">
             <div class="field">
                 <label class="label">Which one?</label>
                 <div class="control">
@@ -47,7 +55,7 @@
         {{! Item editing form will be inserted here }}
 
         {{! Code below first implentation of a button to add related items.
-            Commented out for version 0.1.0 (i.e. Utrecht 2019 presentation), but might be useful in the future }}
+        Commented out for version 0.1.0 (i.e. Utrecht 2019 presentation), but might be useful in the future }}
         {{!-- <section class="item-sections">
             <article class="item-section has-mt-10">
                 <div class="item-section-header">

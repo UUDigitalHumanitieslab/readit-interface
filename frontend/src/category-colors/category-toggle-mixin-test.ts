@@ -21,7 +21,7 @@ import ToggleMixin from './category-toggle-mixin';
 // below, but at the same time it is also check that TypeScript understands what
 // is going on. This also demonstrates the basic pattern of using a mixin in
 // TypeScript (DEMO MARKER).
-interface MixedView extends ToggleMixin {}
+interface MixedView extends ToggleMixin { }
 class MixedView extends View {
     testProperty: string;
     constructor() {
@@ -44,8 +44,8 @@ function selector(classNames: string[]): string {
     return map(classNames, name => `.${name}`).join(', ');
 }
 
-describe('CategoryToggleMixin', function() {
-    beforeAll(function() {
+describe('CategoryToggleMixin', function () {
+    beforeAll(function () {
         this.ontology = new Graph(mockOntology.slice(0, 4));
         this.classes = compact(this.ontology.map(getCssClassName));
         expect(this.classes.length).toBeGreaterThan(1);
@@ -53,11 +53,11 @@ describe('CategoryToggleMixin', function() {
         $('body').append(this.styling.render().el);
     });
 
-    afterAll(function() {
+    afterAll(function () {
         this.styling.remove();
     });
 
-    beforeEach(function() {
+    beforeEach(function () {
         const classes = this.classes;
         this.mixed = new MixedView();
         // We put an arbitrary document tree inside our mixed view, where about
@@ -109,16 +109,16 @@ describe('CategoryToggleMixin', function() {
         $('body').append(this.mixed.el, this.external);
     });
 
-    afterEach(function() {
+    afterEach(function () {
         this.mixed.remove();
         this.external.remove();
     });
 
-    it("doesn't interfere with the constructor of the mixing view", function() {
+    it("doesn't interfere with the constructor of the mixing view", function () {
         expect(this.mixed.testProperty).toBe('nice');
     });
 
-    it('can hide everything with a relevant class', function() {
+    it('can hide everything with a relevant class', function () {
         const elems = this.mixed.toggleCategories([]).$('*');
         expect(elems.length).toBe(23);
         elems.each(
@@ -133,7 +133,7 @@ describe('CategoryToggleMixin', function() {
         );
     });
 
-    it('does not affect elements outside of the mixing view', function() {
+    it('does not affect elements outside of the mixing view', function () {
         this.mixed.toggleCategories([]);
         const elems = this.external.find('*');
         expect(elems.length).toBe(5);
@@ -142,7 +142,7 @@ describe('CategoryToggleMixin', function() {
         );
     });
 
-    it('can undo hiding everything', function() {
+    it('can undo hiding everything', function () {
         const elems = this.mixed.toggleCategories([]).toggleCategories().$('*');
         expect(elems.length).toBe(23);
         elems.each(
@@ -150,7 +150,7 @@ describe('CategoryToggleMixin', function() {
         );
     });
 
-    it('can whitelist category classes', function() {
+    it('can whitelist category classes', function () {
         const upperBound = this.classes.length - 1;
         const whitelist = sampleSize(this.classes, random(1, upperBound));
         const selective = selector(this.classes);
@@ -168,7 +168,7 @@ describe('CategoryToggleMixin', function() {
         );
     });
 
-    it('can blacklist category classes', function() {
+    it('can blacklist category classes', function () {
         const upperBound = this.classes.length - 1;
         const blacklist = sampleSize(this.classes, random(1, upperBound));
         const selective = selector(this.classes);

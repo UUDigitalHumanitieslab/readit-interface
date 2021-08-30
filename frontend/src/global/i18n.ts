@@ -12,6 +12,7 @@ const i18nPromise = deferred.promise();
 i18next.use(
     languageDetector
 ).init({
+    fallbackLng: ['en', 'dev'],
     resources: {
         fr: {
             translation: french,

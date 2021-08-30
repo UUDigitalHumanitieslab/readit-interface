@@ -1,4 +1,12 @@
-import { extend, includes, debounce, chain, each, propertyOf } from 'lodash';
+import {
+    extend,
+    includes,
+    debounce,
+    chain,
+    each,
+    propertyOf,
+    once,
+} from 'lodash';
 import { SubViewDescription } from 'backbone-fractal/dist/composite-view';
 import 'select2';
 
@@ -20,6 +28,7 @@ import {
 import { applicablePredicates } from '../utilities/relation-utilities';
 
 import { logic, filters, groupLabels } from './dropdown-constants';
+import dropdownTemplate from './dropdown-template';
 
 /**
  * Generate a filter predicate for selecting filters that apply to a given
@@ -35,23 +44,28 @@ function applicableTo(range: string): (Model) => boolean {
     }
 }
 
-function normalizeRange(model: Model): Graph {
+/**
+ * Given a dropdown model, determine the classes that the current selection may
+ * belong to. In case of insufficient information, assume all ontology classes.
+ */
+async function normalizeRange(model: Model): Promise<Graph> {
     let range;
     const precedent = model.get('precedent');
-    if (precedent) range = precedent.get(rdfs.range) || [precedent];
-    if (!range) range = ldChannel.request('ontology:graph').filter(isRdfsClass);
-    range = getRdfSubClasses(range);
+    if (precedent) {
+        range = precedent.get(rdfs.range);
+        range = range ? getRdfSubClasses(range) : [precedent];
+    } else {
+        const ontology = await ldChannel.request('ontology:promise');
+        range = ontology.filter(isRdfsClass);
+    }
     const rangeGraph = new Graph(range)
-    each(range, cls => {
-        const superClasses = cls.get(rdfs.subClassOf);
-        each(superClasses, rangeGraph.remove.bind(rangeGraph));
-    });
     return rangeGraph;
 }
 
 class Option extends View {
     initialize(): void {
-        this.render().listenTo(this.model, 'change', this.render);
+        this.render()
+           .listenTo(this.model, 'change:label change:classLabel', this.render);
     }
     render(): this {
         const label = this.model.get('label') || this.model.get('classLabel');
@@ -77,28 +91,48 @@ extend(OptionGroup.prototype, {
     subview: Option,
 });
 
+/**
+ * Dropdown is a select2 form element composed out of OptionGroups. It inherits
+ * some methods from BasePicker and Select2Picker. Every time the user picks an
+ * option in a Dropdown, the containing Chain adds another form element after
+ * it.
+ */
 export default class Dropdown extends CompositeView {
+    // An option group for each of the four types of selection narrowing aids.
     logicGroup: View;
     filterGroup: View;
     typeGroup: View;
     predicateGroup: View;
+
+    // Declaring these members to make TS aware of prototype extensions.
     groupOrder: Array<keyof Dropdown>;
     val: BasePicker['val'];
+    open: Select2Picker['open'];
 
-    initialize(): void {
+    // initialize is unusually complex because we need to determine which
+    // options are applicable to the preceding selection.
+    async initialize(): Promise<void> {
         this.model = this.model || new Model();
         this.restoreSelection = debounce(this.restoreSelection, 50);
         this.logicGroup = new OptionGroup({
             model: groupLabels.get('logic'),
             collection: logic,
         });
-        let range: Graph | Node = normalizeRange(this.model);
+        let range: Graph | Node = this.model.get('range') as Graph;
+        if (!range) {
+            range = await normalizeRange(this.model);
+            this.model.set('range', range);
+        }
         if (range.length > 1) {
+            // If more than one possible type could come out of the preceding
+            // selection, don't present filter or property traversal options but
+            // ask the user to narrow the selection to a single type instead.
             this.typeGroup = new OptionGroup({
                 model: groupLabels.get('type'),
                 collection: new FlatCollection(range),
             });
         } else {
+            // Otherwise, omit the type group since there is only one type.
             range = range.at(0);
             const criterion = applicableTo(range.id);
             this.filterGroup = new OptionGroup({
@@ -120,6 +154,14 @@ export default class Dropdown extends CompositeView {
             });
         }
         this.render();
+        // Conditionally open the dropdown on creation. This helps the user to
+        // type her way through the form, saving keystrokes.
+        if (this.model.has('precedent') && !this.model.has('selection')) {
+            this.listenToOnce(
+                (this.typeGroup || this.predicateGroup).collection,
+                'complete:all', this.open
+            );
+        }
     }
 
     subviews(): SubViewDescription[] {
@@ -136,8 +178,13 @@ export default class Dropdown extends CompositeView {
     }
 
     renderContainer(): this {
-        this.$el.append('<select>');
+        this.$el.html(this.template({}));
         return this;
+    }
+
+    afterRender(): this {
+        Select2Picker.prototype.afterRender.call(this);
+        return this.trigger('ready', this);
     }
 
     remove(): this {
@@ -147,10 +194,28 @@ export default class Dropdown extends CompositeView {
 
     restoreSelection(): this {
         const selection = this.model.get('selection');
-        this.val(selection && selection.id);
+        if (!selection || !selection.id) return this;
+        const id = selection.id;
+        const restore = once(() => this.val(id));
+        const directTarget = logic.get(id) || filters.get(id);
+        if (directTarget) {
+            restore();
+        } else {
+            // Postpone restoring the selection until the value model has
+            // acquired its label. Otherwise, select2 will keep the empty label
+            // of the preselected option, causing the selected option to appear
+            // blank while all other options have their proper labels.
+            const delayedTarget = (
+                this.typeGroup || this.predicateGroup
+            ).collection.get(id);
+            if (!delayedTarget) return this;
+            delayedTarget.when('label', restore);
+            delayedTarget.when('classLabel', restore);
+        }
         return this;
     }
 
+    // Handler for the form control's 'change' event.
     forwardChange(event): void {
         const id = this.val() as string;
         const scheme = id.split(':')[0];
@@ -160,15 +225,27 @@ export default class Dropdown extends CompositeView {
             ldChannel.request('obtain', id)
         );
         this.model.set('selection', model);
+        each({
+            traversal: this.predicateGroup,
+            assertion: this.typeGroup,
+        }, (group, key) => {
+            if (group && group.collection.has(model.id)) {
+                this.model.set(key, true);
+            } else {
+                this.model.unset(key);
+            }
+        });
         this.trigger('change', this, model, event);
     }
 }
 
 extend(Dropdown.prototype, {
-    className: 'select readit-picker',
+    className: 'control',
+    template: dropdownTemplate,
     groupOrder: ['logicGroup', 'typeGroup', 'filterGroup', 'predicateGroup'],
     events: { change: 'forwardChange' },
     val: BasePicker.prototype.val,
+    open: Select2Picker.prototype.open,
     beforeRender: Select2Picker.prototype.beforeRender,
-    afterRender: Select2Picker.prototype.afterRender,
+    destroySelect: Select2Picker.prototype.destroySelect,
 });

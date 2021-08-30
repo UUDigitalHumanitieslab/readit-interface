@@ -8,6 +8,10 @@
             {{/if}}{{/if}}{{#if itemSerial }}
             item/{{ itemSerial }}
         {{/if}}</h6>
+        {{#if needsVerification}}
+        <h6 class="title is-6">
+            This annotation needs to be verified.
+        </h6>{{/if}}
     </header>
 </div>
 <div class="panel-content">
@@ -45,8 +49,7 @@
         <article class="item-section has-mt-10">
             <div class="item-section-header" id="btnRelItems">
                 <p>Related items</p>
-                <span class="icon is-large has-text-primary tooltip is-tooltip-left"
-                    data-tooltip="Open related items">
+                <span class="icon is-large has-text-primary tooltip is-tooltip-left" data-tooltip="Open related items">
                     <i class="fas fa-arrow-circle-right"></i>
                 </span>
             </div>
@@ -55,11 +58,10 @@
             <div class="item-section-header" id="btnAnnotations">
                 <p>{{#if annotationSerial }}
                     Other annotations
-                {{else}}
+                    {{else}}
                     Annotations
                 {{/if}}</p>
-                <span class="icon is-large has-text-primary tooltip is-tooltip-left"
-                    data-tooltip="Open annotations">
+                <span class="icon is-large has-text-primary tooltip is-tooltip-left" data-tooltip="Open annotations">
                     <i class="fas fa-arrow-circle-right"></i>
                 </span>
             </div>
@@ -93,4 +95,3 @@
     </nav>
 </div>
 {{/if}}
-

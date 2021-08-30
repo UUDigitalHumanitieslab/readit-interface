@@ -4,6 +4,8 @@ import { Namespace } from '../common-rdf/vocabulary';
 import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import FlatItem from '../common-adapters/flat-item-model';
+import semChannel from '../semantic-search/radio';
+import SemanticQuery from '../semantic-search/model';
 
 import Controller from './explorer-event-controller';
 
@@ -15,6 +17,12 @@ function obtainer<T extends readonly string[]>(namespace: Namespace<T>) {
 
 export const getSource = obtainer(source);
 export const getItem = obtainer(itemNs);
+
+export function getQuery(serial: string) {
+    const model = semChannel.request('userQueries').add({ id: serial });
+    model.fetch();
+    return model;
+}
 
 export function sourceWithoutAnnotations(control: Controller, node: Node) {
     return control.resetSource(node, false);
@@ -68,4 +76,10 @@ export function itemWithOccurrences(control: Controller, node: Node) {
 
 export function searchResultsSources(control: Controller, queryParams: any) {
     return control.resetSourceListFromSearchResults(queryParams);
+}
+
+export
+function searchResultsSemantic(control: Controller, model: SemanticQuery) {
+    model.when('query', () => semChannel.trigger('presentQuery', model));
+    control.resetSemanticSearch(model);
 }

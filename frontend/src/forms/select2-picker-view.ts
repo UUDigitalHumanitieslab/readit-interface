@@ -7,7 +7,7 @@ import BasePicker from './base-picker-view';
  */
 export default class Select2PickerView extends BasePicker {
     beforeRender(): this {
-        this.$('select').select2('destroy');
+        this.destroySelect();
         return this;
     }
 
@@ -16,8 +16,20 @@ export default class Select2PickerView extends BasePicker {
         return this;
     }
 
+    destroySelect(): void {
+        const select = this.$('select');
+        if (select.hasClass('select2-hidden-accessible')) {
+            select.select2('destroy');
+        }
+    }
+
     remove(): this {
-        this.$('select').select2('destroy');
+        this.destroySelect();
         return super.remove();
+    }
+
+    open(): this {
+        this.$('select').select2('open');
+        return this;
     }
 }

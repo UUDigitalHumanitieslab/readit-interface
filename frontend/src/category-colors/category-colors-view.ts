@@ -15,7 +15,7 @@ export interface ViewOptions extends BaseOpt<Node> {
 }
 
 export default class CategoryColorsView extends View {
-    collection: Graph
+    collection: Graph;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -29,6 +29,7 @@ export default class CategoryColorsView extends View {
         this.$el.html(this.template({ categoryColors: this.collectColors() }));
         return this;
     }
+
 
     collectColors() {
         const classes = this.collection.models.concat(placeholderClass);

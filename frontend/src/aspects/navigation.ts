@@ -6,7 +6,7 @@ import welcomeView from '../global/welcome-view';
 import feedbackView from '../global/feedback-view';
 import uploadSourceForm from '../global/upload-source-form';
 import categoryStyles from '../global/category-styles';
-import user from '../global/user';
+import nlpCategoryStyles from '../global/nlp-category-styles';
 import mainRouter from '../global/main-router';
 import explorationRouter from '../global/exploration-router';
 import userFsm from '../global/user-fsm';
@@ -17,6 +17,7 @@ history.once('route notfound', () => {
     menuView.render().$el.appendTo('#header');
     footerView.render().$el.appendTo('.footer');
     categoryStyles.$el.appendTo('body');
+    nlpCategoryStyles.$el.appendTo('body');
     // 133 is the height of the footer (got this number by manually testing)
     // Note that the same number needs to be the height of the 'push' class in
     // main.sass. 555 is min-height.
@@ -54,5 +55,7 @@ userFsm.on('exit:lost', () => notFoundView.$el.detach());
 menuView.on('feedback', () => feedbackView.render().$el.appendTo('body'));
 
 feedbackView.on('close', () => feedbackView.$el.detach());
-welcomeView.on('search:start', () => userFsm.handle('explore'));
+
+welcomeView.on('search:textual', () => userFsm.handle('explore'));
+welcomeView.on('search:semantic', () => userFsm.handle('explore'));
 welcomeView.on('suggestions:show', () => userFsm.handle('explore'));

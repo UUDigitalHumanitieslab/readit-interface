@@ -6,6 +6,7 @@ import { Events } from 'backbone';
 
 import Store from './common-rdf/store';
 import './global/hbsHelpers';
+import './global/hbsPartials';
 import { i18nPromise } from './global/i18n';
 
 /**

@@ -1,0 +1,19 @@
+<h6 class="subtitle is-6">{{#i18n 'semsearch-subtitle'}}Find linked data items based on semantic features{{/i18n}}</h6>
+<div class="field is-grouped">
+    <div class="control">
+        <input
+            type=text
+            name=label
+            maxlength=100
+            value="{{label}}"
+            placeholder="optional label for reference"
+            class="input"
+        >
+    </div>
+    <div class="control">
+        <button type=submit class="button is-primary rit-submit-sem">
+            <span>{{#i18n 'semsearch-submit'}}Search{{/i18n}}</span>
+            <span class="icon is-small"><i class="fa fa-search"></i></span>
+        </button>
+    </div>
+</div>

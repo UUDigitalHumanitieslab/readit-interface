@@ -36,8 +36,8 @@ export default class SearchboxView extends View {
     search(event: any) {
         event.preventDefault();
         const query = this.$('.input').val();
-        const fields = this.$(".dropdown-item.is-active").attr("value")
-        this.trigger("searchClicked", query, fields);
+        const fields = this.$(".dropdown-item.is-active").attr("value") || 'all';
+        this.trigger("search:textual", { query, fields });
     }
 
     selectField(event: any) {

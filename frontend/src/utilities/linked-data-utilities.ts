@@ -1,10 +1,13 @@
 import { find, includes, map, compact, some, isString } from 'lodash';
+import * as i18next from 'i18next';
 
 import ldChannel from '../common-rdf/radio';
 import { Identifier, isIdentifier } from '../common-rdf/json';
 import Node, { isNode, NodeLike } from '../common-rdf/node';
 import Graph, { ReadOnlyGraph } from '../common-rdf//graph';
-import { skos, rdfs, readit, dcterms } from '../common-rdf/ns';
+import {
+    nlp, skos, rdf, rdfs, readit, dcterms, owl, schema,
+} from '../common-rdf/ns';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -13,7 +16,9 @@ export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('nam
  */
 export function getLabel(node: Node): string {
     let labelKey = find(labelKeys, key => node.has(key));
-    if (labelKey) return node.get(labelKey)[0] as string;
+    if (labelKey) return node.get(labelKey, {
+        '@language': i18next.languages,
+    })[0] as string;
     return getLabelFromId(node.get('@id'));
 }
 
@@ -37,8 +42,14 @@ export function getCssClassName(node: Node): string {
     let label = getLabel(node);
 
     if (label) {
-        label = label.replace(new RegExp(' ', 'g'), '').toLowerCase();
-        return `is-readit-${label}`;
+        label = label.replace(new RegExp(' ', 'g'), '').replace(new RegExp('[\(\)\/]', 'g'), '').toLowerCase();
+        const id = node.id;
+        if (id && id.startsWith(nlp())) {
+            return `is-nlp-${label}`
+        }
+        else {
+            return `is-readit-${label}`;
+        }
     }
 
     return null;
@@ -53,12 +64,31 @@ export function asURI(source: Node | string): string {
 }
 
 /**
- * Check if a node is a rdfs:Class, i.e. has rdfs:Class as (one of its) type(s) or
- * has a non-empty rdfs:subClassOf property.
+ * Check if a node is a rdfs:Class, i.e., has rdfs:Class or owl:Class as (one of
+ * its) type(s) or has a non-empty rdfs:subClassOf property.
  * @param node The node to evaluate
  */
 export function isRdfsClass(node: Node): boolean {
-    return node.has(rdfs.subClassOf) || node.has('@type', rdfs.Class);
+    return node.has(rdfs.subClassOf) || node.has('@type', owl.Class) || node.has('@type', rdfs.Class);
+}
+
+/**
+ * Check if a node is a rdf:Property, i.e., has rdf:Property or
+ * owl:ObjectProperty as (one of its) type(s) or has a non-empty
+ * rdfs:subPropertyOf or owl:inverseOf property.
+ * @param node The node to evaluate
+ */
+export function isRdfProperty(node: Node): boolean {
+    return node.has(rdfs.subPropertyOf) || node.has(owl.inverseOf) || node.has('@type', rdf.Property) || node.has('@type', owl.ObjectProperty);
+}
+
+/**
+ * Check if a node is an annotation category used in the class picker when
+ * editing annotations.
+ * @param node The node to evaluate
+ */
+export function isAnnotationCategory(node: Node): boolean {
+    return isRdfsClass(node) && node.has(schema.color) && !(node.get(owl.deprecated));
 }
 
 /**
@@ -121,7 +151,7 @@ export function getRdfSuperClasses(clss: NodeLike[]): Node[] {
     const seed = map(clss, cls => ldChannel.request('obtain', cls));
     // Next lines handle test environments without a store.
     if (seed[0] == null) return clss.map(cls =>
-        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : {'@id': cls})
+        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : { '@id': cls })
     );
 
     function traverseParents(cls) {
@@ -146,7 +176,7 @@ export function getRdfSubClasses(clss: NodeLike[]): Node[] {
     const seed = map(clss, cls => ldChannel.request('obtain', cls));
     // Next lines handle test environments without a store.
     if (seed[0] == null) return clss.map(cls =>
-        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : {'@id': cls})
+        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : { '@id': cls })
     );
 
     function traverseChildren(cls) {
@@ -168,7 +198,7 @@ export function isType(node: Node, type: string): boolean {
     const initialTypes = node.get('@type') as string[];
     if (!initialTypes) return false;
     const allTypes = getRdfSuperClasses(initialTypes);
-    return some(allTypes, {'id': type});
+    return some(allTypes, { 'id': type });
 }
 
 /**
@@ -183,6 +213,8 @@ export function isBlank(node: Node) {
 /**
  * Establish whether a node is in the ontology graph, i.e. is an ontology class
  * (as opposed to an instance of one of the ontology's classes).
+ * Note: this is too restrictive, ontology classes are not necessarily in the
+ * READIT namespace. This function is not used in the application, so WONTFIX for now.
  * @param node The linked data item to investigate.
  */
 export function isOntologyClass(node: Node): boolean {

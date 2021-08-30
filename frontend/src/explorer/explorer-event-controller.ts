@@ -5,12 +5,9 @@ import View from '../core/view';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import Node from '../common-rdf/node';
-import userChannel from '../common-user/user-radio';
 
 import ExplorerView from './explorer-view';
 import AnnotationView from '../panel-annotation/annotation-view';
-import ldChannel from '../common-rdf/radio';
-import Graph from '../common-rdf/graph';
 import { asURI } from '../utilities/linked-data-utilities';
 import SourceView from '../panel-source/source-view';
 import AnnotationListPanel from '../panel-annotation-list/annotation-list-panel';
@@ -27,17 +24,18 @@ import FlatItemCollection from '../common-adapters/flat-item-collection';
 import FlatAnnoCollection from '../common-adapters/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 import { createPlaceholderAnnotation } from '../utilities/annotation-creation-utilities';
-import { as, oa } from '../common-rdf/ns';
+import { oa } from '../common-rdf/ns';
 import SearchResultListView from '../panel-search-results/search-result-list-view';
 import SourceListPanel from '../panel-source-list/source-list-panel';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import {
-    isType,
     isOntologyClass,
 } from '../utilities/linked-data-utilities';
 import { itemsForSourceQuery } from '../sparql/compile-query';
+import SemanticQuery from '../semantic-search/model';
+import modelToQuery from '../semantic-search/modelToQuery';
 
-interface ExplorerEventController extends Events {}
+interface ExplorerEventController extends Events { }
 class ExplorerEventController {
     /**
      * The explorer view instance to manage events for
@@ -90,6 +88,23 @@ class ExplorerEventController {
         this.explorerView.reset(sourceListPanel);
     }
 
+    resetSemanticSearch(model: SemanticQuery): SearchResultListView {
+        const items = new ItemGraph();
+        model.when(
+            'query',
+            (model, query) => items.sparqlQuery(modelToQuery(query))
+        );
+        if (model.isNew()) model.save();
+        const collection = new FlatItemCollection(items);
+        const resultsView = new SearchResultListView({
+            model,
+            collection,
+            selectable: false,
+        });
+        this.explorerView.reset(resultsView);
+        return resultsView;
+    }
+
     showSuggestionsPanel() {
         const suggestionsView = new SuggestionsView();
         this.explorerView.reset(suggestionsView);
@@ -111,6 +126,10 @@ class ExplorerEventController {
                 const flat = collection.get(annotation.id);
                 flat.trigger('focus', flat);
             });
+        } else {
+            const itemPanel = new AnnotationView({ model: result });
+            this.explorerView.popUntil(searchResults).push(itemPanel);
+            return itemPanel;
         }
     }
 
@@ -150,7 +169,7 @@ class ExplorerEventController {
         const items = new ItemGraph();
         items.query({
             predicate: oa.hasBody,
-            object: item ,
+            object: item,
         }).catch(console.error);
         const flatItems = new FlatItemCollection(items);
         const filteredItems = new FilteredCollection(flatItems, 'annotation');
@@ -312,28 +331,9 @@ export function getItems(source: Node): ItemGraph {
     let offsetMultiplier = 0;
     const limit = 10000;
 
-    const runQueries = (): any => {
-        let queryString = itemsForSourceQuery(asURI(source),
-            {limit: limit, offset: offsetMultiplier*limit}
-        );
-        return queryInBatches(sparqlItems, queryString).then(result => {
-            if (result) {
-                offsetMultiplier = offsetMultiplier + 1;
-                return runQueries();
-            }
-        });
-    }
-    runQueries();
+    let queryString = itemsForSourceQuery(asURI(source), {});
+    sparqlItems.sparqlQuery(queryString);
     return sparqlItems;
-}
-
-function queryInBatches(items, queryString): JQuery.jqXHR {
-    return items.sparqlQuery(queryString).then((items, error) => {
-        if (error) {
-            console.trace(error);
-        }
-        else return items.length;
-    });
 }
 
 /**

@@ -4,7 +4,6 @@ import { CollectionView } from '../core/view';
 import { getScrollTop, animatedScroll, ScrollType } from '../utilities/scrolling-utilities';
 import ItemSummaryBlock from '../item-summary-block/item-summary-block-view';
 import LoadingSpinnerView from '../loading-spinner/loading-spinner-view';
-import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
 
 import FlatItem from '../common-adapters/flat-item-model';
@@ -29,9 +28,8 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
 
     initialize(): void {
         this._byId = {};
-        this.loadingSpinnerView = new LoadingSpinnerView().render();
+        this.loadingSpinnerView = new LoadingSpinnerView();
         this.initItems().render();
-        this.loadingSpinnerView.activate();
         this.listenToOnce(this.collection.underlying, {
             sync: this._hideLoadingSpinner,
             error: this._hideLoadingSpinner,
@@ -83,7 +81,7 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
 
     placeItems(): this {
         if (this.loadingSpinnerView) {
-            this.loadingSpinnerView.$el.appendTo(this.summaryList);
+            this.loadingSpinnerView.$el.appendTo(this.$el);
         } else {
             // Behaving like a CollectionView in this branch, but we always
             // combine sorting and placing because this method is bound to the

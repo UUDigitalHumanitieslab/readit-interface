@@ -1,14 +1,15 @@
 import { partial, isString } from 'lodash';
 
-import channel from '../explorer/explorer-radio';
+import explorerChannel from '../explorer/explorer-radio';
 import * as act from '../explorer/route-actions';
+import SuggestionsPanel from '../panel-suggestions/suggestions-view';
+import semChannel from '../semantic-search/radio';
+import deparam from '../utilities/deparam';
 import router from '../global/exploration-router';
 import mainRouter from '../global/main-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
 import welcomeView from '../global/welcome-view';
-import SuggestionsPanel from '../panel-suggestions/suggestions-view';
-import deparam from '../utilities/deparam';
 
 const browserHistory = window.history;
 let suggestionsPanel: SuggestionsPanel;
@@ -29,6 +30,7 @@ function deepRoute(obtainAction, resetAction) {
 const sourceRoute = partial(deepRoute, act.getSource);
 const itemRoute = partial(deepRoute, act.getItem);
 const queryRoute = partial(deepRoute, deparam);
+const semRoute = partial(deepRoute, act.getQuery);
 function annoRoute(resetAction) {
     return (sourceSerial, itemSerial) => explorer.scrollOrAction(
         browserHistory.state,
@@ -57,9 +59,10 @@ router.on({
     'route:item:external:edit':     itemRoute(act.itemWithEditExternal),
     'route:item:annotations':       itemRoute(act.itemWithOccurrences),
     'route:search:results:sources': queryRoute(act.searchResultsSources),
+    'route:search:results:semantic': semRoute(act.searchResultsSemantic),
 });
 
-channel.on({
+explorerChannel.on({
     'sourceview:showAnnotations': controller.reopenSourceAnnotations,
     'sourceview:hideAnnotations': controller.unlistSourceAnnotations,
     'sourceview:textSelected': controller.selectText,
@@ -83,11 +86,17 @@ channel.on({
     'searchResultList:itemClicked': controller.openSearchResult,
     'searchResultList:itemClosed': controller.closeToRight,
 }, controller);
-channel.on('currentRoute', (route, panel) => {
+explorerChannel.on('currentRoute', (route, panel) => {
     router.navigate(route);
     // Amend the state that Backbone.history just pushed with the cid of the
     // panel.
     browserHistory.replaceState(panel.cid, document.title);
 });
-welcomeView.on({'search:start': controller.resetSourceListFromSearchResults}, controller);
-welcomeView.on({'suggestions:show': controller.showSuggestionsPanel}, controller);
+
+semChannel.on('presentQuery', welcomeView.presentSemanticQuery, welcomeView);
+
+welcomeView.on({
+    'search:textual': controller.resetSourceListFromSearchResults,
+    'search:semantic': controller.resetSemanticSearch,
+    'suggestions:show': controller.showSuggestionsPanel,
+}, controller);

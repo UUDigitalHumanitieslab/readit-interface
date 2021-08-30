@@ -1,4 +1,4 @@
-import { extend, sortBy } from 'lodash';
+import { extend } from 'lodash';
 
 import { CompositeView } from '../core/view';
 import LabelView from '../label/label-view';
@@ -12,24 +12,26 @@ export default class OntologyClassPickerItemView extends CompositeView<FlatItem>
             model: this.model,
             toolTipSetting: false
         });
+        this.listenTo(this.model, { 'focus': this.onFocus, 'blur': this.onBlur });
         return this.render();
     }
 
-    activate(): this {
+    onClick(event: Event): this {
+        this.trigger('click', this.model);
+        return this;
+    }
+
+    onHover(event: Event): this {
+        this.trigger('hover', this.model);
+        return this;
+    }
+
+    onFocus() {
         this.$el.addClass('is-active');
-        this.trigger('activated', this);
-        return this;
     }
 
-    deactivate(): this {
+    onBlur() {
         this.$el.removeClass('is-active');
-        this.trigger('deactivated', this);
-        return this;
-    }
-
-    onClick(event: any): this {
-        this.trigger('click', this);
-        return this;
     }
 }
 extend(OntologyClassPickerItemView.prototype, {
@@ -38,5 +40,6 @@ extend(OntologyClassPickerItemView.prototype, {
     subviews: ['labelView'],
     events: {
         'mousedown': 'onClick',
+        'mouseenter': 'onHover'
     }
 });

@@ -10,8 +10,18 @@
         </button>
     </div>
     <div class="dropdown-menu" id="dropdown-menu" role="menu">
-        <div class="dropdown-content">
-            {{! OntologyClassPickerItems will be inserted here }}
+        <div class="columns is-gapless is-mobile">
+            <div class="column">
+                <div class="dropdown-content">
+                    <div class="super-picker">{{! OntologyClassPickerItems will be inserted here }}</div>
+                </div>
+            </div>
+            <div class="column">
+                <div class="dropdown-content sub-content is-hidden">
+                    <div class="sub-picker">{{! OntologyClassPickerItems will be inserted here }}</div>
+                </div>
+            </div>
         </div>
     </div>
+
 </div>
