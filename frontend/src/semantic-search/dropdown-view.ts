@@ -1,4 +1,12 @@
-import { extend, includes, debounce, chain, each, propertyOf } from 'lodash';
+import {
+    extend,
+    includes,
+    debounce,
+    chain,
+    each,
+    propertyOf,
+    once,
+} from 'lodash';
 import { SubViewDescription } from 'backbone-fractal/dist/composite-view';
 import 'select2';
 
@@ -56,7 +64,8 @@ async function normalizeRange(model: Model): Promise<Graph> {
 
 class Option extends View {
     initialize(): void {
-        this.render().listenTo(this.model, 'change', this.render);
+        this.render()
+           .listenTo(this.model, 'change:label change:classLabel', this.render);
     }
     render(): this {
         const label = this.model.get('label') || this.model.get('classLabel');
@@ -185,7 +194,24 @@ export default class Dropdown extends CompositeView {
 
     restoreSelection(): this {
         const selection = this.model.get('selection');
-        this.val(selection && selection.id);
+        if (!selection || !selection.id) return this;
+        const id = selection.id;
+        const restore = once(() => this.val(id));
+        const directTarget = logic.get(id) || filters.get(id);
+        if (directTarget) {
+            restore();
+        } else {
+            // Postpone restoring the selection until the value model has
+            // acquired its label. Otherwise, select2 will keep the empty label
+            // of the preselected option, causing the selected option to appear
+            // blank while all other options have their proper labels.
+            const delayedTarget = (
+                this.typeGroup || this.predicateGroup
+            ).collection.get(id);
+            if (!delayedTarget) return this;
+            delayedTarget.when('label', restore);
+            delayedTarget.when('classLabel', restore);
+        }
         return this;
     }
 
@@ -221,4 +247,5 @@ extend(Dropdown.prototype, {
     val: BasePicker.prototype.val,
     open: Select2Picker.prototype.open,
     beforeRender: Select2Picker.prototype.beforeRender,
+    destroySelect: Select2Picker.prototype.destroySelect,
 });
