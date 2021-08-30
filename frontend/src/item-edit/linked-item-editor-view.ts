@@ -11,12 +11,13 @@ import RemoveButton from '../forms/remove-button-view';
 import InputField from '../forms/input-field-view';
 import { getRdfSuperProperties } from '../utilities/linked-data-utilities';
 
-import AllTypesAllowedHelpText from './all-types-allowed-view';
 import AllowedTypesListHelpText from './allowed-type-list-view';
 import linkedItemTemplate from './linked-item-editor-template';
 
 // Selector of the control where the object picker is inserted.
 const objectControl = '.field.has-addons .control:nth-child(2)';
+// Selector of template element displaying "all types allowed" help text.
+const allTypesAllowedHelp = 'p.help:first-of-type';
 
 export default class LinkedItemEditor extends CompositeView {
     collection: Graph;
@@ -24,7 +25,6 @@ export default class LinkedItemEditor extends CompositeView {
     predicatePicker: Select2Picker;
     removeButton: RemoveButton;
     literalField: InputField;
-    allTypesAllowed: AllTypesAllowedHelpText;
     allowedTypesList: AllowedTypesListHelpText;
 
     initialize() {
@@ -32,7 +32,6 @@ export default class LinkedItemEditor extends CompositeView {
         this.predicatePicker = new Select2Picker({collection: this.collection});
         this.literalField = new InputField();
         this.removeButton = new RemoveButton().on('click', this.close, this);
-        this.allTypesAllowed = new AllTypesAllowedHelpText;
         this.allowedTypesList = new AllowedTypesListHelpText({
             collection: this.range,
         });
@@ -56,8 +55,8 @@ export default class LinkedItemEditor extends CompositeView {
 
     updateRange(): this {
         const predicate = this.model.get('predicate');
+        this.$(allTypesAllowedHelp).hide();
         this.allowedTypesList.$el.hide();
-        this.allTypesAllowed.$el.hide();
         if (!predicate) {
             this.range.reset();
             return this;
@@ -71,7 +70,7 @@ export default class LinkedItemEditor extends CompositeView {
             .value()
         );
         if (!this.range.length || this.range.get(rdfs.Literal)) {
-            this.allTypesAllowed.$el.show();
+            this.$(allTypesAllowedHelp).show();
         } else {
             this.allowedTypesList.$el.show();
         }
@@ -113,5 +112,5 @@ extend(LinkedItemEditor.prototype, {
     }, {
         view: 'removeButton',
         selector: '.field.has-addons',
-    }, 'allTypesAllowed', 'allowedTypesList'],
+    }, 'allowedTypesList'],
 });
