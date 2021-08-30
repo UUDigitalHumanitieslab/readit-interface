@@ -85,15 +85,10 @@
         "through2": "^3.0.1",
         "ts-node": "^8.3.0",
         "tsify": "^4.0.0",
-        "typescript": "^3.4.5",
+        "typescript": "^3.9.9",
         "vinyl-buffer": "^1.0.1",
         "vinyl-source-stream": "^2.0.0",
         "watchify": "^3.11.0",
         "yargs": "^12.0.1"
-    },
-    "peerDependencies": {
-        "@comunica/bus-http": "^1.20.0",
-        "@comunica/bus-init": "^1.20.0",
-        "@comunica/core": "^1.20.0"
     }
 }
