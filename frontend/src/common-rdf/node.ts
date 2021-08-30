@@ -239,7 +239,7 @@ export default class Node extends Model {
             return super.save(null, options);
         }
 
-        super.save(attributes, options);
+        return super.save(attributes, options);
     }
 }
 
