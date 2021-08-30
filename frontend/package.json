@@ -73,7 +73,7 @@
         "gulp-load-plugins": "^1.5.0",
         "gulp-postcss": "^7.0.1",
         "gulp-rename": "^1.4.0",
-        "gulp-sass": "^4.0.1",
+        "gulp-sass": "^5.0.0",
         "gulp-sourcemaps": "^2.6.4",
         "gulp-uglify": "^3.0.1",
         "http-proxy-middleware": "^0.19.0",
@@ -93,8 +93,8 @@
         "yargs": "^12.0.1"
     },
     "peerDependencies": {
-        "@comunica/bus-http": "^1.0.0",
-        "@comunica/bus-init": "^1.0.0",
-        "@comunica/core": "^1.0.0"
+        "@comunica/bus-http": "^1.20.0",
+        "@comunica/bus-init": "^1.20.0",
+        "@comunica/core": "^1.20.0"
     }
 }
