@@ -1,0 +1,9 @@
+{{>sparqlPreamble}}
+PREFIX schema: <http://schema.org/>
+CONSTRUCT {
+    ?node ?o ?s.
+    }
+WHERE {
+    ?node schema:creator <{{userURI}}>;
+    ?node ?p ?o.
+    }

@@ -1,6 +1,7 @@
 import user from '../global/user';
 import ldChannel from '../common-rdf/radio';
 import itemsTemplate from './query-templates/items-for-source-template';
+import nodesByUserTemplate from './query-templates/nodes-by-user-template';
 
 export interface OrderByOption {
     expression: string,
@@ -24,6 +25,10 @@ export function itemsForSourceQuery(source: string, { ...options }: SPARQLQueryO
     const hasAllViewPerm = user.hasPermission('view_all_annotations');
     if (!hasAllViewPerm) data['userURI'] = ldChannel.request('current-user-uri');
     const finalData = { ...data, ...options };
-
     return itemsTemplate(finalData).replace(/ {2,}/g, ' '); // strip double spaces
+}
+
+export function nodesByUserQuery(user: string, { ...options }: SPARQLQueryOptions) {
+    const data = { userURI: user, ...options };
+    return nodesByUserTemplate(data).replace(/ {2,}/g, ' ');
 }

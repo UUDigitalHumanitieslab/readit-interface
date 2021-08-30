@@ -9,6 +9,7 @@ extend(MainRouter.prototype, {
         '': 'home',
         'search': 'search',
         'leave': 'leave',
+        'workspace': 'workspace',
         'explore': 'explore',
         'upload': 'upload',
         'register': 'register',

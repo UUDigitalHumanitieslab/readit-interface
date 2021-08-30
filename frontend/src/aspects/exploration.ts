@@ -3,6 +3,7 @@ import { partial, isString } from 'lodash';
 import explorerChannel from '../explorer/explorer-radio';
 import * as act from '../explorer/route-actions';
 import SuggestionsPanel from '../panel-suggestions/suggestions-view';
+import WorkspacePanel from '../panel-workspace/workspace-view';
 import semChannel from '../semantic-search/radio';
 import deparam from '../utilities/deparam';
 import router from '../global/exploration-router';
@@ -17,6 +18,13 @@ function resetSuggestionsPanel() {
     suggestionsPanel = new SuggestionsPanel();
     explorer.reset(suggestionsPanel);
 }
+
+let workspacePanel: WorkspacePanel;
+function resetWorkspacePanel() {
+    workspacePanel = new WorkspacePanel();
+    explorer.reset(workspacePanel);
+}
+
 
 /**
  * Common patterns for the explorer routes.
@@ -44,6 +52,10 @@ function annoRoute(resetAction) {
 
 mainRouter.on('route:explore', () => {
     explorer.scrollOrAction(suggestionsPanel && suggestionsPanel.cid, resetSuggestionsPanel);
+});
+
+mainRouter.on('route:workspace', () => {
+    explorer.scrollOrAction(workspacePanel && workspacePanel.cid, resetWorkspacePanel);
 });
 
 router.on({
@@ -98,5 +110,4 @@ semChannel.on('presentQuery', welcomeView.presentSemanticQuery, welcomeView);
 welcomeView.on({
     'search:textual': controller.resetSourceListFromSearchResults,
     'search:semantic': controller.resetSemanticSearch,
-    'suggestions:show': controller.showSuggestionsPanel,
 }, controller);

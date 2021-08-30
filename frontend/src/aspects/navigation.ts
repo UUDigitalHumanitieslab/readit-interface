@@ -34,6 +34,7 @@ mainRouter.on('route:home', () => mainRouter.navigate('search', {
 mainRouter.on('route:search', () => userFsm.handle('search'));
 mainRouter.on('route:upload', () => userFsm.handle('upload'));
 mainRouter.on('route:explore', () => userFsm.handle('explore'));
+mainRouter.on('route:workspace', () => userFsm.handle('explore'));
 mainRouter.on('route:leave', () => userFsm.handle('leave'));
 
 explorationRouter.on('route', () => userFsm.handle('explore'));
@@ -58,4 +59,3 @@ feedbackView.on('close', () => feedbackView.$el.detach());
 
 welcomeView.on('search:textual', () => userFsm.handle('explore'));
 welcomeView.on('search:semantic', () => userFsm.handle('explore'));
-welcomeView.on('suggestions:show', () => userFsm.handle('explore'));

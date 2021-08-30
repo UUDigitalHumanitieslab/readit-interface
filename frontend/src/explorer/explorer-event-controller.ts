@@ -34,6 +34,7 @@ import {
 import { itemsForSourceQuery } from '../sparql/compile-query';
 import SemanticQuery from '../semantic-search/model';
 import modelToQuery from '../semantic-search/modelToQuery';
+import WorkspaceView from '../panel-workspace/workspace-view';
 
 interface ExplorerEventController extends Events { }
 class ExplorerEventController {
@@ -328,9 +329,6 @@ export default ExplorerEventController;
  */
 export function getItems(source: Node): ItemGraph {
     const sparqlItems = new ItemGraph();
-    let offsetMultiplier = 0;
-    const limit = 10000;
-
     let queryString = itemsForSourceQuery(asURI(source), {});
     sparqlItems.sparqlQuery(queryString);
     return sparqlItems;
