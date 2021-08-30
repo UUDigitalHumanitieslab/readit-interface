@@ -10,6 +10,7 @@ import Select2Picker from '../forms/select2-picker-view';
 import RemoveButton from '../forms/remove-button-view';
 import InputField from '../forms/input-field-view';
 import { getRdfSuperProperties } from '../utilities/linked-data-utilities';
+import interpretText from '../utilities/interpret-text';
 
 import AllowedTypesListHelpText from './allowed-type-list-view';
 import linkedItemTemplate from './linked-item-editor-template';
@@ -78,7 +79,8 @@ export default class LinkedItemEditor extends CompositeView {
     }
 
     updateObject(labelField: InputField, val: string): void {
-        this.model.set('object', val);
+        const interpretation = interpretText(val, this.range);
+        this.model.set('object', interpretation.jsonld);
     }
 
     predicateFromModel(model: Model, selectedPredicate?: Node): this {
