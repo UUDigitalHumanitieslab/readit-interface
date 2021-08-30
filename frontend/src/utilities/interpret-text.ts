@@ -44,7 +44,7 @@ function checkDouble(value: number, [whole,, mantissa]: string[]): boolean {
 // find it near the end). Since some patterns are ambiguous, the same type can
 // occur multiple times with increasingly inclusive patterns. Numeric type
 // matchers may include some additional properties for range checking. Within
-// the xsd:string and xsd:decimal type hierarchies, types are listed from widest
+// the xsd:string and xsd:integer type hierarchies, types are listed from widest
 // to narrowest. This ensures that narrower types are selected only when wider
 // types aren't permitted.
 // If `interpretText` is giving undesired results for some inputs, you most
@@ -52,26 +52,23 @@ function checkDouble(value: number, [whole,, mantissa]: string[]): boolean {
 const prioritizedMatchers = [{
     pattern: /^([1-9]\d{3}(\d{4})*)?\d{4}$/,
     type: xsd.hexBinary,
-    ambiguous: [xsd.gYear, xsd.decimal, xsd.base64Binary],
+    ambiguous: [xsd.gYear, xsd.integer, xsd.base64Binary],
 }, {
     pattern: /^([1-9]\d(\d\d)*)?\d{4}$/,
     type: xsd.hexBinary,
-    ambiguous: [xsd.gYear, xsd.decimal],
+    ambiguous: [xsd.gYear, xsd.integer],
 }, {
     pattern: /^(\d{4})+$/,
     type: xsd.hexBinary,
-    ambiguous: [xsd.decimal, xsd.base64Binary],
+    ambiguous: [xsd.integer, xsd.base64Binary],
 }, {
     pattern: /^(\d\d)+$/,
     type: xsd.hexBinary,
-    ambiguous: [xsd.decimal],
+    ambiguous: [xsd.integer],
 }, {
     pattern: /^-?([1-9]\d*)?\d{4}$/,
     type: xsd.gYear,
-    ambiguous: [xsd.decimal],
-}, {
-    pattern: /^[+-]?(\d+|\d*\.?\d+)$/,
-    type: xsd.decimal,
+    ambiguous: [xsd.integer],
 }, {
     pattern: /^[+-]?\d+$/,
     type: xsd.integer,
@@ -147,6 +144,9 @@ const prioritizedMatchers = [{
     restricts: xsd.unsignedShort,
     cast: Number,
     max: 255,
+}, {
+    pattern: /^[+-]?(\d+|\d*\.?\d+)$/,
+    type: xsd.decimal,
 }, {
     pattern: /^([+-]?(\d*\.?\d+)([eE][+-]?\d+)?|-?INF|NaN)$/,
     type: xsd.double,

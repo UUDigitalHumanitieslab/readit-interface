@@ -37,7 +37,7 @@ describe('interpretText utility', function() {
         expectType('.', xsd.string);
         expectType('-', xsd.string);
         expectType('banana', xsd.string);
-        expectType('0', xsd.decimal);
+        expectType('0', xsd.integer);
         expectType('-123.456', xsd.decimal);
         expectType('19e-24', xsd.double);
         expectType('true', xsd.boolean);
@@ -58,7 +58,7 @@ describe('interpretText utility', function() {
 
     it('provides information about ambiguities', function() {
         expectType('2021', xsd.hexBinary, undefined, [
-            xsd.gYear, xsd.decimal, xsd.base64Binary,
+            xsd.gYear, xsd.integer, xsd.base64Binary,
         ]);
         expectType('2fa3', xsd.hexBinary, undefined, [xsd.base64Binary]);
     });
@@ -68,7 +68,7 @@ describe('interpretText utility', function() {
         expectType('2021Z', xsd.gYear);
         expectType('20 21', xsd.base64Binary);
         expectType(' 2021', xsd.string);
-        expectType('02021', xsd.decimal);
+        expectType('02021', xsd.integer);
         expectType(' true', xsd.string);
     });
 
@@ -94,8 +94,8 @@ describe('interpretText utility', function() {
     });
 
     it('restricts information about ambiguities', function() {
-        const range = makeRange([xsd.hexBinary, xsd.decimal]);
-        expectType('2021', xsd.hexBinary, range, [xsd.decimal]);
+        const range = makeRange([xsd.hexBinary, xsd.integer]);
+        expectType('2021', xsd.hexBinary, range, [xsd.integer]);
         expectType('2fa3', xsd.hexBinary, range, undefined);
     });
 
