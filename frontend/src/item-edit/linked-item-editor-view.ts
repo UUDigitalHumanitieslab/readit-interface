@@ -1,7 +1,10 @@
-import { extend, chain } from 'lodash';
+import {
+    find, intersection, extend, chain, isNumber, isBoolean, isString, isDate,
+} from 'lodash';
 
 import Model from '../core/model';
 import { CompositeView } from '../core/view';
+import { asLD, Native } from '../common-rdf/conversion';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import { rdfs, xsd } from '../common-rdf/ns';
@@ -13,12 +16,36 @@ import { getRdfSuperProperties } from '../utilities/linked-data-utilities';
 import interpretText from '../utilities/interpret-text';
 
 import AllowedTypesListHelpText from './allowed-type-list-view';
+import DetectedTypeHelpText from './detected-type-help-view';
 import linkedItemTemplate from './linked-item-editor-template';
 
 // Selector of the control where the object picker is inserted.
 const objectControl = '.field.has-addons .control:nth-child(2)';
 // Selector of template element displaying "all types allowed" help text.
 const allTypesAllowedHelp = 'p.help:first-of-type';
+
+const semiCompatibleTypes: [(v: any) => boolean, string[]][] = [
+    [isBoolean, [xsd.boolean]],
+    [isNumber, [
+        xsd.double, xsd.float, xsd.byte, xsd.unsignedByte, xsd.short,
+        xsd.unsignedShort, xsd.int, xsd.unsignedInt, xsd.long,
+        xsd.unsignedLong, xsd.integer, xsd.nonNegativeInteger,
+        xsd.nonPositiveInteger, xsd.positiveInteger, xsd.negativeInteger,
+        xsd.decimal,
+    ]],
+    [isDate, [xsd.dateTime, xsd.date]],
+    [isString, [
+        xsd.string, xsd.normalizedString, xsd.token, xsd.language,
+        xsd.base64Binary,
+    ]],
+];
+
+function findType(range: Graph, value: any): string {
+    if (range.length === 1) return range.at(0).id;
+    const matches = find(semiCompatibleTypes, ([check]) => check(value))[1];
+    const available = range.map(n => n.id);
+    return intersection(matches, available)[0];
+}
 
 export default class LinkedItemEditor extends CompositeView {
     collection: Graph;
@@ -27,6 +54,7 @@ export default class LinkedItemEditor extends CompositeView {
     removeButton: RemoveButton;
     literalField: InputField;
     allowedTypesList: AllowedTypesListHelpText;
+    detectedTypeHelp: DetectedTypeHelpText;
 
     initialize() {
         this.range = new Graph;
@@ -36,10 +64,11 @@ export default class LinkedItemEditor extends CompositeView {
         this.allowedTypesList = new AllowedTypesListHelpText({
             collection: this.range,
         });
-        this.predicateFromModel(this.model).objectFromModel(this.model);
-        this.literalField.on('change', this.updateObject, this);
-        this.predicatePicker.on('change', this.updatePredicate, this);
+        this.detectedTypeHelp = new DetectedTypeHelpText({ model: new Model });
         this.render().updateRange();
+        this.predicateFromModel(this.model).objectFromModel(this.model);
+        this.literalField.on('keyup', this.updateObject, this);
+        this.predicatePicker.on('change', this.updatePredicate, this);
     }
 
     renderContainer(): this {
@@ -80,7 +109,13 @@ export default class LinkedItemEditor extends CompositeView {
 
     updateObject(labelField: InputField, val: string): void {
         const interpretation = interpretText(val, this.range);
-        this.model.set('object', interpretation.jsonld);
+        if (interpretation) {
+            this.detectedTypeHelp.model.set(interpretation);
+            this.detectedTypeHelp.$el.show();
+            this.model.set('object', interpretation.jsonld);
+        } else {
+            this.detectedTypeHelp.$el.hide();
+        }
     }
 
     predicateFromModel(model: Model, selectedPredicate?: Node): this {
@@ -90,10 +125,18 @@ export default class LinkedItemEditor extends CompositeView {
         return this;
     }
 
-    objectFromModel(model: Model, setLiteral?: string): this {
+    objectFromModel(model: Model, setLiteral?: Native): this {
         setLiteral || (setLiteral = model.get('object'));
-        if (!setLiteral) return this;
-        this.literalField.setValue(setLiteral);
+        if (setLiteral) {
+            const jsonld = asLD(setLiteral);
+            this.literalField.setValue(jsonld['@value']);
+            if (!jsonld['@type']) {
+                jsonld['@type'] = findType(this.range, jsonld['@value']);
+            }
+            this.detectedTypeHelp.model.set({ jsonld });
+        } else {
+            this.detectedTypeHelp.$el.hide();
+        }
         return this;
     }
 
@@ -114,5 +157,5 @@ extend(LinkedItemEditor.prototype, {
     }, {
         view: 'removeButton',
         selector: '.field.has-addons',
-    }, 'allowedTypesList'],
+    }, 'allowedTypesList', 'detectedTypeHelp'],
 });
