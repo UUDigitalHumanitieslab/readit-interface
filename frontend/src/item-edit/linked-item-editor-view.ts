@@ -43,9 +43,16 @@ const semiCompatibleTypes: [(v: any) => boolean, string[]][] = [
 ];
 
 function findType(range: Graph, value: any): string {
-    if (range.length === 1) return range.at(0).id;
-    const matches = find(semiCompatibleTypes, ([check]) => check(value))[1];
     const available = range.map(n => n.id);
+    let singleType;
+    if (range.length === 1) {
+        singleType = available[0];
+        if (singleType !== rdfs.Literal) return singleType;
+    }
+    const matches = find(semiCompatibleTypes, ([check]) => check(value))[1];
+    if (!range.length || singleType === rdfs.Literal) {
+        return matches[0];
+    }
     return intersection(matches, available)[0];
 }
 
