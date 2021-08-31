@@ -2,13 +2,13 @@ import { extend, includes } from 'lodash';
 
 import { CompositeView } from '../core/view';
 import Node, { isNode } from '../common-rdf/node';
-import { owl, dcterms, rdfs } from '../common-rdf/ns';
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
 import explorerChannel from '../explorer/explorer-radio';
 import { report404 } from '../explorer/utilities';
 import { getLabelText } from '../utilities/annotation-utilities';
 import LabelView from '../label/label-view';
+import excludedProperties from '../item-metadata/excluded-properties';
 import ItemMetadataView from '../item-metadata/item-metadata-view';
 import { getLabelFromId } from '../utilities/linked-data-utilities';
 
@@ -16,16 +16,6 @@ import { announceRoute } from './utilities';
 import annotationTemplate from './annotation-template';
 
 const announce = announceRoute(false);
-
-const excludedProperties = [
-    '@id',
-    '@type',
-    dcterms.creator,
-    dcterms.created,
-    dcterms.modified,
-    rdfs.seeAlso,
-    owl.sameAs
-];
 
 export default class AnnotationView extends CompositeView<FlatItem> {
     collection: FlatCollection;
@@ -87,6 +77,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
     }
 
     collectDetails(item: FlatItem): void {
+        this.properties = {};
         for (let attribute in item.attributes) {
             if (includes(excludedProperties, attribute)) continue;
             let attributeLabel = getLabelFromId(attribute);

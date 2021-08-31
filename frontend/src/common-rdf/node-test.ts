@@ -2,6 +2,7 @@ import { cloneDeep, get, set, initial, omit, map } from 'lodash';
 import { Model } from 'backbone';
 import { compact } from 'jsonld';
 
+import { event } from '../test-util';
 import {
     contentInstance,
     textPositionSelector as flatTextPositionSelector,
@@ -12,7 +13,7 @@ import {
 import context from '../mock-data/mock-context';
 
 import ldChannel from './radio';
-import { item, readit, staff, owl, dcterms, xsd, skos } from './ns';
+import { item, readit, staff, owl, dcterms, xsd, skos, oa } from './ns';
 import * as conversionModule from './conversion';
 import Node from './node';
 
@@ -329,6 +330,46 @@ describe('Node', function() {
                 () => this.node.parse([{}, {}, {}, {}, {}]),
             ];
             buggies.forEach(buggy => expect(buggy).toThrow());
+        });
+    });
+
+    describe('save', function() {
+        it('substitutes rather than merges attributes returned by the server', async function() {
+            const url = 'http://localhost/test/test';
+            const attributesBefore = {
+                '@id': url,
+                [oa.start]: {
+                    '@type': xsd.decimal,
+                    '@value': '4',
+                },
+            };
+            const attributesAfter = {
+                '@id': url,
+                [oa.start]: {
+                    '@type': xsd.decimal,
+                    '@value': '4.0',
+                },
+            };
+            const stringWrapper = Object(attributesAfter[oa.start]['@value']);
+            stringWrapper['@type'] = attributesAfter[oa.start]['@type'];
+            const attributesAfterNative = {
+                '@id': url,
+                [oa.start]: [stringWrapper],
+            };
+            const response = {
+                status: 200,
+                contentType: 'application/ld+json',
+                responseText: JSON.stringify(attributesAfter),
+            };
+            jasmine.Ajax.install();
+            jasmine.Ajax.stubRequest(url).andReturn(response);
+            this.node.set(attributesBefore);
+            await this.node.save();
+            expect(this.node.attributes).toEqual(attributesAfterNative);
+            this.node.unset(oa.start);
+            await this.node.save(attributesBefore);
+            expect(this.node.attributes).toEqual(attributesAfterNative);
+            jasmine.Ajax.uninstall();
         });
     });
 });
