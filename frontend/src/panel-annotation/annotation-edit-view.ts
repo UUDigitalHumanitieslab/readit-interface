@@ -146,12 +146,14 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             this.$('p.class-unset').removeClass('is-hidden');
             return this;
         }
+        this.$('p.class-unset').addClass('is-hidden');
         const item = this.model.get('item');
         if (this.itemCollectionView && this.itemCollectionView.model === item) {
             if (!this.itemCollectionView.validatePrefLabel()) {
                 this.$('p.label-unset').removeClass('is-hidden');
                 return this;
             }
+            this.$('p.label-unset').addClass('is-hidden');
             this.itemCollectionView.commitChanges();
         }
 
