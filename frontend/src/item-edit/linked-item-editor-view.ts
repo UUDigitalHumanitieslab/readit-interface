@@ -23,6 +23,8 @@ import linkedItemTemplate from './linked-item-editor-template';
 const objectControl = '.field.has-addons .control:nth-child(2)';
 // Selector of template element displaying "all types allowed" help text.
 const allTypesAllowedHelp = 'p.help:first-of-type';
+// Selector of template element displaying "no matching type" help text.
+const noMatchHelp = 'p.help.is-danger';
 
 const semiCompatibleTypes: [(v: any) => boolean, string[]][] = [
     [isBoolean, [xsd.boolean]],
@@ -109,11 +111,17 @@ export default class LinkedItemEditor extends CompositeView {
 
     updateObject(labelField: InputField, val: string): void {
         const interpretation = interpretText(val, this.range);
+        this.literalField.$el.removeClass('is-danger');
+        this.$(noMatchHelp).hide();
         if (interpretation) {
             this.detectedTypeHelp.model.set(interpretation);
             this.detectedTypeHelp.$el.show();
             this.model.set('object', interpretation.jsonld);
         } else {
+            if (val) {
+                this.$(noMatchHelp).show();
+                this.literalField.$el.addClass('is-danger');
+            }
             this.detectedTypeHelp.$el.hide();
         }
     }
@@ -137,6 +145,7 @@ export default class LinkedItemEditor extends CompositeView {
         } else {
             this.detectedTypeHelp.$el.hide();
         }
+        this.$(noMatchHelp).hide();
         return this;
     }
 
@@ -157,5 +166,9 @@ extend(LinkedItemEditor.prototype, {
     }, {
         view: 'removeButton',
         selector: '.field.has-addons',
-    }, 'allowedTypesList', 'detectedTypeHelp'],
+    }, {
+        view: 'allowedTypesList',
+        selector: noMatchHelp,
+        method: 'before',
+    }, 'detectedTypeHelp'],
 });
