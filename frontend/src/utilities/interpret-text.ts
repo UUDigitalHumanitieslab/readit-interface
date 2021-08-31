@@ -6,7 +6,7 @@
  * https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/.
  */
 
-import { find, filter, partial } from 'lodash';
+import { find, filter, some, includes, partial } from 'lodash';
 
 import { xsd, rdfs } from '../common-rdf/ns';
 import Graph from '../common-rdf/graph';
@@ -222,6 +222,8 @@ const prioritizedMatchers = [{
     restricts: xsd.token,
 }];
 
+const textTypes = [xsd.string, xsd.normalizedString, xsd.token, xsd.language];
+
 // Protip: let TypeScript figure out the complex types for you.
 type Descriptor = typeof prioritizedMatchers[number];
 
@@ -297,5 +299,9 @@ function interpretText(text: string, allowedRange: Graph = new Graph()) {
         },
         ambiguous: filter(matched.ambiguous || [], allowedRangeIncludes),
     };
+    if (
+        !includes(textTypes, matched.type) &&
+        some(textTypes, allowedRangeIncludes)
+    ) result.ambiguous.push(xsd.string);
     return result;
 }

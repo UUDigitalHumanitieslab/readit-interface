@@ -58,9 +58,11 @@ describe('interpretText utility', function() {
 
     it('provides information about ambiguities', function() {
         expectType('2021', xsd.hexBinary, undefined, [
-            xsd.gYear, xsd.integer, xsd.base64Binary,
+            xsd.gYear, xsd.integer, xsd.base64Binary, xsd.string,
         ]);
-        expectType('2fa3', xsd.hexBinary, undefined, [xsd.base64Binary]);
+        expectType('2fa3', xsd.hexBinary, undefined, [
+            xsd.base64Binary, xsd.string,
+        ]);
     });
 
     it('supports notations to disambiguate compatible types', function() {
