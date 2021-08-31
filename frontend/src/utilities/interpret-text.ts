@@ -289,14 +289,13 @@ function interpretText(text: string, allowedRange: Graph = new Graph()) {
     const matchAllowedType = partial(matchType, allowedRange, new Set(), text);
     const matched = find(prioritizedMatchers, matchAllowedType);
     if (!matched) return;
+    const allowedRangeIncludes = partial(rangeIncludes, allowedRange);
     const result: Interpretation = {
         jsonld: {
             '@value': text.trim(),
             '@type': matched.type,
         },
+        ambiguous: filter(matched.ambiguous || [], allowedRangeIncludes),
     };
-    const allowedRangeIncludes = partial(rangeIncludes, allowedRange);
-    const ambiguous = filter(matched.ambiguous || [], allowedRangeIncludes);
-    if (ambiguous.length) result.ambiguous = ambiguous;
     return result;
 }

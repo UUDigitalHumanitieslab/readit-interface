@@ -96,7 +96,7 @@ describe('interpretText utility', function() {
     it('restricts information about ambiguities', function() {
         const range = makeRange([xsd.hexBinary, xsd.integer]);
         expectType('2021', xsd.hexBinary, range, [xsd.integer]);
-        expectType('2fa3', xsd.hexBinary, range, undefined);
+        expectType('2fa3', xsd.hexBinary, range, []);
     });
 
     it('selects the widest available type', function() {
