@@ -81,8 +81,8 @@ export default class LinkedItemEditor extends CompositeView {
     updatePredicate(picker: Select2Picker, id: string): void {
         const predicate = this.collection.get(id);
         this.model.set('predicate', predicate);
-        this.model.unset('object');
         this.updateRange();
+        this.updateObject(this.literalField, this.literalField.getValue());
     }
 
     updateRange(): this {
