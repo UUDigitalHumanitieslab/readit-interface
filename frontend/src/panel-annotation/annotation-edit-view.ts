@@ -74,6 +74,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         this.model.when('item', triggerItemConfirmed, this);
         //    OR we know that it has no item whatsoever;
         this.listenToOnce(this.model, 'complete', triggerItemConfirmed);
+        if (this.model.complete) triggerItemConfirmed();
         // 2. this item is available to the itemPicker.
         this.itemOptions.once('update', processItem, this);
 
