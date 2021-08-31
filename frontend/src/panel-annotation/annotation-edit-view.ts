@@ -112,10 +112,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         const item = this.model.get('item');
         if (item) {
             this.itemPicker.val(item.id);
-            this.$('edit-item-button').removeClass('is-hidden');
-        }
-        else {
-            this.$('edit-item-button').addClass('is-hidden');
+            this.editItem(item);
         }
         this.itemPicker.on('change', this.selectItem, this);
     }
@@ -257,7 +254,10 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         if (previousItem === selectedItem) return;
         const annotation = this.model.get('annotation');
         previousItem && annotation.unset(oa.hasBody, previousItem);
-        selectedItem && annotation.set(oa.hasBody, selectedItem);
+        if (selectedItem) {
+            annotation.set(oa.hasBody, selectedItem);
+            this.editItem(selectedItem);
+        }
     }
 
     createItem(): this {
@@ -267,7 +267,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             [skos.prefLabel]: '', // this prevents a failing getLabel
         });
         this.setItem(item);
-        this.editItem(item);
         return this;
     }
 
@@ -276,11 +275,6 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             item = this.model.get('item');
         }
         this.setItemMultifield(item);
-        return this;
-    }
-
-    onEditItemClicked(event: JQueryEventObject): this {
-        this.editItem();
         return this;
     }
 
@@ -369,7 +363,6 @@ extend(AnnotationEditView.prototype, {
         'click .panel-footer button.btn-cancel': 'onCancelClicked',
         'click .panel-footer button.is-danger': 'onDelete',
         'click .btn-rel-items': 'onRelatedItemsClicked',
-        'click .item-picker-container .field .edit-item-button': 'onEditItemClicked',
         'click .item-picker-container .field .create-item-button': 'createItem',
         'keyup input': 'saveOnEnter',
         'change .verification-checkbox': 'onVerificationChanged'
