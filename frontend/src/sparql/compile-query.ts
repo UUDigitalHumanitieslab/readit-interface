@@ -28,7 +28,7 @@ export function itemsForSourceQuery(source: string, { ...options }: SPARQLQueryO
     return itemsTemplate(finalData).replace(/ {2,}/g, ' '); // strip double spaces
 }
 
-export function nodesByUserQuery(user: string, { ...options }: SPARQLQueryOptions) {
-    const data = { userURI: user, ...options };
+export function nodesByUserQuery(user: string, sourceGraph: string, { ...options }: SPARQLQueryOptions) {
+    const data = { userURI: user, sourceGraph: sourceGraph, ...options };
     return nodesByUserTemplate(data).replace(/ {2,}/g, ' ');
 }

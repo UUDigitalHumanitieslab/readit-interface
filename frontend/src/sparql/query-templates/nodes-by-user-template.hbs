@@ -1,9 +1,9 @@
-{{>sparqlPreamble}}
-PREFIX schema: <http://schema.org/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
 CONSTRUCT {
-    ?node ?o ?s.
+    ?node ?p ?o
     }
+FROM <{{sourceGraph}}>
 WHERE {
-    ?node schema:creator <{{userURI}}>;
     ?node ?p ?o.
+    ?node dcterms:creator <{{userURI}}>;
     }
