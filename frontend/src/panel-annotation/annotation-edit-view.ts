@@ -155,7 +155,8 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
             this.itemCollectionView.commitChanges();
         }
 
-        if (this.model.isNew() || isBlank(this.model.get('annotation'))) {
+        const annotation = this.model.get('annotation');
+        if (this.model.isNew() || annotation && isBlank(annotation)) {
             this.submitNewAnnotation();
         } else {
             this.submitItem().then(this.submitOldAnnotation.bind(this));
@@ -196,13 +197,15 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
 
     submitOldAnnotation(newItem: boolean): void {
         const annotation = this.model.get('annotation');
-        if (newItem) {
-            // The item node may still be linked as a blank node. Relink.
-            const cls = this.model.get('class');
-            const item = this.model.get('item');
-            annotation.unset(oa.hasBody).set(oa.hasBody, [cls, item]);
+        if (annotation) {
+            if (newItem) {
+                // The item node may still be linked as a blank node. Relink.
+                const cls = this.model.get('class');
+                const item = this.model.get('item');
+                annotation.unset(oa.hasBody).set(oa.hasBody, [cls, item]);
+            }
+            annotation.save({ patch: true });
         }
-        annotation.save({ patch: true });
         explorerChannel.trigger('annotationEditView:save', this, this.model, newItem);
     }
 

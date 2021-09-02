@@ -37,6 +37,7 @@ export default class RelationEditor extends CompositeView {
 
     updatePredicate(picker: PickerView, id: string): void {
         const predicate = this.collection.get(id);
+        if (predicate === this.model.get('predicate')) return;
         this.model.set('predicate', predicate);
         this.model.unset('object');
         this.resetObjectPicker(predicate);

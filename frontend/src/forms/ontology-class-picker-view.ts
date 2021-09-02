@@ -81,7 +81,6 @@ export default class OntologyClassPickerView extends CollectionView<
         this.setLabel(this.selected);
         this.selected.trigger('focus', this.selected);
         this.trigger('select', newValue);
-        if (this.isLeaf(this.selected)) this.showChildMenu(this.selected);
     }
 
     showChildMenu(model: FlatItem) {
@@ -150,6 +149,6 @@ extend(OntologyClassPickerView.prototype, {
     template: ontologyClassPickerTemplate,
     container: '.super-picker',
     events: {
-        'click': 'onClick',
+        'click .dropdown-trigger': 'onClick',
     },
 });
