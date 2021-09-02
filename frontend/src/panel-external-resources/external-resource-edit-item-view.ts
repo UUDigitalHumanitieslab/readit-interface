@@ -62,7 +62,7 @@ export default class ExternalResourceEditItem extends CompositeView {
 
 extend(ExternalResourceEditItem.prototype, {
     template: externalResourceEditItemTemplate,
-    className: 'field has-addons rit-relation-editor',
+    className: 'field has-addons rit-external-resources-editor',
     subviews: [{
         view: 'predicatePicker',
         selector: '.control:first-child',
