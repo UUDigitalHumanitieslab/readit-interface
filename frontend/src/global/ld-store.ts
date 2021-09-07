@@ -1,6 +1,7 @@
 import {
     rdf,
     rdfs,
+    skos,
     owl,
     as,
     vocab,
@@ -15,6 +16,7 @@ const defaultGraphs = [
     rdf(),
     rdfs(),
     owl(),
+    'http://www.w3.org/2004/02/skos/core',
     'http://www.w3.org/ns/oa.jsonld',
     'http://dublincore.org/2012/06/14/dcterms.ttl',
     'http://dublincore.org/2012/06/14/dctype.ttl',
