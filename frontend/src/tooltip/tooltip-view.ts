@@ -35,6 +35,11 @@ const cssPropsToCopy = [
     'padding-top',
 ];
 
+/**
+ * A simple, empty, transparent view with the sole purpose of having a Bulma
+ * tooltip associated. It is not really meant to be used directly; rather, you
+ * should layer it over another view using the `attachTooltip` function below.
+ */
 export class Tooltip extends View<FlatItem> {
     preferredDirection: string;
     direction: string;
@@ -93,6 +98,12 @@ extend(Tooltip.prototype, {
     className: 'rit-tooltip tooltip is-tooltip-multiline',
 });
 
+/**
+ * Attach a `Tooltip` to the given `view`. The tooltip view will be a direct
+ * child of the `<body>` element in order to ensure that the tooltip balloon is
+ * never obscured by the overflow edges of containing elements. Events are
+ * taken care of and the tooltip is `.remove`d automatically when `view` is.
+ */
 export default function attachTooltip<V extends BView<any>>(
     view: V, options: ViewOptions
 ): Tooltip {
