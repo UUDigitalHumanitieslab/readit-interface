@@ -12,6 +12,13 @@ export interface ViewOptions extends BaseOpt<FlatItem> {
     direction?: Direction;
 }
 
+const oppositeDirection = {
+    top: 'bottom',
+    bottom: 'top',
+    left: 'right',
+    right: 'left',
+};
+
 const cssPropsToCopy = [
     'border-bottom-width',
     'border-left-width',
@@ -29,10 +36,12 @@ const cssPropsToCopy = [
 ];
 
 export class Tooltip extends View<FlatItem> {
+    preferredDirection: string;
+    direction: string;
+
     constructor(options?: ViewOptions) {
         super(options);
-        const direction = options && options.direction || 'right';
-        this.$el.addClass(`is-tooltip-${direction}`);
+        this.preferredDirection = options && options.direction || 'right';
         this.model.when('class', this.render, this);
     }
 
@@ -49,21 +58,33 @@ export class Tooltip extends View<FlatItem> {
     }
 
     show(): this {
-        this.$el.addClass('is-tooltip-active');
+        this.$el.addClass(`is-tooltip-active is-tooltip-${this.direction}`);
         return this;
     }
 
     hide(): this {
-        this.$el.removeClass('is-tooltip-active');
+        this.$el.removeClass(`is-tooltip-active is-tooltip-${this.direction}`);
         return this;
     }
 
     positionTo<V extends BView<any>>(view: V): this {
         const other = view.$el;
+        const offset = other.offset();
+        const width = other.width();
+        const height = other.height();
         this.$el.css(other.css(cssPropsToCopy))
-            .width(other.width())
-            .height(other.height())
-            .offset(other.offset());
+            .width(width).height(height).offset(offset);
+        const direction = this.direction = this.preferredDirection;
+        const viewport = window['visualViewport'];
+        if (viewport) {
+            const distance = (
+                direction === 'top' ? offset.top - viewport.offsetTop :
+                direction === 'left' ? offset.left - viewport.offsetLeft :
+                direction === 'right' ? (viewport.offsetLeft + viewport.width) - (offset.left + width) :
+                (viewport.offsetTop + viewport.height) - (offset.top + height)
+            );
+            if (distance < 400) this.direction = oppositeDirection[direction];
+        }
         return this;
     }
 }
