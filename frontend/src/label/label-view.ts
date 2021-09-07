@@ -1,9 +1,10 @@
 import { ViewOptions as BaseOpt } from 'backbone';
 import { extend } from 'lodash';
-import View from '../core/view';
 
-import FlatItem from '../common-adapters/flat-item-model';
+import View from '../core/view';
 import { rdfs, skos } from '../common-rdf/ns';
+import FlatItem from '../common-adapters/flat-item-model';
+import attachTooltip from '../tooltip/tooltip-view';
 
 type TooltipSetting = false | 'top' | 'bottom' | 'left' | 'right';
 
@@ -12,8 +13,6 @@ export interface ViewOptions extends BaseOpt<FlatItem> {
 }
 
 export default class LabelView extends View<FlatItem> {
-    label: string;
-    cssClassName: string;
     toolTipSetting: TooltipSetting;
 
     constructor(options?: ViewOptions) {
@@ -23,49 +22,34 @@ export default class LabelView extends View<FlatItem> {
         if (options && options.toolTipSetting !== undefined) {
             this.toolTipSetting = options.toolTipSetting;
         }
-        this.model.when('class', this.processClass, this);
+        this.model.when('classLabel', this.processClass, this);
     }
 
     processClass() {
-        this.label = this.model.get('classLabel');
-        this.cssClassName = this.model.get('cssClass');
-        this.addDefinition();
+        this.addTooltip();
         this.render();
     }
 
     render(): this {
-        this.$el.html();
-        this.$el.text(this.label);
-        this.$el.addClass(this.cssClassName);
+        this.$el.text(this.model.get('classLabel'));
+        this.$el.addClass(this.model.get('cssClass'));
         return this;
     }
 
-    addDefinition(): void {
-        if (this.hasTooltip() && (this.model.get('class').has(skos.definition) || this.model.get('class').has(rdfs.comment))) {
-            this.$el.addClass("tooltip");
-            this.$el.addClass("is-tooltip");
-            this.setTooltipOrientation();
-
-            let definition = (this.model.get('class').get(skos.definition) ? this.model.get('class').get(skos.definition)[0] : this.model.get('class').get(rdfs.comment)[0]) as string;
-            this.$el.attr("data-tooltip", definition);
-
-            if (definition.length > 65) {
-                this.$el.addClass("is-tooltip-multiline");
-            }
+    addTooltip(): void {
+        const cls = this.model.get('class');
+        if (
+            typeof this.toolTipSetting === 'string' &&
+            (cls.has(skos.definition) || cls.has(rdfs.comment))
+        ) {
+            attachTooltip(this, {
+                direction: this.toolTipSetting,
+                model: this.model,
+            });
         }
     }
-
-    hasTooltip(): boolean {
-        return typeof this.toolTipSetting === 'string';
-    }
-
-    setTooltipOrientation(): this {
-        let orientation = `-${this.toolTipSetting}`;
-        this.$el.addClass(`is-tooltip${orientation}`);
-        return this;
-    }
-
 }
+
 extend(LabelView.prototype, {
     tagName: 'span',
     className: 'tag',
