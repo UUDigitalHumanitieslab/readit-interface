@@ -3,14 +3,17 @@ import { extend } from 'lodash';
 import { CompositeView } from '../core/view';
 import LabelView from '../label/label-view';
 import FlatItem from '../common-adapters/flat-item-model';
+import attachTooltip from '../tooltip/tooltip-view';
 
 export default class OntologyClassPickerItemView extends CompositeView<FlatItem> {
     labelView: LabelView;
 
     initialize(): this {
         this.labelView = new LabelView({
-            model: this.model
+            model: this.model,
+            toolTipSetting: false,
         });
+        attachTooltip(this, { model: this.model });
         this.listenTo(this.model, { 'focus': this.onFocus, 'blur': this.onBlur });
         return this.render();
     }
