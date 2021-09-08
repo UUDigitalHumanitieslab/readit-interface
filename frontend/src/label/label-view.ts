@@ -37,11 +37,7 @@ export default class LabelView extends View<FlatItem> {
     }
 
     addTooltip(): void {
-        const cls = this.model.get('class');
-        if (
-            typeof this.toolTipSetting === 'string' &&
-            (cls.has(skos.definition) || cls.has(rdfs.comment))
-        ) {
+        if (typeof this.toolTipSetting === 'string') {
             attachTooltip(this, {
                 direction: this.toolTipSetting,
                 model: this.model,

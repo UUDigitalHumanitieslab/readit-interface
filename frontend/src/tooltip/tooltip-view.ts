@@ -47,7 +47,7 @@ export class Tooltip extends View<FlatItem> {
     constructor(options?: ViewOptions) {
         super(options);
         this.preferredDirection = options && options.direction || 'right';
-        this.model.when('class', this.render, this);
+        this.model.when('classLabel', this.render, this);
     }
 
     render(): this {
@@ -55,10 +55,12 @@ export class Tooltip extends View<FlatItem> {
         const languageOption = { '@language': i18next.language };
         const definition = cls.get(skos.definition, languageOption);
         const comment = definition || cls.get(rdfs.comment, languageOption);
-        this.$el.attr(
-            'data-tooltip',
-            definition && definition[0] || comment && comment[0]
-        );
+        const text = definition && definition[0] || comment && comment[0];
+        if (text) {
+            this.$el.attr('data-tooltip', text);
+        } else {
+            this.$el.removeClass('tooltip');
+        }
         return this;
     }
 
