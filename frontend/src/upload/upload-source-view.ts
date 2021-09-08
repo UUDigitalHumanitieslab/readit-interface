@@ -1,8 +1,10 @@
 import { extend } from 'lodash';
 import View from '../core/view';
 import Node from '../common-rdf/node';
+import ldChannel from '../common-rdf/radio';
 
 import uploadSourceTemplate from './upload-source-template';
+import Graph from '../common-rdf/graph';
 
 export default class UploadSourceFormView extends View {
     isSuccess: boolean;
@@ -19,6 +21,8 @@ export default class UploadSourceFormView extends View {
 
     initialize(): this {
         let self = this;
+
+        this.setOptions();
 
         this.$el.validate({
             errorClass: "help is-danger",
@@ -146,6 +150,15 @@ export default class UploadSourceFormView extends View {
     escapeHtml(input: string): string {
         return new Option(input).innerHTML;
     }
+
+    setOptions(): void {
+        const sourceOntology = ldChannel.request('source-ontology:promise').then(
+            results => console.log(results)
+        )
+        setTimeout(() => console.log(sourceOntology), 0);
+    }
+
+
 }
 extend(UploadSourceFormView.prototype, {
     tagName: 'form',

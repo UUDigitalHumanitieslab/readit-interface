@@ -536,6 +536,10 @@ export const nlpOntologyPrefix = READIT + 'nlp-ontology#'
 
 export const nlp = Vocabulary(nlpOntologyPrefix, ontologyNotHardcoded);
 
+export const sourceOntologyPrefix = READIT + 'source-ontology#';
+
+export const sourceOntology = Vocabulary(sourceOntologyPrefix, ontologyNotHardcoded);
+
 /**
  * READ-IT items
  * (not a vocabulary at all, but associated with a prefix nonetheless)
