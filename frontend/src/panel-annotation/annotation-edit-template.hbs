@@ -5,10 +5,6 @@
             <a class="is-link" href="http://dhstatic.hum.uu.nl/readit/AnnotationGuide.pdf" target="_blank">the
                 Annotation Guide</a>)
         </p>
-        <label class="checkbox">
-            <input type="checkbox" class="verification-checkbox" {{#if needsVerification}} checked {{/if}}>
-            Needs verification
-        </label>
     </header>
 </div>
 <form class="anno-edit-form panel-form">
@@ -17,52 +13,64 @@
             {{! Snippet inserted here }}
         </div>
 
-        <fieldset>
+        <fieldset class="field">
             <div class="field">
-                <label class="label"></label>
+                <label for="category-{{cid}}" class="label">Category</label>
                 <div class="control ontology-class-picker-container">
                     {{! Ontology class picker is inserted here }}
                 </div>
                 {{! Fake input to utilize jquery validation on Bulma dropdown}}
                 <input class="hidden-input" type="text" id="{{cid}}-contology" required>
+                <p class="help is-danger class-unset is-hidden">Choose a category before saving.</p>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <label class="checkbox">
+                        <input type="checkbox" class="verification-checkbox" {{#if needsVerification}} checked{{/if}}>
+                        Needs verification
+                    </label>
+                </div>
             </div>
         </fieldset>
 
-        <fieldset class="item-picker-container is-hidden">
+        <fieldset class="item-picker-container is-hidden field">
             <div class="field">
                 <label class="label">Which one?</label>
-                <div class="control">
-                    {{! Item picker will be inserted here }}
-                </div>
-            </div>
-
-            <div class="field">
-                <label class="label" for="{{cid}}-new-item">
-                    Doesn&rsquo;t exist yet?
-                </label>
-                <div class="control">
-                    <button type=button class="button" id="{{cid}}-new-item">
-                        Create new
-                    </button>
+                <div class="field has-addons">
+                    <div class="control">
+                        {{! Item picker will be inserted here }}
+                    </div>
+                    <div class="control">
+                        <button type=button class="button create-item-button is-primary" id="{{cid}}-create-item">
+                            Create new
+                        </button>
+                    </div>
                 </div>
             </div>
         </fieldset>
-
-        {{! Item editing form will be inserted here }}
-
-        {{! Code below first implentation of a button to add related items.
-        Commented out for version 0.1.0 (i.e. Utrecht 2019 presentation), but might be useful in the future }}
-        {{!-- <section class="item-sections">
-            <article class="item-section has-mt-10">
-                <div class="item-section-header">
-                    <p>Add Related item</p>
-                    <span class="btn-rel-item icon is-large has-text-primary tooltip is-tooltip-left"
-                        data-tooltip="Add related item">
-                        <i class="fas fa-arrow-circle-right"></i>
-                    </span>
+        <fieldset class="item-edit-container is-hidden">
+            <div class="field">
+                <label class="label">Edit properties</label>
+                <p class="help">
+                    {{#i18n 'xsd_available_types_before_link'}}See{{/i18n}}
+                    <a href="https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/#built-in-datatypes" target=_blank>
+                        {{#i18n 'xsd_available_types_link'}}
+                        the XML Schema recommendation
+                        {{/i18n}}
+                    </a>
+                    {{#i18n 'xsd_available_types_after_link'}}
+                    for an overview of the available types and their lexical representations.
+                    {{/i18n}}
+                </p>
+                <div class="item-multifield">
+                {{! Item multifield will be inserted here }}
                 </div>
-            </article>
-        </section> --}}
+                <p class="help is-danger label-unset is-hidden">Choose a preferred label before saving.</p>
+                </div>
+        </fieldset>
+
+        </div>
+
     </div>
     <div class="panel-footer">
         <nav class="level is-mobile">

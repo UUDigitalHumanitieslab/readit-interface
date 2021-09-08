@@ -12,7 +12,6 @@ import explorationRouter from '../global/exploration-router';
 import userFsm from '../global/user-fsm';
 import explorerView from '../global/explorer-view';
 import notFoundView from '../global/notfound-view';
-import semanticSearchView from '../global/semantic-search';
 
 history.once('route notfound', () => {
     menuView.render().$el.appendTo('#header');
@@ -57,7 +56,6 @@ menuView.on('feedback', () => feedbackView.render().$el.appendTo('body'));
 
 feedbackView.on('close', () => feedbackView.$el.detach());
 
-welcomeView.on('search:start', () => userFsm.handle('explore'));
+welcomeView.on('search:textual', () => userFsm.handle('explore'));
+welcomeView.on('search:semantic', () => userFsm.handle('explore'));
 welcomeView.on('suggestions:show', () => userFsm.handle('explore'));
-
-semanticSearchView.on('search', () => userFsm.handle('explore'));

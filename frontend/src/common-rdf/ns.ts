@@ -86,6 +86,7 @@ export const xsdTerms = [
     'anyURI',
     'base64Binary',
     'boolean',
+    'byte',
     'date',
     'dateTime',
     'dateTimeStamp',
@@ -94,15 +95,33 @@ export const xsdTerms = [
     'duration',
     'ENTITY',
     'float',
+    'gDay',
+    'gMonth',
+    'gMonthDay',
+    'gYear',
+    'gYearMonth',
     'hexBinary',
     'ID',
     'IDREF',
+    'int',
     'integer',
+    'language',
+    'long',
+    'negativeInteger',
     'nonNegativeInteger',
+    'nonPositiveInteger',
+    'normalizedString',
     'NOTATION',
+    'positiveInteger',
     'QName',
+    'short',
     'string',
     'time',
+    'token',
+    'unsignedByte',
+    'unsignedInt',
+    'unsignedLong',
+    'unsignedShort',
 ] as const;
 
 export const xsd = Vocabulary(xsdPrefix, xsdTerms);
@@ -239,6 +258,20 @@ export const frbrTerms = [
 ] as const;
 
 export const frbr = Vocabulary(frbrPrefix, frbrTerms);
+
+/**
+ * International Committee for Documentation, Conceptual Reference Model
+ * (CIDOC-CRM)
+ * http://www.cidoc-crm.org
+ * Used in the final ontology.
+ */
+
+const cidocPrefix = 'http://www.cidoc-crm.org/cidoc-crm/';
+
+const cidocTerms = [
+] as const;
+
+export const cidoc = Vocabulary(cidocPrefix, cidocTerms);
 
 /**
  * Web Annotation Vocabulary
@@ -568,3 +601,22 @@ export const source = Vocabulary(sourcePrefix, sourcesNotHardcoded);
  *  Probably not the best possible, but it will do for now.
  */
 export const UNKNOWN = 'https://www.wikidata.org/wiki/Q24238356'
+
+export const nsMap = {
+    rdf: rdfPrefix,
+    rdfs: rdfsPrefix,
+    xsd: xsdPrefix,
+    owl: owlPrefix,
+    skos: skosPrefix,
+    frbr: frbrPrefix,
+    cidoc: cidocPrefix,
+    oa: oaPrefix,
+    as: asPrefix,
+    dc: dcPrefix,
+    dcterms: dctermsPrefix,
+    dctypes: dctypesPrefix,
+    foaf: foafPrefix,
+    schema: schemaPrefix,
+    iso6391: iso6391Prefix,
+    readit: readitPrefix,
+};

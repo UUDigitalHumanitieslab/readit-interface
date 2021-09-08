@@ -32,6 +32,7 @@ import {
     isOntologyClass,
 } from '../utilities/linked-data-utilities';
 import { itemsForSourceQuery } from '../sparql/compile-query';
+import SemanticQuery from '../semantic-search/model';
 import modelToQuery from '../semantic-search/modelToQuery';
 
 interface ExplorerEventController extends Events { }
@@ -87,12 +88,16 @@ class ExplorerEventController {
         this.explorerView.reset(sourceListPanel);
     }
 
-    resetSemanticSearch(model: Model): SearchResultListView {
-        const query = modelToQuery(model);
+    resetSemanticSearch(model: SemanticQuery): SearchResultListView {
         const items = new ItemGraph();
-        items.sparqlQuery(query);
+        model.when(
+            'query',
+            (model, query) => items.sparqlQuery(modelToQuery(query))
+        );
+        if (model.isNew()) model.save();
         const collection = new FlatItemCollection(items);
         const resultsView = new SearchResultListView({
+            model,
             collection,
             selectable: false,
         });
@@ -189,7 +194,7 @@ class ExplorerEventController {
         // If the collection isn't complete yet, `openSourceAnnotation` will
         // probably re-focus, causing `annotationPanel` to be replaced. In that
         // case, we need to overlay again.
-        if (!collection.get(model)) {
+        if (collection && !collection.get(model)) {
             this.once('reopen-edit-annotation', this.editAnnotation);
         }
         return annoEditView;
@@ -326,28 +331,9 @@ export function getItems(source: Node): ItemGraph {
     let offsetMultiplier = 0;
     const limit = 10000;
 
-    const runQueries = (): any => {
-        let queryString = itemsForSourceQuery(asURI(source),
-            { limit: limit, offset: offsetMultiplier * limit }
-        );
-        return queryInBatches(sparqlItems, queryString).then(result => {
-            if (result) {
-                offsetMultiplier = offsetMultiplier + 1;
-                return runQueries();
-            }
-        });
-    }
-    runQueries();
+    let queryString = itemsForSourceQuery(asURI(source), {});
+    sparqlItems.sparqlQuery(queryString);
     return sparqlItems;
-}
-
-function queryInBatches(items, queryString): JQuery.jqXHR {
-    return items.sparqlQuery(queryString).then((items, error) => {
-        if (error) {
-            console.trace(error);
-        }
-        else return items.length;
-    });
 }
 
 /**

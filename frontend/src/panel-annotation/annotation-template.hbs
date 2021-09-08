@@ -79,7 +79,6 @@
     {{/if}}
 
 </div>
-{{#if annotationSerial }}
 <div class="panel-footer">
     <nav class="level is-mobile">
         <div class="level-left">
@@ -87,11 +86,12 @@
                 <button type=button class="button btn-edit">Edit</button>
             </div>
         </div>
+        {{#if annotationSerial }}
         <div class="level-right">
             <div class="level-item">
                 <button id="btnNewAnnotation" type=button class="button btn-new">New</button>
             </div>
         </div>
+        {{/if}}
     </nav>
 </div>
-{{/if}}

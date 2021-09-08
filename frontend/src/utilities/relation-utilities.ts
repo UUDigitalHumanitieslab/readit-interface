@@ -1,4 +1,4 @@
-import { forEach, some, keys, ListIterator, isString } from 'lodash';
+import { forEach, some, compact, keys, ListIterator, isString } from 'lodash';
 
 import Collection from '../core/collection';
 import ldChannel from '../common-rdf/radio';
@@ -85,11 +85,12 @@ export function relationsFromModel(model: Node, predicates: Graph) {
     });
     // Next, inverse relations sourced from other Nodes
     const inverseMap: {[id: string]: Node} = {};
-    const inversePredicates = new Graph(predicates.map(direct => {
+    const inversePredicates = new Graph(compact(predicates.map(direct => {
         const inverse = getInverse(direct, ontology);
+        if (!inverse) return;
         inverseMap[inverse.id] = direct;
         return inverse;
-    }));
+    })));
     inverseRelated.ready(() => {
         inverseRelated.forEach(node => {
             const attributes = keys(node.attributes);
