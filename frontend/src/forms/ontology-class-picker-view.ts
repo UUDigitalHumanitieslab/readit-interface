@@ -5,6 +5,7 @@ import Node from '../common-rdf/node';
 import { skos } from '../common-rdf/ns';
 import { CollectionView } from '../core/view';
 import LabelView from '../label/label-view';
+import attachTooltip from '../tooltip/tooltip-view';
 import OntologyClassPickerChildrenView from './ontology-class-picker-children-view';
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 import ontologyClassPickerTemplate from './ontology-class-picker-template';
@@ -29,10 +30,12 @@ export default class OntologyClassPickerView extends CollectionView<
     }
 
     makeItem(model: FlatItem): OntologyClassPickerItemView {
-        return new OntologyClassPickerItemView({ model }).on({
+        const item = new OntologyClassPickerItemView({ model }).on({
             click: this.onItemClicked,
             hover: this.isNonLeaf(model) ? this.onSuperclassHovered : undefined,
         }, this);
+        attachTooltip(item, { model, direction: 'left' });
+        return item;
     }
 
     isLeaf(node: FlatItem) {

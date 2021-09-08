@@ -3,6 +3,7 @@ import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatItemCollection from '../common-adapters/flat-item-collection';
 import FlatItem from '../common-adapters/flat-item-model';
 import { CollectionView } from '../core/view';
+import attachTooltip from '../tooltip/tooltip-view';
 import { animatedScroll, getScrollTop } from '../utilities/scrolling-utilities';
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 
@@ -22,9 +23,11 @@ export default class OntologyClassPickerChildrenView extends CollectionView<
     }
 
     makeItem(model: FlatItem): OntologyClassPickerItemView {
-        return new OntologyClassPickerItemView({ model }).on({
+        const item = new OntologyClassPickerItemView({ model }).on({
             click: this.onItemClicked,
         }, this);
+        attachTooltip(item, { model });
+        return item;
     }
 
     remove(): this {
