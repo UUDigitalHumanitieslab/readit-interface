@@ -21,7 +21,6 @@ function ensurePromise(): PromiseLike<Graph> {
  * promise in order to save a few ticks.
  */
 function handleSuccess(): Graph {
-    console.log('succcess')
     promise = Promise.resolve(sourceOntology);
     return sourceOntology;
 }

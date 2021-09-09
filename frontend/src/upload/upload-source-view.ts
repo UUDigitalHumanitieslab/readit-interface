@@ -1,15 +1,27 @@
 import { extend } from 'lodash';
-import View from '../core/view';
-import Node from '../common-rdf/node';
-import ldChannel from '../common-rdf/radio';
-
-import uploadSourceTemplate from './upload-source-template';
+import FilteredCollection from '../common-adapters/filtered-collection';
+import FlatItemCollection from '../common-adapters/flat-item-collection';
+import FlatItem from '../common-adapters/flat-item-model';
 import Graph from '../common-rdf/graph';
+import Node from '../common-rdf/node';
+import { rdfs, sourceOntology as sourceNS } from '../common-rdf/ns';
+import ldChannel from '../common-rdf/radio';
+import View from '../core/view';
+import Select2Picker from '../forms/select2-picker-view';
+import uploadSourceTemplate from './upload-source-template';
+
 
 export default class UploadSourceFormView extends View {
     isSuccess: boolean;
     hasError: boolean;
     sourceText: string;
+
+    flatOntology: FlatItemCollection;
+
+    sourceTypePicker: Select2Picker;
+
+    sourceTypes: Graph;
+    ontologyGraph: Graph;
 
     /**
      * Class to add to invalid inputs. Note that this is not
@@ -22,7 +34,7 @@ export default class UploadSourceFormView extends View {
     initialize(): this {
         let self = this;
 
-        this.setOptions();
+        this.getOntology();
 
         this.$el.validate({
             errorClass: "help is-danger",
@@ -72,7 +84,7 @@ export default class UploadSourceFormView extends View {
         input.on('change', () => {
             let files = (input.get(0) as HTMLInputElement).files;
             if (files.length === 0) {
-                name.text('No file selected');            
+                name.text('No file selected');
             } else {
                 name.text(files[0].name);
                 label.text('Change file...');
@@ -151,11 +163,21 @@ export default class UploadSourceFormView extends View {
         return new Option(input).innerHTML;
     }
 
+    isTextForm(node) {
+        return node.has(rdfs.subClassOf) &&
+            node.get(rdfs.subClassOf)[0].id == sourceNS('TFO_TextForm');
+    }
+
+    async getOntology() {
+        this.ontologyGraph = await ldChannel.request('source-ontology:promise');
+        this.flatOntology = new FlatItemCollection(this.ontologyGraph);
+        this.setOptions();
+    }
+
     setOptions(): void {
-        const sourceOntology = ldChannel.request('source-ontology:promise').then(
-            results => console.log(results)
-        )
-        setTimeout(() => console.log(sourceOntology), 0);
+        this.sourceTypes = new Graph(this.ontologyGraph.models.filter(this.isTextForm));
+        this.sourceTypePicker = new Select2Picker({ collection: this.sourceTypes });
+        this.$('#sourceTypeSelect').append(this.sourceTypePicker.$el);
     }
 
 
