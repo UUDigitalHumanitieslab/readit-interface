@@ -1,9 +1,26 @@
 PREFIX dcterms: <http://purl.org/dc/terms/>
-CONSTRUCT {
-    ?node ?p ?o
-    }
-FROM <{{sourceGraph}}>
+PREFIX oa: <http://www.w3.org/ns/oa#>
+CONSTRUCT {?node ?p ?o}
 WHERE {
     ?node ?p ?o.
-    ?node dcterms:creator <{{userURI}}>;
+    {{#if userURI}}
+    ?node dcterms:creator <{{userURI}}>.
+    {{/if}}
+    MINUS {
+      ?node a oa:SpecificResource.
     }
+  	MINUS {
+      ?node a oa:Annotation.
+    }
+  	MINUS {
+      ?node a oa:TextQuoteSelector.
+    }
+    MINUS {
+      ?node a oa:TextPositionSelector.
+    }
+}
+ORDER BY desc(?node)
+{{#if offset}}
+OFFSET {{offset}}
+{{/if}}
+LIMIT 50

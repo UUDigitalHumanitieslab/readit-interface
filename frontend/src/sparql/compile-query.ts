@@ -21,14 +21,14 @@ export interface SPARQLQueryOptions {
 }
 
 export function itemsForSourceQuery(source: string, { ...options }: SPARQLQueryOptions) {
-    let data = { sourceURI: source };
+    let data = { sourceURI: source, from: 'source' };
     const hasAllViewPerm = user.hasPermission('view_all_annotations');
     if (!hasAllViewPerm) data['userURI'] = ldChannel.request('current-user-uri');
     const finalData = { ...data, ...options };
     return itemsTemplate(finalData).replace(/ {2,}/g, ' '); // strip double spaces
 }
 
-export function nodesByUserQuery(user: string, sourceGraph: string, { ...options }: SPARQLQueryOptions) {
-    const data = { userURI: user, sourceGraph: sourceGraph, ...options };
+export function nodesByUserQuery(user: string, { ...options }: SPARQLQueryOptions) {
+    const data = { userURI: user, ...options };
     return nodesByUserTemplate(data).replace(/ {2,}/g, ' ');
 }

@@ -33,8 +33,8 @@ mainRouter.on('route:home', () => mainRouter.navigate('search', {
 }));
 mainRouter.on('route:search', () => userFsm.handle('search'));
 mainRouter.on('route:upload', () => userFsm.handle('upload'));
-mainRouter.on('route:explore', () => userFsm.handle('explore'));
-mainRouter.on('route:workspace', () => userFsm.handle('explore'));
+mainRouter.on('route:browse:sources', () => userFsm.handle('explore'));
+mainRouter.on('route:browse:items', () => userFsm.handle('explore'));
 mainRouter.on('route:leave', () => userFsm.handle('leave'));
 
 explorationRouter.on('route', () => userFsm.handle('explore'));

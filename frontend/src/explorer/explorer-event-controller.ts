@@ -25,7 +25,7 @@ import FlatAnnoCollection from '../common-adapters/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 import { createPlaceholderAnnotation } from '../utilities/annotation-creation-utilities';
 import { oa } from '../common-rdf/ns';
-import SearchResultListView from '../panel-search-results/search-result-list-view';
+import SearchResultListPanel from '../panel-search-results/search-result-list-panel';
 import SourceListPanel from '../panel-source-list/source-list-panel';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import {
@@ -34,7 +34,6 @@ import {
 import { itemsForSourceQuery } from '../sparql/compile-query';
 import SemanticQuery from '../semantic-search/model';
 import modelToQuery from '../semantic-search/modelToQuery';
-import WorkspaceView from '../panel-workspace/workspace-view';
 
 interface ExplorerEventController extends Events { }
 class ExplorerEventController {
@@ -89,15 +88,15 @@ class ExplorerEventController {
         this.explorerView.reset(sourceListPanel);
     }
 
-    resetSemanticSearch(model: SemanticQuery): SearchResultListView {
+    resetSemanticSearch(model: SemanticQuery): SearchResultListPanel {
         const items = new ItemGraph();
         model.when(
             'query',
-            (model, query) => items.sparqlQuery(modelToQuery(query))
+            (model, query) => items.sparqlQuery(modelToQuery(query), 'item/query')
         );
         if (model.isNew()) model.save();
         const collection = new FlatItemCollection(items);
-        const resultsView = new SearchResultListView({
+        const resultsView = new SearchResultListPanel({
             model,
             collection,
             selectable: false,
@@ -112,7 +111,7 @@ class ExplorerEventController {
     }
 
     openSearchResult(
-        searchResults: SearchResultListView,
+        searchResults: SearchResultListPanel,
         result: FlatItem
     ) {
         const annotation = result.get('annotation') as Node;
@@ -174,7 +173,7 @@ class ExplorerEventController {
         }).catch(console.error);
         const flatItems = new FlatItemCollection(items);
         const filteredItems = new FilteredCollection(flatItems, 'annotation');
-        const resultView = new SearchResultListView({
+        const resultView = new SearchResultListPanel({
             model: item,
             collection: filteredItems,
             selectable: false,
@@ -226,12 +225,12 @@ class ExplorerEventController {
         // this.autoOpenRelationEditor(annotation.get('annotation'));
     }
 
-    showAnnotationsOfCategory(view: SuggestionsView, category: FlatItem): SearchResultListView {
+    showAnnotationsOfCategory(view: SuggestionsView, category: FlatItem): SearchResultListPanel {
         let items = new ItemGraph();
         const url = '/item/' + category.id.split("#")[1];
         items.fetch({ url: url });
         let flatItems = new FlatItemCollection(items);
-        const resultView = new SearchResultListView({
+        const resultView = new SearchResultListPanel({
             model: category,
             collection: flatItems,
             selectable: false,
@@ -330,7 +329,7 @@ export default ExplorerEventController;
 export function getItems(source: Node): ItemGraph {
     const sparqlItems = new ItemGraph();
     let queryString = itemsForSourceQuery(asURI(source), {});
-    sparqlItems.sparqlQuery(queryString);
+    sparqlItems.sparqlQuery(queryString, 'item/query');
     return sparqlItems;
 }
 

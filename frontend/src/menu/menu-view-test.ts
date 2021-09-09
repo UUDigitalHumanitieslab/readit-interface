@@ -9,6 +9,6 @@ describe('MenuView', function() {
         this.view = new MenuView({model: new User()});
     });
     it('renders contains button to explore', function() {
-        expect(this.view.render().$el.html()).toContain('Explore');
+        expect(this.view.render().$el.html()).toContain('Browse');
     });
 });

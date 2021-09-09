@@ -11,6 +11,7 @@ import mainRouter from '../global/main-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
 import welcomeView from '../global/welcome-view';
+import BrowseItemsView from '../panel-browse/browse-items-view';
 
 const browserHistory = window.history;
 let suggestionsPanel: SuggestionsPanel;
@@ -23,6 +24,12 @@ let workspacePanel: WorkspacePanel;
 function resetWorkspacePanel() {
     workspacePanel = new WorkspacePanel();
     explorer.reset(workspacePanel);
+}
+
+let browsePanel: BrowseItemsView;
+function resetBrowsePanel() {
+    browsePanel = new BrowseItemsView();
+    explorer.reset(browsePanel);
 }
 
 
@@ -50,12 +57,12 @@ function annoRoute(resetAction) {
     );
 }
 
-mainRouter.on('route:explore', () => {
+mainRouter.on('route:browse:sources', () => {
     explorer.scrollOrAction(suggestionsPanel && suggestionsPanel.cid, resetSuggestionsPanel);
 });
 
-mainRouter.on('route:workspace', () => {
-    explorer.scrollOrAction(workspacePanel && workspacePanel.cid, resetWorkspacePanel);
+mainRouter.on('route:browse:items', () => {
+    explorer.scrollOrAction(browsePanel && browsePanel.cid, resetBrowsePanel);
 });
 
 router.on({

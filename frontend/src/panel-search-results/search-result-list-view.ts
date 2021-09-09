@@ -2,11 +2,10 @@ import { extend, invokeMap } from 'lodash';
 
 import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
 import FlatItem from '../common-adapters/flat-item-model';
-import explorerChannel from '../explorer/explorer-radio';
+
 import { announceRoute } from '../explorer/utilities';
 import SemanticQuery from '../semantic-search/model';
 
-import searchResultListTemplate from './search-result-list-template';
 import SearchResultView from './search-result-base-view';
 
 const announceAnno = announceRoute('item:annotations', ['model', 'id']);
@@ -56,11 +55,6 @@ class SearchResultListView extends CollectionView<FlatItem, SearchResultView> {
         }).render();
     }
 
-    renderContainer(): this {
-        this.$el.html(this.template(this));
-        return this;
-    }
-
     placeItems(): this {
         super.placeItems();
         if (this.attached) invokeMap(this.items, 'activate');
@@ -72,18 +66,17 @@ class SearchResultListView extends CollectionView<FlatItem, SearchResultView> {
         return this.render();
     }
 
+
     onFocus(model: FlatItem): void {
-        explorerChannel.trigger('searchResultList:itemClicked', this, model);
+        this.trigger('focus', model);
     }
 
     onBlur(model: FlatItem, next?: FlatItem): void {
-        next || explorerChannel.trigger('searchResultList:itemClosed', this);
+        next || this.trigger('blur', model);
     }
 }
 
 extend(SearchResultListView.prototype, {
     tagName: 'div',
-    className: 'search-result-list explorer-panel',
-    template: searchResultListTemplate,
-    container: '.results-container',
+    className: 'result-list'
 });

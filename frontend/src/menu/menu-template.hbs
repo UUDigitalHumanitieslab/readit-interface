@@ -16,14 +16,24 @@
                 <a class="navbar-item" href="search">
                     Search
                 </a>
-                <a class="navbar-item" href="explore">
-                    Explore
-                </a>
                 {{#if uploadSources}}
                 <a class="navbar-item" href="upload">
                     Upload
                 </a>
                 {{/if}}
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        Browse
+                    </a>
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" id="source-list" href="browse/sources">
+                            Sources
+                        </a>
+                        <a class="navbar-item" id="item-list" href="browse/items">
+                            Items
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="navbar-end">
                 {{#if username}}
@@ -32,9 +42,6 @@
                         {{#i18n 'greeting'}}Hello, {{username}}!{{/i18n}}
                     </a>
                     <div class="navbar-dropdown">
-                        <a class="navbar-item" id="workspace" href="workspace">
-                            Workspace
-                        </a>
                         <a class="navbar-item" id="feedback">
                             Feedback
                         </a>

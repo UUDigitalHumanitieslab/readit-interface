@@ -1,8 +1,7 @@
 import { extend } from 'lodash';
 
 import { item } from '../common-rdf/ns';
-import { FlatLdDocument } from '../common-rdf/json';
-import Node, { isNode } from '../common-rdf/node';
+import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import { asURI } from '../utilities/linked-data-utilities';
 
@@ -103,8 +102,8 @@ export default class ItemGraph extends Graph {
         return this.promise = this.fetch({data});
     }
 
-    sparqlQuery(query: string): JQuery.jqXHR {
-        return this.promise = this.fetch({ url: sparqlItemsEndpoint, data: $.param({ query: query }), remove: false });
+    sparqlQuery(query: string, fromGraph: string): JQuery.jqXHR {
+        return this.promise = this.fetch({ url: sparqlRoot + 'item/query', data: $.param({ query: query }), remove: false });
     }
 
     /**
