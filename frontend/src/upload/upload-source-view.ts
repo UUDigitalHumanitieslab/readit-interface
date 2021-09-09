@@ -6,17 +6,15 @@ import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
 import { rdfs, sourceOntology as sourceNS } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
-import View from '../core/view';
+import { CompositeView } from '../core/view';
 import Select2Picker from '../forms/select2-picker-view';
 import uploadSourceTemplate from './upload-source-template';
 
 
-export default class UploadSourceFormView extends View {
+export default class UploadSourceFormView extends CompositeView {
     isSuccess: boolean;
     hasError: boolean;
     sourceText: string;
-
-    flatOntology: FlatItemCollection;
 
     sourceTypePicker: Select2Picker;
 
@@ -33,7 +31,6 @@ export default class UploadSourceFormView extends View {
 
     initialize(): this {
         let self = this;
-
         this.getOntology();
 
         this.$el.validate({
@@ -72,7 +69,7 @@ export default class UploadSourceFormView extends View {
         return this;
     }
 
-    render(): this {
+    renderContainer(): this {
         this.$el.html(this.template(this));
         this.hideFeedback();
         let input = this.$('.file-input');
@@ -168,16 +165,15 @@ export default class UploadSourceFormView extends View {
             node.get(rdfs.subClassOf)[0].id == sourceNS('TFO_TextForm');
     }
 
-    async getOntology() {
-        this.ontologyGraph = await ldChannel.request('source-ontology:promise');
-        this.flatOntology = new FlatItemCollection(this.ontologyGraph);
+    getOntology() {
+        this.ontologyGraph = ldChannel.request('source-ontology:graph');
         this.setOptions();
     }
 
     setOptions(): void {
-        this.sourceTypes = new Graph(this.ontologyGraph.models.filter(this.isTextForm));
-        this.sourceTypePicker = new Select2Picker({ collection: this.sourceTypes });
-        this.$('#sourceTypeSelect').append(this.sourceTypePicker.$el);
+        const sourceTypes = new FilteredCollection<Node>(this.ontologyGraph, this.isTextForm) as unknown as Graph;
+        this.sourceTypePicker = new Select2Picker({ collection: sourceTypes });
+        this.$('#sourceTypeSelect select').attr({ 'name': 'type' });
     }
 
 
@@ -186,6 +182,7 @@ extend(UploadSourceFormView.prototype, {
     tagName: 'form',
     className: 'section upload-source-form page',
     template: uploadSourceTemplate,
+    subviews: [{ view: 'sourceTypePicker', selector: '#sourceTypeSelect' }],
     events: {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
