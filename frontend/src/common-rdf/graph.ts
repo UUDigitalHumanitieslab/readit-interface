@@ -32,7 +32,7 @@ import {
 import Node from './node';
 import sync from './sync';
 
-export default class Graph extends Collection<Node> {
+export default class Graph<T extends Node = Node> extends Collection<T> {
     /**
      * Information outside of the @graph, such as the global context.
      */

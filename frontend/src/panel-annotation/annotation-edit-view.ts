@@ -213,7 +213,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         this.mirrorClassInput(cls);
         this.itemOptions.query({
             predicate: rdf.type,
-            object: cls.id,
+            object: cls.id as string,
         });
         this.removeEditor();
         this.$('.item-picker-container').removeClass('is-hidden');

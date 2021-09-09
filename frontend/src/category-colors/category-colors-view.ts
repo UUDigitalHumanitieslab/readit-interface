@@ -25,7 +25,7 @@ export default class CategoryColorsView extends View {
         this.render().listenTo(this.collection, 'update reset', this.render);
     }
 
-    render(): View {
+    render(): this {
         this.$el.html(this.template({ categoryColors: this.collectColors() }));
         return this;
     }

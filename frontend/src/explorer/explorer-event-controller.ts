@@ -227,7 +227,7 @@ class ExplorerEventController {
 
     showAnnotationsOfCategory(view: SuggestionsView, category: FlatItem): SearchResultListView {
         let items = new ItemGraph();
-        const url = '/item/' + category.id.split("#")[1];
+        const url = '/item/' + (category.id as string).split("#")[1];
         items.fetch({ url: url });
         let flatItems = new FlatItemCollection(items);
         const resultView = new SearchResultListView({
@@ -253,7 +253,7 @@ class ExplorerEventController {
 
     closeEditAnnotation(editView: AnnoEditView): void {
         const id = editView.model.id;
-        if (id && !id.startsWith('_:')) {
+        if (id && !(id as string).startsWith('_:')) {
             this.explorerView.removeOverlay(editView);
         }
         else {
