@@ -1075,10 +1075,18 @@
   dependencies:
     "@types/backbone" "*"
 
-"@types/backbone@*", "@types/backbone@^1.4.0":
+"@types/backbone@*":
   version "1.4.11"
   resolved "https://registry.yarnpkg.com/@types/backbone/-/backbone-1.4.11.tgz#ec3b5296d865b662e806b5220305ed528a6ff45e"
   integrity sha512-fBQbiU0BkMb+w6VIC/6wmYglFl7RSViB2LqK10wdIO40tYNw30G4m34FfLta6gpBGqSSCe8iVS77yLGO1kIkAg==
+  dependencies:
+    "@types/jquery" "*"
+    "@types/underscore" "*"
+
+"@types/backbone@^1.4.13":
+  version "1.4.13"
+  resolved "https://registry.yarnpkg.com/@types/backbone/-/backbone-1.4.13.tgz#1b7c1103ed9b593b39d51d8a5636e1b3a2d12d75"
+  integrity sha512-arounMgMfBIPogi/ga0HdJT9juu1lHFWBete3abTPKeA0eIVX7U09Vq0SKWviRf5GjPXvxtGeHoXhBKD4ce+zQ==
   dependencies:
     "@types/jquery" "*"
     "@types/underscore" "*"
