@@ -3,7 +3,7 @@ import {
     map,
     mapValues,
     filter,
-    forEach,
+    each,
     indexOf,
     groupBy,
     compact,
@@ -127,13 +127,18 @@ export default class Node extends Model {
             hash = key;
             options = value;
         }
-        let normalizedHash = mapValues(hash, asNativeArray);
-        forEach(normalizedHash, (additions: OptimizedNativeArray, predicate) => {
-            if (predicate === '@id') return;
-            let existing = super.get(predicate);
-            normalizedHash[predicate] = unionWith(existing, additions, isEqual);
-        });
-        return super.set(normalizedHash, options);
+        let normalized = mapValues(hash, asNativeArray);
+        // In general, we merge new triples with pre-existing triples for the
+        // same attribute/predicate. However, we skip this when handling a
+        // server response, as detected by the presence of `options.xhr`.
+        if (!options || !options.xhr) {
+            each(normalized, (additions: OptimizedNativeArray, predicate) => {
+                if (predicate === '@id') return;
+                let existing = super.get(predicate);
+                normalized[predicate] = unionWith(existing, additions, isEqual);
+            });
+        }
+        return super.set(normalized, options);
     }
 
     /**
@@ -230,7 +235,7 @@ export default class Node extends Model {
             return super.save(null, options);
         }
 
-        super.save(attributes, options);
+        return super.save(attributes, options);
     }
 }
 

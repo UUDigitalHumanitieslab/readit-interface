@@ -5,7 +5,7 @@ import { FlatLdObject } from '../common-rdf/json';
 import Node from '../common-rdf/node';
 import FlatItem from '../common-adapters/flat-item-model';
 
-import LabelView from './label-view';
+import { Tooltip } from './tooltip-view';
 
 function getDefaultItem(): FlatItem {
     return new FlatItem(new Node(getDefaultAttributes()));
@@ -23,11 +23,11 @@ function getDefaultAttributes(): FlatLdObject {
         ],
         [skos.definition]: [
             { '@value': 'This is a test definition'}
-        ],
-    };
+        ]
+    }
 }
 
-describe('LabelView', function () {
+describe('Tooltip', function () {
     beforeAll(enableI18n);
 
     beforeEach( async function() {
@@ -35,15 +35,9 @@ describe('LabelView', function () {
 
     });
 
-    it('can be constructed in isolation', async function () {
-        let view = new LabelView({ model: this.item });
+    it('includes the definition if it exists', async function () {
+        let view = new Tooltip({ model: this.item });
         await event(this.item, 'complete');
-        expect(view.el.className).toContain('is-readit-content');
-    });
-
-    it('excludes a tooltip if told so', async function () {
-        let view = new LabelView({ model: this.item, toolTipSetting: false });
-        await event(this.item, 'complete');
-        expect(view.el.className).toContain('is-readit-content');
+        expect(view.$el.data('tooltip')).toEqual('This is a test definition');
     });
 });

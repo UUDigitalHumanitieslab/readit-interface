@@ -194,7 +194,7 @@ class ExplorerEventController {
         // If the collection isn't complete yet, `openSourceAnnotation` will
         // probably re-focus, causing `annotationPanel` to be replaced. In that
         // case, we need to overlay again.
-        if (!collection.get(model)) {
+        if (collection && !collection.get(model)) {
             this.once('reopen-edit-annotation', this.editAnnotation);
         }
         return annoEditView;
