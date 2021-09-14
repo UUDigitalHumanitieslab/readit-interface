@@ -51,7 +51,7 @@ describe('TextSegmentModel', function() {
         expect(h1.get('length')).toBe(0);
 
         const h2 = new Segment({x: 'y'}, {
-            collection: this.annotations.models,
+            annotations: this.annotations.models,
         });
         expect(h2.annotations).toBeInstanceOf(Collection);
         expect(h2.annotations.length).toBe(length);
