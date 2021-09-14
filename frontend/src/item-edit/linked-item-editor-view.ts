@@ -43,7 +43,7 @@ const semiCompatibleTypes: [(v: any) => boolean, string[]][] = [
 ];
 
 function findType(range: Graph, value: any): string {
-    const available = range.map(n => n.id);
+    const available = range.map(n => (n.id as string));
     let singleType;
     if (range.length === 1) {
         singleType = available[0];
@@ -136,7 +136,7 @@ export default class LinkedItemEditor extends CompositeView {
     predicateFromModel(model: Model, selectedPredicate?: Node): this {
         selectedPredicate || (selectedPredicate = model.get('predicate'));
         if (!selectedPredicate) return this;
-        this.predicatePicker.val(selectedPredicate.id);
+        this.predicatePicker.val(selectedPredicate.id as string);
         return this;
     }
 
