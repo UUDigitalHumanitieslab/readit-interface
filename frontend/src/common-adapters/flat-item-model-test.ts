@@ -170,6 +170,7 @@ describe('FlatItem', function() {
         expect(flatAnno.get('item')).toBe(replacementItem);
         expect(flatAnno.get('cssClass')).toBe(expectedFlatAttributes.cssClass);
         expect(flatAnno.get('class')).toBe(ontologyClass);
+        expect(flatAnno.complete).toBe(true);
 
         const replacementClass = new Node(readerClass);
         items.annotation.unset(oa.hasBody, ontologyClass);
@@ -181,6 +182,7 @@ describe('FlatItem', function() {
         expect(flatAnno.get('item')).toBe(replacementItem);
         expect(flatAnno.get('cssClass')).toBe('is-readit-reader');
         expect(flatAnno.get('class')).toBe(replacementClass);
+        expect(flatAnno.complete).toBe(true);
     });
 
     it('cannot be tricked into completing multiple times', async function() {
