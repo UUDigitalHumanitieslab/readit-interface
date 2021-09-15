@@ -324,7 +324,7 @@ export default class FlatItem extends Model {
     }
 
     /**
-     * Invoked once when the `positionSelector` attributes changes.
+     * Invoked when the `positionSelector` attribute changes.
      */
     updatePosition(flat: this, selector: Node): void {
         this.rotateNode('positionSelector', [
@@ -337,7 +337,7 @@ export default class FlatItem extends Model {
     }
 
     /**
-     * Invoked once when the `quoteSelector` attribute changes.
+     * Invoked when the `quoteSelector` attribute changes.
      */
     updateText(flat: this, selector: Node): void {
         this.rotateNode('quoteSelector', [
