@@ -128,6 +128,7 @@ export default class FlatItem extends Model {
         this.on('change:positionSelector', this.updatePosition);
         this.on('change:quoteSelector', this.updateText);
         // Track changes in the top node.
+        this.on('change:creator', this.updateCreator);
         this.trackProperty(node, '@id', 'id');
         this.trackProperty(node, dcterms.creator, 'creator');
         this.trackProperty(node, dcterms.created, 'created');
@@ -347,5 +348,17 @@ export default class FlatItem extends Model {
             this.trackProperty(selector, oa.suffix, 'suffix');
             this.trackProperty(selector, oa.exact, 'text');
         }
+    }
+
+    /**
+     * Invoked every time the `creator` attribute changes.
+     */
+    updateCreator(flat: this, creator?: Node): void {
+        if (!creator) {
+            this.set('isOwn', false);
+            return;
+        }
+        const userURI = ldChannel.request('current-user-uri');
+        this.set('isOwn', creator.id === userURI);
     }
 }

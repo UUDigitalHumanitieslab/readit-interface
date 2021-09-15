@@ -1,6 +1,6 @@
 import {
     mapValues, invert, pick, assign, omit, each, delay,
-    map, partition, keys, random,
+    map, partition, keys, random, constant,
 } from 'lodash';
 import { Events } from 'backbone';
 
@@ -13,6 +13,7 @@ import {
 import mockItems from '../mock-data/mock-items';
 
 import { skos, dcterms, oa, readit, item } from '../common-rdf/ns';
+import ldChannel from '../common-rdf/radio';
 import { asNative } from '../common-rdf/conversion';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
@@ -45,6 +46,7 @@ const expectedFlatAttributes = {
     suffix: ' / by the countess of Blessington Auteur : Blessington,',
     creator: jasmine.any(Node),
     created: jasmine.any(Date),
+    isOwn: false,
 };
 
 export function createPlaceholder(attributes): Node {
@@ -212,6 +214,17 @@ describe('FlatItem', function() {
         expect(flatAnno.attributes).toEqual(omit(expectedFlatAttributes, 'suffix'));
     });
 
+    it('recognizes items created by the current user', async function() {
+        const items = getFullItems();
+        const ontologyClass = new Node(contentClass);
+        const userURI = (items.annotation.get(dcterms.creator)[0] as Node).id;
+        ldChannel.reply('current-user-uri', constant(userURI));
+        const flatAnno = new FlatItem(items.annotation);
+        await completion(flatAnno);
+        expect(flatAnno.get('isOwn')).toBe(true);
+        ldChannel.stopReplying('current-user-uri');
+    });
+
     it('can flatten a bare item', async function() {
         const ontologyClass = new Node(contentClass);
         const items = getFullItems();
@@ -227,7 +240,8 @@ describe('FlatItem', function() {
             'cssClass',
             'label',
             'creator',
-            'created'
+            'created',
+            'isOwn',
         )));
     });
 
@@ -243,7 +257,8 @@ describe('FlatItem', function() {
             'classLabel',
             'cssClass',
             'creator',
-            'created'
+            'created',
+            'isOwn',
         )));
     });
 
@@ -258,6 +273,7 @@ describe('FlatItem', function() {
             cssClass: 'is-readit-descriptionof',
             creator: expectedFlatAttributes.creator,
             created: expectedFlatAttributes.created,
+            isOwn: false,
         });
     });
 
@@ -306,7 +322,8 @@ describe('FlatItem', function() {
             'startPosition',
             'endPosition',
             'creator',
-            'created'
+            'created',
+            'isOwn',
         )));
     });
 });
