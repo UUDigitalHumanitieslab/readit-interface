@@ -49,6 +49,13 @@ const expectedFlatAttributes = {
     isOwn: false,
 };
 
+const expectedFilterClasses = [
+    expectedFlatAttributes.cssClass,
+    'rit-is-semantic',
+    'rit-verified',
+    'rit-other-made',
+];
+
 export function createPlaceholder(attributes): Node {
     return new Node(pick(attributes, '@id'));
 }
@@ -95,6 +102,16 @@ describe('FlatItem', function() {
         expect(spy).toHaveBeenCalledTimes(1);
     });
 
+    describe('getFilterClasses', function() {
+        it('produces an array of filterable CSS classes', async function() {
+            const items = getFullItems();
+            const ontologyClass = new Node(contentClass);
+            const flatAnno = new FlatItem(items.annotation);
+            await completion(flatAnno);
+            expect(flatAnno.getFilterClasses()).toEqual(expectedFilterClasses);
+        });
+    });
+
     it('completes without an item when no item is expected', async function() {
         const items = getFullItems();
         const ontologyClass = new Node(contentClass);
@@ -106,6 +123,7 @@ describe('FlatItem', function() {
         expect(flatAnno.attributes).toEqual(
             omit(expectedFlatAttributes, ['item', 'label'])
         );
+        expect(flatAnno.getFilterClasses()).toEqual(expectedFilterClasses);
     });
 
     it('flattens data that arrive with a delay', async function() {
@@ -121,6 +139,7 @@ describe('FlatItem', function() {
         await completion(flatAnno);
         expect(flatAnno.complete).toBe(true);
         expect(flatAnno.attributes).toEqual(expectedFlatAttributes);
+        expect(flatAnno.getFilterClasses()).toEqual(expectedFilterClasses);
     });
 
     describe('completes even in the face of fragmented resources', function() {
@@ -148,6 +167,8 @@ describe('FlatItem', function() {
                 graph.set(secondBatch as unknown as Node[]);
                 await completion(flatAnno);
                 expect(flatAnno.attributes).toEqual(expectedFlatAttributes);
+                expect(flatAnno.getFilterClasses())
+                    .toEqual(expectedFilterClasses);
             });
         }
     });
@@ -173,6 +194,7 @@ describe('FlatItem', function() {
         expect(flatAnno.get('cssClass')).toBe(expectedFlatAttributes.cssClass);
         expect(flatAnno.get('class')).toBe(ontologyClass);
         expect(flatAnno.complete).toBe(true);
+        expect(flatAnno.getFilterClasses()).toEqual(expectedFilterClasses);
 
         const replacementClass = new Node(readerClass);
         items.annotation.unset(oa.hasBody, ontologyClass);
@@ -185,6 +207,9 @@ describe('FlatItem', function() {
         expect(flatAnno.get('cssClass')).toBe('is-readit-reader');
         expect(flatAnno.get('class')).toBe(replacementClass);
         expect(flatAnno.complete).toBe(true);
+        const filterClasses = flatAnno.getFilterClasses();
+        expect(filterClasses).not.toContain(expectedFlatAttributes.cssClass);
+        expect(filterClasses).toContain('is-readit-reader');
     });
 
     it('cannot be tricked into completing multiple times', async function() {
@@ -212,6 +237,7 @@ describe('FlatItem', function() {
         const flatAnno = new FlatItem(items.annotation);
         await completion(flatAnno);
         expect(flatAnno.attributes).toEqual(omit(expectedFlatAttributes, 'suffix'));
+        expect(flatAnno.getFilterClasses()).toEqual(expectedFilterClasses);
     });
 
     it('recognizes items created by the current user', async function() {
@@ -222,6 +248,9 @@ describe('FlatItem', function() {
         const flatAnno = new FlatItem(items.annotation);
         await completion(flatAnno);
         expect(flatAnno.get('isOwn')).toBe(true);
+        const filterClasses = flatAnno.getFilterClasses();
+        expect(filterClasses).not.toContain('rit-other-made');
+        expect(filterClasses).toContain('rit-self-made');
         ldChannel.stopReplying('current-user-uri');
     });
 
@@ -233,6 +262,9 @@ describe('FlatItem', function() {
         const flatAnno = new FlatItem(items.annotation);
         await completion(flatAnno);
         expect(flatAnno.get('relatedClass')).toBe(relatedClass);
+        const filterClasses = flatAnno.getFilterClasses();
+        expect(filterClasses).toContain(expectedFlatAttributes.cssClass);
+        expect(filterClasses).toContain('is-readit-reader');
     });
 
     it('can flatten a bare item', async function() {

@@ -1,4 +1,4 @@
-import { noop, each, includes } from 'lodash';
+import { noop, each, includes, throttle } from 'lodash';
 
 import Model from '../core/model';
 import { skos, dcterms, oa, item, vocab } from '../common-rdf/ns';
@@ -133,6 +133,7 @@ export default class FlatItem extends Model {
         this.trackProperty(node, dcterms.creator, 'creator');
         this.trackProperty(node, dcterms.created, 'created');
         node.when('@type', this.receiveTopNode, this);
+        this.getFilterClasses = throttle(this.getFilterClasses);
     }
 
     /**
@@ -363,5 +364,36 @@ export default class FlatItem extends Model {
         }
         const userURI = ldChannel.request('current-user-uri');
         this.set('isOwn', creator.id === userURI);
+    }
+
+    /**
+     * Produce an array of CSS class names that match this annotation.
+     * This can be used in views for filtering annotations. This method is
+     * throttled per tick; after the first invocation, subsequent invocations
+     * within the same tick will use the memoized result from the first
+     * invocation instead of recomputing the array.
+     */
+    getFilterClasses(): string[] {
+        const classList = [];
+        if (!this.get('annotation')) return classList;
+        const cssClass = this.get('cssClass');
+        if (!cssClass) return classList;
+        classList.push(cssClass);
+        if (cssClass.startsWith('is-nlp')) {
+            classList.push('rit-is-nlp');
+            return classList;
+        }
+        classList.push('rit-is-semantic');
+        const needsVerification = this.get('needsVerification');
+        classList.push(`rit-${needsVerification ? 'un' : ''}verified`);
+        const isOwn = this.get('isOwn');
+        if (isOwn != null) {
+            classList.push(`rit-${isOwn ? 'self' : 'other'}-made`);
+        }
+        const relatedClass = this.get('relatedClass');
+        if (relatedClass) {
+            classList.push(getCssClassName(relatedClass));
+        }
+        return classList;
     }
 }
