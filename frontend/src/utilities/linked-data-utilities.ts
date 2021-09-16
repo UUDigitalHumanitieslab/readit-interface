@@ -49,6 +49,9 @@ export function getTurtleTerm(term: string | Node): string {
 // classes over and over. Exported so we can clear it in tests.
 export const cssClassCache = {};
 
+// These characters are removed in getCssClassName below.
+const normalizePattern = /[ \(\)\/]/g;
+
 /**
  * Create a css class name based on the node's label.
  * Returns null if no label is found.
@@ -61,11 +64,10 @@ export function getCssClassName(node: Node): string {
 
     let label = getLabel(node);
     if (label) {
-        label = label.replace(new RegExp(' ', 'g'), '').replace(new RegExp('[\(\)\/]', 'g'), '').toLowerCase();
+        label = label.replace(normalizePattern, '').toLowerCase();
         if (id && id.startsWith(nlp())) {
             return cssClassCache[id] = `is-nlp-${label}`;
-        }
-        else {
+        } else {
             return cssClassCache[id] = `is-readit-${label}`;
         }
     }
