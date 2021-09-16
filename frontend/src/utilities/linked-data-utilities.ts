@@ -45,22 +45,28 @@ export function getTurtleTerm(term: string | Node): string {
     return `<${uri}>`;
 }
 
+// We memoize CSS classes so we don't have to recompute class names for the same
+// classes over and over. Exported so we can clear it in tests.
+export const cssClassCache = {};
+
 /**
  * Create a css class name based on the node's label.
  * Returns null if no label is found.
  */
 export function getCssClassName(node: Node): string {
     if (!node) return undefined;
-    let label = getLabel(node);
+    const id = node.id;
+    const className = cssClassCache[id];
+    if (className) return className;
 
+    let label = getLabel(node);
     if (label) {
         label = label.replace(new RegExp(' ', 'g'), '').replace(new RegExp('[\(\)\/]', 'g'), '').toLowerCase();
-        const id = node.id;
         if (id && id.startsWith(nlp())) {
-            return `is-nlp-${label}`
+            return cssClassCache[id] = `is-nlp-${label}`;
         }
         else {
-            return `is-readit-${label}`;
+            return cssClassCache[id] = `is-readit-${label}`;
         }
     }
 
