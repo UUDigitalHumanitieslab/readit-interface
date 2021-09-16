@@ -1,7 +1,7 @@
 import { noop, each, includes } from 'lodash';
 
 import Model from '../core/model';
-import { dcterms, oa, item, vocab } from '../common-rdf/ns';
+import { skos, dcterms, oa, item, vocab } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import {
@@ -250,8 +250,11 @@ export default class FlatItem extends Model {
      * Invoked when the `class` attribute changes.
      */
     updateClass(flat: this, classBody: Node): void {
-        this.rotateNode('class', ['classLabel', 'cssClass'], classBody, F_CLASS);
+        this.rotateNode('class', [
+            'classLabel', 'cssClass', 'relatedClass',
+        ], classBody, F_CLASS);
         if (classBody) {
+            this.trackProperty(classBody, skos.related, 'relatedClass');
             this.listenTo(classBody, 'change', this.updateClassLabels);
             this.updateClassLabels(classBody);
         }

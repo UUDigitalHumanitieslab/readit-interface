@@ -225,6 +225,16 @@ describe('FlatItem', function() {
         ldChannel.stopReplying('current-user-uri');
     });
 
+    it('tracks the related class', async function() {
+        const items = getFullItems();
+        const ontologyClass = new Node(contentClass);
+        const relatedClass = new Node(readerClass);
+        ontologyClass.set(skos.related, relatedClass);
+        const flatAnno = new FlatItem(items.annotation);
+        await completion(flatAnno);
+        expect(flatAnno.get('relatedClass')).toBe(relatedClass);
+    });
+
     it('can flatten a bare item', async function() {
         const ontologyClass = new Node(contentClass);
         const items = getFullItems();
