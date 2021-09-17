@@ -11,6 +11,7 @@ from rest_framework.status import *
 from rest_framework.exceptions import ValidationError, NotFound, PermissionDenied
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
+from rest_framework.views import APIView
 
 from rdflib import Graph, URIRef, BNode, Literal
 from rdflib.query import ResultException
@@ -307,6 +308,16 @@ class ItemsOfCategory(RDFView):
                     break
                 [user_items.add(triple) for triple in items.triples((s, None, None))]
         return user_items
+
+
+@api_view()    
+def get_item_counter(self):
+    """ return the number of items in the triple store """
+    counter = ItemCounter.current
+    uri_parts = str(counter).split('/')
+    item_namespace = '/'.join(uri_parts[:-1]) + '/'
+    max_item = int(uri_parts[-1])
+    return Response({'max_count': max_item, 'item_namespace': item_namespace})
 
 
 class SemanticQueryViewSet(

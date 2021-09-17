@@ -2,8 +2,6 @@ import { partial, isString } from 'lodash';
 
 import explorerChannel from '../explorer/explorer-radio';
 import * as act from '../explorer/route-actions';
-import SuggestionsPanel from '../panel-suggestions/suggestions-view';
-import WorkspacePanel from '../panel-workspace/workspace-view';
 import semChannel from '../semantic-search/radio';
 import deparam from '../utilities/deparam';
 import router from '../global/exploration-router';
@@ -12,23 +10,17 @@ import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
 import welcomeView from '../global/welcome-view';
 import BrowseItemsView from '../panel-browse/browse-items-view';
+import BrowseSourcesView from '../panel-browse/browse-sources-view';
 
 const browserHistory = window.history;
-let suggestionsPanel: SuggestionsPanel;
-function resetSuggestionsPanel() {
-    suggestionsPanel = new SuggestionsPanel();
-    explorer.reset(suggestionsPanel);
-}
 
-let workspacePanel: WorkspacePanel;
-function resetWorkspacePanel() {
-    workspacePanel = new WorkspacePanel();
-    explorer.reset(workspacePanel);
-}
-
-let browsePanel: BrowseItemsView;
-function resetBrowsePanel() {
-    browsePanel = new BrowseItemsView();
+let browsePanel: BrowseItemsView | BrowseSourcesView;
+function resetBrowsePanel(queryType: string) {
+    switch(queryType) {
+        case 'items': browsePanel = new BrowseItemsView(); break;
+        case 'sources': browsePanel = new BrowseSourcesView(); break;
+    }
+    
     explorer.reset(browsePanel);
 }
 
@@ -58,11 +50,11 @@ function annoRoute(resetAction) {
 }
 
 mainRouter.on('route:browse:sources', () => {
-    explorer.scrollOrAction(suggestionsPanel && suggestionsPanel.cid, resetSuggestionsPanel);
+    explorer.scrollOrAction(browsePanel && browsePanel.cid, () => resetBrowsePanel('sources'));
 });
 
 mainRouter.on('route:browse:items', () => {
-    explorer.scrollOrAction(browsePanel && browsePanel.cid, resetBrowsePanel);
+    explorer.scrollOrAction(browsePanel && browsePanel.cid, () => resetBrowsePanel('items'));
 });
 
 router.on({

@@ -1,35 +1,58 @@
 import { extend } from 'lodash';
 
-import { CompositeView } from "../core/view";
-import { itemsForSourceQuery, nodesByUserQuery } from "../sparql/compile-query";
-import ldChannel from '../common-rdf/radio';
+import { baseUrl } from 'config.json';
 
+import { CompositeView } from "../core/view";
+import { itemsByUserQuery } from "../sparql/compile-query";
+import ldChannel from '../common-rdf/radio';
+import explorerChannel from '../explorer/explorer-radio';
+import {dcterms, oa} from '../common-rdf/ns'
+
+import FlatItem from '../common-adapters/flat-item-model';
 import ItemGraph from "../common-adapters/item-graph";
-import Graph from "../common-rdf/graph";
 import FlatItemCollection from "../common-adapters/flat-item-collection";
-import AnnotationListView from '../panel-annotation-list/annotation-list-view';
 import SearchResultListView from '../panel-search-results/search-result-list-view';
 
-import browseItemsTemplate from './browse-items-template';
+import browseTemplate from './browse-template';
+import { formatNamespaces } from '../utilities/sparql-utilities';
+import Model from '../core/model';
+
+const itemCounterUrl = baseUrl + 'item/current';
+const namespaces = {
+    'dcterms': dcterms(),
+    'oa': oa()
+};
+const retrieveCount = 50;
 
 export default class BrowseItemsView extends CompositeView {
     currentUser: string;
-    userAnnotationList: AnnotationListView;
     resultsList: SearchResultListView;
+    title = "Items";
+    counter: Model;
 
     async initialize() {
         this.currentUser = ldChannel.request('current-user-uri');
+        const random = true;
         const sparqlItems = new ItemGraph();
-        const query = nodesByUserQuery(this.currentUser, {});
-        await sparqlItems.sparqlQuery(query, 'item/query');
-        // this.userAnnotationList = new AnnotationListView({
-        //     model: query, 
-        //     collection: new FlatItemCollection(sparqlItems),
-        //     selectable: true });
+        let options = {namespaces: formatNamespaces(namespaces)};
+        if (random) {
+            this.counter = new Model();
+            await this.counter.fetch({ url: itemCounterUrl});
+            const filterMax = Math.floor(Math.random() * this.counter.get('max_count'));
+            options['filterMax'] = this.counter.get('item_namespace').concat(filterMax.toString());
+            const filterMin = this.counter.get('item_namespace').concat((filterMax - retrieveCount).toString());
+            options['filterMin'] = filterMin;
+        }
+        const query = itemsByUserQuery(this.currentUser, options);
+        const sourceGraph = 'item/query';
+        await sparqlItems.sparqlQuery(query, sourceGraph);
         this.resultsList = new SearchResultListView({
-            model: query,
             collection: new FlatItemCollection(sparqlItems),
             selectable: false }).render();
+        this.listenTo(this.resultsList, {
+            focus: this.onFocus,
+            blur: this.onBlur
+        });
         this.render();
     }
 
@@ -37,9 +60,17 @@ export default class BrowseItemsView extends CompositeView {
         this.$el.html(this.template(this));
         return this;
     }
+
+    onFocus(model: FlatItem): void {
+        explorerChannel.trigger('searchResultList:itemClicked', this, model);
+    }
+
+    onBlur(): void {
+        explorerChannel.trigger('searchResultList:itemClosed', this);
+    }
 }
 extend(BrowseItemsView.prototype, {
-    template: browseItemsTemplate,
+    template: browseTemplate,
     className: 'browse explorer-panel',
     subviews: [
         {
