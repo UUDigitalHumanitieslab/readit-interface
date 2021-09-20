@@ -1,0 +1,14 @@
+{{!-- {{>sparqlPreamble}} --}}
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX oa: <http://www.w3.org/ns/oa#>
+SELECT DISTINCT ?node
+WHERE {
+    ?node ?p ?o.
+    {{#if userURI}}
+    ?node dcterms:creator <{{userURI}}>.
+    {{/if}}
+    {{#if itemQuery}}
+    {{>restrictToItems}}
+    {{/if}}
+}
+ORDER BY desc(?node)

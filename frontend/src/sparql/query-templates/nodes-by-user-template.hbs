@@ -1,0 +1,11 @@
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX oa: <http://www.w3.org/ns/oa#>
+SELECT DISTINCT ?node
+WHERE {
+    ?node ?p ?o.
+    ?node dcterms:creator <{{userURI}}>.
+    {{#if itemQuery}}
+    {{>retrictToItems}}
+    {{/if}}
+}
+ORDER BY desc(?node)

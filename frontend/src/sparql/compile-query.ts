@@ -1,8 +1,11 @@
 import user from '../global/user';
 import ldChannel from '../common-rdf/radio';
 import itemsTemplate from './query-templates/items-for-source-template';
-import itemsByUserTemplate from './query-templates/items-by-user-template';
+import listNodesTemplate from './query-templates/list-nodes-template';
 import sourcesByUserTemplate from './query-templates/sources-by-user-template';
+import nodesByUserTemplate from './query-templates/nodes-by-user-template';
+import randomNodesTemplate from './query-templates/random-nodes-template';
+import Model from '../core/model';
 
 export interface OrderByOption {
     expression: string,
@@ -19,8 +22,6 @@ export interface SPARQLQueryOptions {
     limit?: number;
     offset?: number;
     orderBy?: OrderByOption[];
-    filterMax?: number;
-    filterMin?: number;
 }
 
 export function itemsForSourceQuery(source: string, { ...options }: SPARQLQueryOptions) {
@@ -31,9 +32,20 @@ export function itemsForSourceQuery(source: string, { ...options }: SPARQLQueryO
     return itemsTemplate(finalData).replace(/ {2,}/g, ' '); // strip double spaces
 }
 
-export function itemsByUserQuery(user: string, { ...options }: SPARQLQueryOptions) {
-    const data = { userURI: user, ...options };
-    return itemsByUserTemplate(data).replace(/ {2,}/g, ' ');
+export function listNodesQuery(itemQuery: boolean, { ...options }: SPARQLQueryOptions) {   
+    let data = { itemQuery: itemQuery, ...options }
+    return listNodesTemplate(data);
+}
+
+export function nodesByUserQuery(itemQuery: boolean, { ...options }: SPARQLQueryOptions) {  
+    const data = {userURI: ldChannel.request('current-user-uri')};
+    const finalData = { ...data, ...options };
+    return nodesByUserTemplate(finalData);
+}
+
+export function randomNodesQuery(randomNodes: Model[], lastNode: Model, { ...options }: SPARQLQueryOptions) {
+    const data = {randomNodes: randomNodes.map( model => model.get('value')), lastNode: lastNode.get('value'), ...options }
+    return randomNodesTemplate(data);
 }
 
 export function sourcesByUserQuery(user: string, { ... options }: SPARQLQueryOptions) {
