@@ -9,6 +9,5 @@ urlpatterns = format_suffix_patterns([
     path('download', ItemsAPIDownload.as_view()),
     path('<int:serial>', ItemsAPISingular.as_view()),
     path('suggestion', ItemSuggestion.as_view(), name='item_suggest'),
-    path('current', get_item_counter, name='item_counter'),
     path('<slug:category>', ItemsOfCategory.as_view()),
 ])

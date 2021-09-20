@@ -1,4 +1,4 @@
-import { partial, isString } from 'lodash';
+import { partial } from 'lodash';
 
 import explorerChannel from '../explorer/explorer-radio';
 import * as act from '../explorer/route-actions';
@@ -15,13 +15,11 @@ import BrowseSourcesView from '../panel-browse/browse-sources-view';
 const browserHistory = window.history;
 
 let browsePanel: BrowseItemsView | BrowseSourcesView;
-function resetBrowsePanel(queryType: string) {
-    switch(queryType) {
-        case 'items': browsePanel = new BrowseItemsView(); break;
-        case 'sources': browsePanel = new BrowseSourcesView(); break;
-    }
-    
-    explorer.reset(browsePanel);
+function resetBrowsePanel(queryMode: string, landing: boolean) {
+    browsePanel = new BrowseItemsView({
+        queryMode: queryMode, landing: landing
+    });
+    return explorer.reset(browsePanel);
 }
 
 
@@ -50,11 +48,11 @@ function annoRoute(resetAction) {
 }
 
 mainRouter.on('route:browse:sources', () => {
-    explorer.scrollOrAction(browsePanel && browsePanel.cid, () => resetBrowsePanel('sources'));
+    resetBrowsePanel('Sources', false);
 });
 
 mainRouter.on('route:browse:items', () => {
-    explorer.scrollOrAction(browsePanel && browsePanel.cid, () => resetBrowsePanel('items'));
+    resetBrowsePanel('Items', false);
 });
 
 router.on({

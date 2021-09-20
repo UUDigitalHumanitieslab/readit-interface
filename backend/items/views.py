@@ -310,16 +310,6 @@ class ItemsOfCategory(RDFView):
         return user_items
 
 
-@api_view()    
-def get_item_counter(self):
-    """ return the number of items in the triple store """
-    counter = ItemCounter.current
-    uri_parts = str(counter).split('/')
-    item_namespace = '/'.join(uri_parts[:-1]) + '/'
-    max_item = int(uri_parts[-1])
-    return Response({'max_count': max_item, 'item_namespace': item_namespace})
-
-
 class SemanticQueryViewSet(
     CreateModelMixin, ListModelMixin, RetrieveModelMixin,
     GenericViewSet,
