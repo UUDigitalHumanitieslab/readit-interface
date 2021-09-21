@@ -35,10 +35,11 @@ from sparql.utils import invalid_xml_remove
 from . import namespace as ns
 from .constants import SOURCES_NS
 from .graph import graph as sources_graph
-from .utils import get_media_filename, get_serial_from_subject
+from .utils import get_media_filename, get_serial_from_subject, parse_isodate
 from .models import SourcesCounter
 from .permissions import UploadSourcePermission, DeleteSourcePermission
 from .tasks import poll_automated_annotations
+from source_ontology import namespace as source_ontology
 
 es = Elasticsearch(
     hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
@@ -343,7 +344,7 @@ class AddSource(RDFResourceView):
         is_valid = True
         missing_fields = []
         required_fields = ['title', 'author',
-                           'source', 'language', 'type', 'pubdate']
+                           'source', 'language', 'type', 'publicationdate', 'public']
 
         for f in required_fields:
             if not data.get(f, False):
@@ -367,43 +368,40 @@ class AddSource(RDFResourceView):
         else:
             return UNKNOWN
 
-    def resolve_type(self, input_type):
-        known_types = {
-            'book': SCHEMA.Book,
-            'article': SCHEMA.Article,
-            'review': SCHEMA.Review,
-            'socialmediaposting': SCHEMA.SocialMediaPosting,
-            'webcontent': SCHEMA.WebContent
-        }
-        result = known_types.get(input_type)
-        if result:
-            return result
-        else:
-            return UNKNOWN
-
-    def parse_date(self, input_date):
-        dt = datetime.strptime(input_date, "%Y/%m/%d")
-        return dt.replace(tzinfo=timezone.utc)
+    def resolve_access(self, value):
+        if value == 'public':
+            return Literal('true', datatype=XSD.boolean)
+        return Literal('false', datatype=XSD.boolean)
 
     def get_required(self, new_subject, data):
         return [
-            (new_subject, RDF.type, vocab.Source),
-            (new_subject, RDF.type, URIRef(self.resolve_type(data['type']))),
-            (new_subject, SCHEMA.name, Literal(data['title'])),
-            (new_subject, SCHEMA.author, Literal(data['author'])),
-            (new_subject, SCHEMA.inLanguage, URIRef(
+            # when supporting other sources, add some logic here
+            (new_subject, RDF.type, source_ontology.PlainTextSource),
+            (new_subject, RDF.type, source_ontology.Source),
+            (new_subject, source_ontology.sourceType, URIRef(data['type'])),
+            (new_subject, source_ontology.encodingFormat, Literal('text/plain')),
+            (new_subject, source_ontology.title, Literal(data['title'])),
+            (new_subject, source_ontology.author, Literal(data['author'])),
+            (new_subject, source_ontology.language, URIRef(
                 self.resolve_language(data['language']))),
-            (new_subject, SCHEMA.datePublished, Literal(
-                self.parse_date(data['pubdate'])))
+            (new_subject, source_ontology.datePublished,
+             parse_isodate(data['publicationdate'])),
+            (new_subject, source_ontology.public,
+             self.resolve_access(data['public'])),
         ]
 
     def get_optional(self, new_subject, data):
         literals = {
-            'editor': SCHEMA.editor,
-            'publisher': SCHEMA.publisher,
+            'editor': source_ontology.editor,
+            'publisher': source_ontology.publisher,
+            'repository': source_ontology.repository
         }
         uris = {
-            'url': OWL.sameAs
+            'url': source_ontology.identifier
+        }
+        dates = {
+            'creationdate': source_ontology.dateCreated,
+            'retrievaldate': source_ontology.dateRetrieved
         }
 
         optionals = []
@@ -416,6 +414,11 @@ class AddSource(RDFResourceView):
             value = data.get(u)
             if value:
                 optionals.append((new_subject, uris[u], URIRef(value)))
+
+        for d in dates:
+            value = data.get(d)
+            if value:
+                optionals.append((new_subject, dates[d], parse_isodate(value)))
 
         return optionals
 
@@ -461,14 +464,13 @@ class AddSource(RDFResourceView):
         self.query_automated_annotations(
             sanitized_text, data['source'], counter.__str__())
 
-        # TODO: voor author en editor een instantie van SCHEMA.Person maken? Of iets uit CIDOC/ontologie?
         # create graph
         triples = self.get_required(new_subject, data)
         triples.extend(self.get_optional(new_subject, data))
         result = graph_from_triples(tuple(triples))
         user, now = submission_info(request)
         result.add((new_subject, DCTERMS.creator, user))
-        result.add((new_subject, DCTERMS.created, now))
+        result.add((new_subject, source_ontology.dateUploaded, now))
 
         # add to store
         full_graph = sources_graph()

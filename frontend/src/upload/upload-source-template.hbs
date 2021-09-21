@@ -1,8 +1,6 @@
 <header>
     <h3 class="title is-3 page-header">Upload source</h3>
 </header>
-
-
 <div class="section upload-source">
     <div class="field">
         <label class="label">Title</label>
@@ -10,21 +8,29 @@
             <input class="input" type="text" name="title" placeholder="The Voyage of the Dawn Treader" required>
         </div>
     </div>
-
     <div class="field">
         <label class="label">Author</label>
         <div class="control">
             <input name="author" class="input" type="text" placeholder="C.S. Lewis" required>
         </div>
     </div>
-
-    <div class="field">
-        <label class="label">Editor (optional)</label>
+    <div class="field is-grouped">
         <div class="control">
+            <label class="label">Editor (optional)</label>
             <input name="editor" class="input" type="text" placeholder="C.S. Lewis">
         </div>
+        <div class="control">
+            <label class="label">Publisher (optional)</label>
+            <input name="publisher" class="input" type="text" placeholder="Geoffrey Bles">
+        </div>
     </div>
-
+    <div class="field">
+        <label class="label">Repository (optional)</label>
+        <div class="control">
+            <input name="repository" class="input" type="text"
+                placeholder="Archive, location, collection, call, fasc, folio">
+        </div>
+    </div>
     <div class="field">
         <label class="label">File</label>
         <div class="file">
@@ -41,12 +47,11 @@
             </label>
             <p class="help filename">No file selected</p>
         </div>
-        <p class="help">Note that only txt files in UTF-8 encoding (LF for line endings) are supported.</p>
+        <p class="help">Only txt files in UTF-8 encoding (LF for line endings) are supported.</p>
     </div>
-
     <div class="field">
         <label class="label">Language</label>
-        <div class="control">
+        <div class="control" id="languageSelect">
             <div class="select has-helptext">
                 <select name='language' size='1'>
                     <option value="">Select language</option>
@@ -60,55 +65,68 @@
                 </select>
             </div>
         </div>
-        <p class="help">Specify the language that the source text is in. If the source contains multiple languages,
+        <p class="help">If the source contains multiple languages,
             please select 'Other'.</p>
     </div>
-
     <div class="field">
         <label class="label">Type of source</label>
         <div class="control" id="sourceTypeSelect">
-            {{!-- <div class="select has-helptext">
-                <select name='type' size='1'>
-                    <option value="">Select type</option>
-                    {{! source types added here}}
-                </select>
-            </div> --}}
         </div>
-        {{!-- <p class="help">Specify the type of the source. When in doubt, choose 'Unknown'</p> --}}
+        <p class="help">When in doubt, choose 'Unknown'</p>
     </div>
-
     <div class="field">
         <label class="label">Publication date</label>
         <div class="control">
-            <input name="pubdate" class="input" type="text" placeholder="1952/09/01 (YYYY/MM/DD)"
-                pattern="\d{4}/\d{2}/\d{2}">
+            <input name="publicationdate" class="input" type="text" placeholder="1952-09-01 (YYYY-MM-DD)">
+            <p class="help"><a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO formatted
+                    date with optional time and timezone</a>, or free-form text
+            </p>
         </div>
     </div>
-
     <div class="field">
-        <label class="label">Publisher (optional)</label>
+        <label class="label">Creation date (optional)</label>
         <div class="control">
-            <input name="publisher" class="input" type="text" placeholder="Geoffrey Bles">
+            <input name="creationdate" class="input" type="text" placeholder="1952-09-01 (YYYY-MM-DD)">
+            <p class="help">If known and different from publishing date, specify creation date.</br>
+            </p>
         </div>
     </div>
-
+    <div class="field">
+        <label class="label">Retrieval date (optional)</label>
+        <div class="control">
+            <input name="retrievaldate" class="input" type="text" placeholder="1952-09-01 (YYYY-MM-DD)">
+            <p class="help">Date (and optional time) at which the source was accessed or retrieved.
+            </p>
+        </div>
+    </div>
+    <div class="field">
+        <div class="control">
+            <label class="label">Source access</label>
+            <label class="radio">
+                <input type="radio" name="public" value="public" checked>
+                Public
+            </label>
+            <label class="radio">
+                <input type="radio" name="public" value="private">
+                Private
+            </label>
+            <p class="help">Provide access to everyone (public) or only you (private).</p>
+        </div>
+    </div>
     <div class="field">
         <label class="label">URL (optional)</label>
         <div class="control">
             <input name="url" class="input" type="text" placeholder="https://www.wikidata.org/wiki/Q331656">
         </div>
     </div>
-
     <div class="field form-feedback-bar has-background-success">
         <p class="help">Source uploaded successfully! Upload another one or <a href="/explore">go to the
                 Explorer</a></p>
     </div>
-
     <div class="field form-feedback-bar has-background-danger has-text-white">
         <p class="help">Uploading failed. Please try again and if this error keeps occuring, contact the site
             administrator. Do you have permission to upload sources?</p>
     </div>
-
     <div class="field is-grouped">
         <div class="control">
             <button type=submit class="button is-link btn-submit">Submit</button>
@@ -120,9 +138,7 @@
             <button type=reset class="button is-link is-light btn-cancel">Cancel</button>
         </div>
     </div>
-
 </div>
-
 <div class="modal is-clipped">
     <div class="modal-background"></div>
     <div class="modal-card">

@@ -4,11 +4,12 @@ import FlatItemCollection from '../common-adapters/flat-item-collection';
 import FlatItem from '../common-adapters/flat-item-model';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
-import { rdfs, sourceOntology as sourceNS } from '../common-rdf/ns';
+import { rdfs, sourceOntology as sourceNS, iso6391, UNKNOWN } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import { CompositeView } from '../core/view';
 import Select2Picker from '../forms/select2-picker-view';
 import uploadSourceTemplate from './upload-source-template';
+import * as _ from 'lodash';
 
 
 export default class UploadSourceFormView extends CompositeView {
@@ -39,8 +40,9 @@ export default class UploadSourceFormView extends CompositeView {
                 source: { required: true, extension: "txt" },
                 language: { required: true },
                 type: { required: true },
-                pubdate: { required: true, dateISO: true },
-                url: { url: true }
+                publicationdate: { required: true },
+                url: { url: true },
+                public: { required: true }
             },
             errorPlacement: function (error, element) {
                 let parent = element.parent();
@@ -90,6 +92,12 @@ export default class UploadSourceFormView extends CompositeView {
             input.valid();
         });
 
+        return this;
+    }
+
+    afterRender(): this {
+        // Assign names to select2 pickers to ensure form contains their data
+        this.$('#sourceTypeSelect select').attr({ 'name': 'type' });
         return this;
     }
 
@@ -167,14 +175,14 @@ export default class UploadSourceFormView extends CompositeView {
 
     getOntology() {
         this.ontologyGraph = ldChannel.request('source-ontology:graph');
-        this.setOptions();
+        this.setTypeOptions();
     }
 
-    setOptions(): void {
+    setTypeOptions(): void {
         const sourceTypes = new FilteredCollection<Node>(this.ontologyGraph, this.isTextForm) as unknown as Graph;
         this.sourceTypePicker = new Select2Picker({ collection: sourceTypes });
-        this.$('#sourceTypeSelect select').attr({ 'name': 'type' });
     }
+
 
 
 }
@@ -182,7 +190,9 @@ extend(UploadSourceFormView.prototype, {
     tagName: 'form',
     className: 'section upload-source-form page',
     template: uploadSourceTemplate,
-    subviews: [{ view: 'sourceTypePicker', selector: '#sourceTypeSelect' }],
+    subviews: [
+        { view: 'sourceTypePicker', selector: '#sourceTypeSelect' },
+    ],
     events: {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',

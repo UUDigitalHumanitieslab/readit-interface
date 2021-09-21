@@ -23,6 +23,16 @@ def has_time(dt):
     return any([getattr(dt, x) != 0 for x in must_be_zero])
 
 
+def parse_isodate(datestring):
+    try:
+        dt = parser.isoparse(datestring)
+        if has_time(dt):
+            return Literal(dt, datatype=XSD.dateTime)
+        return Literal(dt, datatype=XSD.date)
+    except (parser.ParserError, ValueError):
+        return Literal(datestring)
+
+
 def literal_from_datestring(datestr, ignoretz=True):
     # Attempts to parse string as date/datetime
     # Returns adequatly formatted Literal
