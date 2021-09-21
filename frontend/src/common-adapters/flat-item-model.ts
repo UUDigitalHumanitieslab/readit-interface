@@ -375,7 +375,6 @@ export default class FlatItem extends Model {
      */
     getFilterClasses(): string[] {
         const classList = [];
-        if (!this.get('annotation')) return classList;
         const cssClass = this.get('cssClass');
         if (!cssClass) return classList;
         classList.push(cssClass);
@@ -384,15 +383,14 @@ export default class FlatItem extends Model {
             return classList;
         }
         classList.push('rit-is-semantic');
+        const relatedClass = this.get('relatedClass');
+        if (relatedClass) classList.push(getCssClassName(relatedClass));
+        if (!this.get('annotation')) return classList;
         const needsVerification = this.get('needsVerification');
         classList.push(`rit-${needsVerification ? 'un' : ''}verified`);
         const isOwn = this.get('isOwn');
         if (isOwn != null) {
             classList.push(`rit-${isOwn ? 'self' : 'other'}-made`);
-        }
-        const relatedClass = this.get('relatedClass');
-        if (relatedClass) {
-            classList.push(getCssClassName(relatedClass));
         }
         return classList;
     }
