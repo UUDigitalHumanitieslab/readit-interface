@@ -4,7 +4,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { baseUrl } from 'config.json';
 import View from '../core/view';
 import Node from '../common-rdf/node';
-import { dcterms, oa, schema } from '../common-rdf/ns';
+import { dcterms, oa, schema, sourceOntology } from '../common-rdf/ns';
 import sourceSummaryTemplate from './source-summary-template';
 import Graph from '../common-rdf/graph';
 
@@ -29,8 +29,8 @@ export default class SourceSummaryView extends View {
     initialize(options: ViewOptions): this {
         this.query = options.query;
         this.fields = options.fields;
-        this.name = this.model.get(schema('name'))[0];
-        this.author = this.model.get(schema.author)[0];
+        this.name = this.model.get(sourceOntology('title'))[0];
+        this.author = this.model.get(sourceOntology('author'))[0];
         this.identifier = this.model.id;
         if (this.query !== undefined) {
             this.renderHighlights();
@@ -42,11 +42,11 @@ export default class SourceSummaryView extends View {
     async renderHighlights() {
         this.highlights = new Graph();
         await this.highlights.fetch({url: highlightURL, data: $.param({ source: this.identifier, query: this.query, fields: this.fields}) });
-        const titleNode = this.highlights.models.find(node => node.get(oa.hasTarget)[0]['id']===dcterms.title);
+        const titleNode = this.highlights.models.find(node => node.get(oa.hasTarget)[0]['id'] === sourceOntology('title'));
         if (titleNode) {
             this.name = titleNode.get(oa.hasBody)[0].toString();
         }
-        const authorNode = this.highlights.models.find(node => node.has(oa.hasTarget, schema.author));
+        const authorNode = this.highlights.models.find(node => node.has(oa.hasTarget, sourceOntology('author')));
         if (authorNode) {
             this.author = authorNode.get(oa.hasBody)[0].toString();
         }

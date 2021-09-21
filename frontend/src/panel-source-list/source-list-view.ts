@@ -4,7 +4,7 @@ import Model from '../core/model';
 import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
-import { dcterms, vocab } from '../common-rdf/ns';
+import { dcterms, sourceOntology, vocab } from '../common-rdf/ns';
 import { announceRoute } from '../explorer/utilities';
 
 import sourceListTemplate from './source-list-template';
@@ -79,7 +79,7 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
     }
 
     sortByDate(model): number {
-        return -model.get(dcterms.created)[0].getTime();
+        return -model.get(sourceOntology('dateUploaded'))[0].getTime();
     }
 
     _hideLoadingSpinner(): void {

@@ -17,11 +17,13 @@ const excludedProperties = [
 const excludedAttributes = [
     'fullText',
     'text',
-    'sameAs'
+    'identifier'
 ];
 
 const externalAttributes = [
-    'inLanguage'
+    'language',
+    'sourceType',
+    'creator'
 ];
 
 const sourceDeletionDialog = `
@@ -61,7 +63,7 @@ export default class MetadataView extends View {
     formatAttributes(): this {
         this.properties = {};
         for (let attribute in this.model.attributes) {
-            // don't include @id, @value, fullText or sameAs info
+            // don't include @id, @value, fullText or identifier info
             if (excludedProperties.includes(attribute)) {
                 continue;
             }
