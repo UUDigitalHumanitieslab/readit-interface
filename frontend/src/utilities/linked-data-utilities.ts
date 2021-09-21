@@ -34,14 +34,22 @@ export function getLabelFromId(id: string) {
     return id.substring(index + 1);
 }
 
+// Memoize abbreviated turtle terms for efficiency.
+const turtleCache = {};
+
 /**
  * Obtain ns:term notation for terms in known namespaces.
  * Falls back to <http(s)://full-uri> notation for URIs in unknown namespaces.
  */
 export function getTurtleTerm(term: string | Node): string {
     const uri = asURI(term);
+    const memoizedTerm = turtleCache[uri];
+    if (memoizedTerm) return memoizedTerm;
     const prefix = findKey(nsMap, p => uri.startsWith(p));
-    if (prefix) return `${prefix}:${uri.slice(nsMap[prefix].length)}`;
+    if (prefix) {
+        const length = nsMap[prefix].length;
+        return turtleCache[uri] = `${prefix}:${uri.slice(length)}`;
+    }
     return `<${uri}>`;
 }
 
