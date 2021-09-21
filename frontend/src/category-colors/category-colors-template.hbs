@@ -1,10 +1,12 @@
-{{#each categoryColors}}
+{{#each categories}}
+{{#if color}}
 .{{class}} {
     background-color: {{color}} !important;
     {{#startsWith class "is-nlp"}}
     background-image: repeating-linear-gradient(-45deg, transparent 0 8px, white 5px 9px) !important;
     {{/startsWith}}
 }
+{{/if}}
 .hide-{{class}} .{{class}}, .hide-rit-any:not(.unhide-{{class}}) .{{class}} {
     display: none !important;
 }

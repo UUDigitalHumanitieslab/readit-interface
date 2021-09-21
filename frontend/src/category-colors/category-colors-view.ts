@@ -14,6 +14,19 @@ export interface ViewOptions extends BaseOpt<Node> {
     collection: Graph;
 }
 
+// Special categories that are also used for visibility filtering, in addition
+// to the ontology and NLP ontology classes. See the `getFilterClasses` method
+// in `../common-adapters/flat-item-model.ts` for details on how these classes
+// are assigned on a per-item basis.
+const specialCategories = map([
+    'rit-is-nlp',
+    'rit-is-semantic',
+    'rit-verified',
+    'rit-unverified',
+    'rit-self-made',
+    'rit-other-made',
+], name => ({ class: name }));
+
 export default class CategoryColorsView extends View {
     collection: Graph;
 
@@ -26,7 +39,7 @@ export default class CategoryColorsView extends View {
     }
 
     render(): View {
-        this.$el.html(this.template({ categoryColors: this.collectColors() }));
+        this.$el.html(this.template({ categories: this.collectColors() }));
         return this;
     }
 
@@ -38,9 +51,9 @@ export default class CategoryColorsView extends View {
                 return {
                     class: getCssClassName(node),
                     color: node.get(schema.color)[0],
-                };
+                } as { class: string, color?: string };
             }
-        }));
+        })).concat(specialCategories);
     }
 }
 

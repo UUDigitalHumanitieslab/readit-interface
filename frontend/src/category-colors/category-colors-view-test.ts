@@ -8,7 +8,7 @@ import { placeholderClass } from '../utilities/annotation-utilities';
 
 import CategoryColorsView from './category-colors-view';
 
-const placeholderStyle = `.is-readit-selection{background-color:${placeholderClass.get(schema.color)[0]}!important;}.hide-is-readit-selection.is-readit-selection,.hide-rit-any:not(.unhide-is-readit-selection).is-readit-selection{display:none!important;}`;
+const fixedSuffix = `.is-readit-selection{background-color:${placeholderClass.get(schema.color)[0]}!important;}.hide-is-readit-selection.is-readit-selection,.hide-rit-any:not(.unhide-is-readit-selection).is-readit-selection{display:none!important;}.hide-rit-is-nlp.rit-is-nlp,.hide-rit-any:not(.unhide-rit-is-nlp).rit-is-nlp{display:none!important;}.hide-rit-is-semantic.rit-is-semantic,.hide-rit-any:not(.unhide-rit-is-semantic).rit-is-semantic{display:none!important;}.hide-rit-verified.rit-verified,.hide-rit-any:not(.unhide-rit-verified).rit-verified{display:none!important;}.hide-rit-unverified.rit-unverified,.hide-rit-any:not(.unhide-rit-unverified).rit-unverified{display:none!important;}.hide-rit-self-made.rit-self-made,.hide-rit-any:not(.unhide-rit-self-made).rit-self-made{display:none!important;}.hide-rit-other-made.rit-other-made,.hide-rit-any:not(.unhide-rit-other-made).rit-other-made{display:none!important;}`;
 
 function getDefaultNode(): Node {
     return new Node(getDefaultAttributes());
@@ -47,7 +47,7 @@ describe('CategoryColorsView', function () {
         };
 
         const colors = this.view.collectColors();
-        expect(colors.length).toBe(2);
+        expect(colors.length).toBe(8);
         expect(colors[0]).toEqual(expected);
     });
 
@@ -57,7 +57,7 @@ describe('CategoryColorsView', function () {
         let html = this.view.$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
 
-        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}' + placeholderStyle);
+        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}' + fixedSuffix);
     });
 
     it('renders a style tag with multiple CSS classes in it', function () {
@@ -75,7 +75,7 @@ describe('CategoryColorsView', function () {
         let html = view.$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
 
-        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}' + placeholderStyle);
+        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}' + fixedSuffix);
     });
 
     it('excludes linked data items that are irrelevant', function () {
@@ -93,7 +93,7 @@ describe('CategoryColorsView', function () {
         let html = view.$el.html();
         let actual = replaceNewLinesAndWhitespace(html);
 
-        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}.is-readit-test2{background-color:aliceblue!important;}.hide-is-readit-test2.is-readit-test2,.hide-rit-any:not(.unhide-is-readit-test2).is-readit-test2{display:none!important;}' + placeholderStyle);
+        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}.is-readit-test2{background-color:aliceblue!important;}.hide-is-readit-test2.is-readit-test2,.hide-rit-any:not(.unhide-is-readit-test2).is-readit-test2{display:none!important;}' + fixedSuffix);
     });
 
     it('is self-rendering and self-updating', function () {
@@ -106,9 +106,9 @@ describe('CategoryColorsView', function () {
         this.view.collection.add(newClass);
         const newHTML = replaceNewLinesAndWhitespace(this.view.$el.html());
         expect(newHTML.length).toBeGreaterThan(originalHTML.length);
-        const originalPrefix = originalHTML.slice(0, -placeholderStyle.length);
+        const originalPrefix = originalHTML.slice(0, -fixedSuffix.length);
         expect(newHTML).toContain(originalPrefix);
-        expect(newHTML).toContain(placeholderStyle);
+        expect(newHTML).toContain(fixedSuffix);
     });
 
     function replaceNewLinesAndWhitespace(text: string) {
