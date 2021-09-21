@@ -1,11 +1,12 @@
 import { extend } from 'lodash';
 
 import View, { CollectionView } from '../core/view';
+import FlatItem from '../common-adapters/flat-item-model';
 
 /**
  * A line segment has a colored band for each associated annotation.
  */
-class ColorBand extends View {
+class ColorBand extends View<FlatItem> {
     setClasses: string[];
 
     initialize({ model }): void {
