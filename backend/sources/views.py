@@ -397,7 +397,7 @@ class AddSource(RDFResourceView):
             'repository': source_ontology.repository
         }
         uris = {
-            'url': source_ontology.identifier
+            'url': source_ontology.url
         }
         dates = {
             'creationdate': source_ontology.dateCreated,

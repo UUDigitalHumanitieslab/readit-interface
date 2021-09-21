@@ -17,7 +17,7 @@ const excludedProperties = [
 const excludedAttributes = [
     'fullText',
     'text',
-    'identifier'
+    'url'
 ];
 
 const externalAttributes = [
