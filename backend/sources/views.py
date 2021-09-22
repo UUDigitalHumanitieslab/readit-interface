@@ -121,7 +121,7 @@ def inject_fulltext(input, inline, request):
             f = result['hits']['hits'][0]['_source']['text']
             text_triples.add((s, SCHEMA.text, Literal(f)))
         else:
-            text_triples.add((s, vocab.fullText, URIRef(reverse(
+            text_triples.add((s, source_ontology.fullText, URIRef(reverse(
                 'sources:fulltext',
                 kwargs={'serial': serial},
                 request=request,

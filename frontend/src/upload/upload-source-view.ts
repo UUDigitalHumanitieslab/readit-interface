@@ -1,15 +1,12 @@
 import { extend } from 'lodash';
 import FilteredCollection from '../common-adapters/filtered-collection';
-import FlatItemCollection from '../common-adapters/flat-item-collection';
-import FlatItem from '../common-adapters/flat-item-model';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
-import { rdfs, sourceOntology as sourceNS, iso6391, UNKNOWN } from '../common-rdf/ns';
+import { rdfs, sourceOntology as sourceNS } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import { CompositeView } from '../core/view';
 import Select2Picker from '../forms/select2-picker-view';
 import uploadSourceTemplate from './upload-source-template';
-import * as _ from 'lodash';
 
 
 export default class UploadSourceFormView extends CompositeView {
@@ -168,8 +165,14 @@ export default class UploadSourceFormView extends CompositeView {
         return new Option(input).innerHTML;
     }
 
-    isTextForm(node) {
-        return node.has(rdfs.subClassOf) &&
+    // Valid source types are subClassOf TFO_TextForm, subClassOf ReaditSourceType
+    // but not TFO_TextForm itself 
+    isSourceType(node): boolean {
+        if (!node.has(rdfs.subClassOf)) {
+            return false;
+        }
+        return ((node.get(rdfs.subClassOf)[0].id == sourceNS('ReaditSourceType')) &&
+            !(node.id == sourceNS('TFO_TextForm'))) ||
             node.get(rdfs.subClassOf)[0].id == sourceNS('TFO_TextForm');
     }
 
@@ -179,11 +182,9 @@ export default class UploadSourceFormView extends CompositeView {
     }
 
     setTypeOptions(): void {
-        const sourceTypes = new FilteredCollection<Node>(this.ontologyGraph, this.isTextForm) as unknown as Graph;
+        const sourceTypes = new FilteredCollection<Node>(this.ontologyGraph, this.isSourceType) as unknown as Graph;
         this.sourceTypePicker = new Select2Picker({ collection: sourceTypes });
     }
-
-
 
 }
 extend(UploadSourceFormView.prototype, {

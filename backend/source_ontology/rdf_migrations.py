@@ -1,10 +1,9 @@
-import rdflib
-from ontology.rdf_migrations import replace_objects, replace_predicate
+from ontology.rdf_migrations import replace_objects
 from rdf.migrations import RDFMigration, on_add
 from rdf.ns import SCHEMA, UNKNOWN
 from rdflib.namespace import OWL, XSD
 from sources.graph import graph as sources_graph
-from typing_extensions import Literal
+from rdflib import Literal
 from vocab import namespace as VOCAB
 
 from . import namespace as SOURCE_ONTOLOGY
