@@ -12,6 +12,7 @@ import explorationRouter from '../global/exploration-router';
 import userFsm from '../global/user-fsm';
 import explorerView from '../global/explorer-view';
 import notFoundView from '../global/notfound-view';
+import landingView from '../global/landing-view';
 
 history.once('route notfound', () => {
     menuView.render().$el.appendTo('#header');
@@ -27,10 +28,11 @@ history.once('route notfound', () => {
 });
 history.on('notfound', () => userFsm.handle('notfound'));
 
-mainRouter.on('route:home', () => mainRouter.navigate('search', {
+mainRouter.on('route:home', () => mainRouter.navigate('landing', {
     trigger: true,
     replace: true,
 }));
+mainRouter.on('route:landing', () => userFsm.handle('land'));
 mainRouter.on('route:search', () => userFsm.handle('search'));
 mainRouter.on('route:upload', () => userFsm.handle('upload'));
 mainRouter.on('route:browse:sources', () => userFsm.handle('explore'));
@@ -50,6 +52,8 @@ userFsm.on('exit:uploading', () => {
 });
 userFsm.on('enter:exploring', () => explorerView.$el.appendTo('#main'));
 userFsm.on('exit:exploring', () => explorerView.$el.detach());
+userFsm.on('enter:landing', () => landingView.$el.appendTo('#main'));
+userFsm.on('exit:landing', () => landingView.$el.detach());
 userFsm.on('enter:lost', () => notFoundView.$el.appendTo('#main'));
 userFsm.on('exit:lost', () => notFoundView.$el.detach());
 

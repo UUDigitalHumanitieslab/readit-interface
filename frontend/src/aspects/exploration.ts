@@ -9,14 +9,13 @@ import mainRouter from '../global/main-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
 import welcomeView from '../global/welcome-view';
-import BrowseItemsView from '../panel-browse/browse-items-view';
-import BrowseSourcesView from '../panel-browse/browse-sources-view';
+import BrowseView from '../panel-browse/browse-view';
 
 const browserHistory = window.history;
 
-let browsePanel: BrowseItemsView | BrowseSourcesView;
+let browsePanel: BrowseView;
 function resetBrowsePanel(queryMode: string, landing: boolean) {
-    browsePanel = new BrowseItemsView({
+    browsePanel = new BrowseView({
         queryMode: queryMode, landing: landing
     });
     return explorer.reset(browsePanel);

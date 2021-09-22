@@ -5,6 +5,9 @@ import {
 
 import { baseUrl, sparqlRoot } from 'config.json';
 
+import sourceList from '../global/source-list';
+import itemList from '../global/item-list';
+
 import { CompositeView } from "../core/view";
 import { listNodesQuery, nodesByUserQuery, randomNodesQuery } from "../sparql/compile-query";
 import explorerChannel from '../explorer/explorer-radio';
@@ -32,7 +35,7 @@ export interface ViewOptions extends BViewOptions<Model> {
     queryMode: string;
 }
 
-export default class BrowseItemsView extends CompositeView {
+export default class BrowseView extends CompositeView {
     resultsList: SearchResultListView | SourceListView;
     counter: Model;
     nodeList: Collection;
@@ -40,28 +43,21 @@ export default class BrowseItemsView extends CompositeView {
     title: string;
 
     async initialize(options: ViewOptions) {
-        const queryingItems = options.queryMode == 'Items'? true : false;
-        this.endpoint =  queryingItems? '/item/query' : '/source/query';
+        const queryingItems = options.queryMode === 'Items'? true : false;
+        this.endpoint =  queryingItems? 'item/query' : 'source/query';
         let namespaceOptions = {namespaces: formatNamespaces(namespaces)};
         const sparqlItems = new ItemGraph();
         if (options.landing) {
             this.title = "My " + options.queryMode;
             const query = nodesByUserQuery(queryingItems, {});
-            await sparqlItems.sparqlQuery(query, baseUrl + this.endpoint);
+            await sparqlItems.sparqlQuery(query, this.endpoint);
         }
         else {
             this.title = options.queryMode;
-            this.nodeList = new Collection;
-            this.nodeList.parse = this.parseResponse;
-            const query = listNodesQuery(queryingItems, {});
-            await this.nodeList.fetch({ 
-                url: sparqlRoot + this.endpoint, 
-                data: $.param({ query: query }), 
-                remove: false
-            });
-            const randomNodes = sampleSize(this.nodeList.models, nSamples);
+            const nodes = queryingItems? itemList : sourceList;
+            const randomNodes = sampleSize(nodes.models, nSamples);
             const randomQuery = randomNodesQuery(randomNodes.slice(-randomNodes.length, -1), randomNodes.pop(), {});
-            await sparqlItems.sparqlQuery(randomQuery, baseUrl + this.endpoint);
+            sparqlItems.sparqlQuery(randomQuery, this.endpoint);
         }
         if (queryingItems) {
             this.resultsList = new SearchResultListView({
@@ -75,7 +71,7 @@ export default class BrowseItemsView extends CompositeView {
         else {
             this.resultsList = new SourceListView({
                 collection: sparqlItems
-            }).render();
+            });
             this.listenTo(
                 this.resultsList, 'source:clicked', this.onSourceClicked
             );
@@ -105,7 +101,7 @@ export default class BrowseItemsView extends CompositeView {
         return this;
     }
 }
-extend(BrowseItemsView.prototype, {
+extend(BrowseView.prototype, {
     template: browseTemplate,
     className: 'browse explorer-panel',
     subviews: [

@@ -11,9 +11,9 @@ import AnnotationView from '../panel-annotation/annotation-view';
 import { asURI } from '../utilities/linked-data-utilities';
 import SourceView from '../panel-source/source-view';
 import AnnotationListPanel from '../panel-annotation-list/annotation-list-panel';
-import SuggestionsView from '../panel-suggestions/suggestions-view';
 
 import AnnoEditView from '../panel-annotation/annotation-edit-view';
+import BrowseView from '../panel-browse/browse-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
 import RelatedEditView from '../panel-related-items/related-items-edit-view';
 import ExternalView from '../panel-external-resources/external-resources-view';
@@ -106,7 +106,7 @@ class ExplorerEventController {
     }
 
     showSuggestionsPanel() {
-        const suggestionsView = new SuggestionsView();
+        const suggestionsView = new BrowseView();
         this.explorerView.reset(suggestionsView);
     }
 
@@ -225,7 +225,7 @@ class ExplorerEventController {
         // this.autoOpenRelationEditor(annotation.get('annotation'));
     }
 
-    showAnnotationsOfCategory(view: SuggestionsView, category: FlatItem): SearchResultListPanel {
+    showAnnotationsOfCategory(view: BrowseView, category: FlatItem): SearchResultListPanel {
         let items = new ItemGraph();
         const url = '/item/' + category.id.split("#")[1];
         items.fetch({ url: url });

@@ -14,5 +14,6 @@ extend(MainRouter.prototype, {
         'upload': 'upload',
         'register': 'register',
         'confirm-registration/:key': 'confirm-registration',
+        'landing': 'landing'
     },
 });
