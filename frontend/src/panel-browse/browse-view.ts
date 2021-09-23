@@ -20,6 +20,8 @@ import SourceListView from '../panel-source-list/source-list-view';
 import browseTemplate from './browse-template';
 import { formatNamespaces } from '../utilities/sparql-utilities';
 import Model from '../core/model';
+import itemList from '../global/item-list';
+import sourceList from '../global/source-list';
 
 const namespaces = {
     'dcterms': dcterms(),
@@ -38,27 +40,26 @@ export default class BrowseView extends CompositeView {
     nodeList: Collection;
     endpoint: string;
     title: string;
+    sparqlItems: ItemGraph;
 
     async initialize(options: ViewOptions) {
         const queryingItems = options.queryMode === 'Items'? true : false;
         this.endpoint =  queryingItems? 'item/query' : 'source/query';
         let namespaceOptions = {namespaces: formatNamespaces(namespaces)};
-        const sparqlItems = new ItemGraph();
+        this.sparqlItems = new ItemGraph();
         if (options.landing) {
             this.title = "My " + options.queryMode;
             const query = nodesByUserQuery(queryingItems, {});
-            await sparqlItems.sparqlQuery(query, this.endpoint);
+            await this.sparqlItems.sparqlQuery(query, this.endpoint);
         }
         else {
             this.title = options.queryMode;
-            // const nodes = queryingItems? await ldChannel.request('item-list:promise') : await ldChannel.request('source-list:promise');
-            // const randomNodes = sampleSize(nodes.models, nSamples);
-            // const randomQuery = randomNodesQuery(randomNodes.slice(-randomNodes.length, -1), randomNodes.pop(), {});
-            // sparqlItems.sparqlQuery(randomQuery, this.endpoint);
+            const nodes = queryingItems? itemList : sourceList;
+            nodes.on('sync', () => this.getRandomNodes(nodes)); 
         }
         if (queryingItems) {
             this.resultsList = new SearchResultListView({
-                collection: new FlatItemCollection(sparqlItems),
+                collection: new FlatItemCollection(this.sparqlItems),
                 selectable: false }).render();
             this.listenTo(this.resultsList, {
                 focus: this.onFocus,
@@ -67,7 +68,7 @@ export default class BrowseView extends CompositeView {
         }
         else {
             this.resultsList = new SourceListView({
-                collection: sparqlItems
+                collection: this.sparqlItems
             });
             this.listenTo(
                 this.resultsList, 'source:clicked', this.onSourceClicked
@@ -76,8 +77,10 @@ export default class BrowseView extends CompositeView {
         this.render();
     }
 
-    parseResponse(response): [] {
-        return response.results.bindings.map( node => node.node );
+    getRandomNodes(nodes: Collection) {
+        const randomNodes = sampleSize(nodes.models, nSamples);
+        const randomQuery = randomNodesQuery(randomNodes.slice(-randomNodes.length, -1), randomNodes.pop(), {});
+        this.sparqlItems.sparqlQuery(randomQuery, this.endpoint);
     }
 
     renderContainer(): this {

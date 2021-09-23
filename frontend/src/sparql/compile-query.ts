@@ -38,7 +38,8 @@ export function listNodesQuery(itemQuery: boolean, { ...options }: SPARQLQueryOp
 }
 
 export function nodesByUserQuery(itemQuery: boolean, { ...options }: SPARQLQueryOptions) {  
-    const data = {userURI: ldChannel.request('current-user-uri')};
+    const userURI = ldChannel.request('current-user-uri');
+    const data = {itemQuery: itemQuery, userURI: userURI};
     const finalData = { ...data, ...options };
     return nodesByUserTemplate(finalData);
 }
