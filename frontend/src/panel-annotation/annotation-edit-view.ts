@@ -2,6 +2,7 @@ import { extend, invokeMap, uniqueId, after, once } from 'lodash';
 import 'select2';
 
 import { CompositeView } from '../core/view';
+import userChannel from '../common-user/user-radio';
 import ldChannel from '../common-rdf/radio';
 import { oa, rdf, skos, vocab } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
@@ -82,7 +83,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     processAnnotation(model: FlatItem, annotation: Node): void {
         this.originalBodies = annotation.get(oa.hasBody) as Node[];
         const creator = model.get('creator') as Node;
-        const currentUser = ldChannel.request('current-user-uri');
+        const currentUser = userChannel.request('current-user-uri');
         if (creator && (creator.id === currentUser)) this.userIsOwner = true;
         if (this.userIsOwner) this.render();
         this.needsVerification = model.get('needsVerification');
