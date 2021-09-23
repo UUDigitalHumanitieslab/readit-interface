@@ -3,13 +3,10 @@ import {
     ViewOptions as BViewOptions,
 } from 'backbone';
 
-import { baseUrl, sparqlRoot } from 'config.json';
-
-import sourceList from '../global/source-list';
-import itemList from '../global/item-list';
+import ldChannel from '../common-rdf/radio';
 
 import { CompositeView } from "../core/view";
-import { listNodesQuery, nodesByUserQuery, randomNodesQuery } from "../sparql/compile-query";
+import { nodesByUserQuery, randomNodesQuery } from "../sparql/compile-query";
 import explorerChannel from '../explorer/explorer-radio';
 import {dcterms, oa} from '../common-rdf/ns'
 
@@ -54,10 +51,10 @@ export default class BrowseView extends CompositeView {
         }
         else {
             this.title = options.queryMode;
-            const nodes = queryingItems? itemList : sourceList;
-            const randomNodes = sampleSize(nodes.models, nSamples);
-            const randomQuery = randomNodesQuery(randomNodes.slice(-randomNodes.length, -1), randomNodes.pop(), {});
-            sparqlItems.sparqlQuery(randomQuery, this.endpoint);
+            // const nodes = queryingItems? await ldChannel.request('item-list:promise') : await ldChannel.request('source-list:promise');
+            // const randomNodes = sampleSize(nodes.models, nSamples);
+            // const randomQuery = randomNodesQuery(randomNodes.slice(-randomNodes.length, -1), randomNodes.pop(), {});
+            // sparqlItems.sparqlQuery(randomQuery, this.endpoint);
         }
         if (queryingItems) {
             this.resultsList = new SearchResultListView({
