@@ -1,9 +1,9 @@
+from rdflib.namespace import DCTERMS
 from ontology.rdf_migrations import replace_objects
 from rdf.migrations import RDFMigration, on_add
-from rdf.ns import SCHEMA, UNKNOWN
-from rdflib.namespace import OWL, XSD
-from sources.graph import graph as sources_graph
+from rdf.ns import OWL, RDF, SCHEMA, UNKNOWN, XSD
 from rdflib import Literal
+from sources.graph import graph as sources_graph
 from vocab import namespace as VOCAB
 
 from . import namespace as SOURCE_ONTOLOGY
@@ -18,20 +18,21 @@ REPLACE_PREDICATE_UPDATE = '''
         ?s ?after ?o .
     }
     WHERE {
-        ?s ?before ?bo .
+        ?s ?before ?o .
+    }
 '''
 
 REPLACE_SOURCE_DEFINITION_UPDATE = '''
     DELETE {
-        ?s a ?vocabsource .
+        ?s ?type ?vocabsource .
     }
     INSERT {
-        ?s a ?ontologysource ;
-           a ?plaintextsource ;
+        ?s ?type ?ontologysource ;
+           ?type ?plaintextsource ;
            ?format "text/plain" .
     }
     WHERE {
-        ?s a ?vocabsource
+        ?s ?type ?vocabsource
     }
 '''
 
@@ -53,10 +54,12 @@ class Migration(RDFMigration):
     before_after_predicates = (
         (SCHEMA.name, SOURCE_ONTOLOGY.title),
         (SCHEMA.editor, SOURCE_ONTOLOGY.editor),
+        (SCHEMA.author, SOURCE_ONTOLOGY.author),
         (SCHEMA.publisher, SOURCE_ONTOLOGY.publisher),
         (SCHEMA.inLanguage, SOURCE_ONTOLOGY.language),
         (OWL.sameAs, SOURCE_ONTOLOGY.url),
         (SCHEMA.datePublished, SOURCE_ONTOLOGY.datePublished),
+        (DCTERMS.created, SOURCE_ONTOLOGY.dateUploaded)
     )
 
     # new predicates with default
@@ -71,11 +74,11 @@ class Migration(RDFMigration):
     # source type mapping
     sourcetype_mapping = (
         (SCHEMA.Book, SOURCE_ONTOLOGY.TFO02_Book),
-        (SCHEMA.Article, SCHEMA.Article),  # no suitable replacement
-        (SCHEMA.Review, SCHEMA.Review),  # no suitable replacement
-        # no suitable replacement
+        # no suitable replacements for following source types
+        (SCHEMA.Article, SCHEMA.Article),
+        (SCHEMA.Review, SCHEMA.Review),
         (SCHEMA.SocialMediaPosting, SOURCE_ONTOLOGY.SocialMediaPosting),
-        (SCHEMA.WebContent, SOURCE_ONTOLOGY.WebContent),  # no suitable replacement
+        (SCHEMA.WebContent, SOURCE_ONTOLOGY.WebContent),
         (UNKNOWN, SOURCE_ONTOLOGY.TFO27_Unknown)
     )
 
@@ -84,13 +87,13 @@ class Migration(RDFMigration):
     changed = ['sourceType', ]
 
     @on_add(SOURCE_ONTOLOGY.title)
-    def source_ontology_changes(self):
+    def source_ontology_changes(self, actual, desired):
         for before, after in self.before_after_predicates:
             replace_predicate_sparql(before, after)
 
     @on_add(SOURCE_ONTOLOGY.public)
-    def source_ontology_additions(self):
-        # add new predicates (only public has a default and needs to be added)
+    def source_ontology_additions(self, actual, desired):
+        #     # add new predicates (only public has a default and needs to be added)
         querystring = 'INSERT {?s ?public ?pubdefault} WHERE {?s ?p ?o}'
         sources_graph().update(querystring, initBindings={
             'public': SOURCE_ONTOLOGY.public,
@@ -98,7 +101,7 @@ class Migration(RDFMigration):
         })
 
     @on_add(SOURCE_ONTOLOGY.Source)
-    def source_ontology_types(self):
+    def source_ontology_types(self, actual, desired):
         # map old source types to new
         for before, after in self.sourcetype_mapping:
             replace_objects(before, after, sources_graph())
@@ -110,6 +113,7 @@ class Migration(RDFMigration):
                 'vocabsource': VOCAB.Source,
                 'ontologysource': SOURCE_ONTOLOGY.Source,
                 'plaintextsource': SOURCE_ONTOLOGY.PlainTextSource,
-                'format': SOURCE_ONTOLOGY.encodingFormat
+                'format': SOURCE_ONTOLOGY.encodingFormat,
+                'type': RDF.type
             }
         )
