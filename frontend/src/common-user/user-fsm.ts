@@ -1,5 +1,3 @@
-import { defaults } from 'lodash';
-
 import AuthorizationFsm, { requireAuthorization } from './user-fsm-base';
 
 /**
@@ -12,9 +10,9 @@ const unprivilegedState = {
     search: requireAuthorization,
     explore: requireAuthorization,
     upload: requireAuthorization,
-    landing: requireAuthorization,
+    land: requireAuthorization,
     confirm: 'confirming',
-    notfound: 'lost',
+    notfound: 'lost'
 };
 
 /**

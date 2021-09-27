@@ -8,6 +8,7 @@ import {
     readit,
 } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
+import userChannel from '../common-user/user-radio';
 import Store from '../common-rdf/store';
 import './ontology';
 
@@ -38,6 +39,7 @@ export const globalGraph = new Store();
 
 export function prefetch() {
     inhouseGraphs.forEach(ns => globalGraph.import(ns));
+    userChannel.trigger('cache');
     ldChannel.trigger('cache:ontology');
     ldChannel.trigger('cache:nlp-ontology');
     ldChannel.trigger('cache:item-list');

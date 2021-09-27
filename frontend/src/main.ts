@@ -18,7 +18,6 @@ import './aspects/authentication';
 import './aspects/registration';
 import './aspects/exploration';
 
-user.fetch();
 when(ready, i18nPromise).done(function () {
     history.start({
         root: baseUrl,

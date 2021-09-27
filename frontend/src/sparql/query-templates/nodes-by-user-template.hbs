@@ -1,11 +1,11 @@
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX oa: <http://www.w3.org/ns/oa#>
-SELECT DISTINCT ?node
+CONSTRUCT {?node ?p ?o}
 WHERE {
     ?node ?p ?o.
     ?node dcterms:creator <{{userURI}}>.
     {{#if itemQuery}}
-    {{>retrictToItems}}
+    {{>restrictToItems}}
     {{/if}}
 }
 ORDER BY desc(?node)

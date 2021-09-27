@@ -6,7 +6,6 @@ import Graph from '../common-rdf/graph';
 import { asURI } from '../utilities/linked-data-utilities';
 
 import { sparqlRoot } from 'config.json';
-const sparqlItemsEndpoint = sparqlRoot + 'item/query'
 
 export interface QueryParamsURI {
     predicate?: Node | string;

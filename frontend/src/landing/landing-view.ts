@@ -4,24 +4,23 @@ import ItemGraph from '../common-adapters/item-graph';
 import View from "../core/view";
 import { nodesByUserQuery } from '../sparql/compile-query';
 import ldChannel from '../common-rdf/radio';
-
-import sourceList from '../global/source-list';
-import itemList from '../global/item-list';
+import userChannel from '../common-user/user-radio';
 
 import landingTemplate from './landing-template';
-import { Collection } from 'backbone';
 
 export default class LandingView extends View {
     totalSources: number;
     totalItems: number;
     userSources: number;
     userItems: number;
+    user: string;
 
     initialize() {
-        this.listenTo(itemList, 'sync', () => this.setLength(itemList, this.totalItems));
-        this.listenTo(sourceList, 'sync', () => this.setLength(sourceList, this.totalSources));
+        userChannel.request('user').then( (user) => {
+            this.user = user.get('username');
+        })
+        this.awaitNodeLists();
         this.requestUserNodes();
-        this.render();
     }
 
     render() {
@@ -29,24 +28,29 @@ export default class LandingView extends View {
         return this;
     }
 
+    async awaitNodeLists() {
+        const sourceList = await ldChannel.request('source-list:promise');
+        this.totalSources = sourceList.length;
+        const itemList = await ldChannel.request('item-list:promise');
+        this.totalItems = itemList.length;
+        this.render();
+    }
+
     async requestUserNodes() {
-        const userItemsQuery = nodesByUserQuery(true, {});
+        const userItemsQuery = await nodesByUserQuery(true, {});
         const items = new ItemGraph();
         await items.sparqlQuery(userItemsQuery, 'item/query');
         this.userItems = items.length;
-        const userSourcesQuery = nodesByUserQuery(false, {});
+        const userSourcesQuery = await nodesByUserQuery(false, {});
         const sources = new ItemGraph();
         await sources.sparqlQuery(userSourcesQuery, 'source/query');
         this.userSources = sources.length;
-    }
-
-    setLength(nodeList: Collection, nItems: number) {
-        nItems = nodeList.length;
         this.render();
     }
 }
 
 extend(LandingView.prototype, {
     tagName: 'section',
+    className: 'section welcome',
     template: landingTemplate,
 });

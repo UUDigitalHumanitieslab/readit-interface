@@ -52,7 +52,9 @@ userFsm.on('exit:uploading', () => {
 });
 userFsm.on('enter:exploring', () => explorerView.$el.appendTo('#main'));
 userFsm.on('exit:exploring', () => explorerView.$el.detach());
-userFsm.on('enter:landing', () => landingView.$el.appendTo('#main'));
+userFsm.on('enter:landing', () => {
+    landingView.$el.appendTo('#main')
+});
 userFsm.on('exit:landing', () => landingView.$el.detach());
 userFsm.on('enter:lost', () => notFoundView.$el.appendTo('#main'));
 userFsm.on('exit:lost', () => notFoundView.$el.detach());

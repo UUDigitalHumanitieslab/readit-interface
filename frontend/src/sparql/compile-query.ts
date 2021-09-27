@@ -1,4 +1,3 @@
-import ldChannel from '../common-rdf/radio';
 import userChannel from '../common-user/user-radio';
 import itemsTemplate from './query-templates/items-for-source-template';
 import listNodesTemplate from './query-templates/list-nodes-template';
@@ -26,11 +25,11 @@ export interface SPARQLQueryOptions {
 
 export function itemsForSourceQuery(source: string, { ...options }: SPARQLQueryOptions) {
     let data = { sourceURI: source, from: 'source' };
-    userChannel.request('permission', 'view_all_annotations').then( perm => {
+    return userChannel.request('permission', 'view_all_annotations').then( perm => {
         if (!perm) data['userURI'] = userChannel.request('current-user-uri');
+        const finalData = { ...data, ...options };
+        return itemsTemplate(finalData);
     });
-    const finalData = { ...data, ...options };
-    return itemsTemplate(finalData).replace(/ {2,}/g, ' '); // strip double spaces
 }
 
 export function listNodesQuery(itemQuery: boolean, { ...options }: SPARQLQueryOptions) {   
@@ -39,10 +38,11 @@ export function listNodesQuery(itemQuery: boolean, { ...options }: SPARQLQueryOp
 }
 
 export function nodesByUserQuery(itemQuery: boolean, { ...options }: SPARQLQueryOptions) {  
-    const userURI = userChannel.request('current-user-uri');
-    const data = {itemQuery: itemQuery, userURI: userURI};
-    const finalData = { ...data, ...options };
-    return nodesByUserTemplate(finalData);
+    return userChannel.request('current-user-uri').then( (uri) => {
+        const data = {itemQuery: itemQuery, userURI: uri};
+        const finalData = { ...data, ...options };
+        return nodesByUserTemplate(finalData);
+    });   
 }
 
 export function randomNodesQuery(randomNodes: Model[], lastNode: Model, { ...options }: SPARQLQueryOptions) {
