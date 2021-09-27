@@ -5,7 +5,7 @@
  * the ontology indirectly through the linked data radio channel. The
  * ontology is fetched lazily, i.e., not before it is first requested.
  *
- * This module provides its service through one trigger and two
+ * This module provides its service through one trigger and three
  * requests:
 
     ldChannel.trigger('cache:ontology')
@@ -28,17 +28,28 @@
  * sync code that can wait until a later event in order to access the
  * ontology Nodes, or in sync code where it is reasonable to assume
  * that the ontology has already been fetched.
+
+    ldChannel.request('ontology:colored')
+
+ * Like the previous, but returns a FilteredCollection with only the
+ * colored classes in the ontology.
  */
 
 import { constant } from 'lodash';
 
 import ldChannel from '../common-rdf/radio';
 import { readit } from '../common-rdf/ns';
+import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
+import FilteredCollection from '../common-adapters/filtered-collection';
+import { isColoredClass } from '../utilities/linked-data-utilities';
 
 const ontology = new Graph();
 export default ontology;
 let promise: PromiseLike<Graph> = null;
+export const coloredClasses = new FilteredCollection<Node, Graph>(
+    ontology, isColoredClass
+);
 
 /**
  * The function that takes care of the lazy fetching.
@@ -55,3 +66,4 @@ function ensurePromise(): PromiseLike<Graph> {
 ldChannel.once('cache:ontology', ensurePromise);
 ldChannel.reply('ontology:promise', ensurePromise);
 ldChannel.reply('ontology:graph', () => (ensurePromise(), ontology));
+ldChannel.reply('ontology:colored', () => (ensurePromise(), coloredClasses));
