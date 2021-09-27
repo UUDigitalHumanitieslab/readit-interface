@@ -1,4 +1,4 @@
-import { extend, compact, map } from 'lodash';
+import { extend, map, chain } from 'lodash';
 import { ViewOptions as BaseOpt } from 'backbone';
 
 import View from '../core/view';
@@ -27,6 +27,14 @@ const specialCategories = map([
     'rit-other-made',
 ], name => ({ class: name }));
 
+// `map` iteratee to extract the properties of interest here.
+function summarizeCategory(node: Node): { class: string, color?: string } {
+    return {
+        class: getCssClassName(node),
+        color: node.get(schema.color)[0] as string,
+    };
+}
+
 export default class CategoryColorsView extends View {
     collection: Graph;
 
@@ -43,17 +51,13 @@ export default class CategoryColorsView extends View {
         return this;
     }
 
-
     collectColors() {
-        const classes = this.collection.models.concat(placeholderClass);
-        return compact(map(classes, node => {
-            if (isColoredClass(node)) {
-                return {
-                    class: getCssClassName(node),
-                    color: node.get(schema.color)[0],
-                } as { class: string, color?: string };
-            }
-        })).concat(specialCategories);
+        return chain(this.collection.models)
+            .filter(isColoredClass)
+            .concat(placeholderClass)
+            .map(summarizeCategory)
+            .concat(specialCategories)
+            .value();
     }
 }
 
