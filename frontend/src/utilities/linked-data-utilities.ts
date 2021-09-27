@@ -111,12 +111,20 @@ export function isRdfProperty(node: Node): boolean {
 }
 
 /**
+ * Check whether a node is both colored and a class. A middle ground between
+ * `isRdfsClass` and `isAnnotationCategory`.
+ */
+export function isColoredClass(node: Node): boolean {
+    return node.has(schema.color) && isRdfsClass(node);
+}
+
+/**
  * Check if a node is an annotation category used in the class picker when
  * editing annotations.
  * @param node The node to evaluate
  */
 export function isAnnotationCategory(node: Node): boolean {
-    return isRdfsClass(node) && node.has(schema.color) && !(node.get(owl.deprecated));
+    return isColoredClass(node) && !(node.get(owl.deprecated));
 }
 
 /**
