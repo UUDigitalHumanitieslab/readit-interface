@@ -30,6 +30,8 @@
  * that the ontology has already been fetched.
  */
 
+import { constant } from 'lodash';
+
 import ldChannel from '../common-rdf/radio';
 import { readit } from '../common-rdf/ns';
 import Graph from '../common-rdf/graph';
@@ -43,23 +45,8 @@ let promise: PromiseLike<Graph> = null;
  */
 function ensurePromise(): PromiseLike<Graph> {
     if (promise) return promise;
-    promise = ontology.fetch({ url: readit() }).then(handleSuccess, handleError);
+    promise = ontology.fetch({ url: readit() }).then(constant(ontology));
     return promise;
-}
-
-/**
- * Promise resolution and rejection handlers.
- * Besides returning the result or error, they short-circuit the
- * promise in order to save a few ticks.
- */
-function handleSuccess(): Graph {
-    promise = Promise.resolve(ontology);
-    return ontology;
-}
-
-function handleError(error: any): any {
-    promise = Promise.reject(error);
-    return error;
 }
 
 /**
