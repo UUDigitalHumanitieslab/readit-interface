@@ -1,7 +1,6 @@
 import userChannel from '../common-user/user-radio';
 import itemsTemplate from './query-templates/items-for-source-template';
 import listNodesTemplate from './query-templates/list-nodes-template';
-import sourcesByUserTemplate from './query-templates/sources-by-user-template';
 import nodesByUserTemplate from './query-templates/nodes-by-user-template';
 import randomNodesTemplate from './query-templates/random-nodes-template';
 import Model from '../core/model';
@@ -42,15 +41,13 @@ export function nodesByUserQuery(itemQuery: boolean, { ...options }: SPARQLQuery
         const data = {itemQuery: itemQuery, userURI: uri};
         const finalData = { ...data, ...options };
         return nodesByUserTemplate(finalData);
+    }, (error) => { 
+        Promise.reject(error);
+        return error;
     });   
 }
 
 export function randomNodesQuery(randomNodes: Model[], lastNode: Model, { ...options }: SPARQLQueryOptions) {
     const data = {randomNodes: randomNodes.map( model => model.get('value')), lastNode: lastNode.get('value'), ...options }
     return randomNodesTemplate(data);
-}
-
-export function sourcesByUserQuery(user: string, { ... options }: SPARQLQueryOptions) {
-    const data = { userURI: user, ...options };
-    return sourcesByUserTemplate(data).replace(/ {2,}/g, ' ');
 }

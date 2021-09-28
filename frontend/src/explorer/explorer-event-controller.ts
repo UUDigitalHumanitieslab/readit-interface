@@ -317,6 +317,14 @@ class ExplorerEventController {
         const newAnnotationView = this.openSourceAnnotation(listPanel, flat, collection);
         return this.editAnnotation(newAnnotationView, flat);
     }
+
+    resetBrowsePanel(queryMode: string, landing: boolean) {
+        const browsePanel = new BrowseView({
+            queryMode: queryMode,
+            landing: landing
+        });
+        return this.explorerView.reset(browsePanel);
+    }
 }
 extend(ExplorerEventController.prototype, Events);
 export default ExplorerEventController;

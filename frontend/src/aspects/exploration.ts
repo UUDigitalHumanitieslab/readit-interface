@@ -5,21 +5,11 @@ import * as act from '../explorer/route-actions';
 import semChannel from '../semantic-search/radio';
 import deparam from '../utilities/deparam';
 import router from '../global/exploration-router';
-import mainRouter from '../global/main-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
 import welcomeView from '../global/welcome-view';
-import BrowseView from '../panel-browse/browse-view';
 
 const browserHistory = window.history;
-
-let browsePanel: BrowseView;
-function resetBrowsePanel(queryMode: string, landing: boolean) {
-    browsePanel = new BrowseView({
-        queryMode: queryMode, landing: landing
-    });
-    return explorer.reset(browsePanel);
-}
 
 
 /**
@@ -46,14 +36,6 @@ function annoRoute(resetAction) {
     );
 }
 
-mainRouter.on('route:browse:sources', () => {
-    resetBrowsePanel('Sources', false);
-});
-
-mainRouter.on('route:browse:items', () => {
-    resetBrowsePanel('Items', false);
-});
-
 router.on({
     'route:source:bare':            sourceRoute(act.sourceWithoutAnnotations),
     'route:source:annotated':       sourceRoute(act.sourceWithAnnotations),
@@ -68,6 +50,7 @@ router.on({
     'route:item:annotations':       itemRoute(act.itemWithOccurrences),
     'route:search:results:sources': queryRoute(act.searchResultsSources),
     'route:search:results:semantic': semRoute(act.searchResultsSemantic),
+    'route:browse':                  partial(act.resetBrowsePanel, controller),
 });
 
 explorerChannel.on({

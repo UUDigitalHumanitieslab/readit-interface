@@ -1,13 +1,42 @@
 import {sparqlRoot} from 'config.json';
+import ItemGraph from '../common-adapters/item-graph';
 
 import Collection from '../core/collection';
 
-import { listNodesQuery } from "../sparql/compile-query";
+import { listNodesQuery, nodesByUserQuery } from "../sparql/compile-query";
 
 /**
- * a utility function to ensure that each getNodeList function uses its own promise
- * @returns getNodeList function, with its own promise object
+ * a utility function to ensure that each getUserNodes function uses its own promise
+ * @returns getUserNodes function, with its own promise object
  */
+export function userNodesFactory() {
+    let promise: PromiseLike<Collection> = null;
+    
+    function getUserNodes(userNodes: ItemGraph, queryingItems: boolean): PromiseLike<Collection> {
+        if (!promise) {
+            const endpoint = queryingItems ? 'item/query' : 'source/query';
+            nodesByUserQuery(true, {}).then(query => {
+                promise = userNodes.sparqlQuery(query, endpoint).then(
+                    () => handleSuccess(userNodes), handleError
+                )
+            }, handleError);
+        }
+        return promise;
+    }
+    
+    function handleSuccess(userNodes): ItemGraph {
+        promise = Promise.resolve(userNodes);
+        return userNodes;
+    }
+    
+    function handleError(error: any): any {
+        promise = Promise.reject(error);
+        return error;
+    }
+
+    return getUserNodes;
+}
+
 export function nodeListFactory() {
     let promise: PromiseLike<Collection> = null;
     
@@ -37,26 +66,6 @@ export function nodeListFactory() {
     return getNodeList;
 }
 
-
-// export function getNodeList(queriedList: Collection, promise: PromiseLike<Collection>, queryingItems: boolean): PromiseLike<Collection> {
-//     if (!promise) {
-//         const query = listNodesQuery(queryingItems, {});
-//         const endpoint = queryingItems ? 'item/query' : 'source/query'
-//         promise = queriedList.fetch({ 
-//             url: sparqlRoot + endpoint, 
-//             data: $.param({ query: query }), 
-//             remove: false
-//         }).then(() => handleSuccess(queriedList), handleError);
-//     }
-//     return promise;
-// }
-
-/**
- * Promise resolution and rejection handlers.
- * Besides returning the result or error, they short-circuit the
- * promise in order to save a few ticks.
- */
- 
 
 export function parseResponse(response): [] {
     return response.results.bindings.map( node => node.node );

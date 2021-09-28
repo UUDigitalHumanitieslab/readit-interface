@@ -2,7 +2,6 @@ import { extend } from 'lodash';
 import ItemGraph from '../common-adapters/item-graph';
 
 import View from "../core/view";
-import { nodesByUserQuery } from '../sparql/compile-query';
 import ldChannel from '../common-rdf/radio';
 import userChannel from '../common-user/user-radio';
 
@@ -11,6 +10,8 @@ import landingTemplate from './landing-template';
 export default class LandingView extends View {
     totalSources: number;
     totalItems: number;
+    sources: ItemGraph;
+    items: ItemGraph;
     userSources: number;
     userItems: number;
     user: string;
@@ -29,22 +30,18 @@ export default class LandingView extends View {
     }
 
     async awaitNodeLists() {
-        const sourceList = await ldChannel.request('source-list:promise');
-        this.totalSources = sourceList.length;
-        const itemList = await ldChannel.request('item-list:promise');
+        const itemList = await ldChannel.request('promise:item-list');
         this.totalItems = itemList.length;
+        const sourceList = await ldChannel.request('promise:source-list');
+        this.totalSources = sourceList.length;
         this.render();
     }
 
     async requestUserNodes() {
-        const userItemsQuery = await nodesByUserQuery(true, {});
-        const items = new ItemGraph();
-        await items.sparqlQuery(userItemsQuery, 'item/query');
-        this.userItems = items.length;
-        const userSourcesQuery = await nodesByUserQuery(false, {});
-        const sources = new ItemGraph();
-        await sources.sparqlQuery(userSourcesQuery, 'source/query');
-        this.userSources = sources.length;
+        this.items = await ldChannel.request('promise:user-items');
+        this.userItems = this.items.length;
+        this.sources = await ldChannel.request('promise:user-sources');
+        this.userSources = this.sources.length;
         this.render();
     }
 }

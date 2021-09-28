@@ -3,11 +3,10 @@ import {
     ViewOptions as BViewOptions,
 } from 'backbone';
 
-import ldChannel from '../common-rdf/radio';
-
 import { CompositeView } from "../core/view";
-import { nodesByUserQuery, randomNodesQuery } from "../sparql/compile-query";
+import { randomNodesQuery } from "../sparql/compile-query";
 import explorerChannel from '../explorer/explorer-radio';
+import ldChannel from '../common-rdf/radio';
 import {dcterms, oa} from '../common-rdf/ns'
 
 import Collection from '../core/collection';
@@ -18,20 +17,14 @@ import SearchResultListView from '../panel-search-results/search-result-list-vie
 import SourceListView from '../panel-source-list/source-list-view';
 
 import browseTemplate from './browse-template';
-import { formatNamespaces } from '../utilities/sparql-utilities';
 import Model from '../core/model';
-import itemList from '../global/item-list';
-import sourceList from '../global/source-list';
+import routePatterns from '../explorer/route-patterns';
 
-const namespaces = {
-    'dcterms': dcterms(),
-    'oa': oa()
-};
 const nSamples = 10;
 
 export interface ViewOptions extends BViewOptions<Model> {
-    landing: boolean;
     queryMode: string;
+    landing: boolean;
 }
 
 export default class BrowseView extends CompositeView {
@@ -41,22 +34,56 @@ export default class BrowseView extends CompositeView {
     endpoint: string;
     title: string;
     sparqlItems: ItemGraph;
+    routePattern: string;
 
     async initialize(options: ViewOptions) {
         const queryingItems = options.queryMode === 'Items'? true : false;
         this.endpoint =  queryingItems? 'item/query' : 'source/query';
-        let namespaceOptions = {namespaces: formatNamespaces(namespaces)};
-        this.sparqlItems = new ItemGraph();
+        this.routePattern = queryingItems? routePatterns['browse:items'] : routePatterns['browse:sources'];
         if (options.landing) {
             this.title = "My " + options.queryMode;
-            const query = nodesByUserQuery(queryingItems, {});
-            await this.sparqlItems.sparqlQuery(query, this.endpoint);
+            this.getUserNodes(queryingItems);
         }
         else {
-            this.title = options.queryMode;
-            const nodes = queryingItems? itemList : sourceList;
-            nodes.on('sync', () => this.getRandomNodes(nodes)); 
+            this.awaitNodeList(queryingItems).then( (nodes) => {
+                this.getRandomNodes(nodes);
+            });
         }
+        this.renderResults(queryingItems);
+        this.render();
+    }
+
+    async awaitNodeList(queryingItems: boolean) {
+        if (queryingItems) {
+            return await ldChannel.request('promise:item-list');
+        }
+        else {
+            return await ldChannel.request('promise:source-list');
+        }
+    }
+
+    async getRandomNodes(nodes: Collection) {
+        const randomNodes = sampleSize(nodes.models, nSamples);
+        const randomQuery = randomNodesQuery(randomNodes.slice(-randomNodes.length, -1), randomNodes.pop(), {});
+        this.sparqlItems = new ItemGraph();
+        this.sparqlItems.sparqlQuery(randomQuery, this.endpoint);
+    }
+
+    async getUserNodes(queryingItems: boolean) {
+        if (queryingItems) {
+            this.sparqlItems = ldChannel.request('promise:user-items');
+        }
+        else {
+            this.sparqlItems = ldChannel.request('promise:user-sources');
+        }
+    }
+
+    renderContainer(): this {
+        this.$el.html(this.template(this));
+        return this;
+    }
+
+    renderResults(queryingItems: boolean) {
         if (queryingItems) {
             this.resultsList = new SearchResultListView({
                 collection: new FlatItemCollection(this.sparqlItems),
@@ -74,18 +101,6 @@ export default class BrowseView extends CompositeView {
                 this.resultsList, 'source:clicked', this.onSourceClicked
             );
         }
-        this.render();
-    }
-
-    getRandomNodes(nodes: Collection) {
-        const randomNodes = sampleSize(nodes.models, nSamples);
-        const randomQuery = randomNodesQuery(randomNodes.slice(-randomNodes.length, -1), randomNodes.pop(), {});
-        this.sparqlItems.sparqlQuery(randomQuery, this.endpoint);
-    }
-
-    renderContainer(): this {
-        this.$el.html(this.template(this));
-        return this;
     }
 
     onFocus(model: FlatItem): void {

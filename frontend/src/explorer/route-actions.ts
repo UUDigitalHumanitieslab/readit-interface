@@ -8,6 +8,8 @@ import semChannel from '../semantic-search/radio';
 import SemanticQuery from '../semantic-search/model';
 
 import Controller from './explorer-event-controller';
+import Collection from '../core/collection';
+import ItemGraph from '../common-adapters/item-graph';
 
 function obtainer<T extends readonly string[]>(namespace: Namespace<T>) {
     return function(serial: string) {
@@ -76,6 +78,10 @@ export function itemWithOccurrences(control: Controller, node: Node) {
 
 export function searchResultsSources(control: Controller, queryParams: any) {
     return control.resetSourceListFromSearchResults(queryParams);
+}
+
+export function resetBrowsePanel(control: Controller, queryMode: string, landing: boolean) {
+    return control.resetBrowsePanel(queryMode, landing);
 }
 
 export

@@ -45,7 +45,9 @@ export function prefetch() {
     ldChannel.trigger('cache:ontology');
     ldChannel.trigger('cache:nlp-ontology');
     ldChannel.trigger('cache:item-list');
+    ldChannel.trigger('cache:user-items');
     ldChannel.trigger('cache:source-list');
+    ldChannel.trigger('cache:user-sources');
     // For the time being, we skip the attempt to import directly,
     // because most of our defaultGraphs don't support CORS and
     // because it saves a bunch of error messages in the dev console.
