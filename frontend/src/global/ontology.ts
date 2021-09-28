@@ -5,7 +5,7 @@
  * the ontology indirectly through the linked data radio channel. The
  * ontology is fetched lazily, i.e., not before it is first requested.
  *
- * This module provides its service through one trigger and three
+ * This module provides its service through one trigger and four
  * requests:
 
     ldChannel.trigger('cache:ontology')
@@ -33,20 +33,29 @@
 
  * Like the previous, but returns a FilteredCollection with only the
  * colored classes in the ontology.
+
+    ldChannel.request('ontology:hierarchy')
+
+ * Like the previous, but converted to a model hierarchy according to the
+ * convention described in ../hierarchy/hierarchy-view. This replies with a
+ * promise to the hierarchy, rather than the hierarchy itself.
  */
 
 import { constant } from 'lodash';
 
+import Collection from '../core/collection';
 import ldChannel from '../common-rdf/radio';
 import { readit } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import FilteredCollection from '../common-adapters/filtered-collection';
+import { hierarchyFromOntology } from '../hierarchy/ontology';
 import { isColoredClass } from '../utilities/linked-data-utilities';
 
 const ontology = new Graph();
 export default ontology;
 let promise: PromiseLike<Graph> = null;
+let hierarchy: PromiseLike<Collection> = null;
 export const coloredClasses = new FilteredCollection<Node, Graph>(
     ontology, isColoredClass
 );
@@ -61,9 +70,20 @@ function ensurePromise(): PromiseLike<Graph> {
 }
 
 /**
+ * Take care of having a hierarchy of the colored classes.
+ */
+function ensureHierarchy(): PromiseLike<Collection> {
+    hierarchy = hierarchy || ensurePromise().then(
+        () => hierarchyFromOntology(coloredClasses)
+    );
+    return hierarchy;
+}
+
+/**
  * Registering our services with the radio channel.
  */
 ldChannel.once('cache:ontology', ensurePromise);
 ldChannel.reply('ontology:promise', ensurePromise);
 ldChannel.reply('ontology:graph', () => (ensurePromise(), ontology));
 ldChannel.reply('ontology:colored', () => (ensurePromise(), coloredClasses));
+ldChannel.reply('ontology:hierarchy', ensureHierarchy);
