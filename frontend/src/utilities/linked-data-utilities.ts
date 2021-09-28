@@ -1,4 +1,4 @@
-import { find, includes, map, compact, some, isString } from 'lodash';
+import { find, findKey, includes, map, compact, some, isString } from 'lodash';
 import * as i18next from 'i18next';
 
 import ldChannel from '../common-rdf/radio';
@@ -6,8 +6,9 @@ import { Identifier, isIdentifier } from '../common-rdf/json';
 import Node, { isNode, NodeLike } from '../common-rdf/node';
 import Graph, { ReadOnlyGraph } from '../common-rdf//graph';
 import {
-    nlp, skos, rdf, rdfs, readit, dcterms, owl, schema,
+    nlp, skos, rdf, rdfs, readit, dcterms, owl, schema, nsMap,
 } from '../common-rdf/ns';
+import FilteredCollection from '../common-adapters/filtered-collection';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
@@ -31,6 +32,17 @@ export function getLabelFromId(id: string) {
     let index = id.lastIndexOf("#");
     if (index === -1) index = id.lastIndexOf("/");
     return id.substring(index + 1);
+}
+
+/**
+ * Obtain ns:term notation for terms in known namespaces.
+ * Falls back to <http(s)://full-uri> notation for URIs in unknown namespaces.
+ */
+export function getTurtleTerm(term: string | Node): string {
+    const uri = asURI(term);
+    const prefix = findKey(nsMap, p => uri.startsWith(p));
+    if (prefix) return `${prefix}:${uri.slice(nsMap[prefix].length)}`;
+    return `<${uri}>`;
 }
 
 /**
@@ -111,7 +123,7 @@ export interface GraphTraversal {
  * set of all things that are connected by a given relationship.
  * The transitive closure over parent-of, starting from you, is the
  * complete set of all your ancestors.
- * For an example of usage, see the getRdfSuperClasses source code.
+ * For an example of usage, see the predicateClosure source code.
  * @param seeds the Nodes from which to start following the relationship.
  * @param traverse a function that, given a Node, returns its related Nodes.
  * @return a deduplicated array of all related Nodes, including the seeds.
@@ -138,6 +150,46 @@ export function transitiveClosure(
 }
 
 /**
+ * Where transitiveClosure is still quite abstract, predicateClosure generates
+ * a function that applies transitiveClosure with a predicate as the
+ * relationship. You must specify whether the predicate should be followed in
+ * the subject-to-object (S2O) or object-to-subject (O2S) direction.
+ * This function factory contains the common underlying implementation of
+ * getRdfSuperClasses, getRdfSubClasses and getRdfSuperProperties. See their
+ * documentation comments below for further details about the semantics of the
+ * generated function.
+ * @param predicate The predicate that will serve as the relationship.
+ * @param direction The direction in which to traverse the predicate.
+ * @return a function that takes an array of Nodes and returns the combined,
+ *         deduplicated transitive closures of all Nodes in the input array.
+ */
+function predicateClosure(predicate: string, direction: 'S2O' | 'O2S') {
+    function traverseS2O(cls) {
+        const getObjects = store => store.get(cls).get(predicate);
+        return ldChannel.request('visit', getObjects);
+    }
+
+    function traverseO2S(cls) {
+        const getSubjects = store => store.filter({ [predicate]: cls });
+        return ldChannel.request('visit', getSubjects);
+    }
+
+    const traverse = direction === 'S2O' ? traverseS2O : traverseO2S;
+
+    return function(clss: NodeLike[]): Node[] {
+        if (!clss || clss.length === 0) return clss as Node[];
+        const seed = map(clss, cls => ldChannel.request('obtain', cls));
+        // Next lines handle test environments without a store.
+        if (seed[0] == null) return clss.map(cls =>
+            isNode(cls) ? cls : new Node(
+                isIdentifier(cls) ? cls : { '@id': cls }
+            )
+        );
+        return transitiveClosure(seed, traverse);
+    };
+}
+
+/**
  * Get all known RDF classes that are ancestors of the passed class(es).
  * "Known" here means that only the information that is synchronously
  * available from the store is taken into account, although classes
@@ -146,21 +198,7 @@ export function transitiveClosure(
  * @param clss (URIs of) RDF classes of which to obtain all ancestors.
  * @return a deduplicated array of all ancestors of clss, including clss.
  */
-export function getRdfSuperClasses(clss: NodeLike[]): Node[] {
-    if (!clss || clss.length === 0) return clss as Node[];
-    const seed = map(clss, cls => ldChannel.request('obtain', cls));
-    // Next lines handle test environments without a store.
-    if (seed[0] == null) return clss.map(cls =>
-        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : { '@id': cls })
-    );
-
-    function traverseParents(cls) {
-        const getDirectParents = store => store.get(cls).get(rdfs.subClassOf);
-        return ldChannel.request('visit', getDirectParents);
-    }
-
-    return transitiveClosure(seed, traverseParents);
-}
+export const getRdfSuperClasses = predicateClosure(rdfs.subClassOf, 'S2O');
 
 /**
  * Get all known RDF classes that are descendants of the passed class(es).
@@ -171,22 +209,20 @@ export function getRdfSuperClasses(clss: NodeLike[]): Node[] {
  * @param clss (URIs of) RDF classes of which to obtain all descendants.
  * @return a deduplicated array of all descendants of clss, including clss.
  */
-export function getRdfSubClasses(clss: NodeLike[]): Node[] {
-    if (!clss || clss.length === 0) return clss as Node[];
-    const seed = map(clss, cls => ldChannel.request('obtain', cls));
-    // Next lines handle test environments without a store.
-    if (seed[0] == null) return clss.map(cls =>
-        isNode(cls) ? cls : new Node(isIdentifier(cls) ? cls : { '@id': cls })
-    );
+export const getRdfSubClasses = predicateClosure(rdfs.subClassOf, 'O2S');
 
-    function traverseChildren(cls) {
-        return ldChannel.request('visit', store => store.filter({
-            [rdfs.subClassOf]: cls,
-        }));
-    }
-
-    return transitiveClosure(seed, traverseChildren);
-}
+/**
+ * Get all known RDF properties that are ancestors of the passed
+ * property/properties.
+ * "Known" here means that only the information that is synchronously
+ * available from the store is taken into account, although properties
+ * that were not previously in the store will be fetched as a side
+ * effect.
+ * @param props (URIs of) RDF properties of which to obtain all ancestors.
+ * @return a deduplicated array of all ancestors of props, including props.
+ */
+export
+const getRdfSuperProperties = predicateClosure(rdfs.subPropertyOf, 'S2O');
 
 /**
  * Check if a Node is an instance of (a subclass of) a specific type.

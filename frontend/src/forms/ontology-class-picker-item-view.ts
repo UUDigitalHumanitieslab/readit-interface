@@ -10,7 +10,7 @@ export default class OntologyClassPickerItemView extends CompositeView<FlatItem>
     initialize(): this {
         this.labelView = new LabelView({
             model: this.model,
-            toolTipSetting: false
+            toolTipSetting: false,
         });
         this.listenTo(this.model, { 'focus': this.onFocus, 'blur': this.onBlur });
         return this.render();

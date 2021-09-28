@@ -14,28 +14,52 @@
         <div id="navbarMenu" class="navbar-menu">
             <div class="navbar-start">
                 <a class="navbar-item" href="search">
-                    Search
+                    <span class="icon-text">
+                        <span class="icon is-small has-text-primary">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <span>Search</span>
+                    </span>
                 </a>
                 {{#if uploadSources}}
                 <a class="navbar-item" href="upload">
-                    Upload
+                    <span class="icon-text">
+                        <span class="icon is-small has-text-primary">
+                            <i class="fas fa-upload"></i>
+                        </span>
+                        <span>Upload</span>
+                    </span>
                 </a>
                 {{/if}}
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">
-                        Browse
+                        <span class="icon-text">
+                            <span class="icon is-small has-text-primary">
+                                <i class="fas fa-compass"></i>
+                            </span>
+                            <span>Explore</span>
+                        </span>
                     </a>
                     <div class="navbar-dropdown">
-                        <a class="navbar-item" id="source-list" href="browse/sources">
+                        <a href="explore/sources" class="navbar-item" id="source-list">
                             Sources
                         </a>
-                        <a class="navbar-item" id="item-list" href="browse/items">
+                        <a href="explore/items" class="navbar-item" id="item-list">
                             Items
                         </a>
                     </div>
                 </div>
             </div>
             <div class="navbar-end">
+                <a class="navbar-item tooltip is-tooltip-left" data-tooltip="Contribute to READ-IT through the project website"
+                    href="https://readit-project.eu/contact/contribute-to-read-it/", target="_blank">
+                    <span class="icon-text">
+                        <span>Contribute</span>
+                        <span class="icon is-small has-text-primary">
+                            <i class="fas fa-external-link-alt"></i>
+                        </span>
+                    </span>
+                </a>
                 {{#if username}}
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">
@@ -44,6 +68,9 @@
                     <div class="navbar-dropdown">
                         <a class="navbar-item" id="feedback">
                             Feedback
+                        </a>
+                        <a class="navbar-item" id="landing" href="landing">
+                            My sources and items
                         </a>
                         <hr class="navbar-divider">
                         <a class="navbar-item" id="logout" href="leave">
