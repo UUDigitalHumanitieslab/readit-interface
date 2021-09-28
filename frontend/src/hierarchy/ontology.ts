@@ -10,14 +10,17 @@ import Model from '../core/model';
 import Collection from '../core/collection';
 import { rdfs, skos } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
+import FlatItem from '../common-adapters/flat-item-model';
 
-type Clustering = Record<string, Node[]>;
+type Nodeish = Node | FlatItem;
+type Clustering = Record<string, Nodeish[]>;
 type Traversal = ReturnType<typeof optionalGet>;
 
 // Function factory for traversing a Node based on a given property.
 function optionalGet(property: string) {
-    return function(node: Node) {
-        const value = node.get(property) as Node[];
+    return function(node: Nodeish) {
+        const cls: Node = node.get('class') || node;
+        const value = cls.get(property) as Node[];
         if (value && value.length) return value[0].id;
     }
 }
@@ -30,7 +33,7 @@ const isInternal = collection => id => collection.has(id);
 
 // Recursively build a model hierarchy, starting from an outer model.
 function asOuterModel(clustering: Clustering) {
-    return function(node: Node) {
+    return function(node: Nodeish) {
         const model = new Model({ model: node });
         if (node.id in clustering) {
             model.set('collection', buildHierarchy(clustering, node.id));
@@ -47,7 +50,7 @@ function buildHierarchy(clustering: Clustering, name?: string) {
 // Overall algorithm factory. Concrete versions only differ by the method of
 // traversal.
 function hierarchyOverRelation(traverse: Traversal) {
-    return function(collection: Collection<Node>): Collection {
+    return function(collection: Collection<Nodeish>): Collection {
         let clustering = groupBy(collection.models, traverse);
         const toplevel = clustering['undefined'] || [];
         delete clustering['undefined'];

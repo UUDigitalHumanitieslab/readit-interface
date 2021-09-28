@@ -1,6 +1,6 @@
 import { map, isArray } from 'lodash';
 
-import { startStore, endStore } from '../test-util';
+import { startStore, endStore, event } from '../test-util';
 import mockOntology from '../mock-data/mock-tiered-ontology';
 import mockNLP from '../mock-data/mock-nlp-ontology';
 
@@ -10,6 +10,7 @@ import Collection from '../core/collection';
 import { isNode } from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import FilteredCollection from '../common-adapters/filtered-collection';
+import FlatItemCollection from '../common-adapters/flat-item-collection';
 import { isColoredClass } from '../utilities/linked-data-utilities';
 
 import { hierarchyFromOntology, hierarchyFromNLPOntology } from './ontology';
@@ -106,6 +107,13 @@ describe('ontology hierarchy algorithms', function() {
                 const hierarchy = hierarchyFromOntology(this.colored);
                 expectHierarchy(expectedColoredOntology, hierarchy);
             });
+        });
+
+        it('supports flattened ontologies', async function() {
+            const flat = new FlatItemCollection(this.graph);
+            await event(flat, 'complete:all');
+            const hierarchy = hierarchyFromOntology(flat);
+            expectHierarchy(expectedFullOntology, hierarchy);
         });
     });
 
