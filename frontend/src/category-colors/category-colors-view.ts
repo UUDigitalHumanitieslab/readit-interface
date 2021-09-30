@@ -1,17 +1,19 @@
 import { extend, map, chain } from 'lodash';
 import { ViewOptions as BaseOpt } from 'backbone';
 
+import Collection from '../core/collection';
 import View from '../core/view';
 import Node from '../common-rdf/node';
-import Graph from '../common-rdf/graph';
 import { schema } from '../common-rdf/ns';
 import { getCssClassName, isColoredClass } from '../utilities/linked-data-utilities';
 import { placeholderClass } from '../utilities/annotation-utilities';
 
 import categoryColorsTemplate from './category-colors-template';
 
+type GraphLike = Collection<Node>;
+
 export interface ViewOptions extends BaseOpt<Node> {
-    collection: Graph;
+    collection: GraphLike;
 }
 
 // Special categories that are also used for visibility filtering, in addition
@@ -36,7 +38,7 @@ function summarizeCategory(node: Node): { class: string, color?: string } {
 }
 
 export default class CategoryColorsView extends View {
-    collection: Graph;
+    collection: GraphLike;
 
     constructor(options: ViewOptions) {
         super(options);
@@ -53,7 +55,6 @@ export default class CategoryColorsView extends View {
 
     collectColors() {
         return chain(this.collection.models)
-            .filter(isColoredClass)
             .concat(placeholderClass)
             .map(summarizeCategory)
             .concat(specialCategories)

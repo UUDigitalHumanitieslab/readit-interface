@@ -4,6 +4,8 @@ import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
 import { FlatLdObject } from '../common-rdf/json';
 import { rdfs, skos, schema } from '../common-rdf/ns';
+import FilteredCollection from '../common-adapters/filtered-collection';
+import { isColoredClass } from '../utilities/linked-data-utilities';
 import { placeholderClass } from '../utilities/annotation-utilities';
 
 import CategoryColorsView from './category-colors-view';
@@ -36,8 +38,9 @@ describe('CategoryColorsView', function () {
     beforeAll(enableI18n);
 
     beforeEach(function () {
-        let graph = new Graph([getDefaultNode()]);
-        this.view = new CategoryColorsView({ collection: graph });
+        const graph = new Graph([getDefaultNode()]);
+        const colored = new FilteredCollection<Node>(graph, isColoredClass);
+        this.view = new CategoryColorsView({ collection: colored });
     });
 
     it('parses graphs into cssClass and color, appending the placeholder', function () {
