@@ -64,6 +64,9 @@ export const coloredClasses = new FilteredCollection<Node, Graph>(
     ontology, isColoredClass
 );
 export const flatColored = new FlatItemCollection(coloredClasses);
+const coloredComplete = new Promise(
+    resolve => flatColored.once('complete:all', resolve)
+);
 let hierarchy: PromiseLike<Collection> = null;
 
 /**
@@ -79,7 +82,9 @@ function ensurePromise(): PromiseLike<Graph> {
  * Take care of having a hierarchy of the colored classes.
  */
 function ensureHierarchy(): PromiseLike<Collection> {
-    hierarchy = hierarchy || ensurePromise().then(
+    hierarchy = hierarchy || Promise.all([
+        ensurePromise(), coloredComplete
+    ]).then(
         () => hierarchyFromOntology(flatColored)
     );
     return hierarchy;
