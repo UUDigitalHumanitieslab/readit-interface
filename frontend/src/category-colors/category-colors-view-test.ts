@@ -68,24 +68,6 @@ describe('CategoryColorsView', function () {
 
         let attributes2 = getDefaultAttributes();
         attributes2['@id'] = 'anotherUniqueId';
-        attributes2['@type'] = [rdfs.Class];
-        delete attributes2[schema.color]
-        let node2 = new Node(attributes2);
-
-        let graph = new Graph([node1, node2]);
-        let view = new CategoryColorsView({ collection: graph });
-
-        let html = view.$el.html();
-        let actual = replaceNewLinesAndWhitespace(html);
-
-        expect(actual).toEqual('.is-readit-content{background-color:hotpink!important;}.hide-is-readit-content.is-readit-content,.hide-rit-any:not(.unhide-is-readit-content).is-readit-content{display:none!important;}' + fixedSuffix);
-    });
-
-    it('excludes linked data items that are irrelevant', function () {
-        let node1 = getDefaultNode();
-
-        let attributes2 = getDefaultAttributes();
-        attributes2['@id'] = 'anotherUniqueId';
         attributes2[skos.prefLabel] = [{ '@value': 'Test2' }];
         attributes2[schema.color] = [{ '@value': 'aliceblue' }];
         let node2 = new Node(attributes2);
