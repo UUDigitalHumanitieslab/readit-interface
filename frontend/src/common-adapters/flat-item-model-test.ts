@@ -10,9 +10,10 @@ import {
     readerClass,
     descriptionOfProperty,
 } from '../mock-data/mock-ontology';
+import mockNLP from '../mock-data/mock-nlp-ontology';
 import mockItems from '../mock-data/mock-items';
 
-import { skos, dcterms, oa, readit, item } from '../common-rdf/ns';
+import { skos, dcterms, oa, readit, nlp, item } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import { asNative } from '../common-rdf/conversion';
 import Node from '../common-rdf/node';
@@ -304,6 +305,19 @@ describe('FlatItem', function() {
         )));
     });
 
+    it('can flatten a bare NLP class', async function() {
+        const ontology = new Graph(mockNLP);
+        const ontologyClass = ontology.get(nlp('time'));
+        const flatClass = new FlatItem(ontologyClass);
+        await completion(flatClass);
+        expect(flatClass.attributes).toEqual({
+            id: ontologyClass.id,
+            class: ontologyClass,
+            classLabel: 'time',
+            cssClass: 'is-nlp-time',
+        });
+    });
+
     it('can flatten a bare property', async function() {
         const ontologyProp = new Node(descriptionOfProperty);
         const flatProp = new FlatItem(ontologyProp);
@@ -350,6 +364,27 @@ describe('FlatItem', function() {
             'classLabel',
             'cssClass'
         ));
+    });
+
+    it('can flatten an annotation with an NLP class', async function() {
+        const items = getFullItems();
+        const ontology = new Graph(mockNLP);
+        const timeClass = ontology.get(nlp('time'));
+        items.annotation.unset(oa.hasBody).set(oa.hasBody, timeClass);
+        const flatAnno = new FlatItem(items.annotation);
+        await completion(flatAnno);
+        expect(flatAnno.attributes).toEqual(assign({
+            class: timeClass,
+            classLabel: 'time',
+            cssClass: 'is-nlp-time',
+        }, omit(
+            expectedFlatAttributes,
+            'item',
+            'label',
+            'class',
+            'classLabel',
+            'cssClass'
+        )));
     });
 
     it('can flatten a bare selector', async function() {
