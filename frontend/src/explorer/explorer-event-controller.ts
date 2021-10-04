@@ -24,7 +24,7 @@ import FlatItemCollection from '../common-adapters/flat-item-collection';
 import FlatAnnoCollection from '../common-adapters/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 import { createPlaceholderAnnotation } from '../utilities/annotation-creation-utilities';
-import { oa } from '../common-rdf/ns';
+import { oa, source } from '../common-rdf/ns';
 import SearchResultListPanel from '../panel-search-results/search-result-list-panel';
 import SourceListPanel from '../panel-source-list/source-list-panel';
 import FilteredCollection from '../common-adapters/filtered-collection';
@@ -115,17 +115,19 @@ class ExplorerEventController {
         result: FlatItem
     ) {
         const annotation = result.get('annotation') as Node;
-        if (annotation) {
-            const source = result.get('source') as Node;
+        if (annotation || result.get('id').startsWith(source())) {
+            const source = annotation? result.get('source') as Node : result.get('item') as Node;
             const [sourcePanel,] = this.pushSourcePair(searchResults, source);
             const collection = sourcePanel.collection;
-            sourcePanel.once('ready', () => {
-                // `flat` represents the same underlying Node, but is a distinct
-                // FlatItem from `result`, since they come from distinct
-                // collections.
-                const flat = collection.get(annotation.id);
-                flat.trigger('focus', flat);
-            });
+            if (annotation) {
+                sourcePanel.once('ready', () => {
+                    // `flat` represents the same underlying Node, but is a distinct
+                    // FlatItem from `result`, since they come from distinct
+                    // collections.
+                    const flat = collection.get(annotation.id);
+                    flat.trigger('focus', flat);
+                });
+            }
         } else {
             const itemPanel = new AnnotationView({ model: result });
             this.explorerView.popUntil(searchResults).push(itemPanel);

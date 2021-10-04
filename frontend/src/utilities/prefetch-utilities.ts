@@ -10,16 +10,19 @@ import { listNodesQuery, nodesByUserQuery } from "../sparql/compile-query";
  * @returns getUserNodes function, with its own promise object
  */
 export function userNodesFactory() {
-    let promise: PromiseLike<Collection> = null;
+    let promise: PromiseLike<ItemGraph> = null;
     
-    function getUserNodes(userNodes: ItemGraph, queryingItems: boolean): PromiseLike<Collection> {
+    function getUserNodes(userNodes: ItemGraph, queryingItems: boolean): PromiseLike<ItemGraph> {
         if (!promise) {
             const endpoint = queryingItems ? 'item/query' : 'source/query';
-            nodesByUserQuery(true, {}).then(query => {
-                promise = userNodes.sparqlQuery(query, endpoint).then(
+            promise = nodesByUserQuery(queryingItems, {}).then( (query) => {
+                if (!query) {
+                    return handleError('user not authenticated');
+                }
+                return userNodes.sparqlQuery(query, endpoint).then(
                     () => handleSuccess(userNodes), handleError
-                )
-            }, handleError);
+                );
+            });
         }
         return promise;
     }

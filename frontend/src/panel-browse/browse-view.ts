@@ -7,7 +7,6 @@ import { CompositeView } from "../core/view";
 import { randomNodesQuery } from "../sparql/compile-query";
 import explorerChannel from '../explorer/explorer-radio';
 import ldChannel from '../common-rdf/radio';
-import {dcterms, oa} from '../common-rdf/ns'
 
 import Collection from '../core/collection';
 import FlatItem from '../common-adapters/flat-item-model';
@@ -34,27 +33,27 @@ export default class BrowseView extends CompositeView {
     endpoint: string;
     title: string;
     sparqlItems: ItemGraph;
-    routePattern: string;
+    queryingItems: boolean;
 
     async initialize(options: ViewOptions) {
-        const queryingItems = options.queryMode === 'Items'? true : false;
-        this.endpoint =  queryingItems? 'item/query' : 'source/query';
-        this.routePattern = queryingItems? routePatterns['browse:items'] : routePatterns['browse:sources'];
+        this.sparqlItems = new ItemGraph();
+        this.queryingItems = options.queryMode === 'items'? true : false;
+        this.endpoint =  this.queryingItems? 'item/query' : 'source/query';
         if (options.landing) {
             this.title = "My " + options.queryMode;
-            this.getUserNodes(queryingItems);
+            await this.getUserNodes();
         }
         else {
-            this.awaitNodeList(queryingItems).then( (nodes) => {
-                this.getRandomNodes(nodes);
-            });
+            this.title = options.queryMode.charAt(0).toUpperCase() + options.queryMode.slice(1);
+            const nodes = await this.awaitNodeList();
+            await this.getRandomNodes(nodes);
         }
-        this.renderResults(queryingItems);
+        this.renderResults();
         this.render();
     }
 
-    async awaitNodeList(queryingItems: boolean) {
-        if (queryingItems) {
+    async awaitNodeList() {
+        if (this.queryingItems) {
             return await ldChannel.request('promise:item-list');
         }
         else {
@@ -65,16 +64,15 @@ export default class BrowseView extends CompositeView {
     async getRandomNodes(nodes: Collection) {
         const randomNodes = sampleSize(nodes.models, nSamples);
         const randomQuery = randomNodesQuery(randomNodes.slice(-randomNodes.length, -1), randomNodes.pop(), {});
-        this.sparqlItems = new ItemGraph();
         this.sparqlItems.sparqlQuery(randomQuery, this.endpoint);
     }
 
-    async getUserNodes(queryingItems: boolean) {
-        if (queryingItems) {
-            this.sparqlItems = ldChannel.request('promise:user-items');
+    async getUserNodes() {
+        if (this.queryingItems) {
+            this.sparqlItems = await ldChannel.request('promise:user-items');
         }
         else {
-            this.sparqlItems = ldChannel.request('promise:user-sources');
+            this.sparqlItems = await ldChannel.request('promise:user-sources');
         }
     }
 
@@ -83,8 +81,8 @@ export default class BrowseView extends CompositeView {
         return this;
     }
 
-    renderResults(queryingItems: boolean) {
-        if (queryingItems) {
+    renderResults() {
+        // if (this.queryingItems) {
             this.resultsList = new SearchResultListView({
                 collection: new FlatItemCollection(this.sparqlItems),
                 selectable: false }).render();
@@ -92,15 +90,15 @@ export default class BrowseView extends CompositeView {
                 focus: this.onFocus,
                 blur: this.onBlur
             });
-        }
-        else {
-            this.resultsList = new SourceListView({
-                collection: this.sparqlItems
-            });
-            this.listenTo(
-                this.resultsList, 'source:clicked', this.onSourceClicked
-            );
-        }
+        // }
+        // else {
+        //     this.resultsList = new SourceListView({
+        //         collection: this.sparqlItems
+        //     });
+        //     this.listenTo(
+        //         this.resultsList, 'source:clicked', this.onSourceClicked
+        //     );
+        // }
     }
 
     onFocus(model: FlatItem): void {

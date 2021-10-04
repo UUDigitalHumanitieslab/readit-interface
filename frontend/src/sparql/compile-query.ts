@@ -36,15 +36,14 @@ export function listNodesQuery(itemQuery: boolean, { ...options }: SPARQLQueryOp
     return listNodesTemplate(data);
 }
 
-export function nodesByUserQuery(itemQuery: boolean, { ...options }: SPARQLQueryOptions) {  
-    return userChannel.request('current-user-uri').then( (uri) => {
-        const data = {itemQuery: itemQuery, userURI: uri};
-        const finalData = { ...data, ...options };
-        return nodesByUserTemplate(finalData);
-    }, (error) => { 
-        Promise.reject(error);
-        return error;
-    });   
+export async function nodesByUserQuery(itemQuery: boolean, { ...options }: SPARQLQueryOptions) {  
+    const uri = await userChannel.request('current-user-uri');
+    if (!uri) {
+        return null;
+    }
+    const data = {itemQuery: itemQuery, userURI: uri};
+    const finalData = { ...data, ...options };
+    return nodesByUserTemplate(finalData);
 }
 
 export function randomNodesQuery(randomNodes: Model[], lastNode: Model, { ...options }: SPARQLQueryOptions) {
