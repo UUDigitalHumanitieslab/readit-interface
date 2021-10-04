@@ -46,7 +46,7 @@ export class FilterTerminal extends CompositeView {
     }
 
     onToggleCheck(): void {
-        const action = this.$('input').val() ? 'enable' : 'disable';
+        const action = this.$('input').prop('checked') ? 'enable' : 'disable';
         this.trigger(action, this.model);
     }
 }
