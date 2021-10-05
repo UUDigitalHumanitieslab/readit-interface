@@ -4,16 +4,18 @@ import { baseUrl } from 'config.json';
 
 import explorerChannel from '../explorer/explorer-radio';
 import FlatItem from '../common-adapters/flat-item-model';
-import { CompositeView } from '../core/view';
+import View, { CompositeView } from '../core/view';
 import { announceRoute } from '../explorer/utilities';
 
 import annotationListPanelTemplate from './annotation-list-panel-template';
 import AnnotationListView from './annotation-list-view';
+import createFilterView from './filter-view';
 
 const itemUrl = baseUrl + 'item/'
 const announce = announceRoute('source:annotated', ['model', 'id']);
 
 export default class AnnotationListPanel extends CompositeView<FlatItem> {
+    filterView: View;
     annotationList: AnnotationListView;
     downloadLink: string;
 
@@ -23,6 +25,7 @@ export default class AnnotationListPanel extends CompositeView<FlatItem> {
             collection: this.collection,
             model: this.model
         });
+        this.filterView = createFilterView();
         this.listenTo(this.annotationList, 'annotation:clicked', this.openAnnotation);
         this.render().on('announceRoute', announce);
     }
@@ -45,7 +48,10 @@ extend(AnnotationListPanel.prototype, {
     className: 'annotation-panel explorer-panel',
     template: annotationListPanelTemplate,
     subviews: [{
+        view: 'filterView',
+        selector: '.panel-header',
+    }, {
         view: 'annotationList',
-        selector: '.panel-content'
+        selector: '.panel-content',
     }],
 });
