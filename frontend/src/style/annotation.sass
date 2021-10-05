@@ -2,6 +2,14 @@
     width: 260px !important
     min-width: unset !important
 
+    .panel-header
+        max-height: 100%
+        & > .rit-filter-forest
+            max-height: calc(100% - 120px)
+            overflow: scroll
+            .control
+                min-width: max-content
+
 .annotation-list
     overflow-y: auto
     height: 100%
