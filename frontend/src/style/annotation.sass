@@ -13,16 +13,22 @@
 
 .rit-filter-tree
     & > .control .icon
-        width: 1em
-        .fa-caret-right, .fa-caret-down
+        .fa-fw
+            width: 1em
+        .fa-caret-right
+            visibility: hidden
+        .fa-caret-down
             display: none
     &.has-children.is-collapsed
         & > .control .icon .fa-caret-right
-            display: inline
+            visibility: visible
         & > .rit-filter-forest
             display: none
-    &.has-children:not(.is-collapsed) > .control .icon .fa-caret-down
-        display: inline
+    &.has-children:not(.is-collapsed) > .control .icon
+        .fa-caret-right
+            display: none
+        .fa-caret-down
+            display: inline-block
 
     .rit-filter-forest
         margin-left: 1em
