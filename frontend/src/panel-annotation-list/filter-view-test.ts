@@ -18,34 +18,34 @@ export const fakeHierarchy = new Collection([{
     }]),
 }]);
 
-const expectedHtml = `<fieldset class="rit-filter-forest"><div class="rit-filter-tree"><div class="control"><label class="checkbox">
+const expectedHtml = `<fieldset class="rit-filter-forest"><div class="rit-filter-tree"><div class="control"><span class="icon is-small">
+    <i class="fas fa-caret-right"></i>
+    <i class="fas fa-caret-down"></i>
+</span>
+<label class="checkbox">
     <input type="checkbox" checked="">
 <span>a</span></label>
-<span class="icon is-small is-left">
+</div></div><div class="rit-filter-tree"><div class="control"><span class="icon is-small">
     <i class="fas fa-caret-right"></i>
     <i class="fas fa-caret-down"></i>
 </span>
-</div></div><div class="rit-filter-tree"><div class="control"><label class="checkbox">
+<label class="checkbox">
     <input type="checkbox" checked="">
 <span>b</span></label>
-<span class="icon is-small is-left">
+</div><fieldset class="rit-filter-forest"><div class="rit-filter-tree"><div class="control"><span class="icon is-small">
     <i class="fas fa-caret-right"></i>
     <i class="fas fa-caret-down"></i>
 </span>
-</div><fieldset class="rit-filter-forest"><div class="rit-filter-tree"><div class="control"><label class="checkbox">
+<label class="checkbox">
     <input type="checkbox" checked="">
 <span>c</span></label>
-<span class="icon is-small is-left">
+</div></div><div class="rit-filter-tree"><div class="control"><span class="icon is-small">
     <i class="fas fa-caret-right"></i>
     <i class="fas fa-caret-down"></i>
 </span>
-</div></div><div class="rit-filter-tree"><div class="control"><label class="checkbox">
+<label class="checkbox">
     <input type="checkbox" checked="">
 <span>d</span></label>
-<span class="icon is-small is-left">
-    <i class="fas fa-caret-right"></i>
-    <i class="fas fa-caret-down"></i>
-</span>
 </div></div></fieldset></div></fieldset>`;
 
 const spaces = /\s+/g;
