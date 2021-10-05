@@ -25,7 +25,7 @@ const expectedHtml = `<fieldset class="rit-filter-forest"><div class="rit-filter
 <label class="checkbox">
     <input type="checkbox" checked="">
 <span>a</span></label>
-</div></div><div class="rit-filter-tree"><div class="control"><span class="icon is-small">
+</div></div><div class="rit-filter-tree has-children"><div class="control"><span class="icon is-small">
     <i class="fas fa-caret-right"></i>
     <i class="fas fa-caret-down"></i>
 </span>
