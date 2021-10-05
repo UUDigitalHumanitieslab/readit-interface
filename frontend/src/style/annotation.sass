@@ -10,3 +10,19 @@
         opacity: 0.8
         &.is-highlighted
             opacity: 1
+
+.rit-filter-tree
+    & > .control .icon
+        width: 1em
+        .fa-caret-right, .fa-caret-down
+            display: none
+    &.has-children.is-collapsed
+        & > .control .icon .fa-caret-right
+            display: inline
+        & > .rit-filter-forest
+            display: none
+    &.has-children:not(.is-collapsed) > .control .icon .fa-caret-down
+        display: inline
+
+    .rit-filter-forest
+        margin-left: 1em
