@@ -146,9 +146,6 @@ export class HierarchyView<
     }
 
     initialize(): void {
-        if (this.model) {
-            this.terminal = this.options.makeItem.call(this, this.model);
-        }
         if (this.collection) {
             this.collectionView = new this.recursive(extend(
                 {},
@@ -156,6 +153,9 @@ export class HierarchyView<
                 maskModel,
                 { collection: this.collection },
             ));
+        }
+        if (this.model) {
+            this.terminal = this.options.makeItem.call(this, this.model);
         }
         this.render();
     }
