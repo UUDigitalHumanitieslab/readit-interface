@@ -18,7 +18,7 @@ export default class AnnotationListPanel extends CompositeView<FlatItem> {
     downloadLink: string;
 
     initialize(): void {
-        this.downloadLink = itemUrl + 'download?o=' + this.model.id + '&t=1&r=1'; 
+        this.downloadLink = itemUrl + 'download?o=' + this.model.id + '&t=1&r=1';
         this.annotationList = new AnnotationListView({
             collection: this.collection,
             model: this.model
@@ -45,11 +45,7 @@ extend(AnnotationListPanel.prototype, {
     className: 'annotation-panel explorer-panel',
     template: annotationListPanelTemplate,
     subviews: [{
-        view: 'header',
-        selector: '.panel-header'
-    },
-    {
         view: 'annotationList',
         selector: '.panel-content'
-    }]
+    }],
 });
