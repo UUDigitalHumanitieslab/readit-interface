@@ -29,21 +29,25 @@ const fullHierarchy = new Collection();
 const hierarchyPromise = i18nPromise.then(() => {
     semanticHierarchy.add([{
         model: new Model({
+            id: 'mine',
             label: i18next.t('filterHierarchy.mine', 'by me'),
             cssClass: 'rit-self-made',
         }),
     }, {
         model: new Model({
+            id: 'others',
             label: i18next.t('filterHierarchy.others', 'by others'),
             cssClass: 'rit-other-made',
         }),
     }, {
         model: new Model({
+            id: 'verified',
             label: i18next.t('filterHierarchy.verified', 'verified'),
             cssClass: 'rit-verified',
         }),
     }, {
         model: new Model({
+            id: 'unverified',
             label: i18next.t('filterHierarchy.unverified', 'unverified'),
             cssClass: 'rit-unverified',
         }),
@@ -51,12 +55,14 @@ const hierarchyPromise = i18nPromise.then(() => {
 
     fullHierarchy.add([{
         model: new Model({
+            id: 'semantic',
             label: i18next.t('filterHierarchy.semantic', 'human'),
             cssClass: 'rit-is-semantic',
         }),
         collection: semanticHierarchy,
     }, {
         model: new Model({
+            id: 'nlp',
             label: i18next.t('filterHierarchy.nlp', 'automated'),
             cssClass: 'rit-is-nlp',
         }),
