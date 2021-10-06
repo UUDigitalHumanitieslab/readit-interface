@@ -3,6 +3,7 @@ import { constant } from 'lodash';
 import mockSources from '../mock-data/mock-sources';
 import { fakeHierarchy } from './filter-view-test';
 
+import Collection from '../core/collection';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import FlatItem from '../common-adapters/flat-item-model';
@@ -18,6 +19,10 @@ describe('AnnotationListPanel', function() {
         const node = new Node(mockSources);
         this.model = new FlatItem(node);
         explorerChannel.reply('filter-hierarchy', constant(fakeHierarchy));
+        explorerChannel.reply('filter-settings', () => ({
+            hidden: new Collection(),
+            collapsed: new Collection(),
+        }));
     });
 
     afterEach(function() {

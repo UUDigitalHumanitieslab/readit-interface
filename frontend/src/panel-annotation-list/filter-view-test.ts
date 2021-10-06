@@ -57,6 +57,10 @@ function viewText(view: View): string {
 describe('annotation filter view', function() {
     beforeAll(function() {
         explorerChannel.reply('filter-hierarchy', constant(fakeHierarchy));
+        explorerChannel.reply('filter-settings', () => ({
+            hidden: new Collection(),
+            collapsed: new Collection(),
+        }));
     });
 
     beforeEach(function() {

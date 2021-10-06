@@ -66,8 +66,7 @@ extend(FilterTerminal.prototype, {
 
 export default function createFilterView(): View {
     const collection = explorerChannel.request('filter-hierarchy');
-    const hidden = new Collection();
-    const collapsed = new Collection();
+    const { hidden, collapsed } = explorerChannel.request('filter-settings');
     function toggleCollapse(model: Model): void {
         const action = collapsed.has(model) ? 'remove' : 'add';
         collapsed[action](model);
