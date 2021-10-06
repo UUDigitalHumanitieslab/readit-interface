@@ -19,6 +19,11 @@ export interface ViewOptions extends BViewOptions<SegmentModel> {
     offset: HTMLElement;
 }
 
+// `whenever('cssClass')` callback for the `focus` event handler.
+function toggleCategories(annotation: FlatItem): void {
+    this.toggleCategories(annotation.getFilterClasses());
+}
+
 /**
  * Visual presentation of a text segment.
  *
@@ -65,9 +70,7 @@ class TextSegmentView extends CollectionView<SegmentModel, LineSegment> {
      * and emphasize this segment with a border and greater opacity.
      */
     focus(annotation: FlatItem): void {
-        annotation.whenever(
-            'cssClass', (a, cls) => this.toggleCategories([cls]), this
-        );
+        annotation.whenever('cssClass', toggleCategories, this);
         this.$el.addClass('is-selected');
     }
 
