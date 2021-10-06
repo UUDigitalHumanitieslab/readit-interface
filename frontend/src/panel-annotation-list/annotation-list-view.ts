@@ -1,4 +1,4 @@
-import { extend } from 'lodash';
+import { extend, partial } from 'lodash';
 
 import { CollectionView } from '../core/view';
 import { getScrollTop, animatedScroll, ScrollType } from '../utilities/scrolling-utilities';
@@ -10,6 +10,7 @@ import FlatCollection from '../common-adapters/flat-annotation-collection';
 import ToggleMixin from '../category-colors/category-toggle-mixin';
 
 const announce = announceRoute('source:annotated', ['model', 'id']);
+const hideCategories = partial(ToggleMixin.prototype.toggleCategories, null);
 
 /**
  * Panel subview that displays a list of annotations as ItemSummaryBlocks.
@@ -41,7 +42,8 @@ class AnnotationListView extends CollectionView<FlatItem, ItemSummaryBlock> {
             add: this.insertItem,
             remove: this.removeItem,
             sort: this.placeItems,
-            reset: this.resetItems
+            reset: this.resetItems,
+            'filter:exclude': hideCategories,
         }).on('announceRoute', announce);
     }
 

@@ -1,7 +1,8 @@
-import { extend } from 'lodash';
+import { extend, ListIterator } from 'lodash';
 
 import { baseUrl } from 'config.json';
 
+import Model from '../core/model';
 import Collection from '../core/collection';
 import View, { CompositeView } from '../core/view';
 import explorerChannel from '../explorer/explorer-radio';
@@ -31,6 +32,8 @@ export default class AnnotationListPanel extends CompositeView<FlatItem> {
         this.filterView = filter.view;
         this.hidden = filter.hidden;
         this.listenTo(this.annotationList, 'annotation:clicked', this.openAnnotation);
+        this.listenTo(this.hidden, 'update', this.broadcastSettings);
+        this.broadcastSettings();
         this.render().on('announceRoute', announce);
     }
 
@@ -45,6 +48,11 @@ export default class AnnotationListPanel extends CompositeView<FlatItem> {
 
     closeAnnotation(annotation: FlatItem): void {
         explorerChannel.trigger('annotationList:hideAnnotation', this, annotation);
+    }
+
+    broadcastSettings(): void {
+        const settings = this.hidden.map('cssClass' as unknown as ListIterator<Model, string>);
+        this.collection.trigger('filter:exclude', settings);
     }
 }
 
