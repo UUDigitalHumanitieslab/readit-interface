@@ -30,6 +30,3 @@ extend(SearchResultSourceView.prototype, {
     className: 'search-result-source',
     template: searchResultSourceTemplate,
 });
-
-
-    

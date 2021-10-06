@@ -82,23 +82,13 @@ export default class BrowseView extends CompositeView {
     }
 
     renderResults() {
-        // if (this.queryingItems) {
-            this.resultsList = new SearchResultListView({
-                collection: new FlatItemCollection(this.sparqlItems),
-                selectable: false }).render();
-            this.listenTo(this.resultsList, {
-                focus: this.onFocus,
-                blur: this.onBlur
-            });
-        // }
-        // else {
-        //     this.resultsList = new SourceListView({
-        //         collection: this.sparqlItems
-        //     });
-        //     this.listenTo(
-        //         this.resultsList, 'source:clicked', this.onSourceClicked
-        //     );
-        // }
+        this.resultsList = new SearchResultListView({
+            collection: new FlatItemCollection(this.sparqlItems),
+            selectable: false }).render();
+        this.listenTo(this.resultsList, {
+            focus: this.onFocus,
+            blur: this.onBlur
+        });
     }
 
     onFocus(model: FlatItem): void {
