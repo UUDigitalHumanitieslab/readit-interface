@@ -28,29 +28,33 @@ const fullHierarchy = new Collection();
 // before starting to construct the main skeleton of the hierarchy.
 const hierarchyPromise = i18nPromise.then(() => {
     semanticHierarchy.add([{
-        model: new Model({
-            id: 'mine',
-            label: i18next.t('filterHierarchy.mine', 'by me'),
-            cssClass: 'rit-self-made',
-        }),
+        collection: new Collection([{
+            model: new Model({
+                id: 'mine',
+                label: i18next.t('filterHierarchy.mine', 'by me'),
+                cssClass: 'rit-self-made',
+            }),
+        }, {
+            model: new Model({
+                id: 'others',
+                label: i18next.t('filterHierarchy.others', 'by others'),
+                cssClass: 'rit-other-made',
+            }),
+        }]),
     }, {
-        model: new Model({
-            id: 'others',
-            label: i18next.t('filterHierarchy.others', 'by others'),
-            cssClass: 'rit-other-made',
-        }),
-    }, {
-        model: new Model({
-            id: 'verified',
-            label: i18next.t('filterHierarchy.verified', 'verified'),
-            cssClass: 'rit-verified',
-        }),
-    }, {
-        model: new Model({
-            id: 'unverified',
-            label: i18next.t('filterHierarchy.unverified', 'unverified'),
-            cssClass: 'rit-unverified',
-        }),
+        collection: new Collection([{
+            model: new Model({
+                id: 'verified',
+                label: i18next.t('filterHierarchy.verified', 'verified'),
+                cssClass: 'rit-verified',
+            }),
+        }, {
+            model: new Model({
+                id: 'unverified',
+                label: i18next.t('filterHierarchy.unverified', 'unverified'),
+                cssClass: 'rit-unverified',
+            }),
+        }]),
     }]);
 
     fullHierarchy.add([{

@@ -52,5 +52,9 @@
         .fa-caret-down
             display: inline-block
 
-    .rit-filter-forest
+    &.has-terminal > .rit-filter-forest
         margin-left: 1em
+
+*:not(.has-terminal) > .rit-filter-forest
+    display: flex
+    flex-direction: row

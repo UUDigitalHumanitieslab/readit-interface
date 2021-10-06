@@ -127,6 +127,7 @@ export default function createFilterView() {
 
     // Function to create a single terminal, closing over all of the above.
     function makeItem(model: Model): FilterTerminal {
+        this.$el.addClass('has-terminal');
         const isHidden = hidden.has(model);
         if (this.collectionView) {
             this.$el.addClass('has-children');
