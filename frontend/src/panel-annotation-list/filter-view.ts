@@ -127,12 +127,15 @@ export default function createFilterView() {
 
     // Function to create a single terminal, closing over all of the above.
     function makeItem(model: Model): FilterTerminal {
+        const isHidden = hidden.has(model);
         if (this.collectionView) {
             this.$el.addClass('has-children');
-            if (hidden.has(model)) {
-                this.collectionView.$el.prop('disabled', true);
-            }
+            if (isHidden) this.collectionView.$el.prop('disabled', true);
         }
+        // We merge the full model that we have here into the model that is
+        // already in `hidden`, because the latter might be a placeholder that
+        // still lacks the crucial `cssClass` attribute.
+        if (isHidden) hidden.add(model, { merge: true });
         if (collapsed.has(model)) this.$el.addClass('is-collapsed');
         const terminal = new FilterTerminal({ model, hidden });
         return terminal.on({ toggleCollapse, enable, disable }, this);
