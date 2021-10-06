@@ -7,9 +7,8 @@ $fifth-color: #8DAA91 // a.k.a. Envy (light mintish green)
 $sixth-color: #D7C0D0
 $seventh-color: #7A5C61 // a.k.a. Russett (pinkish brown)
 $eigth-color: #3A2E39 // a.k.a. Thunder (very dark brown)
-
-$footer-text-color: #ccc
-$footer-background-color: $secondary-color
+$background: #FAF6E5 // light ochre
+$background-fore: #F5EECC // ochre
 
 // bulma overrides
 $primary: $primary-color
@@ -19,10 +18,26 @@ $link: $primary-color
 $tag-color: white
 $button-focus-border-color: $primary-color
 $modal-content-width: 80%
-$accordion-header-background-color: #dbdbdb !default
-$accordion-header-color: black !default
-$accordion-background-color: white !default
 $tag-color: #000
+$scheme-main: $background
+
+$accordion-header-background-color: $background-fore
+$accordion-header-color: black !default
+$accordion-background-color: $background
+$body-background-color: $background
+$box-background-color: $background-fore
+$button-background-color: $background-fore
+$card-background-color: $background-fore
+$dropdown-content-background-color: $background-fore
+$footer-text-color: #ccc
+$footer-background-color: $secondary-color
+$input-background-color: $background
+$navbar-background-color: $background-fore
+$navbar-dropdown-background-color: $background
+$navbar-item-hover-background-color: $background
+$navbar-item-active-background-color: $background
+$table-background-color: $background
+
 
 // category colors
 // category colors
@@ -43,7 +58,6 @@ $session-color: darken($reading-color, 10%)
 $experience-color: darken($reading-color, 20%)
 $premise-color: $seventh-color
 $outcome-color: $eigth-color
-
 
 .toggleProxy
     @extend .toggle

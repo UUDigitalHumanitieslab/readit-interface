@@ -8,7 +8,6 @@ import { asLD, Native } from '../common-rdf/conversion';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import { rdfs, xsd } from '../common-rdf/ns';
-import { NativeArray } from '../common-rdf/conversion';
 import Select2Picker from '../forms/select2-picker-view';
 import RemoveButton from '../forms/remove-button-view';
 import InputField from '../forms/input-field-view';
