@@ -31,6 +31,7 @@ export default class AnnotationListPanel extends CompositeView<FlatItem> {
         const filter = createFilterView();
         this.filterView = filter.view;
         this.hidden = filter.hidden;
+        this.toggleFilterView();
         this.listenTo(this.annotationList, 'annotation:clicked', this.openAnnotation);
         this.listenTo(this.hidden, 'update', this.broadcastSettings);
         this.broadcastSettings();
@@ -54,6 +55,10 @@ export default class AnnotationListPanel extends CompositeView<FlatItem> {
         const settings = this.hidden.map('cssClass' as unknown as ListIterator<Model, string>);
         this.collection.trigger('filter:exclude', settings);
     }
+
+    toggleFilterView(): void {
+        this.filterView.$el.toggle();
+    }
 }
 
 extend(AnnotationListPanel.prototype, {
@@ -66,4 +71,7 @@ extend(AnnotationListPanel.prototype, {
         view: 'annotationList',
         selector: '.panel-content',
     }],
+    events: {
+        'click button.filter': 'toggleFilterView',
+    },
 });
