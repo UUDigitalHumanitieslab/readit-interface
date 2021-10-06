@@ -2,9 +2,10 @@ import { extend } from 'lodash';
 
 import { baseUrl } from 'config.json';
 
+import Collection from '../core/collection';
+import View, { CompositeView } from '../core/view';
 import explorerChannel from '../explorer/explorer-radio';
 import FlatItem from '../common-adapters/flat-item-model';
-import View, { CompositeView } from '../core/view';
 import { announceRoute } from '../explorer/utilities';
 
 import annotationListPanelTemplate from './annotation-list-panel-template';
@@ -15,6 +16,7 @@ const itemUrl = baseUrl + 'item/'
 const announce = announceRoute('source:annotated', ['model', 'id']);
 
 export default class AnnotationListPanel extends CompositeView<FlatItem> {
+    hidden: Collection;
     filterView: View;
     annotationList: AnnotationListView;
     downloadLink: string;
@@ -25,7 +27,9 @@ export default class AnnotationListPanel extends CompositeView<FlatItem> {
             collection: this.collection,
             model: this.model
         });
-        this.filterView = createFilterView();
+        const filter = createFilterView();
+        this.filterView = filter.view;
+        this.hidden = filter.hidden;
         this.listenTo(this.annotationList, 'annotation:clicked', this.openAnnotation);
         this.render().on('announceRoute', announce);
     }

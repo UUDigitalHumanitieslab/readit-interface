@@ -1,4 +1,4 @@
-import { constant } from 'lodash';
+import { extend, constant } from 'lodash';
 
 import Model from '../core/model';
 import Collection from '../core/collection';
@@ -64,7 +64,7 @@ describe('annotation filter view', function() {
     });
 
     beforeEach(function() {
-        this.view = createFilterView();
+        extend(this, createFilterView());
         this.view.$el.appendTo(document.body);
     });
 
@@ -94,12 +94,12 @@ describe('annotation filter view', function() {
         expect(viewText(this.view)).toBe('abcd');
     });
 
-    it('triggers "update" with a collection of models to hide', function(done) {
+    it('triggers "update" on a collection of models to hide', function(done) {
         const spy = jasmine.createSpy();
-        this.view.once('update', spy);
+        this.hidden.once('update', spy);
         this.view.items[0].terminal.$('input').click();
         expect(spy).toHaveBeenCalled();
-        this.view.once('update', (collection) => {
+        this.hidden.once('update', (collection) => {
             expect(collection.map('label')).toEqual(['a', 'd']);
             done();
         })

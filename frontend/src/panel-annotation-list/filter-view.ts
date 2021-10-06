@@ -98,7 +98,7 @@ extend(FilterTerminal.prototype, {
 /**
  * Create a complete filter view from the ingredients above.
  */
-export default function createFilterView(): View {
+export default function createFilterView() {
     // We fetch the data that we need over the radio. We will next define some
     // callbacks that close over these data.
     const collection = explorerChannel.request('filter-hierarchy');
@@ -155,8 +155,7 @@ export default function createFilterView(): View {
         },
     });
 
-    // The client code has no direct access to the `hidden` collection, but we
-    // forward all of its event through the view. In this way, the client code
-    // can still learn about the user's most recently chosen settings.
-    return view.listenTo(hidden, 'all', view.trigger);
+    // We return the view as well as the collection of settings that the client
+    // code is interested in.
+    return { view, hidden };
 }
