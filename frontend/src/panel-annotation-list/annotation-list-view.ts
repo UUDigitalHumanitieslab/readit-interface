@@ -5,9 +5,9 @@ import { getScrollTop, animatedScroll, ScrollType } from '../utilities/scrolling
 import ItemSummaryBlock from '../item-summary-block/item-summary-block-view';
 import LoadingSpinnerView from '../loading-spinner/loading-spinner-view';
 import { announceRoute } from '../explorer/utilities';
-
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
+import ToggleMixin from '../category-colors/category-toggle-mixin';
 
 const announce = announceRoute('source:annotated', ['model', 'id']);
 
@@ -16,7 +16,8 @@ const announce = announceRoute('source:annotated', ['model', 'id']);
  *
  * Self-rendering view, autoscrolls to the selected annotation on focus.
  */
-export default class AnnotationListView extends CollectionView<FlatItem, ItemSummaryBlock> {
+interface AnnotationListView extends ToggleMixin {}
+class AnnotationListView extends CollectionView<FlatItem, ItemSummaryBlock> {
     collection: FlatCollection;
     // This is mostly a CollectionView of ItemSummaryBlocks, but we occasionally
     // also behave a bit like a CompositeView with the loadingSpinnerView as the
@@ -122,6 +123,8 @@ export default class AnnotationListView extends CollectionView<FlatItem, ItemSum
     }
 }
 
-extend(AnnotationListView.prototype, {
+extend(AnnotationListView.prototype, ToggleMixin.prototype, {
     className: 'annotation-list',
 });
+
+export default AnnotationListView;
