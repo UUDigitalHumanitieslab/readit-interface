@@ -12,7 +12,7 @@ import FlatCollection from '../common-adapters/flat-annotation-collection';
 const announce = announceRoute('source:annotated', ['model', 'id']);
 
 /**
- * Explorer panel that displays a list of annotations as ItemSummaryBlocks.
+ * Panel subview that displays a list of annotations as ItemSummaryBlocks.
  *
  * Self-rendering view, autoscrolls to the selected annotation on focus.
  */
