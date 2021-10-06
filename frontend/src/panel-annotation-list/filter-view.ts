@@ -54,7 +54,7 @@ extend(PlainLabel.prototype, {
  * achieved through CSS and through event bindings in the createFilterView
  * function, rather than through logic in the class below.
  */
-export class FilterTerminal extends CompositeView {
+export class FilterOption extends CompositeView {
     hidden: Collection;
     label: View;
 
@@ -82,7 +82,7 @@ export class FilterTerminal extends CompositeView {
     }
 }
 
-extend(FilterTerminal.prototype, {
+extend(FilterOption.prototype, {
     className: 'control',
     template: terminalTemplate,
     subviews: [{
@@ -126,7 +126,7 @@ export default function createFilterView() {
     }
 
     // Function to create a single terminal, closing over all of the above.
-    function makeItem(model: Model): FilterTerminal {
+    function makeItem(model: Model): FilterOption {
         this.$el.addClass('has-terminal');
         const isHidden = hidden.has(model);
         if (this.collectionView) {
@@ -138,7 +138,7 @@ export default function createFilterView() {
         // still lacks the crucial `cssClass` attribute.
         if (isHidden) hidden.add(model, { merge: true });
         if (collapsed.has(model)) this.$el.addClass('is-collapsed');
-        const terminal = new FilterTerminal({ model, hidden });
+        const terminal = new FilterOption({ model, hidden });
         return terminal.on({ toggleCollapse, enable, disable }, this);
     }
 
