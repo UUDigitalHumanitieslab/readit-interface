@@ -2,6 +2,28 @@
     width: 260px !important
     min-width: unset !important
 
+    .panel-header .buttons
+        position: relative
+
+    .filter-panel
+        display: none
+        min-width: max-content
+        max-height: 600px
+        overflow: scroll
+        position: absolute
+        z-index: 10
+        top: -4px
+        right: 43px
+        border: 1px solid black
+        border-radius: 3px
+        background: $background
+        padding: 25px
+
+        .btn-close
+            position: relative
+            top: -22px
+            right: -26px
+
 .annotation-list
     overflow-y: auto
     height: 100%
@@ -10,3 +32,29 @@
         opacity: 0.8
         &.is-highlighted
             opacity: 1
+
+.rit-filter-tree
+    & > .control .icon
+        .fa-fw
+            width: 1em
+        .fa-caret-right
+            visibility: hidden
+        .fa-caret-down
+            display: none
+    &.has-children.is-collapsed
+        & > .control .icon .fa-caret-right
+            visibility: visible
+        & > .rit-filter-forest
+            display: none
+    &.has-children:not(.is-collapsed) > .control .icon
+        .fa-caret-right
+            display: none
+        .fa-caret-down
+            display: inline-block
+
+    &.has-terminal > .rit-filter-forest
+        margin-left: 1em
+
+*:not(.has-terminal) > .rit-filter-forest
+    display: flex
+    flex-direction: row

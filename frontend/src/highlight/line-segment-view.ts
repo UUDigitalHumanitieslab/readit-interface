@@ -1,21 +1,30 @@
 import { extend } from 'lodash';
 
 import View, { CollectionView } from '../core/view';
+import FlatItem from '../common-adapters/flat-item-model';
 
 /**
  * A line segment has a colored band for each associated annotation.
  */
-class ColorBand extends View {
-    setClass: string;
+class ColorBand extends View<FlatItem> {
+    setClasses: string[];
 
     initialize({ model }): void {
-        this.$el.addClass(model.get('cssClass'));
-        this.listenTo(model, 'change:cssClass', this.onLabelChanged);
+        this.setClasses = [];
+        if (model.complete) {
+            this.completeInit();
+        } else {
+            this.listenToOnce(model, 'complete', this.completeInit);
+        }
     }
 
-    onLabelChanged(model, newCssClass): void {
-        this.$el.removeClass(model.previous('cssClass'));
-        this.$el.addClass(newCssClass);
+    completeInit(): void {
+        this.listenTo(this.model, 'change', this.updateClasses).updateClasses();
+    }
+
+    updateClasses(): void {
+        this.$el.removeClass(this.setClasses);
+        this.$el.addClass(this.setClasses = this.model.getFilterClasses());
     }
 }
 

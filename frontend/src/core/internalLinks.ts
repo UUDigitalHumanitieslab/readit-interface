@@ -1,5 +1,5 @@
 import { startsWith, extend } from 'lodash';
-import { history } from 'backbone';
+import { history, $ } from 'backbone';
 
 import View from './view';
 
@@ -8,7 +8,7 @@ import View from './view';
 
 export default class internalLinkEnabler extends View {
     intercept(event) {
-        const href = this.$(event.target).attr('href');
+        const href = $(event.currentTarget).attr('href');
         if (!href || startsWith(href, 'http') || startsWith(href, '//')) return;
         event.preventDefault();
         history.navigate(href, {trigger: true});

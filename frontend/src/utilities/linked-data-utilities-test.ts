@@ -9,6 +9,7 @@ import {
     getLabel,
     getLabelFromId,
     getTurtleTerm,
+    cssClassCache,
     getCssClassName,
     isRdfsClass,
     isRdfProperty,
@@ -165,6 +166,10 @@ describe('utilities', function () {
     });
 
     describe('getCssClassName', function () {
+        afterEach(function() {
+            for (let key in cssClassCache) delete cssClassCache[key];
+        });
+
         it('returns a css class', function () {
             let node = getDefaultNode();
             expect(getCssClassName(node)).toBe('is-readit-content');

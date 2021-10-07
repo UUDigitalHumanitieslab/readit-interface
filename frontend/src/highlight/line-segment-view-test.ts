@@ -39,7 +39,10 @@ describe('LineSegmentView', function() {
         const colorBands = this.lineSegment.$el.children();
         expect(colorBands.length).toBe(this.flat.length);
         this.flat.each((model, index) => {
-            expect(colorBands.get(index)).toHaveClass(model.get('cssClass'))
+            expect(colorBands.get(index)).toHaveClass(model.get('cssClass'));
+            expect(colorBands.get(index)).toHaveClass('rit-is-semantic');
+            expect(colorBands.get(index)).toHaveClass('rit-verified');
+            expect(colorBands.get(index)).toHaveClass('rit-other-made');
         });
     });
 });
