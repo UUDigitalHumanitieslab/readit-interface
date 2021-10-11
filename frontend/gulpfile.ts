@@ -26,6 +26,7 @@ import { argv } from 'yargs';
 import { JSDOM, VirtualConsole } from 'jsdom';
 import * as through2 from 'through2';
 import chalk from 'chalk';
+import * as i18nextParser from 'i18next-parser';
 
 type LibraryProps = {
     module: string,
@@ -283,6 +284,15 @@ function reportBundleError(errorObj) {
     log.error(chalk.red(errorObj.message));
 }
 
+function i18nParse() {
+    return src(sourceDir)
+        .pipe(new i18nextParser({
+          locales: ['en', 'fr'],
+          output: 'locales/$LOCALE/$NAMESPACE.json'
+        }))
+        .pipe(dest(`${sourceDir}/i18n`));
+}
+
 function jsBundle() {
     return tsModules().bundle()
         .on('error', reportBundleError)
@@ -483,6 +493,8 @@ export const watch = series(fullStatic, function watch(done) {
         [indexConfig, specRunnerTemplate],
         retest(reloadPr(specRunner.render))
     );
+
+    // i18nParse();
 
     exitController.once('signal', () => {
         [
