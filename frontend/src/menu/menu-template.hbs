@@ -13,35 +13,43 @@
         </div>
         <div id="navbarMenu" class="navbar-menu">
             <div class="navbar-start">
-                <a class="navbar-item" href="/search">
+                <a class="navbar-item tooltip is-tooltip-right" data-tooltip="{{#i18n 'about_tooltip'}}Find out more about the READ-IT project{{/i18n}}" href="https://readit-project.eu" target="_blank">
+                    <span class="icon-text">
+                        <span class="icon is-small has-text-primary">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                        <span>{{#i18n 'about'}}About{{/i18n}}</span>
+                </a>
+                <a class="navbar-item tooltip is-tooltip-left" data-tooltip="{{#i18n 'search_tooltip'}}Search reading experiences and annotations{{/i18n}}" href="/search">
                     <span class="icon-text">
                         <span class="icon is-small has-text-primary">
                             <i class="fas fa-search"></i>
                         </span>
-                        <span>Search</span>
+                        <span>{{#i18n 'search'}}Search{{/i18n}}</span>
                 </a>
-                <a class="navbar-item" href="/explore">
+                <a class="navbar-item tooltip is-tooltip-left" data-tooltip="{{#i18n 'explore_tooltip'}}Get a random selection of reading experiences and annotations{{/i18n}}" href="/explore">
                     <span class="icon-text">
                         <span class="icon is-small has-text-primary">
                             <i class="fas fa-compass"></i>
                         </span>
-                        <span>Explore</span>
+                        <span>{{#i18n 'explore'}}Explore{{/i18n}}</span>
                 </a>
                 {{#if uploadSources}}
-                <a class="navbar-item" href="/upload">
+                <a class="navbar-item tooltip is-tooltip-left" 
+                    data-tooltip="{{#i18n 'upload_tooltip'}}Upload reading testimonies for annotation{{/i18n}}" href="/upload">
                     <span class="icon-text">
                         <span class="icon is-small has-text-primary">
                             <i class="fas fa-upload"></i>
                         </span>
-                        <span>Upload</span>
+                        <span>{{#i18n 'upload'}}Upload{{/i18n}}</span>
                 </a>
                 {{/if}}
             </div>
             <div class="navbar-end">
-                <a class="navbar-item tooltip is-tooltip-left" data-tooltip="Contribute to READ-IT through the project website"
+                <a class="navbar-item tooltip is-tooltip-left" data-tooltip="{{#i18n 'contribute_tooltip'}}Find out how to contribute to READ-IT{{/i18n}}"
                     href="https://readit-project.eu/contact/contribute-to-read-it/", target="_blank">
                     <span class="icon-text">
-                        <span>Contribute</span>
+                        <span>{{#i18n 'contribute'}}Contribute{{/i18n}} </span>
                         <span class="icon is-small has-text-primary">
                             <i class="fas fa-external-link-alt"></i>
                         </span>
@@ -53,12 +61,12 @@
                         {{#i18n 'greeting'}}Hello, {{username}}!{{/i18n}}
                     </a>
                     <div class="navbar-dropdown">
-                        <a class="navbar-item" id="feedback">
-                            Feedback
+                        <a class="navbar-item tooltip is-tooltip-left" data-tooltip="Give us feedback on the interface" id="feedback">
+                            {{#i18n 'feedback'}}Feedback{{/i18n}}
                         </a>
                         <hr class="navbar-divider">
                         <a class="navbar-item" id="logout" href="/leave">
-                            Log out
+                            {{#i18n 'log_out'}}Log out{{/i18n}}
                         </a>
                     </div>
                 </div>

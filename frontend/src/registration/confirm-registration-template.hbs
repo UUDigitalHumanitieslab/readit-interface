@@ -2,19 +2,19 @@
 <div class="modal-content">
     <form class="box is-narrow-modal-form">
     {{#if isConfirmed}}
-    <h3 class="title is-3">Confirmation complete</h3>
-    <p>Thank you for signing up. You can now <a href='search'>login</a></p>
+    <h3 class="title is-3">{{#i18n 'confirmation_complete'}}Confirmation complete{{/i18n}}</h3>
+    <p>{{#i18n 'sign_up_thanks'}}Thank you for signing up. You can now {{/i18n}}<a href='search'>{{#i18n 'login'}}login{{/i18n}}</a></p>
     {{/if}}
 
     {{#if wasNotFound}}
-    <h3 class="title is-3">Confirmation failed</h3>
-    <p>This is probably due to token expiration.</p>
-    <p>Please try again and if this error keeps occuring, contact the site administrator.</p>
+    <h3 class="title is-3">{{#i18n 'confirmation_failed'}}Confirmation failed{{/i18n}}</h3>
+    <p>{{#i18n 'token_expiration'}}This is probably due to token expiration.{{/i18n}}</p>
+    <p>{{#i18n 'try_confirm_again'}}Please try again and if this error keeps occuring, contact the site administrator.{{/i18n}}</p>
     {{/if}}
 
     {{#if hasError}}
-    <h3 class="title is-3">Confirmation failed</h3>
-    <p>Please try again and if this error keeps occuring, contact the site administrator.</p>
+    <h3 class="title is-3">{{#i18n 'confirmation_failed'}}Confirmation failed{{/i18n}}</h3>
+    <p>{{#i18n 'try_confirm_again'}}Please try again and if this error keeps occuring, contact the site administrator.{{/i18n}}</p>
     {{/if}}
     </form>
 </div>

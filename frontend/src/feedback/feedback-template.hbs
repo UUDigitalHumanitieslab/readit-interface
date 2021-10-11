@@ -3,22 +3,22 @@
     <form class="box register-form is-narrow-modal-form">
         {{#if wasSentSuccessfully}}
         <header>
-            <h3 class="title is-3 page-header">Feedback submitted</h3>
+            <h3 class="title is-3 page-header">{{#i18n 'feedback_submitted'}}Feedback submitted{{/i18n}}</h3>
         </header>
         <div class="field">
-            <p>Thank you very much for your feedback, it is highly appreciated!</p>
+            <p>{{#i18n 'thanks_feedback'}}Thank you very much for your feedback, it is highly appreciated!{{/i18n}}</p>
         </div>
         <div class="field is-grouped">
             <div class="control">
-                <button class="button btn-close" type=button>Close</button>
+                <button class="button btn-close" type=button>{{#i18n 'close'}}Close{{/i18n}}</button>
             </div>
         </div>
         {{else}}
         <header>
-            <h3 class="title is-3 page-header">Feedback</h3>
+            <h3 class="title is-3 page-header">{{#i18n 'feedback'}}Feedback{{/i18n}}</h3>
         </header>
         <div class="field">
-            <label class="label">Subject</label>
+            <label class="label">{{#i18n 'subject'}}Subject{{/i18n}}</label>
             <div class="control">
                 <input name="subject" class="input" type="text" name="title" placeholder="About READ-IT">
             </div>
@@ -26,25 +26,25 @@
 
         <div class="field">
             <div class="control">
-                <label class="label">Feedback</label>
+                <label class="label">{{#i18n 'feedback'}}Feedback{{/i18n}}</label>
                 <textarea name="feedback" class="textarea" placeholder="e.g. I love READ-IT!"></textarea>
             </div>
         </div>
 
         {{#if hasError}}
         <div class="field form-feedback-bar has-background-danger has-text-white">
-            <p class="help">Feedback submission failed. Please try again and if this error keeps occuring, contact the
-                site administrator.</p>
+            <p class="help">{{#i18n 'feedback_failed'}}Feedback submission failed. Please try again and if this error keeps occuring, contact the
+                site administrator.{{/i18n}}</p>
         </div>
         {{/if}}
 
         <div class="field is-grouped">
             <div class="control">
-                <button class="button is-link btn-submit" type=submit>Submit</button>
+                <button class="button is-link btn-submit" type=submit>{{#i18n 'submit'}}Submit{{/i18n}}</button>
             </div>
 
             <div class="control">
-                <button class="button btn-close" type=button>Close</button>
+                <button class="button btn-close" type=button>{{#i18n 'close'}}Close{{/i18n}}</button>
             </div>
         </div>
         {{/if}}

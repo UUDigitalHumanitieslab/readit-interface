@@ -3,14 +3,14 @@
         <aside>{{! label view will be inserted here }}</aside>
         <h3 class="title is-3">{{label}}</h3>
         <h6 class="subtitle is-6">{{#if annotationSerial }}
-            Annotation {{ annotationSerial }}{{#if itemSerial}},
-            identified as
+            {{#i18n 'annotation'}}Annotation{{/i18n}} {{ annotationSerial }}{{#if itemSerial}},
+            {{#i18n 'identified_as'}}identified as{{/i18n}}
             {{/if}}{{/if}}{{#if itemSerial }}
-            item/{{ itemSerial }}
+            {{#i18n 'item'}}item{{/i18n}}/{{ itemSerial }}
         {{/if}}</h6>
-        {{#if needsVerification}}
+        {{#if needs_verification_explanation}}
         <h6 class="title is-6">
-            This annotation needs to be verified.
+            {{#i18n 'annotation verification'}}This annotation needs to be verified.{{/i18n}}
         </h6>{{/if}}
     </header>
 </div>
@@ -20,13 +20,13 @@
     <section class="item-sections">
         <article class="item-section">
             <div class="item-section-header">
-                <p>Item properties</p>
+                <p>{{#i18n 'item_properties'}}Item properties{{/i18n}}</p>
             </div>
             <table class="table is-bordered">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Value</th>
+                        <th>{{#i18n 'table_name'}}Name{{/i18n}}</th>
+                        <th>{{#i18n 'table_value'}}Value{{/i18n}}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -48,7 +48,7 @@
     <section class="item-sections">
         <article class="item-section has-mt-10">
             <div class="item-section-header" id="btnRelItems">
-                <p>Related items</p>
+                <p>{{#i18n 'related_items_title'}}Related items{{/i18n}}</p>
                 <span class="icon is-large has-text-primary tooltip is-tooltip-left" data-tooltip="Open related items">
                     <i class="fas fa-arrow-circle-right"></i>
                 </span>
@@ -57,9 +57,9 @@
         <article class="item-section has-mt-10">
             <div class="item-section-header" id="btnAnnotations">
                 <p>{{#if annotationSerial }}
-                    Other annotations
+                    {{#i18n 'other_annotations_title'}}Other annotations{{/i18n}}
                     {{else}}
-                    Annotations
+                    {{#i18n 'annotations_title'}}Annotations{{/i18n}}
                 {{/if}}</p>
                 <span class="icon is-large has-text-primary tooltip is-tooltip-left" data-tooltip="Open annotations">
                     <i class="fas fa-arrow-circle-right"></i>
@@ -68,7 +68,7 @@
         </article>
         <article class="item-section has-mt-10">
             <div class="item-section-header" id="btnExtResources">
-                <p>External resources</p>
+                <p>{{#i18n 'external_resources_title'}}External resources{{/i18n}}</p>
                 <span class="icon is-large has-text-primary tooltip is-tooltip-left"
                     data-tooltip="Open external resources">
                     <i class="fas fa-arrow-circle-right"></i>
@@ -83,13 +83,13 @@
     <nav class="level is-mobile">
         <div class="level-left">
             <div class="level-item">
-                <button type=button class="button btn-edit">Edit</button>
+                <button type=button class="button btn-edit">{{#i18n 'edit'}}Edit{{/i18n}}</button>
             </div>
         </div>
         {{#if annotationSerial }}
         <div class="level-right">
             <div class="level-item">
-                <button id="btnNewAnnotation" type=button class="button btn-new">New</button>
+                <button id="btnNewAnnotation" type=button class="button btn-new">{{#i18n 'new'}}New{{/i18n}}</button>
             </div>
         </div>
         {{/if}}
