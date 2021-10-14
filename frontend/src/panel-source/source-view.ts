@@ -67,6 +67,7 @@ class SourcePanel extends CompositeView {
     toolbar: SourceToolbarView;
     sourceContainer: any;
     toolbarModel: Model;
+    excludedCategories: string[];
 
     // Method that is repeatedly invoked to track whether we can already safely
     // render highlights. Dynamically generated inside the constructor.
@@ -88,9 +89,11 @@ class SourcePanel extends CompositeView {
 
         this.render();
 
-        if (!options.showHighlightsInitially) {
-            this.hideHighlights();
-        }
+        // The next line used to be conditional on
+        // options.showHighlightsInitially. This is no longer the case, because
+        // we now wait for the 'filter:exclude' event on this.collection in
+        // order to determine when and which categories should be visible.
+        this.hideHighlights();
 
         this.metaView.$el.hide();
 
@@ -108,6 +111,7 @@ class SourcePanel extends CompositeView {
         this.model.when('@type', this.processText, this);
 
         this.listenToOnce(this.model, 'error', report404);
+        this.listenTo(this.collection, 'filter:exclude', this.updateExclusions);
         this.metaView.on('metadata:hide', this.hideMetadata, this);
         this.metaView.on('metadata:edit', this.editMetadata, this);
         this.listenTo(this.toolbarModel, 'change:metadata', this.toggleMetadata);
@@ -219,13 +223,18 @@ class SourcePanel extends CompositeView {
     }
 
     showHighlights(): this {
-        this.toggleCategories();
+        this.toggleCategories(null, this.excludedCategories);
         return this;
     }
 
     hideHighlights(): this {
         this.toggleCategories([]);
         return this;
+    }
+
+    updateExclusions(exclusions: string[]): void {
+        this.excludedCategories = exclusions;
+        this.showHighlights();
     }
 
     hideMetadata(): this {
@@ -254,7 +263,6 @@ class SourcePanel extends CompositeView {
      */
     toggleHighlights(): this {
         if (this.toolbarModel.get('annotations') === true) {
-            this.showHighlights();
             explorerChannel.trigger('sourceview:showAnnotations', this, true);
         }
         else {

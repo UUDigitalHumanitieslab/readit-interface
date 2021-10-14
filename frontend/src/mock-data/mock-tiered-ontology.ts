@@ -1,13 +1,14 @@
 import {
     rdfs,
     owl,
+    cidoc,
     readit,
     skos,
     schema,
 } from '../common-rdf/ns';
 
 export const readerClass = {
-    "@id": "http://www.cidoc-crm.org/cidoc-crm/E21_Person",
+    "@id": cidoc("E21_Person"),
     "@type": [owl.Class],
     [rdfs.label]: [{
         "@language": "en",
@@ -37,7 +38,7 @@ export const genderClass = {
         { '@value': '#009E73' }
     ],
     [skos.related]: [{
-        "@id": "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+        "@id": cidoc("E21_Person")
     }]
 };
 
@@ -45,7 +46,7 @@ export const hasGenderProperty = {
     "@id": readit("readP3"),
     "@type": [owl.ObjectProperty],
     [rdfs.domain]: [{
-        "@id": "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+        "@id": cidoc("E21_Person")
     }],
     [rdfs.range]: [{
         "@id": readit("REO5")
@@ -58,7 +59,7 @@ export const hasGenderProperty = {
         "@language": "en",
         "@value": "has gender"
     }]
-}
+};
 
 export const effectsClass = {
     "@id": readit("REO23"),
@@ -70,7 +71,7 @@ export const effectsClass = {
     [rdfs.subClassOf]: [{
         "@id": readit("REO42")
     }, {
-        "@id": "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+        "@id": cidoc("E7_Activity")
     }],
     [schema.color]: [
         { '@value': '#CC79A7' }
@@ -96,9 +97,9 @@ export const understandingClass = {
         "@value": "Understanding"
     }],
     [skos.related]: [{
-        "@id": "http://dataforhistory.org/read-it-ongoing/class/REO23"
+        "@id": readit("REO23"),
     }]
-}
+};
 
 export default [
     readerClass,
@@ -106,4 +107,4 @@ export default [
     hasGenderProperty,
     effectsClass,
     understandingClass,
-]
+];

@@ -113,7 +113,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     processItem(): void {
         const item = this.model.get('item');
         if (item) {
-            this.itemPicker.val(item.id);
+            if (!isBlank(item)) this.itemPicker.val(item.id);
             this.editItem(item);
         }
         this.itemPicker.on('change', this.selectItem, this);

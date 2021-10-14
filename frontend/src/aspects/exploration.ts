@@ -8,6 +8,8 @@ import router from '../global/exploration-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
 import welcomeView from '../global/welcome-view';
+import '../global/annotation-hierarchy';
+import '../global/annotation-settings';
 
 const browserHistory = window.history;
 

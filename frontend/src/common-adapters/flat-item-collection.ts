@@ -7,6 +7,8 @@ import Graph from '../common-rdf/graph';
 import ProxyMixin from './collection-proxy';
 import FlatItem from './flat-item-model';
 
+type GraphLike = Collection<Node>;
+
 /**
  * Adapter that represents Nodes from an underlying `Graph` as FlatItem models.
  *
@@ -28,7 +30,7 @@ import FlatItem from './flat-item-model';
  * the previous focused item blurs automatically when a different item receives
  * focus.
  */
-interface FlatItemCollection extends ProxyMixin<Node, Graph> {}
+interface FlatItemCollection extends ProxyMixin<Node, GraphLike> {}
 class FlatItemCollection extends Collection<FlatItem> {
     // Current tally of complete flat items.
     _complete: number;
@@ -67,7 +69,7 @@ class FlatItemCollection extends Collection<FlatItem> {
      * Contrary to most Collection subclasses, this one requires a Graph
      * instead of an optional array of models or model attributes.
      */
-    constructor(underlying: Graph, options?: any) {
+    constructor(underlying: GraphLike, options?: any) {
         super(null, options);
         this._underlying = underlying;
         this._complete = 0;
@@ -117,7 +119,7 @@ class FlatItemCollection extends Collection<FlatItem> {
     /**
      * Listener for the `'add'` event on `this._underlying`.
      */
-    proxyAdd(node: Node, graph?: Graph, options?: any): void {
+    proxyAdd(node: Node, graph?: GraphLike, options?: any): void {
         this.add(this.flatten(node), options);
     }
 
@@ -138,7 +140,7 @@ class FlatItemCollection extends Collection<FlatItem> {
     /**
      * Listener for the `'sort'` event on `this._underlying`.
      */
-    proxySort(underlying: Graph): void {
+    proxySort(underlying: GraphLike): void {
         const order = invert(map(underlying.models, 'id'));
         this.comparator = flat => order[flat.id];
         this.sort();
