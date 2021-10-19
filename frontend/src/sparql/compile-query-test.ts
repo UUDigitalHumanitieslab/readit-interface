@@ -4,7 +4,7 @@ import userChannel from '../common-user/user-radio';
 import { itemsForSourceQuery } from './compile-query';
 
 beforeEach(function() {
-    userChannel.reply('permission', constant(Promise.resolve(true)));
+    userChannel.reply('permission', constant(true));
 });
 
 describe('itemsForSourceQuery', function () {

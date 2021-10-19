@@ -17,7 +17,7 @@ export default class LandingView extends View {
     user: string;
 
     initialize() {
-        userChannel.request('user').then( (user) => {
+        userChannel.request('promise').then( (user) => {
             this.user = user.get('username');
         })
         this.awaitNodeLists();

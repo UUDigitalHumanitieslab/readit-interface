@@ -34,6 +34,7 @@ import {
 import { itemsForSourceQuery } from '../sparql/compile-query';
 import SemanticQuery from '../semantic-search/model';
 import modelToQuery from '../semantic-search/modelToQuery';
+import userChannel from '../common-user/user-radio';
 
 interface ExplorerEventController extends Events { }
 class ExplorerEventController {
@@ -338,8 +339,10 @@ export default ExplorerEventController;
  */
 export function getItems(source: Node): ItemGraph {
     const sparqlItems = new ItemGraph();
-    let queryString = itemsForSourceQuery(asURI(source), {});
-    sparqlItems.sparqlQuery(queryString);
+    userChannel.request('promise').then(() => {
+        const queryString = itemsForSourceQuery(asURI(source), {});
+        sparqlItems.sparqlQuery(queryString);
+    });
     return sparqlItems;
 }
 

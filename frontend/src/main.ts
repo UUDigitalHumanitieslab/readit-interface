@@ -8,7 +8,7 @@ import { i18nPromise } from './global/i18n';
 import './global/internalLinks';
 import './global/hbsHelpers';
 import './global/hbsPartials';
-import user from './global/user';
+import './global/user';
 import { prefetch } from './global/ld-store';
 import './global/item-cache';
 import './global/history-notfound-trigger';

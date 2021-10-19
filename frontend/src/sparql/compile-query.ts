@@ -24,11 +24,10 @@ export interface SPARQLQueryOptions {
 
 export function itemsForSourceQuery(source: string, { ...options }: SPARQLQueryOptions) {
     let data = { sourceURI: source, from: 'source' };
-    return userChannel.request('permission', 'view_all_annotations').then( perm => {
-        if (!perm) data['userURI'] = userChannel.request('current-user-uri');
-        const finalData = { ...data, ...options };
-        return itemsTemplate(finalData);
-    });
+    const perm = userChannel.request('permission', 'view_all_annotations');
+    if (!perm) data['userURI'] = userChannel.request('current-user-uri');
+    const finalData = { ...data, ...options };
+    return itemsTemplate(finalData);
 }
 
 export function listNodesQuery(itemQuery: boolean, { ...options }: SPARQLQueryOptions) {   
@@ -36,14 +35,15 @@ export function listNodesQuery(itemQuery: boolean, { ...options }: SPARQLQueryOp
     return listNodesTemplate(data);
 }
 
-export async function nodesByUserQuery(itemQuery: boolean, { ...options }: SPARQLQueryOptions) {  
-    const uri = await userChannel.request('current-user-uri');
-    if (!uri) {
-        return null;
+export function nodesByUserQuery(
+    itemQuery: boolean, options: SPARQLQueryOptions = {}
+) {
+    const userURI = userChannel.request('current-user-uri');
+    if (!userURI) {
+        throw new Error('no authenticated user (hint: await user promise)');
     }
-    const data = {itemQuery: itemQuery, userURI: uri};
-    const finalData = { ...data, ...options };
-    return nodesByUserTemplate(finalData);
+    const data = { ...defaultOptions, itemQuery, userURI, ...options };
+    return nodesByUserTemplate(data);
 }
 
 export function randomNodesQuery(randomNodes: Model[], lastNode: Model, { ...options }: SPARQLQueryOptions) {
