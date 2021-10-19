@@ -92,7 +92,7 @@ class ExplorerEventController {
         const items = new ItemGraph();
         model.when(
             'query',
-            (model, query) => items.sparqlQuery(modelToQuery(query), 'item/query')
+            (model, query) => items.sparqlQuery(modelToQuery(query)),
         );
         if (model.isNew()) model.save();
         const collection = new FlatItemCollection(items);
@@ -339,7 +339,7 @@ export default ExplorerEventController;
 export function getItems(source: Node): ItemGraph {
     const sparqlItems = new ItemGraph();
     let queryString = itemsForSourceQuery(asURI(source), {});
-    sparqlItems.sparqlQuery(queryString, 'item/query');
+    sparqlItems.sparqlQuery(queryString);
     return sparqlItems;
 }
 

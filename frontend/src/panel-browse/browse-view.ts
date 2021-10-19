@@ -7,6 +7,7 @@ import { CompositeView } from "../core/view";
 import { randomNodesQuery } from "../sparql/compile-query";
 import explorerChannel from '../explorer/explorer-radio';
 import ldChannel from '../common-rdf/radio';
+import { item, source } from '../common-rdf/ns';
 
 import Collection from '../core/collection';
 import FlatItem from '../common-adapters/flat-item-model';
@@ -36,9 +37,9 @@ export default class BrowseView extends CompositeView {
     queryingItems: boolean;
 
     async initialize(options: ViewOptions) {
-        this.sparqlItems = new ItemGraph();
-        this.queryingItems = options.queryMode === 'items'? true : false;
-        this.endpoint =  this.queryingItems? 'item/query' : 'source/query';
+        this.queryingItems = options.queryMode === 'items';
+        const graphName = this.queryingItems? item() : source();
+        this.sparqlItems = new ItemGraph(graphName);
         if (options.landing) {
             this.title = "My " + options.queryMode;
             await this.getUserNodes();
@@ -64,7 +65,7 @@ export default class BrowseView extends CompositeView {
     async getRandomNodes(nodes: Collection) {
         const randomNodes = sampleSize(nodes.models, nSamples);
         const randomQuery = randomNodesQuery(randomNodes.slice(-randomNodes.length, -1), randomNodes.pop(), {});
-        this.sparqlItems.sparqlQuery(randomQuery, this.endpoint);
+        this.sparqlItems.sparqlQuery(randomQuery);
     }
 
     async getUserNodes() {

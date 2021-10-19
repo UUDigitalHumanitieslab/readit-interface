@@ -1,11 +1,11 @@
-import { extend } from 'lodash';
+import { extend, result, isString } from 'lodash';
 
 import { item } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import { asURI } from '../utilities/linked-data-utilities';
 
-import { sparqlRoot } from 'config.json';
+import { nsRoot, sparqlRoot } from 'config.json';
 
 /**
  * Using query parameters is DEPRECATED in favor of SPARQL queries.
@@ -84,8 +84,35 @@ function isLiteralQuery(params: QueryParams): params is QueryParamsLiteral {
  * See also the query and sparqlQuery methods below for querying the server.
  */
 export default class ItemGraph extends Graph {
+    sparqlEndpoint: string;
+
     // Only defined if a query has been issued.
     promise: JQuery.jqXHR;
+
+    /**
+     * We allow client code to override `this.url` through the `graph` option.
+       For convenience, it is also possible to pass just the graph URL directly
+       as the only argument.
+     *
+     * From `this.url`, we derive the matching `this.sparqlEndpoint`.
+     */
+    constructor(graph: string);
+    constructor(models?: Node[] | Object[], options?: any);
+    constructor(models?: Node[] | Object[] | string, options?) {
+        if (isString(models)) {
+            options = { graph: models };
+            models = null;
+        }
+        super(models, options);
+    }
+
+    preinitialize(models?, options?: any): void {
+        super.preinitialize(models, options);
+        if (options.graph) this.url = options.graph;
+        const url = result(this, 'url') as string;
+        const graphName = url.slice(nsRoot.length, -1);
+        this.sparqlEndpoint = `${sparqlRoot}${graphName}/query`;
+    }
 
     /**
      * DEPRECATED you still need this for the download parameter, but use
@@ -113,8 +140,8 @@ export default class ItemGraph extends Graph {
      * result from the given CONSTRUCT query. For best results, make sure that
      * the query produces complete items.
      */
-    sparqlQuery(query: string, fromGraph: string): JQuery.jqXHR {
-        return this.promise = this.fetch({ url: sparqlRoot + fromGraph, data: $.param({ query: query }), remove: false });
+    sparqlQuery(query: string): JQuery.jqXHR {
+        return this.promise = this.fetch({ url: this.sparqlEndpoint, data: $.param({ query: query }), remove: false });
     }
 
     /**

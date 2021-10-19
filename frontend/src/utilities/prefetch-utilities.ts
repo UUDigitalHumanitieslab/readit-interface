@@ -14,12 +14,11 @@ export function userNodesFactory() {
     
     function getUserNodes(userNodes: ItemGraph, queryingItems: boolean): PromiseLike<ItemGraph> {
         if (!promise) {
-            const endpoint = queryingItems ? 'item/query' : 'source/query';
             promise = nodesByUserQuery(queryingItems, {}).then( (query) => {
                 if (!query) {
                     return handleError('user not authenticated');
                 }
-                return userNodes.sparqlQuery(query, endpoint).then(
+                return userNodes.sparqlQuery(query).then(
                     () => handleSuccess(userNodes), handleError
                 );
             });

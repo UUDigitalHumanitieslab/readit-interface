@@ -1,13 +1,14 @@
+import Collection from '../core/collection';
 import ItemGraph from '../common-adapters/item-graph';
 import ldChannel from '../common-rdf/radio';
-import Collection from '../core/collection';
+import { source } from '../common-rdf/ns';
 import { parseResponse, nodeListFactory, userNodesFactory } from '../utilities/prefetch-utilities';
 
 const sourceList = new Collection();
 sourceList.parse = parseResponse;
 const getNodeList = nodeListFactory();
 
-const userSources = new ItemGraph();
+const userSources = new ItemGraph(source());
 const getUserNodes = userNodesFactory();
 
 /**

@@ -40,7 +40,7 @@ export default class FilterInput extends CompositeView {
             const rangeId = range.first().id;
             if (!rangeId.startsWith(xsd())) {
                 items = new ItemGraph();
-                items.sparqlQuery(filterInputQueryTemplate({ type: rangeId }), 'item/query');
+                items.sparqlQuery(filterInputQueryTemplate({ type: rangeId }));
                 this.subviews.push(new Select2Picker({ collection: items }));
             }
         }
