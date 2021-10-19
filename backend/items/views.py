@@ -53,12 +53,22 @@ modified provenance publisher relation replaces rights rightsHolder source type
 valid
 '''.split())
 
-SELECT_ANNO_QUERY = '''
-SELECT ?annotation ?a ?b
-WHERE {
-    ?annotation a oa:Annotation ;
-    dcterms:creator ?user ;
-    ?a ?b .
+ANNO_QUERY = '''
+CONSTRUCT {
+    ?annotation ?a ?b.
+    ?body ?c ?d.
+    ?target ?e ?f.
+    ?selector ?g ?h.
+} WHERE {
+    ?annotation oa:hasBody ?body.
+    OPTIONAL { ?body ?c ?d }.
+    ?annotation oa:hasTarget ?target;
+                dcterms:creator ?user;
+                ?a ?b.
+    ?target oa:hasSource ?source;
+            oa:hasSelector ?selector;
+            ?e ?f.
+    ?selector ?g ?h.
 }
 '''
 ANNO_OF_CATEGORY_QUERY = '''
