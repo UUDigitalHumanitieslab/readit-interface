@@ -2,10 +2,11 @@ import { extend } from 'lodash';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
-import { rdfs, sourceOntology as sourceNS } from '../common-rdf/ns';
+import { rdfs, sourceOntology as sourceNS, sourceOntology, sourceOntologyPrefix } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import { CompositeView } from '../core/view';
 import Select2Picker from '../forms/select2-picker-view';
+import TypeAwareHelpText from '../item-edit/type-aware-help-view';
 import uploadSourceTemplate from './upload-source-template';
 
 
@@ -26,6 +27,10 @@ export default class UploadSourceFormView extends CompositeView {
      * These two are separated to integrate smoothly with Bulma.
      */
     errorClassInputs: string = "is-danger";
+
+    publicationDateHelpText: TypeAwareHelpText;
+    creationDateHelpText: TypeAwareHelpText;
+    retrievalDateHelpText: TypeAwareHelpText;
 
     initialize(): this {
         let self = this;
@@ -179,11 +184,27 @@ export default class UploadSourceFormView extends CompositeView {
     getOntology() {
         this.ontologyGraph = ldChannel.request('source-ontology:graph');
         this.setTypeOptions();
+        this.listenToOnce(this.ontologyGraph, 'sync', this.initHelpTexts);
     }
 
     setTypeOptions(): void {
         const sourceTypes = new FilteredCollection<Node>(this.ontologyGraph, this.isSourceType) as unknown as Graph;
         this.sourceTypePicker = new Select2Picker({ collection: sourceTypes });
+    }
+
+    initHelpTexts() {
+        this.publicationDateHelpText = new TypeAwareHelpText({model: this.getNode('datePublished')});
+        this.creationDateHelpText = new TypeAwareHelpText({model: this.getNode('dateCreated')});
+        this.retrievalDateHelpText = new TypeAwareHelpText({model: this.getNode('dateRetrieved')});
+        this.render();
+    }
+
+    updateHelpText(event: JQueryEventObject) {
+        console.log(event);
+    }
+
+    getNode(predicate: string) {
+        return this.ontologyGraph.get(sourceOntologyPrefix + predicate);
     }
 
 }
@@ -193,6 +214,9 @@ extend(UploadSourceFormView.prototype, {
     template: uploadSourceTemplate,
     subviews: [
         { view: 'sourceTypePicker', selector: '#sourceTypeSelect' },
+        { view: 'publicationDateHelpText', selector: '.publication-date', method: 'append'},
+        { view: 'creationDateHelpText', selector: '.creation-date', method: 'append'},
+        { view: 'uploadDateHelpText', selector: '.retrieval-date', method: 'append'},
     ],
     events: {
         'submit': 'onSaveClicked',
@@ -200,6 +224,7 @@ extend(UploadSourceFormView.prototype, {
         'click .input': 'hideFeedback',
         'click .btn-preview': 'onPreviewClicked',
         'click .modal-background': 'hidePreview',
-        'click .delete': 'hidePreview'
+        'click .delete': 'hidePreview',
+        'keyup .with-help': 'updateHelpText',
     }
 });
