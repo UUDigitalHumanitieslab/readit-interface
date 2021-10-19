@@ -7,17 +7,21 @@ import { asURI } from '../utilities/linked-data-utilities';
 
 import { sparqlRoot } from 'config.json';
 
+/**
+ * Using query parameters is DEPRECATED in favor of SPARQL queries.
+ */
 export interface QueryParamsURI {
     predicate?: Node | string;
     object?: Node | string;
 }
-
 export interface QueryParamsLiteral {
     predicate?: Node | string;
     objectLiteral?: string;
 }
 
 /**
+ * Using traversal parameters is DEPRECATED in favor of SPARQL queries.
+ *
  * Pass these parameters to ItemGraph.query to fetch not only the
  * Nodes that match the given predicate and/or object, but also
  * related Nodes up to the given number of steps.
@@ -77,13 +81,16 @@ function isLiteralQuery(params: QueryParams): params is QueryParamsLiteral {
  * 'error' event if creation fails. Wait for 'change:@id' before
  * using the Node as an attribute value for another Node.
  *
- * See also the query method below for querying the server.
+ * See also the query and sparqlQuery methods below for querying the server.
  */
 export default class ItemGraph extends Graph {
     // Only defined if a query has been issued.
     promise: JQuery.jqXHR;
 
     /**
+     * DEPRECATED you still need this for the download parameter, but use
+     * sparqlQuery instead if you don't use that parameter.
+     *
      * Replace the contents of this graph by all items at the backend
      * that match the given criteria.
      *
@@ -101,6 +108,11 @@ export default class ItemGraph extends Graph {
         return this.promise = this.fetch({data});
     }
 
+    /**
+     * Replace the contents of this graph by all items at the backend that
+     * result from the given CONSTRUCT query. For best results, make sure that
+     * the query produces complete items.
+     */
     sparqlQuery(query: string, fromGraph: string): JQuery.jqXHR {
         return this.promise = this.fetch({ url: sparqlRoot + fromGraph, data: $.param({ query: query }), remove: false });
     }
