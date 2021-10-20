@@ -66,6 +66,8 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
 
     renderContainer(): this {
         this.$el.html(this.template(this));
+        this.$(noMatchHelp).hide();
+        this.detectedTypeHelp.$el.hide();
         return this;
     }
 

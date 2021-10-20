@@ -200,7 +200,12 @@ export default class UploadSourceFormView extends CompositeView {
     }
 
     updateHelpText(event: JQueryEventObject) {
-        console.log(event);
+        const value = $(event.currentTarget).val() as string;
+        switch ($(event.currentTarget).attr('name')) {
+            case 'publicationdate': this.publicationDateHelpText.updateHelpText(value);
+            case 'creationdate': this.creationDateHelpText.updateHelpText(value);
+            case 'retrievaldate': this.retrievalDateHelpText.updateHelpText(value);
+        }
     }
 
     getNode(predicate: string) {
@@ -216,7 +221,7 @@ extend(UploadSourceFormView.prototype, {
         { view: 'sourceTypePicker', selector: '#sourceTypeSelect' },
         { view: 'publicationDateHelpText', selector: '.publication-date', method: 'append'},
         { view: 'creationDateHelpText', selector: '.creation-date', method: 'append'},
-        { view: 'uploadDateHelpText', selector: '.retrieval-date', method: 'append'},
+        { view: 'retrievalDateHelpText', selector: '.retrieval-date', method: 'append'},
     ],
     events: {
         'submit': 'onSaveClicked',
