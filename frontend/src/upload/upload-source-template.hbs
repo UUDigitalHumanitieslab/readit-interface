@@ -74,30 +74,8 @@
         </div>
         <p class="help">When in doubt, choose 'Unknown'</p>
     </div>
-    <div class="field publication-date">
-        <label class="label">Publication date</label>
-        <div class="control">
-            <input name="publicationdate" class="input with-help" type="text" placeholder="1952-09-01 (YYYY-MM-DD)">
-            <p class="help"><a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO formatted
-                    date with optional time and timezone</a>, or free-form text
-            </p>
-        </div>
-    </div>
-    <div class="field creation-date">
-        <label class="label">Creation date (optional)</label>
-        <div class="control">
-            <input name="creationdate" class="input with-help" type="text" placeholder="1952-09-01 (YYYY-MM-DD)">
-            <p class="help">If known and different from publishing date, specify creation date.</br>
-            </p>
-        </div>
-    </div>
-    <div class="field retrieval-date">
-        <label class="label">Retrieval date (optional)</label>
-        <div class="control">
-            <input name="retrievaldate" class="input with-help" type="text" placeholder="1952-09-01 (YYYY-MM-DD)">
-            <p class="help">Date (and optional time) at which the source was accessed or retrieved.
-            </p>
-        </div>
+    <div class="dates">
+        {{!date fields with type-aware help will be rendered here}}
     </div>
     <div class="field">
         <div class="control">

@@ -2,11 +2,11 @@ import { extend } from 'lodash';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
-import { rdfs, sourceOntology as sourceNS, sourceOntology, sourceOntologyPrefix } from '../common-rdf/ns';
+import { rdfs, sourceOntology as sourceNS, sourceOntologyPrefix } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import { CompositeView } from '../core/view';
 import Select2Picker from '../forms/select2-picker-view';
-import TypeAwareHelpText from '../item-edit/type-aware-help-view';
+import DateField from './date-field-view';
 import uploadSourceTemplate from './upload-source-template';
 
 
@@ -28,9 +28,9 @@ export default class UploadSourceFormView extends CompositeView {
      */
     errorClassInputs: string = "is-danger";
 
-    publicationDateHelpText: TypeAwareHelpText;
-    creationDateHelpText: TypeAwareHelpText;
-    retrievalDateHelpText: TypeAwareHelpText;
+    publicationDateField: DateField;
+    creationDateField: DateField;
+    retrievalDateField: DateField;
 
     initialize(): this {
         let self = this;
@@ -183,8 +183,10 @@ export default class UploadSourceFormView extends CompositeView {
 
     getOntology() {
         this.ontologyGraph = ldChannel.request('source-ontology:graph');
-        this.setTypeOptions();
-        this.listenToOnce(this.ontologyGraph, 'sync', this.initHelpTexts);
+        this.listenToOnce(this.ontologyGraph, 'sync', () => {
+            this.setTypeOptions();
+            this.initHelpTexts();
+        });
     }
 
     setTypeOptions(): void {
@@ -193,19 +195,32 @@ export default class UploadSourceFormView extends CompositeView {
     }
 
     initHelpTexts() {
-        this.publicationDateHelpText = new TypeAwareHelpText({model: this.getNode('datePublished')});
-        this.creationDateHelpText = new TypeAwareHelpText({model: this.getNode('dateCreated')});
-        this.retrievalDateHelpText = new TypeAwareHelpText({model: this.getNode('dateRetrieved')});
+        this.publicationDateField = new DateField({
+            model: {
+                node: this.getNode('datePublished'),
+                name: 'publicationdate',
+                required: true,
+                label: 'Publication date',
+                additionalHelpText: `<a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO formatted
+                date with optional time and timezone</a>, or free-form text`}
+            });
+        this.creationDateField = new DateField({
+            model: {
+                node: this.getNode('dateCreated'),
+                name: 'creationdate',
+                required: false,
+                label: 'Creation date (optional)',
+                additionalHelpText: 'If known and different from publishing date, specify creation date.'}
+            });
+        this.retrievalDateField = new DateField({
+            model: {
+                node: this.getNode('dateRetrieved'),
+                name: 'retrievaldate',
+                required: false,
+                label: 'Retrieval date (optional)',
+                additionalHelpText: 'Date (and optional time) at which the source was accessed or retrieved.'}
+            });
         this.render();
-    }
-
-    updateHelpText(event: JQueryEventObject) {
-        const value = $(event.currentTarget).val() as string;
-        switch ($(event.currentTarget).attr('name')) {
-            case 'publicationdate': this.publicationDateHelpText.updateHelpText(value);
-            case 'creationdate': this.creationDateHelpText.updateHelpText(value);
-            case 'retrievaldate': this.retrievalDateHelpText.updateHelpText(value);
-        }
     }
 
     getNode(predicate: string) {
@@ -219,9 +234,9 @@ extend(UploadSourceFormView.prototype, {
     template: uploadSourceTemplate,
     subviews: [
         { view: 'sourceTypePicker', selector: '#sourceTypeSelect' },
-        { view: 'publicationDateHelpText', selector: '.publication-date', method: 'append'},
-        { view: 'creationDateHelpText', selector: '.creation-date', method: 'append'},
-        { view: 'retrievalDateHelpText', selector: '.retrieval-date', method: 'append'},
+        { view: 'publicationDateField', selector: '.dates', method: 'prepend'},
+        { view: 'creationDateField', selector: '.dates', method: 'append'},
+        { view: 'retrievalDateField', selector: '.dates', method: 'append'},
     ],
     events: {
         'submit': 'onSaveClicked',
