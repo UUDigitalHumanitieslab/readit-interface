@@ -323,7 +323,7 @@ class AddSource(RDFResourceView):
     permission_classes = [IsAuthenticated, UploadSourcePermission]
     parser_classes = [MultiPartParser]
 
-    def store(self, source_file, source_id, source_language, author, title):
+    def store(self, source_file, source_id, source_language, author, title, public):
         """ sanitize and store the text in an Elasticsearch index
         return the sanitized text
         """
@@ -336,7 +336,8 @@ class AddSource(RDFResourceView):
             'author': author,
             'title': title,
             'text': text,
-            'text_{}'.format(source_language): text
+            'text_{}'.format(source_language): text,
+            'public': public
         })
         return text
 
@@ -459,7 +460,7 @@ class AddSource(RDFResourceView):
 
         # store the file in ES index
         sanitized_text = self.store(data['source'], get_serial_from_subject(new_subject),
-                                    data['language'], data['author'], data['title'])
+                                    data['language'], data['author'], data['title'], data['public']=='public')
 
         self.query_automated_annotations(
             sanitized_text, data['source'], counter.__str__())
