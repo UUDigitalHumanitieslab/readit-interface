@@ -599,7 +599,11 @@ export const source = Vocabulary(sourcePrefix, sourcesNotHardcoded);
  */
 export const UNKNOWN = 'https://www.wikidata.org/wiki/Q24238356'
 
-export const nsMap = {
+export interface nsTable {
+    [abbreviation: string]: string;
+}
+
+export const nsMap: nsTable = {
     rdf: rdfPrefix,
     rdfs: rdfsPrefix,
     xsd: xsdPrefix,
@@ -616,4 +620,9 @@ export const nsMap = {
     schema: schemaPrefix,
     iso6391: iso6391Prefix,
     readit: readitPrefix,
+    vocab: vocabPrefix,
+    staff: staffPrefix,
+    nlp: nlpOntologyPrefix,
+    source: sourcePrefix,
+    item: itemPrefix,
 };
