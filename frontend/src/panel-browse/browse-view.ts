@@ -64,7 +64,10 @@ export default class BrowseView extends CompositeView {
 
     async getRandomNodes(nodes: Collection) {
         const randomNodes = sampleSize(nodes.models, nSamples);
-        const randomQuery = randomNodesQuery(randomNodes.slice(-randomNodes.length, -1), randomNodes.pop(), {});
+        const randomQuery = randomNodesQuery(
+            randomNodes.slice(-randomNodes.length, -1),
+            randomNodes.pop()
+        );
         this.sparqlItems.sparqlQuery(randomQuery);
     }
 

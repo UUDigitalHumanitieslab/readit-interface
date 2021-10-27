@@ -24,7 +24,7 @@ const defaultOptions = {
 };
 
 export function itemsForSourceQuery(
-    source: string, options: SPARQLQueryOptions
+    source: string, options: SPARQLQueryOptions = {}
 ) {
     let data = { sourceURI: source, from: 'source' };
     const perm = userChannel.request('permission', 'view_all_annotations');
@@ -33,7 +33,9 @@ export function itemsForSourceQuery(
     return itemsTemplate(finalData);
 }
 
-export function listNodesQuery(itemQuery: boolean, options: SPARQLQueryOptions){
+export function listNodesQuery(
+    itemQuery: boolean, options: SPARQLQueryOptions = {}
+) {
     let data = { ...defaultOptions, itemQuery: itemQuery, ...options };
     return listNodesTemplate(data);
 }
@@ -50,7 +52,7 @@ export function nodesByUserQuery(
 }
 
 export function randomNodesQuery(
-    randomNodes: Model[], lastNode: Model, options: SPARQLQueryOptions
+    randomNodes: Model[], lastNode: Model, options: SPARQLQueryOptions = {}
 ) {
     const data = {
         ...defaultOptions,

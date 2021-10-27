@@ -340,7 +340,7 @@ export default ExplorerEventController;
 export function getItems(source: Node): ItemGraph {
     const sparqlItems = new ItemGraph();
     userChannel.request('promise').then(() => {
-        const queryString = itemsForSourceQuery(asURI(source), {});
+        const queryString = itemsForSourceQuery(asURI(source));
         sparqlItems.sparqlQuery(queryString);
     });
     return sparqlItems;

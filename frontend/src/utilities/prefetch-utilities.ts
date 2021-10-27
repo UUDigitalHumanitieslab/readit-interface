@@ -11,7 +11,7 @@ import { listNodesQuery, nodesByUserQuery } from "../sparql/compile-query";
  */
 export function userNodesFactory() {
     let promise: PromiseLike<ItemGraph> = null;
-    
+
     function getUserNodes(userNodes: ItemGraph, queryingItems: boolean): PromiseLike<ItemGraph> {
         if (!promise) {
             const query = nodesByUserQuery(queryingItems);
@@ -21,12 +21,12 @@ export function userNodesFactory() {
         }
         return promise;
     }
-    
+
     function handleSuccess(userNodes): ItemGraph {
         promise = Promise.resolve(userNodes);
         return userNodes;
     }
-    
+
     function handleError(error: any): any {
         promise = Promise.reject(error);
         return error;
@@ -37,25 +37,25 @@ export function userNodesFactory() {
 
 export function nodeListFactory() {
     let promise: PromiseLike<Collection> = null;
-    
+
     function getNodeList(queriedList: Collection, queryingItems: boolean): PromiseLike<Collection> {
         if (!promise) {
-            const query = listNodesQuery(queryingItems, {});
+            const query = listNodesQuery(queryingItems);
             const endpoint = queryingItems ? 'item/query' : 'source/query'
-            promise = queriedList.fetch({ 
-                url: sparqlRoot + endpoint, 
-                data: $.param({ query: query }), 
+            promise = queriedList.fetch({
+                url: sparqlRoot + endpoint,
+                data: $.param({ query: query }),
                 remove: false
             }).then(() => handleSuccess(queriedList), handleError);
         }
     return promise;
     }
-    
+
     function handleSuccess(queriedList): Collection {
         promise = Promise.resolve(queriedList);
         return queriedList;
     }
-    
+
     function handleError(error: any): any {
         promise = Promise.reject(error);
         return error;
