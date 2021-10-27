@@ -3,7 +3,7 @@ import { source, item, nsTable, nsMap } from '../common-rdf/ns';
 import userChannel from '../common-user/user-radio';
 
 import itemsTemplate from './query-templates/items-for-source-template';
-import listNodesTemplate from './query-templates/list-nodes-template';
+import countNodesTemplate from './query-templates/count-nodes-template';
 import nodesByUserTemplate from './query-templates/nodes-by-user-template';
 import randomNodesTemplate from './query-templates/random-nodes-template';
 
@@ -33,11 +33,11 @@ export function itemsForSourceQuery(
     return itemsTemplate(finalData);
 }
 
-export function listNodesQuery(
+export function countNodesQuery(
     itemQuery: boolean, options: SPARQLQueryOptions = {}
 ) {
-    let data = { ...defaultOptions, itemQuery: itemQuery, ...options };
-    return listNodesTemplate(data);
+    const data = { ...defaultOptions, itemQuery, ...options };
+    return countNodesTemplate(data);
 }
 
 export function nodesByUserQuery(

@@ -3,7 +3,7 @@ import ItemGraph from '../common-adapters/item-graph';
 
 import Collection from '../core/collection';
 
-import { listNodesQuery, nodesByUserQuery } from "../sparql/compile-query";
+import { countNodesQuery, nodesByUserQuery } from "../sparql/compile-query";
 
 /**
  * a utility function to ensure that each getUserNodes function uses its own promise
@@ -40,7 +40,7 @@ export function nodeListFactory() {
 
     function getNodeList(queriedList: Collection, queryingItems: boolean): PromiseLike<Collection> {
         if (!promise) {
-            const query = listNodesQuery(queryingItems);
+            const query = countNodesQuery(queryingItems);
             const endpoint = queryingItems ? 'item/query' : 'source/query'
             promise = queriedList.fetch({
                 url: sparqlRoot + endpoint,
