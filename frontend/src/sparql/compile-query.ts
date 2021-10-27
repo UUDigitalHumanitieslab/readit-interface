@@ -1,5 +1,5 @@
 import Model from '../core/model';
-import { nsTable, nsMap } from '../common-rdf/ns';
+import { source, item, nsTable, nsMap } from '../common-rdf/ns';
 import userChannel from '../common-user/user-radio';
 
 import itemsTemplate from './query-templates/items-for-source-template';
@@ -52,13 +52,9 @@ export function nodesByUserQuery(
 }
 
 export function randomNodesQuery(
-    randomNodes: Model[], lastNode: Model, options: SPARQLQueryOptions = {}
+    itemQuery: boolean, options: SPARQLQueryOptions = { limit: 10 }
 ) {
-    const data = {
-        ...defaultOptions,
-        randomNodes: randomNodes.map( model => model.get('value')),
-        lastNode: lastNode.get('value'),
-        ...options,
-    };
+    const nsLength = (itemQuery ? source() : item()).length;
+    const data = { ...defaultOptions, itemQuery, nsLength, ...options };
     return randomNodesTemplate(data);
 }

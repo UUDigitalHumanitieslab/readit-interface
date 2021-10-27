@@ -1,7 +1,24 @@
-PREFIX dcterms: <http://purl.org/dc/terms/>
-PREFIX oa: <http://www.w3.org/ns/oa#>
-CONSTRUCT {?node ?p ?o}
-WHERE {
-    ?node ?p ?o.
-    FILTER ({{#each randomNodes}}?node = <{{this}}> ||{{/each}} ?node = <{{lastNode}}>)
+{{>sparqlPreamble}}
+
+construct {
+    ?subject ?prop ?val
+} where {
+    ?subject ?prop ?val
+    {
+        select distinct ?subject where {
+            {{#itemQuery}}
+            ?anno oa:hasBody ?subject.
+            ?subject a ?x.
+            {{/itemQuery}}
+            {{^itemQuery}}
+            ?subject a vocab:Source.
+            {{/itemQuery}}
+            bind (substr(str(?subject), {{nsLength}}) as ?serial)
+            bind (strlen(?serial) as ?cap)
+            bind (substr(?serial, ?cap) as ?suffix)
+            bind (substr(?serial, 1, ?cap - 1) as ?prefix)
+        }
+        order by md5(concat(?suffix, substr(str(rand()), 2), ?prefix))
+        limit {{limit}}
+    }
 }
