@@ -24,13 +24,10 @@ const defaultOptions = {
 };
 
 export function itemsForSourceQuery(
-    source: string, options: SPARQLQueryOptions = {}
+    sourceURI: string, options: SPARQLQueryOptions = {}
 ) {
-    let data = { sourceURI: source, from: 'source' };
-    const perm = userChannel.request('permission', 'view_all_annotations');
-    if (!perm) data['userURI'] = userChannel.request('current-user-uri');
-    const finalData = { ...defaultOptions, ...data, ...options };
-    return itemsTemplate(finalData);
+    const data = { ...defaultOptions, sourceURI, ...options };
+    return itemsTemplate(data);
 }
 
 export function countNodesQuery(

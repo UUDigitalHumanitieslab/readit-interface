@@ -1,23 +1,15 @@
 {{>sparqlPreamble}}
-PREFIX schema: <http://schema.org/>
-PREFIX oa: <http://www.w3.org/ns/oa#>
-PREFIX dcterms: <http://purl.org/dc/terms/>
+
 CONSTRUCT {
     ?annotation ?a ?b.
     ?target ?e ?f.
     ?selector ?g ?h.
-    }
-WHERE {
+} WHERE {
     ?annotation oa:hasBody ?body.
     ?annotation oa:hasTarget ?target;
                 ?a ?b.
-    {{#if userURI}}
-    ?annotation dcterms:creator <{{userURI}}>.
-    {{/if}}
-    {{#if sourceURI}}
-    ?target oa:hasSource <{{sourceURI}}>.
-    {{/if}}
-    ?target oa:hasSelector ?selector;
+    ?target oa:hasSource <{{sourceURI}}>;
+            oa:hasSelector ?selector;
             ?e ?f.
     ?selector ?g ?h;
               oa:start ?start.
