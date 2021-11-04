@@ -19,16 +19,11 @@ function announce(): void {
 
 export interface ViewOptions extends BaseOpt {
     selectable: boolean;
-    /**
-     * The title displayed above the result list. Defaults to 'Search Results'.
-     */
-    title?: string;
 }
 
 export default
 class SearchResultListView extends CollectionView<FlatItem, SearchResultView> {
     selectable: boolean;
-    title: string;
     attached: boolean;
 
     constructor(options: ViewOptions) {
@@ -37,7 +32,6 @@ class SearchResultListView extends CollectionView<FlatItem, SearchResultView> {
 
     initialize(options: ViewOptions): this {
         this.selectable = (options.selectable === undefined) || options.selectable;
-        this.title = options.title || 'Search Results';
         this.initItems().initCollectionEvents();
         this.listenTo(this.collection, {
             focus: this.onFocus,

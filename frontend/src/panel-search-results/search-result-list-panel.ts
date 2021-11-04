@@ -7,8 +7,6 @@ import explorerChannel from '../explorer/explorer-radio';
 import searchResultListTemplate from './search-result-list-template';
 import SearchResultListView from './search-result-list-view';
 
-
-
 export interface ViewOptions extends BaseOpt {
     selectable: boolean;
     /**
@@ -17,9 +15,8 @@ export interface ViewOptions extends BaseOpt {
     title?: string;
 }
 
-export default
-class SearchResultListPanel extends CompositeView {
-    selectable: boolean;
+export default class SearchResultListPanel extends CompositeView {
+    title: string;
     searchList: SearchResultListView;
 
     constructor(options: ViewOptions) {
@@ -27,11 +24,8 @@ class SearchResultListPanel extends CompositeView {
     }
 
     initialize(options: ViewOptions): this {
-        this.searchList = new SearchResultListView({
-            collection: this.collection,
-            model: this.model,
-            selectable: options.selectable
-        }).render();
+        this.title = options.title || 'Search Results';
+        this.searchList = new SearchResultListView(options).render();
         this.listenTo(this.searchList, 'focus', this.onFocus);
         this.listenTo(this.searchList, 'blur', this.onBlur);
         this.render();
