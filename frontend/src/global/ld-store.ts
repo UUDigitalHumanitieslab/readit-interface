@@ -11,6 +11,8 @@ import {
 import ldChannel from '../common-rdf/radio';
 import Store from '../common-rdf/store';
 import './ontology';
+import './nlp-ontology';
+import './exploration-data';
 
 const defaultGraphs = [
     rdf(),
@@ -40,12 +42,19 @@ export const globalGraph = new Store();
 
 export function prefetch() {
     inhouseGraphs.forEach(ns => globalGraph.import(ns));
-    ldChannel.trigger('cache:ontology');
-    ldChannel.trigger('cache:nlp-ontology');
-    ldChannel.trigger('cache:item-list');
-    ldChannel.trigger('cache:user-items');
-    ldChannel.trigger('cache:source-list');
-    ldChannel.trigger('cache:user-sources');
+    const gotOntology = ldChannel.request('ontology:promise');
+    const gotNlpOntology = ldChannel.request('nlp-ontology:promise');
+    ldChannel.request('sources:tally');
+    ldChannel.request('items:tally');
+    // We wait for the ontologies to arrive before fetching sources and items,
+    // because this potentially prevents double requests if client code starts
+    // flattening the Nodes already before the ontologies arrive.
+    Promise.all([gotOntology, gotNlpOntology]).then(() => {
+        ldChannel.request('sources:user');
+        ldChannel.request('items:user');
+        ldChannel.request('sources:random');
+        ldChannel.request('items:random');
+    });
     // For the time being, we skip the attempt to import directly,
     // because most of our defaultGraphs don't support CORS and
     // because it saves a bunch of error messages in the dev console.
