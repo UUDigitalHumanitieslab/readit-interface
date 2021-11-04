@@ -1,3 +1,5 @@
+import { after, once } from 'lodash';
+
 import {
     rdf,
     rdfs,
@@ -40,7 +42,22 @@ const inhouseGraphs = [
 
 export const globalGraph = new Store();
 
+const prefetchHook = after(defaultGraphs.length, once(prefetch2));
+
 export function prefetch() {
+    // For the time being, we skip the attempt to import directly,
+    // because most of our defaultGraphs don't support CORS and
+    // because it saves a bunch of error messages in the dev console.
+    // In the future, we may want to change this back into
+    // globalGraph.import(ns).
+    defaultGraphs.forEach(ns => globalGraph.importViaProxy(ns));
+    // Once the default graphs have arrived, we want to continue prefetching our
+    // own materials.
+    globalGraph.on('update', prefetchHook);
+}
+
+async function prefetch2() {
+    globalGraph.off('update', prefetchHook);
     inhouseGraphs.forEach(ns => globalGraph.import(ns));
     const gotOntology = ldChannel.request('ontology:promise');
     const gotNlpOntology = ldChannel.request('nlp-ontology:promise');
@@ -49,18 +66,11 @@ export function prefetch() {
     // We wait for the ontologies to arrive before fetching sources and items,
     // because this potentially prevents double requests if client code starts
     // flattening the Nodes already before the ontologies arrive.
-    Promise.all([gotOntology, gotNlpOntology]).then(() => {
-        ldChannel.request('sources:user');
-        ldChannel.request('items:user');
-        ldChannel.request('sources:random');
-        ldChannel.request('items:random');
-    });
-    // For the time being, we skip the attempt to import directly,
-    // because most of our defaultGraphs don't support CORS and
-    // because it saves a bunch of error messages in the dev console.
-    // In the future, we may want to change this back into
-    // globalGraph.import(ns).
-    defaultGraphs.forEach(ns => globalGraph.importViaProxy(ns));
+    await Promise.all([gotOntology, gotNlpOntology]);
+    ldChannel.request('sources:user');
+    ldChannel.request('items:user');
+    ldChannel.request('sources:random');
+    ldChannel.request('items:random');
 }
 
 if (window['DEBUGGING']) {
