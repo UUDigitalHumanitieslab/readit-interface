@@ -3,10 +3,21 @@ import { extend, get } from 'lodash';
 import { CompositeView, ViewOptions as BaseOpt } from '../core/view';
 import FlatItem from '../common-adapters/flat-item-model';
 import explorerChannel from '../explorer/explorer-radio';
+import { announceRoute } from '../explorer/utilities';
+import SemanticQuery from '../semantic-search/model';
 import LoadingSpinner from '../loading-spinner/loading-spinner-view';
 
 import searchResultListTemplate from './search-result-list-template';
 import SearchResultListView from './search-result-list-view';
+
+const announceAnno = announceRoute('item:annotations', ['model', 'id']);
+const announceQuery = announceRoute('search:results:semantic', ['model', 'id']);
+
+function announce(): void {
+    if (this.model instanceof SemanticQuery) {
+        this.model.when('id', announceQuery, this);
+    } else announceAnno.call(this);
+}
 
 export interface ViewOptions extends BaseOpt {
     selectable: boolean;
@@ -36,6 +47,7 @@ export default class SearchResultListPanel extends CompositeView {
             promise.then(this.removeSpinner.bind(this));
         }
         this.render();
+        this.on('announceRoute', announce);
         return this;
     }
 

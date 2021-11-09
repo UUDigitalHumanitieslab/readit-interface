@@ -3,19 +3,7 @@ import { extend, invokeMap } from 'lodash';
 import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
 import FlatItem from '../common-adapters/flat-item-model';
 
-import { announceRoute } from '../explorer/utilities';
-import SemanticQuery from '../semantic-search/model';
-
 import SearchResultView from './search-result-base-view';
-
-const announceAnno = announceRoute('item:annotations', ['model', 'id']);
-const announceQuery = announceRoute('search:results:semantic', ['model', 'id']);
-
-function announce(): void {
-    if (this.model instanceof SemanticQuery) {
-        this.model.when('id', announceQuery, this);
-    } else announceAnno.call(this);
-}
 
 export interface ViewOptions extends BaseOpt {
     selectable: boolean;
@@ -38,7 +26,6 @@ class SearchResultListView extends CollectionView<FlatItem, SearchResultView> {
             blur: this.onBlur,
         });
         this.listenToOnce(this.collection, 'add', this.render);
-        this.on('announceRoute', announce);
         return this;
     }
 
