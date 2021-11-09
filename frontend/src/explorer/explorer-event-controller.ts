@@ -5,6 +5,8 @@ import View from '../core/view';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import Node from '../common-rdf/node';
+import { oa, source } from '../common-rdf/ns';
+import ldChannel from '../common-rdf/radio';
 
 import ExplorerView from './explorer-view';
 import AnnotationView from '../panel-annotation/annotation-view';
@@ -13,7 +15,6 @@ import SourceView from '../panel-source/source-view';
 import AnnotationListPanel from '../panel-annotation-list/annotation-list-panel';
 
 import AnnoEditView from '../panel-annotation/annotation-edit-view';
-import BrowseView from '../panel-browse/browse-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
 import RelatedEditView from '../panel-related-items/related-items-edit-view';
 import ExternalView from '../panel-external-resources/external-resources-view';
@@ -24,7 +25,6 @@ import FlatItemCollection from '../common-adapters/flat-item-collection';
 import FlatAnnoCollection from '../common-adapters/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 import { createPlaceholderAnnotation } from '../utilities/annotation-creation-utilities';
-import { oa, source } from '../common-rdf/ns';
 import SearchResultListPanel from '../panel-search-results/search-result-list-panel';
 import SourceListPanel from '../panel-source-list/source-list-panel';
 import FilteredCollection from '../common-adapters/filtered-collection';
@@ -308,9 +308,13 @@ class ExplorerEventController {
             queryMode = 'sources';
             landing = false;
         }
-        const browsePanel = new BrowseView({
-            queryMode: queryMode,
-            landing: landing
+        const title = `${landing ? 'My' : 'Sample'} ${queryMode}`;
+        const endpoint = `${queryMode}:${landing ? 'user' : 'sample'}`;
+        const collection = new FlatItemCollection(ldChannel.request(endpoint));
+        const browsePanel = new SearchResultListPanel({
+            title,
+            collection,
+            selectable: false,
         });
         return this.explorerView.reset(browsePanel);
     }
