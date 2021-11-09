@@ -223,20 +223,6 @@ class ExplorerEventController {
         // this.autoOpenRelationEditor(annotation.get('annotation'));
     }
 
-    showAnnotationsOfCategory(view: BrowseView, category: FlatItem): SearchResultListPanel {
-        let items = new ItemGraph();
-        const url = '/item/' + category.id.split("#")[1];
-        items.fetch({ url: url });
-        let flatItems = new FlatItemCollection(items);
-        const resultView = new SearchResultListPanel({
-            model: category,
-            collection: flatItems,
-            selectable: false,
-        });
-        this.explorerView.popUntil(view).push(resultView);
-        return resultView;
-    }
-
     autoOpenRelationEditor(annotation: Node): this {
         const newItems = (annotation.get(oa.hasBody) as Node[])
             .filter(n => !isOntologyClass(n));

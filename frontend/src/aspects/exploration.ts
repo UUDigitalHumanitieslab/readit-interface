@@ -64,7 +64,6 @@ explorerChannel.on({
     'annotationEditView:saveNew': controller.saveNewAnnotation,
     'annotationEditView:save': controller.saveAnnotation,
     'annotationEditView:close': controller.closeEditAnnotation,
-    'category:showRelevantAnnotations': controller.showAnnotationsOfCategory,
     'annotation:showRelated': controller.listRelated,
     'annotation:showAnnotations': controller.listItemAnnotations,
     'annotation:showExternal': controller.listExternal,
