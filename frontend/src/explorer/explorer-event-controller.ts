@@ -57,7 +57,7 @@ class ExplorerEventController {
     resetSource(source: Node, showHighlights: boolean): SourceView {
         const sourcePanel = createSourceView(source, showHighlights, true);
         this.explorerView.reset(sourcePanel);
-        source.on('destroy', this.showSuggestionsPanel, this);
+        source.on('destroy', this.resetBrowsePanel, this);
         return sourcePanel;
     }
 
@@ -104,11 +104,6 @@ class ExplorerEventController {
         });
         this.explorerView.reset(resultsView);
         return resultsView;
-    }
-
-    showSuggestionsPanel() {
-        const suggestionsView = new BrowseView();
-        this.explorerView.reset(suggestionsView);
     }
 
     openSearchResult(
@@ -321,7 +316,12 @@ class ExplorerEventController {
         return this.editAnnotation(newAnnotationView, flat);
     }
 
-    resetBrowsePanel(queryMode: string, landing: boolean) {
+    resetBrowsePanel(queryMode: string | Model, landing: boolean) {
+        if (queryMode instanceof Model) {
+            // We came here from a source's 'destroy' handler.
+            queryMode = 'sources';
+            landing = false;
+        }
         const browsePanel = new BrowseView({
             queryMode: queryMode,
             landing: landing
