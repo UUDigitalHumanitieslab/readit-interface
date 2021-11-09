@@ -8,8 +8,6 @@ import semChannel from '../semantic-search/radio';
 import SemanticQuery from '../semantic-search/model';
 
 import Controller from './explorer-event-controller';
-import Collection from '../core/collection';
-import ItemGraph from '../common-adapters/item-graph';
 
 function obtainer<T extends readonly string[]>(namespace: Namespace<T>) {
     return function(serial: string) {
