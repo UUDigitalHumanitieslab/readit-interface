@@ -1,24 +1,56 @@
 {{>sparqlPreamble}}
 
+{{! We run an outer CONSTRUCT with an inner SELECT. The inner query delivers a
+random subset of all unique subjects in the graph. The outer query takes the
+nodes from that subset, i.e., `?subject`, and produces all triples with
+`?subject` in the subject position. }}
 construct {
     ?subject ?prop ?val
 } where {
     ?subject ?prop ?val
     {
+        {{! The inner query that delivers the subset. We start by restricting
+        the subset to DISTINCT subjects with appropriate features. }}
         select distinct ?subject where {
             {{#itemQuery}}
+            {{! If we're randomly sampling items, we want them to be items in
+            the narrow sense, i.e., non-annotations and non-annotation-
+            components such as selectors. The next two triples guarantee this.
+            }}
             ?anno oa:hasBody ?subject.
             ?subject a ?x.
             {{/itemQuery}}
             {{^itemQuery}}
+            {{! If, on the other hand, we're randomly sampling sources, they
+            must obviously be actual sources. }}
             ?subject a vocab:Source.
             {{/itemQuery}}
+            {{! In the next few computations, we determine the serial number of
+            the `?subject`, then split the digits of the number in a prefix and
+            a suffix. The suffix contains only the final digit while the prefix
+            contains all remaining digits (so the prefix might be the empty
+            string). The serial number is (ironically) used in randomization.
+            We split off the suffix so we can move it to the front in order to
+            improve entropy. }}
             bind (substr(str(?subject), {{nsLength}}) as ?serial)
             bind (strlen(?serial) as ?cap)
             bind (substr(?serial, ?cap) as ?suffix)
             bind (substr(?serial, 1, ?cap - 1) as ?prefix)
         }
+        {{! Now that we have determined all subjects with appropriate features
+        and computed their prefixes and suffixes, the next step is to put them
+        in a random ORDER. Crucially, this order must be different every time
+        we run the query. We could not simply order by `rand()`, because this
+        expression is evaluated only once and hence ends up being the same for
+        all subjects. It does however differ between subsequent query runs. So
+        to create differences between subsequent runs as well as between
+        subjects, we concatenate the suffix, common random digits and prefix in
+        order to obtain a unique string for each subject. We compute the md5
+        hash of this string in order to remove the remaining correlation
+        between the sorting value and the original serial number. }}
         order by md5(concat(?suffix, substr(str(rand()), 2), ?prefix))
+        {{! We now have all subjects in randomized order. The final step in
+        obtaining a **subset** is to LIMIT ourselves to just the first few. }}
         limit {{limit}}
     }
 }
