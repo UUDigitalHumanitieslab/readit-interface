@@ -27,8 +27,8 @@ const sourceRoute = partial(deepRoute, act.getSource);
 const itemRoute = partial(deepRoute, act.getItem);
 const queryRoute = partial(deepRoute, deparam);
 const semRoute = partial(deepRoute, act.getQuery);
-// Double `partial`. We call once to strip off the outermost `partial`, then
-// again to actually invoke `act.resetBrowsePanel`.
+// Double `partial`. We call the resulting function once to strip off the
+// outermost `partial`, then again to actually invoke `act.resetBrowsePanel`.
 const browseRoute = partial(partial, act.resetBrowsePanel, controller);
 function annoRoute(resetAction) {
     return (sourceSerial, itemSerial) => explorer.scrollOrAction(
