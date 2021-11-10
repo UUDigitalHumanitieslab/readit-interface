@@ -45,8 +45,10 @@ export default class SearchResultListPanel extends CompositeView {
     initialize(options: ViewOptions): this {
         this.title = options.title || 'Search Results';
         this.searchList = new SearchResultListView(options).render();
-        this.listenTo(this.searchList, 'focus', this.onFocus);
-        this.listenTo(this.searchList, 'blur', this.onBlur);
+        this.listenTo(this.collection, {
+            focus: this.onFocus,
+            blur: this.onBlur,
+        });
         const promise = get(this.collection, ['underlying', 'promise']);
         if (promise) {
             this.spinner = new LoadingSpinner;
@@ -66,8 +68,8 @@ export default class SearchResultListPanel extends CompositeView {
         explorerChannel.trigger('searchResultList:itemClicked', this, model);
     }
 
-    onBlur(): void {
-        explorerChannel.trigger('searchResultList:itemClosed', this);
+    onBlur(model: FlatItem, next?: FlatItem): void {
+        next || explorerChannel.trigger('searchResultList:itemClosed', this);
     }
 
     removeSpinner(): void {

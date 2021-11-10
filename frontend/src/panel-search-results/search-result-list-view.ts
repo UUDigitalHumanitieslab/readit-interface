@@ -21,10 +21,6 @@ class SearchResultListView extends CollectionView<FlatItem, SearchResultView> {
     initialize(options: ViewOptions): this {
         this.selectable = (options.selectable === undefined) || options.selectable;
         this.initItems().initCollectionEvents();
-        this.listenTo(this.collection, {
-            focus: this.onFocus,
-            blur: this.onBlur,
-        });
         this.listenToOnce(this.collection, 'add', this.render);
         return this;
     }
@@ -45,15 +41,6 @@ class SearchResultListView extends CollectionView<FlatItem, SearchResultView> {
     activate(): this {
         this.attached = true;
         return this.render();
-    }
-
-
-    onFocus(model: FlatItem): void {
-        this.trigger('focus', model);
-    }
-
-    onBlur(model: FlatItem, next?: FlatItem): void {
-        next || this.trigger('blur', model);
     }
 }
 
