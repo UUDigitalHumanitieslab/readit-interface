@@ -12,5 +12,6 @@ export default {
     'item:annotations':       'explore/item/:serial/annotations',
     'search:results:sources': 'explore/sources?*queryParams',
     'search:results:semantic': 'explore/query/:serial',
-    'browse':                  'explore/:nodeType(/:mine)',
+    'browse:items':            'explore/items(/:mine)',
+    'browse:sources':          'explore/sources(/:mine)',
 };

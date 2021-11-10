@@ -27,6 +27,9 @@ const sourceRoute = partial(deepRoute, act.getSource);
 const itemRoute = partial(deepRoute, act.getItem);
 const queryRoute = partial(deepRoute, deparam);
 const semRoute = partial(deepRoute, act.getQuery);
+// Double `partial`. We call once to strip off the outermost `partial`, then
+// again to actually invoke `act.resetBrowsePanel`.
+const browseRoute = partial(partial, act.resetBrowsePanel, controller);
 function annoRoute(resetAction) {
     return (sourceSerial, itemSerial) => explorer.scrollOrAction(
         browserHistory.state,
@@ -52,7 +55,13 @@ router.on({
     'route:item:annotations':       itemRoute(act.itemWithOccurrences),
     'route:search:results:sources': queryRoute(act.searchResultsSources),
     'route:search:results:semantic': semRoute(act.searchResultsSemantic),
-    'route:browse':                  partial(act.resetBrowsePanel, controller),
+    // Disabling TS on the next two lines because something is off with the
+    // `partial` typing.
+    // @ts-ignore
+    'route:browse:items':            browseRoute('items'),
+    // @ts-ignore
+    'route:browse:sources':          browseRoute('sources'),
+    // Resuming TS from here on.
 });
 
 explorerChannel.on({
