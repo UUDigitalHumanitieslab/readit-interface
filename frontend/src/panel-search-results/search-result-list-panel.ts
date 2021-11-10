@@ -1,6 +1,10 @@
 import { extend, get } from 'lodash';
 
-import { CompositeView, ViewOptions as BaseOpt } from '../core/view';
+import {
+    CompositeView,
+    callActivate,
+    ViewOptions as BaseOpt,
+} from '../core/view';
 import FlatItem from '../common-adapters/flat-item-model';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
@@ -74,6 +78,10 @@ export default class SearchResultListPanel extends CompositeView {
 
     removeSpinner(): void {
         this.dispose('spinner');
+    }
+
+    activate(): this {
+        return this.forEachSubview(callActivate);
     }
 }
 
