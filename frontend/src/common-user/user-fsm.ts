@@ -10,7 +10,7 @@ const unprivilegedState = {
     search: requireAuthorization,
     explore: requireAuthorization,
     upload: requireAuthorization,
-    land: requireAuthorization,
+    land: 'landing',
     confirm: 'confirming',
     notfound: 'lost'
 };
@@ -45,7 +45,7 @@ export default AuthorizationFsm.extend({
         authorizationGranted: privilegedState,
         exploring: privilegedState,
         uploading: privilegedState,
-        landing: privilegedState,
+        landing: unprivilegedState,
         confirming: unprivilegedState,
         lost: unprivilegedState,
     },
