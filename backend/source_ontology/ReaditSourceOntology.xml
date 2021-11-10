@@ -1,0 +1,1182 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="https://read-it.acc.hum.uu.nl/source-ontology#"
+     xml:base="https://read-it.acc.hum.uu.nl/source-ontology"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+    <owl:Ontology rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.w3.org/2002/07/owl#sameAs -->
+
+    <owl:AnnotationProperty rdf:about="http://www.w3.org/2002/07/owl#sameAs"/>
+    
+
+
+    <!-- http://www.w3.org/2004/02/skos/core#notation -->
+
+    <owl:AnnotationProperty rdf:about="http://www.w3.org/2004/02/skos/core#notation">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2000/01/rdf-schema#comment"/>
+    </owl:AnnotationProperty>
+    
+
+
+    <!-- http://www.w3.org/2004/02/skos/core#prefLabel -->
+
+    <owl:AnnotationProperty rdf:about="http://www.w3.org/2004/02/skos/core#prefLabel"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Datatypes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.w3.org/2001/XMLSchema#date -->
+
+    <rdfs:Datatype rdf:about="http://www.w3.org/2001/XMLSchema#date"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://schema.org/inLanguage -->
+
+    <owl:ObjectProperty rdf:about="http://schema.org/inLanguage"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#language -->
+
+    <owl:ObjectProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#language">
+        <rdfs:subPropertyOf rdf:resource="http://schema.org/inLanguage"/>
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://id.loc.gov/vocabulary/iso639-1/iso639-1_Language"/>
+        <skos:prefLabel xml:lang="en">language</skos:prefLabel>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#sourceType -->
+
+    <owl:ObjectProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#sourceType">
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#ReaditSourceType"/>
+        <skos:prefLabel xml:lang="en">source type</skos:prefLabel>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://schema.org/author -->
+
+    <owl:DatatypeProperty rdf:about="http://schema.org/author"/>
+    
+
+
+    <!-- http://schema.org/dateCreated -->
+
+    <owl:DatatypeProperty rdf:about="http://schema.org/dateCreated"/>
+    
+
+
+    <!-- http://schema.org/datePublished -->
+
+    <owl:DatatypeProperty rdf:about="http://schema.org/datePublished"/>
+    
+
+
+    <!-- http://schema.org/editor -->
+
+    <owl:DatatypeProperty rdf:about="http://schema.org/editor"/>
+    
+
+
+    <!-- http://schema.org/encodingFormat -->
+
+    <owl:DatatypeProperty rdf:about="http://schema.org/encodingFormat"/>
+    
+
+
+    <!-- http://schema.org/identifier -->
+
+    <owl:DatatypeProperty rdf:about="http://schema.org/identifier"/>
+    
+
+
+    <!-- http://schema.org/image -->
+
+    <owl:DatatypeProperty rdf:about="http://schema.org/image"/>
+    
+
+
+    <!-- http://schema.org/name -->
+
+    <owl:DatatypeProperty rdf:about="http://schema.org/name"/>
+    
+
+
+    <!-- http://schema.org/publisher -->
+
+    <owl:DatatypeProperty rdf:about="http://schema.org/publisher"/>
+    
+
+
+    <!-- http://schema.org/thumbnail -->
+
+    <owl:DatatypeProperty rdf:about="http://schema.org/thumbnail"/>
+    
+
+
+    <!-- http://schema.org/uploadDate -->
+
+    <owl:DatatypeProperty rdf:about="http://schema.org/uploadDate"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#author -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#author">
+        <rdfs:subPropertyOf rdf:resource="http://schema.org/author"/>
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="en">Author (or other creator) of the source.</rdfs:comment>
+        <skos:prefLabel xml:lang="en">author</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#content -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#content">
+        <rdfs:comment xml:lang="en">The source content. For now, only plaintext content is supported.</rdfs:comment>
+        <skos:prefLabel xml:lang="en">content</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#dateCreated -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#dateCreated">
+        <rdfs:subPropertyOf rdf:resource="http://schema.org/dateCreated"/>
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="en">Creation date of the source. Allowed values are dates or datetimes in ISO8601 format, as well as free-form text (e.g. &quot;first half the 18th century&quot;).</rdfs:comment>
+        <skos:prefLabel xml:lang="en">creation date</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#datePublished -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#datePublished">
+        <rdfs:subPropertyOf rdf:resource="http://schema.org/datePublished"/>
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="en">Publication date of the source. Allowed values are dates or datetimes in ISO8601 format, as well as free-form text (e.g. &quot;first half of the 18th century&quot;).</rdfs:comment>
+        <skos:prefLabel xml:lang="en">publication date</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#dateRetrieved -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#dateRetrieved">
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="en">Retrieval date of the source. Allowed values are dates or datetimes in ISO8601 format as well as free-form text (e.g. &quot;this week&quot;).</rdfs:comment>
+        <skos:prefLabel xml:lang="en">retrieval date</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#dateUploaded -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#dateUploaded">
+        <rdfs:subPropertyOf rdf:resource="http://schema.org/uploadDate"/>
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+        <rdfs:comment xml:lang="en">Upload date of the source. This is automatically set on uploading, in ISO8601 format.</rdfs:comment>
+        <skos:prefLabel xml:lang="en">upload date</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#editor -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#editor">
+        <rdfs:subPropertyOf rdf:resource="http://schema.org/editor"/>
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="en">Editor of the source.</rdfs:comment>
+        <skos:prefLabel xml:lang="en">editor</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#encodingFormat -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#encodingFormat">
+        <rdfs:subPropertyOf rdf:resource="http://schema.org/encodingFormat"/>
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="en">Encoding format of the source. This is set programatically upon upload, determined by sourceType.</rdfs:comment>
+        <skos:prefLabel>encoding format (MIME type)</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#fullText -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#fullText">
+        <rdfs:subPropertyOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#content"/>
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#image -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#image">
+        <rdfs:subPropertyOf rdf:resource="http://schema.org/image"/>
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+        <skos:prefLabel xml:lang="en">image URL</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#public -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#public">
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+        <rdfs:comment xml:lang="en">If True, this source is accessible by all users. If False, only the uplaodhas access.</rdfs:comment>
+        <skos:prefLabel xml:lang="en">public</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#publisher -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#publisher">
+        <rdfs:subPropertyOf rdf:resource="http://schema.org/publisher"/>
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="en">Publisher of the source.</rdfs:comment>
+        <skos:prefLabel xml:lang="en">publisher</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#repository -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#repository">
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="en">Catch-all term indicating a collection of any kind that this source belongs to. Examples: repository, location, folio.</rdfs:comment>
+        <skos:prefLabel xml:lang="en">repository</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#thumbnail -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#thumbnail">
+        <rdfs:subPropertyOf rdf:resource="http://schema.org/thumbnail"/>
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+        <skos:prefLabel xml:lang="en">thumbnail URL</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#title -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#title">
+        <rdfs:subPropertyOf rdf:resource="http://schema.org/name"/>
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment xml:lang="en">Title of the source.</rdfs:comment>
+        <skos:prefLabel xml:lang="en">title</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#url -->
+
+    <owl:DatatypeProperty rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#url">
+        <rdfs:subPropertyOf rdf:resource="http://schema.org/identifier"/>
+        <rdfs:domain rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+        <rdfs:comment xml:lang="en">External URL of the source.</rdfs:comment>
+        <skos:prefLabel xml:lang="en">url</skos:prefLabel>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://id.loc.gov/vocabulary/iso639-1/iso639-1_Language -->
+
+    <owl:Class rdf:about="http://id.loc.gov/vocabulary/iso639-1/iso639-1_Language">
+        <skos:prefLabel>ISO6391 Language</skos:prefLabel>
+    </owl:Class>
+    
+
+
+    <!-- http://schema.org/Article -->
+
+    <owl:Class rdf:about="http://schema.org/Article">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#ReaditSourceType"/>
+        <skos:prefLabel xml:lang="en">Article</skos:prefLabel>
+    </owl:Class>
+    
+
+
+    <!-- http://schema.org/CreativeWork -->
+
+    <owl:Class rdf:about="http://schema.org/CreativeWork"/>
+    
+
+
+    <!-- http://schema.org/Review -->
+
+    <owl:Class rdf:about="http://schema.org/Review">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#ReaditSourceType"/>
+        <skos:prefLabel xml:lang="en">Review</skos:prefLabel>
+    </owl:Class>
+    
+
+
+    <!-- http://schema.org/SocialMediaPosting -->
+
+    <owl:Class rdf:about="http://schema.org/SocialMediaPosting">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#ReaditSourceType"/>
+        <skos:prefLabel xml:lang="en">Social Media Posting</skos:prefLabel>
+    </owl:Class>
+    
+
+
+    <!-- http://schema.org/WebContent -->
+
+    <owl:Class rdf:about="http://schema.org/WebContent">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#ReaditSourceType"/>
+        <skos:prefLabel xml:lang="en">Web Content</skos:prefLabel>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#ReaditSourceType -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#ReaditSourceType"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#Source -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#Source">
+        <rdfs:subClassOf rdf:resource="http://schema.org/CreativeWork"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO01_Advertisment -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO01_Advertisment">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO02_Book -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO02_Book">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO03_Broadsheet -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO03_Broadsheet">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO04_Codex -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO04_Codex">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO05_Dazibaos -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO05_Dazibaos">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO06_DigitizedMaterial -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO06_DigitizedMaterial">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO07_EpitaphsInscriptions -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO07_EpitaphsInscriptions">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO08_Fax -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO08_Fax">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO09_Festschrift -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO09_Festschrift">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO10_Form -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO10_Form">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO11_Graffito -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO11_Graffito">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO12_Handbill -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO12_Handbill">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO13_Journals -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO13_Journals">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO14_Leaflets -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO14_Leaflets">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO15_Letter -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO15_Letter">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO16_Magazines -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO16_Magazines">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO17_Newspaper -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO17_Newspaper">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO18_Pamphlet -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO18_Pamphlet">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO19_Photocopies -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO19_Photocopies">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO20_Poster -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO20_Poster">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO21_Programmes -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO21_Programmes">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO22_Roll -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO22_Roll">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO23_Samizdats -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO23_Samizdats">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO24_SerialPeriodical -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO24_SerialPeriodical">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO25_Sheet -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO25_Sheet">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO26_Ticket -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO26_Ticket">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO27_Unknown -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO27_Unknown">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm"/>
+    </owl:Class>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm -->
+
+    <owl:Class rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO_TextForm">
+        <rdfs:subClassOf rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#ReaditSourceType"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=10 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=10">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO09_Festschrift"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=11 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=11">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO10_Form"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=12 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=12">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO11_Graffito"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=13 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=13">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO12_Handbill"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=14 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=14">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO13_Journals"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=15 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=15">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO14_Leaflets"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=16 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=16">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO15_Letter"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=17 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=17">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO16_Magazines"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=18 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=18">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO17_Newspaper"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=19 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=19">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO18_Pamphlet"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=2 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=2">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO01_Advertisment"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=20 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=20">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO19_Photocopies"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=21 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=21">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO20_Poster"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=22 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=22">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO21_Programmes"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=23 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=23">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO22_Roll"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=24 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=24">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO23_Samizdats"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=25 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=25">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO24_SerialPeriodical"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=26 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=26">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO25_Sheet"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=27 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=27">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO26_Ticket"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=28 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=28">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO27_Unknown"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=3 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=3">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO02_Book"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=4 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=4">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO03_Broadsheet"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=5 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=5">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO04_Codex"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=6 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=6">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO05_Dazibaos"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=7 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=7">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO06_DigitizedMaterial"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=8 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=8">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO07_EpitaphsInscriptions"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://eured.univ-lemans.fr/ontologies/text_form/?tema=9 -->
+
+    <owl:NamedIndividual rdf:about="http://eured.univ-lemans.fr/ontologies/text_form/?tema=9">
+        <owl:sameAs rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#TFO08_Fax"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#PlainTextSource -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#PlainTextSource">
+        <rdf:type rdf:resource="https://read-it.acc.hum.uu.nl/source-ontology#Source"/>
+        <encodingFormat rdf:datatype="http://www.w3.org/2001/XMLSchema#string">text/plain</encodingFormat>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO01_Advertisment -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO01_Advertisment"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO02_Book -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO02_Book"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO03_Broadsheet -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO03_Broadsheet"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO04_Codex -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO04_Codex"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO05_Dazibaos -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO05_Dazibaos"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO06_DigitizedMaterial -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO06_DigitizedMaterial"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO07_EpitaphsInscriptions -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO07_EpitaphsInscriptions"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO08_Fax -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO08_Fax"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO09_Festschrift -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO09_Festschrift"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO10_Form -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO10_Form"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO11_Graffito -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO11_Graffito"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO12_Handbill -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO12_Handbill"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO13_Journals -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO13_Journals"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO14_Leaflets -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO14_Leaflets"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO15_Letter -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO15_Letter"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO16_Magazines -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO16_Magazines"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO17_Newspaper -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO17_Newspaper"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO18_Pamphlet -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO18_Pamphlet"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO19_Photocopies -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO19_Photocopies"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO20_Poster -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO20_Poster"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO21_Programmes -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO21_Programmes"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO22_Roll -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO22_Roll"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO23_Samizdats -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO23_Samizdats"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO24_SerialPeriodical -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO24_SerialPeriodical"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO25_Sheet -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO25_Sheet"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO26_Ticket -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO26_Ticket"/>
+    
+
+
+    <!-- https://read-it.acc.hum.uu.nl/source-ontology#TFO27_Unknown -->
+
+    <owl:NamedIndividual rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO27_Unknown"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotations
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO01_Advertisment">
+        <skos:prefLabel xml:lang="en">Advertisment</skos:prefLabel>
+        <skos:notation xml:lang="en">TFO01</skos:notation>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO02_Book">
+        <skos:notation xml:lang="en">TFO02</skos:notation>
+        <skos:prefLabel xml:lang="en">Book</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO03_Broadsheet">
+        <skos:notation xml:lang="en">TFO03</skos:notation>
+        <skos:prefLabel xml:lang="en">Broadsheet</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO04_Codex">
+        <skos:notation xml:lang="en">TFO04</skos:notation>
+        <skos:prefLabel xml:lang="en">Codex</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO05_Dazibaos">
+        <skos:notation xml:lang="en">TFO05</skos:notation>
+        <skos:prefLabel xml:lang="en">Dazibaos</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO06_DigitizedMaterial">
+        <skos:notation xml:lang="en">TFO06</skos:notation>
+        <skos:prefLabel xml:lang="en">Digitized material</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO07_EpitaphsInscriptions">
+        <skos:prefLabel xml:lang="en">Epitaphs/Inscriptions</skos:prefLabel>
+        <skos:notation xml:lang="en">TFO07</skos:notation>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO08_Fax">
+        <skos:notation xml:lang="en">TFO08</skos:notation>
+        <skos:prefLabel xml:lang="en">Fax</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO09_Festschrift">
+        <skos:prefLabel xml:lang="en">Festschrift (mélanges / liber amicorum)</skos:prefLabel>
+        <skos:notation xml:lang="en">TFO09</skos:notation>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO10_Form">
+        <skos:notation xml:lang="en">TFO10</skos:notation>
+        <skos:prefLabel xml:lang="en">Form</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO11_Graffito">
+        <skos:prefLabel xml:lang="en">Graffito</skos:prefLabel>
+        <skos:notation xml:lang="en">TFO11</skos:notation>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO12_Handbill">
+        <skos:prefLabel xml:lang="en">Handbill</skos:prefLabel>
+        <skos:notation xml:lang="en">TFO12</skos:notation>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO13_Journals">
+        <skos:notation xml:lang="en">TFO13</skos:notation>
+        <skos:prefLabel xml:lang="en">Journals</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO14_Leaflets">
+        <skos:prefLabel xml:lang="en">Leaflets</skos:prefLabel>
+        <skos:notation xml:lang="en">TFO14</skos:notation>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO15_Letter">
+        <skos:notation xml:lang="en">TFO15</skos:notation>
+        <skos:prefLabel xml:lang="en">Letter</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO16_Magazines">
+        <skos:notation xml:lang="en">TFO16</skos:notation>
+        <skos:prefLabel xml:lang="en">Magazines</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO17_Newspaper">
+        <skos:prefLabel xml:lang="en">Newspaper</skos:prefLabel>
+        <skos:notation xml:lang="en">TFO17</skos:notation>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO18_Pamphlet">
+        <skos:prefLabel xml:lang="en">Pamphlet</skos:prefLabel>
+        <skos:notation xml:lang="en">TFO18</skos:notation>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO19_Photocopies">
+        <skos:notation xml:lang="en">TFO19</skos:notation>
+        <skos:prefLabel xml:lang="en">Photocopies</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO20_Poster">
+        <skos:notation xml:lang="en">TFO20</skos:notation>
+        <skos:prefLabel xml:lang="en">Poster</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO21_Programmes">
+        <skos:notation xml:lang="en">TFO21</skos:notation>
+        <skos:prefLabel xml:lang="en">Programmes</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO22_Roll">
+        <skos:prefLabel xml:lang="en">Roll</skos:prefLabel>
+        <skos:notation xml:lang="en">TFO22</skos:notation>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO23_Samizdats">
+        <skos:prefLabel xml:lang="en">Samizdats</skos:prefLabel>
+        <skos:notation xml:lang="en">TFO23</skos:notation>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO24_SerialPeriodical">
+        <skos:prefLabel xml:lang="en">Serial/Periodical</skos:prefLabel>
+        <skos:notation xml:lang="en">TFO24</skos:notation>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO25_Sheet">
+        <skos:notation xml:lang="en">TFO25</skos:notation>
+        <skos:prefLabel xml:lang="en">Sheet</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO26_Ticket">
+        <skos:notation xml:lang="en">TFO26</skos:notation>
+        <skos:prefLabel xml:lang="en">Ticket</skos:prefLabel>
+    </rdf:Description>
+    <rdf:Description rdf:about="https://read-it.acc.hum.uu.nl/source-ontology#TFO27_Unknown">
+        <skos:prefLabel xml:lang="en">Unknown</skos:prefLabel>
+        <skos:notation xml:lang="en">TFO27</skos:notation>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->
+

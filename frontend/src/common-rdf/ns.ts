@@ -517,7 +517,9 @@ export const iso6391Terms = [
     'en',
     'de',
     'fr',
-    'nl'
+    'nl',
+    'it',
+    'cs',
 ] as const;
 
 export const iso6391 = Vocabulary(iso6391Prefix, iso6391Terms);
@@ -568,6 +570,10 @@ export const readit = Vocabulary(readitPrefix, ontologyNotHardcoded);
 export const nlpOntologyPrefix = READIT + 'nlp-ontology#'
 
 export const nlp = Vocabulary(nlpOntologyPrefix, ontologyNotHardcoded);
+
+export const sourceOntologyPrefix = READIT + 'source-ontology#';
+
+export const sourceOntology = Vocabulary(sourceOntologyPrefix, ontologyNotHardcoded);
 
 /**
  * READ-IT items

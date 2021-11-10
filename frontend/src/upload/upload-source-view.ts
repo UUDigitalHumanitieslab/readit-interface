@@ -1,13 +1,24 @@
 import { extend } from 'lodash';
-import View from '../core/view';
+import FilteredCollection from '../common-adapters/filtered-collection';
+import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
-
+import { rdfs, sourceOntology as sourceNS, sourceOntologyPrefix } from '../common-rdf/ns';
+import ldChannel from '../common-rdf/radio';
+import { CompositeView } from '../core/view';
+import Select2Picker from '../forms/select2-picker-view';
+import DateField from './date-field-view';
 import uploadSourceTemplate from './upload-source-template';
 
-export default class UploadSourceFormView extends View {
+
+export default class UploadSourceFormView extends CompositeView {
     isSuccess: boolean;
     hasError: boolean;
     sourceText: string;
+
+    sourceTypePicker: Select2Picker;
+
+    sourceTypes: Graph;
+    ontologyGraph: Graph;
 
     /**
      * Class to add to invalid inputs. Note that this is not
@@ -17,8 +28,13 @@ export default class UploadSourceFormView extends View {
      */
     errorClassInputs: string = "is-danger";
 
+    publicationDateField: DateField;
+    creationDateField: DateField;
+    retrievalDateField: DateField;
+
     initialize(): this {
         let self = this;
+        this.getOntology();
 
         this.$el.validate({
             errorClass: "help is-danger",
@@ -26,8 +42,9 @@ export default class UploadSourceFormView extends View {
                 source: { required: true, extension: "txt" },
                 language: { required: true },
                 type: { required: true },
-                pubdate: { required: true, dateISO: true },
-                url: { url: true }
+                publicationdate: { required: true },
+                url: { url: true },
+                public: { required: true }
             },
             errorPlacement: function (error, element) {
                 let parent = element.parent();
@@ -56,7 +73,7 @@ export default class UploadSourceFormView extends View {
         return this;
     }
 
-    render(): this {
+    renderContainer(): this {
         this.$el.html(this.template(this));
         this.hideFeedback();
         let input = this.$('.file-input');
@@ -68,7 +85,7 @@ export default class UploadSourceFormView extends View {
         input.on('change', () => {
             let files = (input.get(0) as HTMLInputElement).files;
             if (files.length === 0) {
-                name.text('No file selected');            
+                name.text('No file selected');
             } else {
                 name.text(files[0].name);
                 label.text('Change file...');
@@ -77,6 +94,12 @@ export default class UploadSourceFormView extends View {
             input.valid();
         });
 
+        return this;
+    }
+
+    afterRender(): this {
+        // Assign names to select2 pickers to ensure form contains their data
+        this.$('#sourceTypeSelect select').attr({ 'name': 'type' });
         return this;
     }
 
@@ -146,17 +169,82 @@ export default class UploadSourceFormView extends View {
     escapeHtml(input: string): string {
         return new Option(input).innerHTML;
     }
+
+    // Valid source types are subClassOf TFO_TextForm, subClassOf ReaditSourceType
+    // but not TFO_TextForm itself 
+    isSourceType(node): boolean {
+        if (!node.has(rdfs.subClassOf)) {
+            return false;
+        }
+        return ((node.get(rdfs.subClassOf)[0].id == sourceNS('ReaditSourceType')) &&
+            !(node.id == sourceNS('TFO_TextForm'))) ||
+            node.get(rdfs.subClassOf)[0].id == sourceNS('TFO_TextForm');
+    }
+
+    getOntology() {
+        this.ontologyGraph = ldChannel.request('source-ontology:graph');
+        this.listenToOnce(this.ontologyGraph, 'sync', () => {
+            this.setTypeOptions();
+            this.initHelpTexts();
+        });
+    }
+
+    setTypeOptions(): void {
+        const sourceTypes = new FilteredCollection<Node>(this.ontologyGraph, this.isSourceType) as unknown as Graph;
+        this.sourceTypePicker = new Select2Picker({ collection: sourceTypes });
+    }
+
+    initHelpTexts() {
+        this.publicationDateField = new DateField({
+            model: {
+                node: this.getNode('datePublished'),
+                name: 'publicationdate',
+                required: true,
+                label: 'Publication date',
+                additionalHelpText: `<a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO formatted
+                date with optional time and timezone</a>, or free-form text`}
+            });
+        this.creationDateField = new DateField({
+            model: {
+                node: this.getNode('dateCreated'),
+                name: 'creationdate',
+                required: false,
+                label: 'Creation date (optional)',
+                additionalHelpText: 'If known and different from publishing date, specify creation date.'}
+            });
+        this.retrievalDateField = new DateField({
+            model: {
+                node: this.getNode('dateRetrieved'),
+                name: 'retrievaldate',
+                required: false,
+                label: 'Retrieval date (optional)',
+                additionalHelpText: 'Date (and optional time) at which the source was accessed or retrieved.'}
+            });
+        this.render();
+    }
+
+    getNode(predicate: string) {
+        return this.ontologyGraph.get(sourceOntologyPrefix + predicate);
+    }
+
 }
 extend(UploadSourceFormView.prototype, {
     tagName: 'form',
     className: 'section upload-source-form page',
     template: uploadSourceTemplate,
+    subviews: [
+        { view: 'sourceTypePicker', selector: '#sourceTypeSelect' },
+        { view: 'publicationDateField', selector: '.dates', method: 'prepend'},
+        { view: 'creationDateField', selector: '.dates', method: 'append'},
+        { view: 'retrievalDateField', selector: '.dates', method: 'append'},
+    ],
     events: {
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
         'click .input': 'hideFeedback',
         'click .btn-preview': 'onPreviewClicked',
         'click .modal-background': 'hidePreview',
-        'click .delete': 'hidePreview'
+        'click .delete': 'hidePreview',
+        'keyup .with-help': 'updateHelpText',
     }
 });

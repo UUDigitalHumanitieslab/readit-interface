@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'staff',
     'ontology',
     'nlp_ontology',
+    'source_ontology',
     'items',
     'sources',
     'register',

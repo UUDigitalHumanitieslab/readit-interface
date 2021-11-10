@@ -23,6 +23,7 @@ from vocab import VOCAB_ROUTE
 from staff import STAFF_ROUTE
 from ontology import ONTOLOGY_ROUTE
 from nlp_ontology import NLP_ONTOLOGY_ROUTE
+from source_ontology import SOURCE_ONTOLOGY_ROUTE
 from sources import SOURCES_ROUTE
 from items import ITEMS_ROUTE
 from items.views import SemanticQueryViewSet
@@ -49,6 +50,7 @@ urlpatterns = [
     path(STAFF_ROUTE, include('staff.urls')),
     path(ONTOLOGY_ROUTE, include('ontology.urls')),
     path(NLP_ONTOLOGY_ROUTE, include('nlp_ontology.urls')),
+    path(SOURCE_ONTOLOGY_ROUTE, include('source_ontology.urls')),
     path(SOURCES_ROUTE, include('sources.urls')),
     path(ITEMS_ROUTE, include('items.urls')),
     path(SPARQL_ROUTE, include('sparql.urls')),
