@@ -21,16 +21,6 @@
                         <span>Search</span>
                     </span>
                 </a>
-                {{#if uploadSources}}
-                <a class="navbar-item" href="/upload">
-                    <span class="icon-text">
-                        <span class="icon is-small has-text-primary">
-                            <i class="fas fa-upload"></i>
-                        </span>
-                        <span>Upload</span>
-                    </span>
-                </a>
-                {{/if}}
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">
                         <span class="icon-text">
@@ -49,6 +39,16 @@
                         </a>
                     </div>
                 </div>
+                {{#if uploadSources}}
+                <a class="navbar-item" href="/upload">
+                    <span class="icon-text">
+                        <span class="icon is-small has-text-primary">
+                            <i class="fas fa-upload"></i>
+                        </span>
+                        <span>Upload</span>
+                    </span>
+                </a>
+                {{/if}}
             </div>
             <div class="navbar-end">
                 <a class="navbar-item tooltip is-tooltip-left" data-tooltip="Contribute to READ-IT through the project website"
