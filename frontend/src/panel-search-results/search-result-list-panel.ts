@@ -16,7 +16,13 @@ const announceQuery = announceRoute('search:results:semantic', ['model', 'id']);
 function announce(): void {
     if (this.model instanceof SemanticQuery) {
         this.model.when('id', announceQuery, this);
-    } else announceAnno.call(this);
+    } else if (this.model) {
+        announceAnno.call(this);
+    } else {
+        const [qualifier, nodeType] = this.title.split(' ');
+        const route = `explore/${nodeType}${qualifier === 'My' ? '/mine' : ''}`;
+        explorerChannel.trigger('currentRoute', route, this);
+    }
 }
 
 export interface ViewOptions extends BaseOpt {
