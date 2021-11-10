@@ -91,8 +91,8 @@ export default class ItemGraph extends Graph {
 
     /**
      * We allow client code to override `this.url` through the `graph` option.
-       For convenience, it is also possible to pass just the graph URL directly
-       as the only argument.
+     * For convenience, it is also possible to pass just the graph URL directly
+     * as the only argument.
      *
      * From `this.url`, we derive the matching `this.sparqlEndpoint`.
      */
