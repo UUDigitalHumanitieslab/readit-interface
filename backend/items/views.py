@@ -11,7 +11,6 @@ from rest_framework.status import *
 from rest_framework.exceptions import ValidationError, NotFound, PermissionDenied
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
-from rest_framework.views import APIView
 
 from rdflib import Graph, URIRef, BNode, Literal
 from rdflib.query import ResultException
