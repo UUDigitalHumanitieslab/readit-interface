@@ -77,6 +77,7 @@ import Collection from '../core/collection';
 import View, {
     CompositeView,
     CollectionView,
+    callActivate,
     ViewOptions as BViewOptions,
 } from '../core/view';
 
@@ -109,8 +110,6 @@ export interface ViewOptions<
     recursive?: typeof CollectionView;
 }
 
-// Helper function in support of the activate convention (see ../core/view).
-const callActivate = view => view.activate();
 // Options are passed down the hierarchy. To prevent a model or collection from
 // a higher level from lingering around, we reset those options using the mask
 // below before recursing into the next outer model.
