@@ -3,7 +3,6 @@ import { get, constant } from 'lodash';
 import Model from '../core/model';
 import { source, item } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
-import userChannel from '../common-user/user-radio';
 import ItemGraph from '../common-adapters/item-graph';
 import SparqlSelectCollection from '../common-adapters/sparql-select-collection';
 import {
@@ -11,6 +10,8 @@ import {
     nodesByUserQuery,
     randomNodesQuery,
 } from '../sparql/compile-query';
+
+import user from './user';
 
 // Items and sources that the user may want to explore shortly after landing,
 // either because they are her own or because she may not know them yet.
@@ -34,12 +35,17 @@ const statistics = new Model({
     totalSources: 0,
     userItems: 0,
     userSources: 0,
+    username: 'guest',
 });
+
+user.whenever('username', (user, username) =>
+    statistics.set('username', username || 'guest')
+);
 
 // Common pattern for registering an event handler in order to update one of the
 // statistics fields above.
 function trackStatistic(collection, event, sourceKey, targetKey) {
-    collection.once(event, (payload) =>
+    collection.on(event, (payload) =>
         statistics.set(targetKey, get(payload, sourceKey))
     );
 }
@@ -57,15 +63,18 @@ trackStatistic(userSources, 'update', 'length', 'userSources');
 // Function factory that ensures a query to the backend is issued when one of
 // our collections is first requested.
 function lazyTrigger(collection, queryGen, onItems) {
-    let trigger = () => collection.sparqlQuery(queryGen(onItems));
+    const fetch = () => collection.sparqlQuery(queryGen(onItems));
+    const reset = () => collection.set([]);
+    const either = (user, username) => (username ? fetch : reset)();
+    let trigger = true;
     return function() {
         if (trigger) {
             if (queryGen === nodesByUserQuery) {
-                userChannel.request('promise').then(trigger);
+                user.whenever('username', either);
             } else {
-                trigger();
+                fetch();
             }
-            trigger = null;
+            trigger = false;
         }
         return collection;
     }
@@ -75,7 +84,7 @@ function lazyTrigger(collection, queryGen, onItems) {
 // collections, or the `statistics` model. Each of the collections has a
 // `promise` property that you can await if you need it to be complete already,
 // though it's probably best to just use a `CollectionView` in order to stay
-// up-to-date. The `statistics` model will update 2 or 4 times; for the most
+// up-to-date. The `statistics` model will update at least 2 times; for the most
 // accurate presentation, simply re-render whenever it changes.
 ldChannel.reply({
     'items:tally': lazyTrigger(itemTally, countNodesQuery, true),
