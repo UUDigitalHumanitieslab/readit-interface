@@ -1,0 +1,11 @@
+{{>sparqlPreamble}}
+
+select (count(distinct ?subject) as ?tally) where {
+    {{#itemQuery}}
+    ?anno oa:hasBody ?subject.
+    ?subject a ?x.
+    {{/itemQuery}}
+    {{^itemQuery}}
+    ?subject a vocab:Source.
+    {{/itemQuery}}
+}

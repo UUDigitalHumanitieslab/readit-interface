@@ -124,13 +124,7 @@ class SourcePanel extends CompositeView {
         if (text && text.length) {
             this._createHtv(text[0] as string);
         } else {
-            // Traversing the JSON serialization, instead of a regular
-            // `model.get`, because the URI dereferences to plain text instead
-            // of a RDF-formatted resource and this would trip up the
-            // `Store.obtain()` call.
-            $.get(
-                this.model.getRaw(vocab('fullText'))[0]['@id'] as string
-            ).then(this._createHtv.bind(this));
+            $.get(`${this.model.id}/fulltext`).then(this._createHtv.bind(this));
         }
         this._hideLoadingSpinner();
         return this;

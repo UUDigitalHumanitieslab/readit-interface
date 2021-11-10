@@ -1,6 +1,7 @@
 import { extend } from 'lodash';
 
 import View from '../core/view';
+import userChannel from '../common-user/user-radio';
 import ldChannel from '../common-rdf/radio';
 import { dcterms }  from '../common-rdf/ns';
 import Node from '../common-rdf/node';
@@ -47,7 +48,7 @@ export default class MetadataView extends View {
         if (creators && creators.length) {
             const creator = creators[0];
             const creatorId = creator.id || creator['@id'];
-            const userUri = ldChannel.request('current-user-uri');
+            const userUri = userChannel.request('current-user-uri');
             if (this.userIsOwner = (creatorId === userUri)) this.render();
         }
     }

@@ -157,7 +157,7 @@ describe('utilities', function () {
 
         it('extracts URIs from Nodes', function() {
             const node = getDefaultNode();
-            expect(getTurtleTerm(node)).toBe(`<${node.id}>`);
+            expect(getTurtleTerm(node)).toBe('item:Content');
             node.set('@id', xsd.string);
             expect(getTurtleTerm(node)).toBe('xsd:string');
             node.set('@id', 'banana');

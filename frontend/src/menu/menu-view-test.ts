@@ -8,7 +8,7 @@ describe('MenuView', function() {
     beforeEach(function() {
         this.view = new MenuView({model: new User()});
     });
-    it('renders contains button to explore', function() {
+    it('render contains button to explore', function() {
         expect(this.view.render().$el.html()).toContain('Explore');
     });
 });
