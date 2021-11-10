@@ -141,7 +141,10 @@ export default class ItemGraph extends Graph {
      * the query produces complete items.
      */
     sparqlQuery(query: string): JQuery.jqXHR {
-        return this.promise = this.fetch({ url: this.sparqlEndpoint, data: $.param({ query: query }), remove: false });
+        return this.promise = this.fetch({
+            url: this.sparqlEndpoint,
+            data: $.param({ query }),
+        });
     }
 
     /**
