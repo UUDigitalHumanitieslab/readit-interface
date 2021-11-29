@@ -70,14 +70,6 @@ CONSTRUCT {
     ?selector ?g ?h.
 }
 '''
-SELECT_ANNO_QUERY = '''
-SELECT ?annotation ?a ?b
-WHERE {
-    ?annotation a oa:Annotation ;
-    dcterms:creator ?user ;
-    ?a ?b .
-}
-'''
 ANNO_OF_CATEGORY_QUERY = '''
 SELECT ?annotation ?a ?b
 WHERE {
@@ -262,26 +254,6 @@ class ItemsAPISingular(RDFResourceView):
         full_graph = self.graph()
         full_graph -= existing
         return Response(existing)
-
-
-class ItemSuggestion(RDFView):
-    """ Return nodes of a random sample of item subjects. """
-
-    def graph(self):
-        return graph()
-
-    def get_graph(self, request, **kwargs):
-        items = self.graph()
-        if not request.user.has_perm('rdflib_django.view_all_annotations'):
-            user, now = submission_info(request)
-            bindings = {'user': user}
-            user_items = set(graph_from_triples(items.query(
-                SELECT_ANNO_QUERY, initBindings=bindings, initNs=ANNO_NS)
-            ).subjects())
-        else:
-            user_items = set(items.subjects(RDF.type, OA.Annotation))
-        output = sample_graph(items, user_items, request)
-        return output
 
 
 class ItemsOfCategory(RDFView):

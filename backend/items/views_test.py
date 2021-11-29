@@ -138,25 +138,6 @@ def test_delete_item(auth_client, itemgraph_db):
     assert len(set(graph().triples((ITEM['1'], None, None)))) == 0
 
 
-def test_select_items_by_creator(auth_client, itemgraph_db):
-    triples = (
-        ( ITEM['4'], RDF.type, OA.Annotation ),
-        ( ITEM['4'], DCTERMS.creator, Literal('one_user')),
-        ( ITEM['5'], RDF.type, OA.Annotation ),
-        ( ITEM['5'], DCTERMS.creator, Literal('another_user'))
-    )
-    test_graph = Graph()
-    for t in triples:
-        test_graph.add(t)
-    bindings = {'user': 'one_user'}
-    query_result = set(graph_from_triples(test_graph.query(
-        SELECT_ANNO_QUERY, initBindings=bindings, initNs=ANNO_NS
-    )).subjects())
-    # empty set, expeted one result. Perhaps shouldn't put users as Literal?
-    # ultimately, want to test len(query_result)==1
-    assert len(query_result)==0
-
-
 def test_blanknodes_post(auth_client, sparqlstore):
     triple = (BNode(), RDF.type, BNode())
     input_graph = Graph()

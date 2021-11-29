@@ -59,6 +59,9 @@ export default class View<M extends Model = Model> extends BView<M> {
     }
 }
 
+// Helper function in support of the activate convention (see above).
+export const callActivate = view => view.activate();
+
 /**
  * CompositeView derives both from our own customized View base class
  * and from the BCompositeView we imported from backbone-fractal.

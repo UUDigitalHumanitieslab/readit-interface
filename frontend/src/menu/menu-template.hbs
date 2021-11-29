@@ -26,14 +26,26 @@
                             <i class="fas fa-search"></i>
                         </span>
                         <span>{{#i18n 'search'}}Search{{/i18n}}</span>
+                    </span>
                 </a>
-                <a class="navbar-item tooltip is-tooltip-left" data-tooltip="{{#i18n 'explore_tooltip'}}Get a random selection of reading experiences and annotations{{/i18n}}" href="/explore">
-                    <span class="icon-text">
-                        <span class="icon is-small has-text-primary">
-                            <i class="fas fa-compass"></i>
+                <div class="navbar-item has-dropdown is-hoverable" data-tooltip="{{#i18n 'explore_tooltip'}}Get a random selection of reading experiences and annotations{{/i18n}}">
+                    <a class="navbar-link">
+                        <span class="icon-text">
+                            <span class="icon is-small has-text-primary">
+                                <i class="fas fa-compass"></i>
+                            </span>
+                            <span>{{#i18n 'explore'}}Explore{{/i18n}}</span>
                         </span>
-                        <span>{{#i18n 'explore'}}Explore{{/i18n}}</span>
-                </a>
+                    </a>
+                    <div class="navbar-dropdown">
+                        <a href="/explore/sources" class="navbar-item" id="source-list">
+                            {{#i18n 'sources'}}Sources{{/i18n}}
+                        </a>
+                        <a href="/explore/items" class="navbar-item" id="item-list">
+                            {{#i18n 'items'}}Items{{/i18n}}
+                        </a>
+                    </div>
+                </div>
                 {{#if uploadSources}}
                 <a class="navbar-item tooltip is-tooltip-left" 
                     data-tooltip="{{#i18n 'upload_tooltip'}}Upload reading testimonies for annotation{{/i18n}}" href="/upload">
@@ -42,6 +54,7 @@
                             <i class="fas fa-upload"></i>
                         </span>
                         <span>{{#i18n 'upload'}}Upload{{/i18n}}</span>
+                    </span>
                 </a>
                 {{/if}}
             </div>
@@ -61,10 +74,19 @@
                         {{#i18n 'greeting'}}Hello, {{username}}!{{/i18n}}
                     </a>
                     <div class="navbar-dropdown">
-                        <a class="navbar-item tooltip is-tooltip-left" data-tooltip="Give us feedback on the interface" id="feedback">
-                            {{#i18n 'feedback'}}Feedback{{/i18n}}
+                        <a class="navbar-item" href="/landing">
+                            {{#i18n 'landing-page'}}Personal landing page{{/i18n}}
+                        </a>
+                        <a class="navbar-item" href="/explore/sources/mine">
+                            {{#i18n 'my-sources'}}My sources{{/i18n}}
+                        </a>
+                        <a class="navbar-item" href="/explore/items/mine">
+                            {{#i18n 'my-items'}}My items{{/i18n}}
                         </a>
                         <hr class="navbar-divider">
+                        <a class="navbar-item tooltip is-tooltip-left" data-tooltip="{{#i18n 'feedback-tooltip'}}Give us feedback on the interface{{/i18n}}" id="feedback">
+                            {{#i18n 'feedback'}}Feedback{{/i18n}}
+                        </a>
                         <a class="navbar-item" id="logout" href="/leave">
                             {{#i18n 'log_out'}}Log out{{/i18n}}
                         </a>
