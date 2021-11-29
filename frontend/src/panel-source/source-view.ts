@@ -16,7 +16,7 @@ import { announceRoute, report404 } from '../explorer/utilities';
 
 import HighlightableTextView from './highlightable-text-view';
 import SourceToolbarView from '../toolbar/toolbar-view';
-import MetadataView from './source-metadata-view';
+import MetadataPanel from './source-metadata-panel';
 import sourceTemplate from './source-template';
 import LoadingSpinnerView from '../loading-spinner/loading-spinner-view';
 
@@ -57,7 +57,7 @@ class SourcePanel extends CompositeView {
     // view.
     htv: HighlightableTextView;
 
-    metaView: MetadataView;
+    metaView: MetadataPanel;
 
     loadingSpinnerView: LoadingSpinnerView;
 
@@ -82,7 +82,7 @@ class SourcePanel extends CompositeView {
         });
         this.toolbar = new SourceToolbarView({ model: this.toolbarModel }).render();
         this.isEditable = options.isEditable || false;
-        this.metaView = new MetadataView({
+        this.metaView = new MetadataPanel({
             model: this.model
         });
 

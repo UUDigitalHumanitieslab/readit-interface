@@ -1,7 +1,7 @@
 <div class="field date">
     <label class="label">{{model.label}}</label>
     <div class="control">
-        <input name={{model.name}} class="input with-help" type="text" placeholder="1952-09-01 (YYYY-MM-DD)" {{#if model.required}}required{{/if}}>
+        <input name={{model.name}} class="input with-help" type="text" placeholder="1952-09-01 (YYYY-MM-DD)" value={{model.value}} {{#if model.required}}required{{/if}}>
         <p class="help">{{{model.additionalHelpText}}}
         </p>
     </div>

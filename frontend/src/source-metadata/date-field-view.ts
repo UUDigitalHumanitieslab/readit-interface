@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'crypto';
 import { extend } from 'lodash';
 
 import Node from "../common-rdf/node";
@@ -11,6 +12,10 @@ export default class DateField extends CompositeView {
 
     initialize() {
         this.helpText = new TypeAwareHelpText({model: this.model['node'] as Node});
+        const date = this.model['value'];
+        if (date) {
+            this.helpText.updateHelpText(date);
+        }
         this.render();
     }
 

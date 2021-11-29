@@ -9,6 +9,7 @@ import DetectedTypeHelpText from './detected-type-help-view';
 import Graph from '../common-rdf/graph';
 import Node, { NodeLike } from '../common-rdf/node';
 import { FlatSingleValue } from '../common-rdf/json';
+import { asLD, Native } from '../common-rdf/conversion';
 import Model from '../core/model';
 import { getRdfSuperProperties } from '../utilities/linked-data-utilities';
 
@@ -61,6 +62,7 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
         this.allowedTypesList = new AllowedTypesListHelpText({
             collection: this.range,
         });
+        this.helpTextFromModel(this.model);
         this.render().updateRange(this.model);
     }
 
@@ -76,6 +78,22 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
             jsonld['@type'] = findType(this.range, jsonld['@value']);
         }
         this.detectedTypeHelp.model.set({ jsonld });
+        this.$(noMatchHelp).hide();
+        return this;
+    }
+
+    helpTextFromModel(model: Model, setLiteral?: Native): this {
+        setLiteral || (setLiteral = model.get('object'));
+        if (setLiteral) {
+            const jsonld = asLD(setLiteral);
+            // this.literalField.setValue(jsonld['@value']);
+            if (!jsonld['@type']) {
+                jsonld['@type'] = findType(this.range, jsonld['@value']);
+            }
+            this.detectedTypeHelp.model.set({ jsonld });
+        } else {
+            this.detectedTypeHelp.$el.hide();
+        }
         this.$(noMatchHelp).hide();
         return this;
     }

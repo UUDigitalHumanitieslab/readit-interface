@@ -1,30 +1,11 @@
 import { extend } from 'lodash';
 
-import View from '../core/view';
+import { CompositeView } from '../core/view';
 import ldChannel from '../common-rdf/radio';
 import { dcterms }  from '../common-rdf/ns';
 import Node from '../common-rdf/node';
-import { getLabel, getLabelFromId } from '../utilities/linked-data-utilities';
-import explorerChannel from '../explorer/explorer-radio';
-
-import metadataTemplate from './source-metadata-template';
-
-const excludedProperties = [
-    '@id',
-    '@type'
-];
-
-const excludedAttributes = [
-    'fullText',
-    'text',
-    'url'
-];
-
-const externalAttributes = [
-    'language',
-    'sourceType',
-    'creator'
-];
+import metadataTemplate from './source-metadata-panel-template';
+import SourceMetadataView from '../source-metadata/source-metadata-view';
 
 const sourceDeletionDialog = `
 Are you sure you want to delete this source?
@@ -32,16 +13,22 @@ If you delete this source, all its annotation will be deleted as well, including
 This cannot be undone.
 `;
 
-export default class MetadataView extends View {
+export default class MetadataPanel extends CompositeView {
     /**
      * Class to show source's metadata
      */
-    properties: any;
     userIsOwner: boolean;
+    sourceMetadataview: SourceMetadataView;
 
     initialize(): this {
         this.model.when(dcterms.creator, this.checkOwnership, this);
+        this.sourceMetadataview = new SourceMetadataView({model: this.model});
         this.render().listenTo(this.model, 'change', this.render);
+        return this;
+    }
+
+    renderContainer(): this {
+        this.$el.html(this.template(this));
         return this;
     }
 
@@ -52,33 +39,6 @@ export default class MetadataView extends View {
             const userUri = ldChannel.request('current-user-uri');
             if (this.userIsOwner = (creatorId === userUri)) this.render();
         }
-    }
-
-    render(): this {
-        this.$el.html(this.template(this.formatAttributes()));
-        this.$('.btn-cancel, .btn-delete').hide();
-        return this;
-    }
-
-    formatAttributes(): this {
-        this.properties = {};
-        for (let attribute in this.model.attributes) {
-            // don't include @id, @value, fullText or identifier info
-            if (excludedProperties.includes(attribute)) {
-                continue;
-            }
-            let attributeLabel = getLabelFromId(attribute);
-            if (excludedAttributes.includes(attributeLabel)) {
-                continue;
-            }
-            let value = this.model.get(attribute)[0];
-            if (externalAttributes.includes(attributeLabel)) {
-                const nodeFromUri = ldChannel.request('obtain', value.id);
-                value = getLabel(nodeFromUri);
-            }
-            this.properties[attributeLabel] = value;
-        }
-        return this;
     }
 
     onCloseClicked() {
@@ -104,10 +64,13 @@ export default class MetadataView extends View {
     }
 }
 
-extend(MetadataView.prototype, {
+extend(MetadataPanel.prototype, {
     tagName: 'div',
     className: 'metadata-panel',
     template: metadataTemplate,
+    subviews: [
+        { view: 'sourceMetadataView', selector: '.panel-content'},
+    ],
     events: {
         'click .btn-close': 'onCloseClicked',
         'click .btn-edit': 'toggleEditMode',
