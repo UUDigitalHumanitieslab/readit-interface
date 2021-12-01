@@ -102,7 +102,7 @@ class TextSegmentView extends CollectionView<SegmentModel, LineSegment> {
      * associated with any annotations, call this.position.
      */
     onPositionChange(model: SegmentModel): void {
-        const changes = model.changedAttributes();
+        const changes = model.changedAttributes() as Partial<any>;
         if (changes.startPosition || changes.endPosition) {
             if (!model.annotations.isEmpty()) this.position(model);
         }

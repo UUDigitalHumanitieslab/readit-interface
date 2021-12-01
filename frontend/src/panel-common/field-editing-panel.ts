@@ -10,6 +10,13 @@ import fieldEditingTemplate from './field-editing-template';
 // Selector of the .control that contains the save button.
 const saveControl = '.panel-footer .control:first-child';
 
+// Allow prototype property access in the Handlebars runtime (needed as of 4.6).
+// This setting should be safe because it doesn't allow `.constructor`.
+// See also https://mahmoudsec.blogspot.com/2019/04/handlebars-template-injection-and-rce.html.
+const templateOptions = {
+    allowProtoPropertiesByDefault: true,
+};
+
 export interface ChangeManagingView extends RowManagingView {
     changes: Collection;
     commitChanges(): PromiseLike<void>;
@@ -35,7 +42,7 @@ export default class FieldEditingPanel extends CompositeView<Node> {
     }
 
     renderContainer(): this {
-        this.$el.html(this.template(this));
+        this.$el.html(this.template(this, templateOptions));
         return this;
     }
 

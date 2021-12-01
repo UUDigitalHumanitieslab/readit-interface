@@ -72,13 +72,13 @@ export default class RelationEditor extends CompositeView {
     predicateFromModel(model: Model, selectedPredicate?: Node): this {
         selectedPredicate || (selectedPredicate = model.get('predicate'));
         if (!selectedPredicate) return this;
-        this.predicatePicker.val(selectedPredicate.id);
+        this.predicatePicker.val(selectedPredicate.id as string);
         return this.resetObjectPicker(selectedPredicate);
     }
 
     objectFromModel(model: Model, selectedObject?: Node): this {
         selectedObject || (selectedObject = model.get('object'));
-        selectedObject && this.objectPicker.val(selectedObject.id)
+        selectedObject && this.objectPicker.val(selectedObject.id as string)
         return this;
     }
 

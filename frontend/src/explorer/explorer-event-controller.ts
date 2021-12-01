@@ -238,7 +238,7 @@ class ExplorerEventController {
 
     closeEditAnnotation(editView: AnnoEditView): void {
         const id = editView.model.id;
-        if (id && !id.startsWith('_:')) {
+        if (id && !(id as string).startsWith('_:')) {
             this.explorerView.removeOverlay(editView);
         }
         else {

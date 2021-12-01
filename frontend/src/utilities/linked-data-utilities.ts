@@ -88,7 +88,7 @@ export function getCssClassName(node: Node): string {
  * already a URI.
  */
 export function asURI(source: Node | string): string {
-    return isNode(source) ? source.id : source;
+    return isNode(source) ? source.id as string : source;
 }
 
 /**
@@ -267,7 +267,7 @@ export function isType(node: Node, type: string): boolean {
  */
 export function isBlank(node: Node) {
     if (!node.id) return false;
-    return node.id.startsWith('_:');
+    return (node.id as string).startsWith('_:');
 }
 
 /**
