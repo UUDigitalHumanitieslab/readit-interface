@@ -66,7 +66,7 @@ const normalizePattern = /[ \(\)\/]/g;
  */
 export function getCssClassName(node: Node): string {
     if (!node) return undefined;
-    const id = node.id;
+    const id = node.id as string;
     const className = cssClassCache[id];
     if (className) return className;
 

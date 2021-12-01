@@ -70,7 +70,7 @@ const sourceDir = `src`,
     jsModuleType = `commonjs`,
     tsOptions = {
         target: `es5`,
-        lib: ['DOM', 'ES5', 'ES6', 'DOM.Iterable', 'ScriptHost'],
+        lib: ['DOM', 'ES5', 'ES6', 'es2020.string', 'DOM.Iterable', 'ScriptHost'],
         resolveJsonModule: true,
         paths: { configModuleName: indexConfig },
         baseUrl: '.'

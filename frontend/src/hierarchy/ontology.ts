@@ -36,7 +36,7 @@ function asOuterModel(clustering: Clustering) {
     return function(node: Nodeish) {
         const model = new Model({ model: node });
         if (node.id in clustering) {
-            model.set('collection', buildHierarchy(clustering, node.id));
+            model.set('collection', buildHierarchy(clustering, node.id as string));
         }
         return model;
     }
