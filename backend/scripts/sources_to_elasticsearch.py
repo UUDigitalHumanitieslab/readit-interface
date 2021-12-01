@@ -82,6 +82,7 @@ def title_author_to_index():
             }}, index=settings.ES_ALIASNAME)
         if document['hits']['total']['value']==0:
             print("serial {} not found in the index".format(serial))
+            continue
         source_id = document['hits']['hits'][0]['_id']
         es.update(index=settings.ES_ALIASNAME, id=source_id, body={
             "doc": {

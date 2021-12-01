@@ -78,6 +78,10 @@ export function searchResultsSources(control: Controller, queryParams: any) {
     return control.resetSourceListFromSearchResults(queryParams);
 }
 
+export function resetBrowsePanel(control: Controller, queryMode: string, landing: boolean) {
+    return control.resetBrowsePanel(queryMode, landing);
+}
+
 export
 function searchResultsSemantic(control: Controller, model: SemanticQuery) {
     model.when('query', () => semChannel.trigger('presentQuery', model));

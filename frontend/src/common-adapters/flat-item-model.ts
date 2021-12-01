@@ -1,7 +1,7 @@
-import { noop, each, includes } from 'lodash';
+import { noop, each, includes, throttle } from 'lodash';
 
 import Model from '../core/model';
-import { dcterms, oa, item, vocab } from '../common-rdf/ns';
+import { skos, dcterms, oa, item, vocab } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import {
@@ -128,10 +128,12 @@ export default class FlatItem extends Model {
         this.on('change:positionSelector', this.updatePosition);
         this.on('change:quoteSelector', this.updateText);
         // Track changes in the top node.
+        this.on('change:creator', this.updateCreator);
         this.trackProperty(node, '@id', 'id');
         this.trackProperty(node, dcterms.creator, 'creator');
         this.trackProperty(node, dcterms.created, 'created');
         node.when('@type', this.receiveTopNode, this);
+        this.getFilterClasses = throttle(this.getFilterClasses);
     }
 
     /**
@@ -249,8 +251,11 @@ export default class FlatItem extends Model {
      * Invoked when the `class` attribute changes.
      */
     updateClass(flat: this, classBody: Node): void {
-        this.rotateNode('class', ['classLabel', 'cssClass'], classBody, F_CLASS);
+        this.rotateNode('class', [
+            'classLabel', 'cssClass', 'relatedClass',
+        ], classBody, F_CLASS);
         if (classBody) {
+            this.trackProperty(classBody, skos.related, 'relatedClass');
             this.listenTo(classBody, 'change', this.updateClassLabels);
             this.updateClassLabels(classBody);
         }
@@ -323,7 +328,7 @@ export default class FlatItem extends Model {
     }
 
     /**
-     * Invoked once when the `positionSelector` attributes changes.
+     * Invoked when the `positionSelector` attribute changes.
      */
     updatePosition(flat: this, selector: Node): void {
         this.rotateNode('positionSelector', [
@@ -336,7 +341,7 @@ export default class FlatItem extends Model {
     }
 
     /**
-     * Invoked once when the `quoteSelector` attribute changes.
+     * Invoked when the `quoteSelector` attribute changes.
      */
     updateText(flat: this, selector: Node): void {
         this.rotateNode('quoteSelector', [
@@ -347,5 +352,46 @@ export default class FlatItem extends Model {
             this.trackProperty(selector, oa.suffix, 'suffix');
             this.trackProperty(selector, oa.exact, 'text');
         }
+    }
+
+    /**
+     * Invoked every time the `creator` attribute changes.
+     */
+    updateCreator(flat: this, creator?: Node): void {
+        if (!creator) {
+            this.set('isOwn', false);
+            return;
+        }
+        const userURI = ldChannel.request('current-user-uri');
+        this.set('isOwn', creator.id === userURI);
+    }
+
+    /**
+     * Produce an array of CSS class names that match this annotation.
+     * This can be used in views for filtering annotations. This method is
+     * throttled per tick; after the first invocation, subsequent invocations
+     * within the same tick will use the memoized result from the first
+     * invocation instead of recomputing the array.
+     */
+    getFilterClasses(): string[] {
+        const classList = [];
+        const cssClass = this.get('cssClass');
+        if (!cssClass) return classList;
+        classList.push(cssClass);
+        if (cssClass.startsWith('is-nlp')) {
+            classList.push('rit-is-nlp');
+            return classList;
+        }
+        classList.push('rit-is-semantic');
+        const relatedClass = this.get('relatedClass');
+        if (relatedClass) classList.push(getCssClassName(relatedClass));
+        if (!this.get('annotation')) return classList;
+        const needsVerification = this.get('needsVerification');
+        classList.push(`rit-${needsVerification ? 'un' : ''}verified`);
+        const isOwn = this.get('isOwn');
+        if (isOwn != null) {
+            classList.push(`rit-${isOwn ? 'self' : 'other'}-made`);
+        }
+        return classList;
     }
 }

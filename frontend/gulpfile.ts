@@ -111,7 +111,7 @@ const sourceDir = `src`,
 // by Browserify. They will be inserted in the order shown.
 const browserLibs: LibraryProps[] = [{
     module: 'jquery',
-    browser: 'jquery/dist/jquery.min',
+    browser: 'jquery/dist/jquery',
     global: '$',
     cdn: `${cdnjsPattern}/\${filenameMin}`,
 }, {

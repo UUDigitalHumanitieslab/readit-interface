@@ -1,6 +1,6 @@
 import {
     mapValues, invert, pick, assign, omit, each, delay,
-    map, partition, keys, random,
+    map, partition, keys, random, constant,
 } from 'lodash';
 import { Events } from 'backbone';
 
@@ -10,9 +10,11 @@ import {
     readerClass,
     descriptionOfProperty,
 } from '../mock-data/mock-ontology';
+import mockNLP from '../mock-data/mock-nlp-ontology';
 import mockItems from '../mock-data/mock-items';
 
-import { skos, dcterms, oa, readit, item } from '../common-rdf/ns';
+import { skos, dcterms, oa, readit, nlp, item } from '../common-rdf/ns';
+import ldChannel from '../common-rdf/radio';
 import { asNative } from '../common-rdf/conversion';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
@@ -45,7 +47,15 @@ const expectedFlatAttributes = {
     suffix: ' / by the countess of Blessington Auteur : Blessington,',
     creator: jasmine.any(Node),
     created: jasmine.any(Date),
+    isOwn: false,
 };
+
+const expectedFilterClasses = [
+    expectedFlatAttributes.cssClass,
+    'rit-is-semantic',
+    'rit-verified',
+    'rit-other-made',
+];
 
 export function createPlaceholder(attributes): Node {
     return new Node(pick(attributes, '@id'));
@@ -93,6 +103,16 @@ describe('FlatItem', function() {
         expect(spy).toHaveBeenCalledTimes(1);
     });
 
+    describe('getFilterClasses', function() {
+        it('produces an array of filterable CSS classes', async function() {
+            const items = getFullItems();
+            const ontologyClass = new Node(contentClass);
+            const flatAnno = new FlatItem(items.annotation);
+            await completion(flatAnno);
+            expect(flatAnno.getFilterClasses()).toEqual(expectedFilterClasses);
+        });
+    });
+
     it('completes without an item when no item is expected', async function() {
         const items = getFullItems();
         const ontologyClass = new Node(contentClass);
@@ -104,6 +124,7 @@ describe('FlatItem', function() {
         expect(flatAnno.attributes).toEqual(
             omit(expectedFlatAttributes, ['item', 'label'])
         );
+        expect(flatAnno.getFilterClasses()).toEqual(expectedFilterClasses);
     });
 
     it('flattens data that arrive with a delay', async function() {
@@ -119,6 +140,7 @@ describe('FlatItem', function() {
         await completion(flatAnno);
         expect(flatAnno.complete).toBe(true);
         expect(flatAnno.attributes).toEqual(expectedFlatAttributes);
+        expect(flatAnno.getFilterClasses()).toEqual(expectedFilterClasses);
     });
 
     describe('completes even in the face of fragmented resources', function() {
@@ -146,6 +168,8 @@ describe('FlatItem', function() {
                 graph.set(secondBatch as unknown as Node[]);
                 await completion(flatAnno);
                 expect(flatAnno.attributes).toEqual(expectedFlatAttributes);
+                expect(flatAnno.getFilterClasses())
+                    .toEqual(expectedFilterClasses);
             });
         }
     });
@@ -170,6 +194,8 @@ describe('FlatItem', function() {
         expect(flatAnno.get('item')).toBe(replacementItem);
         expect(flatAnno.get('cssClass')).toBe(expectedFlatAttributes.cssClass);
         expect(flatAnno.get('class')).toBe(ontologyClass);
+        expect(flatAnno.complete).toBe(true);
+        expect(flatAnno.getFilterClasses()).toEqual(expectedFilterClasses);
 
         const replacementClass = new Node(readerClass);
         items.annotation.unset(oa.hasBody, ontologyClass);
@@ -181,6 +207,10 @@ describe('FlatItem', function() {
         expect(flatAnno.get('item')).toBe(replacementItem);
         expect(flatAnno.get('cssClass')).toBe('is-readit-reader');
         expect(flatAnno.get('class')).toBe(replacementClass);
+        expect(flatAnno.complete).toBe(true);
+        const filterClasses = flatAnno.getFilterClasses();
+        expect(filterClasses).not.toContain(expectedFlatAttributes.cssClass);
+        expect(filterClasses).toContain('is-readit-reader');
     });
 
     it('cannot be tricked into completing multiple times', async function() {
@@ -208,6 +238,34 @@ describe('FlatItem', function() {
         const flatAnno = new FlatItem(items.annotation);
         await completion(flatAnno);
         expect(flatAnno.attributes).toEqual(omit(expectedFlatAttributes, 'suffix'));
+        expect(flatAnno.getFilterClasses()).toEqual(expectedFilterClasses);
+    });
+
+    it('recognizes items created by the current user', async function() {
+        const items = getFullItems();
+        const ontologyClass = new Node(contentClass);
+        const userURI = (items.annotation.get(dcterms.creator)[0] as Node).id;
+        ldChannel.reply('current-user-uri', constant(userURI));
+        const flatAnno = new FlatItem(items.annotation);
+        await completion(flatAnno);
+        expect(flatAnno.get('isOwn')).toBe(true);
+        const filterClasses = flatAnno.getFilterClasses();
+        expect(filterClasses).not.toContain('rit-other-made');
+        expect(filterClasses).toContain('rit-self-made');
+        ldChannel.stopReplying('current-user-uri');
+    });
+
+    it('tracks the related class', async function() {
+        const items = getFullItems();
+        const ontologyClass = new Node(contentClass);
+        const relatedClass = new Node(readerClass);
+        ontologyClass.set(skos.related, relatedClass);
+        const flatAnno = new FlatItem(items.annotation);
+        await completion(flatAnno);
+        expect(flatAnno.get('relatedClass')).toBe(relatedClass);
+        const filterClasses = flatAnno.getFilterClasses();
+        expect(filterClasses).toContain(expectedFlatAttributes.cssClass);
+        expect(filterClasses).toContain('is-readit-reader');
     });
 
     it('can flatten a bare item', async function() {
@@ -225,7 +283,8 @@ describe('FlatItem', function() {
             'cssClass',
             'label',
             'creator',
-            'created'
+            'created',
+            'isOwn',
         )));
     });
 
@@ -241,8 +300,22 @@ describe('FlatItem', function() {
             'classLabel',
             'cssClass',
             'creator',
-            'created'
+            'created',
+            'isOwn',
         )));
+    });
+
+    it('can flatten a bare NLP class', async function() {
+        const ontology = new Graph(mockNLP);
+        const ontologyClass = ontology.get(nlp('time'));
+        const flatClass = new FlatItem(ontologyClass);
+        await completion(flatClass);
+        expect(flatClass.attributes).toEqual({
+            id: ontologyClass.id,
+            class: ontologyClass,
+            classLabel: 'time',
+            cssClass: 'is-nlp-time',
+        });
     });
 
     it('can flatten a bare property', async function() {
@@ -256,6 +329,7 @@ describe('FlatItem', function() {
             cssClass: 'is-readit-descriptionof',
             creator: expectedFlatAttributes.creator,
             created: expectedFlatAttributes.created,
+            isOwn: false,
         });
     });
 
@@ -292,6 +366,27 @@ describe('FlatItem', function() {
         ));
     });
 
+    it('can flatten an annotation with an NLP class', async function() {
+        const items = getFullItems();
+        const ontology = new Graph(mockNLP);
+        const timeClass = ontology.get(nlp('time'));
+        items.annotation.unset(oa.hasBody).set(oa.hasBody, timeClass);
+        const flatAnno = new FlatItem(items.annotation);
+        await completion(flatAnno);
+        expect(flatAnno.attributes).toEqual(assign({
+            class: timeClass,
+            classLabel: 'time',
+            cssClass: 'is-nlp-time',
+        }, omit(
+            expectedFlatAttributes,
+            'item',
+            'label',
+            'class',
+            'classLabel',
+            'cssClass'
+        )));
+    });
+
     it('can flatten a bare selector', async function() {
         const items = getFullItems();
         const flatSelector = new FlatItem(items.position);
@@ -304,7 +399,8 @@ describe('FlatItem', function() {
             'startPosition',
             'endPosition',
             'creator',
-            'created'
+            'created',
+            'isOwn',
         )));
     });
 });

@@ -9,6 +9,7 @@ import {
     getLabel,
     getLabelFromId,
     getTurtleTerm,
+    cssClassCache,
     getCssClassName,
     isRdfsClass,
     isRdfProperty,
@@ -156,7 +157,7 @@ describe('utilities', function () {
 
         it('extracts URIs from Nodes', function() {
             const node = getDefaultNode();
-            expect(getTurtleTerm(node)).toBe(`<${node.id}>`);
+            expect(getTurtleTerm(node)).toBe('item:Content');
             node.set('@id', xsd.string);
             expect(getTurtleTerm(node)).toBe('xsd:string');
             node.set('@id', 'banana');
@@ -165,6 +166,10 @@ describe('utilities', function () {
     });
 
     describe('getCssClassName', function () {
+        afterEach(function() {
+            for (let key in cssClassCache) delete cssClassCache[key];
+        });
+
         it('returns a css class', function () {
             let node = getDefaultNode();
             expect(getCssClassName(node)).toBe('is-readit-content');
