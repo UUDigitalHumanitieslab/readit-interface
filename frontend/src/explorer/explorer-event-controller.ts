@@ -1,17 +1,19 @@
 import { extend } from 'lodash';
 import { Events } from 'backbone';
+import { t } from 'i18next';
 
 import View from '../core/view';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import Node from '../common-rdf/node';
+import { oa, source } from '../common-rdf/ns';
+import ldChannel from '../common-rdf/radio';
 
 import ExplorerView from './explorer-view';
 import AnnotationView from '../panel-annotation/annotation-view';
 import { asURI } from '../utilities/linked-data-utilities';
 import SourceView from '../panel-source/source-view';
 import AnnotationListPanel from '../panel-annotation-list/annotation-list-panel';
-import SuggestionsView from '../panel-suggestions/suggestions-view';
 
 import AnnoEditView from '../panel-annotation/annotation-edit-view';
 import RelatedItemsView from '../panel-related-items/related-items-view';
@@ -24,8 +26,7 @@ import FlatItemCollection from '../common-adapters/flat-item-collection';
 import FlatAnnoCollection from '../common-adapters/flat-annotation-collection';
 import { AnnotationPositionDetails } from '../utilities/annotation-utilities';
 import { createPlaceholderAnnotation } from '../utilities/annotation-creation-utilities';
-import { oa } from '../common-rdf/ns';
-import SearchResultListView from '../panel-search-results/search-result-list-view';
+import SearchResultListPanel from '../panel-search-results/search-result-list-panel';
 import SourceListPanel from '../panel-source-list/source-list-panel';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import {
@@ -56,7 +57,7 @@ class ExplorerEventController {
     resetSource(source: Node, showHighlights: boolean): SourceView {
         const sourcePanel = createSourceView(source, showHighlights, true);
         this.explorerView.reset(sourcePanel);
-        source.on('destroy', this.showSuggestionsPanel, this);
+        source.on('destroy', this.resetBrowsePanel, this);
         return sourcePanel;
     }
 
@@ -88,15 +89,15 @@ class ExplorerEventController {
         this.explorerView.reset(sourceListPanel);
     }
 
-    resetSemanticSearch(model: SemanticQuery): SearchResultListView {
+    resetSemanticSearch(model: SemanticQuery): SearchResultListPanel {
         const items = new ItemGraph();
         model.when(
             'query',
-            (model, query) => items.sparqlQuery(modelToQuery(query))
+            (model, query) => items.sparqlQuery(modelToQuery(query)),
         );
         if (model.isNew()) model.save();
         const collection = new FlatItemCollection(items);
-        const resultsView = new SearchResultListView({
+        const resultsView = new SearchResultListPanel({
             model,
             collection,
             selectable: false,
@@ -105,27 +106,24 @@ class ExplorerEventController {
         return resultsView;
     }
 
-    showSuggestionsPanel() {
-        const suggestionsView = new SuggestionsView();
-        this.explorerView.reset(suggestionsView);
-    }
-
     openSearchResult(
-        searchResults: SearchResultListView,
+        searchResults: SearchResultListPanel,
         result: FlatItem
     ) {
         const annotation = result.get('annotation') as Node;
-        if (annotation) {
-            const source = result.get('source') as Node;
+        if (annotation || result.get('id').startsWith(source())) {
+            const source = annotation? result.get('source') as Node : result.get('item') as Node;
             const [sourcePanel,] = this.pushSourcePair(searchResults, source);
             const collection = sourcePanel.collection;
-            sourcePanel.once('ready', () => {
-                // `flat` represents the same underlying Node, but is a distinct
-                // FlatItem from `result`, since they come from distinct
-                // collections.
-                const flat = collection.get(annotation.id);
-                flat.trigger('focus', flat);
-            });
+            if (annotation) {
+                sourcePanel.once('ready', () => {
+                    // `flat` represents the same underlying Node, but is a distinct
+                    // FlatItem from `result`, since they come from distinct
+                    // collections.
+                    const flat = collection.get(annotation.id);
+                    flat.trigger('focus', flat);
+                });
+            }
         } else {
             const itemPanel = new AnnotationView({ model: result });
             this.explorerView.popUntil(searchResults).push(itemPanel);
@@ -173,7 +171,8 @@ class ExplorerEventController {
         }).catch(console.error);
         const flatItems = new FlatItemCollection(items);
         const filteredItems = new FilteredCollection(flatItems, 'annotation');
-        const resultView = new SearchResultListView({
+        const resultView = new SearchResultListPanel({
+            title: t('heading.annotations', 'Annotations'),
             model: item,
             collection: filteredItems,
             selectable: false,
@@ -225,20 +224,6 @@ class ExplorerEventController {
         // this.autoOpenRelationEditor(annotation.get('annotation'));
     }
 
-    showAnnotationsOfCategory(view: SuggestionsView, category: FlatItem): SearchResultListView {
-        let items = new ItemGraph();
-        const url = '/item/' + category.id.split("#")[1];
-        items.fetch({ url: url });
-        let flatItems = new FlatItemCollection(items);
-        const resultView = new SearchResultListView({
-            model: category,
-            collection: flatItems,
-            selectable: false,
-        });
-        this.explorerView.popUntil(view).push(resultView);
-        return resultView;
-    }
-
     autoOpenRelationEditor(annotation: Node): this {
         const newItems = (annotation.get(oa.hasBody) as Node[])
             .filter(n => !isOntologyClass(n));
@@ -253,7 +238,7 @@ class ExplorerEventController {
 
     closeEditAnnotation(editView: AnnoEditView): void {
         const id = editView.model.id;
-        if (id && !id.startsWith('_:')) {
+        if (id && !(id as string).startsWith('_:')) {
             this.explorerView.removeOverlay(editView);
         }
         else {
@@ -317,6 +302,23 @@ class ExplorerEventController {
         const newAnnotationView = this.openSourceAnnotation(listPanel, flat, collection);
         return this.editAnnotation(newAnnotationView, flat);
     }
+
+    resetBrowsePanel(queryMode: string | Model, landing: boolean) {
+        if (queryMode instanceof Model) {
+            // We came here from a source's 'destroy' handler.
+            queryMode = 'sources';
+            landing = false;
+        }
+        const title = `${landing ? 'My' : 'Sample'} ${queryMode}`;
+        const endpoint = `${queryMode}:${landing ? 'user' : 'sample'}`;
+        const collection = new FlatItemCollection(ldChannel.request(endpoint));
+        const browsePanel = new SearchResultListPanel({
+            title,
+            collection,
+            selectable: false,
+        });
+        return this.explorerView.reset(browsePanel);
+    }
 }
 extend(ExplorerEventController.prototype, Events);
 export default ExplorerEventController;
@@ -328,10 +330,7 @@ export default ExplorerEventController;
  */
 export function getItems(source: Node): ItemGraph {
     const sparqlItems = new ItemGraph();
-    let offsetMultiplier = 0;
-    const limit = 10000;
-
-    let queryString = itemsForSourceQuery(asURI(source), {});
+    const queryString = itemsForSourceQuery(asURI(source));
     sparqlItems.sparqlQuery(queryString);
     return sparqlItems;
 }

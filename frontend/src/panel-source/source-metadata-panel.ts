@@ -36,7 +36,7 @@ export default class MetadataPanel extends CompositeView {
         if (creators && creators.length) {
             const creator = creators[0];
             const creatorId = creator.id || creator['@id'];
-            const userUri = ldChannel.request('current-user-uri');
+            const userUri = userChannel.request('current-user-uri');
             if (this.userIsOwner = (creatorId === userUri)) this.render();
         }
     }

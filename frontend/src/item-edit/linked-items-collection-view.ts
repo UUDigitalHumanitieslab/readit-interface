@@ -26,7 +26,8 @@ import { getRdfSuperClasses, getRdfSuperProperties, isRdfProperty } from '../uti
 
 // Helper functions for the isEditableProperty method.
 function isLiteralProperty(property: Node): boolean {
-    return property.id === rdfs.Literal || startsWith(property.id, xsd());
+    const id = property.id as string;
+    return id === rdfs.Literal || startsWith(id, xsd());
 }
 function isInverseProperty(property: Node): boolean {
     return property.has(owl.inverseOf);
@@ -85,7 +86,8 @@ export default
 
     getItems(model: Node, predicates: Graph): this {
         predicates.forEach(predicate => {
-            this.collection.add(map(model.get(predicate.id), object => ({ predicate, object })));
+            const id = predicate.id as string;
+            this.collection.add(map(model.get(id), object => ({ predicate, object })));
         });
         return this;
     }

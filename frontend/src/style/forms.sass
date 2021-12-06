@@ -35,12 +35,37 @@
         box-shadow: none
         padding-right: 2.5em
         padding-left: .75em
+        background-color: $background-fore
         &.select2-container .select2-selection--single
             border: none
             .select2-selection__rendered
                 padding: 0
+                background-color: $background-fore
             .select2-selection__arrow
                 width: 43px
                 height: 100%
                 b
                     border: none
+            
+            .select2-dropdown
+                background-color: $background-fore
+            
+
+.select2-results
+    background-color: $background-fore
+    .select2-results__options
+        .select2-results__option--highlighted
+            background-color: $background
+
+.select2-search
+    background-color: $background-fore
+    .select2-search__field
+        background-color: $background
+
+.select2-results__option--highlighted, 
+    background-color: $background !important
+    color: $text !important
+
+.select2-results__option[aria-selected=true]
+    background-color: $background !important
+    color: $primary !important

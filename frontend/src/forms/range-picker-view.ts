@@ -31,7 +31,7 @@ export default class RangePickerView extends PickerView {
             // Not the most efficient possible filter function.
             n => some(admittedTypes, t => n.has('@type', t)),
         );
-        this.admittedTypes = admittedTypes;
+        this.admittedTypes = admittedTypes as string[];
         super.initialize(options);
     }
 }

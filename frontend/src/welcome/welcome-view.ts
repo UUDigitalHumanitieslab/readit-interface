@@ -1,9 +1,7 @@
 import { extend } from 'lodash';
 import { $ } from 'backbone';
 
-import Model from '../core/model';
 import View, { CompositeView, ViewOptions as BaseOpt } from '../core/view';
-import Graph from '../common-rdf/graph';
 import SemanticQuery from '../semantic-search/model';
 import SemanticSearchView from '../semantic-search/semantic-search-view';
 

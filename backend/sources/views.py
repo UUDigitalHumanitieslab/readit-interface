@@ -139,19 +139,6 @@ class SourcesAPIRoot(RDFView):
         return inject_fulltext(super().get_graph(request, **kwargs), False, request)
 
 
-class SourceSuggestion(RDFView):
-    """ Return nodes of a random sample of source subjects. """
-
-    def graph(self):
-        return sources_graph()
-
-    def get_graph(self, request, **kwargs):
-        sources = self.graph()
-        subjects = set(sources.subjects())
-        output = sample_graph(sources, subjects, request)
-        return inject_fulltext(output, False, request)
-
-
 class SourceSelection(RDFView):
     ''' list all sources related to a search query. '''
 

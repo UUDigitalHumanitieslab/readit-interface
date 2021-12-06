@@ -72,7 +72,7 @@ export default class RelatedItemsView extends CollectionView {
     }
 
     renderContainer(): this {
-        this.itemSerial = getLabelFromId(this.model.id);
+        this.itemSerial = getLabelFromId(this.model.id as string);
         this.$el.html(this.template(this));
         return this;
     }
