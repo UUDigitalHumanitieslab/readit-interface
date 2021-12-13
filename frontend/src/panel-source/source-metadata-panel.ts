@@ -1,11 +1,12 @@
 import { extend } from 'lodash';
 
 import { CompositeView } from '../core/view';
-import ldChannel from '../common-rdf/radio';
-import { dcterms }  from '../common-rdf/ns';
+import userChannel from '../common-user/user-radio';
+import { dcterms, sourceOntology }  from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import metadataTemplate from './source-metadata-panel-template';
 import SourceMetadataView from '../source-metadata/source-metadata-view';
+import { getLabelFromId } from '../utilities/linked-data-utilities';
 
 const sourceDeletionDialog = `
 Are you sure you want to delete this source?
@@ -18,17 +19,24 @@ export default class MetadataPanel extends CompositeView {
      * Class to show source's metadata
      */
     userIsOwner: boolean;
-    sourceMetadataview: SourceMetadataView;
+    sourceMetadataView: SourceMetadataView;
+    creator: string;
+    identifier: string;
+    dateUploaded: string;
 
     initialize(): this {
         this.model.when(dcterms.creator, this.checkOwnership, this);
-        this.sourceMetadataview = new SourceMetadataView({model: this.model});
+        const uploadDate = sourceOntology('dateUploaded');
+        this.model.when(uploadDate, () => this.dateUploaded = this.model[uploadDate] as string);
+        this.identifier = getLabelFromId.apply(this.model.id || this.model['@id']);
+        this.sourceMetadataView = new SourceMetadataView({model: this.model});
         this.render().listenTo(this.model, 'change', this.render);
         return this;
     }
 
     renderContainer(): this {
         this.$el.html(this.template(this));
+        this.$('.edit-mode').toggle();
         return this;
     }
 
@@ -36,6 +44,7 @@ export default class MetadataPanel extends CompositeView {
         if (creators && creators.length) {
             const creator = creators[0];
             const creatorId = creator.id || creator['@id'];
+            this.creator = getLabelFromId(creatorId);
             const userUri = userChannel.request('current-user-uri');
             if (this.userIsOwner = (creatorId === userUri)) this.render();
         }
@@ -46,7 +55,10 @@ export default class MetadataPanel extends CompositeView {
     }
 
     toggleEditMode() {
-        this.$('.panel-footer button').toggle();
+        this.$('.btn-edit').toggle();
+        this.$('.edit-mode').toggle();
+        this.sourceMetadataView.readonly = !this.sourceMetadataView.readonly;
+        this.sourceMetadataView.render();
     }
 
     async onDeleteClicked() {

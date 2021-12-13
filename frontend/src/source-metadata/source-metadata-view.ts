@@ -1,4 +1,5 @@
 import { extend } from 'lodash';
+import { ViewOptions as BaseOpt } from 'backbone';
 
 import { rdfs, sourceOntology as sourceNS, sourceOntologyPrefix } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
@@ -18,9 +19,14 @@ const externalAttributes = [
     'creator'
 ];
 
+interface MetaDataOptions extends BaseOpt {
+    readonly? : boolean;
+    upload?: boolean;
+}
+
 export default class SourceMetadataView extends CompositeView {
-    readonly = false;
-    properties: any;
+    readonly: boolean;
+    upload: boolean;
 
     sourceTypePicker: Select2PickerView;
 
@@ -31,9 +37,15 @@ export default class SourceMetadataView extends CompositeView {
     creationDateField: DateField;
     retrievalDateField: DateField;
 
+    constructor(options: MetaDataOptions) {
+        super(options);
+        this.readonly = options.readonly !== undefined? options.readonly : true;
+        this.upload = options.upload !== undefined? options.upload : false;
+    }
+
     initialize(): this {
         this.getOntology();
-        this.listenTo(this.model, 'change', this.renderValues);
+        this.listenTo(this.model, 'change', this.render);
         return this;
     }
 
@@ -44,7 +56,8 @@ export default class SourceMetadataView extends CompositeView {
 
     afterRender(): this {
         // Assign names to select2 pickers to ensure form contains their data
-        this.$('#sourceTypeSelect select').attr({ 'name': 'type' });
+        this.$('#sourceTypeSelect select').attr({ 'name': 'sourceType' });
+        this.renderValues();
         return this;
     }
 
@@ -61,7 +74,7 @@ export default class SourceMetadataView extends CompositeView {
         this.ontologyGraph = ldChannel.request('source-ontology:graph');
         this.listenToOnce(this.ontologyGraph, 'sync', () => {
             this.setTypeOptions();
-            this.initHelpTexts();
+            this.initDateFields();
         });
     }
 
@@ -70,32 +83,30 @@ export default class SourceMetadataView extends CompositeView {
         this.sourceTypePicker = new Select2PickerView({ collection: sourceTypes });
     }
 
-    initHelpTexts() {
+    initDateFields() {
         this.publicationDateField = new DateField({
-            model: {
-                node: this.getNode('datePublished'),
-                name: 'publicationdate',
-                required: true,
-                label: 'Publication date',
-                additionalHelpText: `<a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO formatted
-                date with optional time and timezone</a>, or free-form text`}
-            });
+            model: this.getNode('datePublished'),
+            name: 'publicationdate',
+            required: true,
+            label: 'Publication date',
+            additionalHelpText: `<a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO formatted
+                date with optional time and timezone</a>, or free-form text`,
+            readonly: this.readonly
+        });
         this.creationDateField = new DateField({
-            model: {
-                node: this.getNode('dateCreated'),
-                name: 'creationdate',
-                required: false,
-                label: 'Creation date (optional)',
-                additionalHelpText: 'If known and different from publishing date, specify creation date.'}
-            });
+            model: this.getNode('dateCreated'),
+            name: 'creationdate',
+            label: 'Creation date (optional)',
+            additionalHelpText: 'If known and different from publishing date, specify creation date.',
+            readonly: this.readonly      
+        });
         this.retrievalDateField = new DateField({
-            model: {
-                node: this.getNode('dateRetrieved'),
-                name: 'retrievaldate',
-                required: false,
-                label: 'Retrieval date (optional)',
-                additionalHelpText: 'Date (and optional time) at which the source was accessed or retrieved.'}
-            });
+            model: this.getNode('dateRetrieved'),
+            name: 'retrievaldate',
+            label: 'Retrieval date (optional)',
+            additionalHelpText: 'Date (and optional time) at which the source was accessed or retrieved.',
+            readonly: this.readonly
+        });
         this.render();
     }
 
@@ -104,23 +115,22 @@ export default class SourceMetadataView extends CompositeView {
     }
 
     renderValues(): this {
-        this.properties = {};
+        if (!this.model) return;
         for (let attribute in this.model.attributes) {
             if (attribute.startsWith(sourceOntologyPrefix)) {
                 const attributeLabel = getLabelFromId(attribute);
-                const queryString = `[name='${attributeLabel}']`
+                const queryString = `[name='` + `${attributeLabel}` + `']`
                 const element = this.$(queryString);
                 if (element.length) {
                     let value = this.model.get(attribute)[0];
                     if (externalAttributes.includes(attributeLabel)) {
                         const nodeFromUri = ldChannel.request('obtain', value.id);
-                        value = getLabel(nodeFromUri);
+                        value = typeof nodeFromUri === 'string'? nodeFromUri : getLabel(nodeFromUri);
                     }
                     element.val(value);
                 }
             }
         }
-        this.render();
         return this;
     }
 

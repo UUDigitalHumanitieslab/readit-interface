@@ -2,13 +2,13 @@
     <div class="field">
         <label class="label">Title</label>
         <div class="control">
-            <input class="input" type="text" name="title" {{#unless readonly}}placeholder="The Voyage of the Dawn Treader"{{/unless}} required {{#if readonly}}readonly{{/if}}>
+            <input class="input" type="text" name="title" {{#unless readonly}}placeholder="The Voyage of the Dawn Treader"{{/unless}} required {{#readonly}}readonly{{/readonly}}>
         </div>
     </div>
     <div class="field">
         <label class="label">Author</label>
         <div class="control">
-            <input name="author" class="input" type="text" {{#unless readonly}}placeholder="C.S. Lewis"{{/unless}} required {{#if readonly}}readonly{{/if}}>
+            <input name="author" class="input" type="text" {{#unless readonly}}placeholder="C.S. Lewis"{{/unless}} required {{#readonly}}readonly{{/readonly}}>
         </div>
     </div>
     <div class="field is-grouped">
@@ -18,16 +18,17 @@
         </div>
         <div class="control">
             <label class="label">Publisher (optional)</label>
-            <input name="publisher" class="input" type="text" placeholder="Geoffrey Bles" {{#readonly}}readonly{{/readonly}}>
+            <input name="publisher" class="input" type="text" {{#unless readonly}}placeholder="Geoffrey Bles"{{/unless}} {{#readonly}}readonly{{/readonly}}>
         </div>
     </div>
     <div class="field">
         <label class="label">Repository (optional)</label>
         <div class="control">
             <input name="repository" class="input" type="text"
-                placeholder="Archive, location, collection, call, fasc, folio" {{#readonly}}readonly{{/readonly}}>
+                {{#unless readonly}}placeholder="Archive, location, collection, call, fasc, folio"{{/unless}} {{#readonly}}readonly{{/readonly}}>
         </div>
     </div>
+    {{#upload}}
     <div class="field">
         <label class="label">File</label>
         <div class="file">
@@ -41,14 +42,21 @@
                         Choose a file…
                     </span>
                 </span>
+                <span class="file-name">
+                    No file selected
+                </span>
             </label>
-            <p class="help filename">No file selected</p>
         </div>
         <p class="help">Only txt files in UTF-8 encoding (LF for line endings) are supported.</p>
     </div>
+    {{/upload}}
+    
     <div class="field">
         <label class="label">Language</label>
         <div class="control" id="languageSelect">
+            {{#readonly}}
+            <input name="language" class="input" type="text" readonly>
+            {{else}}
             <div class="select has-helptext">
                 <select name='language' size='1'>
                     <option value="">Select language</option>
@@ -61,14 +69,22 @@
                     <option value="other">Other</option>
                 </select>
             </div>
+            {{/readonly}}
         </div>
         <p class="help">If the source contains multiple languages,
             please select 'Other'.</p>
     </div>
+
     <div class="field">
         <label class="label">Type of source</label>
+        {{#readonly}}
+        <div class="control">
+            <input name='sourceType' class="input" type="text" readonly>
+        </div>
+        {{else}}
         <div class="control" id="sourceTypeSelect">
         </div>
+        {{/readonly}}
         <p class="help">When in doubt, choose 'Unknown'</p>
     </div>
     <div class="dates">

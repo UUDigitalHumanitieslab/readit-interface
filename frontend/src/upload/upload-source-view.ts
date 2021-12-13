@@ -22,7 +22,7 @@ export default class UploadSourceFormView extends CompositeView {
 
     initialize(): this {
         let self = this;
-        this.sourceMetadataView = new SourceMetadataView();
+        this.sourceMetadataView = new SourceMetadataView({readonly: false, upload: true});
         
         this.$el.validate({
             errorClass: "help is-danger",

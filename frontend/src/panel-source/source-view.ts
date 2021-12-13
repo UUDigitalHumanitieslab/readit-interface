@@ -86,6 +86,7 @@ class SourcePanel extends CompositeView {
         this.metaView = new MetadataPanel({
             model: this.model
         });
+        
 
         this.render();
 

@@ -4,7 +4,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { baseUrl } from 'config.json';
 import View from '../core/view';
 import Node from '../common-rdf/node';
-import { dcterms, oa, schema, sourceOntology } from '../common-rdf/ns';
+import { oa, schema, sourceOntology } from '../common-rdf/ns';
 import sourceSummaryTemplate from './source-summary-template';
 import Graph from '../common-rdf/graph';
 
