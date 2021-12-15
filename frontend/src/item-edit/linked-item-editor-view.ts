@@ -1,5 +1,5 @@
 import {
-    extend, chain, find, intersection, isBoolean, isDate, isNumber,  isString
+    extend, chain
 } from 'lodash';
 
 import Model from '../core/model';
@@ -7,7 +7,7 @@ import { CompositeView } from '../core/view';
 import { asLD, Native } from '../common-rdf/conversion';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
-import { rdfs, xsd } from '../common-rdf/ns';
+import { rdfs } from '../common-rdf/ns';
 import Select2Picker from '../forms/select2-picker-view';
 import RemoveButton from '../forms/remove-button-view';
 import InputField from '../forms/input-field-view';
@@ -18,40 +18,6 @@ import TypeAwareHelpText from './type-aware-help-view';
 
 // Selector of the control where the object picker is inserted.
 const objectControl = '.field.has-addons .control:nth-child(2)';
-// Selector of template element displaying "all types allowed" help text.
-const allTypesAllowedHelp = 'p.help:first-of-type';
-// Selector of template element displaying "no matching type" help text.
-const noMatchHelp = 'p.help.is-danger';
-
-const semiCompatibleTypes: [(v: any) => boolean, string[]][] = [
-    [isBoolean, [xsd.boolean]],
-    [isNumber, [
-        xsd.double, xsd.float, xsd.byte, xsd.unsignedByte, xsd.short,
-        xsd.unsignedShort, xsd.int, xsd.unsignedInt, xsd.long,
-        xsd.unsignedLong, xsd.integer, xsd.nonNegativeInteger,
-        xsd.nonPositiveInteger, xsd.positiveInteger, xsd.negativeInteger,
-        xsd.decimal,
-    ]],
-    [isDate, [xsd.dateTime, xsd.date]],
-    [isString, [
-        xsd.string, xsd.normalizedString, xsd.token, xsd.language,
-        xsd.base64Binary,
-    ]],
-];
-
-function findType(range: Graph, value: any): string {
-    const available = range.map(n => (n.id as string));
-    let singleType;
-    if (range.length === 1) {
-        singleType = available[0];
-        if (singleType !== rdfs.Literal) return singleType;
-    }
-    const matches = find(semiCompatibleTypes, ([check]) => check(value))[1];
-    if (!range.length || singleType === rdfs.Literal) {
-        return matches[0];
-    }
-    return intersection(matches, available)[0];
-}
 
 export default class LinkedItemEditor extends CompositeView {
     collection: Graph;
