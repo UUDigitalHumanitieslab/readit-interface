@@ -1,5 +1,5 @@
 import {
-    chain, find, intersection, extend, isNumber, isBoolean, isString, isDate,
+    find, intersection, extend, isNumber, isBoolean, isString, isDate,
 } from 'lodash';
 import { CompositeView } from '../core/view';
 import { rdfs, xsd } from '../common-rdf/ns';
@@ -7,10 +7,9 @@ import interpretText from '../utilities/interpret-text';
 import AllowedTypesListHelpText from './allowed-type-list-view';
 import DetectedTypeHelpText from './detected-type-help-view';
 import Graph from '../common-rdf/graph';
-import Node, { NodeLike } from '../common-rdf/node';
+import Node from '../common-rdf/node';
 import { FlatSingleValue } from '../common-rdf/json';
 import Model from '../core/model';
-import { getRdfSuperProperties } from '../utilities/linked-data-utilities';
 
 import typeAwareHelpTemplate from './type-aware-help-template';
 
@@ -50,13 +49,14 @@ function findType(range: Graph, value: any): string {
 }
 
 export default class TypeAwareHelpText extends CompositeView<Node> {
+    collection: Graph;
     allowedTypesList: AllowedTypesListHelpText;
     detectedTypeHelp: DetectedTypeHelpText;
     range: Graph;
     model: Node;
 
     initialize() {
-        this.range = new Graph;
+        this.range = this.collection || new Graph;
         this.detectedTypeHelp = new DetectedTypeHelpText({ model: new Model });
         this.allowedTypesList = new AllowedTypesListHelpText({
             collection: this.range,
@@ -94,21 +94,10 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
         }
     }
 
-    updateRange(predicate: NodeLike): this {
+    updateRange(range: Graph): this {
         this.$(allTypesAllowedHelp).hide();
         this.allowedTypesList.$el.hide();
-        if (!predicate) {
-            this.range.reset();
-            return this;
-        }
-        const allProperties = getRdfSuperProperties([predicate]);
-        this.range.set(
-            chain(allProperties)
-            .map(n => n.get(rdfs.range) as Node[])
-            .flatten()
-            .compact()
-            .value()
-        );
+        this.range = range;
         if (!this.range.length || this.range.get(rdfs.Literal)) {
             this.$(allTypesAllowedHelp).show();
         } else {
