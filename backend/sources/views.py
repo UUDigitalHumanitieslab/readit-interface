@@ -247,17 +247,67 @@ class SourcesAPISingular(RDFResourceView):
     """ API endpoint for fetching individual subjects. """
     permission_classes = [IsAuthenticated, DeleteSourcePermission]
 
+    def is_valid(self, data):
+        is_valid = True
+        missing_fields = []
+        required_fields = ['title', 'author',
+                           'source', 'language', 'type', 'publicationdate', 'public']
+
+        for f in required_fields:
+            if not data.get(f, False):
+                is_valid = False
+                missing_fields.append(f)
+
+        return is_valid, missing_fields
+
     def graph(self):
         return sources_graph()
 
     def get_graph(self, request, **kwargs):
         return inject_fulltext(super().get_graph(request, **kwargs), True, request)
+    
+    def put(self, request):
+        bindings = self.assure_source_exists(request)
+        data = request.data
+        is_valid, missing_fields = source_valid(data)
+        if not is_valid:
+            raise ValidationError(
+                detail="Missing fields: {}".format(", ".join(missing_fields)))
+        conjunctive = get_conjunctive_graph()
+        self.update_elastic(data)
+    
+    def update_elastic(self, data):
+        result = es.search(
+            index=settings.ES_ALIASNAME,
+            body={"query": {
+                "term": {
+                    "id": serial
+                }
+            }}
+        )
+        document = result['hits']['hits'][0]
+        body={
+            "doc": {
+                'language':  data['language'],
+                'author': data['author'],
+                'title': data['title'],
+                'public': data['public']=='public'
+            } 
+        }
+        original_language = document['_source']['language']
+        set_language = data['language']
+        if set_language != original_language:
+            body['text_{}'.format(original_language)] = None
+            if set_language != 'other':
+                body['text_'.format(set_language)] = document['_source']['text']
+        es.update(
+            index=settings.ES_ALIASNAME,
+            id=identifier,
+            body=body
+        )
 
     def delete(self, request, format=None, **kwargs):
-        source_uri = request.build_absolute_uri(request.path)
-        bindings = {'source': URIRef(source_uri)}
-        if not self.graph().query(SOURCE_EXISTS_QUERY, initBindings=bindings):
-            raise NotFound('Source \'{}\' not found'.format(source_uri))
+        bindings = self.assure_source_exists(request)
         conjunctive = get_conjunctive_graph()
         conjunctive.update(
             SOURCE_DELETE_QUERY, initNs=PREFIXES, initBindings=bindings
@@ -272,7 +322,26 @@ class SourcesAPISingular(RDFResourceView):
             }}
         )
         return Response(Graph(), HTTP_204_NO_CONTENT)
+    
+    def assure_source_exists(self, request):
+        source_uri = request.build_absolute_uri(request.path)
+        bindings = {'source': URIRef(source_uri)}
+        if not self.graph().query(SOURCE_EXISTS_QUERY, initBindings=bindings):
+            raise NotFound('Source \'{}\' not found'.format(source_uri))
+        return bindings
 
+def source_valid(data):
+        is_valid = True
+        missing_fields = []
+        required_fields = ['title', 'author',
+                           'source', 'language', 'type', 'publicationdate', 'public']
+
+        for f in required_fields:
+            if not data.get(f, False):
+                is_valid = False
+                missing_fields.append(f)
+
+        return is_valid, missing_fields
 
 def source_fulltext(request, serial, query=None):
     """ API endpoint for fetching the full text of a single source. """
@@ -327,19 +396,6 @@ class AddSource(RDFResourceView):
             'public': public
         })
         return text
-
-    def is_valid(self, data):
-        is_valid = True
-        missing_fields = []
-        required_fields = ['title', 'author',
-                           'source', 'language', 'type', 'publicationdate', 'public']
-
-        for f in required_fields:
-            if not data.get(f, False):
-                is_valid = False
-                missing_fields.append(f)
-
-        return is_valid, missing_fields
 
     def resolve_language(self, input_language):
         known_languages = {
@@ -435,7 +491,7 @@ class AddSource(RDFResourceView):
 
     def post(self, request, format=None):
         data = request.data
-        is_valid, missing_fields = self.is_valid(data)
+        is_valid, missing_fields = source_valid(data)
         if not is_valid:
             raise ValidationError(
                 detail="Missing fields: {}".format(", ".join(missing_fields)))

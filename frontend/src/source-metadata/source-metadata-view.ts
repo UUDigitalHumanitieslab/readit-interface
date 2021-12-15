@@ -141,6 +141,11 @@ export default class SourceMetadataView extends CompositeView {
         }
         else return '';
     }
+
+    updateModel(event){
+        event.preventDefault();
+        console.log(event.target);
+    }
 }
 extend(SourceMetadataView.prototype, {
     template: sourceMetadataTemplate,
@@ -150,4 +155,7 @@ extend(SourceMetadataView.prototype, {
         { view: 'creationDateField', selector: '.dates', method: 'append'},
         { view: 'retrievalDateField', selector: '.dates', method: 'append'},
     ],
+    events: {
+        'keyup .input': 'updateModel'
+    }
 })

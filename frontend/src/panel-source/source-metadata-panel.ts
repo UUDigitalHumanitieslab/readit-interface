@@ -74,6 +74,22 @@ export default class MetadataPanel extends CompositeView {
             button.removeClass('is-loading');
         }
     }
+
+    onSaveClicked(event: JQueryEventObject): this {
+        event.preventDefault();
+        // var self = this;
+        // if (this.$el.valid()) {
+        //     let n = new Node();
+        //     n.save(this.$el.get(0), { url: "/source/add/" });
+        //     n.once('sync', () => {
+        //         self.handleUploadSuccess();
+        //     });
+        //     n.once('error', () => {
+        //         this.$('.form-feedback-bar.has-background-danger').show();
+        //     });
+        // }
+        return this;
+    }
 }
 
 extend(MetadataPanel.prototype, {
