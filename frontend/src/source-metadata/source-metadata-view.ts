@@ -46,6 +46,7 @@ export default class SourceMetadataView extends CompositeView {
     initialize(): this {
         this.getOntology();
         this.listenTo(this.model, 'change', this.render);
+        this.listenTo(this.readonly, 'change', this.rerender);
         return this;
     }
 
@@ -59,6 +60,10 @@ export default class SourceMetadataView extends CompositeView {
         this.$('#sourceTypeSelect select').attr({ 'name': 'sourceType' });
         this.renderValues();
         return this;
+    }
+
+    rerender() {
+        this.initDateFields();
     }
 
     isSourceType(node): boolean {
@@ -143,8 +148,12 @@ export default class SourceMetadataView extends CompositeView {
     }
 
     updateModel(event){
-        event.preventDefault();
-        console.log(event.target);
+        const changedField = event.target.name;
+        const value = this.$(`[name='` + `${changedField}` + `']`).val();
+        const existingValue = this.model.get(sourceNS(changedField));
+        if (existingValue !== [value]) {
+            this.trigger('valueChanged', changedField, value);   
+        }
     }
 }
 extend(SourceMetadataView.prototype, {
@@ -156,6 +165,6 @@ extend(SourceMetadataView.prototype, {
         { view: 'retrievalDateField', selector: '.dates', method: 'append'},
     ],
     events: {
-        'keyup .input': 'updateModel'
+        'change .input': 'updateModel'
     }
 })

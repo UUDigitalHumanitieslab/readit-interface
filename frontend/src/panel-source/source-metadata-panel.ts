@@ -23,14 +23,14 @@ export default class MetadataPanel extends CompositeView {
     creator: string;
     identifier: string;
     dateUploaded: string;
+    changes: {} = {};
 
     initialize(): this {
         this.model.when(dcterms.creator, this.checkOwnership, this);
-        const uploadDate = sourceOntology('dateUploaded');
-        this.model.when(uploadDate, () => this.dateUploaded = this.model[uploadDate] as string);
-        this.identifier = getLabelFromId.apply(this.model.id || this.model['@id']);
+        this.identifier = getLabelFromId((this.model.id || this.model['@id']) as string);
         this.sourceMetadataView = new SourceMetadataView({model: this.model});
         this.render().listenTo(this.model, 'change', this.render);
+        this.listenTo(this.sourceMetadataView, 'valueChanged', this.pushChange);
         return this;
     }
 
@@ -48,6 +48,7 @@ export default class MetadataPanel extends CompositeView {
             const userUri = userChannel.request('current-user-uri');
             if (this.userIsOwner = (creatorId === userUri)) this.render();
         }
+        this.dateUploaded = this.model.attributes[sourceOntology('dateUploaded')] as string;
     }
 
     onCloseClicked() {
@@ -58,7 +59,6 @@ export default class MetadataPanel extends CompositeView {
         this.$('.btn-edit').toggle();
         this.$('.edit-mode').toggle();
         this.sourceMetadataView.readonly = !this.sourceMetadataView.readonly;
-        this.sourceMetadataView.render();
     }
 
     async onDeleteClicked() {
@@ -75,19 +75,15 @@ export default class MetadataPanel extends CompositeView {
         }
     }
 
+    pushChange(changedField: string, value: string) {
+        this.changes[changedField] = value;
+    };
+    
     onSaveClicked(event: JQueryEventObject): this {
         event.preventDefault();
-        // var self = this;
-        // if (this.$el.valid()) {
-        //     let n = new Node();
-        //     n.save(this.$el.get(0), { url: "/source/add/" });
-        //     n.once('sync', () => {
-        //         self.handleUploadSuccess();
-        //     });
-        //     n.once('error', () => {
-        //         this.$('.form-feedback-bar.has-background-danger').show();
-        //     });
-        // }
+        if (Object.keys(this.changes).length) {
+            this.model.save(this.changes, {patch: true});
+        }
         return this;
     }
 }
@@ -104,5 +100,6 @@ extend(MetadataPanel.prototype, {
         'click .btn-edit': 'toggleEditMode',
         'click .btn-cancel': 'toggleEditMode',
         'click .btn-delete': 'onDeleteClicked',
+        'click .btn-save': 'onSaveClicked',
     }
 });

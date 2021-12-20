@@ -266,14 +266,10 @@ class SourcesAPISingular(RDFResourceView):
     def get_graph(self, request, **kwargs):
         return inject_fulltext(super().get_graph(request, **kwargs), True, request)
     
-    def put(self, request):
+    def partial_update(self, request, **kwargs):
         bindings = self.assure_source_exists(request)
         data = request.data
-        is_valid, missing_fields = source_valid(data)
-        if not is_valid:
-            raise ValidationError(
-                detail="Missing fields: {}".format(", ".join(missing_fields)))
-        conjunctive = get_conjunctive_graph()
+        
         self.update_elastic(data)
     
     def update_elastic(self, data):
