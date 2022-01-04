@@ -155,7 +155,10 @@ describe('viewHierarchy', function() {
             section: 20,
             div: 26,
         }, (count, elementName) => {
-            expect(Array.from(html.matchAll(elementName)).length).toBe(count);
+            // The next line normally wouldn't be necessary. It is a workaround
+            // for microsoft/TypeScript#47310.
+            const pattern = new RegExp(elementName, 'g');
+            expect(Array.from(html.matchAll(pattern)).length).toBe(count);
         });
     });
 
