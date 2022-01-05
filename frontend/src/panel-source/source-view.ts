@@ -20,7 +20,16 @@ import MetadataView from './source-metadata-view';
 import sourceTemplate from './source-template';
 import LoadingSpinnerView from '../loading-spinner/loading-spinner-view';
 
-const announce = announceRoute('source:bare', ['model', 'id']);
+const announceBare = announceRoute('source:bare', ['model', 'id']);
+const announceAnno = announceRoute('source:annotated', ['model', 'id']);
+
+function announce() {
+    if (this.toolbarModel.get('annotations')) {
+        announceAnno.call(this);
+    } else {
+        announceBare.call(this);
+    }
+}
 
 export interface ViewOptions extends BaseOpt<Model> {
     // An instance of vocab('Source').
