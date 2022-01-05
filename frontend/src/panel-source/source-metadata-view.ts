@@ -11,10 +11,7 @@ import metadataTemplate from './source-metadata-template';
 
 const excludedProperties = [
     '@id',
-    '@type'
-];
-
-const excludedAttributes = [
+    '@type',
     'fullText',
     'text',
     'sameAs'
@@ -58,11 +55,8 @@ export default class MetadataView extends View {
         this.properties = {};
         for (let attribute in this.model.attributes) {
             // don't include @id, @value, fullText or sameAs info
-            if (excludedProperties.includes(attribute)) {
-                continue;
-            }
             let attributeLabel = getLabelFromId(attribute);
-            if (excludedAttributes.includes(attributeLabel)) {
+            if (excludedProperties.includes(attributeLabel)) {
                 continue;
             }
             let value: string | Node = this.model.get(attribute)[0];
