@@ -2,9 +2,8 @@ import { extend } from 'lodash';
 
 import View from '../core/view';
 import userChannel from '../common-user/user-radio';
-import ldChannel from '../common-rdf/radio';
 import { dcterms }  from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Node, { isNode } from '../common-rdf/node';
 import { getLabel, getLabelFromId } from '../utilities/linked-data-utilities';
 import explorerChannel from '../explorer/explorer-radio';
 
@@ -19,10 +18,6 @@ const excludedAttributes = [
     'fullText',
     'text',
     'sameAs'
-];
-
-const externalAttributes = [
-    'inLanguage'
 ];
 
 const sourceDeletionDialog = `
@@ -70,11 +65,8 @@ export default class MetadataView extends View {
             if (excludedAttributes.includes(attributeLabel)) {
                 continue;
             }
-            let value = this.model.get(attribute)[0];
-            if (externalAttributes.includes(attributeLabel)) {
-                const nodeFromUri = ldChannel.request('obtain', value.id);
-                value = getLabel(nodeFromUri);
-            }
+            let value: string | Node = this.model.get(attribute)[0];
+            if (isNode(value)) value = getLabel(value);
             this.properties[attributeLabel] = value;
         }
         return this;
