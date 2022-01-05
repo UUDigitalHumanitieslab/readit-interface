@@ -1,6 +1,6 @@
 import { extend } from 'lodash';
 import { Events } from 'backbone';
-import { t } from 'i18next';
+import * as i18next from 'i18next';
 
 import View from '../core/view';
 import Model from '../core/model';
@@ -172,7 +172,7 @@ class ExplorerEventController {
         const flatItems = new FlatItemCollection(items);
         const filteredItems = new FilteredCollection(flatItems, 'annotation');
         const resultView = new SearchResultListPanel({
-            title: t('heading.annotations', 'Annotations'),
+            title:i18next.t('heading.annotations', 'Annotations'),
             model: item,
             collection: filteredItems,
             selectable: false,
