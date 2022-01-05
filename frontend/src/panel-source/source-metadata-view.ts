@@ -4,17 +4,17 @@ import View from '../core/view';
 import userChannel from '../common-user/user-radio';
 import { dcterms }  from '../common-rdf/ns';
 import Node, { isNode } from '../common-rdf/node';
-import { getLabel, getLabelFromId } from '../utilities/linked-data-utilities';
+import { getLabel, getTurtleTerm } from '../utilities/linked-data-utilities';
 import explorerChannel from '../explorer/explorer-radio';
 
 import metadataTemplate from './source-metadata-template';
 
 const excludedProperties = [
-    '@id',
-    '@type',
-    'fullText',
-    'text',
-    'sameAs'
+    '<@id>',
+    '<@type>',
+    'vocab:fullText',
+    'schema:text',
+    'owl:sameAs'
 ];
 
 const sourceDeletionDialog = `
@@ -55,7 +55,7 @@ export default class MetadataView extends View {
         this.properties = {};
         for (let attribute in this.model.attributes) {
             // don't include @id, @value, fullText or sameAs info
-            let attributeLabel = getLabelFromId(attribute);
+            let attributeLabel = getTurtleTerm(attribute);
             if (excludedProperties.includes(attributeLabel)) {
                 continue;
             }
