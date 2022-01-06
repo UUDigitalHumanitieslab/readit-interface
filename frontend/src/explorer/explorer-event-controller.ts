@@ -254,12 +254,10 @@ class ExplorerEventController {
         // Focus might not work if the collection isn't complete yet. In that
         // case, re-focus when it is complete. This will cause
         // `openSourceAnnotation` to run again.
-        if (!collection.get(model)) collection.once(
-            'complete:all', () => collection.once('sort', () => {
-                model = collection.get(model);
-                model.trigger('focus', model);
-            })
-        );
+        if (!collection.get(model)) collection.once('complete:all', () => {
+            model = collection.get(model);
+            model.trigger('focus', model);
+        });
         // Nobody is listening for the following event, except when we are
         // re-focusing as discussed above **and** the route ends in `/edit`.
         this.trigger('reopen-edit-annotation', newDetailView, model);
