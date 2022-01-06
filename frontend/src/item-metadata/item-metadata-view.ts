@@ -22,37 +22,33 @@ export interface ViewOptions extends BaseOpt<Node> {
 
 export default class ItemMetadataView extends View<Node> {
     title: string;
-    metadata: any;
 
     constructor(options?: ViewOptions) {
         super(options);
     }
 
-    initialize(options: ViewOptions): this {
-        this.title = 'Item metadata';
-        if (options.title) this.title = options.title;
-        this.metadata = new Object();
-        this.collectDetails();
-        return this;
+    initialize(options: ViewOptions): void {
+        this.title = options.title || 'Item metadata';
+        this.render().listenTo(this.model, 'change', this.render);
     }
 
     render(): this {
-        this.$el.html(this.template(this));
-        this.initAccordions();
-        return this;
+        this.$el.html(this.template(this.collectDetails()));
+        return this.initAccordions();
     }
 
-    collectDetails(): this {
+    collectDetails() {
+        const metadata: any = {};
         if (this.model.has(dcterms.creator)) {
-            this.metadata['creator'] = getLabel(this.model.get(dcterms.creator)[0] as Node);
+            metadata['creator'] = getLabel(this.model.get(dcterms.creator)[0] as Node);
         }
         if (this.model.has(dcterms.created)) {
-            this.metadata['created'] = this.model.get(dcterms.created)[0];
+            metadata['created'] = this.model.get(dcterms.created)[0];
         }
         if (this.model.has(dcterms.modified)) {
-            this.metadata['modified'] = this.model.get(dcterms.modified)[0];
+            metadata['modified'] = this.model.get(dcterms.modified)[0];
         }
-        return this;
+        return { metadata, title: this.title };
     }
 
     initAccordions(): this {
@@ -62,10 +58,9 @@ export default class ItemMetadataView extends View<Node> {
         return this;
     }
 }
+
 extend(ItemMetadataView.prototype, {
     tagName: 'div',
     className: 'item-metadata accordions',
     template: itemMetadataTemplate,
-    events: {
-    }
 });

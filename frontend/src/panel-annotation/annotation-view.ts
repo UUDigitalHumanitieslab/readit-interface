@@ -50,7 +50,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
             this.annotationMetadataView = new ItemMetadataView({
                 model: annotation,
                 title: 'Annotation metadata'
-            }).render();
+            });
         }
     }
 
@@ -66,7 +66,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         if (item) {
             this.itemMetadataView = new ItemMetadataView({
                 model: item,
-            }).render();
+            });
             this.listenTo(item, 'change', this.collectDetails)
                 .collectDetails(item);
             this.listenTo(item, 'change', this.render);
