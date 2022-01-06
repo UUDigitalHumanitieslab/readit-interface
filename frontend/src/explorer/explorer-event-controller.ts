@@ -1,4 +1,4 @@
-import { extend } from 'lodash';
+import { extend, delay } from 'lodash';
 import { Events } from 'backbone';
 import * as i18next from 'i18next';
 
@@ -253,11 +253,14 @@ class ExplorerEventController {
         this.explorerView.popUntil(listView).push(newDetailView);
         // Focus might not work if the collection isn't complete yet. In that
         // case, re-focus when it is complete. This will cause
-        // `openSourceAnnotation` to run again.
-        if (!collection.get(model)) collection.once('complete:all', () => {
-            model = collection.get(model);
-            model.trigger('focus', model);
-        });
+        // `openSourceAnnotation` to run again. We delay the handler, because
+        // sorting might or might not kick in one more time after complete:all.
+        if (!collection.get(model)) {
+            collection.once('complete:all', () => delay(() => {
+                model = collection.get(model);
+                model.trigger('focus', model);
+            }, 250));
+        }
         // Nobody is listening for the following event, except when we are
         // re-focusing as discussed above **and** the route ends in `/edit`.
         this.trigger('reopen-edit-annotation', newDetailView, model);
