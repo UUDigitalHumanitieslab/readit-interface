@@ -10,10 +10,9 @@ import { dcterms } from '../common-rdf/ns';
 import { getLabel } from '../utilities/linked-data-utilities';
 
 import * as bulmaAccordion from 'bulma-accordion';
-import FlatItem from '../common-adapters/flat-item-model';
 
-export interface ViewOptions extends BaseOpt<FlatItem> {
-    model: FlatItem;
+export interface ViewOptions extends BaseOpt<Node> {
+    model: Node;
     /**
      * Optional. Title of the accordion containing the metadata.
      * Defaults to 'Item metadata'.
@@ -21,7 +20,7 @@ export interface ViewOptions extends BaseOpt<FlatItem> {
     title?: string;
 }
 
-export default class ItemMetadataView extends View<FlatItem> {
+export default class ItemMetadataView extends View<Node> {
     title: string;
     metadata: any;
 

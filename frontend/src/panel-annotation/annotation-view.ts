@@ -44,7 +44,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         this.render().listenTo(model, 'change', this.render);
     }
 
-    processAnnotation(annotation: FlatItem): void {
+    processAnnotation(model: FlatItem, annotation: Node): void {
         this.dispose('annotationMetadataView');
         if (annotation) {
             this.annotationMetadataView = new ItemMetadataView({
@@ -54,15 +54,12 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         }
     }
 
-    processClass(cls: FlatItem): void {
+    processClass(model: FlatItem, cls: Node): void {
         this.dispose('lblView');
-        if (cls) this.lblView = new LabelView({
-            model: cls,
-            toolTipSetting: 'left'
-        });
+        if (cls) this.lblView = new LabelView({model, toolTipSetting: 'left'});
     }
 
-    processItem(model: FlatItem, item: FlatItem): void {
+    processItem(model: FlatItem, item: Node): void {
         this.dispose('itemMetadataView');
         const previousItem = model.previous('item');
         if (previousItem) this.stopListening(previousItem);
@@ -76,7 +73,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         }
     }
 
-    collectDetails(item: FlatItem): void {
+    collectDetails(item: Node): void {
         this.properties = {};
         for (let attribute in item.attributes) {
             if (includes(excludedProperties, attribute)) continue;
@@ -98,9 +95,9 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         this.label = getLabelText(text);
     }
 
-    processVerificationStatus(model: FlatItem): void {
-        this.needsVerification = model.get('needsVerification');
-        if (this.needsVerification) this.render();
+    processVerificationStatus(model: FlatItem, needs: boolean): void {
+        this.needsVerification = needs;
+        if (needs) this.render();
     }
 
     renderContainer(): this {
