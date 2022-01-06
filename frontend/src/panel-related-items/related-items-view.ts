@@ -68,7 +68,10 @@ export default class RelatedItemsView extends CollectionView {
             relationName: getLabel(predicate),
             model,
             collection,
-        }).render().on('sumblock-clicked', this.onSummaryBlockClicked, this);
+        }).render().on({
+            focus: this.openItem,
+            blur: this.closeItem,
+        }, this);
     }
 
     renderContainer(): this {
@@ -77,8 +80,12 @@ export default class RelatedItemsView extends CollectionView {
         return this;
     }
 
-    onSummaryBlockClicked(summaryBlock, model: Model): void {
-        explorerChannel.trigger('relItems:itemClick', this, model.get('item'));
+    openItem(model): void {
+        explorerChannel.trigger('relItems:showItem', this, model.get('item'));
+    }
+
+    closeItem(model): void {
+        explorerChannel.trigger('relItems:hideItem', this, model.get('item'));
     }
 
     onEditButtonClicked(event: JQuery.TriggeredEvent): void {
