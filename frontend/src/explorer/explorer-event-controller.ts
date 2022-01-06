@@ -121,7 +121,7 @@ class ExplorerEventController {
                     // FlatItem from `result`, since they come from distinct
                     // collections.
                     const flat = collection.get(annotation.id);
-                    flat.trigger('focus', flat);
+                    delay(() => flat.trigger('focus', flat), 250);
                 });
             }
         } else {
