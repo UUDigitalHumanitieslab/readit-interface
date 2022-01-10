@@ -37,16 +37,11 @@ export default class SourceMetadataView extends CompositeView {
     creationDateField: DateField;
     retrievalDateField: DateField;
 
-    constructor(options: MetaDataOptions) {
-        super(options);
+    initialize(options: MetaDataOptions): this {
+        this.getOntology();
         this.readonly = options.readonly !== undefined? options.readonly : true;
         this.upload = options.upload !== undefined? options.upload : false;
-    }
-
-    initialize(): this {
-        this.getOntology();
         this.listenTo(this.model, 'change', this.render);
-        this.listenTo(this.readonly, 'change', this.rerender);
         return this;
     }
 
@@ -60,10 +55,6 @@ export default class SourceMetadataView extends CompositeView {
         this.$('#sourceTypeSelect select').attr({ 'name': 'sourceType' });
         this.renderValues();
         return this;
-    }
-
-    rerender() {
-        this.initDateFields();
     }
 
     isSourceType(node): boolean {

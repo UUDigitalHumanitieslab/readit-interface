@@ -48,7 +48,7 @@ export default class MetadataPanel extends CompositeView {
             const userUri = userChannel.request('current-user-uri');
             if (this.userIsOwner = (creatorId === userUri)) this.render();
         }
-        this.dateUploaded = this.model.attributes[sourceOntology('dateUploaded')] as string;
+        this.dateUploaded = this.model.attributes[sourceOntology('dateUploaded')][0].toLocaleDateString();
     }
 
     onCloseClicked() {
@@ -59,6 +59,7 @@ export default class MetadataPanel extends CompositeView {
         this.$('.btn-edit').toggle();
         this.$('.edit-mode').toggle();
         this.sourceMetadataView.readonly = !this.sourceMetadataView.readonly;
+        this.sourceMetadataView.initDateFields();
     }
 
     async onDeleteClicked() {
