@@ -122,4 +122,4 @@ class RDFResourceView(RDFView):
         return result
 
     def get_resource_uri(self, request, **kwargs):
-        return request.build_absolute_uri(request.path)
+        return request.build_absolute_uri()

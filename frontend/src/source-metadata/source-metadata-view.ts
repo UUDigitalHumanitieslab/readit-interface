@@ -82,7 +82,7 @@ export default class SourceMetadataView extends CompositeView {
     initDateFields() {
         this.publicationDateField = new DateField({
             model: this.getNode('datePublished'),
-            name: 'publicationdate',
+            name: 'datePublished',
             required: true,
             label: 'Publication date',
             additionalHelpText: `<a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO formatted
@@ -91,14 +91,14 @@ export default class SourceMetadataView extends CompositeView {
         });
         this.creationDateField = new DateField({
             model: this.getNode('dateCreated'),
-            name: 'creationdate',
+            name: 'dateCreated',
             label: 'Creation date (optional)',
             additionalHelpText: 'If known and different from publishing date, specify creation date.',
             readonly: this.readonly      
         });
         this.retrievalDateField = new DateField({
             model: this.getNode('dateRetrieved'),
-            name: 'retrievaldate',
+            name: 'dateRetrieved',
             label: 'Retrieval date (optional)',
             additionalHelpText: 'Date (and optional time) at which the source was accessed or retrieved.',
             readonly: this.readonly

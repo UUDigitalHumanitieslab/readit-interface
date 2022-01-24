@@ -59,7 +59,7 @@ export default class MetadataPanel extends CompositeView {
         this.$('.btn-edit').toggle();
         this.$('.edit-mode').toggle();
         this.sourceMetadataView.readonly = !this.sourceMetadataView.readonly;
-        this.sourceMetadataView.initDateFields();
+        this.$('.date').find('input').prop('readonly', this.sourceMetadataView.readonly);
     }
 
     async onDeleteClicked() {
@@ -85,6 +85,7 @@ export default class MetadataPanel extends CompositeView {
         if (Object.keys(this.changes).length) {
             this.model.save(this.changes, {patch: true});
         }
+        this.toggleEditMode();
         return this;
     }
 }

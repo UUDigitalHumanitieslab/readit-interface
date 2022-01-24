@@ -22,7 +22,6 @@ export default class DateField extends CompositeView {
     name: string;
     label: string;
     additionalHelpText: string;
-    value: string;
     required: boolean;
     readonly: boolean;
 

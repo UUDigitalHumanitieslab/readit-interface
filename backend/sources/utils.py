@@ -29,7 +29,7 @@ def parse_isodate(datestring):
         if has_time(dt):
             return Literal(dt, datatype=XSD.dateTime)
         return Literal(dt, datatype=XSD.date)
-    except (parser.ParserError, ValueError):
+    except ValueError:
         return Literal(datestring)
 
 
