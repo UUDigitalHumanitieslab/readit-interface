@@ -8,7 +8,6 @@ import { asLD, Native } from '../common-rdf/conversion';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import { rdfs, xsd } from '../common-rdf/ns';
-import { NativeArray } from '../common-rdf/conversion';
 import Select2Picker from '../forms/select2-picker-view';
 import RemoveButton from '../forms/remove-button-view';
 import InputField from '../forms/input-field-view';
@@ -43,7 +42,7 @@ const semiCompatibleTypes: [(v: any) => boolean, string[]][] = [
 ];
 
 function findType(range: Graph, value: any): string {
-    const available = range.map(n => n.id);
+    const available = range.map(n => (n.id as string));
     let singleType;
     if (range.length === 1) {
         singleType = available[0];
@@ -136,7 +135,7 @@ export default class LinkedItemEditor extends CompositeView {
     predicateFromModel(model: Model, selectedPredicate?: Node): this {
         selectedPredicate || (selectedPredicate = model.get('predicate'));
         if (!selectedPredicate) return this;
-        this.predicatePicker.val(selectedPredicate.id);
+        this.predicatePicker.val(selectedPredicate.id as string);
         return this;
     }
 

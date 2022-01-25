@@ -13,27 +13,40 @@
         </div>
         <div id="navbarMenu" class="navbar-menu">
             <div class="navbar-start">
-                <a class="navbar-item" href="search">
+                <a class="navbar-item" href="/search">
                     <span class="icon-text">
                         <span class="icon is-small has-text-primary">
                             <i class="fas fa-search"></i>
                         </span>
                         <span>Search</span>
+                    </span>
                 </a>
-                <a class="navbar-item" href="explore">
-                    <span class="icon-text">
-                        <span class="icon is-small has-text-primary">
-                            <i class="fas fa-compass"></i>
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        <span class="icon-text">
+                            <span class="icon is-small has-text-primary">
+                                <i class="fas fa-compass"></i>
+                            </span>
+                            <span>Explore</span>
                         </span>
-                        <span>Explore</span>
-                </a>
+                    </a>
+                    <div class="navbar-dropdown">
+                        <a href="/explore/sources" class="navbar-item" id="source-list">
+                            Sources
+                        </a>
+                        <a href="/explore/items" class="navbar-item" id="item-list">
+                            Items
+                        </a>
+                    </div>
+                </div>
                 {{#if uploadSources}}
-                <a class="navbar-item" href="upload">
+                <a class="navbar-item" href="/upload">
                     <span class="icon-text">
                         <span class="icon is-small has-text-primary">
                             <i class="fas fa-upload"></i>
                         </span>
                         <span>Upload</span>
+                    </span>
                 </a>
                 {{/if}}
             </div>
@@ -53,11 +66,20 @@
                         {{#i18n 'greeting'}}Hello, {{username}}!{{/i18n}}
                     </a>
                     <div class="navbar-dropdown">
+                        <a class="navbar-item" href="/landing">
+                            Personal landing page
+                        </a>
+                        <a class="navbar-item" href="/explore/sources/mine">
+                            My sources
+                        </a>
+                        <a class="navbar-item" href="/explore/items/mine">
+                            My items
+                        </a>
+                        <hr class="navbar-divider">
                         <a class="navbar-item" id="feedback">
                             Feedback
                         </a>
-                        <hr class="navbar-divider">
-                        <a class="navbar-item" id="logout" href="leave">
+                        <a class="navbar-item" id="logout" href="/leave">
                             Log out
                         </a>
                     </div>

@@ -65,19 +65,19 @@ describe('the core/sync module', function() {
             jasmine.Ajax.stubRequest('/api/test').andCallFunction(xhr => {
                 const acceptHeader = xhr.requestHeaders.Accept;
                 [
-                    'application/trig; q=1',
+                    'application/trig; q=0.95',
                     'application/ld+json; q=0.9',
                     'text/turtle; q=0.8',
                     'application/rdf+xml; q=0.75',
                     'text/html; q=0.7',
                     'application/xhtml+xml; q=0.62',
                     'application/n-quads; q=0.6',
-                    'application/xml; q=0.5',
-                    'text/xml; q=0.5',
-                    'image/svg+xml; q=0.5',
+                    'application/xml; q=0.3',
+                    'text/xml; q=0.3',
+                    'image/svg+xml; q=0.3',
                     'application/json; q=0.45',
-                    'application/n-triples; q=0.3',
-                    'text/n3; q=0.1',
+                    'application/n-triples; q=0.8',
+                    'text/n3; q=0.35',
                 ].forEach(contentType =>
                     expect(acceptHeader).toContain(contentType)
                 );

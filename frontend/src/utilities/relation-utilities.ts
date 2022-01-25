@@ -80,7 +80,7 @@ export function relationsFromModel(model: Node, predicates: Graph) {
         const predicate = predicates.get(a);
         if (!predicate) return;
         (model.get(a, {'@type': '@id'}) as Node[]).forEach(object =>
-            object.id.startsWith(item()) && relations.add({predicate, object})
+            (object.id as string).startsWith(item()) && relations.add({predicate, object})
         );
     });
     // Next, inverse relations sourced from other Nodes

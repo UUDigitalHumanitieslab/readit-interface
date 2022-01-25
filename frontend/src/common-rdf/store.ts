@@ -54,7 +54,7 @@ export default class Store extends Graph {
         const initialResult = this.get(id as string | Node);
         if (isUndefined(initialResult)) {
             const placeholder = this.getPlaceholder(id);
-            this.import(placeholder.id);
+            this.import(placeholder.id as string);
             return placeholder;
         }
         return initialResult;

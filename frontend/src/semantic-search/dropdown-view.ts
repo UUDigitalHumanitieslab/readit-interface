@@ -134,7 +134,7 @@ export default class Dropdown extends CompositeView {
         } else {
             // Otherwise, omit the type group since there is only one type.
             range = range.at(0);
-            const criterion = applicableTo(range.id);
+            const criterion = applicableTo(range.id as string);
             this.filterGroup = new OptionGroup({
                 model: groupLabels.get('filter'),
                 // For some reason, TS decided to reinterpret
@@ -146,7 +146,7 @@ export default class Dropdown extends CompositeView {
                 // `Collection<Model>` does solve the issue. Damn you TS!
                 collection: new FilteredCollection(filters as Collection, criterion),
             });
-            const predicates = applicablePredicates(range.id);
+            const predicates = applicablePredicates(range.id as string);
             this.listenTo(predicates, 'update', this.restoreSelection);
             this.predicateGroup = new OptionGroup({
                 model: groupLabels.get('predicate'),

@@ -34,16 +34,31 @@ export function getLabelFromId(id: string) {
     return id.substring(index + 1);
 }
 
+// Memoize abbreviated turtle terms for efficiency.
+const turtleCache = {};
+
 /**
  * Obtain ns:term notation for terms in known namespaces.
  * Falls back to <http(s)://full-uri> notation for URIs in unknown namespaces.
  */
 export function getTurtleTerm(term: string | Node): string {
     const uri = asURI(term);
+    const memoizedTerm = turtleCache[uri];
+    if (memoizedTerm) return memoizedTerm;
     const prefix = findKey(nsMap, p => uri.startsWith(p));
-    if (prefix) return `${prefix}:${uri.slice(nsMap[prefix].length)}`;
+    if (prefix) {
+        const length = nsMap[prefix].length;
+        return turtleCache[uri] = `${prefix}:${uri.slice(length)}`;
+    }
     return `<${uri}>`;
 }
+
+// We memoize CSS classes so we don't have to recompute class names for the same
+// classes over and over. Exported so we can clear it in tests.
+export const cssClassCache = {};
+
+// These characters are removed in getCssClassName below.
+const normalizePattern = /[ \(\)\/]/g;
 
 /**
  * Create a css class name based on the node's label.
@@ -51,16 +66,17 @@ export function getTurtleTerm(term: string | Node): string {
  */
 export function getCssClassName(node: Node): string {
     if (!node) return undefined;
-    let label = getLabel(node);
+    const id = node.id as string;
+    const className = cssClassCache[id];
+    if (className) return className;
 
+    let label = getLabel(node);
     if (label) {
-        label = label.replace(new RegExp(' ', 'g'), '').replace(new RegExp('[\(\)\/]', 'g'), '').toLowerCase();
-        const id = node.id;
+        label = label.replace(normalizePattern, '').toLowerCase();
         if (id && id.startsWith(nlp())) {
-            return `is-nlp-${label}`
-        }
-        else {
-            return `is-readit-${label}`;
+            return cssClassCache[id] = `is-nlp-${label}`;
+        } else {
+            return cssClassCache[id] = `is-readit-${label}`;
         }
     }
 
@@ -72,7 +88,7 @@ export function getCssClassName(node: Node): string {
  * already a URI.
  */
 export function asURI(source: Node | string): string {
-    return isNode(source) ? source.id : source;
+    return isNode(source) ? source.id as string : source;
 }
 
 /**
@@ -95,12 +111,20 @@ export function isRdfProperty(node: Node): boolean {
 }
 
 /**
+ * Check whether a node is both colored and a class. A middle ground between
+ * `isRdfsClass` and `isAnnotationCategory`.
+ */
+export function isColoredClass(node: Node): boolean {
+    return node.has(schema.color) && isRdfsClass(node);
+}
+
+/**
  * Check if a node is an annotation category used in the class picker when
  * editing annotations.
  * @param node The node to evaluate
  */
 export function isAnnotationCategory(node: Node): boolean {
-    return isRdfsClass(node) && node.has(schema.color) && !(node.get(owl.deprecated));
+    return isColoredClass(node) && !(node.get(owl.deprecated));
 }
 
 /**
@@ -243,7 +267,7 @@ export function isType(node: Node, type: string): boolean {
  */
 export function isBlank(node: Node) {
     if (!node.id) return false;
-    return node.id.startsWith('_:');
+    return (node.id as string).startsWith('_:');
 }
 
 /**

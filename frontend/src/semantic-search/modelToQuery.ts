@@ -18,7 +18,16 @@ import * as _ from 'lodash';
 
 import Model from '../core/model';
 import Collection from '../core/collection';
-import { rdfs, owl, xsd, frbr, readit, item } from '../common-rdf/ns';
+import {
+    rdfs,
+    owl,
+    xsd,
+    frbr,
+    readit,
+    item,
+    nsMap as defaultNs,
+    nsTable,
+} from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 
@@ -49,17 +58,6 @@ type TaggedSyntax = TaggedExpression | TaggedPattern;
 interface Branches {
     expression?: TaggedExpression[];
     pattern?: TaggedPattern[];
-};
-
-interface nsTable {
-    [abbreviation: string]: string;
-}
-
-const defaultNs = {
-    rdfs: rdfs(),
-    owl: owl(),
-    readit: readit(),
-    item: item(),
 };
 
 /**
@@ -110,8 +108,8 @@ function nextVariable(): string {
  */
 export function serializePredicate(predicate: Node, ns: nsTable): string {
     const inverse = predicate.get(owl.inverseOf) as Node[];
-    if (inverse && inverse.length) return `^${serializeIri(inverse[0].id, ns)}`;
-    return serializeIri(predicate.id, ns);
+    if (inverse && inverse.length) return `^${serializeIri(inverse[0].id as string, ns)}`;
+    return serializeIri(predicate.id as string, ns);
 }
 
 function serializePath(predicates: Node[], ns: nsTable): string {
@@ -294,24 +292,19 @@ function serializeBranchout(
     return combine[action](segments);
 }
 
-// Callback used with `_.map` below to convert `nsTable` to the format that
-// `../sparql/query-templates/preamble-template.hbs` requires.
-const explodeNs = (prefix, label) => ({ label, prefix });
-
 /**
  * Convert the data model into a complete `CONSTRUCT` query including prefix
  * headers.
  */
 export default function modelToQuery(
-    entry: Model, ns: nsTable = defaultNs
+    entry: Model, namespaces: nsTable = defaultNs
 ): string {
-    const chain = serializeChain(entry, '?item', ns);
+    const chain = serializeChain(entry, '?item', namespaces);
     const body = (
         chain.tag === 'expression' ?
         `FILTER ${chain.expression}` :
         chain.pattern
     );
-    const namespaces = map(ns, explodeNs);
-    const sourceGraph = serializeIri(item(), ns);
+    const sourceGraph = serializeIri(item(), namespaces);
     return queryTemplate({ namespaces, body, sourceGraph });
 }

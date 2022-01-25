@@ -1,25 +1,27 @@
-import { extend } from 'lodash';
+import { extend, result, isString } from 'lodash';
 
 import { item } from '../common-rdf/ns';
-import { FlatLdDocument } from '../common-rdf/json';
-import Node, { isNode } from '../common-rdf/node';
+import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import { asURI } from '../utilities/linked-data-utilities';
 
-import { sparqlRoot } from 'config.json';
-const sparqlItemsEndpoint = sparqlRoot + 'item/query'
+import { nsRoot, sparqlRoot } from 'config.json';
 
+/**
+ * Using query parameters is DEPRECATED in favor of SPARQL queries.
+ */
 export interface QueryParamsURI {
     predicate?: Node | string;
     object?: Node | string;
 }
-
 export interface QueryParamsLiteral {
     predicate?: Node | string;
     objectLiteral?: string;
 }
 
 /**
+ * Using traversal parameters is DEPRECATED in favor of SPARQL queries.
+ *
  * Pass these parameters to ItemGraph.query to fetch not only the
  * Nodes that match the given predicate and/or object, but also
  * related Nodes up to the given number of steps.
@@ -79,13 +81,43 @@ function isLiteralQuery(params: QueryParams): params is QueryParamsLiteral {
  * 'error' event if creation fails. Wait for 'change:@id' before
  * using the Node as an attribute value for another Node.
  *
- * See also the query method below for querying the server.
+ * See also the query and sparqlQuery methods below for querying the server.
  */
 export default class ItemGraph extends Graph {
+    sparqlEndpoint: string;
+
     // Only defined if a query has been issued.
     promise: JQuery.jqXHR;
 
     /**
+     * We allow client code to override `this.url` through the `graph` option.
+     * For convenience, it is also possible to pass just the graph URL directly
+     * as the only argument.
+     *
+     * From `this.url`, we derive the matching `this.sparqlEndpoint`.
+     */
+    constructor(graph: string);
+    constructor(models?: Node[] | Object[], options?: any);
+    constructor(models?: Node[] | Object[] | string, options?) {
+        if (isString(models)) {
+            options = { graph: models };
+            models = null;
+        }
+        super(models, options);
+    }
+
+    preinitialize(models?, options?: any): void {
+        super.preinitialize(models, options);
+        if (options.graph) this.url = options.graph;
+        const url = result(this, 'url') as string;
+        const graphName = url.slice(nsRoot.length, -1);
+        this.sparqlEndpoint = `${sparqlRoot}${graphName}/query`;
+    }
+
+    /**
+     * DEPRECATED you still need this for the download parameter, but use
+     * sparqlQuery instead if you don't use that parameter.
+     *
      * Replace the contents of this graph by all items at the backend
      * that match the given criteria.
      *
@@ -103,8 +135,16 @@ export default class ItemGraph extends Graph {
         return this.promise = this.fetch({data});
     }
 
+    /**
+     * Replace the contents of this graph by all items at the backend that
+     * result from the given CONSTRUCT query. For best results, make sure that
+     * the query produces complete items.
+     */
     sparqlQuery(query: string): JQuery.jqXHR {
-        return this.promise = this.fetch({ url: sparqlItemsEndpoint, data: $.param({ query: query }), remove: false });
+        return this.promise = this.fetch({
+            url: this.sparqlEndpoint,
+            data: $.param({ query }),
+        });
     }
 
     /**
