@@ -59,6 +59,7 @@ export default class MetadataPanel extends CompositeView {
         this.$('.btn-edit').toggle();
         this.$('.edit-mode').toggle();
         this.sourceMetadataView.readonly = !this.sourceMetadataView.readonly;
+        this.sourceMetadataView.render();
         this.$('.date').find('input').prop('readonly', this.sourceMetadataView.readonly);
     }
 

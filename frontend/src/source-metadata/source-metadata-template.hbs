@@ -54,7 +54,7 @@
     <div class="field">
         <label class="label">Language</label>
         <div class="control" id="languageSelect">
-            {{#readonly}}
+            {{#if readonly}}
             <input name="language" class="input" type="text" readonly>
             {{else}}
             <div class="select has-helptext">
@@ -69,7 +69,7 @@
                     <option value="other">Other</option>
                 </select>
             </div>
-            {{/readonly}}
+            {{/if}}
         </div>
         <p class="help">If the source contains multiple languages,
             please select 'Other'.</p>
@@ -77,14 +77,14 @@
 
     <div class="field">
         <label class="label">Type of source</label>
-        {{#readonly}}
+        {{#if readonly}}
         <div class="control">
             <input name='sourceType' class="input" type="text" readonly>
         </div>
         {{else}}
         <div class="control" id="sourceTypeSelect">
         </div>
-        {{/readonly}}
+        {{/if}}
         <p class="help">When in doubt, choose 'Unknown'</p>
     </div>
     <div class="dates">
