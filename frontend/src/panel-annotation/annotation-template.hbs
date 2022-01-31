@@ -8,9 +8,9 @@
             {{/if}}{{/if}}{{#if itemSerial }}
             {{#i18n 'item'}}item{{/i18n}}/{{ itemSerial }}
         {{/if}}</h6>
-        {{#if needs_verification_explanation}}
+        {{#if needsVerification}}
         <h6 class="title is-6">
-            {{#i18n 'annotation verification'}}This annotation needs to be verified.{{/i18n}}
+            {{#i18n 'annotation_verification'}}This annotation needs to be verified.{{/i18n}}
         </h6>{{/if}}
     </header>
 </div>
@@ -25,8 +25,8 @@
             <table class="table is-bordered">
                 <thead>
                     <tr>
-                        <th>{{#i18n 'table_name'}}Name{{/i18n}}</th>
-                        <th>{{#i18n 'table_value'}}Value{{/i18n}}</th>
+                        <th>{{#i18n 'name'}}Name{{/i18n}}</th>
+                        <th>{{#i18n 'value'}}Value{{/i18n}}</th>
                     </tr>
                 </thead>
                 <tbody>
