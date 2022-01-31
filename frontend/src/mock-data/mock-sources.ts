@@ -26,7 +26,7 @@ export const source1instance = {
         }
     ],
     // TODO: move text to a file and link to it (in an appropriate property!)
-    [sourceOntology('fullText')]: [
+    [schema.text]: [
         {
             "@value": mockSourceText
         },
