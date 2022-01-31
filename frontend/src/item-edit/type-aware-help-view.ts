@@ -63,7 +63,7 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
             collection: this.range,
         });
         this.helpTextFromModel(this.model);
-        this.render().updateRange(this.model);
+        this.render().updateRange(new Graph(this.model));
     }
 
     renderContainer(): this {

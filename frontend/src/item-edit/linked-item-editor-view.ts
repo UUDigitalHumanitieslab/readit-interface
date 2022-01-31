@@ -1,5 +1,5 @@
 import {
-    extend, chain
+    extend, chain, find, intersection, isBoolean, isDate, isNumber,  isString
 } from 'lodash';
 
 import Model from '../core/model';
@@ -7,7 +7,7 @@ import { CompositeView } from '../core/view';
 import { asLD, Native } from '../common-rdf/conversion';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
-import { rdfs } from '../common-rdf/ns';
+import { rdfs, xsd } from '../common-rdf/ns';
 import Select2Picker from '../forms/select2-picker-view';
 import RemoveButton from '../forms/remove-button-view';
 import InputField from '../forms/input-field-view';

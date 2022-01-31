@@ -1,17 +1,11 @@
 import {
-    rdf,
-    rdfs,
-    owl,
     dcterms,
     staff,
-    readit,
-    item,
     source,
     vocab,
-    skos,
     schema,
+    sourceOntology,
     xsd,
-    oa,
     iso6391,
 } from '../common-rdf/ns';
 import mockSourceText from './mock-source-text';
@@ -25,30 +19,30 @@ export const source1instance = {
             "@value": "Corpus_50_exp_lectures_interligne1.5 (1).pdf"
         }
     ],
-    [schema.author]: [
+    [sourceOntology('author')]: [
         {
             "@type": xsd.string,
             "@value": "Tess T. Author"
         }
     ],
     // TODO: move text to a file and link to it (in an appropriate property!)
-    [schema.text]: [
+    [sourceOntology('fullText')]: [
         {
             "@value": mockSourceText
         },
     ],
-    [schema.datePublished]: [
+    [sourceOntology('datePublished')]: [
         {
             "@type": xsd.dateTime,
             "@value": "1900-01-01T00:00:00+0100"
         }
     ],
-    [schema.inLanguage]: [
+    [sourceOntology('language')]: [
         {
             "@id": iso6391.en
         },
     ],
-    [dcterms.created]: [
+    [sourceOntology('dateUploaded')]: [
         {
             "@type": xsd.dateTime,
             "@value": "2085-12-31T04:33:16+0100"
