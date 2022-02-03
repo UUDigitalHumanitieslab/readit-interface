@@ -49,6 +49,23 @@ es = Elasticsearch(
 # Get sources logger for logging on server
 logger = logging.getLogger(__name__)
 
+LITERALS = {
+    'title': source_ontology.title,
+    'author': source_ontology.author,
+    'editor': source_ontology.editor,
+    'publisher': source_ontology.publisher,
+    'repository': source_ontology.repository,
+    'url': source_ontology.url
+}
+URIS = {
+    'type': source_ontology.sourceType,
+}
+DATES = {
+    'publicationdate': source_ontology.datePublished,
+    'creationdate': source_ontology.dateCreated,
+    'retrievaldate': source_ontology.dateRetrieved
+}
+
 SELECT_SOURCES_QUERY_START = '''
 CONSTRUCT {
     ?id ?p ?o.
@@ -281,7 +298,7 @@ class SourcesAPISingular(RDFResourceView):
         keys = ['author', 'title', 'language', 'public']
         doc = {key: data.get(key) for key in keys if key in data}
         if 'public' in doc:
-            doc['public'] = doc['public'] == 'public'
+            doc['public'] = (doc['public'] == 'public')
         if 'language' in doc:
             result = es.search(
                 index=settings.ES_ALIASNAME,
@@ -337,17 +354,15 @@ class SourcesAPISingular(RDFResourceView):
         return bindings, source_uri
 
 def source_valid(data):
-        is_valid = True
-        missing_fields = []
-        required_fields = ['title', 'author',
-                           'source', 'language', 'type', 'publicationdate', 'public']
-
-        for f in required_fields:
-            if not data.get(f, False):
-                is_valid = False
-                missing_fields.append(f)
-
-        return is_valid, missing_fields
+    is_valid = True
+    missing_fields = []
+    required_fields = ['title', 'author',
+                       'source', 'language', 'type', 'publicationdate', 'public']
+    for f in required_fields:
+        if not data.get(f, False):
+            is_valid = False
+            missing_fields.append(f)
+    return is_valid, missing_fields
 
 def source_fulltext(request, serial, query=None):
     """ API endpoint for fetching the full text of a single source. """
@@ -484,22 +499,7 @@ def get_number_search_results(request):
     return JsonResponse(response)
 
 def format_source_data(subject, data):
-    literals = {
-        'title': source_ontology.title,
-        'author': source_ontology.author,
-        'editor': source_ontology.editor,
-        'publisher': source_ontology.publisher,
-        'repository': source_ontology.repository,
-        'url': source_ontology.url
-    }
-    uris = {
-        'type': source_ontology.sourceType,
-    }
-    dates = {
-        'publicationdate': source_ontology.datePublished,
-        'creationdate': source_ontology.dateCreated,
-        'retrievaldate': source_ontology.dateRetrieved
-    }
+    
     triples = []
     for l in literals:
         value = data.get(l)
@@ -540,3 +540,4 @@ def resolve_access(value):
     if value == 'public':
         return Literal('true', datatype=XSD.boolean)
     return Literal('false', datatype=XSD.boolean)
+    
