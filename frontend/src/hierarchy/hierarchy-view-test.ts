@@ -155,7 +155,7 @@ describe('viewHierarchy', function() {
             section: 20,
             div: 26,
         }, (count, elementName) => {
-            expect(Array.from(html.matchAll(new RegExp(elementName, 'g'))).length).toBe(count);
+            expect(Array.from(html.matchAll(new RegExp(elementName))).length).toBe(count);
         });
     });
 
