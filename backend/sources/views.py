@@ -499,27 +499,20 @@ def get_number_search_results(request):
     return JsonResponse(response)
 
 def format_source_data(subject, data):
-    
-    triples = []
-    for l in literals:
-        value = data.get(l)
-        if value:
-            triples.append((subject, literals[l], Literal(value)))
-    for u in uris:
-        value = data.get(u)
-        if value:
-            triples.append((subject, uris[u], URIRef(value)))
-    for d in dates:
-        value = data.get(d)
-        if value:
-            triples.append((subject, dates[d], parse_isodate(value)))
-    if data.get('public'):
-        triples.append(subject, source_ontology.public,
-            resolve_access(data['public']))
-    if data.get('language'):
-        triples.append(subject, source_ontology.language, URIRef(
-            resolve_language(data['language'])))
-    return triples
+    access = { 'public': source_ontology.public }
+    language = { 'language': source_ontology.language }
+    conversions = [
+        (LITERALS, Literal),
+        (URIS, URIRef),
+        (DATES, parse_isodate),
+        (access, resolve_access),
+        (language, resolve_language),
+    ]
+    return [
+        (subject, map_uri[key], coerce(data[key]))
+        for map_uri, coerce in conversions
+        for key in map_uri if key in data
+    ]
 
 def resolve_language(input_language):
     known_languages = {
@@ -540,4 +533,3 @@ def resolve_access(value):
     if value == 'public':
         return Literal('true', datatype=XSD.boolean)
     return Literal('false', datatype=XSD.boolean)
-    
