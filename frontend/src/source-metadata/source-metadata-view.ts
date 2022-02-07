@@ -61,9 +61,9 @@ export default class SourceMetadataView extends CompositeView {
         if (!node.has(rdfs.subClassOf)) {
             return false;
         }
-        return ((node.get(rdfs.subClassOf)[0].id == sourceNS('ReaditSourceType')) &&
+        return ((node.has(rdfs.subClassOf, {'@id': sourceNS('ReaditSourceType')})) &&
             !(node.id == sourceNS('TFO_TextForm'))) ||
-            node.get(rdfs.subClassOf)[0].id == sourceNS('TFO_TextForm');
+            node.has(rdfs.subClassOf, {'@id':  sourceNS('TFO_TextForm')});
     }
 
     getOntology() {
