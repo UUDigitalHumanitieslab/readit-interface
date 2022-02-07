@@ -17,7 +17,7 @@ interface DateFieldOptions extends BaseOptions {
     required?: boolean;
 }
 
-export default class DateField extends CompositeView {
+export default class DateField extends CompositeView<Node> {
     helpText: TypeAwareHelpText;
     name: string;
     label: string;
@@ -28,7 +28,7 @@ export default class DateField extends CompositeView {
     initialize(options: DateFieldOptions) {
         this.name = options.name;
         this.label = options.label;
-        this.helpText = new TypeAwareHelpText({model: this.model as Node});
+        this.helpText = new TypeAwareHelpText({model: this.model});
         this.additionalHelpText = options.additionalHelpText;
         this.readonly = options.readonly !== undefined ? options.readonly : true;
         this.required = options.required !== undefined ? options.required : false;

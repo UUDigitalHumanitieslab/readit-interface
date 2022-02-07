@@ -1,5 +1,5 @@
 import {
-    find, intersection, extend, isNumber, isBoolean, isString, isDate,
+    find, intersection, extend, isNumber, isBoolean, isString, isDate, chain,
 } from 'lodash';
 import { CompositeView } from '../core/view';
 import { rdfs, xsd } from '../common-rdf/ns';
@@ -13,6 +13,7 @@ import { asLD, Native } from '../common-rdf/conversion';
 import Model from '../core/model';
 
 import typeAwareHelpTemplate from './type-aware-help-template';
+import { getRdfSuperProperties } from '../utilities/linked-data-utilities';
 
 // Selector of template element displaying "all types allowed" help text.
 const allTypesAllowedHelp = 'p.help:first-of-type';
@@ -62,13 +63,14 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
         this.allowedTypesList = new AllowedTypesListHelpText({
             collection: this.range,
         });
-        this.helpTextFromModel(this.model);
-        this.render().updateRange(new Graph(this.model));
+        // this.helpTextFromModel(this.model);
+        this.render().updateRange(this.model);
     }
 
     renderContainer(): this {
         this.$el.html(this.template(this));
         this.$(noMatchHelp).hide();
+        this.$(allTypesAllowedHelp).hide();
         this.detectedTypeHelp.$el.hide();
         return this;
     }
@@ -82,19 +84,26 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
         return this;
     }
 
-    helpTextFromModel(model: Model, setLiteral?: Native): this {
-        setLiteral || (setLiteral = model.get('object'));
-        if (setLiteral) {
-            const jsonld = asLD(setLiteral);
-            // this.literalField.setValue(jsonld['@value']);
-            if (!jsonld['@type']) {
-                jsonld['@type'] = findType(this.range, jsonld['@value']);
-            }
-            this.detectedTypeHelp.model.set({ jsonld });
-        } else {
-            this.detectedTypeHelp.$el.hide();
+    updateRange(predicate: Node): this {
+        this.$(allTypesAllowedHelp).hide();
+        this.allowedTypesList.$el.hide();
+        if (!predicate) {
+            this.range.reset();
+            return this;
         }
-        this.$(noMatchHelp).hide();
+        const allProperties = getRdfSuperProperties([predicate]);
+        this.range.set(
+            chain(allProperties)
+            .map(n => n.get(rdfs.range) as Node[])
+            .flatten()
+            .compact()
+            .value()
+        );
+        if (!this.range.length || this.range.get(rdfs.Literal)) {
+            this.$(allTypesAllowedHelp).show();
+        } else {
+            this.allowedTypesList.$el.show();
+        }
         return this;
     }
 
@@ -112,17 +121,17 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
         }
     }
 
-    updateRange(range: Graph): this {
-        this.$(allTypesAllowedHelp).hide();
-        this.allowedTypesList.$el.hide();
-        this.range = range;
-        if (!this.range.length || this.range.get(rdfs.Literal)) {
-            this.$(allTypesAllowedHelp).show();
-        } else {
-            this.allowedTypesList.$el.show();
-        }
-        return this;
-    }
+    // updateRange(range: Graph): this {
+    //     this.$(allTypesAllowedHelp).hide();
+    //     this.allowedTypesList.$el.hide();
+    //     this.range = range;
+    //     if (!this.range.length || this.range.get(rdfs.Literal)) {
+    //         this.$(allTypesAllowedHelp).show();
+    //     } else {
+    //         this.allowedTypesList.$el.show();
+    //     }
+    //     return this;
+    // }
 
 }
 extend(TypeAwareHelpText.prototype, {
