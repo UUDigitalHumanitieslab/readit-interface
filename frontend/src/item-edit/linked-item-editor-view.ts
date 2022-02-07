@@ -66,7 +66,7 @@ export default class LinkedItemEditor extends CompositeView {
         this.predicatePicker = new Select2Picker({collection: this.collection});
         this.literalField = new InputField();
         this.removeButton = new RemoveButton().on('click', this.close, this);
-        this.typeAwareHelp = new TypeAwareHelpText({collection: this.range});
+        this.typeAwareHelp = new TypeAwareHelpText({model: this.model, collection: this.range});
         this.render().updateRange();
         this.predicateFromModel(this.model).objectFromModel(this.model);
         this.literalField.on('keyup', this.updateObject, this);
@@ -141,8 +141,8 @@ extend(LinkedItemEditor.prototype, {
         view: 'removeButton',
         selector: '.field.has-addons',
     }, {
-        view: 'allowedTypesList',
-        selector: noMatchHelp,
-        method: 'before',
+        view: 'typeAwareHelp',
+        selector: '.field.has-addons',
+        method: 'after',
     }, 'detectedTypeHelp'],
 });
