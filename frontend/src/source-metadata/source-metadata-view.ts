@@ -66,12 +66,11 @@ export default class SourceMetadataView extends CompositeView {
             node.has(rdfs.subClassOf, {'@id':  sourceNS('TFO_TextForm')});
     }
 
-    getOntology() {
+    async getOntology() {
         this.ontologyGraph = ldChannel.request('source-ontology:graph');
-        this.listenToOnce(this.ontologyGraph, 'sync', () => {
-            this.setTypeOptions();
-            this.initDateFields();
-        });
+        await this.ontologyGraph.sync();
+        this.setTypeOptions();
+        this.initDateFields();
     }
 
     setTypeOptions(): void {
