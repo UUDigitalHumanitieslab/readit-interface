@@ -81,7 +81,7 @@ export default class MetadataPanel extends CompositeView {
         this.changes[changedField] = value;
     };
     
-    onSaveClicked(event: JQueryEventObject): this {
+    onSubmit(event: JQueryEventObject): this {
         event.preventDefault();
         if (!isEmpty(this.changes)) {
             this.model.save(this.changes, {patch: true});
@@ -103,6 +103,6 @@ extend(MetadataPanel.prototype, {
         'click .btn-edit': 'toggleEditMode',
         'click .btn-cancel': 'toggleEditMode',
         'click .btn-delete': 'onDeleteClicked',
-        'click .btn-save': 'onSaveClicked',
+        '.submit': 'onSubmit',
     }
 });
