@@ -52,7 +52,7 @@ export default class SourceMetadataView extends CompositeView {
 
     afterRender(): this {
         // Assign names to select2 pickers to ensure form contains their data
-        this.$('#sourceTypeSelect select').attr({ 'name': 'sourceType' });
+        this.$('.sourceTypeSelect select').attr({ 'name': 'sourceType' });
         this.renderValues();
         return this;
     }
