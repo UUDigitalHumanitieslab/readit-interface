@@ -41,13 +41,13 @@ export default class MetadataPanel extends CompositeView {
     }
 
     checkOwnership(model, creators: Node[]): void {
-        if (creators && creators.length) {
-            const creator = creators[0];
-            const creatorId = creator.id || creator['@id'];
-            this.creator = getLabelFromId(creatorId);
-            const userUri = userChannel.request('current-user-uri');
-            if (this.userIsOwner = (creatorId === userUri)) this.render();
-        }
+        const creator = creators[0];
+        const creatorId = creator.id || creator['@id'];
+        this.creator = getLabelFromId(creatorId);
+        const userUri = userChannel.request('current-user-uri');
+        // user can view the source metadata, but not edit when they're not owner
+        this.userIsOwner = (creatorId === userUri);
+        this.render();
         this.dateUploaded = this.model.attributes[sourceOntology('dateUploaded')][0].toLocaleDateString();
     }
 
