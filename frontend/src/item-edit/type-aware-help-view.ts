@@ -63,7 +63,6 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
         this.allowedTypesList = new AllowedTypesListHelpText({
             collection: this.range,
         });
-        // this.helpTextFromModel(this.model);
         this.render().updateRange(this.model);
     }
 
@@ -120,19 +119,6 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
             this.detectedTypeHelp.$el.hide();
         }
     }
-
-    // updateRange(range: Graph): this {
-    //     this.$(allTypesAllowedHelp).hide();
-    //     this.allowedTypesList.$el.hide();
-    //     this.range = range;
-    //     if (!this.range.length || this.range.get(rdfs.Literal)) {
-    //         this.$(allTypesAllowedHelp).show();
-    //     } else {
-    //         this.allowedTypesList.$el.show();
-    //     }
-    //     return this;
-    // }
-
 }
 extend(TypeAwareHelpText.prototype, {
     className: 'rit help-text',
