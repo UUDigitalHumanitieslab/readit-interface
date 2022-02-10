@@ -27,7 +27,7 @@ export default class MetadataPanel extends CompositeView {
 
     initialize(): this {
         this.model.when(dcterms.creator, this.checkOwnership, this);
-        this.identifier = getLabelFromId((this.model.id || this.model['@id']) as string);
+        this.identifier = getLabelFromId(this.model.id as string);
         this.sourceMetadataView = new SourceMetadataView({model: this.model});
         this.render().listenTo(this.model, 'change', this.render);
         this.listenTo(this.sourceMetadataView, 'valueChanged', this.pushChange);
