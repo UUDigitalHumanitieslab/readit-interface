@@ -30,8 +30,8 @@ export default class DateField extends CompositeView<Node> {
         this.label = options.label;
         this.helpText = new TypeAwareHelpText({model: this.model});
         this.additionalHelpText = options.additionalHelpText;
-        this.readonly = options.readonly !== undefined ? options.readonly : true;
-        this.required = options.required !== undefined ? options.required : false;
+        this.readonly = (options.readonly !== false);
+        this.required = (options.required === true);
         this.render();
     }
 
