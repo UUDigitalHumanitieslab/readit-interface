@@ -276,6 +276,19 @@ class SourcesAPISingular(RDFResourceView):
         return inject_fulltext(super().get_graph(request, **kwargs), True, request)
     
     def patch(self, request, format=None, **kwargs):
+        """ given the request data, add triples which don't exist,
+        or amend triples which do exist (both in Fuseki and, if applicable, in Elasticearch).
+        We assume that only one author, one language, 
+        one publication date etc. can be set at any one time.
+        request.body: json of the form
+        {
+            'author': 'Guybrush Threepwood',
+            'title': 'Why I'm the greatest pirate ever',
+            ...   
+        }
+        Only contains the *changes* wrt the previously saved source metadata.
+        The source text itself *cannot* be changed in this request.
+        """
         data = ast.literal_eval(request.body.decode('utf-8'))
         source_uri = get_source_uri(request)
         existing_graph = self.graph()
@@ -331,7 +344,7 @@ class SourcesAPISingular(RDFResourceView):
 
     def delete(self, request, format=None, **kwargs):
         source_uri = get_source_uri(request)
-        bindings = self.assure_source_exists(source_uri)
+        bindings = self.get_source_bindings(source_uri)
         conjunctive = get_conjunctive_graph()
         conjunctive.update(
             SOURCE_DELETE_QUERY, initNs=PREFIXES, initBindings=bindings
@@ -347,11 +360,11 @@ class SourcesAPISingular(RDFResourceView):
         )
         return Response(Graph(), HTTP_204_NO_CONTENT)
     
-    def assure_source_exists(self, source_uri):
+    def get_source_bindings(self, source_uri):
         bindings = {'source': URIRef(source_uri)}
         if not self.graph().query(SOURCE_EXISTS_QUERY, initBindings=bindings):
             raise NotFound('Source \'{}\' not found'.format(source_uri))
-        return bindings, source_uri
+        return bindings
 
 def source_valid(data):
     is_valid = True
