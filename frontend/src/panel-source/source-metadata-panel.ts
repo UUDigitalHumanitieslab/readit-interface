@@ -1,4 +1,4 @@
-import { extend } from 'lodash';
+import { extend, isEmpty } from 'lodash';
 
 import { CompositeView } from '../core/view';
 import userChannel from '../common-user/user-radio';
@@ -83,7 +83,7 @@ export default class MetadataPanel extends CompositeView {
     
     onSaveClicked(event: JQueryEventObject): this {
         event.preventDefault();
-        if (Object.keys(this.changes).length) {
+        if (!isEmpty(this.changes)) {
             this.model.save(this.changes, {patch: true});
         }
         this.toggleEditMode();
