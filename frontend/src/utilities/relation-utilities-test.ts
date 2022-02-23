@@ -123,10 +123,12 @@ describe('relation utilities', function() {
             const otherItems = map(['600', '601'], serial =>
                 ldChannel.request('obtain', item(serial))
             );
-            const relatedFound = map(otherItems, item => relations.findWhere({
-                predicate: descriptionOf,
-                object: item,
-            }));
+            const relatedFound = map(otherItems, item =>
+                relations.find(relation =>
+                    relation.get('predicate') === descriptionOf &&
+                    relation.get('object') === item
+                )
+            );
             each(relatedFound, found => expect(found).toBeDefined());
         });
     });
