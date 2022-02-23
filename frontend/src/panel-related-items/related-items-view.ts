@@ -6,6 +6,9 @@ import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
 import ldChannel from '../common-rdf/radio';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
+import MappedCollection from '../common-adapters/mapped-collection';
+import FilteredCollection from '../common-adapters/filtered-collection';
+import FlatCollection from '../common-adapters/flat-item-collection';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
 import { getLabel, getLabelFromId } from '../utilities/linked-data-utilities';
@@ -16,9 +19,8 @@ import RelatedItemsRelationView from './related-items-relation-view';
 
 const announce = announceRoute('item:related', ['model', 'id']);
 const getPredicateId = r => r.get('predicate').id;
-const groupAsAttributes = (relations, id) => ({ relations, id } as unknown as Model);
 const getObject = r => r.get('object');
-const getRelatedObjects = model => map(model.get('relations'), getObject);
+const combinedId = attr => `${attr.predicate.id}%%%${attr.object.id}`;
 
 export interface ViewOptions extends BaseOpt {
     model: Node;
@@ -27,6 +29,9 @@ export interface ViewOptions extends BaseOpt {
 export default class RelatedItemsView extends CollectionView {
     model: Node;
     predicates: Graph;
+    relations: Collection;
+    relatedItems: Collection<Node>;
+    relatedFlat: FlatCollection;
     itemSerial: string;
 
     constructor(options?: ViewOptions) {
@@ -34,6 +39,14 @@ export default class RelatedItemsView extends CollectionView {
     }
 
     initialize(options: ViewOptions) {
+        this.relations = new Collection();
+        this.relations.modelId = combinedId;
+        this.relatedItems = new MappedCollection(this.relations, getObject);
+        this.relatedItems.stopListening(this.relations, 'remove');
+        this.relatedFlat = new FlatCollection(this.relatedItems).on({
+            focus: this.openItem,
+            blur: this.closeItem,
+        }, this);
         this.collection = new Collection();
         this.initItems().initCollectionEvents();
         this.on('announceRoute', announce);
@@ -43,6 +56,8 @@ export default class RelatedItemsView extends CollectionView {
         const kickoff = after(2, bind(this.initPredicates, this));
         ldChannel.request('ontology:promise').then(kickoff);
         this.model.when('@type', kickoff);
+        this.relations.on('add', this.addRelation, this);
+        this.on('prune-relation', this.removeRelation);
     }
 
     initPredicates(): void {
@@ -54,24 +69,34 @@ export default class RelatedItemsView extends CollectionView {
     updateRelations(model: Node): void {
         if (!this.predicates) return;
         const relations = relationsFromModel(this.model, this.predicates);
-        relations.once('complete', () => {
-            const byPredicate = relations.groupBy(getPredicateId);
-            this.collection.set(map(byPredicate, groupAsAttributes));
-        });
+        relations.once('complete', () => this.relations.set(relations.models));
+    }
+
+    addRelation(model: Model): void {
+        const predicate = model.get('predicate');
+        const id = predicate.id;
+        if (this.collection.has(id)) return;
+        const samePredicate = new FilteredCollection(this.relations, relation =>
+            getPredicateId(relation) === id
+        ).on('update reset', () => this.trigger('prune-relation', id));
+        const sameFlat = new MappedCollection(samePredicate, relation =>
+            this.relatedFlat.get(getObject(relation).id)
+        );
+        this.collection.add({id, predicate, sameFlat});
+    }
+
+    removeRelation(id: string): void {
+        const model = this.collection.get(id);
+        if (model.get('sameFlat').length) return;
+        this.collection.remove(model);
     }
 
     makeItem(model: Model): RelatedItemsRelationView {
-        const predicate = this.predicates.get(model.id);
-        const collection = new Graph(getRelatedObjects(model));
-        model.on('change:relations', m => collection.set(getRelatedObjects(m)))
+        const {predicate, sameFlat} = model.attributes;
         return new RelatedItemsRelationView({
             relationName: getLabel(predicate),
-            model,
-            collection,
-        }).render().on({
-            focus: this.openItem,
-            blur: this.closeItem,
-        }, this);
+            collection: sameFlat,
+        }).render();
     }
 
     renderContainer(): this {
