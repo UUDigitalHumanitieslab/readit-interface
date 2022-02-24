@@ -31,7 +31,10 @@ export default class AnnotationListPanel extends CompositeView<FlatItem> {
         const filter = createFilterView();
         this.filterView = filter.view;
         this.hidden = filter.hidden;
-        this.listenTo(this.annotationList, 'annotation:clicked', this.openAnnotation);
+        this.listenTo(this.collection, {
+            focus: this.openAnnotation,
+            blur: this.closeAnnotation,
+        });
         this.listenTo(this.hidden, 'update', this.broadcastSettings);
         this.broadcastSettings();
         this.render().on('announceRoute', announce);
