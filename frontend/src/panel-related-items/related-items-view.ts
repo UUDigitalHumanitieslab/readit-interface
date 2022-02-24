@@ -23,22 +23,38 @@ const getObject = r => r.get('object');
 const combinedId = attr => `${attr.predicate.id}%%%${attr.object.id}`;
 
 export default class RelatedItemsView extends CollectionView {
+    // Item of which we will display the related items.
     model: Node;
+    // Properties from the ontology that apply to `model`.
     predicates: Graph;
+    // `{predicate, object}` pairs to related items.
     relations: Collection;
+    // Just the `object`s from `relations`. Noninjective mapping!
     relatedItems: Collection<Node>;
+    // Flattened version of `relatedItems`.
     relatedFlat: FlatCollection;
+    // Serial number of `model`, i.e., the final part of its IRI.
     itemSerial: string;
 
     initialize() {
         this.relations = new Collection();
+        // We uniquely identify each relation based on the combination of the
+        // predicate IRI and the object IRI. This prevents double work on
+        // subsequent updates.
         this.relations.modelId = combinedId;
         this.relatedItems = new MappedCollection(this.relations, getObject);
+        // Normally, when a model is removed from the underlying collection, a
+        // MappedCollection will remove the corresponding mapped model. We
+        // prevent this behavior here because the mapping is noninjective. This
+        // is a bit of a stop-gap solution, but it should pose no problem in
+        // this case.
         this.relatedItems.stopListening(this.relations, 'remove');
         this.relatedFlat = new FlatCollection(this.relatedItems).on({
             focus: this.openItem,
             blur: this.closeItem,
         }, this);
+        // Each model in the `collection` represents a group of relations that
+        // have a common predicate. Each such group is presented with a subview.
         this.collection = new Collection();
         this.initItems().initCollectionEvents();
         this.on('announceRoute', announce);
@@ -48,6 +64,7 @@ export default class RelatedItemsView extends CollectionView {
         const kickoff = after(2, bind(this.initPredicates, this));
         ldChannel.request('ontology:promise').then(kickoff);
         this.model.when('@type', kickoff);
+        // Keep `this.collection` in sync with what is in `this.relations`.
         this.relations.on('add', this.addRelation, this);
         this.on('prune-relation', this.removeRelation);
     }
@@ -60,10 +77,14 @@ export default class RelatedItemsView extends CollectionView {
 
     updateRelations(model: Node): void {
         if (!this.predicates) return;
+        // TODO: Ideally, `relationsFromModel` should just return a collection
+        // that stays in sync with the model.
         const relations = relationsFromModel(this.model, this.predicates);
         relations.once('complete', () => this.relations.set(relations.models));
     }
 
+    // Every time a relation is added, we check whether we already have a group
+    // for the predicate of the relation. If not, we add it.
     async addRelation(model: Model): Promise<void> {
         const predicate = model.get('predicate');
         const id = predicate.id;
@@ -71,6 +92,9 @@ export default class RelatedItemsView extends CollectionView {
         const samePredicate = new FilteredCollection(this.relations, relation =>
             getPredicateId(relation) === id
         ).on('update reset', () => this.trigger('prune-relation', id));
+        // We queue the remainder of this function after the end of the current
+        // event loop. This ensures that `this.relatedFlat` has a matching
+        // `FlatItem` for each object in `this.relations`.
         await Promise.resolve(null);
         const sameFlat = new MappedCollection(samePredicate, relation =>
             this.relatedFlat.get(getObject(relation).id)
@@ -78,6 +102,9 @@ export default class RelatedItemsView extends CollectionView {
         this.collection.add({id, predicate, sameFlat});
     }
 
+    // This event handler is called whenever the collection of one of the
+    // subviews updates. We check whether the collection is empty and if so,
+    // remove it.
     removeRelation(id: string): void {
         const model = this.collection.get(id);
         if (model.get('sameFlat').length) return;
