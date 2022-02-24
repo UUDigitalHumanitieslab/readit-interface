@@ -72,13 +72,14 @@ export default class RelatedItemsView extends CollectionView {
         relations.once('complete', () => this.relations.set(relations.models));
     }
 
-    addRelation(model: Model): void {
+    async addRelation(model: Model): Promise<void> {
         const predicate = model.get('predicate');
         const id = predicate.id;
         if (this.collection.has(id)) return;
         const samePredicate = new FilteredCollection(this.relations, relation =>
             getPredicateId(relation) === id
         ).on('update reset', () => this.trigger('prune-relation', id));
+        await Promise.resolve(null);
         const sameFlat = new MappedCollection(samePredicate, relation =>
             this.relatedFlat.get(getObject(relation).id)
         );
