@@ -2,7 +2,7 @@ import { extend, map, after, bind } from 'lodash';
 
 import Model from '../core/model';
 import Collection from '../core/collection';
-import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
+import { CollectionView } from '../core/view';
 import ldChannel from '../common-rdf/radio';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
@@ -22,10 +22,6 @@ const getPredicateId = r => r.get('predicate').id;
 const getObject = r => r.get('object');
 const combinedId = attr => `${attr.predicate.id}%%%${attr.object.id}`;
 
-export interface ViewOptions extends BaseOpt {
-    model: Node;
-}
-
 export default class RelatedItemsView extends CollectionView {
     model: Node;
     predicates: Graph;
@@ -34,11 +30,7 @@ export default class RelatedItemsView extends CollectionView {
     relatedFlat: FlatCollection;
     itemSerial: string;
 
-    constructor(options?: ViewOptions) {
-        super(options);
-    }
-
-    initialize(options: ViewOptions) {
+    initialize() {
         this.relations = new Collection();
         this.relations.modelId = combinedId;
         this.relatedItems = new MappedCollection(this.relations, getObject);
