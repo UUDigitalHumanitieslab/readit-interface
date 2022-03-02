@@ -1,2 +1,6 @@
-<p class="title is-5">{{#if label}}{{label}}{{else}}{{text}}{{/if}}</p>
-<p class="subtitle is-6">({{classLabel}})</p>
+{{#text}}
+<p class="title is-5">{{.}}</p>
+{{/text}}
+<p class="subtitle is-6">{{classLabel}}{{#label
+}}{{#i18n 'interpunction.colon'}}: {{/i18n}}<i>{{.}}</i>{{/label
+}}</p>

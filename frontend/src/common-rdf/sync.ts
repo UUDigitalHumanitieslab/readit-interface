@@ -1,4 +1,4 @@
-import { isArray, omit, map, defaultsDeep, each } from 'lodash';
+import { isArray, map, defaultsDeep, each } from 'lodash';
 import { compact, flatten } from 'jsonld';
 import { parseLinkHeader } from 'jsonld/lib/util';
 import { LINK_HEADER_REL } from 'jsonld/lib/constants';
@@ -55,8 +55,9 @@ export default async function syncLD(
 ): Promise<FlatLdDocument> {
     model.trigger('prerequest', model, options);
     let { success, error, attrs } = options;
-    options = omit(options, 'success', 'error');
-    options = defaultsDeep(options, await defaultSyncOptions());
+    delete options.success;
+    delete options.error;
+    defaultsDeep(options, await defaultSyncOptions());
     let context = model && model.context;
     let jqXHR;
     try {

@@ -1,22 +1,18 @@
-import { partial, isString } from 'lodash';
+import { partial } from 'lodash';
 
 import explorerChannel from '../explorer/explorer-radio';
 import * as act from '../explorer/route-actions';
-import SuggestionsPanel from '../panel-suggestions/suggestions-view';
 import semChannel from '../semantic-search/radio';
 import deparam from '../utilities/deparam';
 import router from '../global/exploration-router';
-import mainRouter from '../global/main-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';
 import welcomeView from '../global/welcome-view';
+import '../global/annotation-hierarchy';
+import '../global/annotation-settings';
 
 const browserHistory = window.history;
-let suggestionsPanel: SuggestionsPanel;
-function resetSuggestionsPanel() {
-    suggestionsPanel = new SuggestionsPanel();
-    explorer.reset(suggestionsPanel);
-}
+
 
 /**
  * Common patterns for the explorer routes.
@@ -31,6 +27,9 @@ const sourceRoute = partial(deepRoute, act.getSource);
 const itemRoute = partial(deepRoute, act.getItem);
 const queryRoute = partial(deepRoute, deparam);
 const semRoute = partial(deepRoute, act.getQuery);
+// Double `partial`. We call the resulting function once to strip off the
+// outermost `partial`, then again to actually invoke `act.resetBrowsePanel`.
+const browseRoute = partial(partial, act.resetBrowsePanel, controller);
 function annoRoute(resetAction) {
     return (sourceSerial, itemSerial) => explorer.scrollOrAction(
         browserHistory.state,
@@ -41,10 +40,6 @@ function annoRoute(resetAction) {
         )
     );
 }
-
-mainRouter.on('route:explore', () => {
-    explorer.scrollOrAction(suggestionsPanel && suggestionsPanel.cid, resetSuggestionsPanel);
-});
 
 router.on({
     'route:source:bare':            sourceRoute(act.sourceWithoutAnnotations),
@@ -60,6 +55,13 @@ router.on({
     'route:item:annotations':       itemRoute(act.itemWithOccurrences),
     'route:search:results:sources': queryRoute(act.searchResultsSources),
     'route:search:results:semantic': semRoute(act.searchResultsSemantic),
+    // Disabling TS on the next two lines because something is off with the
+    // `partial` typing.
+    // @ts-ignore
+    'route:browse:items':            browseRoute('items'),
+    // @ts-ignore
+    'route:browse:sources':          browseRoute('sources'),
+    // Resuming TS from here on.
 });
 
 explorerChannel.on({
@@ -71,17 +73,17 @@ explorerChannel.on({
     'annotationEditView:saveNew': controller.saveNewAnnotation,
     'annotationEditView:save': controller.saveAnnotation,
     'annotationEditView:close': controller.closeEditAnnotation,
-    'category:showRelevantAnnotations': controller.showAnnotationsOfCategory,
     'annotation:showRelated': controller.listRelated,
     'annotation:showAnnotations': controller.listItemAnnotations,
     'annotation:showExternal': controller.listExternal,
     'annotation:editAnnotation': controller.editAnnotation,
     'annotation:newAnnotation': controller.makeNewAnnotation,
-    'relItems:itemClick': controller.openRelated,
+    'relItems:showItem': controller.openRelated,
+    'relItems:hideItem': controller.closeToRight,
     'relItems:edit': controller.editRelated,
+    'relItems:edit-close': controller.closeOverlay,
     'externalItems:edit': controller.editExternal,
     'externalItems:edit-close': controller.closeOverlay,
-    'relItems:edit-close': controller.closeOverlay,
     'source-list:click': controller.pushSourcePair,
     'searchResultList:itemClicked': controller.openSearchResult,
     'searchResultList:itemClosed': controller.closeToRight,
@@ -98,5 +100,4 @@ semChannel.on('presentQuery', welcomeView.presentSemanticQuery, welcomeView);
 welcomeView.on({
     'search:textual': controller.resetSourceListFromSearchResults,
     'search:semantic': controller.resetSemanticSearch,
-    'suggestions:show': controller.showSuggestionsPanel,
 }, controller);

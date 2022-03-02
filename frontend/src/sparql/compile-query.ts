@@ -1,29 +1,57 @@
-import user from '../global/user';
-import ldChannel from '../common-rdf/radio';
+import Model from '../core/model';
+import { source, item, nsTable, nsMap } from '../common-rdf/ns';
+import userChannel from '../common-user/user-radio';
+
 import itemsTemplate from './query-templates/items-for-source-template';
+import countNodesTemplate from './query-templates/count-nodes-template';
+import nodesByUserTemplate from './query-templates/nodes-by-user-template';
+import randomNodesTemplate from './query-templates/random-nodes-template';
 
 export interface OrderByOption {
     expression: string,
     desc: boolean;
 }
 
-export interface NamespaceOption {
-    label: string;
-    prefix: string;
-}
-
 export interface SPARQLQueryOptions {
-    namespaces?: NamespaceOption[];
+    namespaces?: nsTable;
     limit?: number;
     offset?: number;
     orderBy?: OrderByOption[];
 }
 
-export function itemsForSourceQuery(source: string, { ...options }: SPARQLQueryOptions) {
-    let data = { sourceURI: source };
-    const hasAllViewPerm = user.hasPermission('view_all_annotations');
-    if (!hasAllViewPerm) data['userURI'] = ldChannel.request('current-user-uri');
-    const finalData = { ...data, ...options };
+const defaultOptions = {
+    namespaces: nsMap,
+};
 
-    return itemsTemplate(finalData).replace(/ {2,}/g, ' '); // strip double spaces
+export function itemsForSourceQuery(
+    sourceURI: string, options: SPARQLQueryOptions = {}
+) {
+    const data = { ...defaultOptions, sourceURI, ...options };
+    return itemsTemplate(data);
+}
+
+export function countNodesQuery(
+    itemQuery: boolean, options: SPARQLQueryOptions = {}
+) {
+    const data = { ...defaultOptions, itemQuery, ...options };
+    return countNodesTemplate(data);
+}
+
+export function nodesByUserQuery(
+    itemQuery: boolean, options: SPARQLQueryOptions = {}
+) {
+    const userURI = userChannel.request('current-user-uri');
+    if (!userURI) {
+        throw new Error('no authenticated user (hint: await user promise)');
+    }
+    const data = { ...defaultOptions, itemQuery, userURI, ...options };
+    return nodesByUserTemplate(data);
+}
+
+export function randomNodesQuery(
+    itemQuery: boolean, options: SPARQLQueryOptions = { limit: 10 }
+) {
+    const nsLength = (itemQuery ? source() : item()).length;
+    const data = { ...defaultOptions, itemQuery, nsLength, ...options };
+    return randomNodesTemplate(data);
 }

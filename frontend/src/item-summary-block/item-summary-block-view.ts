@@ -19,7 +19,9 @@ export interface ViewOptions extends BViewOptions {
  * with focus/blur interaction. This view is self-rendering.
  */
 export default class ItemSummaryBlockView extends View {
-    setClass: string;
+    model: FlatItem;
+    setClasses: string[];
+
     constructor(options: ViewOptions) {
         super(options);
     }
@@ -28,6 +30,7 @@ export default class ItemSummaryBlockView extends View {
         if (this.model instanceof Node) {
             this.model = new FlatItem(this.model);
         }
+        this.setClasses = [];
         if (this.model['complete']) {
             this._startListening();
         } else {
@@ -44,14 +47,22 @@ export default class ItemSummaryBlockView extends View {
     }
 
     render(): this {
-        this.$el.html(this.template(this.model.attributes));
-        let currentClass = this.model.get('cssClass');
-        if (this.setClass != currentClass) {
-            this.$el.removeClass(this.setClass);
-        }
-        this.$el.addClass(this.model.get('cssClass'));
-        this.setClass = currentClass;
+        this.$el.html(this.template(this.prepareData()));
+        this.$el.removeClass(this.setClasses);
+        this.$el.addClass(this.setClasses = this.model.getFilterClasses());
         return this;
+    }
+
+    prepareData() {
+        let { text, classLabel, label } = this.model.attributes;
+        if (text) {
+            const words = text.trim().split(/\s+/g);
+            if (words.length > 6) {
+                words.splice(3, words.length - 6, '…');
+                text = words.join(' ');
+            }
+        }
+        return { text, classLabel, label };
     }
 
     select(): this {

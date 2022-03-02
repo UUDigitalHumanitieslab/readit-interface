@@ -1,6 +1,6 @@
 import { startStore, endStore } from '../test-util';
 
-import { rdf, rdfs, owl, skos, item } from '../common-rdf/ns';
+import { rdf, rdfs, xsd, owl, skos, item } from '../common-rdf/ns';
 import { FlatLdObject, FlatLdGraph } from '../common-rdf/json';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
@@ -8,6 +8,8 @@ import Graph from '../common-rdf/graph';
 import {
     getLabel,
     getLabelFromId,
+    getTurtleTerm,
+    cssClassCache,
     getCssClassName,
     isRdfsClass,
     isRdfProperty,
@@ -139,7 +141,35 @@ describe('utilities', function () {
         });
     });
 
+    describe('getTurtleTerm', function() {
+        it('returns ns:term format for terms in known namespaces', function() {
+            expect(getTurtleTerm(xsd.string)).toBe('xsd:string');
+            expect(getTurtleTerm(xsd('oopsie'))).toBe('xsd:oopsie');
+            expect(getTurtleTerm(rdfs.Literal)).toBe('rdfs:Literal');
+        });
+
+        it('returns <full-uri> notation otherwise', function() {
+            expect(getTurtleTerm('https://banana.org/banana'))
+                .toBe('<https://banana.org/banana>');
+            expect(getTurtleTerm('banana'))
+                .toBe('<banana>');
+        });
+
+        it('extracts URIs from Nodes', function() {
+            const node = getDefaultNode();
+            expect(getTurtleTerm(node)).toBe('item:Content');
+            node.set('@id', xsd.string);
+            expect(getTurtleTerm(node)).toBe('xsd:string');
+            node.set('@id', 'banana');
+            expect(getTurtleTerm(node)).toBe('<banana>');
+        });
+    });
+
     describe('getCssClassName', function () {
+        afterEach(function() {
+            for (let key in cssClassCache) delete cssClassCache[key];
+        });
+
         it('returns a css class', function () {
             let node = getDefaultNode();
             expect(getCssClassName(node)).toBe('is-readit-content');

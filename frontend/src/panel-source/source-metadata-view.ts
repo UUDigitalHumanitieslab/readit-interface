@@ -1,27 +1,20 @@
 import { extend } from 'lodash';
 
 import View from '../core/view';
-import ldChannel from '../common-rdf/radio';
+import userChannel from '../common-user/user-radio';
 import { dcterms }  from '../common-rdf/ns';
-import Node from '../common-rdf/node';
-import { getLabel, getLabelFromId } from '../utilities/linked-data-utilities';
+import Node, { isNode } from '../common-rdf/node';
+import { getLabel, getTurtleTerm } from '../utilities/linked-data-utilities';
 import explorerChannel from '../explorer/explorer-radio';
 
 import metadataTemplate from './source-metadata-template';
 
 const excludedProperties = [
-    '@id',
-    '@type'
-];
-
-const excludedAttributes = [
-    'fullText',
-    'text',
-    'sameAs'
-];
-
-const externalAttributes = [
-    'inLanguage'
+    '<@id>',
+    '<@type>',
+    'vocab:fullText',
+    'schema:text',
+    'owl:sameAs'
 ];
 
 const sourceDeletionDialog = `
@@ -47,7 +40,7 @@ export default class MetadataView extends View {
         if (creators && creators.length) {
             const creator = creators[0];
             const creatorId = creator.id || creator['@id'];
-            const userUri = ldChannel.request('current-user-uri');
+            const userUri = userChannel.request('current-user-uri');
             if (this.userIsOwner = (creatorId === userUri)) this.render();
         }
     }
@@ -62,18 +55,12 @@ export default class MetadataView extends View {
         this.properties = {};
         for (let attribute in this.model.attributes) {
             // don't include @id, @value, fullText or sameAs info
-            if (excludedProperties.includes(attribute)) {
+            let attributeLabel = getTurtleTerm(attribute);
+            if (excludedProperties.includes(attributeLabel)) {
                 continue;
             }
-            let attributeLabel = getLabelFromId(attribute);
-            if (excludedAttributes.includes(attributeLabel)) {
-                continue;
-            }
-            let value = this.model.get(attribute)[0];
-            if (externalAttributes.includes(attributeLabel)) {
-                const nodeFromUri = ldChannel.request('obtain', value.id);
-                value = getLabel(nodeFromUri);
-            }
+            let value: string | Node = this.model.get(attribute)[0];
+            if (isNode(value)) value = getLabel(value);
             this.properties[attributeLabel] = value;
         }
         return this;
