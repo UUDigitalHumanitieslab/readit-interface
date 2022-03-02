@@ -57,7 +57,6 @@ class AnnotationListView extends CollectionView<FlatItem, ItemSummaryBlock> {
 
     _handleFocus(model: FlatItem): void {
         this.scrollTo(model);
-        this.trigger('annotation:clicked', model);
     }
 
     makeItem(model: FlatItem): ItemSummaryBlock {
