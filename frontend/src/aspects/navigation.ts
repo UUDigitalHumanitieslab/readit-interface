@@ -39,6 +39,9 @@ mainRouter.on('route:leave', () => userFsm.handle('leave'));
 
 explorationRouter.on('route', () => userFsm.handle('explore'));
 
+userFsm.on('enter:entering enter:leaving', () =>
+    mainRouter.navigate('landing', {trigger: true})
+);
 userFsm.on('enter:searching', () => welcomeView.$el.appendTo('#main'));
 userFsm.on('exit:searching', () => welcomeView.$el.detach());
 userFsm.on('enter:uploading', () => {
