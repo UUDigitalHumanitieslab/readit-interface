@@ -18,7 +18,7 @@ export default class MenuView extends View {
     }
 
     login() {
-        return this;
+        return this.trigger('login');
     }
 
     logout() {
@@ -41,6 +41,7 @@ extend(MenuView.prototype, {
     events: {
         "click .navbar-burger": "toggleHamburger",
         "click #logout": "logout",
+        "click #login": "login",
         "click #feedback": "feedback",
         "click .navbar-item:not(.has-dropdown)": "toggleHamburger",
     }
