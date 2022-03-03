@@ -31,10 +31,10 @@ const sourceTally = new SparqlSelectCollection('source');
 // The model containing the statistics that we want to show on the landing page.
 // It will be updated when the above collections are fetched.
 const statistics = new Model({
-    totalItems: 0,
-    totalSources: 0,
-    userItems: 0,
-    userSources: 0,
+    totalItems: '?',
+    totalSources: '?',
+    userItems: '?',
+    userSources: '?',
     username: 'guest',
 });
 

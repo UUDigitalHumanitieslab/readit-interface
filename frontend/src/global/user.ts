@@ -6,7 +6,9 @@ import { staff } from '../common-rdf/ns';
 
 const user = new User();
 const returnUser = constant(user);
-const promise = user.fetch().then(returnUser);
+const promise = user.fetch().then(() => {
+    if (user.has('username')) user.trigger('login:success', user);
+}).then(returnUser);
 
 function getUserURI() {
     const username = user.get('username');
