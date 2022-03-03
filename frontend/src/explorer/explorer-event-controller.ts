@@ -31,6 +31,7 @@ import SourceListPanel from '../panel-source-list/source-list-panel';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import {
     isOntologyClass,
+    isBlank,
 } from '../utilities/linked-data-utilities';
 import { itemsForSourceQuery } from '../sparql/compile-query';
 import SemanticQuery from '../semantic-search/model';
@@ -300,6 +301,9 @@ class ExplorerEventController {
         );
         collection.underlying.add(annotation);
         const flat = collection.get(annotation.id);
+        flat.once('blur', () => {
+            if (isBlank(annotation)) collection.underlying.remove(annotation);
+        });
         const newAnnotationView = this.openSourceAnnotation(listPanel, flat, collection);
         return this.editAnnotation(newAnnotationView, flat);
     }
