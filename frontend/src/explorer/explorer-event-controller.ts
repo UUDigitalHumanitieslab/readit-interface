@@ -263,7 +263,9 @@ class ExplorerEventController {
             }, 250));
         }
         // Nobody is listening for the following event, except when we are
-        // re-focusing as discussed above **and** the route ends in `/edit`.
+        // re-focusing as discussed above **and** the route ends in `/edit`,
+        // **or** we are creating a new annotation because the user selected
+        // text.
         this.trigger('reopen-edit-annotation', newDetailView, model);
         return newDetailView;
     }
@@ -304,8 +306,15 @@ class ExplorerEventController {
         flat.once('blur', () => {
             if (isBlank(annotation)) collection.underlying.remove(annotation);
         });
-        const newAnnotationView = this.openSourceAnnotation(listPanel, flat, collection);
-        return this.editAnnotation(newAnnotationView, flat);
+        let editPanel: AnnoEditView;
+        this.once('reopen-edit-annotation', annoView =>
+            editPanel = this.editAnnotation(annoView, flat)
+        );
+        // Through a cascade of events, the next trigger will invoke
+        // `this.openSourceAnnotation`, which in turn will trigger the event
+        // that causes `editPanel` to be set.
+        flat.trigger('focus', flat);
+        return editPanel;
     }
 
     resetBrowsePanel(queryMode: string | Model, landing: boolean) {
