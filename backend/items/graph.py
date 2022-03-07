@@ -2,7 +2,7 @@ from django.conf import settings
 
 from rdflib import Graph
 
-from .constants import ITEMS_NS, ITEMS_HISTORY_NS
+from .constants import ITEMS_NS, ITEMS_HISTORY_NS, PREANNOS_NS
 
 
 def graph():
@@ -12,3 +12,7 @@ def graph():
 def history():
     """ Edit history of the items. """
     return Graph(settings.RDFLIB_STORE, ITEMS_HISTORY_NS)
+
+
+def preannos_graph():
+    return Graph(settings.RDFLIB_STORE, PREANNOS_NS)
