@@ -3,7 +3,7 @@ from django.contrib.postgres.fields import JSONField
 from django.conf import settings
 
 from rdf.baseclasses import BaseCounter
-from .constants import ITEMS_NS, ITEMS_HISTORY_NS
+from .constants import ITEMS_NS, ITEMS_HISTORY_NS, PREANNOS_NS
 
 
 class ItemCounter(BaseCounter):
@@ -12,6 +12,10 @@ class ItemCounter(BaseCounter):
 
 class EditCounter(BaseCounter):
     namespace = ITEMS_HISTORY_NS
+
+
+class PreannotationCounter(BaseCounter):
+    namespace = PREANNOS_NS
 
 
 class SemanticQuery(models.Model):

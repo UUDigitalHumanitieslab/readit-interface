@@ -8,8 +8,8 @@ from rdflib import Graph, BNode, URIRef
 
 from readit import celery_app
 from ontology.fixture import replace_prefix
-from items.graph import graph as item_graph
-from items.models import ItemCounter
+from items.graph import preannos_graph
+from items.models import PreannotationCounter
 from nlp_ontology.constants import NLP_NS, INSTANCE_NLP_NS
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ def poll_automated_annotations(job_id, timeout):
                 g = replace_prefix(g, NLP_NS, INSTANCE_NLP_NS)
             logger.info('Retrieved {} items from allgo18 server'.format(
                 len(list(g.subjects()))))
-            graph = item_graph()
+            graph = preannos_graph()
             graph += g
             break
         else:
@@ -62,6 +62,6 @@ def replace_bnodes(graph):
 
 
 def generate_uri():
-    counter = ItemCounter.current
+    counter = PreannotationCounter.current
     counter.increment()
     return URIRef(str(counter))
