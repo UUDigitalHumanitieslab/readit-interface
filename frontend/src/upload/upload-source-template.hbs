@@ -1,25 +1,31 @@
 <header>
-    <h3 class="title is-3 page-header">Upload source</h3>
+    <h3 class="title is-3 page-header">{{#i18n 'upload_source'}}Upload source{{/i18n}}</h3>
 </header>
 <div class="section upload-source">
-    
+
     <div class="field form-feedback-bar has-background-success">
-        <p class="help">Source uploaded successfully! Upload another one or <a href="/explore">go to the
-                Explorer</a></p>
+        <p class="help">
+            {{#i18n 'upload_success_before_link'}}Source uploaded successfully! Upload another one or{{/i18n}}
+            <a href="/explore">{{#i18n 'upload_success_link'}}go to the Explorer{{/i18n}}</a>{{#i18n 'upload_success_after_link'}}.{{/i18n}}
+        </p>
     </div>
     <div class="field form-feedback-bar has-background-danger has-text-white">
-        <p class="help">Uploading failed. Please try again and if this error keeps occuring, contact the site
-            administrator. Do you have permission to upload sources?</p>
+        <p class="help">{{#i18n 'upload_failed_help'}}
+            Uploading failed.
+            Please try again and if this error keeps occuring,
+            contact the site administrator.
+            Do you have permission to upload sources?
+        {{/i18n}}</p>
     </div>
     <div class="field is-grouped">
         <div class="control">
-            <button type=submit class="button is-link btn-submit">Submit</button>
+            <button type=submit class="button is-link btn-submit">{{#i18n 'submit'}}Submit{{/i18n}}</button>
         </div>
         <div class="control">
-            <button type=button class="button is-link is-light btn-preview">Preview</button>
+            <button type=button class="button is-link is-light btn-preview">{{#i18n 'preview'}}Preview{{/i18n}}</button>
         </div>
         <div class="control">
-            <button type=reset class="button is-link is-light btn-cancel">Cancel</button>
+            <button type=reset class="button is-link is-light btn-cancel">{{#i18n 'cancel'}}Cancel{{/i18n}}</button>
         </div>
     </div>
 </div>
@@ -27,8 +33,12 @@
     <div class="modal-background"></div>
     <div class="modal-card">
         <header class="modal-card-head">
-            <p class="modal-card-title">Preview source content</p>
-            <button type=button class="delete" aria-label="close">
+            <p class="modal-card-title">{{#i18n 'preview_source'}}Preview source content{{/i18n}}</p>
+            <button
+                type=button
+                class="delete"
+                aria-label="{{#i18n 'close'}}close{{/i18n}}"
+            >
                 <i class="fas fa-times"></i>
             </button>
         </header>

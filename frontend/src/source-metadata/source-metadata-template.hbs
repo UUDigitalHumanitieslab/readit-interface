@@ -1,36 +1,41 @@
 <div class="section source">
     <div class="field">
-        <label class="label">Title</label>
+        <label class="label">{{#i18n 'title'}}Title{{/i18n}}</label>
         <div class="control">
             <input class="input" type="text" name="title" {{#unless readonly}}placeholder="The Voyage of the Dawn Treader"{{/unless}} required {{#readonly}}readonly{{/readonly}}>
         </div>
     </div>
     <div class="field">
-        <label class="label">Author</label>
+        <label class="label">{{#i18n 'author'}}Author{{/i18n}}</label>
         <div class="control">
             <input name="author" class="input" type="text" {{#unless readonly}}placeholder="C.S. Lewis"{{/unless}} required {{#readonly}}readonly{{/readonly}}>
         </div>
     </div>
     <div class="field is-grouped">
         <div class="control">
-            <label class="label">Editor (optional)</label>
+            <label class="label">{{#i18n 'editor_opt'}}Editor (optional){{/i18n}}</label>
             <input name="editor" class="input" type="text" {{#unless readonly}}placeholder="C.S. Lewis"{{/unless}} {{#readonly}}readonly{{/readonly}}>
         </div>
         <div class="control">
-            <label class="label">Publisher (optional)</label>
+            <label class="label">{{#i18n 'publisher_opt'}}Publisher (optional){{/i18n}}</label>
             <input name="publisher" class="input" type="text" {{#unless readonly}}placeholder="Geoffrey Bles"{{/unless}} {{#readonly}}readonly{{/readonly}}>
         </div>
     </div>
     <div class="field">
-        <label class="label">Repository (optional)</label>
+        <label class="label">{{#i18n 'repository_opt'}}Repository (optional){{/i18n}}</label>
         <div class="control">
-            <input name="repository" class="input" type="text"
-                {{#unless readonly}}placeholder="Archive, location, collection, call, fasc, folio"{{/unless}} {{#readonly}}readonly{{/readonly}}>
+            <input
+                name="repository"
+                class="input"
+                type="text"
+                {{#unless readonly}}placeholder="{{#i18n 'repository_placeholder'}}Archive, location, collection, call, fasc, folio{{/i18n}}"{{/unless}}
+                {{#readonly}}readonly{{/readonly}}
+            >
         </div>
     </div>
     {{#upload}}
     <div class="field">
-        <label class="label">File</label>
+        <label class="label">{{#i18n 'file'}}File{{/i18n}}</label>
         <div class="file">
             <label class="file-label has-helptext">
                 <input class="file-input" type="file" name="source" id="source">
@@ -39,44 +44,44 @@
                         <i class="fas fa-upload"></i>
                     </span>
                     <span class="file-label filelabel">
-                        Choose a file…
+                        {{#i18n 'choose_file'}}Choose a file…{{/i18n}}
                     </span>
                 </span>
                 <span class="file-name">
-                    No file selected
+                    {{#i18n 'no_file'}}No file selected{{/i18n}}
                 </span>
             </label>
         </div>
-        <p class="help">Only txt files in UTF-8 encoding (LF for line endings) are supported.</p>
+        <p class="help">{{#i18n 'file_only_txt_utf8_lf'}}Only txt files in UTF-8 encoding (LF for line endings) are supported.{{/i18n}}</p>
     </div>
     {{/upload}}
-    
+
     <div class="field">
-        <label class="label">Language</label>
+        <label class="label">{{#i18n 'language'}}Language{{/i18n}}</label>
         <div class="control" id="languageSelect">
             {{#if readonly}}
             <input name="language" class="input" type="text" readonly>
             {{else}}
             <div class="select has-helptext">
                 <select name='language' size='1'>
-                    <option value="">Select language</option>
-                    <option value="en">English</option>
-                    <option value="de">German</option>
-                    <option value="fr">French</option>
-                    <option value="it">Italian</option>
-                    <option value="cs">Czech</option>
-                    <option value="nl">Dutch</option>
-                    <option value="other">Other</option>
+                    <option value="">{{#i18n 'select_language'}}Select language{{/i18n}}</option>
+                    <option value="en">{{#i18n 'english'}}English{{/i18n}}</option>
+                    <option value="de">{{#i18n 'german'}}German{{/i18n}}</option>
+                    <option value="fr">{{#i18n 'french'}}French{{/i18n}}</option>
+                    <option value="it">{{#i18n 'italian'}}Italian{{/i18n}}</option>
+                    <option value="cs">{{#i18n 'czech'}}Czech{{/i18n}}</option>
+                    <option value="nl">{{#i18n 'dutch'}}Dutch{{/i18n}}</option>
+                    <option value="other">{{#i18n 'other'}}Other{{/i18n}}</option>
                 </select>
             </div>
             {{/if}}
         </div>
-        <p class="help">If the source contains multiple languages,
-            please select 'Other'.</p>
+        <p class="help">{{#i18n 'source_lang_select_help'}}If the source contains multiple languages,
+            please select 'Other'.{{/i18n}}</p>
     </div>
 
     <div class="field">
-        <label class="label">Type of source</label>
+        <label class="label">{{#i18n 'source_type'}}Type of source{{/i18n}}</label>
         {{#if readonly}}
         <div class="control">
             <input name='sourceType' class="input" type="text" readonly>
@@ -85,27 +90,27 @@
         <div class="control sourceTypeSelect">
         </div>
         {{/if}}
-        <p class="help">When in doubt, choose 'Unknown'</p>
+        <p class="help">{{#i18n 'source_type_select_help'}}When in doubt, choose 'Unknown'.{{/i18n}}</p>
     </div>
     <div class="dates">
         {{!date fields with type-aware help will be rendered here}}
     </div>
     <div class="field">
         <div class="control">
-            <label class="label">Source access</label>
+            <label class="label">{{#i18n 'source_access'}}Source access{{/i18n}}</label>
             <label class="radio">
                 <input type="radio" name="public" value="public" checked>
-                Public
+                {{#i18n 'public'}}Public{{/i18n}}
             </label>
             <label class="radio">
                 <input type="radio" name="public" value="private">
-                Private
+                {{#i18n 'private'}}Private{{/i18n}}
             </label>
-            <p class="help">Provide access to everyone (public) or only to authenticated users (private).</p>
+            <p class="help">{{#i18n 'public_private_help'}}Provide access to everyone (public) or only to authenticated users (private).{{/i18n}}</p>
         </div>
     </div>
     <div class="field url">
-        <label class="label">URL (optional)</label>
+        <label class="label">{{#i18n 'url_opt'}}URL (optional){{/i18n}}</label>
         <div class="control">
             <input name="url" class="input" type="url" {{#unless readonly}}placeholder="https://www.wikidata.org/wiki/Q331656"{{/unless}} {{#readonly}}readonly{{/readonly}}>
         </div>
