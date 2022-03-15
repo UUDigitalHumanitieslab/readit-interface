@@ -310,10 +310,11 @@ class ExplorerEventController {
         this.once('reopen-edit-annotation', annoView =>
             editPanel = this.editAnnotation(annoView, flat)
         );
-        // Through a cascade of events, the next trigger will invoke
+        // Through a cascade of synchronous events, the next trigger will invoke
         // `this.openSourceAnnotation`, which in turn will trigger the event
         // that causes `editPanel` to be set.
         flat.trigger('focus', flat);
+        // Hence, `editPanel` is defined by the time this function returns.
         return editPanel;
     }
 
