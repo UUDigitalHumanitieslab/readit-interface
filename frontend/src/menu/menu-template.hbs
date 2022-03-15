@@ -1,11 +1,20 @@
-<nav class="navbar" role="navigation" aria-label="main navigation">
+<nav
+    class="navbar"
+    role="navigation"
+    aria-label="{{#i18n 'main_navigation'}}main navigation{{/i18n}}"
+>
     <div class="container">
         <div class="navbar-brand">
             <a class="navbar-item" href="/">
                 <img src="{{static 'image/read-it-logo-med-colour-no-letters.png'}}" alt="Read-It">
             </a>
-            <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
-                data-target="navbarMenu">
+            <a
+                role="button"
+                class="navbar-burger burger"
+                aria-label="{{#i18n 'menu'}}menu{{/i18n}}"
+                aria-expanded="false"
+                data-target="navbarMenu"
+            >
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
@@ -47,7 +56,7 @@
                     </div>
                 </div>
                 {{#if uploadSources}}
-                <a class="navbar-item tooltip is-tooltip-left" 
+                <a class="navbar-item tooltip is-tooltip-left"
                     data-tooltip="{{#i18n 'upload_tooltip'}}Upload reading testimonies for annotation{{/i18n}}" href="/upload">
                     <span class="icon-text">
                         <span class="icon is-small has-text-primary">

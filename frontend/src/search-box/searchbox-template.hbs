@@ -3,13 +3,20 @@
         <a class="button is-info"
             href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html#simple-query-string-syntax"
             target="_blank">
-            <span class="icon is-small tooltip is-tooltip-top" data-tooltip="View documentation of search operators">
+            <span
+                class="icon is-small tooltip is-tooltip-top"
+                data-tooltip="{{#i18n 'view_operator_docs'}}View documentation of search operators{{/i18n}}"
+            >
                 <i class="fas fa-question" aria-hidden="true"></i>
             </span>
         </a>
     </div>
     <div class="control is-expanded">
-        <input class="input" type="text" placeholder="Search our database">
+        <input
+            class="input"
+            type="text"
+            placeholder="{{#i18n 'search_database'}}Search our database{{/i18n}}"
+        >
     </div>
     <div class="dropdown is-hoverable">
         <div class="dropdown-trigger">

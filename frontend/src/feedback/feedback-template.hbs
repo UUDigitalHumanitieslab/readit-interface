@@ -20,14 +20,24 @@
         <div class="field">
             <label class="label">{{#i18n 'subject'}}Subject{{/i18n}}</label>
             <div class="control">
-                <input name="subject" class="input" type="text" name="title" placeholder="About READ-IT">
+                <input
+                    name="subject"
+                    class="input"
+                    type="text"
+                    name="title"
+                    placeholder="{{#i18n 'about_readit'}}About READ-IT{{/i18n}}"
+                >
             </div>
         </div>
 
         <div class="field">
             <div class="control">
                 <label class="label">{{#i18n 'feedback'}}Feedback{{/i18n}}</label>
-                <textarea name="feedback" class="textarea" placeholder="e.g. I love READ-IT!"></textarea>
+                <textarea
+                    name="feedback"
+                    class="textarea"
+                    placeholder="{{#i18n 'feedback_placeholder'}}e.g. I love READ-IT!{{/i18n}}"
+                ></textarea>
             </div>
         </div>
 
@@ -52,4 +62,8 @@
     </form>
 
 </div>
-<button type=button class="modal-close is-large" aria-label="close"></button>
+<button
+    type=button
+    class="modal-close is-large"
+    aria-label="{{#i18n 'close'}}close{{/i18n}}"
+></button>

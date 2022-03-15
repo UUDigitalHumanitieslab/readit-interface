@@ -1,9 +1,12 @@
 <figure class="image notfound">
-    <img src="{{static 'image/404.svg'}}" alt="404 Not Found">
+    <img
+        src="{{static 'image/404.svg'}}"
+        alt="{{#i18n 'not_found_alt'}}404 Not Found{{/i18n}}"
+    >
 </figure>
-<p>
+<p>{{{#i18n 'not_found_text'}}}
     Oops, this page doesn't seem to exist.
     You can <a onclick="history.back()">go back</a>,
     visit <a href="/landing">Landing</a> or <a href="/search">Search</a>,
     or report a problem to the maintainers.
-</p>
+{{{/i18n}}}</p>

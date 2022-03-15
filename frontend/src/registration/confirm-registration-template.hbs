@@ -3,7 +3,7 @@
     <form class="box is-narrow-modal-form">
     {{#if isConfirmed}}
     <h3 class="title is-3">{{#i18n 'confirmation_complete'}}Confirmation complete{{/i18n}}</h3>
-    <p>{{#i18n 'sign_up_thanks'}}Thank you for signing up. You can now {{/i18n}}<a href='search'>{{#i18n 'login'}}login{{/i18n}}</a></p>
+    <p>{{#i18n 'sign_up_thanks_before_link'}}Thank you for signing up. You can now {{/i18n}}<a href='search'>{{#i18n 'sign_up_thanks_link'}}login{{/i18n}}</a>{{#i18n 'sign_up_thanks_after_link'}}.{{/i18n}}</p>
     {{/if}}
 
     {{#if wasNotFound}}

@@ -15,7 +15,14 @@
         <div class="field">
             <label class="label">{{#i18n 'username'}}Username{{/i18n}}</label>
             <div class="control">
-                <input name="username" class="input" type="text" name="title" placeholder="Username" required>
+                <input
+                    name="username"
+                    class="input"
+                    type="text"
+                    name="title"
+                    placeholder="{{#i18n 'username'}}Username{{/i18n}}"
+                    required
+                >
             </div>
         </div>
 
@@ -29,13 +36,24 @@
         <div class="field">
             <div class="control">
                 <label class="label">{{#i18n 'password'}}Password{{/i18n}}</label>
-                <input name="password1" id="password" class="input" type="password" placeholder="Password">
+                <input
+                    name="password1"
+                    id="password"
+                    class="input"
+                    type="password"
+                    placeholder="{{#i18n 'password'}}Password{{/i18n}}"
+                >
             </div>
         </div>
 
         <div class="field">
             <div class="control">
-                <input name="password2" class="input" type="password" placeholder="Repeat password">
+                <input
+                    name="password2"
+                    class="input"
+                    type="password"
+                    placeholder="{{#i18n 'repeat_password'}}Repeat password{{/i18n}}"
+                >
             </div>
         </div>
 

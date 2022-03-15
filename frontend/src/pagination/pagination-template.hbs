@@ -1,4 +1,8 @@
-<nav class="pagination is-centered" role="navigation" aria-label="pagination">
+<nav
+    class="pagination is-centered"
+    role="navigation"
+    aria-label="{{#i18n 'pagination'}}pagination{{/i18n}}"
+>
     <a class="pagination-previous">
         <i class="fas fa-chevron-left"></i>
     </a>
@@ -8,7 +12,11 @@
     <ul class="pagination-list">
         {{#if showPaginationLinks.start}}
         <li>
-            <a id="page-first" class="pagination-link" aria-label="Goto page 1">1</a>
+            <a
+                id="page-first"
+                class="pagination-link"
+                aria-label="{{#i18n 'to_first_page'}}Go to page 1{{/i18n}}"
+            >1</a>
         </li>
         {{/if}}
         {{#if showPaginationLinks.ellipsisStart}}
@@ -34,7 +42,11 @@
         {{/if}}
         {{#if showPaginationLinks.end}}
         <li>
-            <a id="page-last" class="pagination-link" aria-label="Goto last page">{{totalPages}}</a>
+            <a
+                id="page-last"
+                class="pagination-link"
+                aria-label="{{#i18n 'to_last_page'}}Go to last page{{/i18n}}"
+            >{{totalPages}}</a>
         </li>
         {{/if}}
     </ul>
