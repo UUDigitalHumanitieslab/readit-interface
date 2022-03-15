@@ -1,6 +1,6 @@
-import { extend } from 'lodash';
+import { extend, delay } from 'lodash';
 import { Events } from 'backbone';
-import { t } from 'i18next';
+import * as i18next from 'i18next';
 
 import View from '../core/view';
 import Model from '../core/model';
@@ -121,7 +121,7 @@ class ExplorerEventController {
                     // FlatItem from `result`, since they come from distinct
                     // collections.
                     const flat = collection.get(annotation.id);
-                    flat.trigger('focus', flat);
+                    delay(() => flat.trigger('focus', flat), 250);
                 });
             }
         } else {
@@ -172,7 +172,7 @@ class ExplorerEventController {
         const flatItems = new FlatItemCollection(items);
         const filteredItems = new FilteredCollection(flatItems, 'annotation');
         const resultView = new SearchResultListPanel({
-            title: t('heading.annotations', 'Annotations'),
+            title:i18next.t('heading.annotations', 'Annotations'),
             model: item,
             collection: filteredItems,
             selectable: false,
@@ -238,7 +238,7 @@ class ExplorerEventController {
 
     closeEditAnnotation(editView: AnnoEditView): void {
         const id = editView.model.id;
-        if (id && !id.startsWith('_:')) {
+        if (id && !(id as string).startsWith('_:')) {
             this.explorerView.removeOverlay(editView);
         }
         else {
@@ -253,13 +253,14 @@ class ExplorerEventController {
         this.explorerView.popUntil(listView).push(newDetailView);
         // Focus might not work if the collection isn't complete yet. In that
         // case, re-focus when it is complete. This will cause
-        // `openSourceAnnotation` to run again.
-        if (!collection.get(model)) collection.once(
-            'complete:all', () => collection.once('sort', () => {
+        // `openSourceAnnotation` to run again. We delay the handler, because
+        // sorting might or might not kick in one more time after complete:all.
+        if (!collection.get(model)) {
+            collection.once('complete:all', () => delay(() => {
                 model = collection.get(model);
                 model.trigger('focus', model);
-            })
-        );
+            }, 250));
+        }
         // Nobody is listening for the following event, except when we are
         // re-focusing as discussed above **and** the route ends in `/edit`.
         this.trigger('reopen-edit-annotation', newDetailView, model);

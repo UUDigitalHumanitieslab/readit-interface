@@ -6,6 +6,7 @@ import AuthorizationFsm, { requireAuthorization } from './user-fsm-base';
  * this.
  */
 const unprivilegedState = {
+    enter: requireAuthorization,
     leave: 'leaving',
     search: requireAuthorization,
     explore: requireAuthorization,
@@ -20,6 +21,7 @@ const unprivilegedState = {
  * the "arriving" state below for an example of how to extend this.
  */
 const privilegedState = {
+    enter: 'entering',
     leave: 'leaving',
     search: 'searching',
     explore: 'exploring',
@@ -40,6 +42,7 @@ export default AuthorizationFsm.extend({
     // AuthorizationFsm.
     states: {
         travelling: unprivilegedState,
+        entering: privilegedState,
         leaving: unprivilegedState,
         searching: privilegedState,
         authorizationGranted: privilegedState,

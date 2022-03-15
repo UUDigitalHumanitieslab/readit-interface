@@ -1,9 +1,9 @@
 {
   "name": "READ-IT-application",
-  "version": "0.13.1",
+  "version": "0.14.1",
   "description": "Public interface for READ-IT",
   "author": "UU Digital Humanities Lab",
-  "license": "BSD-3-Clause",
+  "license": "cc-by-nc-sa 4.0",
   "repository": "github:UUDigitalHumanitieslab/readit-interface",
   "private": true,
   "scripts": {

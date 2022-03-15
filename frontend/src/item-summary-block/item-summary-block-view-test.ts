@@ -11,7 +11,7 @@ import ItemSummaryBlock from './item-summary-block-view';
 function expectSuccessfulRender(view: ItemSummaryBlock) {
     const text = view.$el.text();
     expect(text).toContain('The Idler in France');
-    expect(text).toContain('(Content)');
+    expect(text).toContain('Content');
     expect(view.el).toHaveClass('is-readit-content');
 }
 

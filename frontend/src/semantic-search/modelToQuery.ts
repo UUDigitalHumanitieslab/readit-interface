@@ -108,8 +108,8 @@ function nextVariable(): string {
  */
 export function serializePredicate(predicate: Node, ns: nsTable): string {
     const inverse = predicate.get(owl.inverseOf) as Node[];
-    if (inverse && inverse.length) return `^${serializeIri(inverse[0].id, ns)}`;
-    return serializeIri(predicate.id, ns);
+    if (inverse && inverse.length) return `^${serializeIri(inverse[0].id as string, ns)}`;
+    return serializeIri(predicate.id as string, ns);
 }
 
 function serializePath(predicates: Node[], ns: nsTable): string {

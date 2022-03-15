@@ -1,6 +1,6 @@
 import { each } from 'lodash';
 import { history } from 'backbone';
-import { t } from 'i18next';
+import * as i18next from 'i18next';
 
 import Collection from '../core/collection';
 import { xsd } from '../common-rdf/ns';
@@ -118,7 +118,7 @@ export const groupLabels = new Collection([{
 
 function translateLabel(model) {
     const { label, i18nKey } = model.attributes;
-    model.set('label', t(i18nKey, label));
+    model.set('label', i18next.t(i18nKey, label));
 }
 
 function translateCollection(collection) {

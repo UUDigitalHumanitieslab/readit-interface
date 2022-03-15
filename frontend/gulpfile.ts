@@ -6,11 +6,15 @@ import { Readable } from 'stream';
 import { src, dest, symlink, parallel, series, watch as watchApi } from 'gulp';
 import * as vinylStream from 'vinyl-source-stream';
 import * as vinylBuffer from 'vinyl-buffer';
+import * as nodeSass from 'node-sass';
 import * as log from 'fancy-log';
 import * as exorcist from 'exorcist';
 import globbedBrowserify from 'gulp-browserify-watchify-glob';
 import * as loadPlugins from 'gulp-load-plugins';
 const plugins = loadPlugins();
+// verderop na const plugins = loadPlugins();
+const sass = plugins.sass(nodeSass);
+
 
 import * as browserify from 'browserify';
 import * as tsify from 'tsify';
@@ -27,6 +31,7 @@ import { JSDOM, VirtualConsole } from 'jsdom';
 import * as through2 from 'through2';
 import chalk from 'chalk';
 import * as i18nextParser from 'i18next-parser';
+
 
 type LibraryProps = {
     module: string,
@@ -66,10 +71,10 @@ const sourceDir = `src`,
     jsModuleType = `commonjs`,
     tsOptions = {
         target: `es5`,
-        lib: ['DOM', 'ES5', 'ES6', 'DOM.Iterable', 'ScriptHost'],
+        lib: ['DOM', 'ES5', 'ES6', 'es2020.string', 'DOM.Iterable', 'ScriptHost'],
         resolveJsonModule: true,
         paths: { configModuleName: indexConfig },
-        baseUrl: '.',
+        baseUrl: '.'
     },
     aliasOptions = {
         aliases: { [configModuleName]: `./${indexConfig}` },
@@ -332,7 +337,7 @@ export function style() {
     if (production) postcssPlugins.push(cssnano());
     return src(mainStylesheet)
         .pipe(ifNotProd(plugins.sourcemaps.init()))
-        .pipe(plugins.sass({ includePaths: [nodeDir] }))
+        .pipe(sass({ includePaths: [nodeDir] }))
         .pipe(plugins.postcss(postcssPlugins))
         .pipe(plugins.rename(cssBundleName))
         .pipe(ifNotProd(plugins.sourcemaps.write('.')))

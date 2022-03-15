@@ -149,11 +149,6 @@ export interface CollectionView<M extends Model = Model, SV extends BView = View
     collection: Collection<M>;
     render(): this;
     remove(): this;
-    // SomeType<TypeParam>['someName'] means "the type of the
-    // .someName property of instances of type SomeType<TypeParam>".
-    setElement: View<M>['setElement'];
-    delegate: View<M>['delegate'];
-    undelegate: View<M>['undelegate'];
 }
 
 // step 3: perform the actual mixin

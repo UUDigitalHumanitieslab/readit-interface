@@ -92,6 +92,15 @@
                         </a>
                     </div>
                 </div>
+                {{else}}
+                <a class="navbar-item" id=login href="/enter">
+                    <span class="icon-text">
+                        <span class="icon is-small has-text-primary">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </span>
+                        <span>{{#i18n 'login'}}Login{{/i18n}}</span>
+                    </span>
+                </a>
                 {{/if}}
             </div>
         </div>

@@ -24,6 +24,7 @@ import viewHierarchy from '../hierarchy/hierarchy-view';
 import explorerChannel from '../explorer/explorer-radio';
 
 import terminalTemplate from './filter-terminal-template';
+import FlatItem from '../common-adapters/flat-item-model';
 
 /**
  * Very basic view for the labels of non-category terminals in the hierarchy.
@@ -61,7 +62,7 @@ export class FilterOption extends CompositeView {
     initialize(options): void {
         this.hidden = options.hidden;
         const LabelClass = this.model.has('class') ? Label : PlainLabel;
-        this.label = new LabelClass({ model: this.model });
+        this.label = new LabelClass({ model: this.model as FlatItem });
         this.render();
     }
 

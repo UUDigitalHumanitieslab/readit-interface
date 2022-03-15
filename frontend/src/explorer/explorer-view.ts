@@ -49,7 +49,7 @@ export default class ExplorerView extends View {
         this.$el.on('scroll', debounce(bind(this.onScroll, this), 500));
     }
 
-    render(): View {
+    render(): this {
         this.$spacer.detach();
         for (let panelStack of this.stacks) {
             panelStack.render().$el.appendTo(this.$el);

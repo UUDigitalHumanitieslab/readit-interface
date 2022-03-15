@@ -47,10 +47,22 @@ export default class ItemSummaryBlockView extends View {
     }
 
     render(): this {
-        this.$el.html(this.template(this.model.attributes));
+        this.$el.html(this.template(this.prepareData()));
         this.$el.removeClass(this.setClasses);
         this.$el.addClass(this.setClasses = this.model.getFilterClasses());
         return this;
+    }
+
+    prepareData() {
+        let { text, classLabel, label } = this.model.attributes;
+        if (text) {
+            const words = text.trim().split(/\s+/g);
+            if (words.length > 6) {
+                words.splice(3, words.length - 6, '…');
+                text = words.join(' ');
+            }
+        }
+        return { text, classLabel, label };
     }
 
     select(): this {
