@@ -3,7 +3,7 @@
     "description": "Public interface for READ-IT (frontend)",
     "repository": "github:UUDigitalHumanitieslab/readit-interface",
     "author": "UU Digital Humanities Lab",
-    "license": "BSD-3-Clause",
+    "license": "cc-by-nc-sa 4.0",
     "private": true,
     "browserslist": [
         "defaults",
