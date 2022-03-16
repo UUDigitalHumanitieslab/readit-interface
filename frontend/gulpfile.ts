@@ -30,7 +30,7 @@ import { argv } from 'yargs';
 import { JSDOM, VirtualConsole } from 'jsdom';
 import * as through2 from 'through2';
 import chalk from 'chalk';
-import * as i18nextParser from 'i18next-parser';
+import { gulp as i18nextParser } from 'i18next-parser';
 
 
 type LibraryProps = {
