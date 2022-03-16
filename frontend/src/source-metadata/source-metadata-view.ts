@@ -1,5 +1,6 @@
 import { extend } from 'lodash';
 import { ViewOptions as BaseOpt } from 'backbone';
+import * as i18next from 'i18next';
 
 import { rdfs, sourceOntology as sourceNS, sourceOntologyPrefix } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
@@ -83,23 +84,23 @@ export default class SourceMetadataView extends CompositeView {
             model: this.getNode('datePublished'),
             name: 'datePublished',
             required: true,
-            label: 'Publication date',
-            additionalHelpText: `<a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO formatted
-                date with optional time and timezone</a>, or free-form text`,
+            label: i18next.t('publication_date', 'Publication date'),
+            additionalHelpText: i18next.t('publication_date_help', `<a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO formatted
+                date with optional time and timezone</a>, or free-form text`),
             readonly: this.readonly
         });
         this.creationDateField = new DateField({
             model: this.getNode('dateCreated'),
             name: 'dateCreated',
-            label: 'Creation date (optional)',
-            additionalHelpText: 'If known and different from publishing date, specify creation date.',
-            readonly: this.readonly      
+            label: i18next.t('creation_date_opt', 'Creation date (optional)'),
+            additionalHelpText: i18next.t('creation_date_help', 'If known and different from publishing date, specify creation date.'),
+            readonly: this.readonly
         });
         this.retrievalDateField = new DateField({
             model: this.getNode('dateRetrieved'),
             name: 'dateRetrieved',
-            label: 'Retrieval date (optional)',
-            additionalHelpText: 'Date (and optional time) at which the source was accessed or retrieved.',
+            label: i18next.t('retrieval_date_opt', 'Retrieval date (optional)'),
+            additionalHelpText: i18next.t('retrieval_date_help', 'Date (and optional time) at which the source was accessed or retrieved.'),
             readonly: this.readonly
         });
         this.render();
@@ -142,7 +143,7 @@ export default class SourceMetadataView extends CompositeView {
         const value = this.$(`[name='` + `${changedField}` + `']`).val();
         const existingValue = this.model.get(sourceNS(changedField));
         if (existingValue !== [value]) {
-            this.trigger('valueChanged', changedField, value);   
+            this.trigger('valueChanged', changedField, value);
         }
     }
 }
