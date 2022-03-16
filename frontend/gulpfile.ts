@@ -95,6 +95,7 @@ const sourceDir = `src`,
     hbsGlobal = 'Handlebars',
     i18nModuleTail = 'dist/umd/i18next',
     i18nModule = `i18next/${i18nModuleTail}`,
+    i18nDir = `${sourceDir}/i18n`,
     styleDir = `${sourceDir}/style`,
     mainStylesheet = `${styleDir}/main.sass`,
     styleSourceGlob = `${styleDir}/*.sass`,
@@ -292,10 +293,10 @@ function reportBundleError(errorObj) {
 export function i18nParse() {
     return src(sourceDir)
         .pipe(new i18nextParser({
-          locales: ['en', 'fr'],
-          output: 'locales/$LOCALE/$NAMESPACE.json'
+            locales: ['en', 'fr'],
+            output: `${i18nDir}/$LOCALE/$NAMESPACE.json`
         }))
-        .pipe(dest(`${sourceDir}/i18n`));
+        .pipe(dest('.'));
 }
 
 function jsBundle() {
