@@ -294,7 +294,13 @@ export function i18nParse() {
     return src(`${sourceDir}/**`)
         .pipe(new i18nextParser({
             locales: ['en', 'fr'],
-            output: `${i18nDir}/$LOCALE/$NAMESPACE.json`
+            output: `${i18nDir}/$LOCALE/$NAMESPACE.json`,
+            lexers: {
+                hbs: [{
+                    lexer: 'HandlebarsLexer',
+                    functions: ['i18n'],
+                }],
+            },
         }))
         .pipe(dest('.'));
 }
