@@ -289,7 +289,7 @@ function reportBundleError(errorObj) {
     log.error(chalk.red(errorObj.message));
 }
 
-function i18nParse() {
+export function i18nParse() {
     return src(sourceDir)
         .pipe(new i18nextParser({
           locales: ['en', 'fr'],
