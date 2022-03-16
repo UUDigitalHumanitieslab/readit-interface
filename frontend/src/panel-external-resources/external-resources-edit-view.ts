@@ -1,4 +1,5 @@
 import { extend } from 'lodash';
+import * as i18next from 'i18next';
 
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
@@ -25,5 +26,5 @@ export default class ExternalResourcesEditView extends FieldEditingPanel {
 }
 
 extend(ExternalResourcesEditView.prototype, {
-    title: 'Edit external resources',
+    title: i18next.t('edit_external_resources', 'Edit external resources'),
 });

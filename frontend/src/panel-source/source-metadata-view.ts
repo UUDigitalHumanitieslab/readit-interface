@@ -1,4 +1,5 @@
 import { extend } from 'lodash';
+import * as i18next from 'i18next';
 
 import View from '../core/view';
 import userChannel from '../common-user/user-radio';
@@ -17,11 +18,11 @@ const excludedProperties = [
     'owl:sameAs'
 ];
 
-const sourceDeletionDialog = `
+const sourceDeletionDialog = i18next.t('source_delete_confirm', `
 Are you sure you want to delete this source?
 If you delete this source, all its annotation will be deleted as well, including any annotations that other users may have made.
 This cannot be undone.
-`;
+`);
 
 export default class MetadataView extends View {
     /**

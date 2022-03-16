@@ -1,4 +1,5 @@
 import { extend } from 'lodash';
+import * as i18next from 'i18next';
 
 import View from '../core/view';
 import FlatItem from '../common-adapters/flat-item-model';
@@ -6,7 +7,7 @@ import FlatItem from '../common-adapters/flat-item-model';
 import snippetTemplate from './snippet-template';
 
 export default class SnippetView extends View<FlatItem> {
-    ellipsis = "(...)";
+    ellipsis = i18next.t('interpunction.paragraph_ellipsis', '(...)');
     trimmedTitle: boolean;
     trimmedStart: boolean;
     trimmedEnd: boolean;

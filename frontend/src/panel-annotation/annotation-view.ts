@@ -1,4 +1,5 @@
 import { extend, includes } from 'lodash';
+import * as i18next from 'i18next';
 
 import { CompositeView } from '../core/view';
 import Node, { isNode } from '../common-rdf/node';
@@ -49,7 +50,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         if (annotation) {
             this.annotationMetadataView = new ItemMetadataView({
                 model: annotation,
-                title: 'Annotation metadata'
+                title: i18next.t('annotation_metadata', 'Annotation metadata')
             });
         }
     }

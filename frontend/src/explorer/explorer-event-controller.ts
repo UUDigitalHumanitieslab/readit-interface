@@ -311,10 +311,11 @@ class ExplorerEventController {
             landing = false;
         }
         const title = `${landing ? 'My' : 'Sample'} ${queryMode}`;
+        const i18nKey = title.toLowerCase().replace(' ', '_');
         const endpoint = `${queryMode}:${landing ? 'user' : 'sample'}`;
         const collection = new FlatItemCollection(ldChannel.request(endpoint));
         const browsePanel = new SearchResultListPanel({
-            title,
+            title: i18next.t(i18nKey, title),
             collection,
             selectable: false,
         });

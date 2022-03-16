@@ -1,4 +1,5 @@
 import { extend } from 'lodash';
+import * as i18next from 'i18next';
 
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
@@ -25,5 +26,5 @@ export default class RelatedItemsEditor extends FieldEditingPanel {
 }
 
 extend(RelatedItemsEditor.prototype, {
-    title: 'Edit related items',
+    title: i18next.t('edit_related_items', 'Edit related items'),
 });
