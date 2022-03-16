@@ -291,7 +291,7 @@ function reportBundleError(errorObj) {
 }
 
 export function i18nParse() {
-    return src(sourceDir)
+    return src(`${sourceDir}/**`)
         .pipe(new i18nextParser({
             locales: ['en', 'fr'],
             output: `${i18nDir}/$LOCALE/$NAMESPACE.json`
