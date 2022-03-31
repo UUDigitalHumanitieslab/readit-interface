@@ -31,6 +31,7 @@ import { JSDOM, VirtualConsole } from 'jsdom';
 import * as through2 from 'through2';
 import chalk from 'chalk';
 import { gulp as i18nextParser } from 'i18next-parser';
+import HbsI18nLexer from 'handlebars-i18next-parser';
 
 
 type LibraryProps = {
@@ -296,10 +297,7 @@ export function i18nParse() {
             locales: ['en', 'fr'],
             output: `${i18nDir}/$LOCALE/$NAMESPACE.json`,
             lexers: {
-                hbs: [{
-                    lexer: 'HandlebarsLexer',
-                    functions: ['i18n'],
-                }],
+                hbs: [HbsI18nLexer],
             },
         }))
         .pipe(dest('.'));
