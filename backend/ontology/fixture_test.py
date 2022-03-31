@@ -33,5 +33,5 @@ def test_canonical_graph():
     g = canonical_graph()
     assert len(g) > 0
     text = g.serialize(format='n3')
-    assert ONTOLOGY_NS.encode() in text
-    assert SOURCE_PREFIX == ONTOLOGY_NS or SOURCE_PREFIX.encode() not in text
+    assert ONTOLOGY_NS in text
+    assert SOURCE_PREFIX == ONTOLOGY_NS or SOURCE_PREFIX not in text
