@@ -18,3 +18,4 @@ TESTRUNNER_FILE_PATH = 'trivial.html'
 STATICFILES_DIRS += [
     op.join(BASE_DIR, 'readit', 'test_static'),
 ]
+IRISA_TOKEN = 'This is not the token you are looking for'
