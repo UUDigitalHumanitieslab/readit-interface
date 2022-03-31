@@ -36,10 +36,11 @@ RDF_NAMESPACE_ROOT = 'http://{}:8000/'.format(RDF_NAMESPACE_HOST)
 ALLOWED_HOSTS = []
 
 # Default store for our graphs.
-RDFLIB_STORE_PREFIX = 'http://localhost:3030/readit'
+TRIPLESTORE_NAMESPACE = 'readit'
+TRIPLESTORE_SPARQL_ENDPOINT = f'http://localhost:9999/blazegraph/namespace/{TRIPLESTORE_NAMESPACE}/sparql'
 RDFLIB_STORE = SPARQLUpdateStore(
-    queryEndpoint='{}/query'.format(RDFLIB_STORE_PREFIX),
-    update_endpoint='{}/update'.format(RDFLIB_STORE_PREFIX),
+    query_endpoint=TRIPLESTORE_SPARQL_ENDPOINT,
+    update_endpoint=TRIPLESTORE_SPARQL_ENDPOINT,
 )
 
 # Celery configuration
