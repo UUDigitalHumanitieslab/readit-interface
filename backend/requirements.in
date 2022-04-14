@@ -10,7 +10,6 @@ elasticsearch
 rdflib>6
 rdflib-django3
 requests
-keepalive
 psycopg2
 pytest
 pytest-django

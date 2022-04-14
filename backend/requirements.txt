@@ -30,7 +30,6 @@ execnet==1.7.1            # via pytest-xdist
 idna==2.8                 # via requests
 iniconfig==1.1.1          # via pytest
 isodate==0.6.0            # via rdflib
-keepalive==0.5            # via -r requirements.in
 kombu==5.0.2              # via celery
 oauthlib==3.1.0           # via requests-oauthlib
 packaging==19.1           # via pytest
