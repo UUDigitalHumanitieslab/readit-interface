@@ -15,3 +15,6 @@ trim_trailing_whitespace = true
 
 [**/package.json]
 indent_size = 2
+
+[frontend/src/i18n/*/translation.json]
+indent_size = 2
