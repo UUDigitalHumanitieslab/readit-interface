@@ -30,8 +30,6 @@ import { argv } from 'yargs';
 import { JSDOM, VirtualConsole } from 'jsdom';
 import * as through2 from 'through2';
 import chalk from 'chalk';
-import { gulp as i18nextParser } from 'i18next-parser';
-import HbsI18nLexer from 'handlebars-i18next-parser';
 
 
 type LibraryProps = {
@@ -96,7 +94,6 @@ const sourceDir = `src`,
     hbsGlobal = 'Handlebars',
     i18nModuleTail = 'dist/umd/i18next',
     i18nModule = `i18next/${i18nModuleTail}`,
-    i18nDir = `${sourceDir}/i18n`,
     styleDir = `${sourceDir}/style`,
     mainStylesheet = `${styleDir}/main.sass`,
     styleSourceGlob = `${styleDir}/*.sass`,
@@ -289,18 +286,6 @@ export function template() {
 
 function reportBundleError(errorObj) {
     log.error(chalk.red(errorObj.message));
-}
-
-export function i18nParse() {
-    return src(`${sourceDir}/**`)
-        .pipe(new i18nextParser({
-            locales: ['en', 'fr'],
-            output: `${i18nDir}/$LOCALE/$NAMESPACE.json`,
-            lexers: {
-                hbs: [HbsI18nLexer],
-            },
-        }))
-        .pipe(dest('.'));
 }
 
 function jsBundle() {
@@ -503,8 +488,6 @@ export const watch = series(fullStatic, function watch(done) {
         [indexConfig, specRunnerTemplate],
         retest(reloadPr(specRunner.render))
     );
-
-    // i18nParse();
 
     exitController.once('signal', () => {
         [
