@@ -165,6 +165,29 @@ Each `browserLibs` item may have the following properties.
 [17]: https://www.npmjs.com/package/gulp-cdnizer#optionsfilescdn
 
 
+### Translations management
+
+In principle, all strings that are shown to users should be translatable. In TypeScript files, the localized strings are obtained from a call to `i18next.t()`. In Handlebars templates, the `{{i18n}}` helper serves the same purpose. It is more often found in the block notation `{{#i18n}}...{{/i18n}}`, where the `...` part defines the default.
+
+
+#### Extracting translation strings
+
+The JSON files in `src/i18n` can be compiled automatically from the TypeScript and Handlebars sources using the following command:
+
+```
+yarn i18next -c i18next-parser.config.mjs
+```
+
+The files thus produced can be sent to the translators in order to fill out the actual translations.
+
+
+#### Adding new languages
+
+1. Extend the list of `locales` in `i18next-parser.config.mjs`.
+2. Follow the steps in the previous section to obtain the corresponding JSON file(s).
+3. Edit `src/global/i18n.ts` to ensure that the new language(s) is/are taken into account.
+
+
 ### Proxy configuration
 
 Suppose you have a backend application running on `localhost:8000` and you want to forward all requests for `/api` to this backend application. Create a JSON file with the following content:
