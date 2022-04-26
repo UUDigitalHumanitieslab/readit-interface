@@ -7,6 +7,7 @@ export default {
     input: [`${sourceDir}/**/*.{t,hb}s`, `!${sourceDir}/**/*-te{mplate,st}.ts`],
     output: `${i18nDir}/$LOCALE/$NAMESPACE.json`,
     locales: ['en', 'fr'],
+    resetDefaultValueLocale: 'en',
     lexers: {
         hbs: [HbsI18nLexer],
     },
