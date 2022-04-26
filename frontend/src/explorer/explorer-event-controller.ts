@@ -315,6 +315,10 @@ class ExplorerEventController {
         const endpoint = `${queryMode}:${landing ? 'user' : 'sample'}`;
         const collection = new FlatItemCollection(ldChannel.request(endpoint));
         const browsePanel = new SearchResultListPanel({
+            // i18next.t('my_sources', 'My sources');
+            // i18next.t('sample_sources', 'Sample sources');
+            // i18next.t('my_items', 'My items');
+            // i18next.t('sample_items', 'Sample items');
             title: i18next.t(i18nKey, title),
             collection,
             selectable: false,
