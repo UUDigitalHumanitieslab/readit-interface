@@ -8,6 +8,7 @@ export default {
     output: `${i18nDir}/$LOCALE/$NAMESPACE.json`,
     locales: ['en', 'fr'],
     resetDefaultValueLocale: 'en',
+    indentation: 4,
     lexers: {
         hbs: [HbsI18nLexer],
     },
