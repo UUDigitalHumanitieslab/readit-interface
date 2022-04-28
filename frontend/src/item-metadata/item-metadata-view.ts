@@ -29,7 +29,7 @@ export default class ItemMetadataView extends View<Node> {
     }
 
     initialize(options: ViewOptions): void {
-        this.title = options.title || i18next.t('item_metadata', 'Item metadata');
+        this.title = options.title || i18next.t('item-metadata', 'Item metadata');
         this.render().listenTo(this.model, 'change', this.render);
     }
 

@@ -7,7 +7,7 @@ import FlatItem from '../common-adapters/flat-item-model';
 import snippetTemplate from './snippet-template';
 
 export default class SnippetView extends View<FlatItem> {
-    ellipsis = i18next.t('interpunction.paragraph_ellipsis', '(...)');
+    ellipsis = i18next.t('interpunction.paragraph-ellipsis', '(...)');
     trimmedTitle: boolean;
     trimmedStart: boolean;
     trimmedEnd: boolean;

@@ -18,7 +18,7 @@ const excludedProperties = [
     'owl:sameAs'
 ];
 
-const sourceDeletionDialog = i18next.t('source_delete_confirm', `
+const sourceDeletionDialog = i18next.t('source-delete-confirm', `
 Are you sure you want to delete this source?
 If you delete this source, all its annotation will be deleted as well, including any annotations that other users may have made.
 This cannot be undone.

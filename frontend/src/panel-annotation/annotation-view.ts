@@ -50,7 +50,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         if (annotation) {
             this.annotationMetadataView = new ItemMetadataView({
                 model: annotation,
-                title: i18next.t('annotation_metadata', 'Annotation metadata')
+                title: i18next.t('annotation-metadata', 'Annotation metadata')
             });
         }
     }

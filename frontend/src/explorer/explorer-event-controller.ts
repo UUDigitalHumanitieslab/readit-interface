@@ -311,14 +311,14 @@ class ExplorerEventController {
             landing = false;
         }
         const title = `${landing ? 'My' : 'Sample'} ${queryMode}`;
-        const i18nKey = title.toLowerCase().replace(' ', '_');
+        const i18nKey = title.toLowerCase().replace(' ', '-');
         const endpoint = `${queryMode}:${landing ? 'user' : 'sample'}`;
         const collection = new FlatItemCollection(ldChannel.request(endpoint));
         const browsePanel = new SearchResultListPanel({
-            // i18next.t('my_sources', 'My sources');
-            // i18next.t('sample_sources', 'Sample sources');
-            // i18next.t('my_items', 'My items');
-            // i18next.t('sample_items', 'Sample items');
+            // i18next.t('my-sources', 'My sources');
+            // i18next.t('sample-sources', 'Sample sources');
+            // i18next.t('my-items', 'My items');
+            // i18next.t('sample-items', 'Sample items');
             title: i18next.t(i18nKey, title),
             collection,
             selectable: false,

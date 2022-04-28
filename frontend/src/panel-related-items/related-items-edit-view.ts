@@ -26,5 +26,5 @@ export default class RelatedItemsEditor extends FieldEditingPanel {
 }
 
 extend(RelatedItemsEditor.prototype, {
-    title: i18next.t('edit_related_items', 'Edit related items'),
+    title: i18next.t('edit-related-items', 'Edit related items'),
 });

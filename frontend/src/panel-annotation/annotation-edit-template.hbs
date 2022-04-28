@@ -1,7 +1,7 @@
 <div class="panel-header">
     <header>
-        <p class="title is-3">{{#i18n 'edit_annotation'}}Edit Annotation{{/i18n}}</p>
-        <p class="subtitle is-7">{{#i18n 'annotation_info'}}(Find more info on what and how to annotate in
+        <p class="title is-3">{{#i18n 'edit-annotation'}}Edit Annotation{{/i18n}}</p>
+        <p class="subtitle is-7">{{#i18n 'annotation-info'}}(Find more info on what and how to annotate in
             <a class="is-link" href="http://dhstatic.hum.uu.nl/readit/AnnotationGuide.pdf" target="_blank"> the
                 Annotation Guide</a>{{/i18n}})
         </p>
@@ -15,19 +15,19 @@
 
         <fieldset class="field">
             <div class="field">
-                <label for="category-{{cid}}" class="label">{{#i18n 'title_category'}}Category{{/i18n}}</label>
+                <label for="category-{{cid}}" class="label">{{#i18n 'title-category'}}Category{{/i18n}}</label>
                 <div class="control ontology-class-picker-container">
                     {{! Ontology class picker is inserted here }}
                 </div>
                 {{! Fake input to utilize jquery validation on Bulma dropdown}}
                 <input class="hidden-input" type="text" id="{{cid}}-contology" required>
-                <p class="help is-danger class-unset is-hidden">{{#i18n 'category_choice'}}Choose a category before saving.{{/i18n}}</p>
+                <p class="help is-danger class-unset is-hidden">{{#i18n 'category-choice'}}Choose a category before saving.{{/i18n}}</p>
             </div>
             <div class="field">
                 <div class="control">
                     <label class="checkbox">
                         <input type="checkbox" class="verification-checkbox" {{#if needsVerification}} checked{{/if}}>
-                        {{#i18n 'needs_verification'}}Needs verification{{/i18n}}
+                        {{#i18n 'needs-verification'}}Needs verification{{/i18n}}
                     </label>
                 </div>
             </div>
@@ -35,14 +35,14 @@
 
         <fieldset class="item-picker-container is-hidden field">
             <div class="field">
-                <label class="label">{{#i18n 'label_choice'}}Which one?{{/i18n}}</label>
+                <label class="label">{{#i18n 'label-choice'}}Which one?{{/i18n}}</label>
                 <div class="field has-addons">
                     <div class="control">
                         {{! Item picker will be inserted here }}
                     </div>
                     <div class="control">
                         <button type=button class="button create-item-button is-primary" id="{{cid}}-create-item">
-                            {{#i18n 'new_item_create'}}Create new{{/i18n}}
+                            {{#i18n 'new-item-create'}}Create new{{/i18n}}
                         </button>
                     </div>
                 </div>
@@ -50,22 +50,22 @@
         </fieldset>
         <fieldset class="item-edit-container is-hidden">
             <div class="field">
-                <label class="label">{{#i18n 'edit_properties'}}Edit properties{{/i18n}}</label>
+                <label class="label">{{#i18n 'edit-properties'}}Edit properties{{/i18n}}</label>
                 <p class="help">
-                    {{#i18n 'xsd_available_types_before_link'}}See{{/i18n}}
+                    {{#i18n 'xsd-available-types-before-link'}}See{{/i18n}}
                     <a href="https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/#built-in-datatypes" target=_blank>
-                        {{#i18n 'xsd_available_types_link'}}
+                        {{#i18n 'xsd-available-types-link'}}
                         the XML Schema recommendation
                         {{/i18n}}
                     </a>
-                    {{#i18n 'xsd_available_types_after_link'}}
+                    {{#i18n 'xsd-available-types-after-link'}}
                     for an overview of the available types and their lexical representations.
                     {{/i18n}}
                 </p>
                 <div class="item-multifield">
                 {{! Item multifield will be inserted here }}
                 </div>
-                <p class="help is-danger label-unset is-hidden">{{#i18n 'preferred_label_choice'}}Choose a preferred label before saving.{{/i18n}}</p>
+                <p class="help is-danger label-unset is-hidden">{{#i18n 'preferred-label-choice'}}Choose a preferred label before saving.{{/i18n}}</p>
                 </div>
         </fieldset>
 

@@ -26,5 +26,5 @@ export default class ExternalResourcesEditView extends FieldEditingPanel {
 }
 
 extend(ExternalResourcesEditView.prototype, {
-    title: i18next.t('edit_external_resources', 'Edit external resources'),
+    title: i18next.t('edit-external-resources', 'Edit external resources'),
 });

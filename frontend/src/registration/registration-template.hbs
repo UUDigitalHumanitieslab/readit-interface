@@ -3,11 +3,11 @@
     <form class="box register-form is-narrow-modal-form">
         {{#if isSuccess}}
         <header>
-            <h3 class="title is-3 page-header">{{#i18n 'registration_finished'}}Registration finished succesfully!{{/i18n}}</h3>
+            <h3 class="title is-3 page-header">{{#i18n 'registration-finished'}}Registration finished succesfully!{{/i18n}}</h3>
         </header>
-        <p>{{#i18n 'activate_account'}}Please activate your account via the link in the mail we just sent you.{{/i18n}}</p>
-        <p>{{#i18n 'find_email'}}Make sure to check your 'Spam' folder if you can't find the email in your inbox.{{/i18n}}</p>
-        <p>{{#i18n 'close_window'}}You can now close this window.{{/i18n}}</p>
+        <p>{{#i18n 'activate-account'}}Please activate your account via the link in the mail we just sent you.{{/i18n}}</p>
+        <p>{{#i18n 'find-email'}}Make sure to check your 'Spam' folder if you can't find the email in your inbox.{{/i18n}}</p>
+        <p>{{#i18n 'close-window'}}You can now close this window.{{/i18n}}</p>
         {{else}}
         <header>
             <h3 class="title is-3 page-header">{{#i18n 'register'}}Register{{/i18n}}</h3>
@@ -52,14 +52,14 @@
                     name="password2"
                     class="input"
                     type="password"
-                    placeholder="{{#i18n 'repeat_password'}}Repeat password{{/i18n}}"
+                    placeholder="{{#i18n 'repeat-password'}}Repeat password{{/i18n}}"
                 >
             </div>
         </div>
 
         {{#if hasError}}
         <div class="field form-feedback-bar has-background-danger has-text-white">
-            <p class="help">{{#i18n 'registration_failed'}}Registration failed. Please try again and if this error keeps occuring, contact the site administrator.{{/i18n}}</p>
+            <p class="help">{{#i18n 'registration-failed'}}Registration failed. Please try again and if this error keeps occuring, contact the site administrator.{{/i18n}}</p>
         </div>
         {{/if}}
 
