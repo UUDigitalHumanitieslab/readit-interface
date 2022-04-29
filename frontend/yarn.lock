@@ -4325,10 +4325,10 @@ gulplog@^1.0.0:
   dependencies:
     glogg "^1.0.0"
 
-handlebars-i18next-parser@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/handlebars-i18next-parser/-/handlebars-i18next-parser-1.0.1.tgz#b5334c7a3b6c534c5ec9699766cdbb1fa30866d3"
-  integrity sha512-KYiD0XsSy5rVladnR5CR2coUDGEMDFeFXQZo0KMMKc4e5a+g9wiQQN6ORfI+Fn04UDtB5rOAVL6UmhbwzOiVkA==
+handlebars-i18next-parser@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/handlebars-i18next-parser/-/handlebars-i18next-parser-1.0.2.tgz#f44e5021cd9b7adae5b23307efd0add868deddff"
+  integrity sha512-657FUSs/Rnil2cxr/plIG5jd5N4GkL9KroPydCAqfOou+d3QO/hVVC8IIGdI+45mNY7ICPL72FSY2fuvD6/a2A==
   dependencies:
     i18next-parser "^6.0.1"
 

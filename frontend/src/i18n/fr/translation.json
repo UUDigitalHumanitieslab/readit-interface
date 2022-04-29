@@ -28,6 +28,7 @@
         "nlp": "automated"
     },
     "permitted-types-before-list": "This property permits",
+    "permitted-types-after-list": ".",
     "current-type": "Current type:",
     "typeHints": {
         "integer": "Include extra leading zeros to force interpretation as an integer type.",

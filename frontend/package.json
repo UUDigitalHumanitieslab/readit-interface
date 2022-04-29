@@ -78,7 +78,7 @@
         "gulp-sass": "^5.0.0",
         "gulp-sourcemaps": "^2.6.4",
         "gulp-uglify": "^3.0.1",
-        "handlebars-i18next-parser": "^1.0.1",
+        "handlebars-i18next-parser": "^1.0.2",
         "http-proxy-middleware": "^0.19.0",
         "i18next-parser": "^6.0.1",
         "jasmine-ajax": "^4.0.0",
