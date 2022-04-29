@@ -2,12 +2,19 @@
     <header>
         <aside>{{! label view will be inserted here }}</aside>
         <h3 class="title is-3">{{label}}</h3>
-        <h6 class="subtitle is-6">{{#if annotationSerial }}
-            {{#i18n 'annotation'}}Annotation{{/i18n}} {{ annotationSerial }}{{#if itemSerial}},
-            {{#i18n 'identified-as'}}identified as{{/i18n}}
-            {{/if}}{{/if}}{{#if itemSerial }}
-            {{#i18n 'item'}}item{{/i18n}}/{{ itemSerial }}
-        {{/if}}</h6>
+        <h6 class="subtitle is-6">
+        {{#if annotationSerial }}
+        {{#if itemSerial}}
+            {{#i18n 'annotation-serial-identified'}}Annotation {{annotationSerial}}, identified as item {{itemSerial}}{{/i18n}}
+        {{else}}
+            {{#i18n 'annotation-serial-tag-only'}}Annotation {{annotationSerial}}{{/i18n}}
+        {{/if}}
+        {{else}}
+        {{#if itemSerial}}
+            {{#i18n 'item-serial'}}Item {{itemSerial}}{{/i18n}}
+        {{/if}}
+        {{/if}}
+        </h6>
         {{#if needsVerification}}
         <h6 class="title is-6">
             {{#i18n 'annotation-verification'}}This annotation needs to be verified.{{/i18n}}
