@@ -1,0 +1,8 @@
+{
+    "typeHints": {
+        "integer": "Include extra leading zeros to force interpretation as an integer type.",
+        "base64Binary": "Include internal whitespace to force interpretation as base 64 binary data.",
+        "gYear": "Include time zone information (such as a final &ldquo;Z&rdquo;) to force interpretation as a Gregorian year.",
+        "string": "Start with a space to force interpretation as text or a derived string type."
+    }
+}
