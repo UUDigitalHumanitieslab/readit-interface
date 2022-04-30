@@ -77,7 +77,15 @@
     "feedback-tooltip": "Give us feedback on the interface",
     "log-out": "Log out",
     "not-found-alt": "404 Not Found",
-    "not-found-text": "Oops, this page doesn't seem to exist.\n    You can <a onclick=\"history.back()\">go back</a>,\n    visit <a href=\"/landing\">Landing</a> or <a href=\"/search\">Search</a>,\n    or report a problem to the maintainers.",
+    "not-found-text": {
+        "begin": "Oops, this page doesn't seem to exist. You can ",
+        "back-link": "go back",
+        "between-back-landing": ", visit ",
+        "landing-link": "Landing",
+        "between-landing-search": " or ",
+        "search-link": "Search",
+        "end": ", or report a problem to the maintainers."
+    },
     "pagination": "pagination",
     "to-first-page": "Go to page 1",
     "to-last-page": "Go to last page",
@@ -85,16 +93,22 @@
     "filter": "Filter",
     "export-annotations": "Export annotations",
     "edit-annotation": "Edit Annotation",
-    "annotation-info": "(Find more info on what and how to annotate in\n            <a class=\"is-link\" href=\"http://dhstatic.hum.uu.nl/readit/AnnotationGuide.pdf\" target=\"_blank\"> the\n                Annotation Guide</a>",
+    "annotation-info": {
+        "begin": "(Find more info on what and how to annotate in ",
+        "guide-link": "the Annotation Guide",
+        "end": ")"
+    },
     "title-category": "Category",
     "category-choice": "Choose a category before saving.",
     "needs-verification": "Needs verification",
     "label-choice": "Which one?",
     "new-item-create": "Create new",
     "edit-properties": "Edit properties",
-    "xsd-available-types-before-link": "See",
-    "xsd-available-types-link": "the XML Schema recommendation",
-    "xsd-available-types-after-link": "for an overview of the available types and their lexical representations.",
+    "xsd-available-types": {
+        "begin": "See ",
+        "schema-link": "the XML Schema recommendation",
+        "end": " for an overview of the available types and their lexical representations."
+    },
     "preferred-label-choice": "Choose a preferred label before saving.",
     "save": "Save",
     "delete": "Delete",
@@ -124,9 +138,11 @@
     "delete-source": "Delete source",
     "source-delete-confirm": "\nAre you sure you want to delete this source?\nIf you delete this source, all its annotation will be deleted as well, including any annotations that other users may have made.\nThis cannot be undone.\n",
     "confirmation-complete": "Confirmation complete",
-    "sign-up-thanks-before-link": "Thank you for signing up. You can now",
-    "sign-up-thanks-link": "login",
-    "sign-up-thanks-after-link": ".",
+    "sign-up-thanks": {
+        "begin": "Thank you for signing up. You can now ",
+        "login-link": "login",
+        "end": "."
+    },
     "confirmation-failed": "Confirmation failed",
     "token-expiration": "This is probably due to token expiration.",
     "try-confirm-again": "Please try again and if this error keeps occuring, contact the site administrator.",

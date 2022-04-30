@@ -1,9 +1,17 @@
 <div class="panel-header">
     <header>
         <p class="title is-3">{{#i18n 'edit-annotation'}}Edit Annotation{{/i18n}}</p>
-        <p class="subtitle is-7">{{#i18n 'annotation-info'}}(Find more info on what and how to annotate in
-            <a class="is-link" href="http://dhstatic.hum.uu.nl/readit/AnnotationGuide.pdf" target="_blank"> the
-                Annotation Guide</a>{{/i18n}})
+        <p class="subtitle is-7">
+            {{#i18n 'annotation-info.begin'
+            }}(Find more info on what and how to annotate in {{/i18n
+            }}<a
+                class="is-link"
+                href="http://dhstatic.hum.uu.nl/readit/AnnotationGuide.pdf"
+                target="_blank"
+            >{{#i18n 'annotation-info.guide-link'
+            }}the Annotation Guide{{/i18n
+            }}</a>{{#i18n 'annotation-info.end'
+            }}){{/i18n}}
         </p>
     </header>
 </div>
@@ -52,15 +60,15 @@
             <div class="field">
                 <label class="label">{{#i18n 'edit-properties'}}Edit properties{{/i18n}}</label>
                 <p class="help">
-                    {{#i18n 'xsd-available-types-before-link'}}See{{/i18n}}
-                    <a href="https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/#built-in-datatypes" target=_blank>
-                        {{#i18n 'xsd-available-types-link'}}
-                        the XML Schema recommendation
-                        {{/i18n}}
-                    </a>
-                    {{#i18n 'xsd-available-types-after-link'}}
-                    for an overview of the available types and their lexical representations.
-                    {{/i18n}}
+                    {{#i18n 'xsd-available-types.begin'
+                    }}See {{/i18n
+                    }}<a
+                        href="https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/#built-in-datatypes"
+                        target=_blank
+                    >{{#i18n 'xsd-available-types.schema-link'
+                    }}the XML Schema recommendation{{/i18n
+                    }}</a>{{#i18n 'xsd-available-types.end'
+                    }} for an overview of the available types and their lexical representations.{{/i18n}}
                 </p>
                 <div class="item-multifield">
                 {{! Item multifield will be inserted here }}

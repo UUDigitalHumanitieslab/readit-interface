@@ -4,5 +4,20 @@
         "base64Binary": "Include internal whitespace to force interpretation as base 64 binary data.",
         "gYear": "Include time zone information (such as a final &ldquo;Z&rdquo;) to force interpretation as a Gregorian year.",
         "string": "Start with a space to force interpretation as text or a derived string type."
+    },
+    "not-found-text": {
+        "begin": "Oops, this page doesn't seem to exist. You can ",
+        "between-back-landing": ", visit ",
+        "between-landing-search": " or "
+    },
+    "annotation-info": {
+        "begin": "(Find more info on what and how to annotate in "
+    },
+    "xsd-available-types": {
+        "begin": "See ",
+        "end": " for an overview of the available types and their lexical representations."
+    },
+    "sign-up-thanks": {
+        "begin": "Thank you for signing up. You can now "
     }
 }
