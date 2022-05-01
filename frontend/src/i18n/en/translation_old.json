@@ -1,23 +1,37 @@
 {
-    "typeHints": {
-        "integer": "Include extra leading zeros to force interpretation as an integer type.",
-        "base64Binary": "Include internal whitespace to force interpretation as base 64 binary data.",
-        "gYear": "Include time zone information (such as a final &ldquo;Z&rdquo;) to force interpretation as a Gregorian year.",
-        "string": "Start with a space to force interpretation as text or a derived string type."
+    "annotation": {
+        "edit-info": {
+            "begin": "(Find more info on what and how to annotate in "
+        }
     },
-    "not-found-text": {
-        "begin": "Oops, this page doesn't seem to exist. You can ",
-        "between-back-landing": ", visit ",
-        "between-landing-search": " or "
+    "feedback": {
+        "failed": "Feedback submission failed. Please try again and if this error keeps occuring, contact the site administrator."
     },
-    "annotation-info": {
-        "begin": "(Find more info on what and how to annotate in "
+    "property": {
+        "typeHints": {
+            "integer": "Include extra leading zeros to force interpretation as an integer type.",
+            "base64Binary": "Include internal whitespace to force interpretation as base 64 binary data.",
+            "gYear": "Include time zone information (such as a final &ldquo;Z&rdquo;) to force interpretation as a Gregorian year.",
+            "string": "Start with a space to force interpretation as text or a derived string type."
+        },
+        "xsd-available-types": {
+            "begin": "See ",
+            "end": " for an overview of the available types and their lexical representations."
+        }
     },
-    "xsd-available-types": {
-        "begin": "See ",
-        "end": " for an overview of the available types and their lexical representations."
+    "interpunction": {
+        "colon": ": "
     },
-    "sign-up-thanks": {
-        "begin": "Thank you for signing up. You can now "
+    "not-found": {
+        "text": {
+            "begin": "Oops, this page doesn't seem to exist. You can ",
+            "between-back-landing": ", visit ",
+            "between-landing-search": " or "
+        }
+    },
+    "register": {
+        "thanks": {
+            "begin": "Thank you for signing up. You can now "
+        }
     }
 }

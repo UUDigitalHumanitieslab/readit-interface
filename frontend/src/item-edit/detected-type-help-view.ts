@@ -8,12 +8,12 @@ import { xsd } from '../common-rdf/ns';
 import ScopedIriLink from './scoped-iri-href-view';
 import template from './detected-type-help-template';
 
-// i18next.t('typeHints.integer')
-// i18next.t('typeHints.base64Binary')
-// i18next.t('typeHints.gYear')
-// i18next.t('typeHints.string')
+// i18next.t('property.typeHints.integer')
+// i18next.t('property.typeHints.base64Binary')
+// i18next.t('property.typeHints.gYear')
+// i18next.t('property.typeHints.string')
 const typesWithHints = ['integer', 'base64Binary', 'gYear', 'string'];
-const typeAsPair = name => [xsd[name], `typeHints.${name}`];
+const typeAsPair = name => [xsd[name], `property.typeHints.${name}`];
 const disambiguationHints = fromPairs(map(typesWithHints, typeAsPair));
 const getHint = type => i18next.t(disambiguationHints[type]);
 

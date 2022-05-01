@@ -3,31 +3,31 @@
     <form class="box register-form is-narrow-modal-form">
         {{#if isSuccess}}
         <header>
-            <h3 class="title is-3 page-header">{{#i18n 'registration-finished'}}Registration finished succesfully!{{/i18n}}</h3>
+            <h3 class="title is-3 page-header">{{#i18n 'register.finished'}}Registration finished succesfully!{{/i18n}}</h3>
         </header>
-        <p>{{#i18n 'activate-account'}}Please activate your account via the link in the mail we just sent you.{{/i18n}}</p>
-        <p>{{#i18n 'find-email'}}Make sure to check your 'Spam' folder if you can't find the email in your inbox.{{/i18n}}</p>
-        <p>{{#i18n 'close-window'}}You can now close this window.{{/i18n}}</p>
+        <p>{{#i18n 'register.activate'}}Please activate your account via the link in the mail we just sent you.{{/i18n}}</p>
+        <p>{{#i18n 'register.find-email'}}Make sure to check your 'Spam' folder if you can't find the email in your inbox.{{/i18n}}</p>
+        <p>{{#i18n 'register.close-window'}}You can now close this window.{{/i18n}}</p>
         {{else}}
         <header>
-            <h3 class="title is-3 page-header">{{#i18n 'register'}}Register{{/i18n}}</h3>
+            <h3 class="title is-3 page-header">{{#i18n 'register.title'}}Register{{/i18n}}</h3>
         </header>
         <div class="field">
-            <label class="label">{{#i18n 'username'}}Username{{/i18n}}</label>
+            <label class="label">{{#i18n 'label.username'}}Username{{/i18n}}</label>
             <div class="control">
                 <input
                     name="username"
                     class="input"
                     type="text"
                     name="title"
-                    placeholder="{{#i18n 'username'}}Username{{/i18n}}"
+                    placeholder="{{#i18n 'placeholder.username'}}Username{{/i18n}}"
                     required
                 >
             </div>
         </div>
 
         <div class="field">
-            <label class="label">{{#i18n 'email'}}Email{{/i18n}}</label>
+            <label class="label">{{#i18n 'label.email'}}Email{{/i18n}}</label>
             <div class="control">
                 <input name="email" class="input" type="email" placeholder="example@readit.com" required>
             </div>
@@ -35,13 +35,13 @@
 
         <div class="field">
             <div class="control">
-                <label class="label">{{#i18n 'password'}}Password{{/i18n}}</label>
+                <label class="label">{{#i18n 'label.password'}}Password{{/i18n}}</label>
                 <input
                     name="password1"
                     id="password"
                     class="input"
                     type="password"
-                    placeholder="{{#i18n 'password'}}Password{{/i18n}}"
+                    placeholder="{{#i18n 'placeholder.password'}}Password{{/i18n}}"
                 >
             </div>
         </div>
@@ -52,20 +52,20 @@
                     name="password2"
                     class="input"
                     type="password"
-                    placeholder="{{#i18n 'repeat-password'}}Repeat password{{/i18n}}"
+                    placeholder="{{#i18n 'placeholder.repeat-password'}}Repeat password{{/i18n}}"
                 >
             </div>
         </div>
 
         {{#if hasError}}
         <div class="field form-feedback-bar has-background-danger has-text-white">
-            <p class="help">{{#i18n 'registration-failed'}}Registration failed. Please try again and if this error keeps occuring, contact the site administrator.{{/i18n}}</p>
+            <p class="help">{{#i18n 'register.failed'}}Registration failed. Please try again and if this error keeps occuring, contact the site administrator.{{/i18n}}</p>
         </div>
         {{/if}}
 
         <div class="field is-grouped">
             <div class="control">
-                <button type=submit class="button is-link btn-submit">{{#i18n 'register'}}Register{{/i18n}}</button>
+                <button type=submit class="button is-link btn-submit">{{#i18n 'button.register'}}Register{{/i18n}}</button>
             </div>
         </div>
         {{/if}}
