@@ -1,16 +1,20 @@
 <header>
-    <h3 class="title is-3 page-header">{{#i18n 'upload_source'}}Upload source{{/i18n}}</h3>
+    <h3 class="title is-3 page-header">{{#i18n 'upload.form-title'}}Upload source{{/i18n}}</h3>
 </header>
 <div class="section upload-source">
 
     <div class="field form-feedback-bar has-background-success">
         <p class="help">
-            {{#i18n 'upload_success_before_link'}}Source uploaded successfully! Upload another one or{{/i18n}}
-            <a href="/explore">{{#i18n 'upload_success_link'}}go to the Explorer{{/i18n}}</a>{{#i18n 'upload_success_after_link'}}.{{/i18n}}
+            {{#i18n 'upload.success.begin'
+            }}Source uploaded successfully! Upload another one or {{/i18n
+            }}<a href="/explore">{{#i18n 'upload.success.link'
+            }}go to the Explorer{{/i18n
+            }}</a>{{#i18n 'upload.success.end'
+            }}.{{/i18n}}
         </p>
     </div>
     <div class="field form-feedback-bar has-background-danger has-text-white">
-        <p class="help">{{#i18n 'upload_failed_help'}}
+        <p class="help">{{#i18n 'upload.failed-help'}}
             Uploading failed.
             Please try again and if this error keeps occuring,
             contact the site administrator.
@@ -19,13 +23,13 @@
     </div>
     <div class="field is-grouped">
         <div class="control">
-            <button type=submit class="button is-link btn-submit">{{#i18n 'submit'}}Submit{{/i18n}}</button>
+            <button type=submit class="button is-link btn-submit">{{#i18n 'button.submit'}}Submit{{/i18n}}</button>
         </div>
         <div class="control">
-            <button type=button class="button is-link is-light btn-preview">{{#i18n 'preview'}}Preview{{/i18n}}</button>
+            <button type=button class="button is-link is-light btn-preview">{{#i18n 'button.preview'}}Preview{{/i18n}}</button>
         </div>
         <div class="control">
-            <button type=reset class="button is-link is-light btn-cancel">{{#i18n 'cancel'}}Cancel{{/i18n}}</button>
+            <button type=reset class="button is-link is-light btn-cancel">{{#i18n 'button.cancel'}}Cancel{{/i18n}}</button>
         </div>
     </div>
 </div>
@@ -33,11 +37,11 @@
     <div class="modal-background"></div>
     <div class="modal-card">
         <header class="modal-card-head">
-            <p class="modal-card-title">{{#i18n 'preview_source'}}Preview source content{{/i18n}}</p>
+            <p class="modal-card-title">{{#i18n 'upload.preview-title'}}Preview source content{{/i18n}}</p>
             <button
                 type=button
                 class="delete"
-                aria-label="{{#i18n 'close'}}close{{/i18n}}"
+                aria-label="{{#i18n 'button.close'}}close{{/i18n}}"
             >
                 <i class="fas fa-times"></i>
             </button>

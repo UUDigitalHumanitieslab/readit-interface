@@ -84,23 +84,35 @@ export default class SourceMetadataView extends CompositeView {
             model: this.getNode('datePublished'),
             name: 'datePublished',
             required: true,
-            label: i18next.t('publication_date', 'Publication date'),
-            additionalHelpText: i18next.t('publication_date_help', `<a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO formatted
-                date with optional time and timezone</a>, or free-form text`),
+            label: i18next.t('label.publication-date', 'Publication date'),
+            additionalHelpText: `
+                ${i18next.t(
+                    'upload.publication-date-help.begin'
+                )}<a
+                    href="https://en.wikipedia.org/wiki/ISO_8601"
+                    target="_blank"
+                >${i18next.t(
+                    'upload.publication-date-help.link',
+                    'ISO formatted date with optional time and timezone'
+                )}</a>${i18next.t(
+                    'upload.publication-date-help.end',
+                    ', or free-form text'
+                )}
+            `),
             readonly: this.readonly
         });
         this.creationDateField = new DateField({
             model: this.getNode('dateCreated'),
             name: 'dateCreated',
-            label: i18next.t('creation_date_opt', 'Creation date (optional)'),
-            additionalHelpText: i18next.t('creation_date_help', 'If known and different from publishing date, specify creation date.'),
+            label: i18next.t('label.creation-date-opt', 'Creation date (optional)'),
+            additionalHelpText: i18next.t('upload.creation-date-help', 'If known and different from publishing date, specify creation date.'),
             readonly: this.readonly
         });
         this.retrievalDateField = new DateField({
             model: this.getNode('dateRetrieved'),
             name: 'dateRetrieved',
-            label: i18next.t('retrieval_date_opt', 'Retrieval date (optional)'),
-            additionalHelpText: i18next.t('retrieval_date_help', 'Date (and optional time) at which the source was accessed or retrieved.'),
+            label: i18next.t('label.retrieval-date-opt', 'Retrieval date (optional)'),
+            additionalHelpText: i18next.t('upload.retrieval-date-help', 'Date (and optional time) at which the source was accessed or retrieved.'),
             readonly: this.readonly
         });
         this.render();
