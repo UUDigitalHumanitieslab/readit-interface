@@ -74,8 +74,8 @@ export class Tooltip extends View<FlatItem> {
         return this;
     }
 
-    positionTo<V extends BView<any>>(view: V): this {
-        const other = view.$el;
+    positionTo<V extends BView<any>>(view: V, selector: string): this {
+        const other = selector ? view.$(selector) : view.$el;
         const offset = other.offset();
         const width = other.width();
         const height = other.height();
@@ -107,14 +107,14 @@ extend(Tooltip.prototype, {
  * taken care of and the tooltip is `.remove`d automatically when `view` is.
  */
 export default function attachTooltip<V extends BView<any>>(
-    view: V, options: ViewOptions
+    view: V, options: ViewOptions, selector: string = ''
 ): Tooltip {
     const tooltip = new Tooltip(options);
     tooltip.$el.appendTo(document.body);
-    const openTooltip = () => tooltip.positionTo(view).show();
+    const openTooltip = () => tooltip.positionTo(view, selector).show();
     function attachEvents() {
-        view.delegate('mouseenter', '', openTooltip);
-        view.delegate('mouseleave', '', tooltip.hide.bind(tooltip));
+        view.delegate('mouseenter', selector, openTooltip);
+        view.delegate('mouseleave', selector, tooltip.hide.bind(tooltip));
     }
     attachEvents();
     const { remove, setElement } = view;
