@@ -151,11 +151,15 @@
         "no-account": "Don't have an account?"
     },
     "tooltip": {
+        "menu-banner": "Go to the landing page",
         "about-readit": "Find out more about the READ-IT project",
         "search-menu": "Search reading experiences and annotations",
-        "explore-menu": "Get a random selection of reading experiences and annotations",
+        "explore-sources": "Discover a random selection of sources",
+        "explore-items": "Discover a random selection of annotated items",
         "upload": "Upload reading testimonies for annotation",
         "contribute": "Find out how to contribute to READ-IT",
+        "my-sources-menu": "View the sources that you uploaded",
+        "my-items-menu": "View the items that you annotated",
         "feedback": "Give us feedback on the interface",
         "filter": "Filter",
         "export-annotations": "Export annotations",

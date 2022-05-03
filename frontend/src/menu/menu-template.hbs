@@ -5,7 +5,11 @@
 >
     <div class="container">
         <div class="navbar-brand">
-            <a class="navbar-item" href="/">
+            <a
+                class="navbar-item tooltip is-tooltip-bottom"
+                href="/"
+                data-tooltip="{{#i18n 'tooltip.menu-banner'}}Go to the landing page{{/i18n}}"
+            >
                 <img src="{{static 'image/read-it-logo-med-colour-no-letters.png'}}" alt="Read-It">
             </a>
             <a
@@ -37,7 +41,7 @@
                         <span>{{#i18n 'button.search'}}Search{{/i18n}}</span>
                     </span>
                 </a>
-                <div class="navbar-item has-dropdown is-hoverable" data-tooltip="{{#i18n 'tooltip.explore-menu'}}Get a random selection of reading experiences and annotations{{/i18n}}">
+                <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">
                         <span class="icon-text">
                             <span class="icon is-small has-text-primary">
@@ -47,10 +51,20 @@
                         </span>
                     </a>
                     <div class="navbar-dropdown">
-                        <a href="/explore/sources" class="navbar-item" id="source-list">
+                        <a
+                            href="/explore/sources"
+                            class="navbar-item tooltip is-tooltip-right"
+                            id="source-list"
+                            data-tooltip="{{#i18n 'tooltip.explore-sources'}}Discover a random selection of sources{{/i18n}}"
+                        >
                             {{#i18n 'button.sources'}}Sources{{/i18n}}
                         </a>
-                        <a href="/explore/items" class="navbar-item" id="item-list">
+                        <a
+                            href="/explore/items"
+                            class="navbar-item tooltip is-tooltip-right"
+                            id="item-list"
+                            data-tooltip="{{#i18n 'tooltip.explore-items'}}Discover a random selection of annotated items{{/i18n}}"
+                        >
                             {{#i18n 'button.items'}}Items{{/i18n}}
                         </a>
                     </div>
@@ -86,10 +100,18 @@
                         <a class="navbar-item" href="/landing">
                             {{#i18n 'button.landing-page'}}Personal landing page{{/i18n}}
                         </a>
-                        <a class="navbar-item" href="/explore/sources/mine">
+                        <a
+                            class="navbar-item tooltip is-tooltip-left"
+                            href="/explore/sources/mine"
+                            data-tooltip="{{#i18n 'tooltip.my-sources-menu'}}View the sources that you uploaded{{/i18n}}"
+                        >
                             {{#i18n 'button.my-sources'}}My sources{{/i18n}}
                         </a>
-                        <a class="navbar-item" href="/explore/items/mine">
+                        <a
+                            class="navbar-item tooltip is-tooltip-left"
+                            href="/explore/items/mine"
+                            data-tooltip="{{#i18n 'tooltip.my-items-menu'}}View the items that you annotated{{/i18n}}"
+                        >
                             {{#i18n 'button.my-items'}}My items{{/i18n}}
                         </a>
                         <hr class="navbar-divider">

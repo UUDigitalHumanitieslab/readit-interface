@@ -1,4 +1,7 @@
 {
+    "tooltip": {
+        "explore-menu": "Get a random selection of reading experiences and annotations"
+    },
     "annotation": {
         "edit-info": {
             "begin": "(Find more info on what and how to annotate in "
