@@ -5,6 +5,8 @@ from rdflib import Graph
 from .ns import *
 from .utils import *
 from items import namespace as ITEM
+import re
+
 
 @pytest.fixture
 def other_triples():
@@ -23,18 +25,22 @@ def test_prune_triples(filled_graph, other_triples):
 
 
 def test_prune_triples_cascade(filled_conjunctive_graph):
-    anno = ( ITEM['7'], RDF.type, OA.Annotation )
+    anno = (ITEM['7'], RDF.type, OA.Annotation)
     # get our item graph from the conjunctive graph
-    privileged_graph = next(filled_conjunctive_graph.contexts()) # victim graph :D
-    prune_triples_cascade(filled_conjunctive_graph, (anno,), [privileged_graph])
+    privileged_graph = next(
+        filled_conjunctive_graph.contexts())  # victim graph :D
+    prune_triples_cascade(filled_conjunctive_graph,
+                          (anno,), [privileged_graph])
     assert len(filled_conjunctive_graph) == 0
 
 
 def test_prune_triples_cascade_privileged(filled_conjunctive_graph):
-    anno = ( ITEM['7'], RDF.type, OA.Annotation )
+    anno = (ITEM['7'], RDF.type, OA.Annotation)
     # get our item graph from the conjunctive graph
-    privileged_graph = next(filled_conjunctive_graph.contexts()) # victim graph :D
-    prune_triples_cascade(filled_conjunctive_graph, (anno,), [privileged_graph], [OA.hasBody])
+    privileged_graph = next(
+        filled_conjunctive_graph.contexts())  # victim graph :D
+    prune_triples_cascade(filled_conjunctive_graph, (anno,), [
+                          privileged_graph], [OA.hasBody])
     assert len(filled_conjunctive_graph) == 14
 
 
@@ -88,3 +94,20 @@ def test_traverse_backward(filled_graph, other_triples):
         new_size = len(result)
         assert new_size > size
         size = new_size
+
+
+def test_prefix_injection(sparqlstore, prefixed_query):
+    expected_prefixes = ['rdf', 'rdfs', 'schema']
+
+    res = sparqlstore._inject_prefixes(prefixed_query, {})
+    assert all(prefix in re.findall(PREFIX_PATTERN, res)
+               for prefix in expected_prefixes)
+    assert 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>' in res
+
+    res = sparqlstore._inject_prefixes(
+        prefixed_query, extra_bindings={'rdf': 'https://cat-bounce.com',
+                                        'schema': 'http://randomcolour.com/'})
+    assert all(prefix in re.findall(PREFIX_PATTERN, res)
+               for prefix in expected_prefixes)
+    assert 'PREFIX rdf: <https://cat-bounce.com>' in res
+    assert 'PREFIX schema: <http://randomcolour.com/>' in res
