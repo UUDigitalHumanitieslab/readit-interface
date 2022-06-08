@@ -1,14 +1,11 @@
 import { ViewOptions as BaseOpt, View as BView } from 'backbone';
 import { extend } from 'lodash';
-import * as i18next from 'i18next';
 
 import View from '../core/view';
-import FlatItem from '../common-adapters/flat-item-model';
-import { rdfs, skos } from '../common-rdf/ns';
 
 type Direction = 'top' | 'bottom' | 'left' | 'right';
 
-export interface ViewOptions extends BaseOpt<FlatItem> {
+export interface ViewOptions extends BaseOpt {
     direction?: Direction;
 }
 
@@ -39,28 +36,26 @@ const cssPropsToCopy = [
  * A simple, empty, transparent view with the sole purpose of having a Bulma
  * tooltip associated. It is not really meant to be used directly; rather, you
  * should layer it over another view using the `attachTooltip` function below.
+ *
+ * The `model` should have `text` attribute, which will be inserted in the
+ * tooltip. To use the (localized) `skos:definition` or `rdfs:comment` from a
+ * `FlatItem`, adapt it through the `toTooltip` helper function first. This is
+ * the default export of `./tooltip-model`.
  */
-export class Tooltip extends View<FlatItem> {
+export class Tooltip extends View {
     preferredDirection: string;
     direction: string;
 
     constructor(options?: ViewOptions) {
         super(options);
         this.preferredDirection = options && options.direction || 'right';
-        this.model.when('classLabel', this.render, this);
+        this.model.when('text', this.render, this);
     }
 
     render(): this {
-        const cls = this.model.get('class');
-        const languageOption = { '@language': i18next.language };
-        const definition = cls.get(skos.definition, languageOption);
-        const comment = definition || cls.get(rdfs.comment, languageOption);
-        const text = definition && definition[0] || comment && comment[0];
-        if (text) {
-            this.$el.attr('data-tooltip', text);
-        } else {
-            this.$el.removeClass('tooltip');
-        }
+        const text = this.model.get('text');
+        this.$el.attr('data-tooltip', text);
+        this.$el.addClass('tooltip');
         return this;
     }
 
@@ -97,7 +92,7 @@ export class Tooltip extends View<FlatItem> {
 }
 
 extend(Tooltip.prototype, {
-    className: 'rit-tooltip tooltip is-tooltip-multiline',
+    className: 'rit-tooltip is-tooltip-multiline',
 });
 
 /**

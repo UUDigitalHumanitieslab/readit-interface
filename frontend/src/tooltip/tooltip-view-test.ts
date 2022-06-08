@@ -1,43 +1,28 @@
 import { each } from 'lodash';
 
-import { enableI18n, event } from '../test-util';
+import { enableI18n } from '../test-util';
 
+import fastTimeout from '../core/fastTimeout';
+import Model from '../core/model';
 import View from '../core/view';
-import { readit, rdfs, skos } from '../common-rdf/ns';
-import { FlatLdObject } from '../common-rdf/json';
-import Node from '../common-rdf/node';
-import FlatItem from '../common-adapters/flat-item-model';
 
 import attachTooltip, { Tooltip } from './tooltip-view';
 
-function getDefaultAttributes(): FlatLdObject {
+function getDefaultAttributes() {
     return {
-        '@id': readit('test'),
-        "@type": [rdfs.Class],
-        [skos.prefLabel]: [
-            { '@value': 'Content' },
-        ],
-        [skos.altLabel]: [
-            { '@value': 'alternativeLabel' }
-        ],
-        [skos.definition]: [
-            { '@value': 'This is a test definition' }
-        ],
-        [rdfs.comment]: [
-            { '@value': 'Also, I have a comment' }
-        ],
+        text: 'This is a test tooltip text',
     }
 }
 
-function getDefaultItem(): FlatItem {
-    return new FlatItem(new Node(getDefaultAttributes()));
+function getDefaultModel() {
+    return new Model(getDefaultAttributes());
 }
 
 describe('Tooltip', function () {
     beforeAll(enableI18n);
 
     beforeEach(function() {
-        this.item = getDefaultItem();
+        this.model = getDefaultModel();
         this.substrate = new View();
         this.substrate.$el
         .html('<ul><li>A<li id=x>B<li>C</ul>')
@@ -48,32 +33,26 @@ describe('Tooltip', function () {
         this.substrate.remove();
     });
 
-    it('includes the definition if it exists', async function () {
-        const view = new Tooltip({ model: this.item });
-        await event(this.item, 'complete');
+    it('uses the text attribute of the model', async function () {
+        const view = new Tooltip({ model: this.model });
+        // The `Tooltip` invokes `this.model.when`, which in turn invokes
+        // `fastTimeout`. This is faster than a regular `window.setTimeout`, but
+        // slower than a `Promise`. Hence, we await a `fastTimeout` to ensure
+        // that things have settled down.
+        await new Promise(fastTimeout);
         expect(view.el).toHaveClass('tooltip');
-        expect(view.$el.data('tooltip')).toEqual('This is a test definition');
+        expect(view.$el.data('tooltip')).toEqual('This is a test tooltip text');
     });
 
-    it('uses rdfs:comment otherwise', async function() {
-        this.item.underlying.unset(skos.definition);
-        const view = new Tooltip({ model: this.item });
-        await event(this.item, 'complete');
-        expect(view.el).toHaveClass('tooltip');
-        expect(view.$el.data('tooltip')).toEqual('Also, I have a comment');
-    });
-
-    it('disables itself when definition and comment are absent', async function() {
-        this.item.underlying.unset(skos.definition);
-        this.item.underlying.unset(rdfs.comment);
-        const view = new Tooltip({ model: this.item });
-        await event(this.item, 'complete');
+    it('disables itself when text is absent', function() {
+        this.model.unset('text');
+        const view = new Tooltip({ model: this.model });
         expect(view.$el.data('tooltip')).not.toBeDefined();
         expect(view.el).not.toHaveClass('tooltip');
     });
 
     it('can be attached to another view', function() {
-        const view = attachTooltip(this.substrate, {model: this.item});
+        const view = attachTooltip(this.substrate, {model: this.model});
         spyOn(view, 'remove').and.callThrough();
         expect(view.el).not.toHaveClass('is-tooltip-active');
         this.substrate.$el.trigger('mouseenter');
@@ -89,9 +68,9 @@ describe('Tooltip', function () {
     });
 
     it('can be attached to multiple subelements of another view', function() {
-        const v1 = attachTooltip(this.substrate, {model: this.item}, 'ul');
-        const v2 = attachTooltip(this.substrate, {model: this.item}, 'li:first-child');
-        const v3 = attachTooltip(this.substrate, {model: this.item}, '#x');
+        const v1 = attachTooltip(this.substrate, {model: this.model}, 'ul');
+        const v2 = attachTooltip(this.substrate, {model: this.model}, 'li:first-child');
+        const v3 = attachTooltip(this.substrate, {model: this.model}, '#x');
         const e3 = this.substrate.$('#x');
         each([v1, v2, v3], view => spyOn(view, 'remove').and.callThrough());
         const expectActive = (active, inactive) => {
