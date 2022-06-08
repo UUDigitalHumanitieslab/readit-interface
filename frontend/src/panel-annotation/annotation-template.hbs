@@ -54,7 +54,7 @@
     {{#if itemSerial }}
     <section class="item-sections">
         <article class="item-section has-mt-10">
-            <div class="item-section-header" id="btnRelItems">
+            <div class="item-section-header btn-related">
                 <p>{{#i18n 'button.related-items'}}Related items{{/i18n}}</p>
                 <span
                     class="icon is-large has-text-primary tooltip is-tooltip-left"
@@ -65,7 +65,7 @@
             </div>
         </article>
         <article class="item-section has-mt-10">
-            <div class="item-section-header" id="btnAnnotations">
+            <div class="item-section-header btn-annotations">
                 <p>{{#if annotationSerial }}
                     {{#i18n 'button.other-annotations'}}Other annotations{{/i18n}}
                     {{else}}
@@ -80,7 +80,7 @@
             </div>
         </article>
         <article class="item-section has-mt-10">
-            <div class="item-section-header" id="btnExtResources">
+            <div class="item-section-header btn-external">
                 <p>{{#i18n 'button.external-resources'}}External resources{{/i18n}}</p>
                 <span
                     class="icon is-large has-text-primary tooltip is-tooltip-left"
@@ -104,7 +104,7 @@
         {{#if annotationSerial }}
         <div class="level-right">
             <div class="level-item">
-                <button id="btnNewAnnotation" type=button class="button btn-new">{{#i18n 'button.new'}}New{{/i18n}}</button>
+                <button type=button class="button btn-new">{{#i18n 'button.new'}}New{{/i18n}}</button>
             </div>
         </div>
         {{/if}}

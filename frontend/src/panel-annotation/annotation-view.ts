@@ -145,10 +145,10 @@ extend(AnnotationView.prototype, {
         selector: '.metadataContainer',
     }],
     events: {
-        'click #btnRelItems': 'onRelItemsClicked',
-        'click #btnAnnotations': 'onAnnotationsClicked',
-        'click #btnExtResources': 'onExtResourcesClicked',
+        'click .btn-related': 'onRelItemsClicked',
+        'click .btn-annotations': 'onAnnotationsClicked',
+        'click .btn-external': 'onExtResourcesClicked',
         'click .btn-edit': 'onEditClicked',
-        'click #btnNewAnnotation': 'onNewClicked'
+        'click .btn-new': 'onNewClicked'
     },
 });
