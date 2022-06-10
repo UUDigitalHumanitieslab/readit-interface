@@ -3,7 +3,7 @@ import { extend } from 'lodash';
 
 import View from '../core/view';
 
-type Direction = 'top' | 'bottom' | 'left' | 'right';
+export type Direction = 'top' | 'bottom' | 'left' | 'right';
 
 export interface ViewOptions extends BaseOpt {
     direction?: Direction;
