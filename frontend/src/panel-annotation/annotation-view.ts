@@ -1,6 +1,7 @@
-import { extend, includes } from 'lodash';
+import { each, mapValues, extend, includes } from 'lodash';
 import * as i18next from 'i18next';
 
+import Model from '../core/model';
 import { CompositeView } from '../core/view';
 import Node, { isNode } from '../common-rdf/node';
 import FlatItem from '../common-adapters/flat-item-model';
@@ -11,10 +12,25 @@ import { getLabelText } from '../utilities/annotation-utilities';
 import LabelView from '../label/label-view';
 import excludedProperties from '../item-metadata/excluded-properties';
 import ItemMetadataView from '../item-metadata/item-metadata-view';
+import i18nChannel from '../i18n/radio';
+import attachTooltip, { Direction } from '../tooltip/tooltip-view';
 import { getLabelFromId } from '../utilities/linked-data-utilities';
 
 import { announceRoute } from './utilities';
 import annotationTemplate from './annotation-template';
+
+const tooltipPlaceSplitter = /^(\S+)\s*(.*)$/;
+const tooltipData = {
+    'left .btn-related': ['tooltip.open-related', 'Open related items'],
+    'left .btn-annotations': ['tooltip.open-annotations', 'Open annotations'],
+    'left .btn-external': ['tooltip.open-external', 'Open external resources'],
+};
+const tooltips = mapValues(tooltipData, ([key, defaultValue]) => {
+    const model = new Model;
+    i18nChannel.request('i18next')
+    .then(i18next => model.set('text', i18next.t(key, defaultValue)));
+    return model;
+});
 
 const announce = announceRoute(false);
 
@@ -43,6 +59,10 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         model.whenever('needsVerification', this.processVerificationStatus, this);
         this.listenToOnce(model.underlying, 'error', report404);
         this.render().listenTo(model, 'change', this.render);
+        each(tooltips, (model, place) => {
+            const [_, direction, selector] = place.match(tooltipPlaceSplitter) as [string, Direction, string];
+            attachTooltip(this, {model, direction}, selector)
+        });
     }
 
     processAnnotation(model: FlatItem, annotation: Node): void {
