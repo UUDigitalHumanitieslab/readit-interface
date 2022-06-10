@@ -32,6 +32,9 @@
             "between-landing-search": " or "
         }
     },
+    "source": {
+        "delete-confirm": "\nAre you sure you want to delete this source?\nIf you delete this source, all its annotation will be deleted as well, including any annotations that other users may have made.\nThis cannot be undone.\n"
+    },
     "register": {
         "thanks": {
             "begin": "Thank you for signing up. You can now "

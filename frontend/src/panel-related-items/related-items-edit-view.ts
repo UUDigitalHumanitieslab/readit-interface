@@ -1,9 +1,9 @@
 import { extend } from 'lodash';
-import * as i18next from 'i18next';
 
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
 import FieldEditingPanel from '../panel-common/field-editing-panel';
+import i18nChannel from '../i18n/radio';
 
 import RelatedItemsMultifield from './related-items-edit-multifield';
 
@@ -25,6 +25,9 @@ export default class RelatedItemsEditor extends FieldEditingPanel {
     }
 }
 
-extend(RelatedItemsEditor.prototype, {
-    title: i18next.t('item.edit-related-title', 'Edit related items'),
-});
+(async function() {
+    const i18next = await i18nChannel.request('i18next');
+    extend(RelatedItemsEditor.prototype, {
+        title: i18next.t('item.edit-related-title', 'Edit related items'),
+    });
+}());

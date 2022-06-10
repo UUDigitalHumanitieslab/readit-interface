@@ -1,13 +1,13 @@
 import { extend } from 'lodash';
-import * as i18next from 'i18next';
 
 import View from '../core/view';
 import FlatItem from '../common-adapters/flat-item-model';
+import i18nChannel from '../i18n/radio';
 
 import snippetTemplate from './snippet-template';
 
 export default class SnippetView extends View<FlatItem> {
-    ellipsis = i18next.t('interpunction.paragraph-ellipsis', '(...)');
+    ellipsis: string;
     trimmedTitle: boolean;
     trimmedStart: boolean;
     trimmedEnd: boolean;
@@ -138,3 +138,8 @@ extend(SnippetView.prototype, {
     className: 'snippet',
     template: snippetTemplate,
 });
+
+(async function() {
+    const i18next = await i18nChannel.request('i18next');
+    SnippetView.prototype.ellipsis = i18next.t('interpunction.paragraph-ellipsis', '(...)');
+}());

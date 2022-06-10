@@ -4,6 +4,7 @@ import * as i18next from 'i18next';
 
 import Collection from '../core/collection';
 import { xsd } from '../common-rdf/ns';
+import i18nChannel from '../i18n/radio';
 
 /**
  * In this module, we define the logic operators, filters and option groups
@@ -141,8 +142,7 @@ function translateCollection(collection) {
     collection.each(translateLabel);
 }
 
-function translateAll() {
+(async function() {
+    await i18nChannel.request('i18next');
     each([logic, filters, groupLabels], translateCollection);
-}
-
-history.once('route notfound', translateAll);
+}());
