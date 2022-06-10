@@ -21,9 +21,21 @@ import annotationTemplate from './annotation-template';
 
 const tooltipPlaceSplitter = /^(\S+)\s*(.*)$/;
 const tooltipData = {
-    'left .btn-related': ['tooltip.open-related', 'Open related items'],
-    'left .btn-annotations': ['tooltip.open-annotations', 'Open annotations'],
-    'left .btn-external': ['tooltip.open-external', 'Open external resources'],
+    'left .btn-related': [
+        // i18next.t('tooltip.open-related')
+        'tooltip.open-related',
+        'View items that are related to the current item',
+    ],
+    'left .btn-annotations': [
+        // i18next.t('tooltip.open-annotations')
+        'tooltip.open-annotations',
+        'View all places where this item has been annotated',
+    ],
+    'left .btn-external': [
+        // i18next.t('tooltip.open-external')
+        'tooltip.open-external',
+        'View links to external resources about this item',
+    ],
 };
 const tooltips = mapValues(tooltipData, ([key, defaultValue]) => {
     const model = new Model;

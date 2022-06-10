@@ -163,9 +163,9 @@
         "feedback": "Give us feedback on the interface",
         "filter": "Filter",
         "export-annotations": "Export annotations",
-        "open-related": "Open related items",
-        "open-annotations": "Open annotations",
-        "open-external": "Open external resources",
+        "open-related": "View items that are related to the current item",
+        "open-annotations": "View all places where this item has been annotated",
+        "open-external": "View links to external resources about this item",
         "view-operator-docs": "View documentation of search operators",
         "toggle-metadata": "Show / hide the source metadata",
         "toggle-annotations": "Show / hide annotations"

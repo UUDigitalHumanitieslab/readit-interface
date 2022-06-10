@@ -1,6 +1,9 @@
 {
     "tooltip": {
-        "explore-menu": "Get a random selection of reading experiences and annotations"
+        "explore-menu": "Get a random selection of reading experiences and annotations",
+        "open-related": "View items that are related to the current item",
+        "open-annotations": "View all places where this item has been annotated",
+        "open-external": "View links to external resources about this item"
     },
     "annotation": {
         "edit-info": {
