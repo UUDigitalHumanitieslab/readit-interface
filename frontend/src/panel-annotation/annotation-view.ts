@@ -36,6 +36,16 @@ const tooltipData = {
         'tooltip.open-external',
         'View links to external resources about this item',
     ],
+    'top .btn-edit': [
+        // i18next.t('tooltip.edit-annotation')
+        'tooltip.edit-annotation',
+        'Change the properties of this item',
+    ],
+    'top .btn-new': [
+        // i18next.t('tooltip.clone-annotation')
+        'tooltip.clone-annotation',
+        'Create a new annotation at the same position',
+    ],
 };
 const tooltips = mapValues(tooltipData, ([key, defaultValue]) => {
     const model = new Model;
