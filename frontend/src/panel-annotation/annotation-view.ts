@@ -12,15 +12,13 @@ import { getLabelText } from '../utilities/annotation-utilities';
 import LabelView from '../label/label-view';
 import excludedProperties from '../item-metadata/excluded-properties';
 import ItemMetadataView from '../item-metadata/item-metadata-view';
-import i18nChannel from '../i18n/radio';
-import attachTooltip, { Direction } from '../tooltip/tooltip-view';
+import { prepareTooltipData, bulkAttachTooltips } from '../tooltip/utilities';
 import { getLabelFromId } from '../utilities/linked-data-utilities';
 
 import { announceRoute } from './utilities';
 import annotationTemplate from './annotation-template';
 
-const tooltipPlaceSplitter = /^(\S+)\s*(.*)$/;
-const tooltipData = {
+const tooltips = prepareTooltipData({
     'left .btn-related': [
         // i18next.t('tooltip.open-related')
         'tooltip.open-related',
@@ -46,12 +44,6 @@ const tooltipData = {
         'tooltip.clone-annotation',
         'Create a new annotation at the same position',
     ],
-};
-const tooltips = mapValues(tooltipData, ([key, defaultValue]) => {
-    const model = new Model;
-    i18nChannel.request('i18next')
-    .then(i18next => model.set('text', i18next.t(key, defaultValue)));
-    return model;
 });
 
 const announce = announceRoute(false);
@@ -81,10 +73,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         model.whenever('needsVerification', this.processVerificationStatus, this);
         this.listenToOnce(model.underlying, 'error', report404);
         this.render().listenTo(model, 'change', this.render);
-        each(tooltips, (model, place) => {
-            const [_, direction, selector] = place.match(tooltipPlaceSplitter) as [string, Direction, string];
-            attachTooltip(this, {model, direction}, selector)
-        });
+        bulkAttachTooltips(this, tooltips);
     }
 
     processAnnotation(model: FlatItem, annotation: Node): void {
