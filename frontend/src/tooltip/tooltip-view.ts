@@ -56,6 +56,9 @@ export class Tooltip extends View {
         const text = this.model.get('text');
         this.$el.attr('data-tooltip', text);
         this.$el.addClass('tooltip');
+        if (text.length > 60) {
+            this.$el.addClass('is-tooltip-multiline');
+        }
         return this;
     }
 
@@ -92,7 +95,7 @@ export class Tooltip extends View {
 }
 
 extend(Tooltip.prototype, {
-    className: 'rit-tooltip is-tooltip-multiline',
+    className: 'rit-tooltip',
 });
 
 /**
