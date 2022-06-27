@@ -402,10 +402,7 @@ export function runUnittests(done) {
             resources: 'usable',
             virtualConsole,
         });
-        virtualConsole.on('timeEnd', () => {
-            jsDOM.window.close();
-            done();
-        });
+        virtualConsole.on('timeEnd', done);
     });
 }
 
