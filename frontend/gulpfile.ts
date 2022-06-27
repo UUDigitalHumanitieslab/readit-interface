@@ -375,7 +375,19 @@ export const specRunner = (function () {
     return { render: specRunner, get };
 }());
 
-const buildUnittests = parallel(terminalReporter, unittest, specRunner.render);
+export function image() {
+    return src(imageDir).pipe(symlink(buildDir));
+};
+
+const complement = parallel(style, index, image);
+
+export const dist = parallel(script, complement);
+
+const fullStatic = parallel(template, complement, specRunner.render);
+
+const buildUnittests = parallel(
+    image, terminalReporter, unittest, specRunner.render
+);
 
 export function runUnittests(done) {
     specRunner.get(runner => {
@@ -396,16 +408,6 @@ export function runUnittests(done) {
         });
     });
 }
-
-export function image() {
-    return src(imageDir).pipe(symlink(buildDir));
-};
-
-const complement = parallel(style, index, image);
-
-export const dist = parallel(script, complement);
-
-const fullStatic = parallel(template, complement, specRunner.render);
 
 export function serve(done) {
     let serverOptions: any = {
