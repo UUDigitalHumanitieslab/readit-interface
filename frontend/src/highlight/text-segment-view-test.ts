@@ -21,7 +21,7 @@ const attributes = {
 };
 
 describe('TextSegmentView', function () {
-    const it = onlyIf(document.createRange, 'This suite requires Range support.');
+    const it = onlyIf(document.createRange().getClientRects, 'This suite requires Range support.');
 
     beforeAll(function () {
         const lineHeightProbe = $('<span>bla</span>').appendTo('body');

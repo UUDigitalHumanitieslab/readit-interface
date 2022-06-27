@@ -63,7 +63,7 @@ describe('AnnotationEditView', function() {
     });
 
     it('can be constructed without the context of an ExplorerView', function() {
-        onlyIf(document.createRange, 'This test requires Range support.');
+        onlyIf(document.createRange().getClientRects, 'This test requires Range support.');
         this.textContainer.appendTo('body');
         const range = document.createRange();
         range.selectNodeContents(this.textContainer.get(0).firstChild);
