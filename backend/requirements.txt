@@ -4,7 +4,7 @@
 #
 #    pip-compile --annotation-style=line
 #
-amqp==5.0.6
+amqp==5.1.1
     # via kombu
 apipkg==1.5
     # via execnet
@@ -18,7 +18,7 @@ beautifulsoup4==4.8.0
     # via django-livereload-server
 billiard==3.6.4.0
     # via celery
-celery==5.0.5
+celery==5.2.2
     # via -r requirements.in
 certifi==2019.6.16
     # via
@@ -26,7 +26,7 @@ certifi==2019.6.16
     #   requests
 chardet==3.0.4
     # via requests
-click==7.1.2
+click==8.1.3
     # via
     #   celery
     #   click-didyoumean
@@ -36,7 +36,7 @@ click-didyoumean==0.0.3
     # via celery
 click-plugins==1.1.1
     # via celery
-click-repl==0.1.6
+click-repl==0.2.0
     # via celery
 defusedxml==0.5.0
     # via
@@ -75,7 +75,7 @@ iniconfig==1.1.1
     # via pytest
 isodate==0.6.0
     # via rdflib
-kombu==5.0.2
+kombu==5.2.4
     # via celery
 oauthlib==3.1.0
     # via requests-oauthlib
@@ -150,6 +150,7 @@ vine==5.0.0
     # via
     #   amqp
     #   celery
+    #   kombu
 wcwidth==0.1.7
     # via prompt-toolkit
 
