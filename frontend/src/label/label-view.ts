@@ -5,6 +5,7 @@ import View from '../core/view';
 import { rdfs, skos } from '../common-rdf/ns';
 import FlatItem from '../common-adapters/flat-item-model';
 import attachTooltip from '../tooltip/tooltip-view';
+import toTooltip from '../tooltip/tooltip-model';
 
 type TooltipSetting = false | 'top' | 'bottom' | 'left' | 'right';
 
@@ -40,7 +41,7 @@ export default class LabelView extends View<FlatItem> {
         if (typeof this.toolTipSetting === 'string') {
             attachTooltip(this, {
                 direction: this.toolTipSetting,
-                model: this.model,
+                model: toTooltip(this.model),
             });
         }
     }

@@ -1,14 +1,11 @@
 import { ViewOptions as BaseOpt, View as BView } from 'backbone';
 import { extend } from 'lodash';
-import * as i18next from 'i18next';
 
 import View from '../core/view';
-import FlatItem from '../common-adapters/flat-item-model';
-import { rdfs, skos } from '../common-rdf/ns';
 
-type Direction = 'top' | 'bottom' | 'left' | 'right';
+export type Direction = 'top' | 'bottom' | 'left' | 'right';
 
-export interface ViewOptions extends BaseOpt<FlatItem> {
+export interface ViewOptions extends BaseOpt {
     direction?: Direction;
 }
 
@@ -39,27 +36,28 @@ const cssPropsToCopy = [
  * A simple, empty, transparent view with the sole purpose of having a Bulma
  * tooltip associated. It is not really meant to be used directly; rather, you
  * should layer it over another view using the `attachTooltip` function below.
+ *
+ * The `model` should have `text` attribute, which will be inserted in the
+ * tooltip. To use the (localized) `skos:definition` or `rdfs:comment` from a
+ * `FlatItem`, adapt it through the `toTooltip` helper function first. This is
+ * the default export of `./tooltip-model`.
  */
-export class Tooltip extends View<FlatItem> {
+export class Tooltip extends View {
     preferredDirection: string;
     direction: string;
 
     constructor(options?: ViewOptions) {
         super(options);
         this.preferredDirection = options && options.direction || 'right';
-        this.model.when('classLabel', this.render, this);
+        this.model.when('text', this.render, this);
     }
 
     render(): this {
-        const cls = this.model.get('class');
-        const languageOption = { '@language': i18next.language };
-        const definition = cls.get(skos.definition, languageOption);
-        const comment = definition || cls.get(rdfs.comment, languageOption);
-        const text = definition && definition[0] || comment && comment[0];
-        if (text) {
-            this.$el.attr('data-tooltip', text);
-        } else {
-            this.$el.removeClass('tooltip');
+        const text = this.model.get('text');
+        this.$el.attr('data-tooltip', text);
+        this.$el.addClass('tooltip');
+        if (text.length > 60) {
+            this.$el.addClass('is-tooltip-multiline');
         }
         return this;
     }
@@ -74,8 +72,8 @@ export class Tooltip extends View<FlatItem> {
         return this;
     }
 
-    positionTo<V extends BView<any>>(view: V): this {
-        const other = view.$el;
+    positionTo<V extends BView<any>>(view: V, selector: string): this {
+        const other = selector ? view.$(selector) : view.$el;
         const offset = other.offset();
         const width = other.width();
         const height = other.height();
@@ -97,7 +95,7 @@ export class Tooltip extends View<FlatItem> {
 }
 
 extend(Tooltip.prototype, {
-    className: 'rit-tooltip tooltip is-tooltip-multiline',
+    className: 'rit-tooltip',
 });
 
 /**
@@ -107,14 +105,14 @@ extend(Tooltip.prototype, {
  * taken care of and the tooltip is `.remove`d automatically when `view` is.
  */
 export default function attachTooltip<V extends BView<any>>(
-    view: V, options: ViewOptions
+    view: V, options: ViewOptions, selector: string = ''
 ): Tooltip {
     const tooltip = new Tooltip(options);
     tooltip.$el.appendTo(document.body);
-    const openTooltip = () => tooltip.positionTo(view).show();
+    const openTooltip = () => tooltip.positionTo(view, selector).show();
     function attachEvents() {
-        view.delegate('mouseenter', '', openTooltip);
-        view.delegate('mouseleave', '', tooltip.hide.bind(tooltip));
+        view.delegate('mouseenter', selector, openTooltip);
+        view.delegate('mouseleave', selector, tooltip.hide.bind(tooltip));
     }
     attachEvents();
     const { remove, setElement } = view;

@@ -1,9 +1,22 @@
 <figure class="image notfound">
-    <img src="{{static 'image/404.svg'}}" alt="404 Not Found">
+    <img
+        src="{{static 'image/404.svg'}}"
+        alt="{{#i18n 'not-found.img-alt'}}404 Not Found{{/i18n}}"
+    >
 </figure>
 <p>
-    Oops, this page doesn't seem to exist.
-    You can <a onclick="history.back()">go back</a>,
-    visit <a href="/landing">Landing</a> or <a href="/search">Search</a>,
-    or report a problem to the maintainers.
+    {{#i18n 'not-found.text.begin'
+    }}Oops, this page doesn't seem to exist. You can {{/i18n
+    }}<a onclick="history.back()">{{#i18n 'not-found.text.back-link'
+    }}go back{{/i18n
+    }}</a>{{#i18n 'not-found.text.between-back-landing'
+    }}, visit {{/i18n
+    }}<a href="/landing">{{#i18n 'not-found.text.landing-link'
+    }}Landing{{/i18n
+    }}</a>{{#i18n 'not-found.text.between-landing-search'
+    }} or {{/i18n
+    }}<a href="/search">{{#i18n 'not-found.text.search-link'
+    }}Search{{/i18n
+    }}</a>{{#i18n 'not-found.text.end'
+    }}, or report a problem to the maintainers.{{/i18n}}
 </p>
