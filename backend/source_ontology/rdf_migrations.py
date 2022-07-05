@@ -1,6 +1,6 @@
 from rdflib.namespace import DCTERMS
 from ontology.rdf_migrations import replace_objects
-from rdf.migrations import RDFMigration, on_add
+from rdf.migrations import RDFMigration, on_add, on_present
 from rdf.ns import OWL, RDF, SCHEMA, UNKNOWN, XSD
 from rdflib import Literal
 from sources.graph import graph as sources_graph
