@@ -31,13 +31,13 @@ const hierarchyPromise = i18nPromise.then(() => {
         collection: new Collection([{
             model: new Model({
                 id: 'mine',
-                label: i18next.t('filterHierarchy.mine', 'by me'),
+                label: i18next.t('annotation.filters.mine', 'by me'),
                 cssClass: 'rit-self-made',
             }),
         }, {
             model: new Model({
                 id: 'others',
-                label: i18next.t('filterHierarchy.others', 'by others'),
+                label: i18next.t('annotation.filters.others', 'by others'),
                 cssClass: 'rit-other-made',
             }),
         }]),
@@ -45,13 +45,13 @@ const hierarchyPromise = i18nPromise.then(() => {
         collection: new Collection([{
             model: new Model({
                 id: 'verified',
-                label: i18next.t('filterHierarchy.verified', 'verified'),
+                label: i18next.t('annotation.filters.verified', 'verified'),
                 cssClass: 'rit-verified',
             }),
         }, {
             model: new Model({
                 id: 'unverified',
-                label: i18next.t('filterHierarchy.unverified', 'unverified'),
+                label: i18next.t('annotation.filters.unverified', 'unverified'),
                 cssClass: 'rit-unverified',
             }),
         }]),
@@ -60,14 +60,14 @@ const hierarchyPromise = i18nPromise.then(() => {
     fullHierarchy.add([{
         model: new Model({
             id: 'semantic',
-            label: i18next.t('filterHierarchy.semantic', 'human'),
+            label: i18next.t('annotation.filters.semantic', 'human'),
             cssClass: 'rit-is-semantic',
         }),
         collection: semanticHierarchy,
     }, {
         model: new Model({
             id: 'nlp',
-            label: i18next.t('filterHierarchy.nlp', 'automated'),
+            label: i18next.t('annotation.filters.nlp', 'automated'),
             cssClass: 'rit-is-nlp',
         }),
         collection: nlpHierarchy,

@@ -1,4 +1,5 @@
 import { extend, get } from 'lodash';
+import * as i18next from 'i18next';
 
 import {
     CompositeView,
@@ -47,7 +48,7 @@ export default class SearchResultListPanel extends CompositeView {
     }
 
     initialize(options: ViewOptions): this {
-        this.title = options.title || 'Search Results';
+        this.title = options.title || i18next.t('search.results-title', 'Search Results');
         this.searchList = new SearchResultListView(options).render();
         this.listenTo(this.collection, {
             focus: this.onFocus,

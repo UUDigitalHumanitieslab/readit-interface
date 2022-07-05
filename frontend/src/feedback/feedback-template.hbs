@@ -3,48 +3,61 @@
     <form class="box register-form is-narrow-modal-form">
         {{#if wasSentSuccessfully}}
         <header>
-            <h3 class="title is-3 page-header">Feedback submitted</h3>
+            <h3 class="title is-3 page-header">
+                {{#i18n 'feedback.success-heading'
+                }}Feedback submitted{{/i18n}}
+            </h3>
         </header>
         <div class="field">
-            <p>Thank you very much for your feedback, it is highly appreciated!</p>
+            <p>{{#i18n 'feedback.thanks'}}Thank you very much for your feedback, it is highly appreciated!{{/i18n}}</p>
         </div>
         <div class="field is-grouped">
             <div class="control">
-                <button class="button btn-close" type=button>Close</button>
+                <button class="button btn-close" type=button>{{#i18n 'button.close'}}Close{{/i18n}}</button>
             </div>
         </div>
         {{else}}
         <header>
-            <h3 class="title is-3 page-header">Feedback</h3>
+            <h3 class="title is-3 page-header">{{#i18n 'feedback.form-heading'}}Feedback{{/i18n}}</h3>
         </header>
         <div class="field">
-            <label class="label">Subject</label>
+            <label class="label">{{#i18n 'label.subject'}}Subject{{/i18n}}</label>
             <div class="control">
-                <input name="subject" class="input" type="text" name="title" placeholder="About READ-IT">
+                <input
+                    name="subject"
+                    class="input"
+                    type="text"
+                    name="title"
+                    placeholder="{{#i18n 'placeholder.feedback-subject'}}About READ-IT{{/i18n}}"
+                >
             </div>
         </div>
 
         <div class="field">
             <div class="control">
-                <label class="label">Feedback</label>
-                <textarea name="feedback" class="textarea" placeholder="e.g. I love READ-IT!"></textarea>
+                <label class="label">{{#i18n 'label.feedback'}}Feedback{{/i18n}}</label>
+                <textarea
+                    name="feedback"
+                    class="textarea"
+                    placeholder="{{#i18n 'placeholder.feedback-content'}}e.g. I love READ-IT!{{/i18n}}"
+                ></textarea>
             </div>
         </div>
 
         {{#if hasError}}
         <div class="field form-feedback-bar has-background-danger has-text-white">
-            <p class="help">Feedback submission failed. Please try again and if this error keeps occuring, contact the
-                site administrator.</p>
+            <p class="help">{{#i18n 'feedback.failed'}}Feedback submission failed. Please try again and if this error keeps occuring, contact the
+                site administrator.{{/i18n}}</p>
         </div>
         {{/if}}
 
         <div class="field is-grouped">
             <div class="control">
-                <button class="button is-link btn-submit" type=submit>Submit</button>
+                <button class="button is-link btn-submit" type=submit>{{#i18n 'button.submit'}}Submit{{/i18n}}</button>
             </div>
 
             <div class="control">
-                <button class="button btn-close" type=button>Close</button>
+                <button class="button btn-close" type=button>{{#i18n 'button.close'}}Close{{/i18n}}</button>
             </div>
         </div>
         {{/if}}
@@ -52,4 +65,8 @@
     </form>
 
 </div>
-<button type=button modal-close is-large" aria-label="close"></button>
+<button
+    type=button
+    class="modal-close is-large"
+    aria-label="{{#i18n 'button.close'}}Close{{/i18n}}"
+></button>

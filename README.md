@@ -182,6 +182,12 @@ $ yarn gulp [SUBCOMMAND ...] [OPTIONS]
 
 [12]: frontend/README.md#gulp-tasks-and-options
 
+Extract translation strings in the frontend:
+
+```console
+$ yarn localize
+```
+
 
 ### Notes on Python package dependencies
 

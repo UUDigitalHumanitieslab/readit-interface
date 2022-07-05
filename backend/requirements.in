@@ -1,5 +1,5 @@
 celery
-django>=2,<3
+django>=3.2,<4
 djangorestframework
 django-rest-auth[with_social]
 defusedxml<0.6.0
@@ -7,11 +7,10 @@ django-livereload-server
 django-proxy
 django-cors-headers
 elasticsearch
+rdflib>6
 rdflib-django3
-rdflib-jsonld
 requests
-keepalive
-psycopg2 --no-binary psycopg2
+psycopg2
 pytest
 pytest-django
 pytest-xdist

@@ -76,8 +76,8 @@ REPLACE_OBJECT_UPDATE = '''
 
 COLOR_SUPERCLASS_UPDATE = '''
 INSERT {
-    ?superclass schema:color ?colorcode .
-    ?subclass schema:color ?colorcode .
+    ?superclass ?color ?colorcode .
+    ?subclass ?color ?colorcode .
 }
 WHERE {
     OPTIONAL{ ?subclass ?related ?superclass . }
@@ -154,10 +154,9 @@ def check_superclass(subclass, superclass, input_graph=None):
 def set_superclass_color(superclass, colorcode, input_graph=None):
     context = input_graph if input_graph else graph()
     bindings = {'superclass': superclass, 'colorcode': Literal(
-        colorcode), 'related': SKOS.related}
-    namespaces = {'schema': SCHEMA}
+        colorcode), 'related': SKOS.related, 'color': SCHEMA.color}
     context.update(COLOR_SUPERCLASS_UPDATE,
-                   initBindings=bindings, initNs=namespaces)
+                   initBindings=bindings)
 
 
 def annotations_need_verification(anno_class, input_graph=None):

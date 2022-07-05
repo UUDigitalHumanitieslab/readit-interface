@@ -4,15 +4,22 @@ import { CompositeView } from '../core/view';
 import userChannel from '../common-user/user-radio';
 import { dcterms, sourceOntology }  from '../common-rdf/ns';
 import Node from '../common-rdf/node';
-import metadataTemplate from './source-metadata-panel-template';
 import SourceMetadataView from '../source-metadata/source-metadata-view';
 import { getLabelFromId } from '../utilities/linked-data-utilities';
+import i18nChannel from '../i18n/radio';
 
-const sourceDeletionDialog = `
+import metadataTemplate from './source-metadata-panel-template';
+
+let sourceDeletionDialog: string;
+const dialogDefault = `
 Are you sure you want to delete this source?
 If you delete this source, all its annotation will be deleted as well, including any annotations that other users may have made.
 This cannot be undone.
 `;
+(async function() {
+    const i18next = await i18nChannel.request('i18next');
+    sourceDeletionDialog = i18next.t('source.delete-confirm', dialogDefault);
+}());
 
 export default class MetadataPanel extends CompositeView {
     /**
@@ -80,7 +87,7 @@ export default class MetadataPanel extends CompositeView {
     pushChange(changedField: string, value: string) {
         this.changes[changedField] = value;
     };
-    
+
     onSubmit(event: JQueryEventObject): this {
         event.preventDefault();
         if (!isEmpty(this.changes)) {

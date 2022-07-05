@@ -1,5 +1,7 @@
-import { extend, includes } from 'lodash';
+import { each, mapValues, extend, includes } from 'lodash';
+import * as i18next from 'i18next';
 
+import Model from '../core/model';
 import { CompositeView } from '../core/view';
 import Node, { isNode } from '../common-rdf/node';
 import FlatItem from '../common-adapters/flat-item-model';
@@ -10,10 +12,39 @@ import { getLabelText } from '../utilities/annotation-utilities';
 import LabelView from '../label/label-view';
 import excludedProperties from '../item-metadata/excluded-properties';
 import ItemMetadataView from '../item-metadata/item-metadata-view';
+import { prepareTooltipData, bulkAttachTooltips } from '../tooltip/utilities';
 import { getLabelFromId } from '../utilities/linked-data-utilities';
 
 import { announceRoute } from './utilities';
 import annotationTemplate from './annotation-template';
+
+const tooltips = prepareTooltipData({
+    'left .btn-related': [
+        // i18next.t('tooltip.open-related')
+        'tooltip.open-related',
+        'View items that are related to the current item',
+    ],
+    'left .btn-annotations': [
+        // i18next.t('tooltip.open-annotations')
+        'tooltip.open-annotations',
+        'View all places where this item has been annotated',
+    ],
+    'left .btn-external': [
+        // i18next.t('tooltip.open-external')
+        'tooltip.open-external',
+        'View links to external resources about this item',
+    ],
+    'top .btn-edit': [
+        // i18next.t('tooltip.edit-annotation')
+        'tooltip.edit-annotation',
+        'Change the properties of this item',
+    ],
+    'top .btn-new': [
+        // i18next.t('tooltip.clone-annotation')
+        'tooltip.clone-annotation',
+        'Create a new annotation at the same position',
+    ],
+});
 
 const announce = announceRoute(false);
 
@@ -42,41 +73,39 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         model.whenever('needsVerification', this.processVerificationStatus, this);
         this.listenToOnce(model.underlying, 'error', report404);
         this.render().listenTo(model, 'change', this.render);
+        bulkAttachTooltips(this, tooltips);
     }
 
-    processAnnotation(annotation: FlatItem): void {
+    processAnnotation(model: FlatItem, annotation: Node): void {
         this.dispose('annotationMetadataView');
         if (annotation) {
             this.annotationMetadataView = new ItemMetadataView({
                 model: annotation,
-                title: 'Annotation metadata'
-            }).render();
+                title: i18next.t('annotation.metadata-title', 'Annotation metadata')
+            });
         }
     }
 
-    processClass(cls: FlatItem): void {
+    processClass(model: FlatItem, cls: Node): void {
         this.dispose('lblView');
-        if (cls) this.lblView = new LabelView({
-            model: cls,
-            toolTipSetting: 'left'
-        });
+        if (cls) this.lblView = new LabelView({model, toolTipSetting: 'left'});
     }
 
-    processItem(model: FlatItem, item: FlatItem): void {
+    processItem(model: FlatItem, item: Node): void {
         this.dispose('itemMetadataView');
         const previousItem = model.previous('item');
         if (previousItem) this.stopListening(previousItem);
         if (item) {
             this.itemMetadataView = new ItemMetadataView({
                 model: item,
-            }).render();
+            });
             this.listenTo(item, 'change', this.collectDetails)
                 .collectDetails(item);
             this.listenTo(item, 'change', this.render);
         }
     }
 
-    collectDetails(item: FlatItem): void {
+    collectDetails(item: Node): void {
         this.properties = {};
         for (let attribute in item.attributes) {
             if (includes(excludedProperties, attribute)) continue;
@@ -98,9 +127,9 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         this.label = getLabelText(text);
     }
 
-    processVerificationStatus(model: FlatItem): void {
-        this.needsVerification = model.get('needsVerification');
-        if (this.needsVerification) this.render();
+    processVerificationStatus(model: FlatItem, needs: boolean): void {
+        this.needsVerification = needs;
+        if (needs) this.render();
     }
 
     renderContainer(): this {
@@ -147,10 +176,10 @@ extend(AnnotationView.prototype, {
         selector: '.metadataContainer',
     }],
     events: {
-        'click #btnRelItems': 'onRelItemsClicked',
-        'click #btnAnnotations': 'onAnnotationsClicked',
-        'click #btnExtResources': 'onExtResourcesClicked',
+        'click .btn-related': 'onRelItemsClicked',
+        'click .btn-annotations': 'onAnnotationsClicked',
+        'click .btn-external': 'onExtResourcesClicked',
         'click .btn-edit': 'onEditClicked',
-        'click #btnNewAnnotation': 'onNewClicked'
+        'click .btn-new': 'onNewClicked'
     },
 });

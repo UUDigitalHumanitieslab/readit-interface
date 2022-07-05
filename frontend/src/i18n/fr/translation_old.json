@@ -1,0 +1,12 @@
+{
+    "tooltip": {
+        "explore-menu": "Get a random selection of reading experiences and annotations"
+    },
+    "label": {
+        "properties": "Properties",
+        "editor": "Editor (optional)"
+    },
+    "source": {
+        "metadata-title": "Source metadata"
+    }
+}

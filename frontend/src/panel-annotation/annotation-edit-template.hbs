@@ -1,9 +1,17 @@
 <div class="panel-header">
     <header>
-        <p class="title is-3">Edit Annotation</p>
-        <p class="subtitle is-7">(Find more info on what and how to annotate in
-            <a class="is-link" href="http://dhstatic.hum.uu.nl/readit/AnnotationGuide.pdf" target="_blank">the
-                Annotation Guide</a>)
+        <p class="title is-3">{{#i18n 'annotation.edit-heading'}}Edit Annotation{{/i18n}}</p>
+        <p class="subtitle is-7">
+            {{#i18n 'annotation.edit-info.begin'
+            }}(Find more info on what and how to annotate in {{/i18n
+            }}<a
+                class="is-link"
+                href="http://dhstatic.hum.uu.nl/readit/AnnotationGuide.pdf"
+                target="_blank"
+            >{{#i18n 'annotation.edit-info.guide-link'
+            }}the Annotation Guide{{/i18n
+            }}</a>{{#i18n 'annotation.edit-info.end'
+            }}){{/i18n}}
         </p>
     </header>
 </div>
@@ -15,19 +23,19 @@
 
         <fieldset class="field">
             <div class="field">
-                <label for="category-{{cid}}" class="label">Category</label>
+                <label for="category-{{cid}}" class="label">{{#i18n 'label.category'}}Category{{/i18n}}</label>
                 <div class="control ontology-class-picker-container">
                     {{! Ontology class picker is inserted here }}
                 </div>
                 {{! Fake input to utilize jquery validation on Bulma dropdown}}
                 <input class="hidden-input" type="text" id="{{cid}}-contology" required>
-                <p class="help is-danger class-unset is-hidden">Choose a category before saving.</p>
+                <p class="help is-danger class-unset is-hidden">{{#i18n 'annotation.category-warning'}}Choose a category before saving.{{/i18n}}</p>
             </div>
             <div class="field">
                 <div class="control">
                     <label class="checkbox">
                         <input type="checkbox" class="verification-checkbox" {{#if needsVerification}} checked{{/if}}>
-                        Needs verification
+                        {{#i18n 'label.needs-verification'}}Needs verification{{/i18n}}
                     </label>
                 </div>
             </div>
@@ -35,14 +43,14 @@
 
         <fieldset class="item-picker-container is-hidden field">
             <div class="field">
-                <label class="label">Which one?</label>
+                <label class="label">{{#i18n 'label.which-item'}}Which one?{{/i18n}}</label>
                 <div class="field has-addons">
                     <div class="control">
                         {{! Item picker will be inserted here }}
                     </div>
                     <div class="control">
                         <button type=button class="button create-item-button is-primary" id="{{cid}}-create-item">
-                            Create new
+                            {{#i18n 'button.create-new'}}Create new{{/i18n}}
                         </button>
                     </div>
                 </div>
@@ -50,22 +58,22 @@
         </fieldset>
         <fieldset class="item-edit-container is-hidden">
             <div class="field">
-                <label class="label">Edit properties</label>
+                <label class="label">{{#i18n 'label.edit-properties'}}Edit properties{{/i18n}}</label>
                 <p class="help">
-                    {{#i18n 'xsd_available_types_before_link'}}See{{/i18n}}
-                    <a href="https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/#built-in-datatypes" target=_blank>
-                        {{#i18n 'xsd_available_types_link'}}
-                        the XML Schema recommendation
-                        {{/i18n}}
-                    </a>
-                    {{#i18n 'xsd_available_types_after_link'}}
-                    for an overview of the available types and their lexical representations.
-                    {{/i18n}}
+                    {{#i18n 'property.xsd-available-types.begin'
+                    }}See {{/i18n
+                    }}<a
+                        href="https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/#built-in-datatypes"
+                        target=_blank
+                    >{{#i18n 'property.xsd-available-types.schema-link'
+                    }}the XML Schema recommendation{{/i18n
+                    }}</a>{{#i18n 'property.xsd-available-types.end'
+                    }} for an overview of the available types and their lexical representations.{{/i18n}}
                 </p>
                 <div class="item-multifield">
                 {{! Item multifield will be inserted here }}
                 </div>
-                <p class="help is-danger label-unset is-hidden">Choose a preferred label before saving.</p>
+                <p class="help is-danger label-unset is-hidden">{{#i18n 'item.preferred-label-warning'}}Choose a preferred label before saving.{{/i18n}}</p>
                 </div>
         </fieldset>
 
@@ -76,16 +84,16 @@
         <nav class="level is-mobile">
             <div class="level-left">
                 <div class="level-item">
-                    <button class="button btn-save submit" type=submit>Save</button>
+                    <button class="button btn-save submit" type=submit>{{#i18n 'button.save'}}Save{{/i18n}}</button>
                 </div>
                 <div class="level-item">
-                    <button type=reset class="button btn-cancel is-primary">Cancel</button>
+                    <button type=reset class="button btn-cancel is-primary">{{#i18n 'button.cancel'}}Cancel{{/i18n}}</button>
                 </div>
             </div>
             <div class="level-right">
                 <div class="level-item">
                     {{#userIsOwner}}<button type=button class="button is-danger">
-                        Delete
+                        {{#i18n 'button.delete'}}Delete{{/i18n}}
                     </button>{{/userIsOwner}}
                 </div>
             </div>

@@ -1,6 +1,6 @@
-import { extend } from 'lodash';
+import { extend, delay } from 'lodash';
 import { Events } from 'backbone';
-import { t } from 'i18next';
+import * as i18next from 'i18next';
 
 import View from '../core/view';
 import Model from '../core/model';
@@ -31,6 +31,7 @@ import SourceListPanel from '../panel-source-list/source-list-panel';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import {
     isOntologyClass,
+    isBlank,
 } from '../utilities/linked-data-utilities';
 import { itemsForSourceQuery } from '../sparql/compile-query';
 import SemanticQuery from '../semantic-search/model';
@@ -121,7 +122,7 @@ class ExplorerEventController {
                     // FlatItem from `result`, since they come from distinct
                     // collections.
                     const flat = collection.get(annotation.id);
-                    flat.trigger('focus', flat);
+                    delay(() => flat.trigger('focus', flat), 250);
                 });
             }
         } else {
@@ -172,7 +173,7 @@ class ExplorerEventController {
         const flatItems = new FlatItemCollection(items);
         const filteredItems = new FilteredCollection(flatItems, 'annotation');
         const resultView = new SearchResultListPanel({
-            title: t('heading.annotations', 'Annotations'),
+            title:i18next.t('annotation.list-title', 'Annotations'),
             model: item,
             collection: filteredItems,
             selectable: false,
@@ -253,15 +254,18 @@ class ExplorerEventController {
         this.explorerView.popUntil(listView).push(newDetailView);
         // Focus might not work if the collection isn't complete yet. In that
         // case, re-focus when it is complete. This will cause
-        // `openSourceAnnotation` to run again.
-        if (!collection.get(model)) collection.once(
-            'complete:all', () => collection.once('sort', () => {
+        // `openSourceAnnotation` to run again. We delay the handler, because
+        // sorting might or might not kick in one more time after complete:all.
+        if (!collection.get(model)) {
+            collection.once('complete:all', () => delay(() => {
                 model = collection.get(model);
                 model.trigger('focus', model);
-            })
-        );
+            }, 250));
+        }
         // Nobody is listening for the following event, except when we are
-        // re-focusing as discussed above **and** the route ends in `/edit`.
+        // re-focusing as discussed above **and** the route ends in `/edit`,
+        // **or** we are creating a new annotation because the user selected
+        // text.
         this.trigger('reopen-edit-annotation', newDetailView, model);
         return newDetailView;
     }
@@ -299,8 +303,19 @@ class ExplorerEventController {
         );
         collection.underlying.add(annotation);
         const flat = collection.get(annotation.id);
-        const newAnnotationView = this.openSourceAnnotation(listPanel, flat, collection);
-        return this.editAnnotation(newAnnotationView, flat);
+        flat.once('blur', () => {
+            if (isBlank(annotation)) collection.underlying.remove(annotation);
+        });
+        let editPanel: AnnoEditView;
+        this.once('reopen-edit-annotation', annoView =>
+            editPanel = this.editAnnotation(annoView, flat)
+        );
+        // Through a cascade of synchronous events, the next trigger will invoke
+        // `this.openSourceAnnotation`, which in turn will trigger the event
+        // that causes `editPanel` to be set.
+        flat.trigger('focus', flat);
+        // Hence, `editPanel` is defined by the time this function returns.
+        return editPanel;
     }
 
     resetBrowsePanel(queryMode: string | Model, landing: boolean) {
@@ -310,10 +325,15 @@ class ExplorerEventController {
             landing = false;
         }
         const title = `${landing ? 'My' : 'Sample'} ${queryMode}`;
+        const i18nKey = `button.${title.toLowerCase().replace(' ', '-')}`;
         const endpoint = `${queryMode}:${landing ? 'user' : 'sample'}`;
         const collection = new FlatItemCollection(ldChannel.request(endpoint));
         const browsePanel = new SearchResultListPanel({
-            title,
+            // i18next.t('button.my-sources', 'My sources');
+            // i18next.t('button.sample-sources', 'Sample sources');
+            // i18next.t('button.my-items', 'My items');
+            // i18next.t('button.sample-items', 'Sample items');
+            title: i18next.t(i18nKey, title),
             collection,
             selectable: false,
         });

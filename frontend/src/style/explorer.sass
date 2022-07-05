@@ -7,7 +7,7 @@
     /* remove scrollbars */
     ::-webkit-scrollbar
         display: none
-    
+
     -ms-overflow-style: none  /* IE and Edge */
     scrollbar-width: none  /* Firefox */
 
@@ -47,11 +47,13 @@
         .panel-form
             display: flex
             flex-direction: column
-            height: 100%
+            flex-grow: 1
+            max-height: 100%
             overflow: auto
 
         .panel-content
-            height: 100%
+            max-height: 100%
+            flex-grow: 1
             overflow-y: auto
 
             &.no-overflow

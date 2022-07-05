@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 from django.conf import settings
 
 from rdf.baseclasses import BaseCounter
@@ -16,7 +15,7 @@ class EditCounter(BaseCounter):
 
 class SemanticQuery(models.Model):
     label = models.CharField(blank=True, max_length=100)
-    query = JSONField()
+    query = models.JSONField()
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL,
     )

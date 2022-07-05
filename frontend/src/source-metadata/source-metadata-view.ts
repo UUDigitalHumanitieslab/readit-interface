@@ -98,7 +98,7 @@ export default class SourceMetadataView extends CompositeView {
                     'upload.publication-date-help.end',
                     ', or free-form text'
                 )}
-            `),
+            `,
             readonly: this.readonly
         });
         this.creationDateField = new DateField({

@@ -32,8 +32,9 @@ from .serializers import SemanticQuerySerializer, SemanticQuerySerializerFull
 
 MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank node.'
 MUST_EQUAL_IDENTIFIER_400 = 'PUT must affect exactly the resource URI.'
-MUST_BE_OWNER_403 = 'PUT is only allowed to the resource owner.'
+MUST_BE_OWNER_403 = 'PUT or DELETE is only allowed to the resource owner.'
 BLANK_OBJECT_PREDICATE_400 = 'Blank nodes in the predicate or object positions are not allowed.'
+DOES_NOT_EXIST_404 = 'Resource does not exist.'
 
 ANNOTATION_CUTOFF = 10 # don't return more than 10 annotations when querying by category
 
@@ -245,12 +246,12 @@ class ItemsAPISingular(RDFResourceView):
     def delete(self, request, format=None, **kwargs):
         existing = self.get_graph(request, **kwargs)
         if len(existing) == 0:
-            return error_response(request, HTTP_404_NOT_FOUND, DOES_NOT_EXIST_404)
+            raise NotFound(detail=DOES_NOT_EXIST_404)
         user, now = submission_info(request)
         identifier = URIRef(self.get_resource_uri(request, **kwargs))
         creator = existing.value(identifier, DCTERMS.creator)
         if user != creator:
-            return error_response(request, HTTP_403_FORBIDDEN, MUST_BE_OWNER_403)
+            raise PermissionDenied(detail=MUST_BE_OWNER_403)
         full_graph = self.graph()
         full_graph -= existing
         return Response(existing)
