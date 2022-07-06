@@ -26,7 +26,7 @@
         "i18next": "^11.6.0",
         "i18next-browser-languagedetector": "^2.2.3",
         "jquery": "^3.5.1",
-        "jquery-validation": "^1.19.4",
+        "jquery-validation": "^1.19.5",
         "js-cookie": "^2.2.0",
         "jsonld": "^1.5.1",
         "lodash": "^4.17.21",
