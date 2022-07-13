@@ -4,23 +4,24 @@
     </h1>
     <div class="card sources">
         <div class="card-content">
-            <p class="title">Sources</p>
-            <p class="subtitle">You uploaded {{userSources}} of {{totalSources}} sources.</p>
+            <p class="title">{{#i18n 'landing.sources-title'}}Sources{{/i18n}}</p>
+            <p class="subtitle">{{#i18n 'landing.sources-tally'}}You uploaded {{userSources}} of {{totalSources}} sources.{{/i18n}}</p>
         </div>
         <div class="card-footer">
-            <a href="explore/sources/mine" class="card-footer-item user-sources">View your sources</a>
-            <a href="explore/sources" class="card-footer-item user-sources">Explore sources</a>
+            <a href="explore/sources/mine" class="card-footer-item user-sources">{{#i18n 'landing.view-sources'}}View your sources{{/i18n}}</a>
+            <a href="explore/sources" class="card-footer-item user-sources">{{#i18n 'landing.explore-sources'}}Explore sources{{/i18n}}</a>
         </div>
     </div>
     <div class="card items">
         <div class="card-content">
-            <p class="title">Items</p>
+            <p class="title">{{#i18n 'landing.items-title'}}Items{{/i18n}}</p>
             <p class="subtitle">
-            You created {{userItems}} of {{totalItems}} items.</p>
+                {{#i18n 'landing.items-tally'}}You created {{userItems}} of {{totalItems}} items.{{/i18n}}
+            </p>
         </div>
         <div class="card-footer">
-            <a href="explore/items/mine" class="card-footer-item user-items">View your items</a>
-            <a href="explore/items" class="card-footer-item user-items">Explore items</a>
+            <a href="explore/items/mine" class="card-footer-item user-items">{{#i18n 'landing.view-items'}}View your items{{/i18n}}</a>
+            <a href="explore/items" class="card-footer-item user-items">{{#i18n 'landing.explore-items'}}Explore items{{/i18n}}</a>
         </div>
     </div>
 </div>

@@ -1,14 +1,13 @@
-import { find, findKey, includes, map, compact, some, isString } from 'lodash';
+import { find, findKey, map, compact, some, isString } from 'lodash';
 import * as i18next from 'i18next';
 
 import ldChannel from '../common-rdf/radio';
-import { Identifier, isIdentifier } from '../common-rdf/json';
+import { isIdentifier } from '../common-rdf/json';
 import Node, { isNode, NodeLike } from '../common-rdf/node';
-import Graph, { ReadOnlyGraph } from '../common-rdf//graph';
+import Graph from '../common-rdf//graph';
 import {
     nlp, skos, rdf, rdfs, readit, dcterms, owl, schema, nsMap,
 } from '../common-rdf/ns';
-import FilteredCollection from '../common-adapters/filtered-collection';
 
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 

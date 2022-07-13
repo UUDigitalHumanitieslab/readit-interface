@@ -1,11 +1,24 @@
-<nav class="navbar" role="navigation" aria-label="main navigation">
+<nav
+    class="navbar"
+    role="navigation"
+    aria-label="{{#i18n 'label.main-navigation'}}main navigation{{/i18n}}"
+>
     <div class="container">
         <div class="navbar-brand">
-            <a class="navbar-item" href="/">
+            <a
+                class="navbar-item tooltip is-tooltip-bottom"
+                href="/"
+                data-tooltip="{{#i18n 'tooltip.menu-banner'}}Go to the landing page{{/i18n}}"
+            >
                 <img src="{{static 'image/read-it-logo-med-colour-no-letters.png'}}" alt="Read-It">
             </a>
-            <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
-                data-target="navbarMenu">
+            <a
+                role="button"
+                class="navbar-burger burger"
+                aria-label="{{#i18n 'label.menu'}}menu{{/i18n}}"
+                aria-expanded="false"
+                data-target="navbarMenu"
+            >
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
@@ -13,12 +26,19 @@
         </div>
         <div id="navbarMenu" class="navbar-menu">
             <div class="navbar-start">
-                <a class="navbar-item" href="/search">
+                <a class="navbar-item tooltip is-tooltip-bottom" data-tooltip="{{#i18n 'tooltip.about-readit'}}Find out more about the READ-IT project{{/i18n}}" href="https://readit-project.eu" target="_blank">
+                    <span class="icon-text">
+                        <span class="icon is-small has-text-primary">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                        <span>{{#i18n 'button.about'}}About{{/i18n}}</span>
+                </a>
+                <a class="navbar-item tooltip is-tooltip-bottom" data-tooltip="{{#i18n 'tooltip.search-menu'}}Search reading experiences and annotations{{/i18n}}" href="/search">
                     <span class="icon-text">
                         <span class="icon is-small has-text-primary">
                             <i class="fas fa-search"></i>
                         </span>
-                        <span>Search</span>
+                        <span>{{#i18n 'button.search'}}Search{{/i18n}}</span>
                     </span>
                 </a>
                 <div class="navbar-item has-dropdown is-hoverable">
@@ -27,34 +47,45 @@
                             <span class="icon is-small has-text-primary">
                                 <i class="fas fa-compass"></i>
                             </span>
-                            <span>Explore</span>
+                            <span>{{#i18n 'button.explore'}}Explore{{/i18n}}</span>
                         </span>
                     </a>
                     <div class="navbar-dropdown">
-                        <a href="/explore/sources" class="navbar-item" id="source-list">
-                            Sources
+                        <a
+                            href="/explore/sources"
+                            class="navbar-item tooltip is-tooltip-right"
+                            id="source-list"
+                            data-tooltip="{{#i18n 'tooltip.explore-sources'}}Discover a random selection of sources{{/i18n}}"
+                        >
+                            {{#i18n 'button.sources'}}Sources{{/i18n}}
                         </a>
-                        <a href="/explore/items" class="navbar-item" id="item-list">
-                            Items
+                        <a
+                            href="/explore/items"
+                            class="navbar-item tooltip is-tooltip-right"
+                            id="item-list"
+                            data-tooltip="{{#i18n 'tooltip.explore-items'}}Discover a random selection of annotated items{{/i18n}}"
+                        >
+                            {{#i18n 'button.items'}}Items{{/i18n}}
                         </a>
                     </div>
                 </div>
                 {{#if uploadSources}}
-                <a class="navbar-item" href="/upload">
+                <a class="navbar-item tooltip is-tooltip-bottom"
+                    data-tooltip="{{#i18n 'tooltip.upload'}}Upload reading testimonies for annotation{{/i18n}}" href="/upload">
                     <span class="icon-text">
                         <span class="icon is-small has-text-primary">
                             <i class="fas fa-upload"></i>
                         </span>
-                        <span>Upload</span>
+                        <span>{{#i18n 'button.upload'}}Upload{{/i18n}}</span>
                     </span>
                 </a>
                 {{/if}}
             </div>
             <div class="navbar-end">
-                <a class="navbar-item tooltip is-tooltip-left" data-tooltip="Contribute to READ-IT through the project website"
+                <a class="navbar-item tooltip is-tooltip-bottom" data-tooltip="{{#i18n 'tooltip.contribute'}}Find out how to contribute to READ-IT{{/i18n}}"
                     href="https://readit-project.eu/contact/contribute-to-read-it/", target="_blank">
                     <span class="icon-text">
-                        <span>Contribute</span>
+                        <span>{{#i18n 'button.contribute'}}Contribute{{/i18n}} </span>
                         <span class="icon is-small has-text-primary">
                             <i class="fas fa-external-link-alt"></i>
                         </span>
@@ -63,24 +94,32 @@
                 {{#if username}}
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">
-                        {{#i18n 'greeting'}}Hello, {{username}}!{{/i18n}}
+                        {{#i18n 'button.greeting'}}Hello, {{username}}!{{/i18n}}
                     </a>
                     <div class="navbar-dropdown">
                         <a class="navbar-item" href="/landing">
-                            Personal landing page
+                            {{#i18n 'button.landing-page'}}Personal landing page{{/i18n}}
                         </a>
-                        <a class="navbar-item" href="/explore/sources/mine">
-                            My sources
+                        <a
+                            class="navbar-item tooltip is-tooltip-left"
+                            href="/explore/sources/mine"
+                            data-tooltip="{{#i18n 'tooltip.my-sources-menu'}}View the sources that you uploaded{{/i18n}}"
+                        >
+                            {{#i18n 'button.my-sources'}}My sources{{/i18n}}
                         </a>
-                        <a class="navbar-item" href="/explore/items/mine">
-                            My items
+                        <a
+                            class="navbar-item tooltip is-tooltip-left"
+                            href="/explore/items/mine"
+                            data-tooltip="{{#i18n 'tooltip.my-items-menu'}}View the items that you annotated{{/i18n}}"
+                        >
+                            {{#i18n 'button.my-items'}}My items{{/i18n}}
                         </a>
                         <hr class="navbar-divider">
-                        <a class="navbar-item" id="feedback">
-                            Feedback
+                        <a class="navbar-item tooltip is-tooltip-left" data-tooltip="{{#i18n 'tooltip.feedback'}}Give us feedback on the interface{{/i18n}}" id="feedback">
+                            {{#i18n 'button.feedback'}}Feedback{{/i18n}}
                         </a>
                         <a class="navbar-item" id="logout" href="/leave">
-                            Log out
+                            {{#i18n 'button.log-out'}}Log out{{/i18n}}
                         </a>
                     </div>
                 </div>
@@ -90,7 +129,7 @@
                         <span class="icon is-small has-text-primary">
                             <i class="fas fa-sign-in-alt"></i>
                         </span>
-                        <span>{{#i18n 'login'}}Login{{/i18n}}</span>
+                        <span>{{#i18n 'button.login'}}Login{{/i18n}}</span>
                     </span>
                 </a>
                 {{/if}}

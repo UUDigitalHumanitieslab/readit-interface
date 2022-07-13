@@ -173,7 +173,7 @@ class ExplorerEventController {
         const flatItems = new FlatItemCollection(items);
         const filteredItems = new FilteredCollection(flatItems, 'annotation');
         const resultView = new SearchResultListPanel({
-            title:i18next.t('heading.annotations', 'Annotations'),
+            title:i18next.t('annotation.list-title', 'Annotations'),
             model: item,
             collection: filteredItems,
             selectable: false,
@@ -325,10 +325,15 @@ class ExplorerEventController {
             landing = false;
         }
         const title = `${landing ? 'My' : 'Sample'} ${queryMode}`;
+        const i18nKey = `button.${title.toLowerCase().replace(' ', '-')}`;
         const endpoint = `${queryMode}:${landing ? 'user' : 'sample'}`;
         const collection = new FlatItemCollection(ldChannel.request(endpoint));
         const browsePanel = new SearchResultListPanel({
-            title,
+            // i18next.t('button.my-sources', 'My sources');
+            // i18next.t('button.sample-sources', 'Sample sources');
+            // i18next.t('button.my-items', 'My items');
+            // i18next.t('button.sample-items', 'Sample items');
+            title: i18next.t(i18nKey, title),
             collection,
             selectable: false,
         });

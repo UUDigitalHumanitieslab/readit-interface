@@ -5,10 +5,10 @@
 <h5 class="title is-5">{{model.attributes.label}}</h5>
 
 {{#unless properties}}
-<i>No further details</i>
+<i>{{#i18n 'item.no-properties'}}No further details{{/i18n}}</i>
 {{/unless}}
 {{#each properties}}
 <p>
-    <b>{{@key}}: </b>{{this}}
+    <b>{{@key}}{{#i18n 'interpunction.colon'}}: {{/i18n}}</b>{{this}}
 </p>
 {{/each}}

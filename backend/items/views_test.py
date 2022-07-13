@@ -137,6 +137,9 @@ def test_delete_item(auth_client, itemgraph_db):
     assert (ITEM['1'], RDF.type, OA.TextQuoteSelector) in output_graph
     assert len(set(graph().triples((ITEM['1'], None, None)))) == 0
 
+    response, _ = submit_data(auth_client, Graph(), 'delete', 36)
+    assert response.status_code == 404
+
 
 def test_blanknodes_post(auth_client, sparqlstore):
     triple = (BNode(), RDF.type, BNode())

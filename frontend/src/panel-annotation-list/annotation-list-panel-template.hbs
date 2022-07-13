@@ -1,17 +1,17 @@
 <div class="panel-header">
     <header>
-        <h3 class="title is-3">Annotations</h3>
+        <h3 class="title is-3">{{#i18n 'annotation.list-panel-title'}}Annotations{{/i18n}}</h3>
     </header>
     <div class="buttons is-right">
         <button type=button class="button filter">
             <span class="icon is-large has-text-primary tooltip is-tooltip-left"
-                data-tooltip="{{#i18n 'adjust-filter'}}Adjust filter{{/i18n}}">
+                data-tooltip="{{#i18n 'tooltip.filter'}}Filter{{/i18n}}">
                 <i class="fas fa-filter"></i>
             </span>
         </button>
         <a class="button rdf-export" href="{{downloadLink}}">
             <span class="icon is-large has-text-primary tooltip is-tooltip-left"
-                data-tooltip="Export annotations">
+                data-tooltip="{{#i18n 'tooltip.export-annotations'}}Export annotations{{/i18n}}">
                 <i class="fas fa-download"></i>
             </span>
         </a>
@@ -21,7 +21,7 @@
                     <i class="fas fa-times"></i>
                 </button>
                 <header>
-                    <h4 class="title is-4">{{#i18n 'button-filter'}}Filter{{/i18n}}</h4>
+                    <h4 class="title is-4">{{#i18n 'annotation.filter-heading'}}Filter{{/i18n}}</h4>
                 </header>
             </div>
             <div class="panel-content"></div>

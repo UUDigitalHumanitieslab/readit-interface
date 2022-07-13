@@ -6,6 +6,7 @@ import { dcterms }  from '../common-rdf/ns';
 import Node, { isNode } from '../common-rdf/node';
 import { getLabel, getTurtleTerm } from '../utilities/linked-data-utilities';
 import explorerChannel from '../explorer/explorer-radio';
+import i18nChannel from '../i18n/radio';
 
 import metadataTemplate from './source-metadata-template';
 
@@ -17,11 +18,16 @@ const excludedProperties = [
     'owl:sameAs'
 ];
 
-const sourceDeletionDialog = `
+let sourceDeletionDialog: string;
+const dialogDefault = `
 Are you sure you want to delete this source?
 If you delete this source, all its annotation will be deleted as well, including any annotations that other users may have made.
 This cannot be undone.
 `;
+(async function() {
+    const i18next = await i18nChannel.request('i18next');
+    sourceDeletionDialog = i18next.t('source.delete-confirm', dialogDefault);
+}());
 
 export default class MetadataView extends View {
     /**
