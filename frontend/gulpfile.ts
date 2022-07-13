@@ -58,7 +58,7 @@ const sourceDir = `src`,
     buildDir = `dist`,
     nodeDir = `node_modules`,
     configModuleName = 'config.json',
-    indexConfig = argv.config || configModuleName,
+    indexConfig = argv['config'] || configModuleName,
     indexTemplate = `${sourceDir}/index.hbs`,
     indexOutput = `${buildDir}/index.html`,
     specRunnerTemplate = `${sourceDir}/specRunner.hbs`,
@@ -98,9 +98,9 @@ const sourceDir = `src`,
     mainStylesheet = `${styleDir}/main.sass`,
     styleSourceGlob = `${styleDir}/*.sass`,
     cssBundleName = 'index.css',
-    production = argv.production || false,
-    proxyConfig = argv.proxy,
-    serverRoot = argv.root,
+    production = argv['production'] || false,
+    proxyConfig = argv['proxy'],
+    serverRoot = argv['root'],
     ports = { frontend: 8080 },
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
     unpkgPattern = 'https://unpkg.com/${package}@${version}',
@@ -219,7 +219,7 @@ const configJSON: Promise<any> = new Promise((resolve, reject) => {
 });
 
 const unittestUrl = configJSON.then(json => {
-    const specRunnerPort = argv.port || ports.frontend;
+    const specRunnerPort = argv['port'] || ports.frontend;
     const specRunnerOutput = `${json.staticRoot}specRunner.html`;
     const host = `localhost:${specRunnerPort}`;
     return `http://${host}${specRunnerOutput}`;
@@ -375,28 +375,6 @@ export const specRunner = (function () {
     return { render: specRunner, get };
 }());
 
-const buildUnittests = parallel(terminalReporter, unittest, specRunner.render);
-
-export function runUnittests(done) {
-    specRunner.get(runner => {
-        const virtualConsole = new VirtualConsole();
-        virtualConsole.on('info', console.info);
-        virtualConsole.on('log', console.log);
-        virtualConsole.on('debug', console.debug);
-        virtualConsole.on('jsdomError', console.error);
-        const jsDOM = new JSDOM(runner.contents.toString(), {
-            url: `http://localhost:${argv.port || ports.frontend}`,
-            runScripts: 'dangerously',
-            resources: 'usable',
-            virtualConsole,
-        });
-        virtualConsole.on('timeEnd', () => {
-            jsDOM.window.close();
-            done();
-        });
-    });
-}
-
 export function image() {
     return src(imageDir).pipe(symlink(buildDir));
 };
@@ -406,6 +384,27 @@ const complement = parallel(style, index, image);
 export const dist = parallel(script, complement);
 
 const fullStatic = parallel(template, complement, specRunner.render);
+
+const buildUnittests = parallel(
+    image, terminalReporter, unittest, specRunner.render
+);
+
+export function runUnittests(done) {
+    specRunner.get(runner => {
+        const virtualConsole = new VirtualConsole();
+        virtualConsole.on('info', console.info);
+        virtualConsole.on('log', console.log);
+        virtualConsole.on('debug', console.debug);
+        virtualConsole.on('jsdomError', console.error);
+        const jsDOM = new JSDOM(runner.contents.toString(), {
+            url: `http://localhost:${argv['port'] || ports.frontend}`,
+            runScripts: 'dangerously',
+            resources: 'usable',
+            virtualConsole,
+        });
+        virtualConsole.on('timeEnd', done);
+    });
+}
 
 export function serve(done) {
     let serverOptions: any = {

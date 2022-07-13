@@ -11,7 +11,7 @@ import SegmentCollection from '../highlight/text-segment-collection';
 import HighlightLayer from './highlight-layer-view';
 
 describe('HighlighLayerView', function() {
-    const it = onlyIf(document.createRange, 'This suite needs Range support.');
+    const it = onlyIf(document.createRange().getClientRects, 'This suite needs Range support.');
 
     beforeAll(startStore);
 
