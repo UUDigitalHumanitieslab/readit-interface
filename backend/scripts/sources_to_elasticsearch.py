@@ -106,3 +106,19 @@ def resolve_language(input_language):
             return result
         else:
             return 'other'
+
+
+def remove_text_other():
+    '''Removes text_other field from elastic search index.
+    Returns query result to allow inspection of number of updated records.
+    '''
+    update_body = {
+        "script":  "ctx._source.remove('text_other')",
+        "query": {
+            "exists": {"field": "text_other"}
+        }
+    }
+    return es.update_by_query(
+        body=update_body,
+        index=settings.ES_ALIASNAME,
+        conflicts='proceed')
