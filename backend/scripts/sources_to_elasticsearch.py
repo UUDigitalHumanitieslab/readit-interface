@@ -118,7 +118,17 @@ def remove_text_other():
             "exists": {"field": "text_other"}
         }
     }
-    return es.update_by_query(
+    update_body_capitalized = {
+        "script":  "ctx._source.remove('text_Other')",
+        "query": {
+            "exists": {"field": "text_Other"}
+        }
+    }
+    print(es.update_by_query(
         body=update_body,
         index=settings.ES_ALIASNAME,
-        conflicts='proceed')
+        conflicts='proceed'))
+    print(es.update_by_query(
+        body=update_body_capitalized,
+        index=settings.ES_ALIASNAME,
+        conflicts='proceed'))
