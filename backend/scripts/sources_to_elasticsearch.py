@@ -51,10 +51,12 @@ def text_to_index():
         with open(filename, 'r', encoding='utf8') as f:
             text = f.read()
         es.index(settings.ES_ALIASNAME, {
-            'id': serial,
-            'language': language,
-            'text': text,
-            'text_{}'.format(language): text
+            **{
+                'id': serial,
+                'language': language,
+                'text': text
+            },
+            **({'text_{}'.format(language): text} if language != 'other' else {})
         })
 
 

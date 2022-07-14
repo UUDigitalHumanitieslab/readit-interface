@@ -317,12 +317,14 @@ class AddSource(RDFResourceView):
         xml_sanitized_text = invalid_xml_remove(raw_text)
         text = html.escape(xml_sanitized_text)
         es.index(settings.ES_ALIASNAME, {
-            'id': source_id,
-            'language': source_language,
-            'author': author,
-            'title': title,
-            'text': text,
-            'text_{}'.format(source_language): text
+            **{
+                'id': source_id,
+                'language': source_language,
+                'author': author,
+                'title': title,
+                'text': text,
+            },
+            **({'text_{}'.format(source_language): text} if source_language != 'other' else {})
         })
         return text
 
