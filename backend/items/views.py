@@ -250,7 +250,7 @@ class ItemsAPISingular(RDFResourceView):
         user, now = submission_info(request)
         identifier = URIRef(self.get_resource_uri(request, **kwargs))
         creator = existing.value(identifier, DCTERMS.creator)
-        if user != creator:
+        if user != creator and not request.user.is_superuser:
             raise PermissionDenied(detail=MUST_BE_OWNER_403)
         full_graph = self.graph()
         full_graph -= existing
