@@ -133,6 +133,7 @@ def test_put_item(auth_client, itemgraph_db):
 
 def test_delete_item(auth_client, itemgraph_db):
     response, output_graph = submit_data(auth_client, Graph(), 'delete', 1)
+    assert response.status_code == 200
     assert len(output_graph) == 6
     assert (ITEM['1'], RDF.type, OA.TextQuoteSelector) in output_graph
     assert len(set(graph().triples((ITEM['1'], None, None)))) == 0
@@ -143,6 +144,7 @@ def test_delete_item(auth_client, itemgraph_db):
 
 def test_delete_item_super(super_client, itemgraph_db):
     response, output_graph = submit_data(super_client, Graph(), 'delete', 1)
+    assert response.status_code == 200
     assert len(output_graph) == 6
     assert (ITEM['1'], RDF.type, OA.TextQuoteSelector) in output_graph
     assert len(set(graph().triples((ITEM['1'], None, None)))) == 0
