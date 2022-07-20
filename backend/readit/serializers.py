@@ -30,6 +30,7 @@ class UserDetailsSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'email', 'first_name', 'last_name',
                   'is_staff', 'is_superuser', 'permissions')
+        read_only_fields = ('username', 'email', 'is_staff', 'is_superuser')
 
     def get_permissions(self, user):
         permissions = []
