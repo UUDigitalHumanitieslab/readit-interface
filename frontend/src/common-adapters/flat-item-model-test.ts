@@ -14,7 +14,7 @@ import mockNLP from '../mock-data/mock-nlp-ontology';
 import mockItems from '../mock-data/mock-items';
 
 import { skos, dcterms, oa, readit, nlp, item } from '../common-rdf/ns';
-import ldChannel from '../common-rdf/radio';
+import userChannel from '../common-user/user-radio';
 import { asNative } from '../common-rdf/conversion';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
@@ -245,14 +245,14 @@ describe('FlatItem', function() {
         const items = getFullItems();
         const ontologyClass = new Node(contentClass);
         const userURI = (items.annotation.get(dcterms.creator)[0] as Node).id;
-        ldChannel.reply('current-user-uri', constant(userURI));
+        userChannel.reply('current-user-uri', constant(userURI));
         const flatAnno = new FlatItem(items.annotation);
         await completion(flatAnno);
         expect(flatAnno.get('isOwn')).toBe(true);
         const filterClasses = flatAnno.getFilterClasses();
         expect(filterClasses).not.toContain('rit-other-made');
         expect(filterClasses).toContain('rit-self-made');
-        ldChannel.stopReplying('current-user-uri');
+        userChannel.stopReplying('current-user-uri');
     });
 
     it('tracks the related class', async function() {

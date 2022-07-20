@@ -3,6 +3,7 @@ import { noop, each, includes, throttle } from 'lodash';
 import Model from '../core/model';
 import { skos, dcterms, oa, item, vocab } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
+import userChannel from '../common-user/user-radio';
 import Node from '../common-rdf/node';
 import {
     getLabel,
@@ -362,7 +363,7 @@ export default class FlatItem extends Model {
             this.set('isOwn', false);
             return;
         }
-        const userURI = ldChannel.request('current-user-uri');
+        const userURI = userChannel.request('current-user-uri');
         this.set('isOwn', creator.id === userURI);
     }
 
