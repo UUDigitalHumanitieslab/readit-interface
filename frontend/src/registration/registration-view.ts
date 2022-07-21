@@ -9,17 +9,17 @@ export default class RegistrationFormView extends View {
 
     render(): this {
         this.$el.html(this.template(this));
-        this.$('form').validate({
+        this.$("form").validate({
             errorClass: "help is-danger",
             rules: {
                 email: {
                     required: true,
-                    email: true
+                    email: true,
                 },
-                password: "required",
-                password_again: {
-                    equalTo: "#password"
-                }
+                password1: "required",
+                password2: {
+                    equalTo: "#password",
+                },
             },
         });
         return this;
