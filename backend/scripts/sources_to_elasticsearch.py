@@ -125,9 +125,7 @@ def remove_text_other():
     }
     print(es.update_by_query(
         body=update_body,
-        index=settings.ES_ALIASNAME,
-        conflicts='proceed'))
+        index=settings.ES_ALIASNAME))
     print(es.update_by_query(
         body=update_body_capitalized,
-        index=settings.ES_ALIASNAME,
-        conflicts='proceed'))
+        index=settings.ES_ALIASNAME))
