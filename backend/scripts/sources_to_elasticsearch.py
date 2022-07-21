@@ -50,14 +50,13 @@ def text_to_index():
         language = resolve_language(language_object)
         with open(filename, 'r', encoding='utf8') as f:
             text = f.read()
-        es.index(settings.ES_ALIASNAME, {
-            **{
+        es.index(
+            settings.ES_ALIASNAME,
+            optional_localized({
                 'id': serial,
                 'language': language,
-                'text': text
-            },
-            **({'text_{}'.format(language): text} if language != 'other' else {})
-        })
+                'text': text})
+        )
 
 
 def title_author_to_index():
