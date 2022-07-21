@@ -35,7 +35,7 @@ from sparql.utils import invalid_xml_remove
 from . import namespace as ns
 from .constants import SOURCES_NS
 from .graph import graph as sources_graph
-from .utils import get_media_filename, get_serial_from_subject
+from .utils import get_media_filename, get_serial_from_subject, optional_localized
 from .models import SourcesCounter
 from .permissions import UploadSourcePermission, DeleteSourcePermission
 from .tasks import poll_automated_annotations
@@ -316,14 +316,15 @@ class AddSource(RDFResourceView):
         raw_text = str(source_file.read().decode('utf8'))
         xml_sanitized_text = invalid_xml_remove(raw_text)
         text = html.escape(xml_sanitized_text)
-        es.index(settings.ES_ALIASNAME, {
-            'id': source_id,
-            'language': source_language,
-            'author': author,
-            'title': title,
-            'text': text,
-            'text_{}'.format(source_language): text
-        })
+        es.index(
+            settings.ES_ALIASNAME,
+            optional_localized({
+                'id': source_id,
+                'language': source_language,
+                'author': author,
+                'title': title,
+                'text': text,
+            }))
         return text
 
     def is_valid(self, data):

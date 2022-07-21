@@ -50,12 +50,13 @@ def text_to_index():
         language = resolve_language(language_object)
         with open(filename, 'r', encoding='utf8') as f:
             text = f.read()
-        es.index(settings.ES_ALIASNAME, {
-            'id': serial,
-            'language': language,
-            'text': text,
-            'text_{}'.format(language): text
-        })
+        es.index(
+            settings.ES_ALIASNAME,
+            optional_localized({
+                'id': serial,
+                'language': language,
+                'text': text})
+        )
 
 
 def title_author_to_index():
@@ -104,3 +105,27 @@ def resolve_language(input_language):
             return result
         else:
             return 'other'
+
+
+def remove_text_other():
+    '''Removes text_other field from elastic search index.
+    Returns query result to allow inspection of number of updated records.
+    '''
+    update_body = {
+        "script":  "ctx._source.remove('text_other')",
+        "query": {
+            "exists": {"field": "text_other"}
+        }
+    }
+    update_body_capitalized = {
+        "script":  "ctx._source.remove('text_Other')",
+        "query": {
+            "exists": {"field": "text_Other"}
+        }
+    }
+    print(es.update_by_query(
+        body=update_body,
+        index=settings.ES_ALIASNAME))
+    print(es.update_by_query(
+        body=update_body_capitalized,
+        index=settings.ES_ALIASNAME))
