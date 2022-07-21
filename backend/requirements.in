@@ -1,11 +1,11 @@
 celery
 django>=3.2,<4
-djangorestframework
-django-rest-auth[with_social]
 defusedxml<0.6.0
+dj-rest-auth[with_social]
+django-cors-headers
 django-livereload-server
 django-proxy
-django-cors-headers
+djangorestframework
 elasticsearch
 rdflib>6
 rdflib-django3
