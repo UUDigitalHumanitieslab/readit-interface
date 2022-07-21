@@ -42,7 +42,7 @@ urlpatterns = [
         'rest_framework.urls',
         namespace='rest_framework',
     )),
-    path('rest-auth/', include('rest_auth.urls')),
+    path('rest-auth/', include('dj_rest_auth.urls')),
     path('rest-auth/registration/', include('register.urls')),
     re_path(r'proxy/(?P<url>.*)', decode_and_proxy),
     path(VOCAB_ROUTE, include('vocab.urls')),
