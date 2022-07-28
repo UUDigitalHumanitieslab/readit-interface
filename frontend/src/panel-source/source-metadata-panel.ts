@@ -34,63 +34,68 @@ export default class MetadataPanel extends CompositeView {
     initialize(): this {
         this.model.when(dcterms.creator, this.checkOwnership, this);
         this.identifier = getLabelFromId(this.model.id as string);
-        this.sourceMetadataView = new SourceMetadataView({model: this.model});
-        this.render().listenTo(this.model, 'change', this.render);
-        this.listenTo(this.sourceMetadataView, 'valueChanged', this.pushChange);
+        this.sourceMetadataView = new SourceMetadataView({ model: this.model });
+        this.render().listenTo(this.model, "change", this.render);
+        this.listenTo(this.sourceMetadataView, "valueChanged", this.pushChange);
         return this;
     }
 
     renderContainer(): this {
         this.$el.html(this.template(this));
-        this.$('.edit-mode').toggle();
+        this.$(".edit-mode").toggle();
         return this;
     }
 
     checkOwnership(model, creators: Node[]): void {
         const creator = creators[0];
-        const creatorId = creator.id || creator['@id'];
+        const creatorId = creator.id || creator["@id"];
         this.creator = getLabelFromId(creatorId);
-        const userUri = userChannel.request('current-user-uri');
+        const userUri = userChannel.request("current-user-uri");
         // user can view the source metadata, but not edit when they're not owner
-        this.userIsOwner = (creatorId === userUri);
+        this.userIsOwner = creatorId === userUri;
         this.render();
-        this.dateUploaded = this.model.attributes[sourceOntology('dateUploaded')][0].toLocaleDateString();
+        this.dateUploaded =
+            this.model.attributes[
+                sourceOntology("dateUploaded")
+            ][0].toLocaleDateString();
     }
 
     onCloseClicked() {
-        this.trigger('metadata:hide', this);
+        this.trigger("metadata:hide", this);
     }
 
     toggleEditMode() {
-        this.$('.btn-edit').toggle();
-        this.$('.edit-mode').toggle();
+        this.$(".btn-edit").toggle();
+        this.$(".edit-mode").toggle();
         this.sourceMetadataView.readonly = !this.sourceMetadataView.readonly;
         this.sourceMetadataView.render();
-        this.$('.date').find('input').prop('readonly', this.sourceMetadataView.readonly);
+        this.$(".date")
+            .find("input")
+            .prop("readonly", this.sourceMetadataView.readonly);
     }
 
     async onDeleteClicked() {
         if (!confirm(sourceDeletionDialog)) return;
-        const button = this.$('.btn-delete');
-        button.addClass('is-loading');
+        const button = this.$(".btn-delete");
+        button.addClass("is-loading");
         try {
-            await this.model.destroy({wait: true});
+            await this.model.destroy({ wait: true });
         } catch (e) {
             console.debug(e);
-            button.prop('disabled', true);
+            button.prop("disabled", true);
         } finally {
-            button.removeClass('is-loading');
+            button.removeClass("is-loading");
         }
     }
 
     pushChange(changedField: string, value: string) {
         this.changes[changedField] = value;
-    };
+    }
 
     onSubmit(event: JQueryEventObject): this {
         event.preventDefault();
         if (!isEmpty(this.changes)) {
-            this.model.save(this.changes, {patch: true});
+            this.model.save(this.changes, { patch: true });
         }
         this.toggleEditMode();
         return this;

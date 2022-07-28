@@ -22,8 +22,12 @@ export default class UploadSourceFormView extends CompositeView {
 
     initialize(): this {
         let self = this;
-        this.sourceMetadataView = new SourceMetadataView({readonly: false, upload: true});
-        
+        this.sourceMetadataView = new SourceMetadataView({
+            readonly: false,
+            upload: true,
+            model: new Node(),
+        });
+
         this.$el.validate({
             errorClass: "help is-danger",
             rules: {
@@ -153,8 +157,8 @@ export default class UploadSourceFormView extends CompositeView {
     }
 
     // Valid source types are subClassOf TFO_TextForm, subClassOf ReaditSourceType
-    // but not TFO_TextForm itself 
-    
+    // but not TFO_TextForm itself
+
 
 }
 extend(UploadSourceFormView.prototype, {

@@ -38,12 +38,12 @@ export default class SourceMetadataView extends CompositeView {
     creationDateField: DateField;
     retrievalDateField: DateField;
 
-    initialize(options: MetaDataOptions): this {
+    initialize(options: MetaDataOptions = {}): void {
         this.getOntology();
-        this.readonly = options.readonly !== undefined? options.readonly : true;
-        this.upload = options.upload !== undefined? options.upload : false;
-        this.listenTo(this.model, 'change', this.render);
-        return this;
+        this.readonly =
+            options.readonly !== undefined ? options.readonly : true;
+        this.upload = options.upload !== undefined ? options.upload : false;
+        this.listenTo(this.model, "change", this.render);
     }
 
     renderContainer(): this {
@@ -53,7 +53,7 @@ export default class SourceMetadataView extends CompositeView {
 
     afterRender(): this {
         // Assign names to select2 pickers to ensure form contains their data
-        this.$('.sourceTypeSelect select').attr({ 'name': 'sourceType' });
+        this.$(".sourceTypeSelect select").attr({ name: "sourceType" });
         this.renderValues();
         return this;
     }
@@ -62,58 +62,76 @@ export default class SourceMetadataView extends CompositeView {
         if (!node.has(rdfs.subClassOf)) {
             return false;
         }
-        return ((node.has(rdfs.subClassOf, {'@id': sourceNS('ReaditSourceType')})) &&
-            !(node.id == sourceNS('TFO_TextForm'))) ||
-            node.has(rdfs.subClassOf, {'@id':  sourceNS('TFO_TextForm')});
+        return (
+            (node.has(rdfs.subClassOf, {
+                "@id": sourceNS("ReaditSourceType"),
+            }) &&
+                !(node.id == sourceNS("TFO_TextForm"))) ||
+            node.has(rdfs.subClassOf, { "@id": sourceNS("TFO_TextForm") })
+        );
     }
 
     async getOntology() {
-        this.ontologyGraph = ldChannel.request('source-ontology:graph');
-        await this.ontologyGraph.sync();
+        this.ontologyGraph = await ldChannel.request("source-ontology:promise");
         this.setTypeOptions();
         this.initDateFields();
     }
 
     setTypeOptions(): void {
-        const sourceTypes = new FilteredCollection(this.ontologyGraph, this.isSourceType) as unknown as Graph;
-        this.sourceTypePicker = new Select2PickerView({ collection: sourceTypes });
+        const sourceTypes = new FilteredCollection(
+            this.ontologyGraph,
+            this.isSourceType
+        ) as unknown as Graph;
+        this.sourceTypePicker = new Select2PickerView({
+            collection: sourceTypes,
+        });
     }
 
     initDateFields() {
         this.publicationDateField = new DateField({
-            model: this.getNode('datePublished'),
-            name: 'datePublished',
+            model: this.getNode("datePublished"),
+            name: "datePublished",
             required: true,
-            label: i18next.t('label.publication-date', 'Publication date'),
+            label: i18next.t("label.publication-date", "Publication date"),
             additionalHelpText: `
-                ${i18next.t(
-                    'upload.publication-date-help.begin'
-                )}<a
+                ${i18next.t("upload.publication-date-help.begin")}<a
                     href="https://en.wikipedia.org/wiki/ISO_8601"
                     target="_blank"
                 >${i18next.t(
-                    'upload.publication-date-help.link',
-                    'ISO formatted date with optional time and timezone'
+                    "upload.publication-date-help.link",
+                    "ISO formatted date with optional time and timezone"
                 )}</a>${i18next.t(
-                    'upload.publication-date-help.end',
-                    ', or free-form text'
-                )}
-            `),
-            readonly: this.readonly
+                "upload.publication-date-help.end",
+                ", or free-form text"
+            )}
+            `,
+            readonly: this.readonly,
         });
         this.creationDateField = new DateField({
-            model: this.getNode('dateCreated'),
-            name: 'dateCreated',
-            label: i18next.t('label.creation-date-opt', 'Creation date (optional)'),
-            additionalHelpText: i18next.t('upload.creation-date-help', 'If known and different from publishing date, specify creation date.'),
-            readonly: this.readonly
+            model: this.getNode("dateCreated"),
+            name: "dateCreated",
+            label: i18next.t(
+                "label.creation-date-opt",
+                "Creation date (optional)"
+            ),
+            additionalHelpText: i18next.t(
+                "upload.creation-date-help",
+                "If known and different from publishing date, specify creation date."
+            ),
+            readonly: this.readonly,
         });
         this.retrievalDateField = new DateField({
-            model: this.getNode('dateRetrieved'),
-            name: 'dateRetrieved',
-            label: i18next.t('label.retrieval-date-opt', 'Retrieval date (optional)'),
-            additionalHelpText: i18next.t('upload.retrieval-date-help', 'Date (and optional time) at which the source was accessed or retrieved.'),
-            readonly: this.readonly
+            model: this.getNode("dateRetrieved"),
+            name: "dateRetrieved",
+            label: i18next.t(
+                "label.retrieval-date-opt",
+                "Retrieval date (optional)"
+            ),
+            additionalHelpText: i18next.t(
+                "upload.retrieval-date-help",
+                "Date (and optional time) at which the source was accessed or retrieved."
+            ),
+            readonly: this.readonly,
         });
         this.render();
     }
@@ -123,17 +141,23 @@ export default class SourceMetadataView extends CompositeView {
     }
 
     renderValues(): this {
-        if (!this.model) return;
+        if (!this.model) return this;
         for (let attribute in this.model.attributes) {
             if (attribute.startsWith(sourceOntologyPrefix)) {
-                const attributeLabel = getLabelFromId(attribute);
-                const queryString = `[name='` + `${attributeLabel}` + `']`
+                const attributeLabel = getLabelFromId(attribute) as string;
+                const queryString = `[name='` + `${attributeLabel}` + `']`;
                 const element = this.$(queryString);
                 if (element.length) {
                     let value = this.model.get(attribute)[0];
                     if (externalAttributes.includes(attributeLabel)) {
-                        const nodeFromUri = ldChannel.request('obtain', value.id);
-                        value = typeof nodeFromUri === 'string'? nodeFromUri : getLabel(nodeFromUri);
+                        const nodeFromUri = ldChannel.request(
+                            "obtain",
+                            value.id
+                        );
+                        value =
+                            typeof nodeFromUri === "string"
+                                ? nodeFromUri
+                                : getLabel(nodeFromUri);
                     }
                     element.val(value);
                 }
@@ -146,16 +170,15 @@ export default class SourceMetadataView extends CompositeView {
         const node = this.model.get(sourceNS(attribute));
         if (node) {
             return node[0];
-        }
-        else return '';
+        } else return "";
     }
 
-    updateModel(event){
+    updateModel(event) {
         const changedField = event.target.name;
         const value = this.$(`[name='` + `${changedField}` + `']`).val();
         const existingValue = this.model.get(sourceNS(changedField));
         if (existingValue !== [value]) {
-            this.trigger('valueChanged', changedField, value);
+            this.trigger("valueChanged", changedField, value);
         }
     }
 }
