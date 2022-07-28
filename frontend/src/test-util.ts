@@ -5,6 +5,7 @@ import { extend } from 'lodash';
 import { Events } from 'backbone';
 
 import Store from './common-rdf/store';
+import { placeholderClass } from './utilities/annotation-utilities';
 import './global/hbsHelpers';
 import './global/hbsPartials';
 import { i18nPromise } from './global/i18n';
@@ -35,6 +36,7 @@ export function startStore() {
         prerequest: () => ++this._pendingRequests,
         request: () => --this._pendingRequests,
     });
+    this._globalGraph.add(placeholderClass);
 }
 export async function endStore() {
     const requestTracker = jasmine.Ajax.requests;
