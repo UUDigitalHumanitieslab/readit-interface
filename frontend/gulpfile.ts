@@ -6,11 +6,15 @@ import { Readable } from 'stream';
 import { src, dest, symlink, parallel, series, watch as watchApi } from 'gulp';
 import * as vinylStream from 'vinyl-source-stream';
 import * as vinylBuffer from 'vinyl-buffer';
+import * as nodeSass from 'node-sass';
 import * as log from 'fancy-log';
 import * as exorcist from 'exorcist';
 import globbedBrowserify from 'gulp-browserify-watchify-glob';
 import * as loadPlugins from 'gulp-load-plugins';
 const plugins = loadPlugins();
+// verderop na const plugins = loadPlugins();
+const sass = plugins.sass(nodeSass);
+
 
 import * as browserify from 'browserify';
 import * as tsify from 'tsify';
@@ -26,6 +30,7 @@ import { argv } from 'yargs';
 import { JSDOM, VirtualConsole } from 'jsdom';
 import * as through2 from 'through2';
 import chalk from 'chalk';
+
 
 type LibraryProps = {
     module: string,
@@ -53,7 +58,7 @@ const sourceDir = `src`,
     buildDir = `dist`,
     nodeDir = `node_modules`,
     configModuleName = 'config.json',
-    indexConfig = argv.config || configModuleName,
+    indexConfig = argv['config'] || configModuleName,
     indexTemplate = `${sourceDir}/index.hbs`,
     indexOutput = `${buildDir}/index.html`,
     specRunnerTemplate = `${sourceDir}/specRunner.hbs`,
@@ -65,10 +70,10 @@ const sourceDir = `src`,
     jsModuleType = `commonjs`,
     tsOptions = {
         target: `es5`,
-        lib: ['DOM', 'ES5', 'ES6', 'DOM.Iterable', 'ScriptHost'],
+        lib: ['DOM', 'ES5', 'ES6', 'es2020.string', 'DOM.Iterable', 'ScriptHost'],
         resolveJsonModule: true,
         paths: { configModuleName: indexConfig },
-        baseUrl: '.',
+        baseUrl: '.'
     },
     aliasOptions = {
         aliases: { [configModuleName]: `./${indexConfig}` },
@@ -93,9 +98,9 @@ const sourceDir = `src`,
     mainStylesheet = `${styleDir}/main.sass`,
     styleSourceGlob = `${styleDir}/*.sass`,
     cssBundleName = 'index.css',
-    production = argv.production || false,
-    proxyConfig = argv.proxy,
-    serverRoot = argv.root,
+    production = argv['production'] || false,
+    proxyConfig = argv['proxy'],
+    serverRoot = argv['root'],
     ports = { frontend: 8080 },
     jsdelivrPattern = 'https://cdn.jsdelivr.net/npm/${package}@${version}',
     unpkgPattern = 'https://unpkg.com/${package}@${version}',
@@ -106,7 +111,7 @@ const sourceDir = `src`,
 // by Browserify. They will be inserted in the order shown.
 const browserLibs: LibraryProps[] = [{
     module: 'jquery',
-    browser: 'jquery/dist/jquery.min',
+    browser: 'jquery/dist/jquery',
     global: '$',
     cdn: `${cdnjsPattern}/\${filenameMin}`,
 }, {
@@ -214,7 +219,7 @@ const configJSON: Promise<any> = new Promise((resolve, reject) => {
 });
 
 const unittestUrl = configJSON.then(json => {
-    const specRunnerPort = argv.port || ports.frontend;
+    const specRunnerPort = argv['port'] || ports.frontend;
     const specRunnerOutput = `${json.staticRoot}specRunner.html`;
     const host = `localhost:${specRunnerPort}`;
     return `http://${host}${specRunnerOutput}`;
@@ -322,7 +327,7 @@ export function style() {
     if (production) postcssPlugins.push(cssnano());
     return src(mainStylesheet)
         .pipe(ifNotProd(plugins.sourcemaps.init()))
-        .pipe(plugins.sass({ includePaths: [nodeDir] }))
+        .pipe(sass({ includePaths: [nodeDir] }))
         .pipe(plugins.postcss(postcssPlugins))
         .pipe(plugins.rename(cssBundleName))
         .pipe(ifNotProd(plugins.sourcemaps.write('.')))
@@ -370,28 +375,6 @@ export const specRunner = (function () {
     return { render: specRunner, get };
 }());
 
-const buildUnittests = parallel(terminalReporter, unittest, specRunner.render);
-
-export function runUnittests(done) {
-    specRunner.get(runner => {
-        const virtualConsole = new VirtualConsole();
-        virtualConsole.on('info', console.info);
-        virtualConsole.on('log', console.log);
-        virtualConsole.on('debug', console.debug);
-        virtualConsole.on('jsdomError', console.error);
-        const jsDOM = new JSDOM(runner.contents.toString(), {
-            url: `http://localhost:${argv.port || ports.frontend}`,
-            runScripts: 'dangerously',
-            resources: 'usable',
-            virtualConsole,
-        });
-        virtualConsole.on('timeEnd', () => {
-            jsDOM.window.close();
-            done();
-        });
-    });
-}
-
 export function image() {
     return src(imageDir).pipe(symlink(buildDir));
 };
@@ -401,6 +384,27 @@ const complement = parallel(style, index, image);
 export const dist = parallel(script, complement);
 
 const fullStatic = parallel(template, complement, specRunner.render);
+
+const buildUnittests = parallel(
+    image, terminalReporter, unittest, specRunner.render
+);
+
+export function runUnittests(done) {
+    specRunner.get(runner => {
+        const virtualConsole = new VirtualConsole();
+        virtualConsole.on('info', console.info);
+        virtualConsole.on('log', console.log);
+        virtualConsole.on('debug', console.debug);
+        virtualConsole.on('jsdomError', console.error);
+        const jsDOM = new JSDOM(runner.contents.toString(), {
+            url: `http://localhost:${argv['port'] || ports.frontend}`,
+            runScripts: 'dangerously',
+            resources: 'usable',
+            virtualConsole,
+        });
+        virtualConsole.on('timeEnd', done);
+    });
+}
 
 export function serve(done) {
     let serverOptions: any = {

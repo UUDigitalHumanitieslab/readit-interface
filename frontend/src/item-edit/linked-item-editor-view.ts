@@ -7,7 +7,7 @@ import { CompositeView } from '../core/view';
 import { asLD, Native } from '../common-rdf/conversion';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
-import { rdfs } from '../common-rdf/ns';
+import { rdfs, xsd } from '../common-rdf/ns';
 import Select2Picker from '../forms/select2-picker-view';
 import RemoveButton from '../forms/remove-button-view';
 import InputField from '../forms/input-field-view';
@@ -76,7 +76,7 @@ export default class LinkedItemEditor extends CompositeView {
     predicateFromModel(model: Model, selectedPredicate?: Node): this {
         selectedPredicate || (selectedPredicate = model.get('predicate'));
         if (!selectedPredicate) return this;
-        this.predicatePicker.val(selectedPredicate.id);
+        this.predicatePicker.val(selectedPredicate.id as string);
         return this;
     }
 

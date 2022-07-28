@@ -44,7 +44,7 @@ import menuView from '../global/menu-view';
 // to it when authentication fails.
 let formerUserState: string = userFsm.state;
 
-user.on('login:success sync', () => authFsm.handle('loginSuccess'));
+user.on('login:success', () => authFsm.handle('loginSuccess'));
 user.on('login:error', () => {
     authFsm.handle('loginFail');
     loginForm.onLoginFailed();

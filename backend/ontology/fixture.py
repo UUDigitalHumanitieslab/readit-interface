@@ -24,10 +24,6 @@ def replace_prefix(graph_in, prefix_in, prefix_out):
     replacing the prefix and then parsing the result into a new Graph.
     Not efficient; do not use for large graphs.
     """
-    if type(prefix_in) == str:
-        prefix_in = prefix_in.encode()
-    if type(prefix_out) == str:
-        prefix_out = prefix_out.encode()
     serialized = graph_in.serialize(format=REPARSE_FORMAT)
     replaced = serialized.replace(prefix_in, prefix_out)
     graph_out = Graph()

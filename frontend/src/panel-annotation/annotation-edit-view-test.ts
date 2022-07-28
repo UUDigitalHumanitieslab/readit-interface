@@ -6,8 +6,8 @@ import mockItems from '../mock-data/mock-items';
 import mockOntology from '../mock-data/mock-ontology';
 import { source1instance } from '../mock-data/mock-sources';
 
-import ldChannel from '../common-rdf/radio';
-import { item, dcterms } from '../common-rdf/ns';
+import userChannel from '../common-user/user-radio';
+import { oa, item, dcterms } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import FlatItem from '../common-adapters/flat-item-model';
@@ -63,7 +63,7 @@ describe('AnnotationEditView', function() {
     });
 
     it('can be constructed without the context of an ExplorerView', function() {
-        onlyIf(document.createRange, 'This test requires Range support.');
+        onlyIf(document.createRange().getClientRects, 'This test requires Range support.');
         this.textContainer.appendTo('body');
         const range = document.createRange();
         range.selectNodeContents(this.textContainer.get(0).firstChild);
@@ -83,16 +83,53 @@ describe('AnnotationEditView', function() {
         })).not.toThrow();
     });
 
+    it('holds on to the blank node after "create new" is clicked', async function() {
+        // This is a regression test for issue #504.
+        // We start with an identified annotation from our stock mock data.
+        const annotation = this.items.get(item('100'));
+        expect(annotation.get(oa.hasBody).length).toBe(2);
+
+        // The regression is about an annotation that starts out unidentified,
+        // so we wait until all events settle down and then remove the item.
+        await event(this.flat, 'complete');
+        annotation.unset(oa.hasBody, this.item);
+        expect(annotation.get(oa.hasBody).length).toBe(1);
+        expect(this.flat.has('item')).toBe(false);
+
+        // Creating an edit view for this annotation, by itself, should not
+        // change anything about the flat annotation model.
+        const view = new AnnotationEditView({ model: this.flat });
+        // We trigger the next event because it would also be triggered in a
+        // real world scenario and because the edit view will otherwise not
+        // create an event binding that is crucial to reproducing the
+        // regression.
+        view.itemOptions.trigger('update');
+        expect(view.itemMultifield).not.toBeDefined();
+        expect(annotation.get(oa.hasBody).length).toBe(1);
+        expect(this.flat.has('item')).toBe(false);
+
+        // When we click "create new", the edit view will create a blank node as
+        // the clean slate on which the user can set the properties of the item.
+        // This blank item must stay on and must not be immediately kicked off
+        // again by another chain of events (i.e., #504).
+        view.$('.create-item-button').click();
+        expect(view.itemMultifield).toBeDefined();
+        expect(annotation.get(oa.hasBody).length).toBe(2);
+        expect(this.flat.has('item')).toBe(true);
+
+        view.remove();
+    });
+
     it('displays a delete button if the current user created the annotation', async function() {
         const flat = this.flat;
         const creator = flat.get('creator') as Node;
-        ldChannel.reply('current-user-uri', constant(creator.id));
+        userChannel.reply('current-user-uri', constant(creator.id));
         const view = new AnnotationEditView({ model: flat });
         await modelHasAttribute(flat, 'text');
         view.render();
         expect(view.$('.panel-footer button.is-danger').length).toBe(1);
         view.remove();
-        ldChannel.stopReplying('current-user-uri');
+        userChannel.stopReplying('current-user-uri');
     });
 
     it('does not display a delete button otherwise', async function() {

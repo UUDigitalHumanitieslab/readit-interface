@@ -1,6 +1,8 @@
 from dateutil import parser
 from rdflib import Literal
 from rdf.ns import XSD
+from typing import Dict
+
 
 TEXT_FILENAME_PATTERN = 'sources/{:0>8}.txt'
 
@@ -43,3 +45,11 @@ def literal_from_datestring(datestr, ignoretz=True):
         return Literal(dt, datatype=XSD.date)
     except parser.ParserError:
         return Literal(datestr)
+def optional_localized(document: Dict) -> Dict:
+    '''Optionally adds text_<language> field to elasticsearch index
+    Skipped if language = 'other'
+    '''
+    language = document['language']
+    if language != 'other':
+        document['text_{}'.format(language)] = document['text']
+    return document

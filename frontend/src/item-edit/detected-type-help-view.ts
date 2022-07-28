@@ -1,5 +1,5 @@
-import { map, extend, propertyOf } from 'lodash';
-import { t } from 'i18next';
+import { map, extend, fromPairs } from 'lodash';
+import * as i18next from 'i18next';
 
 import { CompositeView } from '../core/view';
 import ldChannel from '../common-rdf/radio';
@@ -8,26 +8,14 @@ import { xsd } from '../common-rdf/ns';
 import ScopedIriLink from './scoped-iri-href-view';
 import template from './detected-type-help-template';
 
-const disambiguationHints = {
-    [xsd.integer]: t('typeHints.integer',
-        'Include extra leading zeros to force interpretation ' +
-        'as an integer type.'
-    ),
-    [xsd.base64Binary]: t('typeHints.base64Binary',
-        'Include internal whitespace to force interpretation ' +
-        'as base 64 binary data.'
-    ),
-    [xsd.gYear]: t('typeHints.gYear',
-        'Include time zone information (such as a final "Z") to force ' +
-        'interpretation as a Gregorian year.'
-    ),
-    [xsd.string]: t('typeHints.string',
-        'Start with a space to force interpretation as text or ' +
-        'a derived string type.'
-    ),
-};
-
-const getHint = propertyOf(disambiguationHints);
+// i18next.t('property.typeHints.integer')
+// i18next.t('property.typeHints.base64Binary')
+// i18next.t('property.typeHints.gYear')
+// i18next.t('property.typeHints.string')
+const typesWithHints = ['integer', 'base64Binary', 'gYear', 'string'];
+const typeAsPair = name => [xsd[name], `property.typeHints.${name}`];
+const disambiguationHints = fromPairs(map(typesWithHints, typeAsPair));
+const getHint = type => i18next.t(disambiguationHints[type]);
 
 /**
  * This is one of the p.help views used in LinkedItemEditor, to give the user

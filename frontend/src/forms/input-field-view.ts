@@ -7,11 +7,11 @@ export default class InputField extends View {
     }
 
     forwardChange(event) {
-        this.trigger('change', this, this.el.value, event);
+        this.trigger('change', this, this.$el.val(), event);
     }
 
     forwardKeyup(event) {
-        this.trigger('keyup', this, this.el.value, event);
+        this.trigger('keyup', this, this.$el.val(), event);
     }
 
     onKeyup(event) {

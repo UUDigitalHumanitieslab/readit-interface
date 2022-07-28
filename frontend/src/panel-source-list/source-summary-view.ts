@@ -31,7 +31,7 @@ export default class SourceSummaryView extends View {
         this.fields = options.fields;
         this.name = this.model.get(sourceOntology('title'))[0];
         this.author = this.model.get(sourceOntology('author'))[0];
-        this.identifier = this.model.id;
+        this.identifier = this.model.id as string;
         if (this.query !== undefined) {
             this.renderHighlights();
         }

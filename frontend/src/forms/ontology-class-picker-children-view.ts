@@ -4,6 +4,7 @@ import FlatItemCollection from '../common-adapters/flat-item-collection';
 import FlatItem from '../common-adapters/flat-item-model';
 import { CollectionView } from '../core/view';
 import attachTooltip from '../tooltip/tooltip-view';
+import toTooltip from '../tooltip/tooltip-model';
 import { animatedScroll, getScrollTop } from '../utilities/scrolling-utilities';
 import OntologyClassPickerItemView from './ontology-class-picker-item-view';
 
@@ -26,7 +27,7 @@ export default class OntologyClassPickerChildrenView extends CollectionView<
         const item = new OntologyClassPickerItemView({ model }).on({
             click: this.onItemClicked,
         }, this);
-        attachTooltip(item, { model });
+        attachTooltip(item, { model: toTooltip(model) });
         return item;
     }
 

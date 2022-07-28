@@ -1,0 +1,16 @@
+{{>sparqlPreamble}}
+
+construct {
+    ?subject ?prop ?val
+} where {
+    ?subject ?prop ?val;
+             dcterms:creator <{{userURI}}>.
+    {{#itemQuery}}
+    ?anno oa:hasBody ?subject.
+    ?subject a ?x.
+    {{/itemQuery}}
+    {{^itemQuery}}
+    ?subject a vocab:Source.
+    {{/itemQuery}}
+}
+ORDER BY desc(?subject)

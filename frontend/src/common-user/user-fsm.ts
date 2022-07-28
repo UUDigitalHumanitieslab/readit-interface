@@ -1,5 +1,3 @@
-import { defaults } from 'lodash';
-
 import AuthorizationFsm, { requireAuthorization } from './user-fsm-base';
 
 /**
@@ -8,12 +6,14 @@ import AuthorizationFsm, { requireAuthorization } from './user-fsm-base';
  * this.
  */
 const unprivilegedState = {
+    enter: requireAuthorization,
     leave: 'leaving',
     search: requireAuthorization,
     explore: requireAuthorization,
     upload: requireAuthorization,
+    land: 'landing',
     confirm: 'confirming',
-    notfound: 'lost',
+    notfound: 'lost'
 };
 
 /**
@@ -21,10 +21,12 @@ const unprivilegedState = {
  * the "arriving" state below for an example of how to extend this.
  */
 const privilegedState = {
+    enter: 'entering',
     leave: 'leaving',
     search: 'searching',
     explore: 'exploring',
     upload: 'uploading',
+    land: 'landing',
     confirm: 'confirming',
     notfound: 'lost',
 };
@@ -40,11 +42,13 @@ export default AuthorizationFsm.extend({
     // AuthorizationFsm.
     states: {
         travelling: unprivilegedState,
+        entering: privilegedState,
         leaving: unprivilegedState,
         searching: privilegedState,
         authorizationGranted: privilegedState,
         exploring: privilegedState,
         uploading: privilegedState,
+        landing: unprivilegedState,
         confirming: unprivilegedState,
         lost: unprivilegedState,
     },

@@ -1,19 +1,18 @@
-from rdflib import Graph, Literal
-
-from rdf.ns import *
+from rdf.ns import DCTYPES, RDF, RDFS, SCHEMA, Namespace
 from rdf.utils import graph_from_triples
+from rdflib import Literal
 
-from .constants import *
-from .fixture import *
+from .constants import ONTOLOGY_NS, SOURCE_PREFIX
+from .fixture import canonical_graph, replace_prefix
 
 
 def graph_with_prefix(prefix):
     my = Namespace(prefix)
     # Following triples for testing purposes only. URIs might not exist.
     return graph_from_triples((
-        ( my.sandwich,    RDF.type,    SCHEMA.Food     ),
-        ( DCTYPES.Series, RDFS.domain, my.TVChannel    ),
-        ( SCHEMA.Cat,     my.meow,     Literal('loud') ),
+        (my.sandwich,    RDF.type,    SCHEMA.Food),
+        (DCTYPES.Series, RDFS.domain, my.TVChannel),
+        (SCHEMA.Cat,     my.meow,     Literal('loud')),
     ))
 
 
@@ -33,5 +32,5 @@ def test_canonical_graph():
     g = canonical_graph()
     assert len(g) > 0
     text = g.serialize(format='n3')
-    assert ONTOLOGY_NS.encode() in text
-    assert SOURCE_PREFIX == ONTOLOGY_NS or SOURCE_PREFIX.encode() not in text
+    assert ONTOLOGY_NS in text
+    assert SOURCE_PREFIX == ONTOLOGY_NS or SOURCE_PREFIX not in text

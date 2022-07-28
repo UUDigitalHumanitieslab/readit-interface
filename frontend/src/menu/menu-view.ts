@@ -18,7 +18,7 @@ export default class MenuView extends View {
     }
 
     login() {
-        return this;
+        return this.trigger('login');
     }
 
     logout() {
@@ -29,13 +29,10 @@ export default class MenuView extends View {
         return this.trigger('feedback');
     }
 
-    annotate(): void {
-        console.log('annotate clicked! (not implemented yet)');
-    }
-
     toggleHamburger() {
         this.$('.navbar-burger, #navbarMenu').toggleClass('is-active');
     }
+
 }
 
 extend(MenuView.prototype, {
@@ -44,6 +41,7 @@ extend(MenuView.prototype, {
     events: {
         "click .navbar-burger": "toggleHamburger",
         "click #logout": "logout",
+        "click #login": "login",
         "click #feedback": "feedback",
         "click .navbar-item:not(.has-dropdown)": "toggleHamburger",
     }

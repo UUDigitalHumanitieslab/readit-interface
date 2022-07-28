@@ -1,41 +1,53 @@
-<nav class="pagination is-centered" role="navigation" aria-label="pagination">
-  <a class="pagination-previous">
-      <i class="fas fa-chevron-left"></i>
-  </a>
-  <a class="pagination-next">
-      <i class="fas fa-chevron-right"></i>
-  </a>
-  <ul class="pagination-list">
-    {{#if showPaginationLinks.start}}
-    <li>
-      <a id="page-first" class="pagination-link" aria-label="Goto page 1">1</a>
-    </li>
-    {{/if}}
-    {{#if showPaginationLinks.ellipsisStart}}
-    <li>
-      <span class="pagination-ellipsis">&hellip;</span>
-    </li>
-    {{/if}}
-    <li>
-      <a id="page-minus" class="pagination-link">{{pageMinus}}</a>
-    </li>
-    <li>
-      <a id="page-center" class="pagination-link" aria-current="page">{{pageCenter}}</a>
-    </li>
-    {{#if showPaginationLinks.pagePlus}}
-    <li>
-      <a id="page-plus" class="pagination-link">{{pagePlus}}</a>
-    </li>
-    {{/if}}
-    {{#if showPaginationLinks.ellipsisEnd}}
-    <li>
-      <span class="pagination-ellipsis">&hellip;</span>
-    </li>
-    {{/if}}
-    {{#if showPaginationLinks.end}}
-    <li>
-      <a id="page-last" class="pagination-link" aria-label="Goto last page">{{totalPages}}</a>
-    </li>
-    {{/if}}
-  </ul>
+<nav
+    class="pagination is-centered"
+    role="navigation"
+    aria-label="{{#i18n 'label.pagination'}}pagination{{/i18n}}"
+>
+    <a class="pagination-previous">
+        <i class="fas fa-chevron-left"></i>
+    </a>
+    <a class="pagination-next">
+        <i class="fas fa-chevron-right"></i>
+    </a>
+    <ul class="pagination-list">
+        {{#if showPaginationLinks.start}}
+        <li>
+            <a
+                id="page-first"
+                class="pagination-link"
+                aria-label="{{#i18n 'button.to-first-page'}}Go to page 1{{/i18n}}"
+            >1</a>
+        </li>
+        {{/if}}
+        {{#if showPaginationLinks.ellipsisStart}}
+        <li>
+            <span class="pagination-ellipsis">&hellip;</span>
+        </li>
+        {{/if}}
+        <li>
+            <a id="page-minus" class="pagination-link">{{pageMinus}}</a>
+        </li>
+        <li>
+            <a id="page-center" class="pagination-link" aria-current="page">{{pageCenter}}</a>
+        </li>
+        {{#if showPaginationLinks.pagePlus}}
+        <li>
+            <a id="page-plus" class="pagination-link">{{pagePlus}}</a>
+        </li>
+        {{/if}}
+        {{#if showPaginationLinks.ellipsisEnd}}
+        <li>
+            <span class="pagination-ellipsis">&hellip;</span>
+        </li>
+        {{/if}}
+        {{#if showPaginationLinks.end}}
+        <li>
+            <a
+                id="page-last"
+                class="pagination-link"
+                aria-label="{{#i18n 'button.to-last-page'}}Go to last page{{/i18n}}"
+            >{{totalPages}}</a>
+        </li>
+        {{/if}}
+    </ul>
 </nav>

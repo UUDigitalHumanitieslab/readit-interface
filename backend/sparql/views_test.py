@@ -1,8 +1,11 @@
 import json
 
 import pytest
+from nlp_ontology import namespace as nlp
+from rdf.ns import SCHEMA
 from rdf.utils import graph_from_triples
-from rdflib import Graph
+from rdflib import XSD, Graph, Literal
+
 from .exceptions import BlankNodeError
 from .views import SPARQLUpdateAPIView
 
@@ -11,10 +14,12 @@ UPDATE_URL = '/sparql/source/update'
 
 
 def check_content_type(response, content_type):
-    return content_type in response._headers['content-type'][1]
+    return content_type in response.headers['content-type']
 
 
-def test_insert(sparql_client, ontologygraph, test_queries):
+def test_insert(sparql_client, ontologygraph, test_queries, graph_db):
+    assert len(graph_db) == 0
+
     post_response = sparql_client.post(
         UPDATE_URL, {'update': test_queries.INSERT})
     assert post_response.status_code == 200
@@ -23,12 +28,14 @@ def test_insert(sparql_client, ontologygraph, test_queries):
     assert get_response.status_code == 200
     assert check_content_type(get_response, 'text/turtle')
 
-    get_data = Graph().parse(data=get_response.content, format='turtle')
+    get_data = Graph().parse(data=get_response.content, format='text/turtle')
+    assert len(graph_db) != 0
     assert len(get_data ^ ontologygraph) == 0
 
     # clean up
     sparql_client.post(
         UPDATE_URL, {'update': test_queries.DELETE_DATA})
+    assert len(graph_db) == 0
 
 
 def test_ask(client, test_queries, ontologygraph_db):
@@ -44,12 +51,14 @@ def test_ask(client, test_queries, ontologygraph_db):
     assert not json.loads(false_response.content.decode('utf8'))['boolean']
 
 
-def test_construct(client, test_queries, ontologygraph_db, triples):
+def test_construct(client, test_queries, ontologygraph_db):
     response = client.get(QUERY_URL, {'query': test_queries.CONSTRUCT})
     assert response.status_code == 200
 
     result_graph = Graph().parse(data=response.content, format='turtle')
-    exp_graph = graph_from_triples([triples[2]])
+    exp_graph = graph_from_triples(
+        ((SCHEMA.Cat,    nlp.meow,        Literal("loud", datatype=XSD.string)),)
+    )
     assert len(exp_graph ^ result_graph) == 0
 
 
@@ -80,7 +89,7 @@ def test_unsupported(sparql_client, unsupported_queries, sparqlstore):
         assert request.status_code == 400
 
 
-def test_delete(sparql_client, test_queries, ontologygraph_db):
+def test_delete(sparql_client, test_queries, ontologygraph_db, graph_db):
     # Should not delete if from another endpoint
     delete = sparql_client.post(
         '/sparql/source/update', {'update': test_queries.DELETE_FROM})
@@ -89,11 +98,13 @@ def test_delete(sparql_client, test_queries, ontologygraph_db):
     assert len(Graph().parse(data=res, format='turtle')) == 3
 
     # Should delete if endpoint and graph match
+    assert len(graph_db) != 2
     delete = sparql_client.post(
         UPDATE_URL, {'update': test_queries.DELETE})
     assert delete.status_code == 200
     res = sparql_client.get(QUERY_URL).content
     assert len(Graph().parse(data=res, format='turtle')) == 2
+    assert len(graph_db) == 2
 
 
 def test_select_from(sparql_client, test_queries, ontologygraph_db, ontologygraph, accept_headers):

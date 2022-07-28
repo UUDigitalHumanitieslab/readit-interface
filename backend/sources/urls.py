@@ -3,7 +3,7 @@ from django.urls import path, re_path
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from .views import SourcesAPIRoot, SourcesAPISingular, \
-    SourceSelection, SourceSuggestion, SourceHighlights, source_fulltext, AddSource, \
+    SourceSelection, SourceHighlights, source_fulltext, AddSource, \
     get_number_search_results
 
 app_name = 'sources'
@@ -15,5 +15,4 @@ urlpatterns = format_suffix_patterns([
     path('search', SourceSelection.as_view(), name='search-fulltext'),
     path('results_count', get_number_search_results, name='results_count'),
     path('highlight', SourceHighlights.as_view(), name='highlight'),
-    path('suggestion', SourceSuggestion.as_view(), name='source_suggest')
 ])

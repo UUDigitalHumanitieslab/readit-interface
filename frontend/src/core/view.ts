@@ -1,5 +1,9 @@
 import { bind, assign } from 'lodash'
-import { View as BView, ViewOptions as BViewOptions } from 'backbone';
+import {
+    Model as BModel,
+    View as BView,
+    ViewOptions as BViewOptions,
+} from 'backbone';
 import {
     CompositeView as BCompositeView,
     CollectionView as BCollectionView,
@@ -9,9 +13,9 @@ import { TemplateDelegate } from 'handlebars';
 import Model from './model';
 import Collection from './collection';
 
-export interface ViewOptions extends BViewOptions<Model> {
-    model?: Model;
-    collection?: Collection;
+export interface ViewOptions<M extends Model = Model> extends BViewOptions<M> {
+    model?: M;
+    collection?: Collection<M>;
 }
 
 /**
@@ -54,6 +58,9 @@ export default class View<M extends Model = Model> extends BView<M> {
         return this;
     }
 }
+
+// Helper function in support of the activate convention (see above).
+export const callActivate = view => view.activate();
 
 /**
  * CompositeView derives both from our own customized View base class
@@ -142,11 +149,6 @@ export interface CollectionView<M extends Model = Model, SV extends BView = View
     collection: Collection<M>;
     render(): this;
     remove(): this;
-    // SomeType<TypeParam>['someName'] means "the type of the
-    // .someName property of instances of type SomeType<TypeParam>".
-    setElement: View<M>['setElement'];
-    delegate: View<M>['delegate'];
-    undelegate: View<M>['undelegate'];
 }
 
 // step 3: perform the actual mixin

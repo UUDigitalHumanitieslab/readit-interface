@@ -36,7 +36,7 @@ export default class ExternalResourcesView extends CompositeView<Node> {
         });
         this.$el.html(this.template({
             externalResources,
-            itemSerial: getLabelFromId(model.id),
+            itemSerial: getLabelFromId(model.id as string),
         }));
         return this;
     }

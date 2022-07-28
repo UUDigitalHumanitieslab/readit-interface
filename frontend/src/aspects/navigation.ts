@@ -6,18 +6,17 @@ import welcomeView from '../global/welcome-view';
 import feedbackView from '../global/feedback-view';
 import uploadSourceForm from '../global/upload-source-form';
 import categoryStyles from '../global/category-styles';
-import nlpCategoryStyles from '../global/nlp-category-styles';
 import mainRouter from '../global/main-router';
 import explorationRouter from '../global/exploration-router';
 import userFsm from '../global/user-fsm';
 import explorerView from '../global/explorer-view';
 import notFoundView from '../global/notfound-view';
+import landingView from '../global/landing-view';
 
 history.once('route notfound', () => {
     menuView.render().$el.appendTo('#header');
     footerView.render().$el.appendTo('.footer');
     categoryStyles.$el.appendTo('body');
-    nlpCategoryStyles.$el.appendTo('body');
     // 133 is the height of the footer (got this number by manually testing)
     // Note that the same number needs to be the height of the 'push' class in
     // main.sass. 555 is min-height.
@@ -27,17 +26,22 @@ history.once('route notfound', () => {
 });
 history.on('notfound', () => userFsm.handle('notfound'));
 
-mainRouter.on('route:home', () => mainRouter.navigate('search', {
+mainRouter.on('route:home', () => mainRouter.navigate('landing', {
     trigger: true,
     replace: true,
 }));
+mainRouter.on('route:landing', () => userFsm.handle('land'));
 mainRouter.on('route:search', () => userFsm.handle('search'));
 mainRouter.on('route:upload', () => userFsm.handle('upload'));
 mainRouter.on('route:explore', () => userFsm.handle('explore'));
+mainRouter.on('route:enter', () => userFsm.handle('enter'));
 mainRouter.on('route:leave', () => userFsm.handle('leave'));
 
 explorationRouter.on('route', () => userFsm.handle('explore'));
 
+userFsm.on('enter:entering enter:leaving', () =>
+    mainRouter.navigate('landing', {trigger: true})
+);
 userFsm.on('enter:searching', () => welcomeView.$el.appendTo('#main'));
 userFsm.on('exit:searching', () => welcomeView.$el.detach());
 userFsm.on('enter:uploading', () => {
@@ -49,6 +53,8 @@ userFsm.on('exit:uploading', () => {
 });
 userFsm.on('enter:exploring', () => explorerView.$el.appendTo('#main'));
 userFsm.on('exit:exploring', () => explorerView.$el.detach());
+userFsm.on('enter:landing', () => landingView.$el.appendTo('#main'));
+userFsm.on('exit:landing', () => landingView.$el.detach());
 userFsm.on('enter:lost', () => notFoundView.$el.appendTo('#main'));
 userFsm.on('exit:lost', () => notFoundView.$el.detach());
 
@@ -58,4 +64,3 @@ feedbackView.on('close', () => feedbackView.$el.detach());
 
 welcomeView.on('search:textual', () => userFsm.handle('explore'));
 welcomeView.on('search:semantic', () => userFsm.handle('explore'));
-welcomeView.on('suggestions:show', () => userFsm.handle('explore'));

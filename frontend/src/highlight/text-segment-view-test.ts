@@ -6,8 +6,11 @@ import mockOntology from '../mock-data/mock-ontology';
 
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
-import CategoryStyle from '../category-colors/category-colors-view';
+import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatItem from '../common-adapters/flat-item-model';
+import CategoryStyle from '../category-colors/category-colors-view';
+import { isColoredClass } from '../utilities/linked-data-utilities';
+
 import Segment from './text-segment-model';
 import SegmentView from './text-segment-view';
 
@@ -18,13 +21,14 @@ const attributes = {
 };
 
 describe('TextSegmentView', function () {
-    const it = onlyIf(document.createRange, 'This suite requires Range support.');
+    const it = onlyIf(document.createRange().getClientRects, 'This suite requires Range support.');
 
     beforeAll(function () {
         const lineHeightProbe = $('<span>bla</span>').appendTo('body');
         this.lineHeight = lineHeightProbe.height();
         lineHeightProbe.remove();
-        this.ontology = new Graph(mockOntology);
+        const ontology = new Graph(mockOntology);
+        this.ontology = new FilteredCollection(ontology, isColoredClass);
         this.style = new CategoryStyle({ collection: this.ontology }).render();
         this.style.$el.appendTo('body');
         this.container = $('<div>').width('70ex').appendTo('body');

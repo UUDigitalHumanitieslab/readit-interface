@@ -165,6 +165,38 @@ Each `browserLibs` item may have the following properties.
 [17]: https://www.npmjs.com/package/gulp-cdnizer#optionsfilescdn
 
 
+### Translations management
+
+In principle, all strings that are shown to users should be translatable. In TypeScript files, the localized strings are obtained from a call to `i18next.t()`. In Handlebars templates, the `{{i18n}}` helper serves the same purpose. It is more often found in the block notation `{{#i18n}}...{{/i18n}}`, where the `...` part defines the default.
+
+
+#### Extracting translation strings
+
+The JSON files in `src/i18n` can be compiled automatically from the TypeScript and Handlebars sources using the following command:
+
+```
+yarn i18next -c i18next-parser.config.mjs
+```
+
+The files thus produced can be sent to the translators in order to fill out the actual translations.
+
+Defaults sometimes start or end with spaces. `i18next` will strip them, but in some cases they need to be retained. The following trick will preserve those spaces and prevent `i18next` from stripping them again in the future:
+
+1. Manually edit `src/i18n/en/translation.json` to put the spaces back and commit.
+2. Run `i18next` to autogenerate the translation files. This will strip the spaces from the `translation.json` that you just hand-edited in. However, a copy of your hand-edited strings is retained in `src/i18n/en/translation_old.json`.
+3. Run `git checkout HEAD src/i18n/en/translation.json` to restore your hand-edited strings in the main `translation.json` as well.
+4. Commit the `translation_old.json`.  Because both the `translation.json` and the `translation_old.json` contain your hand-edited version of the string, `i18next` will remember not to strip the spaces again in the future.
+
+The above trick can also be used in other situations where you want to prevent `i18next` from overriding what is in the `translation.json`, for example if you decide to remove a default value from the source files altogether.
+
+
+#### Adding new languages
+
+1. Extend the list of `locales` in `i18next-parser.config.mjs`.
+2. Follow the steps in the previous section to obtain the corresponding JSON file(s).
+3. Edit `src/global/i18n.ts` to ensure that the new language(s) is/are taken into account.
+
+
 ### Proxy configuration
 
 Suppose you have a backend application running on `localhost:8000` and you want to forward all requests for `/api` to this backend application. Create a JSON file with the following content:

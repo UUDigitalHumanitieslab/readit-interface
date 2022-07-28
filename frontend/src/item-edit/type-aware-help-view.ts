@@ -35,7 +35,7 @@ const semiCompatibleTypes: [(v: any) => boolean, string[]][] = [
 ];
 
 function findType(range: Graph, value: any): string {
-    const available = range.map(n => n.id);
+    const available = range.map((n) => n.id as string);
     let singleType;
     if (range.length === 1) {
         singleType = available[0];

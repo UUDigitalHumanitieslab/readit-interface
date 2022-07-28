@@ -1,18 +1,13 @@
 {{>sparqlPreamble}}
-PREFIX schema: <http://schema.org/>
-PREFIX oa: <http://www.w3.org/ns/oa#>
+
 CONSTRUCT {
     ?annotation ?a ?b.
     ?target ?e ?f.
     ?selector ?g ?h.
-    }
-WHERE {
+} WHERE {
     ?annotation oa:hasBody ?body.
     ?annotation oa:hasTarget ?target;
                 ?a ?b.
-    {{#if userURI}}
-    ?annotation schema:creator <{{userURI}}>.
-    {{/if}}
     ?target oa:hasSource <{{sourceURI}}>;
             oa:hasSelector ?selector;
             ?e ?f.

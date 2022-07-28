@@ -32,8 +32,9 @@ from .serializers import SemanticQuerySerializer, SemanticQuerySerializerFull
 
 MUST_SINGLE_BLANK_400 = 'POST requires exactly one subject which must be a blank node.'
 MUST_EQUAL_IDENTIFIER_400 = 'PUT must affect exactly the resource URI.'
-MUST_BE_OWNER_403 = 'PUT is only allowed to the resource owner.'
+MUST_BE_OWNER_403 = 'PUT or DELETE is only allowed to the resource owner.'
 BLANK_OBJECT_PREDICATE_400 = 'Blank nodes in the predicate or object positions are not allowed.'
+DOES_NOT_EXIST_404 = 'Resource does not exist.'
 
 ANNOTATION_CUTOFF = 10 # don't return more than 10 annotations when querying by category
 
@@ -68,14 +69,6 @@ CONSTRUCT {
             oa:hasSelector ?selector;
             ?e ?f.
     ?selector ?g ?h.
-}
-'''
-SELECT_ANNO_QUERY = '''
-SELECT ?annotation ?a ?b
-WHERE {
-    ?annotation a oa:Annotation ;
-    dcterms:creator ?user ;
-    ?a ?b .
 }
 '''
 ANNO_OF_CATEGORY_QUERY = '''
@@ -253,35 +246,15 @@ class ItemsAPISingular(RDFResourceView):
     def delete(self, request, format=None, **kwargs):
         existing = self.get_graph(request, **kwargs)
         if len(existing) == 0:
-            return error_response(request, HTTP_404_NOT_FOUND, DOES_NOT_EXIST_404)
+            raise NotFound(detail=DOES_NOT_EXIST_404)
         user, now = submission_info(request)
         identifier = URIRef(self.get_resource_uri(request, **kwargs))
         creator = existing.value(identifier, DCTERMS.creator)
         if user != creator:
-            return error_response(request, HTTP_403_FORBIDDEN, MUST_BE_OWNER_403)
+            raise PermissionDenied(detail=MUST_BE_OWNER_403)
         full_graph = self.graph()
         full_graph -= existing
         return Response(existing)
-
-
-class ItemSuggestion(RDFView):
-    """ Return nodes of a random sample of item subjects. """
-
-    def graph(self):
-        return graph()
-
-    def get_graph(self, request, **kwargs):
-        items = self.graph()
-        if not request.user.has_perm('rdflib_django.view_all_annotations'):
-            user, now = submission_info(request)
-            bindings = {'user': user}
-            user_items = set(graph_from_triples(items.query(
-                SELECT_ANNO_QUERY, initBindings=bindings, initNs=ANNO_NS)
-            ).subjects())
-        else:
-            user_items = set(items.subjects(RDF.type, OA.Annotation))
-        output = sample_graph(items, user_items, request)
-        return output
 
 
 class ItemsOfCategory(RDFView):
