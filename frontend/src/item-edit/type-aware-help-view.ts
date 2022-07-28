@@ -1,5 +1,5 @@
 import {
-    find, intersection, extend, isNumber, isBoolean, isString, isDate,
+    find, intersection, extend, isNumber, isBoolean, isString, isDate, chain,
 } from 'lodash';
 import { CompositeView } from '../core/view';
 import { rdfs, xsd } from '../common-rdf/ns';
@@ -9,9 +9,11 @@ import DetectedTypeHelpText from './detected-type-help-view';
 import Graph from '../common-rdf/graph';
 import Node from '../common-rdf/node';
 import { FlatSingleValue } from '../common-rdf/json';
+import { asLD, Native } from '../common-rdf/conversion';
 import Model from '../core/model';
 
 import typeAwareHelpTemplate from './type-aware-help-template';
+import { getRdfSuperProperties } from '../utilities/linked-data-utilities';
 
 // Selector of template element displaying "all types allowed" help text.
 const allTypesAllowedHelp = 'p.help:first-of-type';
@@ -71,6 +73,7 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
     renderContainer(): this {
         this.$el.html(this.template(this));
         this.$(noMatchHelp).hide();
+        this.$(allTypesAllowedHelp).hide();
         this.detectedTypeHelp.$el.hide();
         return this;
     }
@@ -81,6 +84,29 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
         }
         this.detectedTypeHelp.model.set({ jsonld });
         this.$(noMatchHelp).hide();
+        return this;
+    }
+
+    updateRange(predicate: Node): this {
+        this.$(allTypesAllowedHelp).hide();
+        this.allowedTypesList.$el.hide();
+        if (!predicate) {
+            this.range.reset();
+            return this;
+        }
+        const allProperties = getRdfSuperProperties([predicate]);
+        this.range.set(
+            chain(allProperties)
+            .map(n => n.get(rdfs.range) as Node[])
+            .flatten()
+            .compact()
+            .value()
+        );
+        if (!this.range.length || this.range.get(rdfs.Literal)) {
+            this.$(allTypesAllowedHelp).show();
+        } else {
+            this.allowedTypesList.$el.show();
+        }
         return this;
     }
 
@@ -96,18 +122,6 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
             }
             this.detectedTypeHelp.$el.hide();
         }
-    }
-
-    updateRange(range: Graph): this {
-        this.$(allTypesAllowedHelp).hide();
-        this.allowedTypesList.$el.hide();
-        this.range = range;
-        if (!this.range.length || this.range.get(rdfs.Literal)) {
-            this.$(allTypesAllowedHelp).show();
-        } else {
-            this.allowedTypesList.$el.show();
-        }
-        return this;
     }
 }
 extend(TypeAwareHelpText.prototype, {

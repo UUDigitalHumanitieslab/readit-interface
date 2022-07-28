@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import html
 import functools
 import operator
+import ast
 import requests
 from requests.utils import quote
 
@@ -15,6 +16,7 @@ from django.contrib.admin.utils import flatten
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.status import *
+from rest_framework.mixins import UpdateModelMixin
 from rest_framework.parsers import MultiPartParser
 from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.reverse import reverse
@@ -46,6 +48,23 @@ es = Elasticsearch(
 
 # Get sources logger for logging on server
 logger = logging.getLogger(__name__)
+
+LITERALS = {
+    'title': source_ontology.title,
+    'author': source_ontology.author,
+    'editor': source_ontology.editor,
+    'publisher': source_ontology.publisher,
+    'repository': source_ontology.repository,
+    'url': source_ontology.url
+}
+URIS = {
+    'type': source_ontology.sourceType,
+}
+DATES = {
+    'publicationdate': source_ontology.datePublished,
+    'creationdate': source_ontology.dateCreated,
+    'retrievaldate': source_ontology.dateRetrieved
+}
 
 SELECT_SOURCES_QUERY_START = '''
 CONSTRUCT {
@@ -245,19 +264,87 @@ class SourceHighlights(RDFView):
 
 class SourcesAPISingular(RDFResourceView):
     """ API endpoint for fetching individual subjects. """
-    permission_classes = [IsAuthenticated, DeleteSourcePermission]
+    permission_classes = [
+        IsAuthenticated,
+        DeleteSourcePermission
+    ]
 
     def graph(self):
         return sources_graph()
 
     def get_graph(self, request, **kwargs):
         return inject_fulltext(super().get_graph(request, **kwargs), True, request)
+    
+    def patch(self, request, format=None, **kwargs):
+        """ given the request data, add triples which don't exist,
+        or amend triples which do exist (both in Fuseki and, if applicable, in Elasticearch).
+        We assume that only one author, one language, 
+        one publication date etc. can be set at any one time.
+        request.body: json of the form
+        {
+            'author': 'Guybrush Threepwood',
+            'title': 'Why I'm the greatest pirate ever',
+            ...   
+        }
+        Only contains the *changes* wrt the previously saved source metadata.
+        The source text itself *cannot* be changed in this request.
+        """
+        data = ast.literal_eval(request.body.decode('utf-8'))
+        source_uri = get_source_uri(request)
+        existing_graph = self.graph()
+        new = format_source_data(URIRef(source_uri), data)
+        for triple in new:
+            query = (triple[0], triple[1], None)
+            if query in existing_graph:
+                existing_triple = existing_graph.triples(query)
+                existing_graph -= existing_triple
+        existing_graph += graph_from_triples(tuple(new))
+        serial = get_serial_from_subject(source_uri)
+        self.update_elastic(serial, data)
+        resulting_graph = graph_from_triples(
+            existing_graph.triples((URIRef(source_uri), None, None))
+        )
+        return Response(resulting_graph, HTTP_200_OK)
+
+    def update_elastic(self, serial, data):
+        ''' update data in Elasticsearch '''
+        keys = ['author', 'title', 'language', 'public']
+        doc = {key: data.get(key) for key in keys if key in data}
+        if 'public' in doc:
+            doc['public'] = (doc['public'] == 'public')
+        if 'language' in doc:
+            result = es.search(
+                index=settings.ES_ALIASNAME,
+                body={"query": {
+                    "term": {
+                        "id": serial
+                    }
+                }}
+            )
+            existing = result['hits']['hits'][0]
+            original_language = existing['_source']['language']
+            set_language = doc['language']
+            if set_language != original_language:
+                doc['text_{}'.format(original_language)] = None
+                if set_language != 'other':
+                    doc['text_'.format(set_language)] = existing['_source']['text']     
+        if not doc:
+            return None
+        body={
+            "doc": doc
+        }   
+        try: 
+            es.update(
+                index=settings.ES_ALIASNAME,
+                id=serial,
+                body=body
+            )
+        except Exception as e:
+            logger.error(e)
 
     def delete(self, request, format=None, **kwargs):
-        source_uri = request.build_absolute_uri(request.path)
-        bindings = {'source': URIRef(source_uri)}
-        if not self.graph().query(SOURCE_EXISTS_QUERY, initBindings=bindings):
-            raise NotFound('Source \'{}\' not found'.format(source_uri))
+        source_uri = get_source_uri(request)
+        bindings = self.get_source_bindings(source_uri)
         conjunctive = get_conjunctive_graph()
         conjunctive.update(
             SOURCE_DELETE_QUERY, initNs=PREFIXES, initBindings=bindings
@@ -272,7 +359,23 @@ class SourcesAPISingular(RDFResourceView):
             }}
         )
         return Response(Graph(), HTTP_204_NO_CONTENT)
+    
+    def get_source_bindings(self, source_uri):
+        bindings = {'source': URIRef(source_uri)}
+        if not self.graph().query(SOURCE_EXISTS_QUERY, initBindings=bindings):
+            raise NotFound('Source \'{}\' not found'.format(source_uri))
+        return bindings
 
+def source_valid(data):
+    is_valid = True
+    missing_fields = []
+    required_fields = ['title', 'author',
+                       'source', 'language', 'type', 'publicationdate', 'public']
+    for f in required_fields:
+        if not data.get(f, False):
+            is_valid = False
+            missing_fields.append(f)
+    return is_valid, missing_fields
 
 def source_fulltext(request, serial, query=None):
     """ API endpoint for fetching the full text of a single source. """
@@ -288,6 +391,9 @@ def source_fulltext(request, serial, query=None):
     else:
         raise NotFound
 
+def get_source_uri(request):
+    source_uri = request.build_absolute_uri()
+    return source_uri
 
 def select_sources_elasticsearch(results):
     endpoint = sources_graph()
@@ -329,88 +435,6 @@ class AddSource(RDFResourceView):
             }))
         return text
 
-    def is_valid(self, data):
-        is_valid = True
-        missing_fields = []
-        required_fields = ['title', 'author',
-                           'source', 'language', 'type', 'publicationdate', 'public']
-
-        for f in required_fields:
-            if not data.get(f, False):
-                is_valid = False
-                missing_fields.append(f)
-
-        return is_valid, missing_fields
-
-    def resolve_language(self, input_language):
-        known_languages = {
-            'en': ISO6391.en,
-            'de': ISO6391.de,
-            'nl': ISO6391.nl,
-            'fr': ISO6391.fr,
-            'it': ISO6391.it,
-            'cs': ISO6391.cs
-        }
-        result = known_languages.get(input_language)
-        if result:
-            return result
-        else:
-            return UNKNOWN
-
-    def resolve_access(self, value):
-        if value == 'public':
-            return Literal('true', datatype=XSD.boolean)
-        return Literal('false', datatype=XSD.boolean)
-
-    def get_required(self, new_subject, data):
-        return [
-            # when supporting other sources, add some logic here
-            (new_subject, RDF.type, source_ontology.PlainTextSource),
-            (new_subject, RDF.type, source_ontology.Source),
-            (new_subject, source_ontology.sourceType, URIRef(data['type'])),
-            (new_subject, source_ontology.encodingFormat, Literal('text/plain')),
-            (new_subject, source_ontology.title, Literal(data['title'])),
-            (new_subject, source_ontology.author, Literal(data['author'])),
-            (new_subject, source_ontology.language, URIRef(
-                self.resolve_language(data['language']))),
-            (new_subject, source_ontology.datePublished,
-             parse_isodate(data['publicationdate'])),
-            (new_subject, source_ontology.public,
-             self.resolve_access(data['public'])),
-        ]
-
-    def get_optional(self, new_subject, data):
-        literals = {
-            'editor': source_ontology.editor,
-            'publisher': source_ontology.publisher,
-            'repository': source_ontology.repository
-        }
-        uris = {
-            'url': source_ontology.url
-        }
-        dates = {
-            'creationdate': source_ontology.dateCreated,
-            'retrievaldate': source_ontology.dateRetrieved
-        }
-
-        optionals = []
-        for l in literals:
-            value = data.get(l)
-            if value:
-                optionals.append((new_subject, literals[l], Literal(value)))
-
-        for u in uris:
-            value = data.get(u)
-            if value:
-                optionals.append((new_subject, uris[u], URIRef(value)))
-
-        for d in dates:
-            value = data.get(d)
-            if value:
-                optionals.append((new_subject, dates[d], parse_isodate(value)))
-
-        return optionals
-
     def query_automated_annotations(self, text, uploaded_file, uri):
         headers = {'Authorization': 'Token token={}'.format(
             settings.IRISA_TOKEN)}
@@ -436,7 +460,7 @@ class AddSource(RDFResourceView):
 
     def post(self, request, format=None):
         data = request.data
-        is_valid, missing_fields = self.is_valid(data)
+        is_valid, missing_fields = source_valid(data)
         if not is_valid:
             raise ValidationError(
                 detail="Missing fields: {}".format(", ".join(missing_fields)))
@@ -454,8 +478,7 @@ class AddSource(RDFResourceView):
             sanitized_text, data['source'], counter.__str__())
 
         # create graph
-        triples = self.get_required(new_subject, data)
-        triples.extend(self.get_optional(new_subject, data))
+        triples = format_source_data(new_subject, data)
         result = graph_from_triples(tuple(triples))
         user, now = submission_info(request)
         result.add((new_subject, DCTERMS.creator, user))
@@ -482,10 +505,45 @@ def construct_es_body(request):
     body = {"query": clause}
     return body
 
-
 def get_number_search_results(request):
     body = construct_es_body(request)
     results = es.search(body=body, index=settings.ES_ALIASNAME, size=0)
     response = {'total_results': results['hits']['total']
                 ['value'], 'results_per_page': settings.RESULTS_PER_PAGE}
     return JsonResponse(response)
+
+def format_source_data(subject, data):
+    access = { 'public': source_ontology.public }
+    language = { 'language': source_ontology.language }
+    conversions = [
+        (LITERALS, Literal),
+        (URIS, URIRef),
+        (DATES, parse_isodate),
+        (access, resolve_access),
+        (language, resolve_language),
+    ]
+    return [
+        (subject, map_uri[key], coerce(data[key]))
+        for map_uri, coerce in conversions
+        for key in map_uri if key in data
+    ]
+
+def resolve_language(input_language):
+    known_languages = {
+        'en': ISO6391.en,
+        'de': ISO6391.de,
+        'nl': ISO6391.nl,
+        'fr': ISO6391.fr,
+        'it': ISO6391.it,
+        'cs': ISO6391.cs
+    }
+    result = known_languages.get(input_language)
+    if result:
+        return result
+    else:
+        return UNKNOWN
+        
+def resolve_access(value):
+    if value == 'public':
+        return Literal('true', datatype=XSD.boolean)
+    return Literal('false', datatype=XSD.boolean)

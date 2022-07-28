@@ -2,120 +2,33 @@
     <h3 class="title is-3 page-header">{{#i18n 'upload.form-title'}}Upload source{{/i18n}}</h3>
 </header>
 <div class="section upload-source">
-    <div class="field">
-        <label class="label">{{#i18n 'label.title'}}Title{{/i18n}}</label>
-        <div class="control">
-            <input class="input" type="text" name="title" placeholder="The Voyage of the Dawn Treader" required>
-        </div>
-    </div>
-    <div class="field">
-        <label class="label">{{#i18n 'label.author'}}Author{{/i18n}}</label>
-        <div class="control">
-            <input name="author" class="input" type="text" placeholder="C.S. Lewis" required>
-        </div>
-    </div>
-
-    <div class="field is-grouped">
-        <label class="label">{{#i18n 'label.editor'}}Editor (optional){{/i18n}}</label>
-        <div class="control">
-            <label class="label">Editor (optional)</label>
-            <input name="editor" class="input" type="text" placeholder="C.S. Lewis">
-        </div>
-        <div class="control">
-            <label class="label">Publisher (optional)</label>
-            <input name="publisher" class="input" type="text" placeholder="Geoffrey Bles">
-        </div>
-    </div>
-    <div class="field">
-        <label class="label">Repository (optional)</label>
-        <div class="control">
-            <input name="repository" class="input" type="text"
-                placeholder="Archive, location, collection, call, fasc, folio">
-        </div>
-    </div>
-    <div class="field">
-        <label class="label">{{#i18n 'label.file'}}File{{/i18n}}</label>
-        <div class="file">
-            <label class="file-label has-helptext">
-                <input class="file-input" type="file" name="source" id="source">
-                <span class="file-cta">
-                    <span class="file-icon">
-                        <i class="fas fa-upload"></i>
-                    </span>
-                    <span class="file-label filelabel">
-                        Choose a file…
-                    </span>
-                </span>
-            </label>
-            <p class="help filename">No file selected</p>
-        </div>
-        <p class="help">Only txt files in UTF-8 encoding (LF for line endings) are supported.</p>
-    </div>
-    <div class="field">
-        <label class="label">Language</label>
-        <div class="control" id="languageSelect">
-            <div class="select has-helptext">
-                <select name='language' size='1'>
-                    <option value="">Select language</option>
-                    <option value="en">English</option>
-                    <option value="de">German</option>
-                    <option value="fr">French</option>
-                    <option value="it">Italian</option>
-                    <option value="cs">Czech</option>
-                    <option value="nl">Dutch</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-        </div>
-        <p class="help">If the source contains multiple languages,
-            please select 'Other'.</p>
-    </div>
-    <div class="field">
-        <label class="label">Type of source</label>
-        <div class="control" id="sourceTypeSelect">
-        </div>
-        <p class="help">When in doubt, choose 'Unknown'</p>
-    </div>
-    <div class="dates">
-        {{!date fields with type-aware help will be rendered here}}
-    </div>
-    <div class="field">
-        <div class="control">
-            <label class="label">Source access</label>
-            <label class="radio">
-                <input type="radio" name="public" value="public" checked>
-                Public
-            </label>
-            <label class="radio">
-                <input type="radio" name="public" value="private">
-                Private
-            </label>
-            <p class="help">Provide access to everyone (public) or only you (private).</p>
-        </div>
-    </div>
-    <div class="field url">
-        <label class="label">URL (optional)</label>
-        <div class="control">
-            <input name="url" class="input" type="text" placeholder="https://www.wikidata.org/wiki/Q331656">
-        </div>
-    </div>
     <div class="field form-feedback-bar has-background-success">
-        <p class="help">Source uploaded successfully! Upload another one or <a href="/explore">go to the
-                Explorer</a></p>
+        <p class="help">
+            {{#i18n 'upload.success.begin'
+            }}Source uploaded successfully! Upload another one or {{/i18n
+            }}<a href="/explore">{{#i18n 'upload.success.link'
+            }}go to the Explorer{{/i18n
+            }}</a>{{#i18n 'upload.success.end'
+            }}.{{/i18n}}
+        </p>
     </div>
     <div class="field form-feedback-bar has-background-danger has-text-white">
-        <p class="help">Uploading failed. Please try again and if this error keeps occuring, contact the site
-            administrator. Do you have permission to upload sources?</p>
+        <p class="help">{{#i18n 'upload.failed-help'}}
+            Uploading failed.
+            Please try again and if this error keeps occuring,
+            contact the site administrator.
+            Do you have permission to upload sources?
+        {{/i18n}}</p>
     </div>
     <div class="field is-grouped">
         <div class="control">
-            <button type=submit class="button is-link btn-submit">Submit</button>
+            <button type=submit class="button is-link btn-submit">{{#i18n 'button.submit'}}Submit{{/i18n}}</button>
         </div>
         <div class="control">
-            <button type=button class="button is-link is-light btn-preview">Preview</button>
+            <button type=button class="button is-link is-light btn-preview">{{#i18n 'button.preview'}}Preview{{/i18n}}</button>
         </div>
         <div class="control">
-            <button type=reset class="button is-link is-light btn-cancel">Cancel</button>
+            <button type=reset class="button is-link is-light btn-cancel">{{#i18n 'button.cancel'}}Cancel{{/i18n}}</button>
         </div>
     </div>
 </div>
@@ -123,8 +36,12 @@
     <div class="modal-background"></div>
     <div class="modal-card">
         <header class="modal-card-head">
-            <p class="modal-card-title">Preview source content</p>
-            <button type=button class="delete" aria-label="close">
+            <p class="modal-card-title">{{#i18n 'upload.preview-title'}}Preview source content{{/i18n}}</p>
+            <button
+                type=button
+                class="delete"
+                aria-label="{{#i18n 'button.close'}}close{{/i18n}}"
+            >
                 <i class="fas fa-times"></i>
             </button>
         </header>

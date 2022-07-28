@@ -1,0 +1,137 @@
+<div class="section source">
+    <div class="field">
+        <label class="label">{{#i18n 'label.title'}}Title{{/i18n}}</label>
+        <div class="control">
+            <input class="input" type="text" name="title" {{#unless readonly}}placeholder="The Voyage of the Dawn Treader"{{/unless}} required {{#readonly}}readonly{{/readonly}}>
+        </div>
+    </div>
+    <div class="field">
+        <label class="label">{{#i18n 'label.author'}}Author{{/i18n}}</label>
+        <div class="control">
+            <input name="author" class="input" type="text" {{#unless readonly}}placeholder="C.S. Lewis"{{/unless}} required {{#readonly}}readonly{{/readonly}}>
+        </div>
+    </div>
+    <div class="field is-grouped">
+        <div class="control">
+            <label class="label">{{#i18n 'label.editor-opt'}}Editor (optional){{/i18n}}</label>
+            <input name="editor" class="input" type="text" {{#unless readonly}}placeholder="C.S. Lewis"{{/unless}} {{#readonly}}readonly{{/readonly}}>
+        </div>
+        <div class="control">
+            <label class="label">{{#i18n 'label.publisher-opt'}}Publisher (optional){{/i18n}}</label>
+            <input name="publisher" class="input" type="text" {{#unless readonly}}placeholder="Geoffrey Bles"{{/unless}} {{#readonly}}readonly{{/readonly}}>
+        </div>
+    </div>
+    <div class="field">
+        <label class="label">{{#i18n 'label.repository-opt'}}Repository (optional){{/i18n}}</label>
+        <div class="control">
+            <input
+                name="repository"
+                class="input"
+                type="text"
+                {{#unless readonly}}placeholder="{{#i18n 'placeholder.repository'}}Archive, location, collection, call, fasc, folio{{/i18n}}"{{/unless}}
+                {{#readonly}}readonly{{/readonly}}
+            >
+        </div>
+    </div>
+    {{#upload}}
+    <div class="field">
+        <label class="label">{{#i18n 'label.file'}}File{{/i18n}}</label>
+        <div class="file">
+            <label class="file-label has-helptext">
+                <input class="file-input" type="file" name="source" id="source">
+                <span class="file-cta">
+                    <span class="file-icon">
+                        <i class="fas fa-upload"></i>
+                    </span>
+                    <span class="file-label filelabel">
+                        {{#i18n 'label.choose-file'}}Choose a file…{{/i18n}}
+                    </span>
+                </span>
+                <span class="file-name">
+                    {{#i18n 'upload.no-file'}}No file selected{{/i18n}}
+                </span>
+            </label>
+        </div>
+        <p class="help">{{#i18n 'upload.only-txt-utf8-lf'}}Only txt files in UTF-8 encoding (LF for line endings) are supported.{{/i18n}}</p>
+    </div>
+    {{/upload}}
+
+    <div class="field">
+        <label class="label">{{#i18n 'label.language'}}Language{{/i18n}}</label>
+        <div class="control" id="languageSelect">
+            {{#if readonly}}
+            <input name="language" class="input" type="text" readonly>
+            {{else}}
+            <div class="select has-helptext">
+                <select name='language' size='1'>
+                    <option value="">
+                        {{#i18n 'label.select-language'
+                        }}Select language{{/i18n}}
+                    </option>
+                    <option value="en">
+                        {{#i18n 'label.english'}}English{{/i18n}}
+                    </option>
+                    <option value="de">
+                        {{#i18n 'label.german'}}German{{/i18n}}
+                    </option>
+                    <option value="fr">
+                        {{#i18n 'label.french'}}French{{/i18n}}
+                    </option>
+                    <option value="it">
+                        {{#i18n 'label.italian'}}Italian{{/i18n}}
+                    </option>
+                    <option value="cs">
+                        {{#i18n 'label.czech'}}Czech{{/i18n}}
+                    </option>
+                    <option value="nl">
+                        {{#i18n 'label.dutch'}}Dutch{{/i18n}}
+                    </option>
+                    <option value="other">
+                        {{#i18n 'label.other'}}Other{{/i18n}}
+                    </option>
+                </select>
+            </div>
+            {{/if}}
+        </div>
+        <p class="help">
+            {{#i18n 'upload.source-lang-select-help'
+            }}If the source contains multiple languages, please select 'Other'.{{/i18n}}
+        </p>
+    </div>
+
+    <div class="field">
+        <label class="label">{{#i18n 'label.source-type'}}Type of source{{/i18n}}</label>
+        {{#if readonly}}
+        <div class="control">
+            <input name='sourceType' class="input" type="text" readonly>
+        </div>
+        {{else}}
+        <div class="control sourceTypeSelect">
+        </div>
+        {{/if}}
+        <p class="help">{{#i18n 'upload.source-type-select-help'}}When in doubt, choose 'Unknown'.{{/i18n}}</p>
+    </div>
+    <div class="dates">
+        {{!date fields with type-aware help will be rendered here}}
+    </div>
+    <div class="field">
+        <div class="control">
+            <label class="label">{{#i18n 'label.source-access'}}Source access{{/i18n}}</label>
+            <label class="radio">
+                <input type="radio" name="public" value="public" checked>
+                {{#i18n 'label.public'}}Public{{/i18n}}
+            </label>
+            <label class="radio">
+                <input type="radio" name="public" value="private">
+                {{#i18n 'label.private'}}Private{{/i18n}}
+            </label>
+            <p class="help">{{#i18n 'upload.public-private-help'}}Provide access to everyone (public) or only to authenticated users (private).{{/i18n}}</p>
+        </div>
+    </div>
+    <div class="field url">
+        <label class="label">{{#i18n 'label.url-opt'}}URL (optional){{/i18n}}</label>
+        <div class="control">
+            <input name="url" class="input" type="url" {{#unless readonly}}placeholder="https://www.wikidata.org/wiki/Q331656"{{/unless}} {{#readonly}}readonly{{/readonly}}>
+        </div>
+    </div>
+</div>

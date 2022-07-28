@@ -7,7 +7,7 @@ import { CompositeView } from '../core/view';
 import { asLD, Native } from '../common-rdf/conversion';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
-import { rdfs, xsd } from '../common-rdf/ns';
+import { rdfs } from '../common-rdf/ns';
 import Select2Picker from '../forms/select2-picker-view';
 import RemoveButton from '../forms/remove-button-view';
 import InputField from '../forms/input-field-view';
@@ -32,8 +32,8 @@ export default class LinkedItemEditor extends CompositeView {
         this.predicatePicker = new Select2Picker({collection: this.collection});
         this.literalField = new InputField();
         this.removeButton = new RemoveButton().on('click', this.close, this);
-        this.typeAwareHelp = new TypeAwareHelpText({collection: this.range});
-        this.render().updateRange();
+        this.typeAwareHelp = new TypeAwareHelpText({model: this.model.get('predicate')});
+        this.render();
         this.predicateFromModel(this.model).objectFromModel(this.model);
         this.literalField.on('keyup', this.updateObject, this);
         this.predicatePicker.on('change', this.updatePredicate, this);
@@ -47,26 +47,8 @@ export default class LinkedItemEditor extends CompositeView {
     updatePredicate(picker: Select2Picker, id: string): void {
         const predicate = this.collection.get(id);
         this.model.set('predicate', predicate);
-        this.updateRange();
+        this.typeAwareHelp.updateRange(predicate);
         this.updateObject(this.literalField, this.literalField.getValue());
-    }
-
-    updateRange(): this {
-        const predicate = this.model.get('predicate');
-        if (!predicate) {
-            this.range.reset();
-            return this;
-        }
-        const allProperties = getRdfSuperProperties([predicate]);
-        this.range.set(
-            chain(allProperties)
-            .map(n => n.get(rdfs.range) as Node[])
-            .flatten()
-            .compact()
-            .value()
-        );
-        this.typeAwareHelp.updateRange(this.range);
-        return this;
     }
 
     updateObject(labelField: InputField, val: string): void {
@@ -107,8 +89,8 @@ extend(LinkedItemEditor.prototype, {
         view: 'removeButton',
         selector: '.field.has-addons',
     }, {
-        view: 'allowedTypesList',
-        selector: noMatchHelp,
-        method: 'before',
+        view: 'typeAwareHelp',
+        selector: '.field.has-addons',
+        method: 'after',
     }, 'detectedTypeHelp'],
 });

@@ -4,7 +4,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { baseUrl } from 'config.json';
 import View from '../core/view';
 import Node from '../common-rdf/node';
-import { dcterms, oa, schema, sourceOntology } from '../common-rdf/ns';
+import { oa, schema, sourceOntology } from '../common-rdf/ns';
 import sourceSummaryTemplate from './source-summary-template';
 import Graph from '../common-rdf/graph';
 
@@ -28,8 +28,8 @@ export default class SourceSummaryView extends View {
     initialize(options: ViewOptions): this {
         this.query = options.query;
         this.fields = options.fields;
-        this.name = this.model.get(sourceOntology("title"))[0];
-        this.author = this.model.get(sourceOntology("author"))[0];
+        this.name = this.model.get(sourceOntology('title'))[0];
+        this.author = this.model.get(sourceOntology('author'))[0];
         this.identifier = this.model.id as string;
         if (this.query !== undefined) {
             this.renderHighlights();
