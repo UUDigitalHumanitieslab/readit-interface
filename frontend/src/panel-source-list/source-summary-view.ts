@@ -19,40 +19,55 @@ const highlightURL = baseUrl + 'source/highlight';
 export default class SourceSummaryView extends View {
     name: string;
     author: string;
-    query: string;
-    fields: string;
+    query?: string;
+    fields?: string;
     identifier: string;
     highlights: Graph;
     snippets: string[];
 
-
     initialize(options: ViewOptions): this {
         this.query = options.query;
         this.fields = options.fields;
-        this.name = this.model.get(sourceOntology('title'))[0];
-        this.author = this.model.get(sourceOntology('author'))[0];
+        this.name = this.model.get(sourceOntology("title"))[0];
+        this.author = this.model.get(sourceOntology("author"))[0];
         this.identifier = this.model.id as string;
         if (this.query !== undefined) {
             this.renderHighlights();
-        }
-        else this.render();
+        } else this.render();
         return this;
     }
 
     async renderHighlights() {
         this.highlights = new Graph();
-        await this.highlights.fetch({url: highlightURL, data: $.param({ source: this.identifier, query: this.query, fields: this.fields}) });
-        const titleNode = this.highlights.models.find(node => node.get(oa.hasTarget)[0]['id'] === sourceOntology('title'));
+        await this.highlights.fetch({
+            url: highlightURL,
+            data: $.param({
+                source: this.identifier,
+                query: this.query,
+                fields: this.fields,
+            }),
+        });
+        const titleNode = this.highlights.models.find(
+            (node) =>
+                (node.get(oa.hasTarget)[0] as Node)["id"] ==
+                sourceOntology("title")
+        );
         if (titleNode) {
-            this.name = titleNode.get(oa.hasBody)[0].toString();
+            this.name = (titleNode.get(oa.hasBody)[0] as Node).toString();
         }
-        const authorNode = this.highlights.models.find(node => node.has(oa.hasTarget, sourceOntology('author')));
+        const authorNode = this.highlights.models.find((node) =>
+            node.has(oa.hasTarget, sourceOntology("author"))
+        );
         if (authorNode) {
-            this.author = authorNode.get(oa.hasBody)[0].toString();
+            this.author = (authorNode.get(oa.hasBody)[0] as Node).toString();
         }
-        const textNode = this.highlights.models.find(node => node.get(oa.hasTarget)[0]['id']===schema.text);
+        const textNode = this.highlights.models.find(
+            (node) => (node.get(oa.hasTarget)[0] as Node)["id"] === schema.text
+        );
         if (textNode) {
-            this.snippets = textNode.get(oa.hasBody).map(snip => snip.toString());
+            this.snippets = (textNode.get(oa.hasBody) as Node[]).map((snip) =>
+                snip.toString()
+            );
         }
         this.render();
     }
@@ -63,7 +78,7 @@ export default class SourceSummaryView extends View {
     }
 
     onSourceClicked(): this {
-        this.trigger('click', this.model.cid);
+        this.trigger("click", this.model.cid);
         return this;
     }
 }

@@ -41,11 +41,13 @@ function findType(range: Graph, value: any): string {
         singleType = available[0];
         if (singleType !== rdfs.Literal) return singleType;
     }
-    const matches = find(semiCompatibleTypes, ([check]) => check(value))[1];
+    const matches = find(semiCompatibleTypes, ([check]) => check(value));
+    const matchedTypes = matches ? matches[1] : [];
+
     if (!range.length || singleType === rdfs.Literal) {
-        return matches[0];
+        return matchedTypes[0];
     }
-    return intersection(matches, available)[0];
+    return intersection(matchedTypes, available)[0];
 }
 
 export default class TypeAwareHelpText extends CompositeView<Node> {
@@ -56,8 +58,10 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
     model: Node;
 
     initialize() {
-        this.range = this.collection || new Graph;
-        this.detectedTypeHelp = new DetectedTypeHelpText({ model: new Model });
+        this.range = this.collection || new Graph();
+        this.detectedTypeHelp = new DetectedTypeHelpText({
+            model: new Model(),
+        });
         this.allowedTypesList = new AllowedTypesListHelpText({
             collection: this.range,
         });
@@ -72,8 +76,8 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
     }
 
     setHelpText(jsonld: FlatSingleValue): this {
-        if (!jsonld['@type']) {
-            jsonld['@type'] = findType(this.range, jsonld['@value']);
+        if (!jsonld["@type"]) {
+            jsonld["@type"] = findType(this.range, jsonld["@value"]);
         }
         this.detectedTypeHelp.model.set({ jsonld });
         this.$(noMatchHelp).hide();
@@ -105,14 +109,16 @@ export default class TypeAwareHelpText extends CompositeView<Node> {
         }
         return this;
     }
-
 }
 extend(TypeAwareHelpText.prototype, {
-    className: 'rit help-text',
+    className: "rit help-text",
     template: typeAwareHelpTemplate,
-    subviews: [{
-        view: 'allowedTypesList',
-        selector: noMatchHelp,
-        method: 'before',
-    }, 'detectedTypeHelp']
+    subviews: [
+        {
+            view: "allowedTypesList",
+            selector: noMatchHelp,
+            method: "before",
+        },
+        "detectedTypeHelp",
+    ],
 });
