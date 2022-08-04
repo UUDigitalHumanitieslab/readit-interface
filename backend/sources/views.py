@@ -274,17 +274,17 @@ class SourcesAPISingular(RDFResourceView):
 
     def get_graph(self, request, **kwargs):
         return inject_fulltext(super().get_graph(request, **kwargs), True, request)
-    
+
     def patch(self, request, format=None, **kwargs):
         """ given the request data, add triples which don't exist,
         or amend triples which do exist (both in Fuseki and, if applicable, in Elasticearch).
-        We assume that only one author, one language, 
+        We assume that only one author, one language,
         one publication date etc. can be set at any one time.
         request.body: json of the form
         {
             'author': 'Guybrush Threepwood',
             'title': 'Why I'm the greatest pirate ever',
-            ...   
+            ...
         }
         Only contains the *changes* wrt the previously saved source metadata.
         The source text itself *cannot* be changed in this request.
@@ -327,13 +327,13 @@ class SourcesAPISingular(RDFResourceView):
             if set_language != original_language:
                 doc['text_{}'.format(original_language)] = None
                 if set_language != 'other':
-                    doc['text_'.format(set_language)] = existing['_source']['text']     
+                    doc['text_'.format(set_language)] = existing['_source']['text']
         if not doc:
             return None
         body={
             "doc": doc
-        }   
-        try: 
+        }
+        try:
             es.update(
                 index=settings.ES_ALIASNAME,
                 id=serial,
@@ -359,7 +359,7 @@ class SourcesAPISingular(RDFResourceView):
             }}
         )
         return Response(Graph(), HTTP_204_NO_CONTENT)
-    
+
     def get_source_bindings(self, source_uri):
         bindings = {'source': URIRef(source_uri)}
         if not self.graph().query(SOURCE_EXISTS_QUERY, initBindings=bindings):
@@ -541,8 +541,8 @@ def resolve_language(input_language):
     if result:
         return result
     else:
-        return UNKNOWN
-        
+        return URIRef(UNKNOWN)
+
 def resolve_access(value):
     if value == 'public':
         return Literal('true', datatype=XSD.boolean)

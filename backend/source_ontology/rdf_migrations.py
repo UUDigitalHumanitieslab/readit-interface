@@ -2,7 +2,7 @@ from rdflib.namespace import DCTERMS
 from ontology.rdf_migrations import replace_objects
 from rdf.migrations import RDFMigration, on_add, on_present
 from rdf.ns import OWL, RDF, SCHEMA, UNKNOWN, XSD
-from rdflib import Literal
+from rdflib import URIRef, Literal
 from sources.graph import graph as sources_graph
 from vocab import namespace as VOCAB
 
@@ -79,7 +79,7 @@ class Migration(RDFMigration):
         (SCHEMA.Review, SCHEMA.Review),
         (SCHEMA.SocialMediaPosting, SOURCE_ONTOLOGY.SocialMediaPosting),
         (SCHEMA.WebContent, SOURCE_ONTOLOGY.WebContent),
-        (UNKNOWN, SOURCE_ONTOLOGY.TFO27_Unknown)
+        (URIRef(UNKNOWN), SOURCE_ONTOLOGY.TFO27_Unknown)
     )
 
     # added
