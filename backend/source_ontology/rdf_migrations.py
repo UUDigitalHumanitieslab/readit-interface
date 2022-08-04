@@ -86,12 +86,12 @@ class Migration(RDFMigration):
     added = ['encodingformat', ]
     changed = ['sourceType', ]
 
-    @on_present(SOURCE_ONTOLOGY.title)
+    @on_add(SOURCE_ONTOLOGY.title)
     def source_ontology_changes(self, actual, desired):
         for before, after in self.before_after_predicates:
             replace_predicate_sparql(before, after)
 
-    @on_present(SOURCE_ONTOLOGY.public)
+    @on_add(SOURCE_ONTOLOGY.public)
     def source_ontology_additions(self, actual, desired):
         #     # add new predicates (only public has a default and needs to be added)
         querystring = 'INSERT {?s ?public ?pubdefault} WHERE {?s ?p ?o}'
