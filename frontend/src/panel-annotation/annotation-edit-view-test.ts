@@ -6,8 +6,9 @@ import mockItems from '../mock-data/mock-items';
 import mockOntology from '../mock-data/mock-ontology';
 import { source1instance } from '../mock-data/mock-sources';
 
+import Model from '../core/model';
 import userChannel from '../common-user/user-radio';
-import { oa, item, dcterms } from '../common-rdf/ns';
+import { oa, item, staff, dcterms } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import FlatItem from '../common-adapters/flat-item-model';
@@ -123,13 +124,16 @@ describe('AnnotationEditView', function() {
     it('displays a delete button if the current user created the annotation', async function() {
         const flat = this.flat;
         const creator = flat.get('creator') as Node;
-        userChannel.reply('current-user-uri', constant(creator.id));
+        const user = new Model({
+            username: String(creator.id).slice(staff().length),
+        });
+        userChannel.reply('user', constant(user));
         const view = new AnnotationEditView({ model: flat });
         await modelHasAttribute(flat, 'text');
         view.render();
         expect(view.$('.panel-footer button.is-danger').length).toBe(1);
         view.remove();
-        userChannel.stopReplying('current-user-uri');
+        userChannel.stopReplying('user');
     });
 
     it('does not display a delete button otherwise', async function() {

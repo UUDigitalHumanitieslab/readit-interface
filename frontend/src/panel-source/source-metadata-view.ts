@@ -1,7 +1,7 @@
 import { extend } from 'lodash';
 
 import View from '../core/view';
-import userChannel from '../common-user/user-radio';
+import { currentUserOwnsModel } from '../common-user/utilities';
 import { dcterms }  from '../common-rdf/ns';
 import Node, { isNode } from '../common-rdf/node';
 import { getLabel, getTurtleTerm } from '../utilities/linked-data-utilities';
@@ -42,13 +42,8 @@ export default class MetadataView extends View {
         return this;
     }
 
-    checkOwnership(model, creators: Node[]): void {
-        if (creators && creators.length) {
-            const creator = creators[0];
-            const creatorId = creator.id || creator['@id'];
-            const userUri = userChannel.request('current-user-uri');
-            if (this.userIsOwner = (creatorId === userUri)) this.render();
-        }
+    checkOwnership(model): void {
+        if (this.userIsOwner = currentUserOwnsModel(model)) this.render();
     }
 
     render(): this {
