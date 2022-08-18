@@ -183,6 +183,7 @@ export default class SourceMetadataView extends CompositeView {
     }
 }
 extend(SourceMetadataView.prototype, {
+    className: 'section source',
     template: sourceMetadataTemplate,
     subviews: [
         { view: 'sourceTypePicker', selector: '#sourceTypeSelect' },
