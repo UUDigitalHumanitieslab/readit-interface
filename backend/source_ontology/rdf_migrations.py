@@ -1,8 +1,8 @@
-from rdflib.namespace import DCTERMS
 from ontology.rdf_migrations import replace_objects
 from rdf.migrations import RDFMigration, on_add, on_present
 from rdf.ns import OWL, RDF, SCHEMA, UNKNOWN, XSD
-from rdflib import URIRef, Literal
+from rdflib import Literal, URIRef
+from rdflib.namespace import DCTERMS
 from sources.graph import graph as sources_graph
 from vocab import namespace as VOCAB
 
@@ -77,8 +77,8 @@ class Migration(RDFMigration):
         # no suitable replacements for following source types
         (SCHEMA.Article, SCHEMA.Article),
         (SCHEMA.Review, SCHEMA.Review),
-        (SCHEMA.SocialMediaPosting, SOURCE_ONTOLOGY.SocialMediaPosting),
-        (SCHEMA.WebContent, SOURCE_ONTOLOGY.WebContent),
+        (SCHEMA.SocialMediaPosting, SCHEMA.SocialMediaPosting),
+        (SCHEMA.WebContent, SCHEMA.WebContent),
         (URIRef(UNKNOWN), SOURCE_ONTOLOGY.TFO27_Unknown)
     )
 
@@ -93,7 +93,7 @@ class Migration(RDFMigration):
 
     @on_add(SOURCE_ONTOLOGY.public)
     def source_ontology_additions(self, actual, desired):
-        #     # add new predicates (only public has a default and needs to be added)
+        # add new predicates (only public has a default and needs to be added)
         querystring = 'INSERT {?s ?public ?pubdefault} WHERE {?s ?p ?o}'
         sources_graph().update(querystring, initBindings={
             'public': SOURCE_ONTOLOGY.public,
