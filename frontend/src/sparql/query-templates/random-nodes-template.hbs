@@ -23,7 +23,7 @@ construct {
             {{^itemQuery}}
             {{! If, on the other hand, we're randomly sampling sources, they
             must obviously be actual sources. }}
-            ?subject a vocab:Source.
+            ?subject a sourceOnto:Source.
             {{/itemQuery}}
             {{! In the next few computations, we determine the serial number of
             the `?subject`, then split the digits of the number in a prefix and

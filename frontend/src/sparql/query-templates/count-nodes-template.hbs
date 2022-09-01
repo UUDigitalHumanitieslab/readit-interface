@@ -6,6 +6,6 @@ select (count(distinct ?subject) as ?tally) where {
     ?subject a ?x.
     {{/itemQuery}}
     {{^itemQuery}}
-    ?subject a vocab:Source.
+    ?subject a sourceOnto:Source.
     {{/itemQuery}}
 }
