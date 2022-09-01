@@ -629,6 +629,7 @@ export const nsMap: nsTable = {
     vocab: vocabPrefix,
     staff: staffPrefix,
     nlp: nlpOntologyPrefix,
+    sourceOnto: sourceOntologyPrefix,
     source: sourcePrefix,
     item: itemPrefix,
 };
