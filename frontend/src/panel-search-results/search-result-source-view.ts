@@ -1,6 +1,6 @@
 import { extend } from 'lodash';
 
-import { schema } from "../common-rdf/ns";
+import { sourceOntology } from "../common-rdf/ns";
 import FlatItem from "../common-adapters/flat-item-model";
 import View from "../core/view";
 
@@ -13,9 +13,9 @@ export default class SearchResultSourceView extends View<FlatItem> {
 
     initialize() {
         const sourceItem = this.model.get('item');
-        this.author = sourceItem.get(schema.author)[0];
-        this.title = sourceItem.get(schema('name'))[0];
-        const date = sourceItem.get(schema.datePublished)[0];
+        this.author = sourceItem.get(sourceOntology.author)[0];
+        this.title = sourceItem.get(sourceOntology.title)[0];
+        const date = sourceItem.get(sourceOntology.datePublished)[0];
         this.datePublished = date.toISOString().split("T")[0];
     }
 

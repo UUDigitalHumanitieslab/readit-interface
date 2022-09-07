@@ -1,7 +1,7 @@
 import { extend, after } from 'lodash';
 
 import { CompositeView } from '../core/view';
-import { schema } from '../common-rdf/ns';
+import { sourceOntology } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import Node from '../common-rdf/node';
 import LabelView from '../label/label-view';
@@ -22,7 +22,7 @@ export default class SearchResultAnnotationView extends CompositeView<FlatItem> 
     }
 
     processSource(model: FlatItem, source: Node): void {
-        source.when(schema('name'), this.processTitle, this);
+        source.when(sourceOntology.title, this.processTitle, this);
         source.when('@type', this.processLabel, this);
         this.delayedRender = after(2, this.render);
     }

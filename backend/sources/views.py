@@ -138,7 +138,7 @@ def inject_fulltext(input, inline, request):
                 }
             }, index=settings.ES_ALIASNAME)
             f = result['hits']['hits'][0]['_source']['text']
-            text_triples.add((s, SCHEMA.text, Literal(f)))
+            text_triples.add((s, source_ontology.content, Literal(f)))
         else:
             text_triples.add((s, source_ontology.fullText, URIRef(reverse(
                 'sources:fulltext',

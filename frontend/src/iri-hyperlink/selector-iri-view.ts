@@ -1,7 +1,7 @@
 import { extend } from 'lodash';
 
 import { CompositeView } from '../core/view';
-import { schema } from '../common-rdf/ns';
+import { sourceOntology } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import FlatItem from '../common-adapters/flat-item-model';
 import { getLabel } from '../utilities/linked-data-utilities';
@@ -30,7 +30,7 @@ export default class SelectorIRIView extends CompositeView<FlatItem> {
     renderContainer(): this {
         const source = this.model.get('source');
         this.$el.html(this.template(extend({
-            title: source && source.get(schema('name')),
+            title: source && source.get(sourceOntology.title),
         }, this.model.toJSON())));
         return this;
     }

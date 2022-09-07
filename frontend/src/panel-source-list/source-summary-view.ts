@@ -4,7 +4,7 @@ import { ViewOptions as BaseOpt } from 'backbone';
 import { baseUrl } from 'config.json';
 import View from '../core/view';
 import Node from '../common-rdf/node';
-import { oa, schema, sourceOntology } from '../common-rdf/ns';
+import { oa, sourceOntology } from '../common-rdf/ns';
 import sourceSummaryTemplate from './source-summary-template';
 import Graph from '../common-rdf/graph';
 
@@ -62,7 +62,7 @@ export default class SourceSummaryView extends View {
             this.author = (authorNode.get(oa.hasBody)[0] as Node).toString();
         }
         const textNode = this.highlights.models.find(
-            (node) => (node.get(oa.hasTarget)[0] as Node)["id"] === schema.text
+            (node) => (node.get(oa.hasTarget)[0] as Node)["id"] === sourceOntology.content
         );
         if (textNode) {
             this.snippets = (textNode.get(oa.hasBody) as Node[]).map((snip) =>

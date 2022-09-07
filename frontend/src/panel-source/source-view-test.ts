@@ -4,7 +4,7 @@ import { pick } from 'lodash';
 import { startStore, endStore } from '../test-util';
 import mockSources from '../mock-data/mock-sources';
 
-import { schema, vocab } from '../common-rdf/ns';
+import { sourceOntology } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import Graph from '../common-rdf/graph';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
@@ -35,8 +35,8 @@ describe('SourceView', function() {
     it('will start rendering highlights eventually', function(done) {
         // Change `this.source` to provide the text as an URI instead of
         // containing the text inline.
-        const text = this.source.get(schema.text)[0];
-        this.source.unset(schema.text).set(vocab('fullText'), textURI);
+        const text = this.source.get(sourceOntology.content)[0];
+        this.source.unset(sourceOntology.content).set(sourceOntology.fullText, textURI);
 
         // This will cause the source panel to request the text with an XHR.
         const view = new SourcePanel({
