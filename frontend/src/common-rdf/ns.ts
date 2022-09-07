@@ -486,6 +486,7 @@ export const schemaTerms = [
     'accessibilityFeature',
     'affiliation',
     'alternativeHeadline',
+    'Article',
     'Audience',
     'audience',
     'author',
@@ -500,7 +501,10 @@ export const schemaTerms = [
     // 'name', // causes runtime error, use schema('name') instead
     'Organization',
     'Person',
-    'text'
+    'Review',
+    'SocialMediaPosting',
+    'text',
+    'WebContent',
 ] as const;
 
 export const schema = Vocabulary(schemaPrefix, schemaTerms);
@@ -574,7 +578,32 @@ export const nlp = Vocabulary(nlpOntologyPrefix, ontologyNotHardcoded);
 
 export const sourceOntologyPrefix = READIT + 'source-ontology#';
 
-export const sourceOntology = Vocabulary(sourceOntologyPrefix, ontologyNotHardcoded);
+const sourceOntologyTerms = [
+    'author',
+    'content',
+    'dateCreated',
+    'datePublished',
+    'dateRetrieved',
+    'dateUploaded',
+    'editor',
+    'encodingFormat',
+    'fullText',
+    'image',
+    'language',
+    'PlainTextSource',
+    'public',
+    'publisher',
+    'ReaditSourceType',
+    'repository',
+    'Source',
+    'sourceType',
+    'TFO_TextForm',
+    'thumbnail',
+    'title',
+    'url',
+] as const;
+
+export const sourceOntology = Vocabulary(sourceOntologyPrefix, sourceOntologyTerms);
 
 /**
  * READ-IT items
