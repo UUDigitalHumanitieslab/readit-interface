@@ -4,7 +4,7 @@ import { SubViewDescription } from 'backbone-fractal/dist/composite-view';
 
 import Model from '../core/model';
 import { CompositeView } from '../core/view';
-import { schema, vocab } from '../common-rdf/ns';
+import { sourceOntology } from '../common-rdf/ns';
 import Node from '../common-rdf/node';
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
@@ -32,7 +32,7 @@ function announce() {
 }
 
 export interface ViewOptions extends BaseOpt<Model> {
-    // An instance of vocab('Source').
+    // An instance of sourceOntology.Source.
     model: Node;
 
     // The collection of annotations (and the items representing their details)
@@ -95,7 +95,7 @@ class SourcePanel extends CompositeView {
         this.metaView = new MetadataPanel({
             model: this.model
         });
-        
+
 
         this.render();
 
@@ -130,7 +130,7 @@ class SourcePanel extends CompositeView {
     }
 
     processText(): this {
-        const text = this.model.get(schema.text);
+        const text = this.model.get(sourceOntology.content);
         if (text && text.length) {
             this._createHtv(text[0] as string);
         } else {
@@ -204,7 +204,7 @@ class SourcePanel extends CompositeView {
     }
 
     renderContainer(): this {
-        const names = this.model.get(schema('name'));
+        const names = this.model.get(sourceOntology.title);
         this.$el.html(this.template({
             title: names ? names[0] : ''
         }));
