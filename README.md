@@ -8,9 +8,9 @@ Public interface for READ-IT
 You need to install the following software:
 
  - PostgreSQL >= 9.3, client, server and C libraries
- - Python >= 3.4, <= 3.6
+ - Python >= 3.8
  - virtualenv
- - [Apache Jena Fuseki][fuseki] (see [notes in the backend README](backend/README.md#notes-for-setting-up-fuseki))
+ - [Blazegraph][blazegraph] (see [notes in the backend README](backend/README.md#notes-for-setting-up-blazegraph))
  - Elasticsearch 7 (see [notes in the backend README](backend/README.md#setting-up-elasticsearch))
  - RabbitMQ or other message broker and Celery (see [notes](backend/README.md#setting-up-celery))
  - WSGI-compatible webserver (deployment only)
@@ -21,7 +21,7 @@ You need to install the following software:
 
 [1]: https://wiki.python.org/moin/WindowsCompilers
 [2]: https://pypi.org/project/selenium/#drivers
-[fuseki]: https://jena.apache.org/documentation/fuseki2/
+[blazegraph]: https://blazegraph.com/
 
 
 ## How it works
