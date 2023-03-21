@@ -26,30 +26,25 @@ You need to install the following software:
 [fuseki]: https://jena.apache.org/documentation/fuseki2/
 
 
-### Notes for setting up Fuseki
+### Notes for setting up Blazegraph
 
-The development settings included with this application assume that you have a Fuseki server running on port 3030 (the default) and that it hosts a dataset under the name `/readit`. The following steps suffice to make this true.
+The development settings included with this application assume that you have a Blazegraph server running on port 9999 (the default) and the namespace `readit` is created. The following steps suffice to make this true.
 
-After downloading and extracting the [Fuseki binary distribution tarball][jena-download], `cd` into the extracted directory with the terminal. The following command will start an appropriate Fuseki server as a foreground process.
+Follow the [Blazegraph quick start guide](https://github.com/blazegraph/database/wiki/Quick_Start) to download and start the database server and a foreground process.
+While the server is running, you can access its web interface at http://localhost:9999. This lets you upload and download data, try out queries and review statistics about the dataset. The server can be stopped by typing `ctrl-c`.
+Visit the [web interface]( http://localhost:9999), navigate to the `NAMESPACES` tab. Use the `create namespace` form to create a new namespace. Choose `readit` as a name, and set the mode to `quads`. All other checkboxes should be disabled. A popup is shown with additional settings. Leave these at their default values and choose `Create`. The created namespace should now appear in the list of namespaces. Choose `use` to use the readit namespace when operating the web interface
 
-    ./fuseki-server --loc=/absolute/path/to/datadir --update --localhost /readit
+In order to support the unittests, visit the Blazegraph web interface and create an additional namespace by the name `readit-test`.
 
-You can set `/absolute/path/to/datadir` to any directory of your choosing, as long as the Fuseki process has read and write access to it. You likely want to create a new directory for this purpose.
-
-While the Fuseki server is running, you can access its web interface at http://localhost:3030. This lets you upload and download data, try out queries and review statistics about the dataset. The server can be stopped by typing `ctrl-c`.
-
-In order to support the unittests, visit the Fuseki web interface and create an additional dataset by the name `readit-test`.
-
-If you are new to Fuseki but not to READ-IT, i.e., you have previously deployed READ-IT version 0.4.0 or older, or done local development work on any commit that did not descend from `0063b21`, then you should also read the following section about migrating your triples from the rdflib-django store to Fuseki.
-
-[jena-download]: https://jena.apache.org/download/
+If you are new to Blazegraph but not to READ-IT, i.e., you have previously deployed READ-IT version 0.4.0 or older, or done local development work on any commit that did not descend from `0063b21`, then you should also read the following section about migrating your triples from the rdflib-django store to Blazegraph.
 
 
-### Migrating triples from rdflib-django to Fuseki
+
+### Migrating triples from rdflib-django to Blazegraph
 
 *If you are setting up the READ-IT backend anew, you can skip this section.*
 
-To copy pre-existing triples from the rdflib-django store to Fuseki, only a few commands are needed. Ensure that Fuseki is running and that your virtualenv is activated before you start.
+To copy pre-existing triples from the rdflib-django store to Blazegraph, only a few commands are needed. Ensure that Blazegraph is running and that your virtualenv is activated before you start.
 
 First, open the interactive Django shell, for example with the following command.
 

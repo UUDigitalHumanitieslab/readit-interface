@@ -2,7 +2,7 @@ import { extend, isEmpty } from 'lodash';
 
 import Node from "../common-rdf/node";
 import { dcterms, sourceOntology } from "../common-rdf/ns";
-import userChannel from '../common-user/user-radio';
+import { currentUserOwnsModel } from '../common-user/utilities';
 import { CompositeView } from "../core/view";
 import i18nChannel from "../i18n/radio";
 import SourceMetadataView from '../source-metadata/source-metadata-view';
@@ -47,12 +47,7 @@ export default class MetadataPanel extends CompositeView {
     }
 
     checkOwnership(model, creators: Node[]): void {
-        const creator = creators[0];
-        const creatorId = creator.id || creator["@id"];
-        this.creator = getLabelFromId(creatorId);
-        const userUri = userChannel.request("current-user-uri");
-        // user can view the source metadata, but not edit when they're not owner
-        this.userIsOwner = creatorId === userUri;
+        this.userIsOwner = currentUserOwnsModel(model);
         this.render();
         this.dateUploaded =
             this.model.attributes[
