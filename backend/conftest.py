@@ -15,9 +15,26 @@ def credentials():
 
 
 @pytest.fixture
+def super_credentials():
+    return 'admin', 'is the boss'
+
+
+@pytest.fixture
 def auth_client(client, django_user_model, credentials):
     username, password = credentials
     django_user_model.objects.create_user(username=username, password=password)
+    client.login(username=username, password=password)
+    yield client
+    client.logout()
+    django_user_model.objects.get(username=username).delete()
+
+
+@pytest.fixture
+def super_client(client, django_user_model, super_credentials):
+    username, password = super_credentials
+    django_user_model.objects.create_superuser(
+        username=username, password=password
+    )
     client.login(username=username, password=password)
     yield client
     client.logout()
