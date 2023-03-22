@@ -146,6 +146,7 @@ export default class SourceMetadataView extends CompositeView {
         if (!this.model) return this;
         for (let attribute in this.model.attributes) {
             const values = this.model.get(attribute);
+            let valueId;
             if (!values.length) continue;
             if (attribute.startsWith(sourceOntologyPrefix)) {
                 const attributeLabel = getLabelFromId(attribute) as string;
@@ -154,12 +155,14 @@ export default class SourceMetadataView extends CompositeView {
                 const attributeLabel = 'sourceType';
                 let value = find(values, isSourceType);
                 if (!value) continue;
+                valueId = value;
             } else continue;
             const queryString = `[name="${attributeLabel}"]`;
             const element = this.$(queryString);
             if (!element.length) continue;
             if (externalAttributes.includes(attributeLabel)) {
-                const nodeFromUri = ldChannel.request("obtain", value.id);
+                valueId = valueId || value.id;
+                const nodeFromUri = ldChannel.request("obtain", valueId);
                 value = typeof nodeFromUri === "string"
                         ? nodeFromUri
                         : getLabel(nodeFromUri);
