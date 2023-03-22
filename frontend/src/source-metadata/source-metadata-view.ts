@@ -1,4 +1,4 @@
-import { extend } from 'lodash';
+import { find, extend } from 'lodash';
 import { ViewOptions as BaseOpt } from 'backbone';
 import * as i18next from 'i18next';
 
@@ -13,6 +13,8 @@ import DateField from "./date-field-view";
 
 import sourceMetadataTemplate from './source-metadata-template';
 
+const sourceTypePrefix = sourceNS('TF');
+const isSourceType = t => t.startsWith(sourceTypePrefix);
 
 const externalAttributes = [
     'language',
@@ -143,25 +145,29 @@ export default class SourceMetadataView extends CompositeView {
     renderValues(): this {
         if (!this.model) return this;
         for (let attribute in this.model.attributes) {
+            const values = this.model.get(attribute);
+            let valueId;
+            if (!values.length) continue;
             if (attribute.startsWith(sourceOntologyPrefix)) {
                 const attributeLabel = getLabelFromId(attribute) as string;
-                const queryString = `[name='` + `${attributeLabel}` + `']`;
-                const element = this.$(queryString);
-                if (element.length) {
-                    let value = this.model.get(attribute)[0];
-                    if (externalAttributes.includes(attributeLabel)) {
-                        const nodeFromUri = ldChannel.request(
-                            "obtain",
-                            value.id
-                        );
-                        value =
-                            typeof nodeFromUri === "string"
-                                ? nodeFromUri
-                                : getLabel(nodeFromUri);
-                    }
-                    element.val(value);
-                }
+                let value = values[0];
+            } else if (attribute === '@type') {
+                const attributeLabel = 'sourceType';
+                let value = find(values, isSourceType);
+                if (!value) continue;
+                valueId = value;
+            } else continue;
+            const queryString = `[name="${attributeLabel}"]`;
+            const element = this.$(queryString);
+            if (!element.length) continue;
+            if (externalAttributes.includes(attributeLabel)) {
+                valueId = valueId || value.id;
+                const nodeFromUri = ldChannel.request("obtain", valueId);
+                value = typeof nodeFromUri === "string"
+                        ? nodeFromUri
+                        : getLabel(nodeFromUri);
             }
+            element.val(value);
         }
         return this;
     }
