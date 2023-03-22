@@ -164,6 +164,7 @@ export default class SourceMetadataView extends CompositeView {
                         ? nodeFromUri
                         : getLabel(nodeFromUri);
             }
+            if (value instanceof Date) value = value.toISOString();
             element.val(value);
         }
         return this;
