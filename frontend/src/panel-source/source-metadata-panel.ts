@@ -47,6 +47,9 @@ export default class MetadataPanel extends CompositeView {
     }
 
     checkOwnership(model, creators: Node[]): void {
+        const creator = creators[0];
+        const creatorId = creator.id || creator["@id"];
+        this.creator = getLabelFromId(creatorId);
         this.userIsOwner = currentUserOwnsModel(model);
         this.render();
         this.dateUploaded =
