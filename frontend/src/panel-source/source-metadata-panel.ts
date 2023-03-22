@@ -51,11 +51,11 @@ export default class MetadataPanel extends CompositeView {
         const creatorId = creator.id || creator["@id"];
         this.creator = getLabelFromId(creatorId);
         this.userIsOwner = currentUserOwnsModel(model);
-        this.render();
         this.dateUploaded =
             this.model.attributes[
                 sourceOntology("dateUploaded")
             ][0].toLocaleDateString();
+        this.render();
     }
 
     onCloseClicked() {
