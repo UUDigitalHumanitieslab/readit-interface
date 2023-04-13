@@ -96,7 +96,7 @@ export default class SourceMetadataView extends CompositeView {
             required: true,
             label: i18next.t("label.publication-date", "Publication date"),
             additionalHelpText: `
-                ${i18next.t("upload.publication-date-help.begin")}<a
+                ${i18next.t("upload.publication-date-help.begin", "")}<a
                     href="https://en.wikipedia.org/wiki/ISO_8601"
                     target="_blank"
                 >${i18next.t(
