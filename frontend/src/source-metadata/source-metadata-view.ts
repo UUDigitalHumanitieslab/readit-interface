@@ -96,7 +96,7 @@ export default class SourceMetadataView extends CompositeView {
             required: true,
             label: i18next.t("label.publication-date", "Publication date"),
             additionalHelpText: `
-                ${i18next.t("upload.publication-date-help.begin", "")}<a
+                ${i18next.t("upload.publication-date-help.begin", " ")}<a
                     href="https://en.wikipedia.org/wiki/ISO_8601"
                     target="_blank"
                 >${i18next.t(
@@ -146,14 +146,14 @@ export default class SourceMetadataView extends CompositeView {
         if (!this.model) return this;
         for (let attribute in this.model.attributes) {
             const values = this.model.get(attribute);
-            let valueId;
+            let attributeLabel, value, valueId;
             if (!values.length) continue;
             if (attribute.startsWith(sourceOntologyPrefix)) {
-                const attributeLabel = getLabelFromId(attribute) as string;
-                let value = values[0];
+                attributeLabel = getLabelFromId(attribute) as string;
+                value = values[0];
             } else if (attribute === '@type') {
-                const attributeLabel = 'sourceType';
-                let value = find(values, isSourceType);
+                attributeLabel = 'sourceType';
+                value = find(values, isSourceType);
                 if (!value) continue;
                 valueId = value;
             } else continue;
