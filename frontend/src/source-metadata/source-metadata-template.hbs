@@ -10,13 +10,15 @@
         <input name="author" class="input" type="text" {{#unless readonly}}placeholder="C.S. Lewis"{{/unless}} required {{#readonly}}readonly{{/readonly}}>
     </div>
 </div>
-<div class="field is-grouped">
+<div class="field">
+    <label class="label">{{#i18n 'label.editor-opt'}}Editor (optional){{/i18n}}</label>
     <div class="control">
-        <label class="label">{{#i18n 'label.editor-opt'}}Editor (optional){{/i18n}}</label>
         <input name="editor" class="input" type="text" {{#unless readonly}}placeholder="C.S. Lewis"{{/unless}} {{#readonly}}readonly{{/readonly}}>
     </div>
+</div>
+<div class="field">
+    <label class="label">{{#i18n 'label.publisher-opt'}}Publisher (optional){{/i18n}}</label>
     <div class="control">
-        <label class="label">{{#i18n 'label.publisher-opt'}}Publisher (optional){{/i18n}}</label>
         <input name="publisher" class="input" type="text" {{#unless readonly}}placeholder="Geoffrey Bles"{{/unless}} {{#readonly}}readonly{{/readonly}}>
     </div>
 </div>
