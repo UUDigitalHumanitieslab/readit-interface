@@ -27,6 +27,10 @@
         &.is-active
             background-color: bisque
 
+    &.section
+        padding-left: 0
+        padding-right: 0
+
 .source-list
     .source-summary
         margin-bottom: 20px
@@ -42,6 +46,8 @@ mark
     .upload-source
         height: 100%
         overflow-y: auto
+        &.section
+            padding: 0
 
     .modal pre
         @extend %textWrapper
