@@ -32,8 +32,22 @@
         padding-right: 0
 
     &.is-static
+        display: block table
+        .dates
+            display: table-row-group
+        .field
+            display: table-row
+            height: 2.25em
+        .label, .control
+            display: table-cell
         input
             @extend .is-static
+            padding-top: 0
+            padding-bottom: 0
+            border-top: 0
+            border-bottom: 0
+            border-radius: 0
+            height: unset
         .help, .help-text
             display: none
 
