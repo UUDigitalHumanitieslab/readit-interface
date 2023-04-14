@@ -1,8 +1,6 @@
-<div class="field date">
-    <label class="label">{{label}}{{^required}}{{^readonly}} {{#i18n 'label.suffix-optional'}}(optional){{/i18n}}{{/readonly}}{{/required}}</label>
-    <div class="control">
-        <input name={{name}} class="input with-help" type="text" {{#unless readonly}}placeholder="1952-09-01 (YYYY-MM-DD)"{{/unless}} {{#readonly}}readonly{{/readonly}} {{#required}}required{{/required}}>
-        <p class="help">{{{additionalHelpText}}}
-        </p>
-    </div>
+<label class="label">{{label}}{{^required}}{{^readonly}} {{#i18n 'label.suffix-optional'}}(optional){{/i18n}}{{/readonly}}{{/required}}</label>
+<div class="control">
+    <input name={{name}} class="input with-help" type="text" {{#unless readonly}}placeholder="1952-09-01 (YYYY-MM-DD)"{{/unless}} {{#readonly}}readonly{{/readonly}} {{#required}}required{{/required}}>
+    <p class="help">{{{additionalHelpText}}}
+    </p>
 </div>
