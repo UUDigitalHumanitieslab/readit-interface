@@ -44,6 +44,7 @@ export default class SourceMetadataView extends CompositeView {
         this.getOntology();
         this.readonly =
             options.readonly !== undefined ? options.readonly : true;
+        this.readonly && this.$el.addClass('is-static');
         this.upload = options.upload !== undefined ? options.upload : false;
         this.listenTo(this.model, "change", this.render);
     }
