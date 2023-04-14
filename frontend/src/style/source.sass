@@ -31,8 +31,11 @@
         padding-left: 0
         padding-right: 0
 
-    &.is-static input
-        @extend .is-static
+    &.is-static
+        input
+            @extend .is-static
+        .help, .help-text
+            display: none
 
 .source-list
     .source-summary
