@@ -13,7 +13,7 @@ Import code names of custom permissions that need to be passed to the frontend w
 '''
 from sources.permissions import DELETE_SOURCE, UPLOAD_SOURCE
 from items.permissions import VIEW_ALL_ANNOTATIONS
-from sparql.permissions import SPARQL_UPDATE
+from sparql_endpoints.permissions import SPARQL_UPDATE
 
 CUSTOM_PERMISSIONS = [
     DELETE_SOURCE,
