@@ -114,8 +114,8 @@ export default class SourceMetadataView extends CompositeView {
             model: this.getNode("dateCreated"),
             name: "dateCreated",
             label: i18next.t(
-                "label.creation-date-opt",
-                "Creation date (optional)"
+                "label.creation-date",
+                "Creation date"
             ),
             additionalHelpText: i18next.t(
                 "upload.creation-date-help",
@@ -127,8 +127,8 @@ export default class SourceMetadataView extends CompositeView {
             model: this.getNode("dateRetrieved"),
             name: "dateRetrieved",
             label: i18next.t(
-                "label.retrieval-date-opt",
-                "Retrieval date (optional)"
+                "label.retrieval-date",
+                "Retrieval date"
             ),
             additionalHelpText: i18next.t(
                 "upload.retrieval-date-help",

@@ -11,19 +11,19 @@
     </div>
 </div>
 <div class="field">
-    <label class="label">{{#i18n 'label.editor-opt'}}Editor (optional){{/i18n}}</label>
+    <label class="label">{{#i18n 'label.editor'}}Editor{{/i18n}}{{^readonly}} {{#i18n 'label.suffix-optional'}}(optional){{/i18n}}{{/readonly}}</label>
     <div class="control">
         <input name="editor" class="input" type="text" {{#unless readonly}}placeholder="C.S. Lewis"{{/unless}} {{#readonly}}readonly{{/readonly}}>
     </div>
 </div>
 <div class="field">
-    <label class="label">{{#i18n 'label.publisher-opt'}}Publisher (optional){{/i18n}}</label>
+    <label class="label">{{#i18n 'label.publisher'}}Publisher{{/i18n}}{{^readonly}} {{#i18n 'label.suffix-optional'}}(optional){{/i18n}}{{/readonly}}</label>
     <div class="control">
         <input name="publisher" class="input" type="text" {{#unless readonly}}placeholder="Geoffrey Bles"{{/unless}} {{#readonly}}readonly{{/readonly}}>
     </div>
 </div>
 <div class="field">
-    <label class="label">{{#i18n 'label.repository-opt'}}Repository (optional){{/i18n}}</label>
+    <label class="label">{{#i18n 'label.repository'}}Repository{{/i18n}}{{^readonly}} {{#i18n 'label.suffix-optional'}}(optional){{/i18n}}{{/readonly}}</label>
     <div class="control">
         <input
             name="repository"
@@ -130,7 +130,7 @@
     </div>
 </div>
 <div class="field url">
-    <label class="label">{{#i18n 'label.url-opt'}}URL (optional){{/i18n}}</label>
+    <label class="label">{{#i18n 'label.url'}}URL{{/i18n}}{{^readonly}} {{#i18n 'label.suffix-optional'}}(optional){{/i18n}}{{/readonly}}</label>
     <div class="control">
         <input name="url" class="input" type="url" {{#unless readonly}}placeholder="https://www.wikidata.org/wiki/Q331656"{{/unless}} {{#readonly}}readonly{{/readonly}}>
     </div>
