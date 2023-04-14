@@ -46,6 +46,7 @@ export default class DateField extends CompositeView<Node> {
     }
 }
 extend(DateField.prototype, {
+    className: 'field date',
     template: dateFieldTemplate,
     subviews: [{
         view: 'helpText', selector: '.date', method: 'append'
