@@ -59,7 +59,9 @@
         "edit": "Edit",
         "new": "New",
         "delete-source": "Delete source",
-        "register": "Register"
+        "save-changes": "Save changes",
+        "register": "Register",
+        "preview": "Preview"
     },
     "feedback": {
         "success-heading": "Feedback submitted",
@@ -82,12 +84,32 @@
         "which-item": "Which one?",
         "edit-properties": "Edit properties",
         "item-properties": "Item properties",
-        "properties": "Properties",
         "email": "Email",
+        "suffix-optional": "(optional)",
         "title": "Title",
         "author": "Author",
-        "editor": "Editor (optional)",
+        "editor": "Editor",
+        "publisher": "Publisher",
+        "repository": "Repository",
         "file": "File",
+        "choose-file": "Choose a file…",
+        "language": "Language",
+        "select-language": "Select language",
+        "english": "English",
+        "german": "German",
+        "french": "French",
+        "italian": "Italian",
+        "czech": "Czech",
+        "dutch": "Dutch",
+        "other": "Other",
+        "source-type": "Type of source",
+        "source-access": "Source access",
+        "public": "Public",
+        "private": "Private",
+        "url": "URL",
+        "publication-date": "Publication date",
+        "creation-date": "Creation date",
+        "retrieval-date": "Retrieval date",
         "text-search": "Textual search",
         "semantic-search": "Semantic search"
     },
@@ -98,7 +120,8 @@
         "password": "Password",
         "repeat-password": "Repeat password",
         "search-database": "Search our database",
-        "optional-label": "optional label for reference"
+        "optional-label": "optional label for reference",
+        "repository": "Archive, location, collection, call, fasc, folio"
     },
     "footer": {
         "developed-by": "Developed by"
@@ -208,7 +231,7 @@
     },
     "source": {
         "list-panel-title": "Sources",
-        "metadata-title": "Source metadata",
+        "meta-summary": "Source {{identifier}}, created by {{creator}} at {{dateUploaded}}",
         "delete-confirm": "\nAre you sure you want to delete this source?\nIf you delete this source, all its annotation will be deleted as well, including any annotations that other users may have made.\nThis cannot be undone.\n"
     },
     "register": {
@@ -229,6 +252,25 @@
         "failed": "Registration failed. Please try again and if this error keeps occuring, contact the site administrator."
     },
     "upload": {
-        "form-title": "Upload source"
+        "no-file": "No file selected",
+        "only-txt-utf8-lf": "Only txt files in UTF-8 encoding (LF for line endings) are supported.",
+        "source-lang-select-help": "If the source contains multiple languages, please select 'Other'.",
+        "source-type-select-help": "When in doubt, choose 'Unknown'.",
+        "public-private-help": "Provide access to everyone (public) or only to authenticated users (private).",
+        "publication-date-help": {
+            "begin": " ",
+            "link": "ISO formatted date with optional time and timezone",
+            "end": ", or free-form text"
+        },
+        "creation-date-help": "If known and different from publishing date, specify creation date.",
+        "retrieval-date-help": "Date (and optional time) at which the source was accessed or retrieved.",
+        "form-title": "Upload source",
+        "success": {
+            "begin": "Source uploaded successfully! Upload another one or",
+            "link": "go to the Explorer",
+            "end": "."
+        },
+        "failed-help": "Uploading failed.\n            Please try again and if this error keeps occuring,\n            contact the site administrator.\n            Do you have permission to upload sources?",
+        "preview-title": "Preview source content"
     }
 }

@@ -15,6 +15,10 @@
     "feedback": {
         "failed": "Feedback submission failed. Please try again and if this error keeps occuring, contact the site administrator."
     },
+    "label": {
+        "properties": "Properties",
+        "editor": "Editor (optional)"
+    },
     "property": {
         "typeHints": {
             "integer": "Include extra leading zeros to force interpretation as an integer type.",
@@ -38,6 +42,7 @@
         }
     },
     "source": {
+        "metadata-title": "Source metadata",
         "delete-confirm": "\nAre you sure you want to delete this source?\nIf you delete this source, all its annotation will be deleted as well, including any annotations that other users may have made.\nThis cannot be undone.\n"
     },
     "register": {
