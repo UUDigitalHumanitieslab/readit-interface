@@ -44,7 +44,7 @@ def super_client(client, django_user_model, super_credentials):
 @pytest.fixture
 def sparqlstore(settings):
     store = settings.RDFLIB_STORE
-    assert not store.query(HAS_TRIPLES)
+    store.update('CLEAR ALL')
     yield store
     store.update('CLEAR ALL')
 
