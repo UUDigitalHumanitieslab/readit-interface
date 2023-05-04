@@ -118,12 +118,12 @@
 <div class="field">
     <label class="label">{{#i18n 'label.source-access'}}Source access{{/i18n}}</label>
     <div class="control">
-        <label class="radio">
-            <input type="radio" name="public" value="public" checked>
+        <label class="radio" {{#readonly}}disabled{{/readonly}}>
+            <input type="radio" name="public" value="public" {{#readonly}}disabled{{/readonly}} checked>
             {{#i18n 'label.public'}}Public{{/i18n}}
         </label>
-        <label class="radio">
-            <input type="radio" name="public" value="private">
+        <label class="radio" {{#readonly}}disabled{{/readonly}}>
+            <input type="radio" name="public" value="private" {{#readonly}}disabled{{/readonly}}>
             {{#i18n 'label.private'}}Private{{/i18n}}
         </label>
         <p class="help">{{#i18n 'upload.public-private-help'}}Provide access to everyone (public) or only to authenticated users (private).{{/i18n}}</p>
