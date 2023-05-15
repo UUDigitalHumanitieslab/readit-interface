@@ -198,7 +198,7 @@ extend(SourceMetadataView.prototype, {
     className: 'section source',
     template: sourceMetadataTemplate,
     subviews: [
-        { view: 'sourceTypePicker', selector: '#sourceTypeSelect' },
+        { view: 'sourceTypePicker', selector: '.sourceTypeSelect' },
         { view: 'publicationDateField', selector: '.dates', method: 'prepend'},
         { view: 'creationDateField', selector: '.dates', method: 'append'},
         { view: 'retrievalDateField', selector: '.dates', method: 'append'},
