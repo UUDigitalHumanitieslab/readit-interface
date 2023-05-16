@@ -68,25 +68,24 @@ export default class UploadSourceFormView extends CompositeView {
     renderContainer(): this {
         this.$el.html(this.template(this));
         this.hideFeedback();
+        this.$('.btn-preview').prop('disabled', true);
+        return this;
+    }
+
+    onChangeFile(event: JQueryEventObject): void {
         let input = this.$('.file-input');
         let label = this.$('.filelabel');
         let name = this.$('.filename');
 
-        this.$('.btn-preview').prop('disabled', true);
-
-        input.on('change', () => {
-            let files = (input.get(0) as HTMLInputElement).files;
-            if (files.length === 0) {
-                name.text('No file selected');
-            } else {
-                name.text(files[0].name);
-                label.text('Change file...');
-                this.$('.btn-preview').prop('disabled', false);
-            }
-            input.valid();
-        });
-
-        return this;
+        let files = (input.get(0) as HTMLInputElement).files;
+        if (files.length === 0) {
+            name.text('No file selected');
+        } else {
+            name.text(files[0].name);
+            label.text('Change file...');
+            this.$('.btn-preview').prop('disabled', false);
+        }
+        input.valid();
     }
 
     /**
@@ -169,6 +168,7 @@ extend(UploadSourceFormView.prototype, {
         { view: 'sourceMetadataView', selector: '.upload-source', method: 'prepend'},
     ],
     events: {
+        'change .file-input': 'onChangeFile',
         'submit': 'onSaveClicked',
         'click .btn-cancel': 'onCancelClicked',
         'click .input': 'hideFeedback',
