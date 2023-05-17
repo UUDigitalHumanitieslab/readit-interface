@@ -95,6 +95,19 @@ const knownConversions: ConversionTable = {
             return obj;
         },
     },
+    [xsd.date]: {
+        toLD(date: Date): FlatTypedLiteral {
+            return {
+                '@value': date.toJSON().slice(0, 8),
+                '@type': xsd.date,
+            };
+        },
+        fromLD(value: FlatTypedLiteral): Date {
+            let obj = new Date(value['@value'] as string);
+            obj['@type'] = xsd.date;
+            return obj;
+        },
+    },
 };
 
 /**
