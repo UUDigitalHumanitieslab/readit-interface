@@ -510,6 +510,8 @@ def format_source_data(subject, data):
         (language, resolve_language),
     ]
     return [
+        (subject, RDF.type, source_ontology.Source),
+    ] + [
         (subject, source_ontology[key], coerce(data[key]))
         for terms, coerce in conversions
         for key in terms if key in data
