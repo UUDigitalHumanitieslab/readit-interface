@@ -168,17 +168,30 @@ export default class SourceMetadataView extends CompositeView {
             if (!element.length) continue;
             if (externalAttributes.includes(attributeLabel)) {
                 valueId = valueId || value.id;
-                const nodeFromUri = ldChannel.request("obtain", valueId);
-                value = typeof nodeFromUri === "string"
-                        ? nodeFromUri
-                        : getLabel(nodeFromUri);
+                if (this.readonly || attributeLabel === 'creator') {
+                    const nodeFromUri = ldChannel.request("obtain", valueId);
+                    value = typeof nodeFromUri === "string"
+                          ? nodeFromUri
+                          : getLabel(nodeFromUri);
+                } else {
+                    value = attributeLabel === 'language'
+                          ? getLabelFromId(valueId)
+                          : valueId;
+                }
             }
             if (value instanceof Date) {
                 const isPlainDate = (value['@type'] === xsd.date);
                 value = value.toISOString();
                 if (isPlainDate) value = value.slice(0, 10);
             }
-            element.val(value);
+            if (attributeLabel === 'public') {
+                value = [value ? 'public' : 'private'];
+            }
+            if (!this.readonly && attributeLabel === 'sourceType') {
+                this.sourceTypePicker.val(value);
+            } else {
+                element.val(value);
+            }
         }
         return this;
     }
