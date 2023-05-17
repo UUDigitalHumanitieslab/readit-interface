@@ -2,7 +2,7 @@ import { find, extend } from 'lodash';
 import { ViewOptions as BaseOpt } from 'backbone';
 import * as i18next from 'i18next';
 
-import { rdfs, sourceOntology as sourceNS, sourceOntologyPrefix } from '../common-rdf/ns';
+import { rdfs, xsd, sourceOntology as sourceNS, sourceOntologyPrefix } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 import { getLabel, getLabelFromId } from '../utilities/linked-data-utilities';
 import FilteredCollection from "../common-adapters/filtered-collection";
@@ -173,7 +173,11 @@ export default class SourceMetadataView extends CompositeView {
                         ? nodeFromUri
                         : getLabel(nodeFromUri);
             }
-            if (value instanceof Date) value = value.toISOString();
+            if (value instanceof Date) {
+                const isPlainDate = (value['@type'] === xsd.date);
+                value = value.toISOString();
+                if (isPlainDate) value = value.slice(0, 10);
+            }
             element.val(value);
         }
         return this;
