@@ -49,22 +49,9 @@ es = Elasticsearch(
 # Get sources logger for logging on server
 logger = logging.getLogger(__name__)
 
-LITERALS = {
-    'title': source_ontology.title,
-    'author': source_ontology.author,
-    'editor': source_ontology.editor,
-    'publisher': source_ontology.publisher,
-    'repository': source_ontology.repository,
-    'url': source_ontology.url
-}
-URIS = {
-    'type': source_ontology.sourceType,
-}
-DATES = {
-    'publicationdate': source_ontology.datePublished,
-    'creationdate': source_ontology.dateCreated,
-    'retrievaldate': source_ontology.dateRetrieved
-}
+LITERALS = ('title', 'author', 'editor', 'publisher', 'repository', 'url')
+URIS = ('sourceType',)
+DATES = ('datePublished', 'dateCreated', 'dateRetrieved')
 
 SELECT_SOURCES_QUERY_START = '''
 CONSTRUCT {
@@ -370,7 +357,7 @@ def source_valid(data):
     is_valid = True
     missing_fields = []
     required_fields = ['title', 'author',
-                       'source', 'language', 'type', 'publicationdate', 'public']
+                       'source', 'language', 'sourceType', 'datePublished', 'public']
     for f in required_fields:
         if not data.get(f, False):
             is_valid = False
@@ -513,8 +500,8 @@ def get_number_search_results(request):
     return JsonResponse(response)
 
 def format_source_data(subject, data):
-    access = { 'public': source_ontology.public }
-    language = { 'language': source_ontology.language }
+    access = ('public',)
+    language = ('language',)
     conversions = [
         (LITERALS, Literal),
         (URIS, URIRef),
@@ -523,9 +510,9 @@ def format_source_data(subject, data):
         (language, resolve_language),
     ]
     return [
-        (subject, map_uri[key], coerce(data[key]))
-        for map_uri, coerce in conversions
-        for key in map_uri if key in data
+        (subject, source_ontology[key], coerce(data[key]))
+        for terms, coerce in conversions
+        for key in terms if key in data
     ]
 
 def resolve_language(input_language):
