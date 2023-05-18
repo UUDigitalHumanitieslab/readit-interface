@@ -222,6 +222,6 @@ extend(SourceMetadataView.prototype, {
         { view: 'retrievalDateField', selector: '.dates', method: 'append'},
     ],
     events: {
-        'change .input': 'updateModel'
+        'change': 'updateModel'
     }
 })
