@@ -204,9 +204,11 @@ export default class SourceMetadataView extends CompositeView {
     }
 
     updateModel(event) {
-        const changedField = event.target.name;
-        const value = this.$(`[name='` + `${changedField}` + `']`).val();
-        this.trigger("valueChanged", changedField, value);
+        const el = event.target;
+        const suffix = el.type === 'radio' ? ':checked' : '';
+        const selector = `[name='${el.name}']${suffix}`;
+        const value = this.$(selector).val();
+        this.trigger("valueChanged", el.name, value);
     }
 }
 extend(SourceMetadataView.prototype, {
