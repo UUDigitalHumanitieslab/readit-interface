@@ -206,10 +206,7 @@ export default class SourceMetadataView extends CompositeView {
     updateModel(event) {
         const changedField = event.target.name;
         const value = this.$(`[name='` + `${changedField}` + `']`).val();
-        const existingValue = this.model.get(sourceNS(changedField));
-        if (existingValue !== [value]) {
-            this.trigger("valueChanged", changedField, value);
-        }
+        this.trigger("valueChanged", changedField, value);
     }
 }
 extend(SourceMetadataView.prototype, {
