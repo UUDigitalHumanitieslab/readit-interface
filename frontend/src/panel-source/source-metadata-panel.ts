@@ -111,6 +111,6 @@ extend(MetadataPanel.prototype, {
         'click .btn-edit': 'toggleEditMode',
         'click .btn-cancel': 'toggleEditMode',
         'click .btn-delete': 'onDeleteClicked',
-        '.submit': 'onSubmit',
+        'submit': 'onSubmit',
     }
 });
