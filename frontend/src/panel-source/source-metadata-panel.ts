@@ -100,7 +100,7 @@ export default class MetadataPanel extends CompositeView {
 }
 
 extend(MetadataPanel.prototype, {
-    tagName: 'div',
+    tagName: 'form',
     className: 'metadata-panel',
     template: metadataTemplate,
     subviews: [
