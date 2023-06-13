@@ -14,7 +14,7 @@ attrs==21.4.0
     #   packaging
     #   pytest
     #   trio
-certifi==2019.6.16
+certifi==2022.12.7
     # via urllib3
 cffi==1.15.0
     # via cryptography
