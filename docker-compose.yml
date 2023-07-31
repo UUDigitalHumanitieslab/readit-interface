@@ -1,0 +1,51 @@
+# This compose file only serves to start up database dependencies.
+# The read-it application by itself does not run in a container.
+
+version: "3.1"
+
+services:
+    postgres:
+        image: postgres:alpine
+        environment:
+            - POSTGRES_PASSWORD=postgres
+        restart: always
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+            - ./backend/create_db.sql:/docker-entrypoint-initdb.d/readit.sql
+        ports:
+            - 127.0.0.1:5432:5432
+    blazegraph:
+        image: islandora/blazegraph:main
+        volumes:
+            - bzdata:/data
+        ports:
+            - 127.0.0.1:9999:8080
+    elastic:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.17.11
+        environment:
+            - node.name=readit-node
+            - discovery.type=single-node
+            - cluster.name=readit-es-data-cluster
+            - bootstrap.memory_lock=true
+            - xpack.security.enabled=false
+            - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        volumes:
+            - esdata:/usr/share/elasticsearch/data
+        ports:
+            - 127.0.0.1:9200:9200
+    rabbitmq:
+        image: rabbitmq:3-alpine
+        volumes:
+            - rbdata:/var/lib/rabbitmq
+        ports:
+            - 127.0.0.1:5672:5672
+
+volumes:
+    pgdata:
+    bzdata:
+    esdata:
+    rbdata:
