@@ -71,7 +71,7 @@ services:
             - ./config.json:/usr/src/glue-config.json
         ports:
             - 127.0.0.1:8080:8080
-        command: yarn gulp watch --config ../glue-config.json
+        command: yarn gulp --config ../glue-config.json
 
 volumes:
     pgdata:
