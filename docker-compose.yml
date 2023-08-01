@@ -46,8 +46,8 @@ services:
     backend:
         build:
             context: ./backend
-            args:
-                DJANGO_SETTINGS_MODULE: settings_docker
+        environment:
+            DJANGO_SETTINGS_MODULE: settings_docker
         depends_on:
             - postgres
             - blazegraph
