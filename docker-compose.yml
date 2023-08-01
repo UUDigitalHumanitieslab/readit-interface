@@ -55,6 +55,7 @@ services:
             - rabbitmq
         volumes:
             - ./backend:/usr/src/app
+            - bapyca:/usr/src/app/__pycache__
             - ./settings_docker.py:/usr/src/app/settings_docker.py
             - frdist:/usr/src/frontend/dist
             - frnomo:/usr/src/frontend/node_modules
@@ -77,5 +78,6 @@ volumes:
     bzdata:
     esdata:
     rbdata:
+    bapyca:
     frdist:
     frnomo:
