@@ -43,6 +43,23 @@ services:
             - rbdata:/var/lib/rabbitmq
         ports:
             - 127.0.0.1:5672:5672
+    backend:
+        build:
+            context: ./backend
+            args:
+                DJANGO_SETTINGS_MODULE: settings_docker
+        depends_on:
+            - postgres
+            - blazegraph
+            - elastic
+            - rabbitmq
+        volumes:
+            - ./backend:/usr/src/app
+            - ./settings_docker.py:/usr/src/app/settings_docker.py
+            - ./frontend/dist:/usr/src/frontend/dist
+            - ./frontend/node_modules:/usr/src/frontend/node_modules
+        ports:
+            - 127.0.0.1:8000:8000
 
 volumes:
     pgdata:
