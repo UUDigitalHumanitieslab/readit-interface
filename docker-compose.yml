@@ -56,13 +56,26 @@ services:
         volumes:
             - ./backend:/usr/src/app
             - ./settings_docker.py:/usr/src/app/settings_docker.py
-            - ./frontend/dist:/usr/src/frontend/dist
-            - ./frontend/node_modules:/usr/src/frontend/node_modules
+            - frdist:/usr/src/frontend/dist
+            - frnomo:/usr/src/frontend/node_modules
         ports:
             - 127.0.0.1:8000:8000
+    frontend:
+        build:
+            context: ./frontend
+        volumes:
+            - ./frontend:/usr/src/app
+            - frdist:/usr/src/app/dist
+            - frnomo:/usr/src/app/node_modules
+            - ./config.json:/usr/src/glue-config.json
+        ports:
+            - 127.0.0.1:8080:8080
+        command: yarn gulp watch --config ../glue-config.json
 
 volumes:
     pgdata:
     bzdata:
     esdata:
     rbdata:
+    frdist:
+    frnomo:
