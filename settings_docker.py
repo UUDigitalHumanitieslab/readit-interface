@@ -7,7 +7,7 @@
 from readit.settings import *
 import os.path as op
 
-TRIPLESTORE_SPARQL_ENDPOINT = f'http://blazegraph:9999/bigdata/namespace/{TRIPLESTORE_NAMESPACE}/sparql'
+TRIPLESTORE_SPARQL_ENDPOINT = f'http://blazegraph:8080/bigdata/namespace/{TRIPLESTORE_NAMESPACE}/sparql'
 RDFLIB_STORE = SPARQLUpdateStore(
     query_endpoint=TRIPLESTORE_SPARQL_ENDPOINT,
     update_endpoint=TRIPLESTORE_SPARQL_ENDPOINT,
