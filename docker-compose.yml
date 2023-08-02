@@ -56,8 +56,8 @@ services:
             - rabbitmq
         volumes:
             - ./backend:/usr/src/app
-            - bapyca:/usr/src/app/__pycache__
             - ./settings_docker.py:/usr/src/readit/settings_docker.py
+            - bapyca:/usr/src/app/__pycache__
             - frdist:/usr/src/frontend/dist
             - frnomo:/usr/src/frontend/node_modules
         ports:
