@@ -5,7 +5,7 @@ version: "3.1"
 
 services:
     postgres:
-        image: postgres:alpine
+        image: postgres:14
         environment:
             - POSTGRES_PASSWORD=postgres
         restart: always
@@ -38,7 +38,7 @@ services:
         ports:
             - 127.0.0.1:9200:9200
     rabbitmq:
-        image: rabbitmq:3-alpine
+        image: rabbitmq:3
         volumes:
             - rbdata:/var/lib/rabbitmq
         ports:
