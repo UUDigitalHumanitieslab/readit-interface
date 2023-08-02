@@ -48,6 +48,7 @@ services:
             context: ./backend
         environment:
             DJANGO_SETTINGS_MODULE: settings_docker
+            PYTHONPATH: /usr/src/readit
         depends_on:
             - postgres
             - blazegraph
@@ -56,7 +57,7 @@ services:
         volumes:
             - ./backend:/usr/src/app
             - bapyca:/usr/src/app/__pycache__
-            - ./settings_docker.py:/usr/src/app/settings_docker.py
+            - ./settings_docker.py:/usr/src/readit/settings_docker.py
             - frdist:/usr/src/frontend/dist
             - frnomo:/usr/src/frontend/node_modules
         ports:
