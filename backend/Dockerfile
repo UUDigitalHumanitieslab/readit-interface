@@ -7,4 +7,7 @@ RUN pip install -U pip pip-tools && pip-sync
 COPY . .
 
 ENV DJANGO_SETTINGS_MODULE=readit.settings
-CMD python manage.py migrate && python manage.py rdfmigrate && python manage.py runserver
+CMD python manage.py check && \
+    python manage.py migrate && \
+    python manage.py rdfmigrate && \
+    python manage.py runserver
