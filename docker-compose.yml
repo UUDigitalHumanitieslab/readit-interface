@@ -73,7 +73,7 @@ services:
         ports:
             - 127.0.0.1:8080:8080
             - 127.0.0.1:35729:35729
-        command: yarn gulp --config ../glue-config.json
+        command: yarn gulp docker --config ../glue-config.json
 
 volumes:
     pgdata:
