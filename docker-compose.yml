@@ -78,6 +78,23 @@ services:
             - ./frontend/src/image:/usr/src/frontend/dist/image
         ports:
             - 127.0.0.1:8000:8000
+    celery:
+        build:
+            context: ./backend
+        environment:
+            READIT_TRIPLESTORE_BASE_URL: 'http://blazegraph:8080/bigdata'
+            READIT_BROKER_HOST: 'guest:guest@rabbitmq:5672'
+            READIT_DATABASE_HOST: postgres
+            READIT_ES_HOST: elastic
+        command: celery -A readit worker -l INFO
+        depends_on:
+            blazegraph:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        volumes:
+            - ./backend:/usr/src/app
+            - bapyca:/usr/src/app/__pycache__
     frontend:
         build:
             context: ./frontend
