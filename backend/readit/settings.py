@@ -37,14 +37,16 @@ ALLOWED_HOSTS = []
 
 # Default store for our graphs.
 TRIPLESTORE_NAMESPACE = 'readit'
-TRIPLESTORE_SPARQL_ENDPOINT = f'http://localhost:9999/blazegraph/namespace/{TRIPLESTORE_NAMESPACE}/sparql'
+TRIPLESTORE_BASE_URL = os.getenv('READIT_TRIPLESTORE_BASE_URL', 'http://localhost:9999/blazegraph')
+TRIPLESTORE_SPARQL_ENDPOINT = f'{TRIPLESTORE_BASE_URL}/namespace/{TRIPLESTORE_NAMESPACE}/sparql'
 RDFLIB_STORE = SPARQLUpdateStore(
     query_endpoint=TRIPLESTORE_SPARQL_ENDPOINT,
     update_endpoint=TRIPLESTORE_SPARQL_ENDPOINT,
 )
 
 # Celery configuration
-CELERY_BROKER_URL = 'amqp://'
+CELERY_BROKER_HOST = os.getenv('READIT_BROKER_HOST', '')
+CELERY_BROKER_URL = f'amqp://{CELERY_BROKER_HOST}'
 CELERY_BACKEND = 'amqp'
 # set task timeout to more than 24 hours - make sure long tasks won't be aborted
 CELERY_TASK_TIME_LIMIT = 86401
@@ -140,7 +142,7 @@ DATABASES = {
         'NAME': 'readit',
         'USER': 'readit',
         'PASSWORD': 'readit',
-        'HOST': 'localhost',
+        'HOST': os.getenv('READIT_DATABASE_HOST', 'localhost'),
     }
 }
 
@@ -193,10 +195,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = []
+STATICFILES_DIRS_ENV = os.getenv('READIT_STATICFILES_DIRS', '')
+STATICFILES_DIRS = list(filter(None, STATICFILES_DIRS_ENV.split(os.pathsep)))
 
 INDEX_FILE_PATH = 'index.html'
-TESTRUNNER_FILE_PATH = ''  # override in order to enable an external test runner
+
+# override in order to enable an external test runner
+TESTRUNNER_FILE_PATH = os.getenv('READIT_TESTRUNNER_PATH', '')
 
 
 # Uploads
@@ -215,7 +220,7 @@ ACCOUNT_EMAIL_VERIFICATION = "optional"
 # Suppress warnings
 SILENCED_SYSTEM_CHECKS = ['urls.W002']
 
-ES_HOST = "localhost"
+ES_HOST = os.getenv('READIT_ES_HOST', 'localhost')
 ES_PORT = "9200"
 ES_ALIASNAME = "readit"
 

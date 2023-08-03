@@ -47,8 +47,12 @@ services:
         build:
             context: ./backend
         environment:
-            DJANGO_SETTINGS_MODULE: settings_docker
-            PYTHONPATH: /usr/src/readit
+            READIT_TRIPLESTORE_BASE_URL: 'http://blazegraph:8080/bigdata'
+            READIT_BROKER_HOST: 'guest:guest@rabbitmq:5672'
+            READIT_DATABASE_HOST: postgres
+            READIT_ES_HOST: elastic
+            READIT_TESTRUNNER_PATH: specRunner.html
+            READIT_STATICFILES_DIRS: '/usr/src/frontend/dist:/usr/src/frontend/node_modules'
         depends_on:
             - postgres
             - blazegraph
@@ -56,7 +60,6 @@ services:
             - rabbitmq
         volumes:
             - ./backend:/usr/src/app
-            - ./settings_docker.py:/usr/src/readit/settings_docker.py
             - bapyca:/usr/src/app/__pycache__
             - frdist:/usr/src/frontend/dist
             - frnomo:/usr/src/frontend/node_modules
