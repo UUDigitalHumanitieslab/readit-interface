@@ -75,6 +75,7 @@ services:
             - bapyca:/usr/src/app/__pycache__
             - frdist:/usr/src/frontend/dist
             - frnomo:/usr/src/frontend/node_modules
+            - ./frontend/src/image:/usr/src/frontend/dist/image
         ports:
             - 127.0.0.1:8000:8000
     frontend:
