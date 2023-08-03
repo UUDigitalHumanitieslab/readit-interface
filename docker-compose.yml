@@ -8,6 +8,8 @@ services:
         image: postgres:14
         environment:
             - POSTGRES_PASSWORD=postgres
+        healthcheck:
+            test: 'psql -c "\l" postgres postgres'
         restart: always
         volumes:
             - pgdata:/var/lib/postgresql/data
@@ -16,6 +18,8 @@ services:
             - 127.0.0.1:5432:5432
     blazegraph:
         image: islandora/blazegraph:main
+        healthcheck:
+            test: 'curl -f http://blazegraph:8080/bigdata/'
         volumes:
             - bzdata:/data
         ports:
@@ -33,12 +37,16 @@ services:
             memlock:
                 soft: -1
                 hard: -1
+        healthcheck:
+            test: 'curl -f http://localhost:9200'
         volumes:
             - esdata:/usr/share/elasticsearch/data
         ports:
             - 127.0.0.1:9200:9200
     rabbitmq:
         image: rabbitmq:3
+        healthcheck:
+            test: 'rabbitmqctl status | grep -F "Virtual host count: 1"'
         volumes:
             - rbdata:/var/lib/rabbitmq
         ports:
@@ -54,10 +62,14 @@ services:
             READIT_TESTRUNNER_PATH: specRunner.html
             READIT_STATICFILES_DIRS: '/usr/src/frontend/dist:/usr/src/frontend/node_modules'
         depends_on:
-            - postgres
-            - blazegraph
-            - elastic
-            - rabbitmq
+            postgres:
+                condition: service_healthy
+            blazegraph:
+                condition: service_healthy
+            elastic:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
         volumes:
             - ./backend:/usr/src/app
             - bapyca:/usr/src/app/__pycache__
