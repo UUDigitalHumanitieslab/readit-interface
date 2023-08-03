@@ -1,6 +1,3 @@
-# This compose file only serves to start up database dependencies.
-# The read-it application by itself does not run in a container.
-
 version: "3.1"
 
 services:
