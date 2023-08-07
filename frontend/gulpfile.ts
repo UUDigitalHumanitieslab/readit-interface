@@ -499,17 +499,23 @@ export const watch = series(fullStatic, function watch(done) {
 
 export const watchNoTest = series(fullStatic, function watch(done) {
     watchBundle(tsModules(), reload(jsBundle));
+    watchBundle(tsTestModules(), reload(jsUnittest));
 
     jsBundle();
+    jsUnittest();
 
     const styleWatch = watchApi(styleSourceGlob, reload(style));
     const templateWatch = watchApi(templateSourceGlob, template);
     const indexWatch = watchApi([indexConfig, indexTemplate], reloadPr(index));
+    const specWatch = watchApi(
+        [indexConfig, specRunnerTemplate],
+        specRunner.render
+    );
 
     exitController.once('signal', () => {
         [
-            tsModules(), tsTestModules(), reporterModules(), styleWatch,
-            templateWatch, indexWatch
+            tsModules(), tsTestModules(), styleWatch,
+            templateWatch, indexWatch, specWatch,
         ].forEach(watcher => watcher.close());
         done();
     });
@@ -523,5 +529,7 @@ export function clean() {
         templateOutputGlob,
     ]);
 };
+
+export const docker = series(clean, terminalReporter, watchNoTest);
 
 export default series(clean, parallel(watch, serve));
