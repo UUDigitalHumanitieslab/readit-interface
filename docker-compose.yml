@@ -1,0 +1,122 @@
+version: "3.1"
+
+services:
+    postgres:
+        image: postgres:14
+        environment:
+            - POSTGRES_PASSWORD=postgres
+        healthcheck:
+            test: 'psql -c "\l" postgres postgres'
+        restart: always
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+            - ./backend/create_db.sql:/docker-entrypoint-initdb.d/readit.sql
+        ports:
+            - 127.0.0.1:5432:5432
+    blazegraph:
+        image: islandora/blazegraph:main
+        healthcheck:
+            test: 'curl -f http://blazegraph:8080/bigdata/'
+        volumes:
+            - bzdata:/data
+        ports:
+            - 127.0.0.1:9999:8080
+    elastic:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.17.11
+        environment:
+            - node.name=readit-node
+            - discovery.type=single-node
+            - cluster.name=readit-es-data-cluster
+            - bootstrap.memory_lock=true
+            - xpack.security.enabled=false
+            - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        healthcheck:
+            test: 'curl -f http://localhost:9200'
+        volumes:
+            - esdata:/usr/share/elasticsearch/data
+        ports:
+            - 127.0.0.1:9200:9200
+    rabbitmq:
+        image: rabbitmq:3
+        healthcheck:
+            test: 'rabbitmqctl status | grep -F "Virtual host count: 1"'
+        volumes:
+            - rbdata:/var/lib/rabbitmq
+        ports:
+            - 127.0.0.1:5672:5672
+    backend:
+        build:
+            context: ./backend
+        environment:
+            READIT_TRIPLESTORE_BASE_URL: 'http://blazegraph:8080/bigdata'
+            READIT_BROKER_HOST: 'guest:guest@rabbitmq:5672'
+            READIT_DATABASE_HOST: postgres
+            READIT_ES_HOST: elastic
+            READIT_TESTRUNNER_PATH: specRunner.html
+            READIT_STATICFILES_DIRS: '/usr/src/frontend/dist:/usr/src/frontend/node_modules'
+        depends_on:
+            postgres:
+                condition: service_healthy
+            blazegraph:
+                condition: service_healthy
+            elastic:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        healthcheck:
+            test: 'curl -f localhost:8000'
+        volumes:
+            - ./backend:/usr/src/app
+            - bapyca:/usr/src/app/__pycache__
+            - frdist:/usr/src/frontend/dist
+            - frnomo:/usr/src/frontend/node_modules
+            - ./frontend/src/image:/usr/src/frontend/dist/image
+        ports:
+            - 127.0.0.1:8000:8000
+    celery:
+        build:
+            context: ./backend
+        environment:
+            READIT_TRIPLESTORE_BASE_URL: 'http://blazegraph:8080/bigdata'
+            READIT_BROKER_HOST: 'guest:guest@rabbitmq:5672'
+            READIT_DATABASE_HOST: postgres
+            READIT_ES_HOST: elastic
+        command: celery -A readit worker -l INFO
+        healthcheck:
+            test: 'celery -A readit inspect ping'
+        depends_on:
+            blazegraph:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        volumes:
+            - ./backend:/usr/src/app
+            - bapyca:/usr/src/app/__pycache__
+    frontend:
+        platform: linux/x86_64
+        build:
+            context: ./frontend
+        healthcheck:
+            test: 'test -f dist/index.js -a -e dist/tests.js'
+        volumes:
+            - ./frontend:/usr/src/app
+            - frdist:/usr/src/app/dist
+            - frnomo:/usr/src/app/node_modules
+            - ./config.json:/usr/src/glue-config.json
+        ports:
+            - 127.0.0.1:8080:8080
+            - 127.0.0.1:35729:35729
+        command: yarn gulp docker --config ../glue-config.json
+
+volumes:
+    pgdata:
+    bzdata:
+    esdata:
+    rbdata:
+    bapyca:
+    frdist:
+    frnomo:

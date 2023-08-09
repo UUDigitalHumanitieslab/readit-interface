@@ -5,7 +5,7 @@ Public interface for READ-IT
 
 ## Before you start
 
-You need to install the following software:
+You need to install the following software (unless you use Docker):
 
  - PostgreSQL >= 9.3, client, server and C libraries
  - Python >= 3.8
@@ -45,7 +45,45 @@ If you are reading this README, you'll likely be working with the integrated pro
 
 ## Development
 
-### Quickstart
+### Quickstart, Docker
+
+First time after cloning this project:
+
+```console
+$ docker-compose up -d blazegraph elastic
+```
+
+Wait a bit until both services are ready, then follow the instructions in the sections [Setting up Blazegraph namespaces][bg-ns] and [Set up an Elasticsearch index][es-ix] in the backend README.
+
+[bg-ns]: backend/README.md#setting-up-blazegraph-namespaces
+[es-ix]: backend/README.md#set-up-an-elasticsearch-index
+
+From then on, you can always start the full application (backend and frontend with supporting services) with the following command:
+
+```console
+$ docker-compose up -d
+```
+
+The first time, this will take relatively long. To create a superuser account, run this once while the `backend` service is up:
+
+```console
+$ docker-compose exec backend python manage.py createsuperuser
+```
+
+Data will persist between runs. You can visit the frontend on http://localhost:8000/, the browsable backend API on http://localhost:8000/api/ and the backend admin on http://localhost:8000/admin/.
+
+To run and debug the frontend tests, visit http://localhost:8000/specRunner.html. For the backend tests, use something along the lines of the following command while the `backend` service is up:
+
+```console
+docker-compose exec backend pytest
+```
+
+or use `run` instead of `exec` for a one-off container, `bash` instead of `pytest` if you want to run multiple commands, etcetera. You can also pass the usual flags to `pytest` such as `--looponfail`, `--pdb` and `--trace`; see the [pytest docs][7] or `pytest --help` for details.
+
+There is no dockerized way to run the functional test suite yet. However, you could install its dependencies in a virtualenv and then run the test suite from the host machine while the application is running in Docker.
+
+
+### Quickstart, non-Docker
 
 First time after cloning this project:
 
@@ -105,7 +143,42 @@ For release branches, we suggest the following checklist.
  6. Optionally, repeat steps 2–5 with the application running in a real deployment setup (see [Deployment](#deployment)).
 
 
-### Commands for common tasks
+### Commands for common tasks, Docker
+
+After switching branches, changing backend dependencies, editing either `Dockerfile` or editing the `docker-compose.yml`:
+
+```console
+$ docker-compose up -d --build
+```
+
+Backend management commands follow the following pattern:
+
+```console
+$ docker-compose exec backend COMMAND [OPTIONS ...]
+```
+
+where `COMMAND` will typically be one of `pip-compile`, `python manage.py`, `django-admin` or `pytest`. All of these commands accept `--help` as an option. **However,** the `python manage.py dbshell` subcommand does not work because the backend container is based on an image that does not have `psql` installed. Instead, you can use the following, equivalent command:
+
+```console
+$ docker-compose exec postgres psql readit readit
+```
+
+Similar patterns apply to the `celery` service, where the command will typically look like this:
+
+```console
+$ docker-compose exec celery celery -A readit SUBCOMMAND
+```
+
+and to the frontend, where the command will typically look as below,
+
+```console
+$ docker-compose exec frontend yarn SUBCOMMAND
+```
+
+where `SUBCOMMAND` will most likely be `add`, `remove`, `upgrade` or `gulp`. To extract the translation strings, follow `yarn` by `i18next -c i18next-parser.config.mjs`.
+
+
+### Commands for common tasks, non-Docker
 
 The `package.json` next to this README defines several shortcut commands to help streamline development. In total, there are over 30 commands. Most may be regarded as implementation details of other commands, although each command could be used directly. Below, we discuss the commands that are most likely to be useful to you. For full details, consult the `package.json`.
 
@@ -191,6 +264,8 @@ $ yarn localize
 
 ### Notes on Python package dependencies
 
+***Docker note:*** *this section does not apply if you run the application in Docker, except that you should edit the `requirements.in` prior to calling `pip-compile`.*
+
 Both the backend and the functional test suite are Python-based and package versions are pinned using [pip-tools][13] in both subprojects. For ease of development, you most likely want to use the same virtualenv for both and this is also what the `bootstrap.py` assumes.
 
 [13]: https://pypi.org/project/pip-tools/
@@ -207,6 +282,8 @@ $ yarn func pip-compile
 
 
 ### Development mode vs production mode
+
+***Docker note:*** *`docker-compose up` always runs the application in development mode.*
 
 The purpose of development mode is to facilitate live development, as the name implies. The purpose of production mode is to simulate deployment conditions as closely as possible, in order to check whether everything still works under such conditions. A complete overview of the differences is given below.
 
@@ -226,6 +303,8 @@ HTML embedded libraries  |  taken from `frontend/node_modules`  |  taken from CD
 
 
 ## Deployment
+
+***Docker note:*** *The current Docker setup does not cater to deployment yet.*
 
 Both the backend and frontend applications have a section dedicated to deployment in their own READMEs. You should read these sections entirely before proceeding. All instructions in these sections still apply, though it is good to know that you can use the following shorthand commands from the integrated project root:
 

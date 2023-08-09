@@ -9,9 +9,15 @@ const repeats = Math.ceil(minimum / loremIpsum.length);
 export const bigText = times(repeats, () => loremIpsum).join('');
 
 describe('the WebKit chunking issue', function() {
+    let testElement;
+
+    afterEach(function() {
+        testElement.remove();
+    });
+
     it('can be reproduced in a unittest', function() {
         expect(bigText.length).toBeGreaterThan(WebKitChunkSize);
-        const testElement = $(`<p>${bigText}</p>`);
+        testElement = $(`<p>${bigText}</p>`);
         testElement.appendTo('body');
         const chunks = testElement.get(0).childNodes;
         if (chunks.length === 1) pending('This browser does not chunk.');
@@ -25,11 +31,10 @@ describe('the WebKit chunking issue', function() {
                 expect(length).toBe(WebKitChunkSize);
             }
         });
-        testElement.remove();
     });
 
     it('can be solved by calling containingElement.normalize()', function() {
-        const testElement = $(`<p>${bigText}</p>`);
+        testElement = $(`<p>${bigText}</p>`);
         testElement.appendTo('body');
         let chunks = testElement.get(0).childNodes;
         if (chunks.length === 1) pending('This browser does not chunk.');
@@ -38,16 +43,14 @@ describe('the WebKit chunking issue', function() {
         chunks = testElement.get(0).childNodes;
         expect(chunks.length).toBe(1);
         expect((chunks[0] as Text).length).toBe(bigText.length);
-        testElement.remove();
     });
 
     it('can be solved by appending the text later', function() {
-        const testElement = $('<p>').text(bigText);
+        testElement = $('<p>').text(bigText);
         testElement.appendTo('body');
         expect(testElement.text()).toBe(bigText);
         let chunks = testElement.get(0).childNodes;
         expect(chunks.length).toBe(1);
         expect((chunks[0] as Text).length).toBe(bigText.length);
-        testElement.remove();
     });
 });

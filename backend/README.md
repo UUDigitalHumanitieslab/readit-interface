@@ -32,6 +32,10 @@ The development settings included with this application assume that you have a B
 
 Follow the [Blazegraph quick start guide](https://github.com/blazegraph/database/wiki/Quick_Start) to download and start the database server and a foreground process.
 While the server is running, you can access its web interface at http://localhost:9999. This lets you upload and download data, try out queries and review statistics about the dataset. The server can be stopped by typing `ctrl-c`.
+
+
+#### Setting up Blazegraph namespaces
+
 Visit the [web interface]( http://localhost:9999), navigate to the `NAMESPACES` tab. Use the `create namespace` form to create a new namespace. Choose `readit` as a name, and set the mode to `quads`. All other checkboxes should be disabled. A popup is shown with additional settings. Leave these at their default values and choose `Create`. The created namespace should now appear in the list of namespaces. Choose `use` to use the readit namespace when operating the web interface
 
 In order to support the unittests, visit the Blazegraph web interface and create an additional namespace by the name `readit-test`.

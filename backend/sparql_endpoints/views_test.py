@@ -6,8 +6,8 @@ from rdf.ns import SCHEMA
 from rdf.utils import graph_from_triples
 from rdflib import XSD, Graph, Literal
 
-from .exceptions import BlankNodeError
-from .views import SPARQLUpdateAPIView
+from sparql.exceptions import BlankNodeError
+from sparql.views import SPARQLUpdateAPIView
 
 QUERY_URL = '/sparql/source/query'
 UPDATE_URL = '/sparql/source/update'
