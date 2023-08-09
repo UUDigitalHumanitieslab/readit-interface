@@ -97,6 +97,7 @@ services:
             - ./backend:/usr/src/app
             - bapyca:/usr/src/app/__pycache__
     frontend:
+        platform: linux/x86_64
         build:
             context: ./frontend
         healthcheck:
