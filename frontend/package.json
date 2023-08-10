@@ -14,7 +14,7 @@
         "@rdfjs/serializer-jsonld-ext": "^3.0.0",
         "@types/select2": "^4.0.53",
         "async": "^3.2.2",
-        "backbone": "https://github.com/CentreForDigitalHumanities/backbone.git#history-notfound-event",
+        "backbone": "https://github.com/jashkenas/backbone.git#master",
         "backbone-fractal": "^1.1.0",
         "backbone-machina": "^1.1.0",
         "backbone.radio": "^2.0.0",
