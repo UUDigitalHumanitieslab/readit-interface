@@ -85,7 +85,7 @@
         "jasmine-terminal-reporter": "^1.0.3",
         "jsdom": "^16.5.0",
         "plugin-error": "^1.0.1",
-        "postcss": "^8.4.14",
+        "postcss": "^8.4.31",
         "streamqueue": "^1.1.2",
         "through2": "^3.0.1",
         "ts-node": "^8.3.0",
