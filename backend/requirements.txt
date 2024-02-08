@@ -46,7 +46,7 @@ defusedxml==0.5.0
     # via
     #   -r requirements.in
     #   python3-openid
-django==3.2.23
+django==3.2.24
     # via
     #   -r requirements.in
     #   django-allauth
