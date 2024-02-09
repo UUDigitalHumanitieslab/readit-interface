@@ -1885,9 +1885,10 @@ backbone@^1.4.0:
   dependencies:
     underscore ">=1.8.3"
 
-"backbone@https://github.com/CentreForDigitalHumanities/backbone.git#history-notfound-event":
-  version "1.5.0"
-  resolved "https://github.com/CentreForDigitalHumanities/backbone.git#f434aa942095068fbd1c3bd1b7c7218020857897"
+backbone@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/backbone/-/backbone-1.6.0.tgz#5cdfa25257819b223109a77a74dde26d38995930"
+  integrity sha512-13PUjmsgw/49EowNcQvfG4gmczz1ximTMhUktj0Jfrjth0MVaTxehpU+qYYX4MxnuIuhmvBLC6/ayxuAGnOhbA==
   dependencies:
     underscore ">=1.8.3"
 
