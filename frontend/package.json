@@ -10,7 +10,6 @@
         "not ie < 10"
     ],
     "dependencies": {
-        "@dhl-uu/deparam": "github:CentreForDigitalHumanities/deparam.git#develop",
         "@dhl-uu/jquery-promise": "^1.1.1",
         "@rdfjs/serializer-jsonld-ext": "^3.0.0",
         "@types/select2": "^4.0.53",
@@ -27,6 +26,7 @@
         "i18next": "^11.6.0",
         "i18next-browser-languagedetector": "^2.2.3",
         "jquery": "^3.5.1",
+        "jquery-deparam": "^0.5.3",
         "jquery-validation": "^1.19.5",
         "js-cookie": "^2.2.0",
         "lodash": "^4.17.21",

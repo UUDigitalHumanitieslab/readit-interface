@@ -1099,10 +1099,6 @@
     asynciterator "^3.3.0"
     sparqlalgebrajs "^4.0.0"
 
-"@dhl-uu/deparam@github:CentreForDigitalHumanities/deparam.git#develop":
-  version "1.0.0"
-  resolved "https://codeload.github.com/CentreForDigitalHumanities/deparam/tar.gz/b6c8d31231f7634222a26108a8f97965ec24b4fb"
-
 "@dhl-uu/jquery-promise@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@dhl-uu/jquery-promise/-/jquery-promise-1.1.1.tgz#0fbe7ed60a3ce36f1729a5fbd9f4f708c0e5bf10"
@@ -5121,6 +5117,11 @@ jasmine-terminal-reporter@^1.0.3:
   dependencies:
     indent-string "^2.1.0"
     pluralize "^1.2.1"
+
+jquery-deparam@^0.5.3:
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/jquery-deparam/-/jquery-deparam-0.5.3.tgz#51f937c448175445499081b87bf32b241b1e2693"
+  integrity sha512-R+X/F4echMhrcy2ko2I0Ek6nNN0ffnoK3VbwECEQ4hVmUu87sGjsxlLet/4nK/HtsG4ZHN/2SqqC2PkH/nKngg==
 
 jquery-validation@^1.19.5:
   version "1.19.5"
