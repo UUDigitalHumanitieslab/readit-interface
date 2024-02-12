@@ -10,6 +10,7 @@
         "not ie < 10"
     ],
     "dependencies": {
+        "@dhl-uu/deparam": "github:CentreForDigitalHumanities/deparam.git#develop",
         "@dhl-uu/jquery-promise": "^1.1.1",
         "@rdfjs/serializer-jsonld-ext": "^3.0.0",
         "@types/select2": "^4.0.53",

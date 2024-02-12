@@ -3,7 +3,7 @@ import { partial } from 'lodash';
 import explorerChannel from '../explorer/explorer-radio';
 import * as act from '../explorer/route-actions';
 import semChannel from '../semantic-search/radio';
-import deparam from '../utilities/deparam';
+import deparam from '@dhl-uu/deparam';
 import router from '../global/exploration-router';
 import explorer from '../global/explorer-view';
 import controller from '../global/explorer-controller';

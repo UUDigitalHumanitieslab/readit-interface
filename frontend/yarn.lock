@@ -1099,6 +1099,10 @@
     asynciterator "^3.3.0"
     sparqlalgebrajs "^4.0.0"
 
+"@dhl-uu/deparam@github:CentreForDigitalHumanities/deparam.git#develop":
+  version "1.0.0"
+  resolved "https://codeload.github.com/CentreForDigitalHumanities/deparam/tar.gz/b6c8d31231f7634222a26108a8f97965ec24b4fb"
+
 "@dhl-uu/jquery-promise@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@dhl-uu/jquery-promise/-/jquery-promise-1.1.1.tgz#0fbe7ed60a3ce36f1729a5fbd9f4f708c0e5bf10"
