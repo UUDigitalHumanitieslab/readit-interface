@@ -1327,10 +1327,10 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@uu-cdh/timing-util@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@uu-cdh/timing-util/-/timing-util-0.1.0.tgz#d201f153ca3c41ae12f38fb9e5b7e3b68de7153b"
-  integrity sha512-3GahIF2KGkm12KWCDNKAmvAtk4kKTUM8W4X3rmdqhRZ2EyXq5Vh0BAB/kMuCbv58DYGfDKZmuw0YxutnZFlezw==
+"@uu-cdh/timing-util@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@uu-cdh/timing-util/-/timing-util-0.1.1.tgz#5a1d4cadb8d4a2b1b0cb0a4eb9c7bffc605cf496"
+  integrity sha512-G90woIVvA3FTBG2sCEqK9IXvhJcaaq/Zn/5EC5Nj0645Ur+gFywLwgAxU0jQra1WR9YXSmxFfMgXZNbktI6z9g==
   dependencies:
     underscore "^1.13.6"
 
