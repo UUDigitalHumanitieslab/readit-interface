@@ -2,7 +2,7 @@ import { each } from 'lodash';
 
 import { enableI18n } from '../test-util';
 
-import fastTimeout from '@uu-cdh/timing-util/fastTimeout.js';
+import fastTimeout from '@uu-cdh/timing-util/umd/fastTimeout.js';
 import Model from '../core/model';
 import View from '../core/view';
 

@@ -2,7 +2,7 @@ import { Model as BackboneModel } from 'backbone';
 import { extend, isFunction } from 'lodash';
 
 import { syncWithCSRF } from './csrf';
-import fastTimeout from '@uu-cdh/timing-util/fastTimeout.js';
+import fastTimeout from '@uu-cdh/timing-util/umd/fastTimeout.js';
 
 /**
  * Name for the type of function that handles a `change:$attribute` event.

@@ -13,7 +13,7 @@ import View from '../core/view';
 
 import PanelStackView from './explorer-panelstack-view';
 import { animatedScroll, ScrollType } from './../utilities/scrolling-utilities';
-import fastTimeout from '@uu-cdh/timing-util/fastTimeout.js';
+import fastTimeout from '@uu-cdh/timing-util/umd/fastTimeout.js';
 
 const scrollFudge = 100;
 
