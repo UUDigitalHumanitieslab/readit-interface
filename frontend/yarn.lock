@@ -1327,6 +1327,13 @@
   dependencies:
     "@types/yargs-parser" "*"
 
+"@uu-cdh/timing-util@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@uu-cdh/timing-util/-/timing-util-0.1.0.tgz#d201f153ca3c41ae12f38fb9e5b7e3b68de7153b"
+  integrity sha512-3GahIF2KGkm12KWCDNKAmvAtk4kKTUM8W4X3rmdqhRZ2EyXq5Vh0BAB/kMuCbv58DYGfDKZmuw0YxutnZFlezw==
+  dependencies:
+    underscore "^1.13.6"
+
 JSONStream@^1.0.3:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/JSONStream/-/JSONStream-1.3.5.tgz#3208c1f08d3a4d99261ab64f92302bc15e111ca0"
@@ -8761,6 +8768,11 @@ underscore@>=1.8.3, underscore@^1.9.1:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.13.1.tgz#0c1c6bd2df54b6b69f2314066d65b6cde6fcf9d1"
   integrity sha512-hzSoAVtJF+3ZtiFX0VgfFPHEDRm7Y/QPjGyNo4TVdnDTdft3tr8hEkD25a1jC+TjTuE7tkHGKkhwCgs9dgBB2g==
+
+underscore@^1.13.6:
+  version "1.13.6"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.13.6.tgz#04786a1f589dc6c09f761fc5f45b89e935136441"
+  integrity sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A==
 
 undertaker-registry@^1.0.0:
   version "1.0.1"

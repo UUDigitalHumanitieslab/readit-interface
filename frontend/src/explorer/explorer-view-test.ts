@@ -7,7 +7,7 @@ import { enableI18n } from '../test-util';
 import ExplorerView from './explorer-view';
 import View from './../core/view';
 
-import fastTimeout from '../core/fastTimeout';
+import fastTimeout from '@uu-cdh/timing-util/fastTimeout.js';
 
 describe('ExplorerView', function () {
     beforeAll(enableI18n);

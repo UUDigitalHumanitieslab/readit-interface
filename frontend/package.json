@@ -13,6 +13,7 @@
         "@dhl-uu/jquery-promise": "^1.1.1",
         "@rdfjs/serializer-jsonld-ext": "^3.0.0",
         "@types/select2": "^4.0.53",
+        "@uu-cdh/timing-util": "^0.1.0",
         "async": "^3.2.2",
         "backbone": "^1.6.0",
         "backbone-fractal": "^1.1.0",
