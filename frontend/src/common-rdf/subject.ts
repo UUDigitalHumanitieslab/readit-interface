@@ -42,10 +42,10 @@ import {
 import { xsd } from './ns';
 
 type UnoptimizedNative = Exclude<OptimizedNative, Identifier | OptimizedNativeArray>;
-export type Native = UnoptimizedNative | Node | NativeArray;
+export type Native = UnoptimizedNative | Subject | NativeArray;
 export interface NativeArray extends Array<Native> { }
 
-// The Node.get method can optionally filter by @type OR @language.
+// The Subject.get method can optionally filter by @type OR @language.
 // @language implies xsd:string, so the @type is ignored in this case.
 export interface NodeGetOptions {
     '@type'?: string;
@@ -59,7 +59,7 @@ export interface TypeFilter {
  * Representation of a single JSON-LD object with an @id.
  * Mostly for internal use, as the model type for Graph.
  */
-export default class Node extends Model {
+export default class Subject extends Model {
     /**
      * Original local context, if set. Access through this.context.
      */
@@ -239,7 +239,7 @@ export default class Node extends Model {
     }
 }
 
-extend(Node.prototype, {
+extend(Subject.prototype, {
     idAttribute: '@id',
     sync,
     url(): string {
@@ -248,14 +248,14 @@ extend(Node.prototype, {
     },
 });
 
-export type NodeLike = string | Identifier | Node;
+export type NodeLike = string | Identifier | Subject;
 
-export function isNode(candidate: any): candidate is Node {
-    return candidate instanceof Node;
+export function isSubject(candidate: any): candidate is Subject {
+    return candidate instanceof Subject;
 }
 
 /**
- * Implementation details of the Node class.
+ * Implementation details of the Subject class.
  */
 function asNativeArray(value: any, key: string): OptimizedNative {
     if (key === '@id') return value;
@@ -265,7 +265,7 @@ function asNativeArray(value: any, key: string): OptimizedNative {
 
 function id2node(value: OptimizedNative): Native {
     if (has(value, '@id')) {
-        return ldChannel.request('obtain', value) || new Node(value);
+        return ldChannel.request('obtain', value) || new Subject(value);
     }
     if (isArray(value)) return map(value, id2node.bind(this));
     return value;

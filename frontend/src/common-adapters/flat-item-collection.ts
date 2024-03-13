@@ -2,12 +2,12 @@ import { map, invert, compact, throttle } from 'lodash';
 
 import mixin from '../core/mixin';
 import Collection from '../core/collection';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import ProxyMixin from './collection-proxy';
 import FlatItem from './flat-item-model';
 
-type GraphLike = Collection<Node>;
+type GraphLike = Collection<Subject>;
 
 /**
  * Adapter that represents Nodes from an underlying `Graph` as FlatItem models.
@@ -30,7 +30,7 @@ type GraphLike = Collection<Node>;
  * the previous focused item blurs automatically when a different item receives
  * focus.
  */
-interface FlatItemCollection extends ProxyMixin<Node, GraphLike> {}
+interface FlatItemCollection extends ProxyMixin<Subject, GraphLike> {}
 class FlatItemCollection extends Collection<FlatItem> {
     // Current tally of complete flat items.
     _complete: number;
@@ -104,7 +104,7 @@ class FlatItemCollection extends Collection<FlatItem> {
      * Core operation that handles incoming nodes. Can be overridden for more
      * specific behavior.
      */
-    flatten(node: Node, options?: any): FlatItem {
+    flatten(node: Subject, options?: any): FlatItem {
         return new FlatItem(node);
     }
 
@@ -112,21 +112,21 @@ class FlatItemCollection extends Collection<FlatItem> {
      * Variant of `flatten` that can be used to prepare a `reset`. Useful as an
      * iteratee for `map`.
      */
-    flattenSilent(node: Node): FlatItem {
+    flattenSilent(node: Subject): FlatItem {
         return this.flatten(node, { silent: true });
     }
 
     /**
      * Listener for the `'add'` event on `this._underlying`.
      */
-    proxyAdd(node: Node, graph?: GraphLike, options?: any): void {
+    proxyAdd(node: Subject, graph?: GraphLike, options?: any): void {
         this.add(this.flatten(node), options);
     }
 
     /**
      * Listener for the `'remove'` event on `this._underlying`.
      */
-    proxyRemove(node: Node): void {
+    proxyRemove(node: Subject): void {
         // Find any flat representation of `node` and remove it. This might be a
         // no-op.
         const flat = this.get(node.id);

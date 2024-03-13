@@ -3,7 +3,7 @@ import * as i18next from 'i18next';
 
 import ldChannel from '../common-rdf/radio';
 import { isIdentifier } from '../common-rdf/json';
-import Node, { isNode, NodeLike } from '../common-rdf/node';
+import Subject, { isSubject, NodeLike } from '../common-rdf/subject';
 import Graph from '../common-rdf//graph';
 import {
     nlp, skos, rdf, rdfs, readit, dcterms, owl, schema, nsMap,
@@ -14,7 +14,7 @@ export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('nam
 /**
  * Get a label from the node.
  */
-export function getLabel(node: Node): string {
+export function getLabel(node: Subject): string {
     let labelKey = find(labelKeys, key => node.has(key));
     if (labelKey) return node.get(labelKey, {
         '@language': i18next.languages,
@@ -40,7 +40,7 @@ const turtleCache = {};
  * Obtain ns:term notation for terms in known namespaces.
  * Falls back to <http(s)://full-uri> notation for URIs in unknown namespaces.
  */
-export function getTurtleTerm(term: string | Node): string {
+export function getTurtleTerm(term: string | Subject): string {
     const uri = asURI(term);
     const memoizedTerm = turtleCache[uri];
     if (memoizedTerm) return memoizedTerm;
@@ -63,7 +63,7 @@ const normalizePattern = /[ \(\)\/]/g;
  * Create a css class name based on the node's label.
  * Returns null if no label is found.
  */
-export function getCssClassName(node: Node): string {
+export function getCssClassName(node: Subject): string {
     if (!node) return undefined;
     const id = node.id as string;
     const className = cssClassCache[id];
@@ -83,11 +83,11 @@ export function getCssClassName(node: Node): string {
 }
 
 /**
- * Helper to obtain the URI of something that may be either a Node or
+ * Helper to obtain the URI of something that may be either a Subject or
  * already a URI.
  */
-export function asURI(source: Node | string): string {
-    return isNode(source) ? source.id as string : source;
+export function asURI(source: Subject | string): string {
+    return isSubject(source) ? source.id as string : source;
 }
 
 /**
@@ -95,7 +95,7 @@ export function asURI(source: Node | string): string {
  * its) type(s) or has a non-empty rdfs:subClassOf property.
  * @param node The node to evaluate
  */
-export function isRdfsClass(node: Node): boolean {
+export function isRdfsClass(node: Subject): boolean {
     return node.has(rdfs.subClassOf) || node.has('@type', owl.Class) || node.has('@type', rdfs.Class);
 }
 
@@ -105,7 +105,7 @@ export function isRdfsClass(node: Node): boolean {
  * rdfs:subPropertyOf or owl:inverseOf property.
  * @param node The node to evaluate
  */
-export function isRdfProperty(node: Node): boolean {
+export function isRdfProperty(node: Subject): boolean {
     return node.has(rdfs.subPropertyOf) || node.has(owl.inverseOf) || node.has('@type', rdf.Property) || node.has('@type', owl.ObjectProperty);
 }
 
@@ -113,7 +113,7 @@ export function isRdfProperty(node: Node): boolean {
  * Check whether a node is both colored and a class. A middle ground between
  * `isRdfsClass` and `isAnnotationCategory`.
  */
-export function isColoredClass(node: Node): boolean {
+export function isColoredClass(node: Subject): boolean {
     return node.has(schema.color) && isRdfsClass(node);
 }
 
@@ -122,18 +122,18 @@ export function isColoredClass(node: Node): boolean {
  * editing annotations.
  * @param node The node to evaluate
  */
-export function isAnnotationCategory(node: Node): boolean {
+export function isAnnotationCategory(node: Subject): boolean {
     return isColoredClass(node) && !(node.get(owl.deprecated));
 }
 
 /**
- * A GraphTraversal is a function that takes a single Node and
+ * A GraphTraversal is a function that takes a single Subject and
  * returns an array of Nodes.
  * (Most useful if the returned Nodes are somehow related to the
- * input Node.)
+ * input Subject.)
  */
 export interface GraphTraversal {
-    (node: Node): Node[];
+    (node: Subject): Subject[];
 }
 
 /**
@@ -148,13 +148,13 @@ export interface GraphTraversal {
  * complete set of all your ancestors.
  * For an example of usage, see the predicateClosure source code.
  * @param seeds the Nodes from which to start following the relationship.
- * @param traverse a function that, given a Node, returns its related Nodes.
+ * @param traverse a function that, given a Subject, returns its related Nodes.
  * @return a deduplicated array of all related Nodes, including the seeds.
  */
 export function transitiveClosure(
-    seeds: Node[],
+    seeds: Subject[],
     traverse: GraphTraversal
-): Node[] {
+): Subject[] {
     const fringe = new Graph(seeds);
     const newlyFound = new Graph();
     const finished = new Graph();
@@ -199,12 +199,12 @@ function predicateClosure(predicate: string, direction: 'S2O' | 'O2S') {
 
     const traverse = direction === 'S2O' ? traverseS2O : traverseO2S;
 
-    return function(clss: NodeLike[]): Node[] {
-        if (!clss || clss.length === 0) return clss as Node[];
+    return function(clss: NodeLike[]): Subject[] {
+        if (!clss || clss.length === 0) return clss as Subject[];
         const seed = map(clss, cls => ldChannel.request('obtain', cls));
         // Next lines handle test environments without a store.
         if (seed[0] == null) return clss.map(cls =>
-            isNode(cls) ? cls : new Node(
+            isSubject(cls) ? cls : new Subject(
                 isIdentifier(cls) ? cls : { '@id': cls }
             )
         );
@@ -248,12 +248,12 @@ export
 const getRdfSuperProperties = predicateClosure(rdfs.subPropertyOf, 'S2O');
 
 /**
- * Check if a Node is an instance of (a subclass of) a specific type.
+ * Check if a Subject is an instance of (a subclass of) a specific type.
  * @param node The node to inspect.
  * @param type The expected type, e.g. (schema.CreativeWork).
  * @return true if node is an instance of type, false otherwise.
  */
-export function isType(node: Node, type: string): boolean {
+export function isType(node: Subject, type: string): boolean {
     const initialTypes = node.get('@type') as string[];
     if (!initialTypes) return false;
     const allTypes = getRdfSuperClasses(initialTypes);
@@ -261,10 +261,10 @@ export function isType(node: Node, type: string): boolean {
 }
 
 /**
- * Check whether a Node is blank.
- * A blank node is a node that is neither a literal nor a URI. Note that this is different from a Node without an @id; this occurs only if the Node in question was created on the client side and was never saved to a server. The latter situation can be checked using aNode.isNew(). Such a Node may become either a URI or a blank node after saving. Saved blank nodes get a temporary placeholder @id from the parser, which serves to distinguish it from other blank nodes but which is not a valid URI. Conventionally, these temporary @ids start with `_:`. This function detects the latter situation.
+ * Check whether a Subject is blank.
+ * A blank node is a node that is neither a literal nor a URI. Note that this is different from a Subject without an @id; this occurs only if the Subject in question was created on the client side and was never saved to a server. The latter situation can be checked using aNode.isNew(). Such a Subject may become either a URI or a blank node after saving. Saved blank nodes get a temporary placeholder @id from the parser, which serves to distinguish it from other blank nodes but which is not a valid URI. Conventionally, these temporary @ids start with `_:`. This function detects the latter situation.
  */
-export function isBlank(node: Node) {
+export function isBlank(node: Subject) {
     if (!node.id) return false;
     return (node.id as string).startsWith('_:');
 }
@@ -276,7 +276,7 @@ export function isBlank(node: Node) {
  * READIT namespace. This function is not used in the application, so WONTFIX for now.
  * @param node The linked data item to investigate.
  */
-export function isOntologyClass(node: Node): boolean {
+export function isOntologyClass(node: Subject): boolean {
     if (!isRdfsClass(node)) return false;
     if (node.id) return (node.id as string).startsWith(readit());
     return false;

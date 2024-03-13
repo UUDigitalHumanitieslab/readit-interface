@@ -2,7 +2,7 @@ import { each } from 'lodash';
 
 import ldChannel from './common-rdf/radio';
 import { item, oa } from './common-rdf/ns';
-import Node from './common-rdf/node';
+import Subject from './common-rdf/subject';
 import FlatItem from './common-adapters/flat-item-model';
 import { isBlank, cssClassCache } from './utilities/linked-data-utilities';
 import { placeholderClass } from './utilities/annotation-utilities';
@@ -39,7 +39,7 @@ describe('global test utilities', function() {
         // `is-readit-selection`. Test 2 would then cause the class name to be
         // recomputed, based on an id-only substitute for `placeholderClass`.
         // The substitute was used because `placeholderClass` was retrieved
-        // indirectly through the `get` method of another `Node` (an
+        // indirectly through the `get` method of another `Subject` (an
         // oa:Annotation) and because the original `placeholderClass` was absent
         // from the store. This, in turn, was due to the fixture store being
         // created later than `placeholderClass` itself. With the skos:prefLabel
@@ -51,12 +51,12 @@ describe('global test utilities', function() {
         // The following regression test reliably reproduces the above
         // situation, regardless of the presence and order of other tests.
         // `startStore` should not only include `placeholderClass` but also any
-        // other `Node`s that are created at module scope ("ambient").
+        // other `Subject`s that are created at module scope ("ambient").
         // Unfortunately, there is no general way to check that this is indeed
-        // the case for all ambient `Node`s.
+        // the case for all ambient `Subject`s.
         it('include ambient Nodes', function(done) {
             each(cssClassCache, (_, key) => delete cssClassCache[key]);
-            const anno = new Node({
+            const anno = new Subject({
                 '@id': 'testAnno',
                 '@type': [oa.Annotation],
                 [oa.hasBody]: {'@id': placeholderClass.id},

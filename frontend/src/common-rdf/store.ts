@@ -6,7 +6,7 @@ import { proxyRoot } from 'config.json';
 import { channelName } from './constants';
 import ldChannel from './radio';
 import { Identifier, isIdentifier, FlatLdDocument, FlatLdGraph } from './json';
-import Node, { isNode, NodeLike } from './node';
+import Subject, { isSubject, NodeLike } from './subject';
 import Graph, { ReadOnlyGraph } from './graph';
 
 export interface StoreVisitor<T> {
@@ -24,7 +24,7 @@ const fetchOptions = {
  * instance.
  */
 export default class Store extends Graph {
-    private _additionQueue: Node[] = [];
+    private _additionQueue: Subject[] = [];
     private _concurrentSet: number = 0;
 
     constructor(models?, options?) {
@@ -48,10 +48,10 @@ export default class Store extends Graph {
     }
 
     /**
-     * Main interface. Ensures every @id is represented by a single unique Node.
+     * Main interface. Ensures every @id is represented by a single unique Subject.
      */
-    obtain(id: NodeLike): Node {
-        const initialResult = this.get(id as string | Node);
+    obtain(id: NodeLike): Subject {
+        const initialResult = this.get(id as string | Subject);
         if (isUndefined(initialResult)) {
             const placeholder = this.getPlaceholder(id);
             this.import(placeholder.id as string);
@@ -61,18 +61,18 @@ export default class Store extends Graph {
     }
 
     /**
-     * Create, store and return a placeholder for a missing Node.
+     * Create, store and return a placeholder for a missing Subject.
      */
-    getPlaceholder(id: NodeLike): Node {
+    getPlaceholder(id: NodeLike): Subject {
         let placeholder;
-        if (isNode(id)) {
+        if (isSubject(id)) {
             placeholder = id;
         } else if (isString(id)) {
-            placeholder = new Node({'@id': id});
+            placeholder = new Subject({'@id': id});
         } else if (isIdentifier(id)) {
-            placeholder = new Node(id);
+            placeholder = new Subject(id);
         } else {
-            throw TypeError('id must be string, Identifier or Node');
+            throw TypeError('id must be string, Identifier or Subject');
         }
         this.add(placeholder);
         return placeholder;
@@ -114,15 +114,15 @@ export default class Store extends Graph {
     /**
      * Request handler that facilitates Graph.parse.
      */
-    mergeExisting(id: Identifier): Identifier | Node {
-        const initialResult = this.get(id as unknown as Node);
+    mergeExisting(id: Identifier): Identifier | Subject {
+        const initialResult = this.get(id as unknown as Subject);
         if (isUndefined(initialResult)) return id;
         initialResult.set(id);
         return initialResult;
     }
 
     /**
-     * Override Graph.parse in order to leave the meta Node unchanged
+     * Override Graph.parse in order to leave the meta Subject unchanged
      * and skip the mergeExisting step.
      */
     parse(response: FlatLdDocument, options): FlatLdGraph {
@@ -131,9 +131,9 @@ export default class Store extends Graph {
     }
 
     /**
-     * Register a newly constructed Node.
+     * Register a newly constructed Subject.
      */
-    register(node: Node): this {
+    register(node: Subject): this {
         if (node.id) {
             this._queueAddition(node);
         } else {
@@ -146,7 +146,7 @@ export default class Store extends Graph {
      * Override the set method to prevent duplication and process
      * queued additions.
      */
-    set(models, options): Node[] {
+    set(models, options): Subject[] {
         ++this._concurrentSet;
         const result = super.set(models, options);
         if (this._concurrentSet === 1) {
@@ -170,7 +170,7 @@ export default class Store extends Graph {
     /**
      * Prevent stored Nodes from having their .collection set to this.
      */
-    private _preventSelfReference(node: Node): void {
+    private _preventSelfReference(node: Subject): void {
         if (node.collection === this) delete node.collection;
     }
 
@@ -186,7 +186,7 @@ export default class Store extends Graph {
     /**
      * Wrapper for .add to prevent duplicate nodes.
      */
-    private _queueAddition(node: Node): void {
+    private _queueAddition(node: Subject): void {
         if (this._concurrentSet) {
             this._additionQueue.push(node);
         } else {

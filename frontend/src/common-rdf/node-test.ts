@@ -15,7 +15,7 @@ import context from '../mock-data/mock-context';
 import ldChannel from './radio';
 import { item, readit, staff, owl, dcterms, xsd, skos, oa } from './ns';
 import * as conversionModule from './conversion';
-import Node from './node';
+import Subject from './subject';
 
 const contentInstanceNative = {
     '@id': item('3'),
@@ -80,13 +80,13 @@ const expectedConversions = [{
 
 describe('Node', function() {
     beforeEach(function() {
-        this.node = new Node();
+        this.node = new Subject();
     });
 
     it('triggers a register event on the ld channel', function() {
         const spy = jasmine.createSpy();
         ldChannel.on('register', spy);
-        const dummy = new Node();
+        const dummy = new Subject();
         expect(spy).toHaveBeenCalledWith(dummy);
         ldChannel.off('register', spy);
     });
@@ -176,7 +176,7 @@ describe('Node', function() {
         it('converts Identifiers to Nodes', function() {
             [owl.sameAs, dcterms.creator].forEach(key => {
                 const value = this.node.get(key)[0];
-                expect(value).toEqual(jasmine.any(Node));
+                expect(value).toEqual(jasmine.any(Subject));
                 expect(value).toEqual(jasmine.objectContaining({
                     id: contentInstanceNative[key][0]['@id'],
                 }));
@@ -184,7 +184,7 @@ describe('Node', function() {
         });
 
         it('requests Identifiers from the ld channel first', function() {
-            const dummy = new Node();
+            const dummy = new Subject();
             ldChannel.reply('obtain', () => dummy);
             const result = this.node.get(owl.sameAs)[0];
             expect(result).toBe(dummy);
@@ -228,7 +228,7 @@ describe('Node', function() {
                 { '@value': 'Portakal', '@language': 'tr' },
             ];
             const native = map(values, conversionModule.asNative);
-            const node = new Node({ [skos.prefLabel]: values });
+            const node = new Subject({ [skos.prefLabel]: values });
             expect(node.get(skos.prefLabel)).toEqual(native);
             expect(node.get(skos.prefLabel, { '@type': xsd.string }))
                 .toEqual([ native[1], native[2], native[3] ]);
@@ -246,7 +246,7 @@ describe('Node', function() {
     });
 
     describe('has', function() {
-        const node = new Node({
+        const node = new Subject({
             '@type': ['y'],
             [dcterms.creator]: [{
                 '@id': staff('JdeKruif'),
@@ -296,7 +296,7 @@ describe('Node', function() {
             expect(result).toEqual({ 'a': [{ '@value': 1 }] });
         });
 
-        it('returns the Node\'s attributes in expanded JSON-LD', function() {
+        it('returns the Subject\'s attributes in expanded JSON-LD', function() {
             this.node.set(contentInstance);
             expect(this.node.toJSON()).toEqual(contentInstanceJSON);
         });

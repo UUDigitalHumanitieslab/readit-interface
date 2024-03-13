@@ -6,7 +6,7 @@ import ItemGraph from './item-graph';
 /**
  * SparqlSelectCollection is a collection type specifically geared for issueing
  * SPARQL `SELECT` queries to our own backend. It's somewhat similar to
- * `ItemGraph`, but with regular `Model`s instead of `Node`s and with fewer
+ * `ItemGraph`, but with regular `Model`s instead of `Subject`s and with fewer
  * bells and whistles.
  */
 interface SparqlSelectCollection extends Pick<ItemGraph, 'sparqlEndpoint' | 'promise' | 'sparqlQuery'> {}

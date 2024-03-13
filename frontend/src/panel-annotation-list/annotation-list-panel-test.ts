@@ -4,7 +4,7 @@ import mockSources from '../mock-data/mock-sources';
 import { fakeHierarchy } from './filter-view-test';
 
 import Collection from '../core/collection';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
@@ -16,7 +16,7 @@ describe('AnnotationListPanel', function() {
     beforeEach(function() {
         this.items = new Graph();
         this.flat = new FlatCollection(this.items);
-        const node = new Node(mockSources);
+        const node = new Subject(mockSources);
         this.model = new FlatItem(node);
         explorerChannel.reply('filter-hierarchy', constant(fakeHierarchy));
         explorerChannel.reply('filter-settings', () => ({

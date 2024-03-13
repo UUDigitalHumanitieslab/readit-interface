@@ -5,7 +5,7 @@ import {
 import Model from '../core/model';
 import { CompositeView } from '../core/view';
 import { asLD, Native } from '../common-rdf/conversion';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import { rdfs, xsd } from '../common-rdf/ns';
 import Select2Picker from '../forms/select2-picker-view';
@@ -102,7 +102,7 @@ export default class LinkedItemEditor extends CompositeView {
         const allProperties = getRdfSuperProperties([predicate]);
         this.range.set(
             chain(allProperties)
-            .map(n => n.get(rdfs.range) as Node[])
+            .map(n => n.get(rdfs.range) as Subject[])
             .flatten()
             .compact()
             .value()
@@ -132,7 +132,7 @@ export default class LinkedItemEditor extends CompositeView {
         }
     }
 
-    predicateFromModel(model: Model, selectedPredicate?: Node): this {
+    predicateFromModel(model: Model, selectedPredicate?: Subject): this {
         selectedPredicate || (selectedPredicate = model.get('predicate'));
         if (!selectedPredicate) return this;
         this.predicatePicker.val(selectedPredicate.id as string);

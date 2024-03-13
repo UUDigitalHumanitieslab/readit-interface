@@ -9,7 +9,7 @@ import context from '../mock-data/mock-context';
 
 import ldChannel from './radio';
 import { readit } from './ns';
-import Node from './node';
+import Subject from './subject';
 import Graph from './graph';
 import Store from './store';
 
@@ -75,7 +75,7 @@ describe('Store', function() {
 
         it('"obtain" is replied to with the obtain method', function(done) {
             const result = ldChannel.request('obtain', partialHash);
-            expect(result).toEqual(jasmine.any(Node));
+            expect(result).toEqual(jasmine.any(Subject));
             expect(result.id).toBe(uri);
             expect(this.store.has(result)).toBeTruthy();
             waitUntilRequest(this.store, done);
@@ -92,7 +92,7 @@ describe('Store', function() {
         });
 
         it('"register" is handled by the register method', function() {
-            const dummy = new Node(partialHash);
+            const dummy = new Subject(partialHash);
             this.store.remove(dummy);
             ldChannel.trigger('register', dummy);
             expect(this.store.has(dummy)).toBeTruthy();
@@ -136,41 +136,41 @@ describe('Store', function() {
             this.existing = this.store.at(0);
         });
 
-        it('returns the existing Node for a known @id', function() {
+        it('returns the existing Subject for a known @id', function() {
             expect(this.store.obtain(otherHash['@id'])).toBe(this.existing);
         });
 
-        it('returns the existing Node for a known hash', function() {
+        it('returns the existing Subject for a known hash', function() {
             expect(this.store.obtain(otherHash)).toBe(this.existing);
         });
 
-        it('returns the existing Node for a known Node', function() {
+        it('returns the existing Subject for a known Subject', function() {
             expect(this.store.obtain(this.existing)).toBe(this.existing);
         });
 
-        it('returns a new Node for an unknown @id', function(done) {
+        it('returns a new Subject for an unknown @id', function(done) {
             const added = this.store.obtain(uri);
-            expect(added).toEqual(jasmine.any(Node))
+            expect(added).toEqual(jasmine.any(Subject))
             expect(added.id).toBe(uri);
             waitUntilRequest(this.store, done);
         });
 
-        it('returns a new Node for an unknown hash', function(done) {
+        it('returns a new Subject for an unknown hash', function(done) {
             const added = this.store.obtain(partialHash);
-            expect(added).toEqual(jasmine.any(Node))
+            expect(added).toEqual(jasmine.any(Subject))
             expect(added.id).toBe(uri);
             waitUntilRequest(this.store, done);
         });
 
-        it('returns the same Node for an unknown Node', function(done) {
-            const added = new Node(partialHash);
+        it('returns the same Subject for an unknown Subject', function(done) {
+            const added = new Subject(partialHash);
             this.store.remove(added);
             const obtained = this.store.obtain(added);
             expect(obtained).toBe(added);
             waitUntilRequest(this.store, done);
         });
 
-        it('updates the returned Node with additional data', function(done) {
+        it('updates the returned Subject with additional data', function(done) {
             jasmine.Ajax.stubRequest(uri).andReturn({
                 status: 200,
                 contentType: 'application/ld+json',
@@ -185,22 +185,22 @@ describe('Store', function() {
     });
 
     describe('getPlaceholder', function() {
-        it('stores and returns a Node for any given id', function() {
+        it('stores and returns a Subject for any given id', function() {
             const result = this.store.getPlaceholder(uri);
-            expect(result).toEqual(jasmine.any(Node));
+            expect(result).toEqual(jasmine.any(Subject));
             expect(result.id).toBe(uri);
             expect(this.store.has(result)).toBeTruthy();
         });
 
-        it('stores and returns a Node for any given hash', function() {
+        it('stores and returns a Subject for any given hash', function() {
             const result = this.store.getPlaceholder(partialHash);
-            expect(result).toEqual(jasmine.any(Node));
+            expect(result).toEqual(jasmine.any(Subject));
             expect(result.id).toBe(uri);
             expect(this.store.has(result)).toBeTruthy();
         });
 
-        it('stores and returns any given Node', function() {
-            const prepared = new Node(partialHash);
+        it('stores and returns any given Subject', function() {
+            const prepared = new Subject(partialHash);
             this.store.remove(prepared);
             const result = this.store.getPlaceholder(prepared);
             expect(result).toBe(prepared);
@@ -294,14 +294,14 @@ describe('Store', function() {
 
     describe('register', function() {
         it('stores the given node', function() {
-            const node = new Node(partialHash);
+            const node = new Subject(partialHash);
             this.store.remove(node);
             this.store.register(node);
             expect(this.store.has(node)).toBeTruthy();
         });
 
         it('postpones storing if the node has no id yet', function() {
-            const node = new Node();
+            const node = new Subject();
             node.off('change:@id');
             this.store.register(node);
             expect(this.store.has(node)).toBeFalsy();

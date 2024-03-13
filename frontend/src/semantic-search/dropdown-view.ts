@@ -15,7 +15,7 @@ import Collection from '../core/collection';
 import View, { CompositeView, CollectionView } from '../core/view';
 import { xsd, rdfs } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatCollection from '../common-adapters/flat-item-collection';
@@ -118,7 +118,7 @@ export default class Dropdown extends CompositeView {
             model: groupLabels.get('logic'),
             collection: logic,
         });
-        let range: Graph | Node = this.model.get('range') as Graph;
+        let range: Graph | Subject = this.model.get('range') as Graph;
         if (!range) {
             range = await normalizeRange(this.model);
             this.model.set('range', range);

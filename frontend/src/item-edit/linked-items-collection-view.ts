@@ -15,7 +15,7 @@ import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
 import { rdfs, owl, skos, xsd } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 
 import LinkedItemEditor from './linked-item-editor-view';
@@ -25,18 +25,18 @@ import excludedProperties from '../item-metadata/excluded-properties';
 import { getRdfSuperClasses, getRdfSuperProperties, isRdfProperty } from '../utilities/linked-data-utilities';
 
 // Helper functions for the isEditableProperty method.
-function isLiteralProperty(property: Node): boolean {
+function isLiteralProperty(property: Subject): boolean {
     const id = property.id as string;
     return id === rdfs.Literal || startsWith(id, xsd());
 }
-function isInverseProperty(property: Node): boolean {
+function isInverseProperty(property: Subject): boolean {
     return property.has(owl.inverseOf);
 }
-function getDomains(property: Node): Node[] {
-    return property.get(rdfs.domain) as Node[];
+function getDomains(property: Subject): Subject[] {
+    return property.get(rdfs.domain) as Subject[];
 }
-function getRanges(property: Node): Node[] {
-    return property.get(rdfs.range) as Node[];
+function getRanges(property: Subject): Subject[] {
+    return property.get(rdfs.range) as Subject[];
 }
 
 /**
@@ -44,7 +44,7 @@ function getRanges(property: Node): Node[] {
  */
 export default
     class LinkedItemsCollectionView extends CollectionView<Model, LinkedItemEditor> {
-    model: Node;
+    model: Subject;
     predicates: Graph;
     changes: Collection;
     addButton: AddButton;
@@ -65,7 +65,7 @@ export default
         ));
     }
 
-    isEditableProperty(node: Node, parents) {
+    isEditableProperty(node: Subject, parents) {
         if (!isRdfProperty(node)) return false;
         if (includes(excludedProperties, node.id)) return false;
         const superProperties = chain(getRdfSuperProperties([node]));
@@ -84,7 +84,7 @@ export default
         return some(ranges, isLiteralProperty);
     }
 
-    getItems(model: Node, predicates: Graph): this {
+    getItems(model: Subject, predicates: Graph): this {
         predicates.forEach(predicate => {
             const id = predicate.id as string;
             this.collection.add(map(model.get(id), object => ({ predicate, object })));

@@ -9,7 +9,7 @@ import { source1instance } from '../mock-data/mock-sources';
 import Model from '../core/model';
 import userChannel from '../common-user/user-radio';
 import { oa, item, staff, dcterms } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
@@ -55,7 +55,7 @@ describe('AnnotationEditView', function() {
         this.flatAnnotations = new FlatCollection(this.items);
         // Whole annotation, flattened.
         this.flat = this.flatAnnotations.get(item('100'));
-        // Item body, raw Node.
+        // Item body, raw Subject.
         this.item = this.items.get(item('200'));
     });
 
@@ -123,7 +123,7 @@ describe('AnnotationEditView', function() {
 
     it('displays a delete button if the current user created the annotation', async function() {
         const flat = this.flat;
-        const creator = flat.get('creator') as Node;
+        const creator = flat.get('creator') as Subject;
         const user = new Model({
             username: String(creator.id).slice(staff().length),
         });

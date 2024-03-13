@@ -3,16 +3,16 @@ import { ViewOptions as BaseOpt } from 'backbone';
 
 import Collection from '../core/collection';
 import View from '../core/view';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import { schema } from '../common-rdf/ns';
 import { getCssClassName, isColoredClass } from '../utilities/linked-data-utilities';
 import { placeholderClass } from '../utilities/annotation-utilities';
 
 import categoryColorsTemplate from './category-colors-template';
 
-type GraphLike = Collection<Node>;
+type GraphLike = Collection<Subject>;
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt<Subject> {
     collection: GraphLike;
 }
 
@@ -30,7 +30,7 @@ const specialCategories = map([
 ], name => ({ class: name }));
 
 // `map` iteratee to extract the properties of interest here.
-function summarizeCategory(node: Node): { class: string, color?: string } {
+function summarizeCategory(node: Subject): { class: string, color?: string } {
     return {
         class: getCssClassName(node),
         color: node.get(schema.color)[0] as string,

@@ -5,7 +5,7 @@ import mockOntology from '../mock-data/mock-ontology';
 import mockItems from '../mock-data/mock-items';
 
 import { item } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
 import Segment from './text-segment-model';
@@ -127,7 +127,7 @@ describe('TextSegmentCollection', function() {
 
     it('is coherent and complete for challenging cases', function() {
         this.flat.add(map(challenging, surrogate => {
-            const node = new Node();
+            const node = new Subject();
             const added = new FlatCollection.prototype.model(node);
             return added.set(surrogate);
         }));

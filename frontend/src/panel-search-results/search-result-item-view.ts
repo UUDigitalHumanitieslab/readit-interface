@@ -10,7 +10,7 @@ import {
 
 import { CompositeView } from '../core/view';
 import { dcterms, owl, skos } from '../common-rdf/ns';
-import Node, { isNode } from '../common-rdf/node';
+import Subject, { isSubject } from '../common-rdf/subject';
 import FlatItem from '../common-adapters/flat-item-model';
 import LabelView from '../label/label-view';
 import { getLabelFromId } from '../utilities/linked-data-utilities';
@@ -56,7 +56,7 @@ export default class SearchResultItemView extends CompositeView<FlatItem> {
             const attribute = attributes[keyIndex++];
             if (includes(excludedAttributes, attribute)) continue;
             const firstValue = find(item.get(attribute), negate(isNil));
-            if (isUndefined(firstValue) || isNode(firstValue)) continue;
+            if (isUndefined(firstValue) || isSubject(firstValue)) continue;
             const label = getLabelFromId(attribute);
             properties[label] = firstValue;
             ++propertyCount;

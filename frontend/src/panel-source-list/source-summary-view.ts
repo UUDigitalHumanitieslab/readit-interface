@@ -3,13 +3,13 @@ import { ViewOptions as BaseOpt } from 'backbone';
 
 import { baseUrl } from 'config.json';
 import View from '../core/view';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import { dcterms, oa, schema } from '../common-rdf/ns';
 import sourceSummaryTemplate from './source-summary-template';
 import Graph from '../common-rdf/graph';
 
-export interface ViewOptions extends BaseOpt<Node> {
-    model: Node;
+export interface ViewOptions extends BaseOpt<Subject> {
+    model: Subject;
     query?: string;
     fields?: string;
 }

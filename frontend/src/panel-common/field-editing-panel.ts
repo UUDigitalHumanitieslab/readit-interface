@@ -3,7 +3,7 @@ import { extend } from 'lodash';
 import Collection from '../core/collection';
 import { CompositeView } from '../core/view';
 import Multifield, { RowManagingView } from '../forms/multifield-view';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 
 import fieldEditingTemplate from './field-editing-template';
 
@@ -27,7 +27,7 @@ export interface ChangeManagingView extends RowManagingView {
  * features on the model. Subclasses should define the `.rowManager` and define
  * `this.title` before calling `super.initialize()`.
  */
-export default class FieldEditingPanel extends CompositeView<Node> {
+export default class FieldEditingPanel extends CompositeView<Subject> {
     rowManager: ChangeManagingView;
     multifield: Multifield;
     title: string;

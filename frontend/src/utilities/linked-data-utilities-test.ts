@@ -2,7 +2,7 @@ import { startStore, endStore } from '../test-util';
 
 import { rdf, rdfs, xsd, owl, skos, item } from '../common-rdf/ns';
 import { FlatLdObject, FlatLdGraph } from '../common-rdf/json';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 
 import {
@@ -20,8 +20,8 @@ import {
     getRdfSubClasses,
 } from './linked-data-utilities';
 
-function getDefaultNode(): Node {
-    return new Node(getDefaultAttributes());
+function getDefaultNode(): Subject {
+    return new Subject(getDefaultAttributes());
 }
 
 function getDefaultAttributes(): FlatLdObject {
@@ -101,12 +101,12 @@ describe('utilities', function () {
         it('returns alternative label if the preferred label is not present', function () {
             let attributes = getDefaultAttributes();
             delete attributes[skos.prefLabel];
-            let node = new Node(attributes);
+            let node = new Subject(attributes);
             expect(getLabel(node)).toBe('alternativeLabel');
         });
 
         it('falls back on the id when there is no explicit label', function() {
-            const node = new Node({'@id': 'x'});
+            const node = new Subject({'@id': 'x'});
             expect(getLabel(node)).toBe('x');
         });
     });
@@ -178,7 +178,7 @@ describe('utilities', function () {
         it('returns a lowercased css class stripped of spaces', function () {
             let attributes = getDefaultAttributes();
             attributes[skos.prefLabel] = [{ "@value": "A Capitalized Label With Spaces" }];
-            let node = new Node(attributes);
+            let node = new Subject(attributes);
             expect(getCssClassName(node)).toBe('is-readit-acapitalizedlabelwithspaces');
         });
     });
@@ -193,7 +193,7 @@ describe('utilities', function () {
             let attributes = getDefaultAttributes();
             attributes['@type'] = [rdfs('notClass')];
             attributes[rdfs.subClassOf] = [{ '@id': 'anything' }]
-            let node = new Node(attributes);
+            let node = new Subject(attributes);
 
             expect(isRdfsClass(node)).toBeTruthy();
         });
@@ -201,7 +201,7 @@ describe('utilities', function () {
         it('ignores other types', function () {
             let attributes = getDefaultAttributes();
             attributes['@type'] = [rdf.Property];
-            let node = new Node(attributes);
+            let node = new Subject(attributes);
 
             expect(isRdfsClass(node)).toBeFalsy();
         });
@@ -209,47 +209,47 @@ describe('utilities', function () {
 
     describe('isRdfProperty', function() {
         it('recognizes straight-on properties', function() {
-            const yes = new Node({ '@type': rdf.Property }), no = new Node();
+            const yes = new Subject({ '@type': rdf.Property }), no = new Subject();
             expect(isRdfProperty(yes)).toBeTruthy();
             expect(isRdfProperty(no)).toBeFalsy();
         });
 
         it('recognizes OWL object properties', function() {
-            const owlProp = new Node({ '@type': owl.ObjectProperty });
+            const owlProp = new Subject({ '@type': owl.ObjectProperty });
             expect(isRdfProperty(owlProp)).toBeTruthy();
         });
 
         it('recognizes subproperties', function() {
-            const subProp = new Node({ [rdfs.subPropertyOf]: rdfs.range });
+            const subProp = new Subject({ [rdfs.subPropertyOf]: rdfs.range });
             expect(isRdfProperty(subProp)).toBeTruthy();
         });
 
         it('recognizes inverse properties', function() {
-            const inverseProp = new Node({ [owl.inverseOf]: rdfs.range });
+            const inverseProp = new Subject({ [owl.inverseOf]: rdfs.range });
             expect(isRdfProperty(inverseProp)).toBeTruthy();
         });
     });
 
     describe('isOntologyClass', function() {
         it('is robust against nodes without an id', function() {
-            const node = new Node();
+            const node = new Subject();
             expect(isOntologyClass(node)).toBeFalsy();
         });
     });
 
     describe('isBlank', function() {
         it('detects blank nodes', function() {
-            const node = new Node({'@id': '_:b0'});
+            const node = new Subject({'@id': '_:b0'});
             expect(isBlank(node)).toBeTruthy();
         });
 
         it('passes URI nodes', function() {
-            const node = new Node({'@id': 'http://example.com/'});
+            const node = new Subject({'@id': 'http://example.com/'});
             expect(isBlank(node)).toBeFalsy();
         });
 
         it('does not replace .isNew()', function() {
-            const node = new Node();
+            const node = new Subject();
             expect(isBlank(node)).toBeFalsy();
         });
     });
@@ -272,12 +272,12 @@ describe('utilities', function () {
             beforeEach(init);
             beforeEach(function() {
                 this.traverseLikes = node => {
-                    return (node.get('likes') || []).map(this.select) as Node[];
+                    return (node.get('likes') || []).map(this.select) as Subject[];
                 };
             });
 
             it('finds all Nodes connected by a given relation', function() {
-                const seed = ['cat', 'dog'].map(this.select) as Node[];
+                const seed = ['cat', 'dog'].map(this.select) as Subject[];
                 expectIds(transitiveClosure(seed, this.traverseLikes), [
                     'bird', 'cat', 'cheese', 'dog', 'fish', 'mouse',
                 ]);

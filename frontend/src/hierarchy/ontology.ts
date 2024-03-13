@@ -9,18 +9,18 @@ import { map, groupBy, keys, propertyOf, pick, flatten } from 'lodash';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { rdfs, skos } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import FlatItem from '../common-adapters/flat-item-model';
 
-type Nodeish = Node | FlatItem;
+type Nodeish = Subject | FlatItem;
 type Clustering = Record<string, Nodeish[]>;
 type Traversal = ReturnType<typeof optionalGet>;
 
-// Function factory for traversing a Node based on a given property.
+// Function factory for traversing a Subject based on a given property.
 function optionalGet(property: string) {
     return function(node: Nodeish) {
-        const cls: Node = node.get('class') || node;
-        const value = cls.get(property) as Node[];
+        const cls: Subject = node.get('class') || node;
+        const value = cls.get(property) as Subject[];
         if (value && value.length) return value[0].id;
     }
 }

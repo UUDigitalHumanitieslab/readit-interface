@@ -7,7 +7,7 @@ import mockNLP from '../mock-data/mock-nlp-ontology';
 import { skos, cidoc, readit, nlp } from '../common-rdf/ns';
 import Model from '../core/model';
 import Collection from '../core/collection';
-import { isNode } from '../common-rdf/node';
+import { isSubject } from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatItemCollection from '../common-adapters/flat-item-collection';

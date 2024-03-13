@@ -12,7 +12,7 @@ import {
     isObject,
 } from 'lodash';
 
-import { isNode } from './node';
+import { isSubject } from './subject';
 import {
     FlatSingleValue,
     FlatTypedLiteral,
@@ -122,7 +122,7 @@ export function asNative(obj: any): Native {
     }
     if (has(obj, '@list')) obj = obj['@list'];
     if (isArray(obj)) return map(obj, asNative);
-    if (isNode(obj)) return { '@id': obj.id };
+    if (isSubject(obj)) return { '@id': obj.id };
     return obj;
 }
 

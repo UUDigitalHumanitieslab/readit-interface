@@ -5,7 +5,7 @@ import { startStore, endStore } from '../test-util';
 import mockSources from '../mock-data/mock-sources';
 
 import { schema, vocab } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
 import SourcePanel from './source-view';
@@ -15,7 +15,7 @@ const textURI = 'http://test.test/test.txt';
 describe('SourceView', function() {
     beforeEach(startStore);
     beforeEach(function() {
-        this.source = new Node(mockSources[0]);
+        this.source = new Subject(mockSources[0]);
         this.items = new Graph();
         this.flat = new FlatCollection(this.items);
     });

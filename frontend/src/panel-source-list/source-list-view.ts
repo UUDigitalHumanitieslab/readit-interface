@@ -3,7 +3,7 @@ import { extend } from 'lodash';
 import Model from '../core/model';
 import { CollectionView, ViewOptions as BaseOpt } from '../core/view';
 import Graph from '../common-rdf/graph';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import { dcterms, vocab } from '../common-rdf/ns';
 import { announceRoute } from '../explorer/utilities';
 
@@ -39,7 +39,7 @@ export default class SourceListView extends CollectionView<Model, SourceSummaryV
         return this;
     }
 
-    makeItem(model: Node): SourceSummaryView {
+    makeItem(model: Subject): SourceSummaryView {
         const query = this.model ? this.model.get('query') : undefined;
         const fields = this.model ? this.model.get('fields') : undefined;
         let view = new SourceSummaryView({ model, query, fields });

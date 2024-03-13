@@ -9,17 +9,17 @@ import {
 
 
 import View, { CollectionView } from '../core/view';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import { getLabel } from '../utilities/linked-data-utilities';
 import pickerTemplate from './base-picker-template';
 
-export interface PickerOptionOptions extends BViewOptions<Node> {
+export interface PickerOptionOptions extends BViewOptions<Subject> {
     selected?: boolean;
     label?: string;
 }
 
-export class PickerOptionView extends View<Node> {
+export class PickerOptionView extends View<Subject> {
     label: string;
 
     constructor(options: PickerOptionOptions) {
@@ -52,12 +52,12 @@ extend(PickerOptionView.prototype, {
     tagName: 'option',
 });
 
-export interface PickerOptions extends BViewOptions<Node> {
+export interface PickerOptions extends BViewOptions<Subject> {
     collection: Graph;
     multiple?: boolean;
 }
 
-export default class PickerView extends CollectionView<Node, PickerOptionView> {
+export default class PickerView extends CollectionView<Subject, PickerOptionView> {
     multiple: boolean;
 
     constructor(options: PickerOptions) {

@@ -4,7 +4,7 @@ import { CompositeView } from '../core/view';
 import PickerView from '../forms/base-picker-view';
 import RemoveButton from '../forms/remove-button-view';
 import Graph from '../common-rdf/graph';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import { owl, rdfs } from '../common-rdf/ns';
 
 import externalResourceEditItemTemplate from './external-resource-edit-item-template';
@@ -23,7 +23,7 @@ export default class ExternalResourceEditItem extends CompositeView {
     initialize() {
         this.url = this.model.get('object');
         this.predicates = new Graph( externalAttributes.map( attr =>  {
-            let node = new Node();
+            let node = new Subject();
             node.set('@id', attr);
             return node;
         })

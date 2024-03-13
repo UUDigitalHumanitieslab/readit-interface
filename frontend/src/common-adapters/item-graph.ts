@@ -1,7 +1,7 @@
 import { extend, result, isString } from 'lodash';
 
 import { item } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import { asURI } from '../utilities/linked-data-utilities';
 
@@ -11,11 +11,11 @@ import { nsRoot, sparqlRoot } from 'config.json';
  * Using query parameters is DEPRECATED in favor of SPARQL queries.
  */
 export interface QueryParamsURI {
-    predicate?: Node | string;
-    object?: Node | string;
+    predicate?: Subject | string;
+    object?: Subject | string;
 }
 export interface QueryParamsLiteral {
-    predicate?: Node | string;
+    predicate?: Subject | string;
     objectLiteral?: string;
 }
 
@@ -26,7 +26,7 @@ export interface QueryParamsLiteral {
  * Nodes that match the given predicate and/or object, but also
  * related Nodes up to the given number of steps.
  *
- * Suppose that you fetch a Node, item:x, with the following triple.
+ * Suppose that you fetch a Subject, item:x, with the following triple.
 
         item:x oa:hasTarget item:y
 
@@ -72,14 +72,14 @@ function isLiteralQuery(params: QueryParams): params is QueryParamsLiteral {
  * Useful Collection subclass for interacting with the backend item
  * store.
  *
- * To save a new Node to an item store, run
+ * To save a new Subject to an item store, run
 
-    anItemStore.create(theNode | theAttributes)
+    anItemStore.create(theSubject | theAttributes)
 
- * this returns either `theNode` or a new Node constructed with
- * `theAttributes`. In both cases, the returned Node will emit an
+ * this returns either `theSubject` or a new Subject constructed with
+ * `theAttributes`. In both cases, the returned Subject will emit an
  * 'error' event if creation fails. Wait for 'change:@id' before
- * using the Node as an attribute value for another Node.
+ * using the Subject as an attribute value for another Subject.
  *
  * See also the query and sparqlQuery methods below for querying the server.
  */
@@ -97,8 +97,8 @@ export default class ItemGraph extends Graph {
      * From `this.url`, we derive the matching `this.sparqlEndpoint`.
      */
     constructor(graph: string);
-    constructor(models?: Node[] | Object[], options?: any);
-    constructor(models?: Node[] | Object[] | string, options?) {
+    constructor(models?: Subject[] | Object[], options?: any);
+    constructor(models?: Subject[] | Object[] | string, options?) {
         if (isString(models)) {
             options = { graph: models };
             models = null;

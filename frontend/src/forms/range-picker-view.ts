@@ -1,18 +1,18 @@
 import { map, some, defaults } from 'lodash';
 
 import { rdfs } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import { getRdfSubClasses } from '../utilities/linked-data-utilities';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import PickerView, { PickerOptions } from './base-picker-view';
 
 export interface RangePickerOptions extends PickerOptions {
-    model: Node;
+    model: Subject;
 }
 
 export default class RangePickerView extends PickerView {
-    collection: FilteredCollection<Node, Graph>;
+    collection: FilteredCollection<Subject, Graph>;
     admittedTypes: string[];
 
     constructor(options: RangePickerOptions) {
@@ -24,7 +24,7 @@ export default class RangePickerView extends PickerView {
 
     initialize(options: RangePickerOptions): void {
         const {model, collection} = options;
-        const rangeSubtypes = getRdfSubClasses(model.get(rdfs.range) as Node[]);
+        const rangeSubtypes = getRdfSubClasses(model.get(rdfs.range) as Subject[]);
         const admittedTypes = map(rangeSubtypes, 'id');
         this.collection = new FilteredCollection(
             collection,

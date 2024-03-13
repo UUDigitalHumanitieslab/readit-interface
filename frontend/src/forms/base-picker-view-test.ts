@@ -1,5 +1,5 @@
 import { rdfs } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import PickerView, { PickerOptionView } from './base-picker-view';
 
@@ -67,7 +67,7 @@ const expectedMultipleHTML = omitWhite(`
 
 describe('PickerOptionView', function() {
     it('takes the label from the model by default', function() {
-        const node = new Node({'@id': 'x'});
+        const node = new Subject({'@id': 'x'});
         const view = new PickerOptionView({model: node});
         expect(view.$el.text()).toBe('x');
     });

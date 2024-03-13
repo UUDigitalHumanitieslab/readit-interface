@@ -20,14 +20,14 @@ import {
     FlatLdObject,
     JsonLdContext,
 } from './json';
-import Node from './node';
+import Subject from './subject';
 import sync from './sync';
 
-export default class Graph<T extends Node = Node> extends Collection<T> {
+export default class Graph<T extends Subject = Subject> extends Collection<T> {
     /**
      * Information outside of the @graph, such as the global context.
      */
-    meta: Node;
+    meta: Subject;
 
     /**
      * Forward the meta context.
@@ -40,7 +40,7 @@ export default class Graph<T extends Node = Node> extends Collection<T> {
     }
 
     preinitialize(models, options) {
-        this.meta = new Node();
+        this.meta = new Subject();
         this.meta.on('change:@context', (model, newGlobal, oldGlobal) => {
             this.trigger('change:@context', this, newGlobal, oldGlobal);
         });
@@ -87,7 +87,7 @@ export default class Graph<T extends Node = Node> extends Collection<T> {
 const proto = Graph.prototype;
 
 extend(proto, {
-    model: Node,
+    model: Subject,
     sync,
 });
 

@@ -1,7 +1,7 @@
 import { includes, extend } from 'lodash';
 
 import { oa } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FlatItem from './flat-item-model';
 import FlatItemCollection from './flat-item-collection';
@@ -9,7 +9,7 @@ import FlatItemCollection from './flat-item-collection';
 /**
  * Specialization of FlatItemCollection that represents exclusively
  * `oa.Annotation`s from an underlying `Graph` as FlatItem models. If the type
- * of an underlying Node is not know synchronously, addition to the
+ * of an underlying Subject is not know synchronously, addition to the
  * FlatAnnotationCollection is postponed until it is confirmed to be an
  * annotation.
  *
@@ -17,7 +17,7 @@ import FlatItemCollection from './flat-item-collection';
  * then by the `endPosition` attribute.
  */
 export default class FlatAnnotationCollection extends FlatItemCollection {
-    // Current tally of tracked `Node`s that may or may not be annotations.
+    // Current tally of tracked `Subject`s that may or may not be annotations.
     _tracking: number;
 
     // Override from base class to take `this._tracking` into account.
@@ -54,7 +54,7 @@ export default class FlatAnnotationCollection extends FlatItemCollection {
      * the behaviour will be the same as when you'd handle the return value
      * yourself, e.g. `{ silent: true }` if your intention is a `reset`.
      */
-    flatten(node: Node, options?: any): FlatItem {
+    flatten(node: Subject, options?: any): FlatItem {
         const types = node.get('@type') as string[];
         if (!types) {
             // A keen observer may notice that we use `flattenPost` as the event
@@ -85,7 +85,7 @@ export default class FlatAnnotationCollection extends FlatItemCollection {
      * `reset`, we make sure to pass `options` to `add` in order to replicate
      * the intended behaviour.
      */
-    flattenPost(node: Node, options: any): void {
+    flattenPost(node: Subject, options: any): void {
         --this._tracking;
         this.add(this.flatten(node, options), options);
         this._checkCompletion();
@@ -95,7 +95,7 @@ export default class FlatAnnotationCollection extends FlatItemCollection {
      * Listener for the `'add'` event on `this.underlying`.
      * Override from base class to take tracking into account.
      */
-    proxyAdd(node: Node): void {
+    proxyAdd(node: Subject): void {
         // In case this `node` was added before, prevent duplicate event
         // handlers.
         this.stopListening(node, 'change:@type');
@@ -107,7 +107,7 @@ export default class FlatAnnotationCollection extends FlatItemCollection {
      * Listener for the `'remove'` event on `this.underlying`.
      * Override from base class to take tracking into account.
      */
-    proxyRemove(node: Node): void {
+    proxyRemove(node: Subject): void {
         super.proxyRemove(node);
         // If the previous step was a no-op, we might still be listening for the
         // `'change:@type'` event on `node` because of `flatten`. The next line

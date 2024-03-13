@@ -4,7 +4,7 @@ import { source1instance } from '../mock-data/mock-sources';
 
 import Model from '../core/model';
 import { dcterms, staff } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import FlatItem from '../common-adapters/flat-item-model';
 
 import userChannel from './user-radio';
@@ -19,13 +19,13 @@ const admin = new Model({username: 'admin', is_superuser: true});
 // Different flavors of models that can be passed through
 // `currentUserOwnsModel`. We will try all possible combinations of user and
 // model.
-const source = new Node(source1instance);
-const sharedSource = (source.clone() as Node)
-// Note that, due to the modified semantics of `Node.set`, `sharedSource` will
+const source = new Subject(source1instance);
+const sharedSource = (source.clone() as Subject)
+// Note that, due to the modified semantics of `Subject.set`, `sharedSource` will
 // have two values for `dcterms.creator`.
 .set(dcterms.creator, {'@id': staff('BJanssen')});
 const wrappedSource = new FlatItem(source);
-const bareCreator = source.get(dcterms.creator)[0] as unknown as Node;
+const bareCreator = source.get(dcterms.creator)[0] as unknown as Subject;
 
 describe('common user utilities', function() {
     describe('currentUserOwnsModel', function() {

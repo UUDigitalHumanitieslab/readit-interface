@@ -3,7 +3,7 @@ import { extend } from 'lodash';
 import * as i18next from 'i18next';
 
 import View from '../core/view';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 
 import itemMetadataTemplate from './item-metadata-template';
 
@@ -12,8 +12,8 @@ import { getLabel } from '../utilities/linked-data-utilities';
 
 import * as bulmaAccordion from 'bulma-accordion';
 
-export interface ViewOptions extends BaseOpt<Node> {
-    model: Node;
+export interface ViewOptions extends BaseOpt<Subject> {
+    model: Subject;
     /**
      * Optional. Title of the accordion containing the metadata.
      * Defaults to 'Item metadata'.
@@ -21,7 +21,7 @@ export interface ViewOptions extends BaseOpt<Node> {
     title?: string;
 }
 
-export default class ItemMetadataView extends View<Node> {
+export default class ItemMetadataView extends View<Subject> {
     title: string;
 
     constructor(options?: ViewOptions) {
@@ -41,7 +41,7 @@ export default class ItemMetadataView extends View<Node> {
     collectDetails() {
         const metadata: any = {};
         if (this.model.has(dcterms.creator)) {
-            metadata['creator'] = getLabel(this.model.get(dcterms.creator)[0] as Node);
+            metadata['creator'] = getLabel(this.model.get(dcterms.creator)[0] as Subject);
         }
         if (this.model.has(dcterms.created)) {
             metadata['created'] = this.model.get(dcterms.created)[0];

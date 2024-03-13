@@ -1,5 +1,5 @@
 import FlatItem from '../common-adapters/flat-item-model';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import { rdfs, skos, schema, readit } from '../common-rdf/ns';
 
 export type AnnotationPositionDetails = {
@@ -11,7 +11,7 @@ export type AnnotationPositionDetails = {
  * A class that is **not** in the ontology, but which can be used as a
  * placeholder in new annotations and which can be rendered with a color.
  */
-export const placeholderClass = new Node({
+export const placeholderClass = new Subject({
     '@id': readit('placeholder'),
     '@type': [rdfs.Class],
     [skos.prefLabel]: 'Selection',

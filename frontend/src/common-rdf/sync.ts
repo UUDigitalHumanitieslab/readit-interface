@@ -9,7 +9,7 @@ import * as streamify from 'streamify-string';
 
 import { syncWithCSRF } from '../core/csrf';
 import { JsonLdContext, FlatLdDocument } from './json';
-import Node from './node';
+import Subject from './subject';
 import Graph from './graph';
 
 const contentTypeAlias = {
@@ -51,7 +51,7 @@ const defaultSyncOptions = (function() {
  * returning the response.
  */
 export default async function syncLD(
-    method: string, model: Node | Graph, options: any
+    method: string, model: Subject | Graph, options: any
 ): Promise<FlatLdDocument> {
     model.trigger('prerequest', model, options);
     let { success, error, attrs } = options;

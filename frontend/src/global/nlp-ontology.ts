@@ -50,7 +50,7 @@ import { constant } from 'lodash';
 import Collection from '../core/collection';
 import ldChannel from '../common-rdf/radio';
 import { nlp } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatItemCollection from '../common-adapters/flat-item-collection';
@@ -60,7 +60,7 @@ import { isColoredClass } from '../utilities/linked-data-utilities';
 const nlpOntology = new Graph();
 export default nlpOntology;
 let promise: PromiseLike<Graph> = null;
-export const coloredClasses = new FilteredCollection<Node, Graph>(
+export const coloredClasses = new FilteredCollection<Subject, Graph>(
     nlpOntology, isColoredClass
 );
 export const flatColored = new FlatItemCollection(coloredClasses);
