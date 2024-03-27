@@ -30,10 +30,10 @@ const specialCategories = map([
 ], name => ({ class: name }));
 
 // `map` iteratee to extract the properties of interest here.
-function summarizeCategory(node: Subject): { class: string, color?: string } {
+function summarizeCategory(subject: Subject): { class: string, color?: string } {
     return {
-        class: getCssClassName(node),
-        color: node.get(schema.color)[0] as string,
+        class: getCssClassName(subject),
+        color: subject.get(schema.color)[0] as string,
     };
 }
 

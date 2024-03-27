@@ -61,14 +61,14 @@ export default
     async getPredicates() {
         const parents = getRdfSuperClasses(this.model.get('@type') as string[]);
         this.predicates = ldChannel.request('visit', store => new FilteredCollection(
-            store, node => this.isEditableProperty(node, parents)
+            store, subject => this.isEditableProperty(subject, parents)
         ));
     }
 
-    isEditableProperty(node: Subject, parents) {
-        if (!isRdfProperty(node)) return false;
-        if (includes(excludedProperties, node.id)) return false;
-        const superProperties = chain(getRdfSuperProperties([node]));
+    isEditableProperty(subject: Subject, parents) {
+        if (!isRdfProperty(subject)) return false;
+        if (includes(excludedProperties, subject.id)) return false;
+        const superProperties = chain(getRdfSuperProperties([subject]));
         const domains = superProperties.map(getDomains)
             .flatten().compact().value();
         if (

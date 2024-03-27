@@ -10,7 +10,7 @@ import FlatItem from './flat-item-model';
 type GraphLike = Collection<Subject>;
 
 /**
- * Adapter that represents Nodes from an underlying `Graph` as FlatItem models.
+ * Adapter that represents Subjects from an underlying `Graph` as FlatItem models.
  *
  * `'complete'` events triggered by models are forwarded by the collection, as
  * with all model events. In addition, a single `'complete:all'` event is
@@ -101,35 +101,35 @@ class FlatItemCollection extends Collection<FlatItem> {
     }
 
     /**
-     * Core operation that handles incoming nodes. Can be overridden for more
+     * Core operation that handles incoming subjects. Can be overridden for more
      * specific behavior.
      */
-    flatten(node: Subject, options?: any): FlatItem {
-        return new FlatItem(node);
+    flatten(subject: Subject, options?: any): FlatItem {
+        return new FlatItem(subject);
     }
 
     /**
      * Variant of `flatten` that can be used to prepare a `reset`. Useful as an
      * iteratee for `map`.
      */
-    flattenSilent(node: Subject): FlatItem {
-        return this.flatten(node, { silent: true });
+    flattenSilent(subject: Subject): FlatItem {
+        return this.flatten(subject, { silent: true });
     }
 
     /**
      * Listener for the `'add'` event on `this._underlying`.
      */
-    proxyAdd(node: Subject, graph?: GraphLike, options?: any): void {
-        this.add(this.flatten(node), options);
+    proxyAdd(subject: Subject, graph?: GraphLike, options?: any): void {
+        this.add(this.flatten(subject), options);
     }
 
     /**
      * Listener for the `'remove'` event on `this._underlying`.
      */
-    proxyRemove(node: Subject): void {
-        // Find any flat representation of `node` and remove it. This might be a
+    proxyRemove(subject: Subject): void {
+        // Find any flat representation of `subject` and remove it. This might be a
         // no-op.
-        const flat = this.get(node.id);
+        const flat = this.get(subject.id);
         if (flat) {
             // A removed item cannot be in focus, so blur it first.
             flat.trigger('blur', flat);

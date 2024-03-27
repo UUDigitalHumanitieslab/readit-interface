@@ -127,8 +127,8 @@ describe('TextSegmentCollection', function() {
 
     it('is coherent and complete for challenging cases', function() {
         this.flat.add(map(challenging, surrogate => {
-            const node = new Subject();
-            const added = new FlatCollection.prototype.model(node);
+            const subject = new Subject();
+            const added = new FlatCollection.prototype.model(subject);
             return added.set(surrogate);
         }));
         each(insertionOrder, id => {

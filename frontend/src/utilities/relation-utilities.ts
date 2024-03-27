@@ -83,7 +83,7 @@ export function relationsFromModel(model: Subject, predicates: Graph) {
             (object.id as string).startsWith(item()) && relations.add({predicate, object})
         );
     });
-    // Next, inverse relations sourced from other Nodes
+    // Next, inverse relations sourced from other Subjects
     const inverseMap: {[id: string]: Subject} = {};
     const inversePredicates = new Graph(compact(predicates.map(direct => {
         const inverse = getInverse(direct, ontology);
@@ -92,13 +92,13 @@ export function relationsFromModel(model: Subject, predicates: Graph) {
         return inverse;
     })));
     inverseRelated.ready(() => {
-        inverseRelated.forEach(node => {
-            const attributes = keys(node.attributes);
+        inverseRelated.forEach(subject => {
+            const attributes = keys(subject.attributes);
             attributes.forEach(a => {
                 const inverse = inversePredicates.get(a);
-                if (!inverse || !node.has(a, model)) return;
+                if (!inverse || !subject.has(a, model)) return;
                 const direct = inverseMap[inverse.id];
-                relations.add({predicate: direct, object: node});
+                relations.add({predicate: direct, object: subject});
             });
         });
         relations.trigger('complete', relations);

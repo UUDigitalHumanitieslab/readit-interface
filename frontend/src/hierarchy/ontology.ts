@@ -18,8 +18,8 @@ type Traversal = ReturnType<typeof optionalGet>;
 
 // Function factory for traversing a Subject based on a given property.
 function optionalGet(property: string) {
-    return function(node: Nodeish) {
-        const cls: Subject = node.get('class') || node;
+    return function(subject: Nodeish) {
+        const cls: Subject = subject.get('class') || subject;
         const value = cls.get(property) as Subject[];
         if (value && value.length) return value[0].id;
     }
@@ -33,10 +33,10 @@ const isInternal = collection => id => collection.has(id);
 
 // Recursively build a model hierarchy, starting from an outer model.
 function asOuterModel(clustering: Clustering) {
-    return function(node: Nodeish) {
-        const model = new Model({ model: node });
-        if (node.id in clustering) {
-            model.set('collection', buildHierarchy(clustering, node.id as string));
+    return function(item: Nodeish) {
+        const model = new Model({ model: item });
+        if (item.id in clustering) {
+            model.set('collection', buildHierarchy(clustering, item.id as string));
         }
         return model;
     }

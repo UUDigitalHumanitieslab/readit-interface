@@ -26,7 +26,7 @@
  * Returns a Graph that will eventually contain the ontology. Will
  * cause a request if the ontology hasn't been fetched yet. Useful in
  * sync code that can wait until a later event in order to access the
- * ontology Nodes, or in sync code where it is reasonable to assume
+ * ontology Subjects, or in sync code where it is reasonable to assume
  * that the ontology has already been fetched.
 
     ldChannel.request('nlp-ontology:colored')

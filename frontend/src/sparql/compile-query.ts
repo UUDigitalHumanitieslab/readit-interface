@@ -30,14 +30,14 @@ export function itemsForSourceQuery(
     return itemsTemplate(data);
 }
 
-export function countNodesQuery(
+export function countSubjectsQuery(
     itemQuery: boolean, options: SPARQLQueryOptions = {}
 ) {
     const data = { ...defaultOptions, itemQuery, ...options };
     return countNodesTemplate(data);
 }
 
-export function nodesByUserQuery(
+export function subjectsByUserQuery(
     itemQuery: boolean, options: SPARQLQueryOptions = {}
 ) {
     const userURI = userChannel.request('current-user-uri');
@@ -48,7 +48,7 @@ export function nodesByUserQuery(
     return nodesByUserTemplate(data);
 }
 
-export function randomNodesQuery(
+export function randomSubjectsQuery(
     itemQuery: boolean, options: SPARQLQueryOptions = { limit: 10 }
 ) {
     const nsLength = (itemQuery ? source() : item()).length;

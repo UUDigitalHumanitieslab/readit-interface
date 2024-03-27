@@ -54,7 +54,7 @@ describe('global test utilities', function() {
         // other `Subject`s that are created at module scope ("ambient").
         // Unfortunately, there is no general way to check that this is indeed
         // the case for all ambient `Subject`s.
-        it('include ambient Nodes', function(done) {
+        it('include ambient Subjects', function(done) {
             each(cssClassCache, (_, key) => delete cssClassCache[key]);
             const anno = new Subject({
                 '@id': 'testAnno',

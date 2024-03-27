@@ -112,28 +112,28 @@ export default class FlatItem extends Model {
      * instead of an initial hash of attributes. Precondition: `annotation`
      * must be an instance of `oa.Annotation`.
      */
-    constructor(node: Subject, options?: any) {
+    constructor(subject: Subject, options?: any) {
         super({}, options);
-        this.underlying = node;
+        this.underlying = subject;
         // Track terminal completion.
         this._completionFlags = 0;
         each(flagMapping, (flag, attribute) => this.once(
             `change:${attribute}`,
             () => this._setCompletionFlag(flag)
         ));
-        // Track intermediate nodes.
+        // Track intermediate subjects.
         this.on('change:annotation', this.updateAnnotation);
         this.on('change:class', this.updateClass);
         this.on('change:item', this.updateItem);
         this.on('change:target', this.updateTarget);
         this.on('change:positionSelector', this.updatePosition);
         this.on('change:quoteSelector', this.updateText);
-        // Track changes in the top node.
+        // Track changes in the top subject.
         this.on('change:creator', this.updateCreator);
-        this.trackProperty(node, '@id', 'id');
-        this.trackProperty(node, dcterms.creator, 'creator');
-        this.trackProperty(node, dcterms.created, 'created');
-        node.when('@type', this.receiveTopNode, this);
+        this.trackProperty(subject, '@id', 'id');
+        this.trackProperty(subject, dcterms.creator, 'creator');
+        this.trackProperty(subject, dcterms.created, 'created');
+        subject.when('@type', this.receiveTopSubject, this);
         this.getFilterClasses = throttle(this.getFilterClasses);
     }
 
@@ -161,30 +161,30 @@ export default class FlatItem extends Model {
     /**
      * Invoked once when this.underlying has an `@type`.
      */
-    receiveTopNode(node: Subject): void {
+    receiveTopSubject(subject: Subject): void {
         // Below, each branch marks particular flags as completed in advance. We
         // do this because we don't expect the corresponding attributes to be
-        // fulfilled, given the type of the top node.
-        if (node.has('@type', oa.Annotation)) {
-            this.set('annotation', node);
+        // fulfilled, given the type of the top subject.
+        if (subject.has('@type', oa.Annotation)) {
+            this.set('annotation', subject);
             // Initially assume an annotation without bodies.
             this._setCompletionFlag(F_CLASS | F_LABEL);
-        } else if (node.has('@type', oa.SpecificResource)) {
-            this.set('target', node);
+        } else if (subject.has('@type', oa.SpecificResource)) {
+            this.set('target', subject);
             this._setCompletionFlag(F_COMPLETE ^ F_TARGET);
-        } else if (node.has('@type', oa.TextPositionSelector)) {
-            this.set('positionSelector', node);
+        } else if (subject.has('@type', oa.TextPositionSelector)) {
+            this.set('positionSelector', subject);
             this._setCompletionFlag(F_COMPLETE ^ F_POS);
-        } else if (node.has('@type', oa.TextQuoteSelector)) {
-            this.set('quoteSelector', node);
+        } else if (subject.has('@type', oa.TextQuoteSelector)) {
+            this.set('quoteSelector', subject);
             this._setCompletionFlag(F_COMPLETE ^ F_TEXT);
-        } else if (isRdfsClass(node) || isRdfProperty(node)) {
-            this.set('class', node);
+        } else if (isRdfsClass(subject) || isRdfProperty(subject)) {
+            this.set('class', subject);
             this._setCompletionFlag(F_COMPLETE ^ F_CLASS);
         } else {
-            this.set('item', node);
+            this.set('item', subject);
             // Bare item, retrieve the class through the item.
-            node.when('@type', this.receiveItemClass, this);
+            subject.when('@type', this.receiveItemClass, this);
             this._setCompletionFlag(F_TARGET);
         }
     }
@@ -198,15 +198,15 @@ export default class FlatItem extends Model {
     }
 
     /**
-     * Standard update logic when one of the intermediate nodes changes.
+     * Standard update logic when one of the intermediate subjects changes.
      */
-    rotateNode(
+    rotateSubject(
         attribute: string, dependents: string[],
-        newNode: Subject, unsetFlags: number
+        newSubject: Subject, unsetFlags: number
     ): this {
-        const oldNode = this.previous(attribute);
-        if (oldNode) this.stopListening(oldNode);
-        if (newNode) {
+        const oldSubject = this.previous(attribute);
+        if (oldSubject) this.stopListening(oldSubject);
+        if (newSubject) {
             this._unsetCompletionFlag(unsetFlags);
         } else {
             each(dependents, this.unset.bind(this));
@@ -218,7 +218,7 @@ export default class FlatItem extends Model {
      * Invoked when the `annotation` attribute changes.
      */
     updateAnnotation(flat: this, annotation: Subject): void {
-        this.rotateNode('annotation', ['class', 'item', 'target'], annotation, 0);
+        this.rotateSubject('annotation', ['class', 'item', 'target'], annotation, 0);
         if (annotation) {
             annotation.whenever(oa.hasBody, this.updateBodies, this);
             this.trackProperty(annotation, oa.hasTarget, 'target');
@@ -252,7 +252,7 @@ export default class FlatItem extends Model {
      * Invoked when the `class` attribute changes.
      */
     updateClass(flat: this, classBody: Subject): void {
-        this.rotateNode('class', [
+        this.rotateSubject('class', [
             'classLabel', 'cssClass', 'relatedClass',
         ], classBody, F_CLASS);
         if (classBody) {
@@ -276,7 +276,7 @@ export default class FlatItem extends Model {
      * Invoked when the `item` attribute changes.
      */
     updateItem(flat: this, itemBody: Subject): void {
-        this.rotateNode('item', ['label'], itemBody, F_LABEL);
+        this.rotateSubject('item', ['label'], itemBody, F_LABEL);
         if (itemBody) {
             this.listenTo(itemBody, 'change', this.updateItemLabel);
             this.updateItemLabel(itemBody);
@@ -294,7 +294,7 @@ export default class FlatItem extends Model {
      * Invoked when the `target` attributes changes.
      */
     updateTarget(flat: this, target: Subject): void {
-        this.rotateNode('target', [
+        this.rotateSubject('target', [
             'source', 'positionSelector', 'quoteSelector',
         ], target, F_TARGET);
         if (target) {
@@ -332,7 +332,7 @@ export default class FlatItem extends Model {
      * Invoked when the `positionSelector` attribute changes.
      */
     updatePosition(flat: this, selector: Subject): void {
-        this.rotateNode('positionSelector', [
+        this.rotateSubject('positionSelector', [
             'startPosition', 'endPosition',
         ], selector, F_POS);
         if (selector) {
@@ -345,7 +345,7 @@ export default class FlatItem extends Model {
      * Invoked when the `quoteSelector` attribute changes.
      */
     updateText(flat: this, selector: Subject): void {
-        this.rotateNode('quoteSelector', [
+        this.rotateSubject('quoteSelector', [
             'prefix', 'suffix', 'text',
         ], selector, F_TEXT);
         if (selector) {

@@ -67,8 +67,8 @@ const expectedMultipleHTML = omitWhite(`
 
 describe('PickerOptionView', function() {
     it('takes the label from the model by default', function() {
-        const node = new Subject({'@id': 'x'});
-        const view = new PickerOptionView({model: node});
+        const subject = new Subject({'@id': 'x'});
+        const view = new PickerOptionView({model: subject});
         expect(view.$el.text()).toBe('x');
     });
 });

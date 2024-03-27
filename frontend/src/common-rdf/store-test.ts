@@ -48,7 +48,7 @@ describe('Store', function() {
         delete this.store;
     });
 
-    it('does not set the .collection of stored Nodes', function() {
+    it('does not set the .collection of stored Subjects', function() {
         const stored = this.store.at(0);
         expect(stored.collection).toBeUndefined();
     });
@@ -271,13 +271,13 @@ describe('Store', function() {
     });
 
     describe('mergeExisting', function() {
-        it('returns existing nodes', function() {
+        it('returns existing subjects', function() {
             const stored = this.store.at(0);
             const result = this.store.mergeExisting(otherHash);
             expect(result).toBe(stored);
         });
 
-        it('merges passed properties into the existing node', function() {
+        it('merges passed properties into the existing subject', function() {
             const stored = this.store.at(0);
             const hash = defaults({prop: 'value'}, otherHash);
             const result = this.store.mergeExisting(hash);
@@ -286,27 +286,27 @@ describe('Store', function() {
             expect(result.get('prop')[0]).toBe('value');
         });
 
-        it('returns the argument if no node exists to merge with', function() {
+        it('returns the argument if no subject exists to merge with', function() {
             const result = this.store.mergeExisting(partialHash);
             expect(result).toBe(partialHash);
         });
     });
 
     describe('register', function() {
-        it('stores the given node', function() {
-            const node = new Subject(partialHash);
-            this.store.remove(node);
-            this.store.register(node);
-            expect(this.store.has(node)).toBeTruthy();
+        it('stores the given subject', function() {
+            const subject = new Subject(partialHash);
+            this.store.remove(subject);
+            this.store.register(subject);
+            expect(this.store.has(subject)).toBeTruthy();
         });
 
-        it('postpones storing if the node has no id yet', function() {
-            const node = new Subject();
-            node.off('change:@id');
-            this.store.register(node);
-            expect(this.store.has(node)).toBeFalsy();
-            node.set('@id', uri);
-            expect(this.store.has(node)).toBeTruthy();
+        it('postpones storing if the subject has no id yet', function() {
+            const subject = new Subject();
+            subject.off('change:@id');
+            this.store.register(subject);
+            expect(this.store.has(subject)).toBeFalsy();
+            subject.set('@id', uri);
+            expect(this.store.has(subject)).toBeTruthy();
         });
     });
 });

@@ -20,7 +20,7 @@ import {
     getRdfSubClasses,
 } from './linked-data-utilities';
 
-function getDefaultNode(): Subject {
+function getDefaultSubject(): Subject {
     return new Subject(getDefaultAttributes());
 }
 
@@ -89,38 +89,38 @@ describe('utilities', function () {
     describe('getLabel', function () {
 
         it('returns a label', function () {
-            let node = getDefaultNode();
-            expect(getLabel(node)).toBe('Content');
+            let subject = getDefaultSubject();
+            expect(getLabel(subject)).toBe('Content');
         });
 
         it('returns a preferred label before others', function () {
-            let node = getDefaultNode();
-            expect(getLabel(node)).toBe('Content');
+            let subject = getDefaultSubject();
+            expect(getLabel(subject)).toBe('Content');
         });
 
         it('returns alternative label if the preferred label is not present', function () {
             let attributes = getDefaultAttributes();
             delete attributes[skos.prefLabel];
-            let node = new Subject(attributes);
-            expect(getLabel(node)).toBe('alternativeLabel');
+            let subject = new Subject(attributes);
+            expect(getLabel(subject)).toBe('alternativeLabel');
         });
 
         it('falls back on the id when there is no explicit label', function() {
-            const node = new Subject({'@id': 'x'});
-            expect(getLabel(node)).toBe('x');
+            const subject = new Subject({'@id': 'x'});
+            expect(getLabel(subject)).toBe('x');
         });
     });
 
     describe('getLabelFromId', function () {
         it('returns a label', function () {
-            let node = getDefaultNode();
-            expect(getLabelFromId(node.get('@id'))).toBe('Content');
+            let subject = getDefaultSubject();
+            expect(getLabelFromId(subject.get('@id'))).toBe('Content');
         });
 
         it('returns a label for a property', function () {
-            let node = getDefaultNode();
+            let subject = getDefaultSubject();
 
-            for (let att in node.attributes) {
+            for (let att in subject.attributes) {
                 if (att == skos.prefLabel) {
                     expect(getLabelFromId(att)).toBe('prefLabel')
                 }
@@ -155,13 +155,13 @@ describe('utilities', function () {
                 .toBe('<banana>');
         });
 
-        it('extracts URIs from Nodes', function() {
-            const node = getDefaultNode();
-            expect(getTurtleTerm(node)).toBe('item:Content');
-            node.set('@id', xsd.string);
-            expect(getTurtleTerm(node)).toBe('xsd:string');
-            node.set('@id', 'banana');
-            expect(getTurtleTerm(node)).toBe('<banana>');
+        it('extracts URIs from Subjects', function() {
+            const subject = getDefaultSubject();
+            expect(getTurtleTerm(subject)).toBe('item:Content');
+            subject.set('@id', xsd.string);
+            expect(getTurtleTerm(subject)).toBe('xsd:string');
+            subject.set('@id', 'banana');
+            expect(getTurtleTerm(subject)).toBe('<banana>');
         });
     });
 
@@ -171,39 +171,39 @@ describe('utilities', function () {
         });
 
         it('returns a css class', function () {
-            let node = getDefaultNode();
-            expect(getCssClassName(node)).toBe('is-readit-content');
+            let subject = getDefaultSubject();
+            expect(getCssClassName(subject)).toBe('is-readit-content');
         });
 
         it('returns a lowercased css class stripped of spaces', function () {
             let attributes = getDefaultAttributes();
             attributes[skos.prefLabel] = [{ "@value": "A Capitalized Label With Spaces" }];
-            let node = new Subject(attributes);
-            expect(getCssClassName(node)).toBe('is-readit-acapitalizedlabelwithspaces');
+            let subject = new Subject(attributes);
+            expect(getCssClassName(subject)).toBe('is-readit-acapitalizedlabelwithspaces');
         });
     });
 
     describe('isRdfsClass', function () {
         it('recognizes type rdfs:Class', function () {
-            let node = getDefaultNode();
-            expect(isRdfsClass(node)).toBeTruthy();
+            let subject = getDefaultSubject();
+            expect(isRdfsClass(subject)).toBeTruthy();
         });
 
         it('recognizes type rdfs:subClassOf', function () {
             let attributes = getDefaultAttributes();
             attributes['@type'] = [rdfs('notClass')];
             attributes[rdfs.subClassOf] = [{ '@id': 'anything' }]
-            let node = new Subject(attributes);
+            let subject = new Subject(attributes);
 
-            expect(isRdfsClass(node)).toBeTruthy();
+            expect(isRdfsClass(subject)).toBeTruthy();
         });
 
         it('ignores other types', function () {
             let attributes = getDefaultAttributes();
             attributes['@type'] = [rdf.Property];
-            let node = new Subject(attributes);
+            let subject = new Subject(attributes);
 
-            expect(isRdfsClass(node)).toBeFalsy();
+            expect(isRdfsClass(subject)).toBeFalsy();
         });
     });
 
@@ -231,26 +231,26 @@ describe('utilities', function () {
     });
 
     describe('isOntologyClass', function() {
-        it('is robust against nodes without an id', function() {
-            const node = new Subject();
-            expect(isOntologyClass(node)).toBeFalsy();
+        it('is robust against Subjects without an id', function() {
+            const subject = new Subject();
+            expect(isOntologyClass(subject)).toBeFalsy();
         });
     });
 
     describe('isBlank', function() {
         it('detects blank nodes', function() {
-            const node = new Subject({'@id': '_:b0'});
-            expect(isBlank(node)).toBeTruthy();
+            const subject = new Subject({'@id': '_:b0'});
+            expect(isBlank(subject)).toBeTruthy();
         });
 
         it('passes URI nodes', function() {
-            const node = new Subject({'@id': 'http://example.com/'});
-            expect(isBlank(node)).toBeFalsy();
+            const subject = new Subject({'@id': 'http://example.com/'});
+            expect(isBlank(subject)).toBeFalsy();
         });
 
         it('does not replace .isNew()', function() {
-            const node = new Subject();
-            expect(isBlank(node)).toBeFalsy();
+            const subject = new Subject();
+            expect(isBlank(subject)).toBeFalsy();
         });
     });
 
@@ -271,12 +271,12 @@ describe('utilities', function () {
         describe('transitiveClosure', function() {
             beforeEach(init);
             beforeEach(function() {
-                this.traverseLikes = node => {
-                    return (node.get('likes') || []).map(this.select) as Subject[];
+                this.traverseLikes = subject => {
+                    return (subject.get('likes') || []).map(this.select) as Subject[];
                 };
             });
 
-            it('finds all Nodes connected by a given relation', function() {
+            it('finds all Subjects connected by a given relation', function() {
                 const seed = ['cat', 'dog'].map(this.select) as Subject[];
                 expectIds(transitiveClosure(seed, this.traverseLikes), [
                     'bird', 'cat', 'cheese', 'dog', 'fish', 'mouse',

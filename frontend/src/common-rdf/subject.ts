@@ -47,7 +47,7 @@ export interface NativeArray extends Array<Native> { }
 
 // The Subject.get method can optionally filter by @type OR @language.
 // @language implies xsd:string, so the @type is ignored in this case.
-export interface NodeGetOptions {
+export interface SubjectGetOptions {
     '@type'?: string;
     '@language'?: string | string[];
 }
@@ -158,11 +158,11 @@ export default class Subject extends Model {
     }
 
     /**
-     * Override the get method to convert identifiers to Nodes.
+     * Override the get method to convert identifiers to Subjects.
      */
     get<T extends string>(
         key: T,
-        options?: NodeGetOptions,
+        options?: SubjectGetOptions,
     ): T extends '@id' ? string : NativeArray {
         let value = super.get(key);
         if (isArray(value) && key !== '@type') {
@@ -179,7 +179,7 @@ export default class Subject extends Model {
                     value = filter(value, typeFilter(type));
                 }
             }
-            return map(value, id2node.bind(this)) as T extends '@id' ? string : NativeArray;
+            return map(value, id2subject.bind(this)) as T extends '@id' ? string : NativeArray;
         }
         return value;
     }
@@ -248,7 +248,7 @@ extend(Subject.prototype, {
     },
 });
 
-export type NodeLike = string | Identifier | Subject;
+export type SubjectLike = string | Identifier | Subject;
 
 export function isSubject(candidate: any): candidate is Subject {
     return candidate instanceof Subject;
@@ -263,11 +263,11 @@ function asNativeArray(value: any, key: string): OptimizedNative {
     return map(array, asNative);
 }
 
-function id2node(value: OptimizedNative): Native {
+function id2subject(value: OptimizedNative): Native {
     if (has(value, '@id')) {
         return ldChannel.request('obtain', value) || new Subject(value);
     }
-    if (isArray(value)) return map(value, id2node.bind(this));
+    if (isArray(value)) return map(value, id2subject.bind(this));
     return value;
 }
 

@@ -42,9 +42,9 @@ export default class FlatAnnotationCollection extends FlatItemCollection {
     }
 
     /**
-     * Core operation that handles incoming nodes. Override from base class.
+     * Core operation that handles incoming subjects. Override from base class.
      *
-     * If `node` is certainly an `oa.Annotation`, a corresponding
+     * If `subject` is certainly an `oa.Annotation`, a corresponding
      * `FlatItem` is returned, otherwise `undefined`. The purpose of this
      * return value is that it may passed to the `add`, `set` or `reset` method.
      *
@@ -54,8 +54,8 @@ export default class FlatAnnotationCollection extends FlatItemCollection {
      * the behaviour will be the same as when you'd handle the return value
      * yourself, e.g. `{ silent: true }` if your intention is a `reset`.
      */
-    flatten(node: Subject, options?: any): FlatItem {
-        const types = node.get('@type') as string[];
+    flatten(subject: Subject, options?: any): FlatItem {
+        const types = subject.get('@type') as string[];
         if (!types) {
             // A keen observer may notice that we use `flattenPost` as the event
             // handler below and that `flattenPost` will call `flatten` again.
@@ -64,19 +64,19 @@ export default class FlatAnnotationCollection extends FlatItemCollection {
             // value, so it can only change to a value, so this `if` block will
             // not be entered again.
             this.listenToOnce(
-                node,
+                subject,
                 'change:@type',
-                () => this.flattenPost(node, options)
+                () => this.flattenPost(subject, options)
             );
             ++this._tracking;
         } else if (includes(types, oa.Annotation)) {
-            return super.flatten(node, options);
+            return super.flatten(subject, options);
         }
     }
 
     /**
      * Post-operation for the `flatten` method above if the `@type` of the
-     * `node` is not known initially.
+     * `subject` is not known initially.
      *
      * The calling context of `flatten` is not available anymore, so we cannot
      * return a value to the original caller. Instead, we simply `add` the
@@ -85,9 +85,9 @@ export default class FlatAnnotationCollection extends FlatItemCollection {
      * `reset`, we make sure to pass `options` to `add` in order to replicate
      * the intended behaviour.
      */
-    flattenPost(node: Subject, options: any): void {
+    flattenPost(subject: Subject, options: any): void {
         --this._tracking;
-        this.add(this.flatten(node, options), options);
+        this.add(this.flatten(subject, options), options);
         this._checkCompletion();
     }
 
@@ -95,25 +95,25 @@ export default class FlatAnnotationCollection extends FlatItemCollection {
      * Listener for the `'add'` event on `this.underlying`.
      * Override from base class to take tracking into account.
      */
-    proxyAdd(node: Subject): void {
-        // In case this `node` was added before, prevent duplicate event
+    proxyAdd(subject: Subject): void {
+        // In case this `subject` was added before, prevent duplicate event
         // handlers.
-        this.stopListening(node, 'change:@type');
+        this.stopListening(subject, 'change:@type');
         // Add it, potentially binding the event handler again.
-        super.proxyAdd(node);
+        super.proxyAdd(subject);
     }
 
     /**
      * Listener for the `'remove'` event on `this.underlying`.
      * Override from base class to take tracking into account.
      */
-    proxyRemove(node: Subject): void {
-        super.proxyRemove(node);
+    proxyRemove(subject: Subject): void {
+        super.proxyRemove(subject);
         // If the previous step was a no-op, we might still be listening for the
-        // `'change:@type'` event on `node` because of `flatten`. The next line
-        // ensures that a flat representation of `node` will not sneak into our
+        // `'change:@type'` event on `subject` because of `flatten`. The next line
+        // ensures that a flat representation of `subject` will not sneak into our
         // collection later.
-        this.stopListening(node);
+        this.stopListening(subject);
     }
 
     /**

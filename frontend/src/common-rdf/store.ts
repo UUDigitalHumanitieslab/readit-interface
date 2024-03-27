@@ -6,7 +6,7 @@ import { proxyRoot } from 'config.json';
 import { channelName } from './constants';
 import ldChannel from './radio';
 import { Identifier, isIdentifier, FlatLdDocument, FlatLdGraph } from './json';
-import Subject, { isSubject, NodeLike } from './subject';
+import Subject, { isSubject, SubjectLike } from './subject';
 import Graph, { ReadOnlyGraph } from './graph';
 
 export interface StoreVisitor<T> {
@@ -19,7 +19,7 @@ const fetchOptions = {
 };
 
 /**
- * Global graph that contains all Nodes ever fetched or created
+ * Global graph that contains all Subjects ever fetched or created
  * during application runtime. Meant to be used as a singleton
  * instance.
  */
@@ -50,7 +50,7 @@ export default class Store extends Graph {
     /**
      * Main interface. Ensures every @id is represented by a single unique Subject.
      */
-    obtain(id: NodeLike): Subject {
+    obtain(id: SubjectLike): Subject {
         const initialResult = this.get(id as string | Subject);
         if (isUndefined(initialResult)) {
             const placeholder = this.getPlaceholder(id);
@@ -63,7 +63,7 @@ export default class Store extends Graph {
     /**
      * Create, store and return a placeholder for a missing Subject.
      */
-    getPlaceholder(id: NodeLike): Subject {
+    getPlaceholder(id: SubjectLike): Subject {
         let placeholder;
         if (isSubject(id)) {
             placeholder = id;
@@ -133,11 +133,11 @@ export default class Store extends Graph {
     /**
      * Register a newly constructed Subject.
      */
-    register(node: Subject): this {
-        if (node.id) {
-            this._queueAddition(node);
+    register(subject: Subject): this {
+        if (subject.id) {
+            this._queueAddition(subject);
         } else {
-            node.once('change:@id', this._queueAddition.bind(this));
+            subject.once('change:@id', this._queueAddition.bind(this));
         }
         return this;
     }
@@ -168,10 +168,10 @@ export default class Store extends Graph {
     }
 
     /**
-     * Prevent stored Nodes from having their .collection set to this.
+     * Prevent stored Subjects from having their .collection set to this.
      */
-    private _preventSelfReference(node: Subject): void {
-        if (node.collection === this) delete node.collection;
+    private _preventSelfReference(subject: Subject): void {
+        if (subject.collection === this) delete subject.collection;
     }
 
     /**
@@ -184,13 +184,13 @@ export default class Store extends Graph {
     }
 
     /**
-     * Wrapper for .add to prevent duplicate nodes.
+     * Wrapper for .add to prevent duplicate subjects.
      */
-    private _queueAddition(node: Subject): void {
+    private _queueAddition(subject: Subject): void {
         if (this._concurrentSet) {
-            this._additionQueue.push(node);
+            this._additionQueue.push(subject);
         } else {
-            this.add(node);
+            this.add(subject);
         }
     }
 }

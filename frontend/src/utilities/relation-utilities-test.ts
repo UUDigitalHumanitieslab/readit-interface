@@ -43,9 +43,9 @@ function fallback(defaultValue) {
 
 // Produce an `ItemGraph` that pretends to have executed a query to the backend,
 // so that its `.ready` method can be used. In reality, we have just
-// prepopulated it with a fixed set of nodes.
-function fakeItemCache(nodes?: Array<Subject>) {
-    const graph = new ItemGraph(nodes);
+// prepopulated it with a fixed set of subjects.
+function fakeItemCache(subjects?: Array<Subject>) {
+    const graph = new ItemGraph(subjects);
     const fakeXHR = Promise.resolve(graph);
     graph.promise = fakeXHR as unknown as JQuery.jqXHR;
     return graph;

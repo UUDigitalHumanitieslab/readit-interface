@@ -20,7 +20,7 @@ import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FlatItem from './flat-item-model';
 
-interface NodeMap {
+interface SubjectMap {
     [key: string]: Subject;
 }
 
@@ -61,11 +61,11 @@ export function createPlaceholder(attributes): Subject {
     return new Subject(pick(attributes, '@id'));
 }
 
-function getPlaceholders(): NodeMap {
+function getPlaceholders(): SubjectMap {
     return mapValues(itemIndex, idx => createPlaceholder(itemAttributes[idx]));
 }
 
-function getFullItems(): NodeMap {
+function getFullItems(): SubjectMap {
     return mapValues(itemIndex, idx => new Subject(itemAttributes[idx]));
 }
 

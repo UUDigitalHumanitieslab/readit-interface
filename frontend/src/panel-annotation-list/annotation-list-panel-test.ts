@@ -16,8 +16,8 @@ describe('AnnotationListPanel', function() {
     beforeEach(function() {
         this.items = new Graph();
         this.flat = new FlatCollection(this.items);
-        const node = new Subject(mockSources);
-        this.model = new FlatItem(node);
+        const subject = new Subject(mockSources);
+        this.model = new FlatItem(subject);
         explorerChannel.reply('filter-hierarchy', constant(fakeHierarchy));
         explorerChannel.reply('filter-settings', () => ({
             hidden: new Collection(),

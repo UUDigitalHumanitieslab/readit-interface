@@ -24,12 +24,12 @@ export function getQuery(serial: string) {
     return model;
 }
 
-export function sourceWithoutAnnotations(control: Controller, node: Subject) {
-    return control.resetSource(node, false);
+export function sourceWithoutAnnotations(control: Controller, subject: Subject) {
+    return control.resetSource(subject, false);
 }
 
-export function sourceWithAnnotations(control: Controller, node: Subject) {
-    return control.resetSourcePair(node);
+export function sourceWithAnnotations(control: Controller, subject: Subject) {
+    return control.resetSourcePair(subject);
 }
 
 export function annotation(control: Controller, source: Subject, item: Subject) {
@@ -48,30 +48,30 @@ export function item(control: Controller, node: Subject) {
     return control.resetItem(node);
 }
 
-export function itemInEditMode(control: Controller, node: Subject) {
-    return control.editAnnotation(item(control, node), new FlatItem(node));
+export function itemInEditMode(control: Controller, subject: Subject) {
+    return control.editAnnotation(item(control, subject), new FlatItem(subject));
 }
 
-export function itemWithRelations(control: Controller, node: Subject) {
-    return control.listRelated(item(control, node), node);
+export function itemWithRelations(control: Controller, subject: Subject) {
+    return control.listRelated(item(control, subject), subject);
 }
 
-export function itemWithEditRelations(control: Controller, node: Subject) {
-    return control.editRelated(itemWithRelations(control, node), node);
+export function itemWithEditRelations(control: Controller, subject: Subject) {
+    return control.editRelated(itemWithRelations(control, subject), subject);
 }
 
-export function itemWithExternal(control: Controller, node: Subject) {
-    return control.listExternal(item(control, node), node);
+export function itemWithExternal(control: Controller, subject: Subject) {
+    return control.listExternal(item(control, subject), subject);
 }
 
-export function itemWithEditExternal(control: Controller, node: Subject) {
-    return control.editExternal(itemWithExternal(control, node));
+export function itemWithEditExternal(control: Controller, subject: Subject) {
+    return control.editExternal(itemWithExternal(control, subject));
 }
 
-export function itemWithOccurrences(control: Controller, node: Subject) {
+export function itemWithOccurrences(control: Controller, subject: Subject) {
     // listItemAnnotations does not return the created panel
     // see #342
-    control.listItemAnnotations(item(control, node), node);
+    control.listItemAnnotations(item(control, subject), subject);
 }
 
 export function searchResultsSources(control: Controller, queryParams: any) {

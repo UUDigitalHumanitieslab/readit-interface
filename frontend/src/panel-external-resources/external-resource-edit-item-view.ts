@@ -23,9 +23,9 @@ export default class ExternalResourceEditItem extends CompositeView {
     initialize() {
         this.url = this.model.get('object');
         this.predicates = new Graph( externalAttributes.map( attr =>  {
-            let node = new Subject();
-            node.set('@id', attr);
-            return node;
+            let subject = new Subject();
+            subject.set('@id', attr);
+            return subject;
         })
         );
         this.predicatePicker = new PickerView({collection: this.predicates});
