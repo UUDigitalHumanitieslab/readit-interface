@@ -98,7 +98,7 @@ describe('FlatItemCollection', function() {
         expect(this.flat.length).toBe(numItems);
         await event(this.flat, 'complete');
         // We expect no full completion because this.items includes
-        // uncompleteable nodes.
+        // uncompleteable subjects.
         expect(spy).toHaveBeenCalledTimes(2);
     });
 

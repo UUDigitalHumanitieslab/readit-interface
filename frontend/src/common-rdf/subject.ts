@@ -42,12 +42,12 @@ import {
 import { xsd } from './ns';
 
 type UnoptimizedNative = Exclude<OptimizedNative, Identifier | OptimizedNativeArray>;
-export type Native = UnoptimizedNative | Node | NativeArray;
+export type Native = UnoptimizedNative | Subject | NativeArray;
 export interface NativeArray extends Array<Native> { }
 
-// The Node.get method can optionally filter by @type OR @language.
+// The Subject.get method can optionally filter by @type OR @language.
 // @language implies xsd:string, so the @type is ignored in this case.
-export interface NodeGetOptions {
+export interface SubjectGetOptions {
     '@type'?: string;
     '@language'?: string | string[];
 }
@@ -59,7 +59,7 @@ export interface TypeFilter {
  * Representation of a single JSON-LD object with an @id.
  * Mostly for internal use, as the model type for Graph.
  */
-export default class Node extends Model {
+export default class Subject extends Model {
     /**
      * Original local context, if set. Access through this.context.
      */
@@ -158,11 +158,11 @@ export default class Node extends Model {
     }
 
     /**
-     * Override the get method to convert identifiers to Nodes.
+     * Override the get method to convert identifiers to Subjects.
      */
     get<T extends string>(
         key: T,
-        options?: NodeGetOptions,
+        options?: SubjectGetOptions,
     ): T extends '@id' ? string : NativeArray {
         let value = super.get(key);
         if (isArray(value) && key !== '@type') {
@@ -179,7 +179,7 @@ export default class Node extends Model {
                     value = filter(value, typeFilter(type));
                 }
             }
-            return map(value, id2node.bind(this)) as T extends '@id' ? string : NativeArray;
+            return map(value, id2subject.bind(this)) as T extends '@id' ? string : NativeArray;
         }
         return value;
     }
@@ -239,7 +239,7 @@ export default class Node extends Model {
     }
 }
 
-extend(Node.prototype, {
+extend(Subject.prototype, {
     idAttribute: '@id',
     sync,
     url(): string {
@@ -248,14 +248,14 @@ extend(Node.prototype, {
     },
 });
 
-export type NodeLike = string | Identifier | Node;
+export type SubjectLike = string | Identifier | Subject;
 
-export function isNode(candidate: any): candidate is Node {
-    return candidate instanceof Node;
+export function isSubject(candidate: any): candidate is Subject {
+    return candidate instanceof Subject;
 }
 
 /**
- * Implementation details of the Node class.
+ * Implementation details of the Subject class.
  */
 function asNativeArray(value: any, key: string): OptimizedNative {
     if (key === '@id') return value;
@@ -263,11 +263,11 @@ function asNativeArray(value: any, key: string): OptimizedNative {
     return map(array, asNative);
 }
 
-function id2node(value: OptimizedNative): Native {
+function id2subject(value: OptimizedNative): Native {
     if (has(value, '@id')) {
-        return ldChannel.request('obtain', value) || new Node(value);
+        return ldChannel.request('obtain', value) || new Subject(value);
     }
-    if (isArray(value)) return map(value, id2node.bind(this));
+    if (isArray(value)) return map(value, id2subject.bind(this));
     return value;
 }
 

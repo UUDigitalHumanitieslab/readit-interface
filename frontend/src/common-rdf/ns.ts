@@ -7,8 +7,8 @@ import Vocabulary from './vocabulary';
 
       import { rdfs } from '../common-rdf/ns';
 
-      let someNode = ...;  // imagine some instance of Node here
-      let theLabels = someNode.get(rdfs.label);
+      let someSubject = ...;  // imagine some instance of Subject here
+      let theLabels = someSubject.get(rdfs.label);
 
  * Note to users: this module is NOT a comprehensive listing of all
  * available terms in each vocabulary. Refer to the official

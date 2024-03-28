@@ -2,7 +2,7 @@ import { extend } from 'lodash';
 
 import { CompositeView } from '../core/view';
 import { schema } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import FlatItem from '../common-adapters/flat-item-model';
 import { getLabel } from '../utilities/linked-data-utilities';
 import IRIView from './iri-view';
@@ -22,7 +22,7 @@ export default class SelectorIRIView extends CompositeView<FlatItem> {
         this.render().listenTo(this.model, 'change', this.render);
     }
 
-    updateSource(model: FlatItem, source: Node): void {
+    updateSource(model: FlatItem, source: Subject): void {
         this.hyperlink && this.hyperlink.remove();
         this.hyperlink = new IRIView({ model: source });
     }

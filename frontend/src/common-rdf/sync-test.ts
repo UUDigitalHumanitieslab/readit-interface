@@ -17,7 +17,7 @@ import expandedData from './../mock-data/mock-expanded';
 import compactData from './../mock-data/mock-compact';
 import context from '../mock-data/mock-context';
 import Graph from './graph';
-import Node from './node';
+import Subject from './subject';
 
 describe('the core/sync module', function() {
     let request, expandedGraph;

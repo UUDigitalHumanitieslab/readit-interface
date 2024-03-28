@@ -23,7 +23,7 @@ describe('FlatAnnotationCollection', function() {
 
     afterEach(endStore);
 
-    it('remains empty until a Node is a confirmed annotation', async function(){
+    it('remains empty until a Subject is a confirmed annotation', async function(){
         expect(this.flat.length).toBe(0);
         await timeout(50);
         expect(this.flat.length).toBe(0);

@@ -3,7 +3,7 @@ import { $ } from 'backbone';
 import { onlyIf } from '../test-util';
 
 import { oa } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import FlatItem from '../common-adapters/flat-item-model';
 import SnippetView from './snippet-view';
 
@@ -19,7 +19,7 @@ describe('SnippetView', function() {
     const it = onlyIf(document.createElement('canvas').getContext('2d'), 'This suite depends on the <canvas> element.');
 
     beforeEach(function() {
-        this.selector = new Node(selectorAttributes);
+        this.selector = new Subject(selectorAttributes);
         this.flat = new FlatItem(this.selector);
     });
 

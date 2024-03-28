@@ -2,7 +2,7 @@ import { startStore, endStore, event } from '../test-util';
 import mockOntology from '../mock-data/mock-ontology';
 import mockItems from '../mock-data/mock-items';
 
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-annotation-collection';

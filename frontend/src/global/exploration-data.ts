@@ -6,9 +6,9 @@ import ldChannel from '../common-rdf/radio';
 import ItemGraph from '../common-adapters/item-graph';
 import SparqlSelectCollection from '../common-adapters/sparql-select-collection';
 import {
-    countNodesQuery,
-    nodesByUserQuery,
-    randomNodesQuery,
+    countSubjectsQuery,
+    subjectsByUserQuery,
+    randomSubjectsQuery,
 } from '../sparql/compile-query';
 
 import user from './user';
@@ -69,7 +69,7 @@ function lazyTrigger(collection, queryGen, onItems) {
     let trigger = true;
     return function() {
         if (trigger) {
-            if (queryGen === nodesByUserQuery) {
+            if (queryGen === subjectsByUserQuery) {
                 user.whenever('username', either);
             } else {
                 fetch();
@@ -87,11 +87,11 @@ function lazyTrigger(collection, queryGen, onItems) {
 // up-to-date. The `statistics` model will update at least 2 times; for the most
 // accurate presentation, simply re-render whenever it changes.
 ldChannel.reply({
-    'items:tally': lazyTrigger(itemTally, countNodesQuery, true),
-    'items:user': lazyTrigger(userItems, nodesByUserQuery, true),
-    'items:sample': lazyTrigger(randomItems, randomNodesQuery, true),
-    'sources:tally': lazyTrigger(sourceTally, countNodesQuery, false),
-    'sources:user': lazyTrigger(userSources, nodesByUserQuery, false),
-    'sources:sample': lazyTrigger(randomSources, randomNodesQuery, false),
+    'items:tally': lazyTrigger(itemTally, countSubjectsQuery, true),
+    'items:user': lazyTrigger(userItems, subjectsByUserQuery, true),
+    'items:sample': lazyTrigger(randomItems, randomSubjectsQuery, true),
+    'sources:tally': lazyTrigger(sourceTally, countSubjectsQuery, false),
+    'sources:user': lazyTrigger(userSources, subjectsByUserQuery, false),
+    'sources:sample': lazyTrigger(randomSources, randomSubjectsQuery, false),
     'statistics': constant(statistics),
 });

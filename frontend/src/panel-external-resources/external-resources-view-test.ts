@@ -1,11 +1,11 @@
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 
 import ExternalResourcesView from './external-resources-view';
 import { anno1ContentInstance } from '../mock-data/mock-items';
 
 describe('ExternalResourcesView', function() {
     beforeEach(function() {
-        this.model = new Node(anno1ContentInstance);
+        this.model = new Subject(anno1ContentInstance);
     });
 
     it('can be constructed in isolation', function() {

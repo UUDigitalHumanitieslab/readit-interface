@@ -5,7 +5,7 @@ import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
 import ldChannel from '../common-rdf/radio';
 import Graph from '../common-rdf/graph';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import MappedCollection from '../common-adapters/mapped-collection';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatCollection from '../common-adapters/flat-item-collection';
@@ -24,13 +24,13 @@ const combinedId = attr => `${attr.predicate.id}%%%${attr.object.id}`;
 
 export default class RelatedItemsView extends CollectionView {
     // Item of which we will display the related items.
-    model: Node;
+    model: Subject;
     // Properties from the ontology that apply to `model`.
     predicates: Graph;
     // `{predicate, object}` pairs to related items.
     relations: Collection;
     // Just the `object`s from `relations`. Noninjective mapping!
-    relatedItems: Collection<Node>;
+    relatedItems: Collection<Subject>;
     // Flattened version of `relatedItems`.
     relatedFlat: FlatCollection;
     // Serial number of `model`, i.e., the final part of its IRI.
@@ -75,7 +75,7 @@ export default class RelatedItemsView extends CollectionView {
         this.listenTo(this.model, 'change', this.updateRelations);
     }
 
-    updateRelations(model: Node): void {
+    updateRelations(model: Subject): void {
         if (!this.predicates) return;
         // TODO: Ideally, `relationsFromModel` should just return a collection
         // that stays in sync with the model.

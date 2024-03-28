@@ -4,7 +4,7 @@ import { onlyIf } from '../test-util';
 import loremIpsum from '../lorem-ipsum';
 import mockOntology from '../mock-data/mock-ontology';
 
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatItem from '../common-adapters/flat-item-model';
@@ -42,7 +42,7 @@ describe('TextSegmentView', function () {
     });
 
     beforeEach(function () {
-        this.annotation = new FlatItem(new Node());
+        this.annotation = new FlatItem(new Subject());
         this.annotation.set(attributes);
         this.segment = new Segment(attributes);
         this.view = new SegmentView({

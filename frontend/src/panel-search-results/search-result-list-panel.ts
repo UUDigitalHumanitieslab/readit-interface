@@ -24,8 +24,8 @@ function announce(): void {
     } else if (this.model) {
         announceAnno.call(this);
     } else {
-        const [qualifier, nodeType] = this.title.split(' ');
-        const route = `explore/${nodeType}${qualifier === 'My' ? '/mine' : ''}`;
+        const [qualifier, subjectType] = this.title.split(' ');
+        const route = `explore/${subjectType}${qualifier === 'My' ? '/mine' : ''}`;
         explorerChannel.trigger('currentRoute', route, this);
     }
 }

@@ -2,10 +2,10 @@ import { extend } from 'lodash';
 import { ViewOptions as BaseOpt } from 'backbone';
 
 import View from './../core/view';
-import Node from './../common-rdf/node';
+import Subject from '../common-rdf/subject';
 
 
-export interface ViewOptions extends BaseOpt<Node> {
+export interface ViewOptions extends BaseOpt<Subject> {
     first: View;
 }
 

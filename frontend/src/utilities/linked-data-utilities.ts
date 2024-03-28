@@ -3,7 +3,7 @@ import * as i18next from 'i18next';
 
 import ldChannel from '../common-rdf/radio';
 import { isIdentifier } from '../common-rdf/json';
-import Node, { isNode, NodeLike } from '../common-rdf/node';
+import Subject, { isSubject, SubjectLike } from '../common-rdf/subject';
 import Graph from '../common-rdf//graph';
 import {
     nlp, skos, rdf, rdfs, readit, dcterms, owl, schema, nsMap,
@@ -12,14 +12,14 @@ import {
 export const labelKeys = [skos.prefLabel, rdfs.label, skos.altLabel, readit('name'), dcterms.title];
 
 /**
- * Get a label from the node.
+ * Get a label from the subject.
  */
-export function getLabel(node: Node): string {
-    let labelKey = find(labelKeys, key => node.has(key));
-    if (labelKey) return node.get(labelKey, {
+export function getLabel(subject: Subject): string {
+    let labelKey = find(labelKeys, key => subject.has(key));
+    if (labelKey) return subject.get(labelKey, {
         '@language': i18next.languages,
     })[0] as string;
-    return getLabelFromId(node.get('@id'));
+    return getLabelFromId(subject.get('@id'));
 }
 
 /**
@@ -40,7 +40,7 @@ const turtleCache = {};
  * Obtain ns:term notation for terms in known namespaces.
  * Falls back to <http(s)://full-uri> notation for URIs in unknown namespaces.
  */
-export function getTurtleTerm(term: string | Node): string {
+export function getTurtleTerm(term: string | Subject): string {
     const uri = asURI(term);
     const memoizedTerm = turtleCache[uri];
     if (memoizedTerm) return memoizedTerm;
@@ -60,16 +60,16 @@ export const cssClassCache = {};
 const normalizePattern = /[ \(\)\/]/g;
 
 /**
- * Create a css class name based on the node's label.
+ * Create a css class name based on the subject's label.
  * Returns null if no label is found.
  */
-export function getCssClassName(node: Node): string {
-    if (!node) return undefined;
-    const id = node.id as string;
+export function getCssClassName(subject: Subject): string {
+    if (!subject) return undefined;
+    const id = subject.id as string;
     const className = cssClassCache[id];
     if (className) return className;
 
-    let label = getLabel(node);
+    let label = getLabel(subject);
     if (label) {
         label = label.replace(normalizePattern, '').toLowerCase();
         if (id && id.startsWith(nlp())) {
@@ -83,61 +83,61 @@ export function getCssClassName(node: Node): string {
 }
 
 /**
- * Helper to obtain the URI of something that may be either a Node or
+ * Helper to obtain the URI of something that may be either a Subject or
  * already a URI.
  */
-export function asURI(source: Node | string): string {
-    return isNode(source) ? source.id as string : source;
+export function asURI(source: Subject | string): string {
+    return isSubject(source) ? source.id as string : source;
 }
 
 /**
- * Check if a node is a rdfs:Class, i.e., has rdfs:Class or owl:Class as (one of
+ * Check if a subject is a rdfs:Class, i.e., has rdfs:Class or owl:Class as (one of
  * its) type(s) or has a non-empty rdfs:subClassOf property.
- * @param node The node to evaluate
+ * @param subject The subject to evaluate
  */
-export function isRdfsClass(node: Node): boolean {
-    return node.has(rdfs.subClassOf) || node.has('@type', owl.Class) || node.has('@type', rdfs.Class);
+export function isRdfsClass(subject: Subject): boolean {
+    return subject.has(rdfs.subClassOf) || subject.has('@type', owl.Class) || subject.has('@type', rdfs.Class);
 }
 
 /**
- * Check if a node is a rdf:Property, i.e., has rdf:Property or
+ * Check if a subject is a rdf:Property, i.e., has rdf:Property or
  * owl:ObjectProperty as (one of its) type(s) or has a non-empty
  * rdfs:subPropertyOf or owl:inverseOf property.
- * @param node The node to evaluate
+ * @param subject The subject to evaluate
  */
-export function isRdfProperty(node: Node): boolean {
-    return node.has(rdfs.subPropertyOf) || node.has(owl.inverseOf) || node.has('@type', rdf.Property) || node.has('@type', owl.ObjectProperty);
+export function isRdfProperty(subject: Subject): boolean {
+    return subject.has(rdfs.subPropertyOf) || subject.has(owl.inverseOf) || subject.has('@type', rdf.Property) || subject.has('@type', owl.ObjectProperty);
 }
 
 /**
- * Check whether a node is both colored and a class. A middle ground between
+ * Check whether a subject is both colored and a class. A middle ground between
  * `isRdfsClass` and `isAnnotationCategory`.
  */
-export function isColoredClass(node: Node): boolean {
-    return node.has(schema.color) && isRdfsClass(node);
+export function isColoredClass(subject: Subject): boolean {
+    return subject.has(schema.color) && isRdfsClass(subject);
 }
 
 /**
- * Check if a node is an annotation category used in the class picker when
+ * Check if a subject is an annotation category used in the class picker when
  * editing annotations.
- * @param node The node to evaluate
+ * @param subject The subject to evaluate
  */
-export function isAnnotationCategory(node: Node): boolean {
-    return isColoredClass(node) && !(node.get(owl.deprecated));
+export function isAnnotationCategory(subject: Subject): boolean {
+    return isColoredClass(subject) && !(subject.get(owl.deprecated));
 }
 
 /**
- * A GraphTraversal is a function that takes a single Node and
- * returns an array of Nodes.
- * (Most useful if the returned Nodes are somehow related to the
- * input Node.)
+ * A GraphTraversal is a function that takes a single Subject and
+ * returns an array of Subjects.
+ * (Most useful if the returned Subjects are somehow related to the
+ * input Subject.)
  */
 export interface GraphTraversal {
-    (node: Node): Node[];
+    (subject: Subject): Subject[];
 }
 
 /**
- * Collect all Nodes that are connected by a given relationship.
+ * Collect all Subjects that are connected by a given relationship.
  * "Transitive" means that you follow a relationship repeatedly. For
  * example, when you take the parents of your parents, you get your
  * grandparents; this is transitively following the "parent-of"
@@ -147,19 +147,19 @@ export interface GraphTraversal {
  * The transitive closure over parent-of, starting from you, is the
  * complete set of all your ancestors.
  * For an example of usage, see the predicateClosure source code.
- * @param seeds the Nodes from which to start following the relationship.
- * @param traverse a function that, given a Node, returns its related Nodes.
- * @return a deduplicated array of all related Nodes, including the seeds.
+ * @param seeds the Subjects from which to start following the relationship.
+ * @param traverse a function that, given a Subject, returns its related Subjects.
+ * @return a deduplicated array of all related Subjects, including the seeds.
  */
 export function transitiveClosure(
-    seeds: Node[],
+    seeds: Subject[],
     traverse: GraphTraversal
-): Node[] {
+): Subject[] {
     const fringe = new Graph(seeds);
     const newlyFound = new Graph();
     const finished = new Graph();
-    const addRelated = node => (
-        node && newlyFound.add(compact(traverse(node)))
+    const addRelated = subject => (
+        subject && newlyFound.add(compact(traverse(subject)))
     );
 
     while (!fringe.isEmpty()) {
@@ -183,8 +183,8 @@ export function transitiveClosure(
  * generated function.
  * @param predicate The predicate that will serve as the relationship.
  * @param direction The direction in which to traverse the predicate.
- * @return a function that takes an array of Nodes and returns the combined,
- *         deduplicated transitive closures of all Nodes in the input array.
+ * @return a function that takes an array of Subjects and returns the combined,
+ *         deduplicated transitive closures of all Subjects in the input array.
  */
 function predicateClosure(predicate: string, direction: 'S2O' | 'O2S') {
     function traverseS2O(cls) {
@@ -199,12 +199,12 @@ function predicateClosure(predicate: string, direction: 'S2O' | 'O2S') {
 
     const traverse = direction === 'S2O' ? traverseS2O : traverseO2S;
 
-    return function(clss: NodeLike[]): Node[] {
-        if (!clss || clss.length === 0) return clss as Node[];
+    return function(clss: SubjectLike[]): Subject[] {
+        if (!clss || clss.length === 0) return clss as Subject[];
         const seed = map(clss, cls => ldChannel.request('obtain', cls));
         // Next lines handle test environments without a store.
         if (seed[0] == null) return clss.map(cls =>
-            isNode(cls) ? cls : new Node(
+            isSubject(cls) ? cls : new Subject(
                 isIdentifier(cls) ? cls : { '@id': cls }
             )
         );
@@ -248,37 +248,37 @@ export
 const getRdfSuperProperties = predicateClosure(rdfs.subPropertyOf, 'S2O');
 
 /**
- * Check if a Node is an instance of (a subclass of) a specific type.
- * @param node The node to inspect.
+ * Check if a Subject is an instance of (a subclass of) a specific type.
+ * @param subject The subject to inspect.
  * @param type The expected type, e.g. (schema.CreativeWork).
- * @return true if node is an instance of type, false otherwise.
+ * @return true if subject is an instance of type, false otherwise.
  */
-export function isType(node: Node, type: string): boolean {
-    const initialTypes = node.get('@type') as string[];
+export function isType(subject: Subject, type: string): boolean {
+    const initialTypes = subject.get('@type') as string[];
     if (!initialTypes) return false;
     const allTypes = getRdfSuperClasses(initialTypes);
     return some(allTypes, { 'id': type });
 }
 
 /**
- * Check whether a Node is blank.
- * A blank node is a node that is neither a literal nor a URI. Note that this is different from a Node without an @id; this occurs only if the Node in question was created on the client side and was never saved to a server. The latter situation can be checked using aNode.isNew(). Such a Node may become either a URI or a blank node after saving. Saved blank nodes get a temporary placeholder @id from the parser, which serves to distinguish it from other blank nodes but which is not a valid URI. Conventionally, these temporary @ids start with `_:`. This function detects the latter situation.
+ * Check whether a Subject is blank.
+ * A blank node is a subject that is neither a literal nor a URI. Note that this is different from a Subject without an @id; this occurs only if the Subject in question was created on the client side and was never saved to a server. The latter situation can be checked using aSubject.isNew(). Such a Subject may become either a URI or a blank subject after saving. Saved blank nodes get a temporary placeholder @id from the parser, which serves to distinguish it from other blank nodes but which is not a valid URI. Conventionally, these temporary @ids start with `_:`. This function detects the latter situation.
  */
-export function isBlank(node: Node) {
-    if (!node.id) return false;
-    return (node.id as string).startsWith('_:');
+export function isBlank(subject: Subject) {
+    if (!subject.id) return false;
+    return (subject.id as string).startsWith('_:');
 }
 
 /**
- * Establish whether a node is in the ontology graph, i.e. is an ontology class
+ * Establish whether a subject is in the ontology graph, i.e. is an ontology class
  * (as opposed to an instance of one of the ontology's classes).
  * Note: this is too restrictive, ontology classes are not necessarily in the
  * READIT namespace. This function is not used in the application, so WONTFIX for now.
- * @param node The linked data item to investigate.
+ * @param subject The linked data item to investigate.
  */
-export function isOntologyClass(node: Node): boolean {
-    if (!isRdfsClass(node)) return false;
-    if (node.id) return (node.id as string).startsWith(readit());
+export function isOntologyClass(subject: Subject): boolean {
+    if (!isRdfsClass(subject)) return false;
+    if (subject.id) return (subject.id as string).startsWith(readit());
     return false;
 }
 

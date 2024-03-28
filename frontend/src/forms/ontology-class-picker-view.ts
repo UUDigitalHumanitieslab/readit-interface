@@ -1,7 +1,7 @@
 import { extend } from 'lodash';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatItem from '../common-adapters/flat-item-model';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import { skos } from '../common-rdf/ns';
 import { CollectionView } from '../core/view';
 import LabelView from '../label/label-view';
@@ -120,7 +120,7 @@ export default class OntologyClassPickerView extends CollectionView<
     }
 
     getPrefParent(node: FlatItem) {
-        return node.underlying.get(skos.related)[0] as Node;
+        return node.underlying.get(skos.related)[0] as Subject;
     }
 
     onSuperclassHovered(model: FlatItem) {

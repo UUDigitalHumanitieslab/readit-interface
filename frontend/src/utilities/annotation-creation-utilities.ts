@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import * as a$ from 'async';
 
-import Node, { isNode }  from '../common-rdf/node';
+import Subject, { isSubject }  from '../common-rdf/subject';
 import { oa, as, vocab, rdf, xsd, staff, dcterms, rdfs, schema, readit } from '../common-rdf/ns';
 import FlatItem from '../common-adapters/flat-item-model';
 import ItemGraph from '../common-adapters/item-graph';
@@ -20,11 +20,11 @@ const suffixLength = 100;
  * and doesn't have an @id. Ideal for passing a user selection('s Range) to
  * the AnnotationEditView.
  */
-export function getTextQuoteSelector(range: Range): Node {
+export function getTextQuoteSelector(range: Range): Subject {
     let prefix = getPrefix(range);
     let suffix = getSuffix(range);
 
-    let selector = new Node({
+    let selector = new Subject({
         '@id': _.uniqueId('_:'),
         '@type': [oa.TextQuoteSelector],
         [oa.exact]: [
@@ -41,11 +41,11 @@ export function getTextQuoteSelector(range: Range): Node {
 
 /**
  * For an existing annotation, clone its text quote selector
- * Creates new Node, so that we can edit the range for each annotation separately
+ * Creates new Subject, so that we can edit the range for each annotation separately
  * @param previousAnnotation: FlatItem
  */
 export function cloneTextQuoteSelector(previousAnnotation: FlatItem){
-    let selector = new Node({
+    let selector = new Subject({
         '@id': _.uniqueId('_:'),
         '@type': [oa.TextQuoteSelector],
         [oa.exact]: [
@@ -144,9 +144,9 @@ function errorFromXHR(callback) {
 }
 
 /**
- * Save an item to the backend. If succesful returns a Node with a guaranteed @id.
- * @param items Instance of ItemGraph used to .create a Node.
- * @param attributes Either a plain object { 'foo': 'bar' } or an instantiated Node.
+ * Save an item to the backend. If succesful returns a Subject with a guaranteed @id.
+ * @param items Instance of ItemGraph used to .create a Subject.
+ * @param attributes Either a plain object { 'foo': 'bar' } or an instantiated Subject.
  * @param done Callback function.
  */
 function createItem(items: ItemGraph, attributes: any, done?) {
@@ -161,7 +161,7 @@ function createItem(items: ItemGraph, attributes: any, done?) {
  */
 function createIfBlankOrNew(items: ItemGraph, attributes: any, done?) {
     if (attributes) {
-        if (!isNode(attributes)) attributes = new Node(attributes);
+        if (!isSubject(attributes)) attributes = new Subject(attributes);
         if (isBlank(attributes)) attributes.unset('@id');
         if (attributes.isNew()) return createItem(items, attributes, done);
         items.add(attributes);
@@ -171,7 +171,7 @@ function createIfBlankOrNew(items: ItemGraph, attributes: any, done?) {
 }
 
 function getPositionSelector(start: number, end: number){
-    return new Node({
+    return new Subject({
         '@id': _.uniqueId('_:'),
         '@type': oa.TextPositionSelector,
         [oa.start]: start,
@@ -179,8 +179,8 @@ function getPositionSelector(start: number, end: number){
     });
 }
 
-function getSpecificResource(source: Node, positionSelector: Node, textQuoteSelector: Node){
-    return new Node({
+function getSpecificResource(source: Subject, positionSelector: Subject, textQuoteSelector: Subject){
+    return new Subject({
         '@id': _.uniqueId('_:'),
         '@type': oa.SpecificResource,
         [oa.hasSource]: source,
@@ -190,9 +190,9 @@ function getSpecificResource(source: Node, positionSelector: Node, textQuoteSele
 
 function saveSpecificResource(
     items: ItemGraph,
-    target: Node,
-    [positionSelector]: [Node, unknown, unknown],
-    [quoteSelector]: [Node, unknown, unknown],
+    target: Subject,
+    [positionSelector]: [Subject, unknown, unknown],
+    [quoteSelector]: [Subject, unknown, unknown],
     done?
 ) {
     // Replace former blank node selectors by their respective IRIs.
@@ -203,15 +203,15 @@ function saveSpecificResource(
 
 function saveAnnotation(
     items: ItemGraph,
-    annotation: Node,
-    [target]: [Node, unknown, unknown],
-    item: [Node, unknown, unknown] | Node | undefined,
+    annotation: Subject,
+    [target]: [Subject, unknown, unknown],
+    item: [Subject, unknown, unknown] | Subject | undefined,
     done?
 ) {
     // Erase the old blank node item reference if applicable.
     const blankBody = _.find(annotation.get(oa.hasBody), isBlank);
     if (blankBody) annotation.unset(oa.hasBody, blankBody);
-    if (item) annotation.set(oa.hasBody, isNode(item) ? item : item[0]);
+    if (item) annotation.set(oa.hasBody, isSubject(item) ? item : item[0]);
     // Replace blank node target by IRI.
     annotation.unset(oa.hasTarget).set(oa.hasTarget, target);
     return createIfBlankOrNew(items, annotation, done);
@@ -221,13 +221,13 @@ function saveAnnotation(
  * Create a placeholder annotation, either by cloning from an existing FlatItem
  * or by creating one from scratch given a source and selection details.
  */
-export function createPlaceholderAnnotation(existing: FlatItem): Node;
+export function createPlaceholderAnnotation(existing: FlatItem): Subject;
 export function createPlaceholderAnnotation(
-    source: Node, range: Range, positionDetails: AnnotationPositionDetails
-): Node;
+    source: Subject, range: Range, positionDetails: AnnotationPositionDetails
+): Subject;
 export function createPlaceholderAnnotation(source, range?, positionDetails?) {
     let textQuoteSelector, positionSelector;
-    if (isNode(source)) { // "From scratch" mode.
+    if (isSubject(source)) { // "From scratch" mode.
         textQuoteSelector = getTextQuoteSelector(range);
         positionSelector = getPositionSelector(
             positionDetails.startIndex, positionDetails.endIndex
@@ -242,7 +242,7 @@ export function createPlaceholderAnnotation(source, range?, positionDetails?) {
     const specificResource = getSpecificResource(
         source, positionSelector, textQuoteSelector
     );
-    return new Node({
+    return new Subject({
         '@id': _.uniqueId('_:'),
         '@type': oa.Annotation,
         [oa.hasTarget]: specificResource,

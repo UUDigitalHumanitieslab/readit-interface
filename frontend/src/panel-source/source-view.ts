@@ -5,7 +5,7 @@ import { SubViewDescription } from 'backbone-fractal/dist/composite-view';
 import Model from '../core/model';
 import { CompositeView } from '../core/view';
 import { schema, vocab } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
 import ToggleMixin from '../category-colors/category-toggle-mixin';
@@ -33,7 +33,7 @@ function announce() {
 
 export interface ViewOptions extends BaseOpt<Model> {
     // An instance of vocab('Source').
-    model: Node;
+    model: Subject;
 
     // The collection of annotations (and the items representing their details)
     // associated with the source.
@@ -58,7 +58,7 @@ export interface ViewOptions extends BaseOpt<Model> {
  */
 interface SourcePanel extends ToggleMixin { }
 class SourcePanel extends CompositeView {
-    model: Node;
+    model: Subject;
     collection: FlatCollection;
     isEditable: boolean;
 

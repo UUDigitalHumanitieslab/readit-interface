@@ -3,7 +3,7 @@ import { extend } from 'lodash';
 import View from '../core/view';
 import { currentUserOwnsModel } from '../common-user/utilities';
 import { dcterms }  from '../common-rdf/ns';
-import Node, { isNode } from '../common-rdf/node';
+import Subject, { isSubject } from '../common-rdf/subject';
 import { getLabel, getTurtleTerm } from '../utilities/linked-data-utilities';
 import explorerChannel from '../explorer/explorer-radio';
 import i18nChannel from '../i18n/radio';
@@ -60,8 +60,8 @@ export default class MetadataView extends View {
             if (excludedProperties.includes(attributeLabel)) {
                 continue;
             }
-            let value: string | Node = this.model.get(attribute)[0];
-            if (isNode(value)) value = getLabel(value);
+            let value: string | Subject = this.model.get(attribute)[0];
+            if (isSubject(value)) value = getLabel(value);
             this.properties[attributeLabel] = value;
         }
         return this;

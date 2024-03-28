@@ -1,12 +1,12 @@
 import { extend } from 'lodash';
 
 import { CollectionView } from '../core/view';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 
 import ScopedIriHref from './scoped-iri-href-view';
 import template from './allowed-type-list-template';
 
-export default class AllowedTypesHelpText extends CollectionView<Node> {
+export default class AllowedTypesHelpText extends CollectionView<Subject> {
     initialize(): void {
         this.initItems().render().initCollectionEvents();
     }

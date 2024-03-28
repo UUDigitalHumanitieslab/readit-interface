@@ -2,15 +2,15 @@ import { map, invert, compact, throttle } from 'lodash';
 
 import mixin from '../core/mixin';
 import Collection from '../core/collection';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import ProxyMixin from './collection-proxy';
 import FlatItem from './flat-item-model';
 
-type GraphLike = Collection<Node>;
+type GraphLike = Collection<Subject>;
 
 /**
- * Adapter that represents Nodes from an underlying `Graph` as FlatItem models.
+ * Adapter that represents Subjects from an underlying `Graph` as FlatItem models.
  *
  * `'complete'` events triggered by models are forwarded by the collection, as
  * with all model events. In addition, a single `'complete:all'` event is
@@ -30,7 +30,7 @@ type GraphLike = Collection<Node>;
  * the previous focused item blurs automatically when a different item receives
  * focus.
  */
-interface FlatItemCollection extends ProxyMixin<Node, GraphLike> {}
+interface FlatItemCollection extends ProxyMixin<Subject, GraphLike> {}
 class FlatItemCollection extends Collection<FlatItem> {
     // Current tally of complete flat items.
     _complete: number;
@@ -101,35 +101,35 @@ class FlatItemCollection extends Collection<FlatItem> {
     }
 
     /**
-     * Core operation that handles incoming nodes. Can be overridden for more
+     * Core operation that handles incoming subjects. Can be overridden for more
      * specific behavior.
      */
-    flatten(node: Node, options?: any): FlatItem {
-        return new FlatItem(node);
+    flatten(subject: Subject, options?: any): FlatItem {
+        return new FlatItem(subject);
     }
 
     /**
      * Variant of `flatten` that can be used to prepare a `reset`. Useful as an
      * iteratee for `map`.
      */
-    flattenSilent(node: Node): FlatItem {
-        return this.flatten(node, { silent: true });
+    flattenSilent(subject: Subject): FlatItem {
+        return this.flatten(subject, { silent: true });
     }
 
     /**
      * Listener for the `'add'` event on `this._underlying`.
      */
-    proxyAdd(node: Node, graph?: GraphLike, options?: any): void {
-        this.add(this.flatten(node), options);
+    proxyAdd(subject: Subject, graph?: GraphLike, options?: any): void {
+        this.add(this.flatten(subject), options);
     }
 
     /**
      * Listener for the `'remove'` event on `this._underlying`.
      */
-    proxyRemove(node: Node): void {
-        // Find any flat representation of `node` and remove it. This might be a
+    proxyRemove(subject: Subject): void {
+        // Find any flat representation of `subject` and remove it. This might be a
         // no-op.
-        const flat = this.get(node.id);
+        const flat = this.get(subject.id);
         if (flat) {
             // A removed item cannot be in focus, so blur it first.
             flat.trigger('blur', flat);

@@ -1,7 +1,7 @@
 import { extend } from 'lodash';
 
 import { CompositeView } from '../core/view';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import { getLabel } from '../utilities/linked-data-utilities';
 import IRIView from './iri-view';
 import template from './labeled-iri-template';
@@ -9,9 +9,9 @@ import template from './labeled-iri-template';
 /**
  * Like IRIView, but also displays the label between parentheses after the IRI
  * if a label attribute is set. This view will compute a suitable label for any
- * bare Node.
+ * bare Subject.
  */
-export default class LabeledIRIView extends CompositeView<Node> {
+export default class LabeledIRIView extends CompositeView<Subject> {
     hyperlink: IRIView;
 
     initialize() {

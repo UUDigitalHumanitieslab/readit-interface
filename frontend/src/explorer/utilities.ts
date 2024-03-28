@@ -9,7 +9,7 @@ import routePatterns from './route-patterns';
  * Create an event handler that will report the route of the current
  * panel over the `explorerChannel`.
  * @param route Name of the route pattern (not the pattern itself)
- * @param path Property path relative to `this` to a `Node` from which the
+ * @param path Property path relative to `this` to a `Subject` from which the
  *             `':serial'` in the route pattern may be obtained.
  * @returns Function that will trigger 'currentRoute' on the `explorerChannel`.
  */

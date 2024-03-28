@@ -65,7 +65,7 @@ async function prefetch2() {
     ldChannel.request('items:tally');
     // We wait for the ontologies to arrive before fetching sources and items,
     // because this potentially prevents double requests if client code starts
-    // flattening the Nodes already before the ontologies arrive.
+    // flattening the Subjects already before the ontologies arrive.
     await Promise.all([gotOntology, gotNlpOntology]);
     ldChannel.request('sources:user');
     ldChannel.request('items:user');

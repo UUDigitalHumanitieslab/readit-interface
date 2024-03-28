@@ -3,7 +3,7 @@ import * as i18next from 'i18next';
 
 import Model from '../core/model';
 import { CompositeView } from '../core/view';
-import Node, { isNode } from '../common-rdf/node';
+import Subject, { isSubject } from '../common-rdf/subject';
 import FlatItem from '../common-adapters/flat-item-model';
 import FlatCollection from '../common-adapters/flat-annotation-collection';
 import explorerChannel from '../explorer/explorer-radio';
@@ -76,7 +76,7 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         bulkAttachTooltips(this, tooltips);
     }
 
-    processAnnotation(model: FlatItem, annotation: Node): void {
+    processAnnotation(model: FlatItem, annotation: Subject): void {
         this.dispose('annotationMetadataView');
         if (annotation) {
             this.annotationMetadataView = new ItemMetadataView({
@@ -86,12 +86,12 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         }
     }
 
-    processClass(model: FlatItem, cls: Node): void {
+    processClass(model: FlatItem, cls: Subject): void {
         this.dispose('lblView');
         if (cls) this.lblView = new LabelView({model, toolTipSetting: 'left'});
     }
 
-    processItem(model: FlatItem, item: Node): void {
+    processItem(model: FlatItem, item: Subject): void {
         this.dispose('itemMetadataView');
         const previousItem = model.previous('item');
         if (previousItem) this.stopListening(previousItem);
@@ -105,14 +105,14 @@ export default class AnnotationView extends CompositeView<FlatItem> {
         }
     }
 
-    collectDetails(item: Node): void {
+    collectDetails(item: Subject): void {
         this.properties = {};
         for (let attribute in item.attributes) {
             if (includes(excludedProperties, attribute)) continue;
             let attributeLabel = getLabelFromId(attribute);
             let valueArray = item.get(attribute);
             valueArray.forEach(value => {
-                if (!isNode(value)) {
+                if (!isSubject(value)) {
                     this.properties[attributeLabel] = value;
                 }
             });

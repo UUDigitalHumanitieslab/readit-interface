@@ -1,7 +1,7 @@
 import { extend, map } from 'lodash';
 
 import { CompositeView } from '../core/view';
-import Node, { isNode } from '../common-rdf/node';
+import Subject, { isSubject } from '../common-rdf/subject';
 import { rdfs, owl } from '../common-rdf/ns';
 import explorerChannel from '../explorer/explorer-radio';
 import { announceRoute } from '../explorer/utilities';
@@ -16,7 +16,7 @@ const externalAttributes = [
 
 const announce = announceRoute('item:external', ['model', 'id']);
 
-export default class ExternalResourcesView extends CompositeView<Node> {
+export default class ExternalResourcesView extends CompositeView<Subject> {
     initialize() {
         this.render().listenTo(this.model, 'change', this.render);
         this.on('announceRoute', announce);
@@ -30,7 +30,7 @@ export default class ExternalResourcesView extends CompositeView<Node> {
                 label: getLabelFromId(attribute),
                 urls: map(
                     model.get(attribute),
-                    url => isNode(url) ? url.id : url
+                    url => isSubject(url) ? url.id : url
                 ),
             }
         });

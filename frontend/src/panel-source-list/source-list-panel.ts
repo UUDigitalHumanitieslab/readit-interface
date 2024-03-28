@@ -10,6 +10,7 @@ import routePatterns from '../explorer/route-patterns';
 import SourceListView from './source-list-view';
 import SourceListPanelTemplate from './source-list-panel-template';
 import PaginationView from '../pagination/pagination-view';
+import Subject from "../common-rdf/subject";
 
 const searchURL = baseUrl + 'source/search';
 const resultsURL = baseUrl + 'source/results_count';
@@ -84,7 +85,7 @@ export default class SourceListPanel extends CompositeView {
         return this;
     }
 
-    onSourceClicked(model: Node): this {
+    onSourceClicked(model: Subject): this {
         explorerChannel.trigger('source-list:click', this, model);
         return this;
     }

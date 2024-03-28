@@ -3,7 +3,7 @@ import { extend, after } from 'lodash';
 import { CompositeView } from '../core/view';
 import { schema } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import LabelView from '../label/label-view';
 import FlatItem from '../common-adapters/flat-item-model';
 import SnippetView from '../snippet/snippet-view';
@@ -21,18 +21,18 @@ export default class SearchResultAnnotationView extends CompositeView<FlatItem> 
         return this;
     }
 
-    processSource(model: FlatItem, source: Node): void {
+    processSource(model: FlatItem, source: Subject): void {
         source.when(schema('name'), this.processTitle, this);
         source.when('@type', this.processLabel, this);
         this.delayedRender = after(2, this.render);
     }
 
-    processTitle(source: Node, [title]: string[]): void {
+    processTitle(source: Subject, [title]: string[]): void {
         this.model.set({ title });
         this.delayedRender();
     }
 
-    processLabel(source: Node, [firstType]: string[]): void {
+    processLabel(source: Subject, [firstType]: string[]): void {
         const sourceType = ldChannel.request('obtain', firstType);
         this.label = new LabelView({ model: sourceType });
         this.delayedRender();

@@ -15,7 +15,7 @@ import mockItems, { anno2ReaderInstance } from '../mock-data/mock-items';
 
 import ldChannel from '../common-rdf/radio';
 import { readit, item, skos, rdfs } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FlatItem from '../common-adapters/flat-item-model';
 import ItemGraph from '../common-adapters/item-graph';
@@ -43,9 +43,9 @@ function fallback(defaultValue) {
 
 // Produce an `ItemGraph` that pretends to have executed a query to the backend,
 // so that its `.ready` method can be used. In reality, we have just
-// prepopulated it with a fixed set of nodes.
-function fakeItemCache(nodes?: Array<Node>) {
-    const graph = new ItemGraph(nodes);
+// prepopulated it with a fixed set of subjects.
+function fakeItemCache(subjects?: Array<Subject>) {
+    const graph = new ItemGraph(subjects);
     const fakeXHR = Promise.resolve(graph);
     graph.promise = fakeXHR as unknown as JQuery.jqXHR;
     return graph;
@@ -67,7 +67,7 @@ describe('relation utilities', function() {
 
     describe('applicablePredicates', function() {
         it('returns the predicates applicable to a given item', function() {
-            const Blessington = new Node(anno2ReaderInstance);
+            const Blessington = new Subject(anno2ReaderInstance);
             const predicates = applicablePredicates(Blessington);
             expect(predicates.length).toBe(2);
             expect(predicates.at(0).get(skos.prefLabel)[0]).toBe('description of');
@@ -96,7 +96,7 @@ describe('relation utilities', function() {
             const inverse = mapValues(inverseRelated, (ids) =>
                 // The type annotation on the next line really shouldn't be
                 // necessary.
-                fakeItemCache(map(ids, getItem) as unknown as Node[])
+                fakeItemCache(map(ids, getItem) as unknown as Subject[])
             );
             const defaultEmpty = fallback(fakeItemCache());
             const fromInverse = propertyOf(inverse);
