@@ -20,7 +20,7 @@ export default class OntologyClassPickerView extends CollectionView<
     selected: FlatItem;
     label: any;
     externalCloseHandler: any;
-    leafSubjects: FilteredCollection<FlatItem>;
+    leafNodes: FilteredCollection<FlatItem>;
     childrenPicker: OntologyClassPickerChildrenView;
     collection: FilteredCollection<FlatItem>;
 
@@ -40,20 +40,20 @@ export default class OntologyClassPickerView extends CollectionView<
         return item;
     }
 
-    isLeaf(subject: FlatItem) {
-        return subject.underlying.has(skos.related);
+    isLeaf(node: FlatItem) {
+        return node.underlying.has(skos.related);
     }
 
-    isNonLeaf(subject) {
-        return !subject.underlying.has(skos.related);
+    isNonLeaf(node) {
+        return !node.underlying.has(skos.related);
     }
 
     /**
-     * Separate the ontology into leaf and non-leaf subjects
+     * Separate the ontology into leaf and non-leaf nodes
      * @param collection
      */
     filterOntology(collection) {
-        this.leafSubjects = new FilteredCollection<FlatItem>(collection, this.isLeaf);
+        this.leafNodes = new FilteredCollection<FlatItem>(collection, this.isLeaf);
         this.collection = new FilteredCollection<FlatItem>(collection, this.isNonLeaf);
     }
 
@@ -119,15 +119,15 @@ export default class OntologyClassPickerView extends CollectionView<
         return this;
     }
 
-    getPrefParent(subject: FlatItem) {
-        return subject.underlying.get(skos.related)[0] as Subject;
+    getPrefParent(node: FlatItem) {
+        return node.underlying.get(skos.related)[0] as Subject;
     }
 
     onSuperclassHovered(model: FlatItem) {
         this.$('.sub-content').addClass('is-hidden');
         this.$('.dropdown-item').removeClass('is-active');
-        const children = new FilteredCollection<FlatItem>(this.leafSubjects, subject => {
-            const prefParent = this.getPrefParent(subject);
+        const children = new FilteredCollection<FlatItem>(this.leafNodes, node => {
+            const prefParent = this.getPrefParent(node);
             return prefParent.id == model.id;
         });
         if (this.childrenPicker) this.childrenPicker.remove();

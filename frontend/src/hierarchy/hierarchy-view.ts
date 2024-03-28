@@ -49,7 +49,7 @@
  * HierarchyCollectionView. Each outer model is represented by the former while
  * each collection is represented by the latter. Each inner model is
  * represented by a view selected by the user; we call these terminal views,
- * although they may represent both internal subjects and leaf subjects of the
+ * although they may represent both internal nodes and leaf nodes of the
  * hierarchy. The user passes a `makeItem` function that will be responsible
  * for selecting and constructing the appropriate type of terminal view, given
  * an inner model.
