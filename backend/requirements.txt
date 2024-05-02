@@ -149,7 +149,7 @@ six==1.12.0
     #   pytest-xdist
 soupsieve==1.9.3
     # via beautifulsoup4
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via django
 tomli==2.0.1
     # via pytest
