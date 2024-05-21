@@ -129,7 +129,7 @@ rdflib==6.1.1
     #   restframework-rdf
 rdflib-django3==0.3.3
     # via -r requirements.in
-requests==2.31.0
+requests==2.32.0
     # via
     #   -r requirements.in
     #   django-allauth
