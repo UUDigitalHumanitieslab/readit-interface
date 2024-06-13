@@ -22,12 +22,11 @@ from rest_framework.reverse import reverse
 from rdflib import BNode, Graph, URIRef, Literal
 from rdflib.plugins.sparql import prepareQuery
 
-from elasticsearch import Elasticsearch
-
 from rdf.ns import *
 from rdf.views import RDFView, RDFResourceView
 from rdf.utils import graph_from_triples, prune_triples_cascade, get_conjunctive_graph, sample_graph
 from vocab import namespace as vocab
+from readit.elasticsearch import get_elasticsearch_client
 from staff.utils import submission_info
 from items.constants import ITEMS_NS
 from items.graph import graph as items_graph
@@ -40,8 +39,7 @@ from .models import SourcesCounter
 from .permissions import UploadSourcePermission, DeleteSourcePermission
 from .tasks import poll_automated_annotations
 
-es = Elasticsearch(
-    hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
+es = get_elasticsearch_client()
 
 # Get sources logger for logging on server
 logger = logging.getLogger(__name__)

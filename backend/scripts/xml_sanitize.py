@@ -20,11 +20,14 @@ if __name__ == '__main__':
     sys.exit()
 
 import logging
-from items.graph import graph as item_graph
-from sparql.utils import xml_sanitize_triple, find_invalid_xml, invalid_xml_remove
-from django.conf import settings
-from elasticsearch import Elasticsearch
 from os import environ
+
+from django.conf import settings
+
+from items.graph import graph as item_graph
+from readit.elasticsearch import get_elasticsearch_client
+from sparql.utils import xml_sanitize_triple, find_invalid_xml, invalid_xml_remove
+
 environ.setdefault('DJANGO_SETTINGS_MODULE', 'readit.settings')
 
 logger = logging.getLogger('scripts')
@@ -58,8 +61,7 @@ def clean_dirty_sources(sanitize=False):
     If sanitize=True, also cleans them
     """
     cnt = 0
-    es = Elasticsearch(
-        hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
+    es = get_elasticsearch_client()
     body = {
         "query": {
             "match_all": {}
