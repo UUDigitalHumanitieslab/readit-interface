@@ -153,7 +153,7 @@ sqlparse==0.5.0
     # via django
 tomli==2.0.1
     # via pytest
-tornado==6.3.3
+tornado==6.4.1
     # via django-livereload-server
 urllib3==1.26.18
     # via
