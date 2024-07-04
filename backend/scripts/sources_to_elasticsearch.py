@@ -9,9 +9,6 @@ Then:
 >>> text_to_index()
 """
 
-from django.conf import settings
-from django.core.files.storage import default_storage
-from readit.elasticsearch import get_elasticsearch_client
 if __name__ == '__main__':
     import sys
     print(__doc__)
@@ -22,7 +19,10 @@ from os.path import isfile, join
 
 environ.setdefault('DJANGO_SETTINGS_MODULE', 'readit.settings')
 
+from django.conf import settings
 from rdf.ns import SCHEMA, ISO6391
+
+from readit.elasticsearch import get_elasticsearch_client
 from sources.graph import graph as sources_graph
 from sources.utils import get_media_filename, get_serial_from_subject
 
