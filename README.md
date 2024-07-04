@@ -11,7 +11,7 @@ You need to install the following software (unless you use Docker):
  - Python >= 3.8
  - virtualenv
  - [Blazegraph][blazegraph] (see [notes in the backend README](backend/README.md#notes-for-setting-up-blazegraph))
- - Elasticsearch 7 (see [notes in the backend README](backend/README.md#setting-up-elasticsearch))
+ - Elasticsearch 8 (see [notes in the backend README](backend/README.md#setting-up-elasticsearch))
  - RabbitMQ or other message broker and Celery (see [notes](backend/README.md#setting-up-celery))
  - WSGI-compatible webserver (deployment only)
  - [Visual C++ for Python][1] (Windows only)

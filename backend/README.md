@@ -14,10 +14,10 @@ This is a server side web application based on [Django][1], [Django REST framewo
 You need to install the following software:
 
  - PostgreSQL >= 9.3, client, server and C libraries
- - Python >= 3.4, <= 3.6
+ - Python >= 3.8
  - virtualenv
  - [Apache Jena Fuseki][fuseki] (see [notes](#notes-for-setting-up-fuseki) below) (requires Java)
- -  - Elasticsearch 7 (see [notes](backend/README.md#setting-up-elasticsearch) below), (requires Java)
+ -  - Elasticsearch 8 (see [notes](backend/README.md#setting-up-elasticsearch) below), (requires Java)
  - RabbitMQ or other message broker and Celery (see [notes](backend/README.md#setting-up-celery) below)
  - WSGI-compatible webserver (deployment only)
  - [Visual C++ for Python][14] (Windows only)
@@ -64,7 +64,7 @@ In the interactive console, just two lines will do the trick:
 ```
 
 ### Setting up Elasticsearch
-Download Elasticsearch 7 from the Elastic [website](https://www.elastic.co/downloads/elasticsearch). Optionally, also download [Kibana](https://www.elastic.co/downloads/kibana) (for easier index management). Unzip to a location of your choice. Navigate to the location of Elasticsearch and start with `bin/elasticsearch` (requires JAVA). This will start up the Elasticsearch server at `localhost:9200`. If you wish to use another port, you can set this in the Elasticsearch settings (`config/elasticsearch.yml`). In that case, adjust the settings in the `settings.py` document to use the correct port.
+Download Elasticsearch 8 from the Elastic [website](https://www.elastic.co/downloads/elasticsearch). Optionally, also download [Kibana](https://www.elastic.co/downloads/kibana) (for easier index management). Unzip to a location of your choice. Navigate to the location of Elasticsearch and start with `bin/elasticsearch` (requires JAVA). This will start up the Elasticsearch server at `localhost:9200`. If you wish to use another port, you can set this in the Elasticsearch settings (`config/elasticsearch.yml`). In that case, adjust the settings in the `settings.py` document to use the correct port.
 
 #### Set up an Elasticsearch index
 Note: The following commands include localhost:9200. Omit everything until the first `/` after `PUT` or `POST` when using Kibana.
