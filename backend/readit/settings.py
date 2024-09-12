@@ -215,9 +215,12 @@ ACCOUNT_EMAIL_VERIFICATION = "optional"
 # Suppress warnings
 SILENCED_SYSTEM_CHECKS = ['urls.W002']
 
-ES_HOST = "localhost"
-ES_PORT = "9200"
-ES_ALIASNAME = "readit"
+
+ES_CONFIG = {
+    'host': os.getenv('ES_HOST', 'localhost'),
+    'port': 9200,
+    'alias_name': 'readit'
+}
 
 
 RESULTS_PER_PAGE = 2

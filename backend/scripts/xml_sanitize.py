@@ -20,10 +20,10 @@ if __name__ == '__main__':
     sys.exit()
 
 import logging
+from readit.es import elasticsearch
 from items.graph import graph as item_graph
 from sparql.utils import xml_sanitize_triple, find_invalid_xml, invalid_xml_remove
 from django.conf import settings
-from elasticsearch import Elasticsearch
 from os import environ
 environ.setdefault('DJANGO_SETTINGS_MODULE', 'readit.settings')
 
@@ -58,14 +58,13 @@ def clean_dirty_sources(sanitize=False):
     If sanitize=True, also cleans them
     """
     cnt = 0
-    es = Elasticsearch(
-        hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
+    es = elasticsearch()
     body = {
         "query": {
             "match_all": {}
         }
     }
-    results = es.search(body, index=settings.ES_ALIASNAME)
+    results = es.search(body, index=settings.ES_CONFIG['alias_name'])
     for res in results['hits']['hits']:
         text = res['_source']['text']
 
@@ -77,7 +76,7 @@ def clean_dirty_sources(sanitize=False):
                 updated_doc = {'doc': {
                     'text': cleaned
                 }}
-                es.update(settings.ES_ALIASNAME,
+                es.update(settings.ES_CONFIG['alias_name'],
                           id=res['_id'], body=updated_doc)
                 logger.warning('Cleaned source {}.'.format(
                     res['_source']['id']))
