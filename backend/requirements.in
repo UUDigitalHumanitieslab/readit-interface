@@ -1,12 +1,13 @@
 celery
 django>=3.2,<4
+django-allauth<0.55
 djangorestframework
 django-rest-auth[with_social]
 defusedxml<0.6.0
 django-livereload-server
 django-proxy
 django-cors-headers
-elasticsearch
+elasticsearch>7
 rdflib>6
 rdflib-django3
 requests

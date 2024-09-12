@@ -265,7 +265,7 @@ function matchType(
 // Regarding that protip from above... TS isn't always smart enough. This is the
 // return type of our exported `interpretText` function.
 export interface Interpretation {
-    // The `jsonld` field can be passed straight to `Node.set`.
+    // The `jsonld` field can be passed straight to `Subject.set`.
     jsonld: {
         '@value': string,
         '@type': string,

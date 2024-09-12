@@ -1,6 +1,6 @@
 import { asNative, asLD, ConversionError } from './conversion';
 import { xsd } from './ns';
-import Node from './node';
+import Subject from './subject';
 
 const bijectivePairs = [{
     native: 1,
@@ -87,10 +87,10 @@ describe('the conversion module', function() {
             });
         });
 
-        it('converts Nodes to Identifiers for efficiency', function() {
+        it('converts Subjects to Identifiers for efficiency', function() {
             const identifier = { '@id': '1' };
-            const node = new Node(identifier);
-            expect(asNative(node)).toEqual(identifier);
+            const subject = new Subject(identifier);
+            expect(asNative(subject)).toEqual(identifier);
             expect(asNative(identifier)).toEqual(identifier);
         });
     });

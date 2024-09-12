@@ -1,7 +1,7 @@
 import { enableI18n } from '../test-util';
 
 import Graph from '../common-rdf/graph';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import { FlatLdObject } from '../common-rdf/json';
 import { rdfs, skos, schema } from '../common-rdf/ns';
 import FilteredCollection from '../common-adapters/filtered-collection';
@@ -12,8 +12,8 @@ import CategoryColorsView from './category-colors-view';
 
 const fixedSuffix = `.is-readit-selection{background-color:${placeholderClass.get(schema.color)[0]}!important;}.hide-is-readit-selection.is-readit-selection,.hide-rit-any:not(.unhide-is-readit-selection).is-readit-selection{display:none!important;}.hide-rit-is-nlp.rit-is-nlp,.hide-rit-any:not(.unhide-rit-is-nlp).rit-is-nlp{display:none!important;}.hide-rit-is-semantic.rit-is-semantic,.hide-rit-any:not(.unhide-rit-is-semantic).rit-is-semantic{display:none!important;}.hide-rit-verified.rit-verified,.hide-rit-any:not(.unhide-rit-verified).rit-verified{display:none!important;}.hide-rit-unverified.rit-unverified,.hide-rit-any:not(.unhide-rit-unverified).rit-unverified{display:none!important;}.hide-rit-self-made.rit-self-made,.hide-rit-any:not(.unhide-rit-self-made).rit-self-made{display:none!important;}.hide-rit-other-made.rit-other-made,.hide-rit-any:not(.unhide-rit-other-made).rit-other-made{display:none!important;}`;
 
-function getDefaultNode(): Node {
-    return new Node(getDefaultAttributes());
+function getDefaultSubject(): Subject {
+    return new Subject(getDefaultAttributes());
 }
 
 function getDefaultAttributes(): FlatLdObject {
@@ -38,8 +38,8 @@ describe('CategoryColorsView', function () {
     beforeAll(enableI18n);
 
     beforeEach(function () {
-        const graph = new Graph([getDefaultNode()]);
-        const colored = new FilteredCollection<Node>(graph, isColoredClass);
+        const graph = new Graph([getDefaultSubject()]);
+        const colored = new FilteredCollection<Subject>(graph, isColoredClass);
         this.view = new CategoryColorsView({ collection: colored });
     });
 
@@ -64,15 +64,15 @@ describe('CategoryColorsView', function () {
     });
 
     it('renders a style tag with multiple CSS classes in it', function () {
-        let node1 = getDefaultNode();
+        let subject1 = getDefaultSubject();
 
         let attributes2 = getDefaultAttributes();
         attributes2['@id'] = 'anotherUniqueId';
         attributes2[skos.prefLabel] = [{ '@value': 'Test2' }];
         attributes2[schema.color] = [{ '@value': 'aliceblue' }];
-        let node2 = new Node(attributes2);
+        let subject2 = new Subject(attributes2);
 
-        let graph = new Graph([node1, node2]);
+        let graph = new Graph([subject1, subject2]);
         let view = new CategoryColorsView({ collection: graph });
 
         let html = view.$el.html();

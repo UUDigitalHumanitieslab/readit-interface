@@ -4,7 +4,7 @@ import { SubViewDescription } from 'backbone-fractal/dist/composite-view';
 
 import Model from '../core/model';
 import { CompositeView } from './../core/view';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import SegmentModel from '../highlight/text-segment-model';
 import SegmentCollection from '../highlight/text-segment-collection';
 import HighlightLayer from './highlight-layer-view';
@@ -90,7 +90,7 @@ export default class HighlightableTextView extends CompositeView {
     }
 
     getRectangle(target: Model): DOMRect | ClientRect {
-        if (target instanceof Node) {
+        if (target instanceof Subject) {
             target = this.collection.underlying.get(target.id);
         }
         const pos = {

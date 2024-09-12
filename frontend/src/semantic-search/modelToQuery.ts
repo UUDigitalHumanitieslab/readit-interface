@@ -29,7 +29,7 @@ import {
     nsTable,
 } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 
 import queryTemplate from './query-template';
 
@@ -106,13 +106,13 @@ function nextVariable(): string {
  * existing inverse is found. The latter mechanism is implemented in
  * `../utilities/relation-utilities.ts`.
  */
-export function serializePredicate(predicate: Node, ns: nsTable): string {
-    const inverse = predicate.get(owl.inverseOf) as Node[];
+export function serializePredicate(predicate: Subject, ns: nsTable): string {
+    const inverse = predicate.get(owl.inverseOf) as Subject[];
     if (inverse && inverse.length) return `^${serializeIri(inverse[0].id as string, ns)}`;
     return serializeIri(predicate.id as string, ns);
 }
 
-function serializePath(predicates: Node[], ns: nsTable): string {
+function serializePath(predicates: Subject[], ns: nsTable): string {
     return map(predicates, partial(serializePredicate, _, ns)).join(' / ');
 }
 
@@ -213,7 +213,7 @@ export function serializeChain(
     const chain = entry.get('chain');
     if (!chain) return;
     let lastAssertedType = '';
-    const predicates: Node[] = [];
+    const predicates: Subject[] = [];
     const args: string[] = [];
     let variableOut: string = variableIn;
     // Conceptually, a chain consists of zero or more property traversals,

@@ -2,7 +2,7 @@ import { enableI18n, event } from '../test-util';
 
 import { readit, rdfs, skos } from '../common-rdf/ns';
 import { FlatLdObject } from '../common-rdf/json';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import FlatItem from '../common-adapters/flat-item-model';
 
 import toTooltip from './tooltip-model';
@@ -27,7 +27,7 @@ function getDefaultAttributes(): FlatLdObject {
 }
 
 function getDefaultItem(): FlatItem {
-    return new FlatItem(new Node(getDefaultAttributes()));
+    return new FlatItem(new Subject(getDefaultAttributes()));
 }
 
 describe('Tooltip model adapter', function () {

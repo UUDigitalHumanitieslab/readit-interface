@@ -2,7 +2,7 @@ import { extend } from 'lodash';
 import { ViewOptions as BViewOptions } from 'backbone';
 
 import View from '../core/view';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import FlatItem from '../common-adapters/flat-item-model';
 
 import itemSummaryBlockTemplate from './item-summary-block-template';
@@ -10,8 +10,8 @@ import itemSummaryBlockTemplate from './item-summary-block-template';
 export interface ViewOptions extends BViewOptions {
     // The model is required. It should be either an annotation that has an item
     // body or just a bare item. In the first case, it should preferably be a
-    // flattened annotation, but it also works with a bare Node.
-    model: FlatItem | Node;
+    // flattened annotation, but it also works with a bare Subject.
+    model: FlatItem | Subject;
 }
 
 /**
@@ -27,7 +27,7 @@ export default class ItemSummaryBlockView extends View {
     }
 
     initialize(options: ViewOptions) {
-        if (this.model instanceof Node) {
+        if (this.model instanceof Subject) {
             this.model = new FlatItem(this.model);
         }
         this.setClasses = [];

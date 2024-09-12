@@ -23,12 +23,12 @@ function expectValue(
     expect(jsonld['@value']).withContext(text).toBe(value);
 }
 
-function idAsNode(id: string) {
+function idAsSubject(id: string) {
     return { '@id': id };
 }
 
 function makeRange(ids: string[]): Graph {
-    return new Graph(map(ids, idAsNode));
+    return new Graph(map(ids, idAsSubject));
 }
 
 describe('interpretText utility', function() {

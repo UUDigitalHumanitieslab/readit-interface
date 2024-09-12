@@ -26,7 +26,7 @@
  * Returns a Graph that will eventually contain the ontology. Will
  * cause a request if the ontology hasn't been fetched yet. Useful in
  * sync code that can wait until a later event in order to access the
- * ontology Nodes, or in sync code where it is reasonable to assume
+ * ontology Subjects, or in sync code where it is reasonable to assume
  * that the ontology has already been fetched.
 
     ldChannel.request('ontology:colored')
@@ -50,7 +50,7 @@ import { constant } from 'lodash';
 import Collection from '../core/collection';
 import ldChannel from '../common-rdf/radio';
 import { readit } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FilteredCollection from '../common-adapters/filtered-collection';
 import FlatItemCollection from '../common-adapters/flat-item-collection';
@@ -60,7 +60,7 @@ import { isColoredClass } from '../utilities/linked-data-utilities';
 const ontology = new Graph();
 export default ontology;
 let promise: PromiseLike<Graph> = null;
-export const coloredClasses = new FilteredCollection<Node, Graph>(
+export const coloredClasses = new FilteredCollection<Subject, Graph>(
     ontology, isColoredClass
 );
 export const flatColored = new FlatItemCollection(coloredClasses);

@@ -16,20 +16,17 @@ if __name__ == '__main__':
 
 from os import environ
 from os.path import isfile, join
-import html
 
 environ.setdefault('DJANGO_SETTINGS_MODULE', 'readit.settings')
-from django.conf import settings
-from django.core.files.storage import default_storage
-from elasticsearch import Elasticsearch
-from elasticsearch.client import IndicesClient
 
+from django.conf import settings
 from rdf.ns import SCHEMA, ISO6391
+
+from readit.elasticsearch import get_elasticsearch_client
 from sources.graph import graph as sources_graph
 from sources.utils import get_media_filename, get_serial_from_subject
 
-es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
-ind_client = IndicesClient(es)
+es = get_elasticsearch_client()
 
 def text_to_index():
     lang_predicate = SCHEMA.inLanguage
@@ -61,8 +58,7 @@ def text_to_index():
 
 def title_author_to_index():
     sg = sources_graph()
-    ind_client.put_mapping(index=settings.ES_ALIASNAME, body=
-    {
+    es.indices.put_mapping(index=settings.ES_ALIASNAME, body=    {
         "properties": {
             "author": {
                 "type": "text"

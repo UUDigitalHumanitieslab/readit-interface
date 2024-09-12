@@ -3,9 +3,9 @@ import { source, item, nsTable, nsMap } from '../common-rdf/ns';
 import userChannel from '../common-user/user-radio';
 
 import itemsTemplate from './query-templates/items-for-source-template';
-import countNodesTemplate from './query-templates/count-nodes-template';
-import nodesByUserTemplate from './query-templates/nodes-by-user-template';
-import randomNodesTemplate from './query-templates/random-nodes-template';
+import countNodesTemplate from './query-templates/count-subjects-template';
+import nodesByUserTemplate from './query-templates/subjects-by-user-template';
+import randomNodesTemplate from './query-templates/random-subjects-template';
 
 export interface OrderByOption {
     expression: string,
@@ -30,14 +30,14 @@ export function itemsForSourceQuery(
     return itemsTemplate(data);
 }
 
-export function countNodesQuery(
+export function countSubjectsQuery(
     itemQuery: boolean, options: SPARQLQueryOptions = {}
 ) {
     const data = { ...defaultOptions, itemQuery, ...options };
     return countNodesTemplate(data);
 }
 
-export function nodesByUserQuery(
+export function subjectsByUserQuery(
     itemQuery: boolean, options: SPARQLQueryOptions = {}
 ) {
     const userURI = userChannel.request('current-user-uri');
@@ -48,7 +48,7 @@ export function nodesByUserQuery(
     return nodesByUserTemplate(data);
 }
 
-export function randomNodesQuery(
+export function randomSubjectsQuery(
     itemQuery: boolean, options: SPARQLQueryOptions = { limit: 10 }
 ) {
     const nsLength = (itemQuery ? source() : item()).length;

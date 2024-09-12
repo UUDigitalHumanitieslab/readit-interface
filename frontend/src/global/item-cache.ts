@@ -7,11 +7,11 @@
  * pass a callback to the ItemGraph's .ready method or listen for the
  * 'sync' or 'update' event.
 
-    ldChannel.request('cache:items', rdfClass: Node | uri)
+    ldChannel.request('cache:items', rdfClass: Subject | uri)
 
  * Fetches all items of type `rdfClass`.
 
-    ldChannel.request('cache:inverse-related', item: Node | uri)
+    ldChannel.request('cache:inverse-related', item: Subject | uri)
 
  * Fetches all items inverse-related to `item`, i.e., all items that
  * have a triple in which `item` takes the object role.
@@ -19,7 +19,7 @@
 
 import ldChannel from '../common-rdf/radio';
 import { rdf } from '../common-rdf/ns';
-import Node, { isNode } from '../common-rdf/node';
+import Subject, { isSubject } from '../common-rdf/subject';
 import ItemGraph, { QueryParams } from '../common-adapters/item-graph';
 import { asURI } from '../utilities/linked-data-utilities';
 
@@ -50,7 +50,7 @@ function ensureCache(key: string, params: QueryParams) {
 /**
  * Handler for the 'cache:items' request.
  */
-function cacheByClass(cls: Node | string) {
+function cacheByClass(cls: Subject | string) {
     const clsId = asURI(cls);
     return ensureCache(`${byClass}-${clsId}`, {
         predicate: rdf.type,
@@ -61,7 +61,7 @@ function cacheByClass(cls: Node | string) {
 /**
  * Handler for the 'cache:inverse-related' request.
  */
-function cacheInverseRelated(item: Node | string) {
+function cacheInverseRelated(item: Subject | string) {
     const itemId = asURI(item);
     return ensureCache(`${inverse}-${itemId}`, {object: itemId});
 }

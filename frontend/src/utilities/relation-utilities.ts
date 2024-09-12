@@ -4,21 +4,21 @@ import Collection from '../core/collection';
 import ldChannel from '../common-rdf/radio';
 import { rdf, rdfs, owl, item } from '../common-rdf/ns';
 import Graph from '../common-rdf/graph';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import ItemGraph from '../common-adapters/item-graph';
 import { getLabel, getRdfSuperClasses } from '../utilities/linked-data-utilities';
 
 /**
  * Returns the inverse property of `direct` within the context of `ontology`.
  */
-export function getInverse(direct: Node, ontology: Graph): Node {
-    let inverse: Node | Node[] = direct.get(owl.inverseOf) as Node[];
+export function getInverse(direct: Subject, ontology: Graph): Subject {
+    let inverse: Subject | Subject[] = direct.get(owl.inverseOf) as Subject[];
     if (inverse) {
         inverse = inverse[0];
     } else {
         inverse = ontology.find({
             [owl.inverseOf]: direct,
-        } as unknown as ListIterator<Node, boolean>);
+        } as unknown as ListIterator<Subject, boolean>);
     }
     return inverse;
 }
@@ -26,8 +26,8 @@ export function getInverse(direct: Node, ontology: Graph): Node {
 /**
  * Helper for filtering properties by matching type of domain or range.
  */
-export function matchRelatee(direction: string, types: Node[]) {
-    return function(property: Node): boolean {
+export function matchRelatee(direction: string, types: Subject[]) {
+    return function(property: Subject): boolean {
         return some(types, t => property.has(direction, t));
     }
 }
@@ -37,7 +37,7 @@ export function matchRelatee(direction: string, types: Node[]) {
  * If `model` is a bare string, it is assumed to name the range type.
  * This function runs entirely sync.
  */
-export function applicablePredicates(model: Node | string): Graph {
+export function applicablePredicates(model: Subject | string): Graph {
     const seed = isString(model) ? [model] : model.get('@type') as string[];
     const allTypes = getRdfSuperClasses(seed);
     const predicates = new Graph();
@@ -47,7 +47,7 @@ export function applicablePredicates(model: Node | string): Graph {
     // predicates that can have model in object position (need inverse)
     ontology.filter(matchRelatee(rdfs.range, allTypes)).forEach(direct => {
         let inverse = getInverse(direct, ontology);
-        if (!inverse) inverse = new Node({
+        if (!inverse) inverse = new Subject({
             '@type': rdf.Property,
             [rdfs.label]: `inverse of ${getLabel(direct)}`,
             [owl.inverseOf]: direct,
@@ -64,10 +64,10 @@ export function applicablePredicates(model: Node | string): Graph {
 }
 
 /**
- * Converts individual Node attributes to (predicate, object) models.
+ * Converts individual Subject attributes to (predicate, object) models.
  * Some of the models are added async.
  */
-export function relationsFromModel(model: Node, predicates: Graph) {
+export function relationsFromModel(model: Subject, predicates: Graph) {
     const inverseRelated = ldChannel.request(
         'cache:inverse-related',
         model,
@@ -79,12 +79,12 @@ export function relationsFromModel(model: Node, predicates: Graph) {
     forEach(attributes, a => {
         const predicate = predicates.get(a);
         if (!predicate) return;
-        (model.get(a, {'@type': '@id'}) as Node[]).forEach(object =>
+        (model.get(a, {'@type': '@id'}) as Subject[]).forEach(object =>
             (object.id as string).startsWith(item()) && relations.add({predicate, object})
         );
     });
-    // Next, inverse relations sourced from other Nodes
-    const inverseMap: {[id: string]: Node} = {};
+    // Next, inverse relations sourced from other Subjects
+    const inverseMap: {[id: string]: Subject} = {};
     const inversePredicates = new Graph(compact(predicates.map(direct => {
         const inverse = getInverse(direct, ontology);
         if (!inverse) return;
@@ -92,13 +92,13 @@ export function relationsFromModel(model: Node, predicates: Graph) {
         return inverse;
     })));
     inverseRelated.ready(() => {
-        inverseRelated.forEach(node => {
-            const attributes = keys(node.attributes);
+        inverseRelated.forEach(subject => {
+            const attributes = keys(subject.attributes);
             attributes.forEach(a => {
                 const inverse = inversePredicates.get(a);
-                if (!inverse || !node.has(a, model)) return;
+                if (!inverse || !subject.has(a, model)) return;
                 const direct = inverseMap[inverse.id];
-                relations.add({predicate: direct, object: node});
+                relations.add({predicate: direct, object: subject});
             });
         });
         relations.trigger('complete', relations);

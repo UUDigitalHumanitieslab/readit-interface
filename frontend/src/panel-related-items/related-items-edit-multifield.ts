@@ -6,7 +6,7 @@ import Collection from '../core/collection';
 import { CollectionView } from '../core/view';
 import { owl } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import ItemGraph from '../common-adapters/item-graph';
 import { applicablePredicates, relationsFromModel } from '../utilities/relation-utilities';
@@ -21,7 +21,7 @@ const commitCallback = a$.asyncify(n => n.save());
  */
 export default
 class RelatedItemsMultifield extends CollectionView<Model, RelationEditor> {
-    model: Node;
+    model: Subject;
     predicates: Graph;
     changes: Collection;
 
@@ -78,7 +78,7 @@ class RelatedItemsMultifield extends CollectionView<Model, RelationEditor> {
         const affectedItems = new ItemGraph();
         this.changes.forEach(update => {
             const {action, predicate, object} = update.attributes;
-            let inverse: Node | Node[] = predicate.get(owl.inverseOf) as Node[];
+            let inverse: Subject | Subject[] = predicate.get(owl.inverseOf) as Subject[];
             if (inverse) {
                 inverse = inverse[0];
                 object[action](inverse.id, this.model);

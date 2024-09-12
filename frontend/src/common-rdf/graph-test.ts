@@ -16,7 +16,7 @@ describe('Graph', function() {
     });
 
     describe('parse', function() {
-        it('maps nodes through a merge request before returning', function() {
+        it('maps subjects through a merge request before returning', function() {
             const spy = jasmine.createSpy();
             ldChannel.reply('merge', spy);
             const result = graph.parse(mockItems, null);
@@ -54,9 +54,9 @@ describe('Graph', function() {
             expect(graph.filter([oa.hasBody, oa.motivatedBy]).length).toBe(5);
         });
 
-        it('pass node instances to the underlying algorithm', function() {
-            const node = graph.get(anno1Instance);
-            expect(graph.includes(node)).toBeTruthy();
+        it('pass subject instances to the underlying algorithm', function() {
+            const subject = graph.get(anno1Instance);
+            expect(graph.includes(subject)).toBeTruthy();
         });
     });
 });

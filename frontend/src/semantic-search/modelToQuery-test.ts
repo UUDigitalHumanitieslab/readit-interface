@@ -6,7 +6,7 @@ import mockOntology from '../mock-data/mock-ontology';
 import Model from '../core/model';
 import Collection from '../core/collection';
 import { rdf, rdfs, owl, xsd, readit, item } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 
 import modelToQuery, {
@@ -89,7 +89,7 @@ describe('semantic search query serialization', function() {
         it('uses caret notation for inverse properties', function() {
             const pr = this.property;
             const id = pr.id;
-            const inv = new Node({ [owl.inverseOf]: pr });
+            const inv = new Subject({ [owl.inverseOf]: pr });
             each([{}, {r: readit()}], function(ns) {
                 expect(serializePredicate(inv, ns))
                     .toBe(`^${serializeIri(id, ns)}`);

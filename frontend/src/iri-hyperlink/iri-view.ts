@@ -4,7 +4,7 @@ import { nsRoot } from 'config.json';
 import View from '../core/view';
 
 /**
- * A simple view that presents the IRI of a Node or FlatItem as a clickable
+ * A simple view that presents the IRI of a Subject or FlatItem as a clickable
  * hyperlink. If the IRI belongs to one of our own namespaces, it is
  * abbreviated. The link opens to a new tab.
  */

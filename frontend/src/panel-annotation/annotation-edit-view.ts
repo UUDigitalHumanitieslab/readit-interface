@@ -5,7 +5,7 @@ import { CompositeView } from '../core/view';
 import { currentUserOwnsModel } from '../common-user/utilities';
 import ldChannel from '../common-rdf/radio';
 import { oa, rdf, skos, vocab } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 
 import LinkedItemsCollectionView from '../item-edit/linked-items-collection-view';
@@ -50,7 +50,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     itemOptions: ItemGraph;
     itemCollectionView: LinkedItemsCollectionView;
     itemMultifield: Multifield;
-    originalBodies: Node[];
+    originalBodies: Subject[];
     ontologyClasses: Graph;
 
     initialize() {
@@ -83,8 +83,8 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         this.on('announceRoute', announce);
     }
 
-    processAnnotation(model: FlatItem, annotation: Node): void {
-        this.originalBodies = annotation.get(oa.hasBody) as Node[];
+    processAnnotation(model: FlatItem, annotation: Subject): void {
+        this.originalBodies = annotation.get(oa.hasBody) as Subject[];
         this.userIsOwner = currentUserOwnsModel(model);
         if (this.userIsOwner) this.render();
         this.needsVerification = model.get('needsVerification');
@@ -101,7 +101,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         return ontology;
     }
 
-    processClass(model: FlatItem, selClass: Node): void {
+    processClass(model: FlatItem, selClass: Subject): void {
         const cls = this.classPicker.collection._underlying.get(selClass.id);
         this.classPicker.select(cls);
         this.selectClass(cls);
@@ -252,7 +252,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         this.setItem(this.itemOptions.get(id));
     }
 
-    setItem(selectedItem?: Node): void {
+    setItem(selectedItem?: Subject): void {
         const previousItem = this.model.get('item');
         if (previousItem === selectedItem) return;
         const annotation = this.model.get('annotation');
@@ -264,7 +264,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
     }
 
     createItem(): this {
-        const item = new Node({
+        const item = new Subject({
             '@id': uniqueId('_:'),
             '@type': this.model.get('class').id,
             [skos.prefLabel]: '', // this prevents a failing getLabel
@@ -273,7 +273,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         return this;
     }
 
-    editItem(item?: Node): this {
+    editItem(item?: Subject): this {
         if (!item) {
             item = this.model.get('item');
         }
@@ -281,7 +281,7 @@ export default class AnnotationEditView extends CompositeView<FlatItem> {
         return this;
     }
 
-    setItemMultifield(item: Node): this {
+    setItemMultifield(item: Subject): this {
         if (this.itemCollectionView) this.itemCollectionView.remove();
         if (this.itemMultifield) this.itemMultifield.remove();
         this.itemCollectionView = new LinkedItemsCollectionView({

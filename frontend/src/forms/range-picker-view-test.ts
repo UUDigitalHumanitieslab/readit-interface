@@ -1,6 +1,6 @@
 import { startStore, endStore } from '../test-util';
 import { rdf, rdfs } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import RangePickerView from './range-picker-view';
 import { options } from './base-picker-view-test';
@@ -54,7 +54,7 @@ describe('RangePickerView', function() {
     beforeEach(startStore);
     beforeEach(function() {
         this.ontology = new Graph(ontologyWithSubclasses);
-        this.property = new Node(property);
+        this.property = new Subject(property);
         this.candidates = new Graph(options);
         expect(this.candidates.length).toBe(7);
     });

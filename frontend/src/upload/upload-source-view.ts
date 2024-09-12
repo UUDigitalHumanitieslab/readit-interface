@@ -1,6 +1,6 @@
 import { extend } from 'lodash';
 import View from '../core/view';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 
 import uploadSourceTemplate from './upload-source-template';
 
@@ -68,7 +68,7 @@ export default class UploadSourceFormView extends View {
         input.on('change', () => {
             let files = (input.get(0) as HTMLInputElement).files;
             if (files.length === 0) {
-                name.text('No file selected');            
+                name.text('No file selected');
             } else {
                 name.text(files[0].name);
                 label.text('Change file...');
@@ -91,7 +91,7 @@ export default class UploadSourceFormView extends View {
         event.preventDefault();
         var self = this;
         if (this.$el.valid()) {
-            let n = new Node();
+            let n = new Subject();
             n.save(this.$el.get(0), { url: "/source/add/" });
             n.once('sync', () => {
                 self.handleUploadSuccess();

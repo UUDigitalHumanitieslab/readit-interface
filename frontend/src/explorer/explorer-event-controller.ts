@@ -5,7 +5,7 @@ import * as i18next from 'i18next';
 import View from '../core/view';
 import Model from '../core/model';
 import Collection from '../core/collection';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import { oa, source } from '../common-rdf/ns';
 import ldChannel from '../common-rdf/radio';
 
@@ -48,14 +48,14 @@ class ExplorerEventController {
         this.explorerView = explorerView;
     }
 
-    pushSource(basePanel: View, source: Node): SourceView {
+    pushSource(basePanel: View, source: Subject): SourceView {
         const sourcePanel = createSourceView(source, true, true);
         this.explorerView.popUntil(basePanel).push(sourcePanel);
         source.on('destroy', () => this.explorerView.popUntil(basePanel));
         return sourcePanel;
     }
 
-    resetSource(source: Node, showHighlights: boolean): SourceView {
+    resetSource(source: Subject, showHighlights: boolean): SourceView {
         const sourcePanel = createSourceView(source, showHighlights, true);
         this.explorerView.reset(sourcePanel);
         source.on('destroy', this.resetBrowsePanel, this);
@@ -72,13 +72,13 @@ class ExplorerEventController {
         return listPanel;
     }
 
-    pushSourcePair(basePanel: View, source: Node): [SourceView, AnnotationListPanel] {
+    pushSourcePair(basePanel: View, source: Subject): [SourceView, AnnotationListPanel] {
         const sourcePanel = this.pushSource(basePanel, source);
         const listPanel = this.listSourceAnnotations(sourcePanel);
         return [sourcePanel, listPanel];
     }
 
-    resetSourcePair(source: Node): [SourceView, AnnotationListPanel] {
+    resetSourcePair(source: Subject): [SourceView, AnnotationListPanel] {
         const sourcePanel = this.resetSource(source, true);
         const listPanel = this.listSourceAnnotations(sourcePanel);
         return [sourcePanel, listPanel];
@@ -111,14 +111,14 @@ class ExplorerEventController {
         searchResults: SearchResultListPanel,
         result: FlatItem
     ) {
-        const annotation = result.get('annotation') as Node;
+        const annotation = result.get('annotation') as Subject;
         if (annotation || result.get('id').startsWith(source())) {
-            const source = annotation? result.get('source') as Node : result.get('item') as Node;
+            const source = annotation? result.get('source') as Subject : result.get('item') as Subject;
             const [sourcePanel,] = this.pushSourcePair(searchResults, source);
             const collection = sourcePanel.collection;
             if (annotation) {
                 sourcePanel.once('ready', () => {
-                    // `flat` represents the same underlying Node, but is a distinct
+                    // `flat` represents the same underlying Subject, but is a distinct
                     // FlatItem from `result`, since they come from distinct
                     // collections.
                     const flat = collection.get(annotation.id);
@@ -136,13 +136,13 @@ class ExplorerEventController {
         this.explorerView.popUntil(panel);
     }
 
-    openRelated(relView: RelatedItemsView, item: Node): AnnotationView {
+    openRelated(relView: RelatedItemsView, item: Subject): AnnotationView {
         const itemPanel = new AnnotationView({ model: new FlatItem(item) });
         this.explorerView.popUntil(relView).push(itemPanel);
         return itemPanel;
     }
 
-    editRelated(relView: RelatedItemsView, item: Node): RelatedEditView {
+    editRelated(relView: RelatedItemsView, item: Subject): RelatedEditView {
         const editView = new RelatedEditView({ model: item });
         this.explorerView.overlay(editView, relView);
         return editView;
@@ -158,13 +158,13 @@ class ExplorerEventController {
         return editView;
     }
 
-    listRelated(view: AnnotationView, item: Node): RelatedItemsView {
+    listRelated(view: AnnotationView, item: Subject): RelatedItemsView {
         const listView = new RelatedItemsView({ model: item });
         this.explorerView.popUntil(view).push(listView);
         return listView;
     }
 
-    listItemAnnotations(view: AnnotationView, item: Node): void {
+    listItemAnnotations(view: AnnotationView, item: Subject): void {
         const items = new ItemGraph();
         items.query({
             predicate: oa.hasBody,
@@ -181,7 +181,7 @@ class ExplorerEventController {
         this.explorerView.popUntil(view).push(resultView);
     }
 
-    listExternal(view: AnnotationView, item: Node): ExternalView {
+    listExternal(view: AnnotationView, item: Subject): ExternalView {
         const listView = new ExternalView({ model: item });
         this.explorerView.popUntil(view).push(listView);
         return listView;
@@ -225,8 +225,8 @@ class ExplorerEventController {
         // this.autoOpenRelationEditor(annotation.get('annotation'));
     }
 
-    autoOpenRelationEditor(annotation: Node): this {
-        const newItems = (annotation.get(oa.hasBody) as Node[])
+    autoOpenRelationEditor(annotation: Subject): this {
+        const newItems = (annotation.get(oa.hasBody) as Subject[])
             .filter(n => !isOntologyClass(n));
         if (newItems.length) {
             const item = newItems[0];
@@ -270,7 +270,7 @@ class ExplorerEventController {
         return newDetailView;
     }
 
-    resetItem(item: Node): AnnotationView {
+    resetItem(item: Subject): AnnotationView {
         let detailView = new AnnotationView({ model: new FlatItem(item) });
         this.explorerView.reset(detailView);
         return detailView;
@@ -291,7 +291,7 @@ class ExplorerEventController {
         delete sourceView['_annotationListPanel'];
     }
 
-    selectText(sourceView: SourceView, source: Node, range: Range, positionDetails: AnnotationPositionDetails): AnnoEditView {
+    selectText(sourceView: SourceView, source: Subject, range: Range, positionDetails: AnnotationPositionDetails): AnnoEditView {
         let listPanel = sourceView['_annotationListPanel'];
         if (!listPanel) {
             this.explorerView.popUntil(sourceView);
@@ -348,7 +348,7 @@ export default ExplorerEventController;
  * oa:TextQuoteSelectors and oa:TextPositionSelectors associated with the
  * specified source.
  */
-export function getItems(source: Node): ItemGraph {
+export function getItems(source: Subject): ItemGraph {
     const sparqlItems = new ItemGraph();
     const queryString = itemsForSourceQuery(asURI(source));
     sparqlItems.sparqlQuery(queryString);
@@ -361,7 +361,7 @@ export function getItems(source: Node): ItemGraph {
  * these will be added to the SourceView's collection when ready.
  */
 function createSourceView(
-    source: Node,
+    source: Subject,
     showHighlightsInitially?: boolean,
     isEditable?: boolean,
 ): SourceView {

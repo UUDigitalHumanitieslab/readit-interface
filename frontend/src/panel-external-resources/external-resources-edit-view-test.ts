@@ -1,4 +1,4 @@
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Model from '../core/model';
 
 import ExternalResourcesEditView from './external-resources-edit-view';
@@ -7,7 +7,7 @@ import { item } from '../common-rdf/ns';
 
 describe('ExternalResourceEditItemView', function() {
     beforeEach(function() {
-        this.model = new Node(anno1ContentInstance);
+        this.model = new Subject(anno1ContentInstance);
         this.view = new ExternalResourcesEditView({ model: this.model });
         this.changedModel = new Model({});
         this.changedModel.set('predicate', 'something');

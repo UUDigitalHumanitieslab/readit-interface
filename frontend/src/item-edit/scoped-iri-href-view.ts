@@ -1,13 +1,13 @@
 import { extend } from 'lodash';
 
 import View from '../core/view';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import { getTurtleTerm } from '../utilities/linked-data-utilities';
 
 /**
  * Simple view to display an IRI in ns:term notation as a clickable hyperlink.
  */
-export default class ScopedIriHyperlink extends View<Node> {
+export default class ScopedIriHyperlink extends View<Subject> {
     initialize(): void {
         this.render().listenTo(this.model, 'change:@id', this.render);
     }

@@ -16,12 +16,12 @@ import mockItems from '../mock-data/mock-items';
 import { skos, dcterms, oa, readit, nlp, item } from '../common-rdf/ns';
 import userChannel from '../common-user/user-radio';
 import { asNative } from '../common-rdf/conversion';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import FlatItem from './flat-item-model';
 
-interface NodeMap {
-    [key: string]: Node;
+interface SubjectMap {
+    [key: string]: Subject;
 }
 
 const itemAttributes = mockItems.slice(0, 5);
@@ -29,23 +29,23 @@ const itemKeys = 'annotation item target position text'.split(' ');
 const itemIndex = invert(itemKeys);
 
 const expectedFlatAttributes = {
-    annotation: jasmine.any(Node),
+    annotation: jasmine.any(Subject),
     id: item('100'),
-    class: jasmine.any(Node),
+    class: jasmine.any(Subject),
     classLabel: 'Content',
     cssClass: 'is-readit-content',
-    item: jasmine.any(Node),
+    item: jasmine.any(Subject),
     label: 'The Idler in France',
-    target: jasmine.any(Node),
-    source: jasmine.any(Node),
-    positionSelector: jasmine.any(Node),
+    target: jasmine.any(Subject),
+    source: jasmine.any(Subject),
+    positionSelector: jasmine.any(Subject),
     startPosition: 15,
     endPosition: 34,
-    quoteSelector: jasmine.any(Node),
+    quoteSelector: jasmine.any(Subject),
     text: 'The Idler in France',
     prefix: 'English descriptions of reading experiences <br><br> id_19 Titre : ',
     suffix: ' / by the countess of Blessington Auteur : Blessington,',
-    creator: jasmine.any(Node),
+    creator: jasmine.any(Subject),
     created: jasmine.any(Date),
     isOwn: false,
 };
@@ -57,16 +57,16 @@ const expectedFilterClasses = [
     'rit-other-made',
 ];
 
-export function createPlaceholder(attributes): Node {
-    return new Node(pick(attributes, '@id'));
+export function createPlaceholder(attributes): Subject {
+    return new Subject(pick(attributes, '@id'));
 }
 
-function getPlaceholders(): NodeMap {
+function getPlaceholders(): SubjectMap {
     return mapValues(itemIndex, idx => createPlaceholder(itemAttributes[idx]));
 }
 
-function getFullItems(): NodeMap {
-    return mapValues(itemIndex, idx => new Node(itemAttributes[idx]));
+function getFullItems(): SubjectMap {
+    return mapValues(itemIndex, idx => new Subject(itemAttributes[idx]));
 }
 
 // Helper to make a `FlatItem`'s `'complete'` event `await`-able.
@@ -92,7 +92,7 @@ describe('FlatItem', function() {
 
     it('flattens data that are there from the start', async function() {
         const items = getFullItems();
-        const ontologyClass = new Node(contentClass);
+        const ontologyClass = new Subject(contentClass);
         const spy = jasmine.createSpy();
         const flatAnno = new FlatItem(items.annotation);
         flatAnno.on('complete', spy);
@@ -106,7 +106,7 @@ describe('FlatItem', function() {
     describe('getFilterClasses', function() {
         it('produces an array of filterable CSS classes', async function() {
             const items = getFullItems();
-            const ontologyClass = new Node(contentClass);
+            const ontologyClass = new Subject(contentClass);
             const flatAnno = new FlatItem(items.annotation);
             await completion(flatAnno);
             expect(flatAnno.getFilterClasses()).toEqual(expectedFilterClasses);
@@ -115,7 +115,7 @@ describe('FlatItem', function() {
 
     it('completes without an item when no item is expected', async function() {
         const items = getFullItems();
-        const ontologyClass = new Node(contentClass);
+        const ontologyClass = new Subject(contentClass);
         items.annotation.unset(oa.hasBody, items.item);
         items.item.clear();
         const flatAnno = new FlatItem(items.annotation);
@@ -165,7 +165,7 @@ describe('FlatItem', function() {
                 const graph = new Graph(firstBatch);
                 const flatAnno = new FlatItem(graph.at(0));
                 await timeout(10);
-                graph.set(secondBatch as unknown as Node[]);
+                graph.set(secondBatch as unknown as Subject[]);
                 await completion(flatAnno);
                 expect(flatAnno.attributes).toEqual(expectedFlatAttributes);
                 expect(flatAnno.getFilterClasses())
@@ -176,11 +176,11 @@ describe('FlatItem', function() {
 
     it('updates the class and item after the fact', async function() {
         const items = getFullItems();
-        const ontologyClass = new Node(contentClass);
+        const ontologyClass = new Subject(contentClass);
         const flatAnno = new FlatItem(items.annotation);
         await completion(flatAnno);
 
-        const replacementItem = new Node({
+        const replacementItem = new Subject({
             '@id': item('1000'),
             '@type': ontologyClass.id,
             [skos.prefLabel]: {'@value': 'The slacker in Bohemia'},
@@ -197,7 +197,7 @@ describe('FlatItem', function() {
         expect(flatAnno.complete).toBe(true);
         expect(flatAnno.getFilterClasses()).toEqual(expectedFilterClasses);
 
-        const replacementClass = new Node(readerClass);
+        const replacementClass = new Subject(readerClass);
         items.annotation.unset(oa.hasBody, ontologyClass);
         expect(flatAnno.has('class')).toBeFalsy();
         const classEvent = event(flatAnno, 'change:cssClass');
@@ -215,7 +215,7 @@ describe('FlatItem', function() {
 
     it('cannot be tricked into completing multiple times', async function() {
         const items = getFullItems();
-        const ontologyClass = new Node(contentClass);
+        const ontologyClass = new Subject(contentClass);
         const flatAnno = new FlatItem(items.annotation);
         await completion(flatAnno);
         const spy = jasmine.createSpy();
@@ -233,7 +233,7 @@ describe('FlatItem', function() {
 
     it('deals with missing optional attributes', async function() {
         const items = getFullItems();
-        const ontologyClass = new Node(contentClass);
+        const ontologyClass = new Subject(contentClass);
         items.text.unset(oa.suffix);
         const flatAnno = new FlatItem(items.annotation);
         await completion(flatAnno);
@@ -243,8 +243,8 @@ describe('FlatItem', function() {
 
     it('recognizes items created by the current user', async function() {
         const items = getFullItems();
-        const ontologyClass = new Node(contentClass);
-        const userURI = (items.annotation.get(dcterms.creator)[0] as Node).id;
+        const ontologyClass = new Subject(contentClass);
+        const userURI = (items.annotation.get(dcterms.creator)[0] as Subject).id;
         userChannel.reply('current-user-uri', constant(userURI));
         const flatAnno = new FlatItem(items.annotation);
         await completion(flatAnno);
@@ -257,8 +257,8 @@ describe('FlatItem', function() {
 
     it('tracks the related class', async function() {
         const items = getFullItems();
-        const ontologyClass = new Node(contentClass);
-        const relatedClass = new Node(readerClass);
+        const ontologyClass = new Subject(contentClass);
+        const relatedClass = new Subject(readerClass);
         ontologyClass.set(skos.related, relatedClass);
         const flatAnno = new FlatItem(items.annotation);
         await completion(flatAnno);
@@ -269,7 +269,7 @@ describe('FlatItem', function() {
     });
 
     it('can flatten a bare item', async function() {
-        const ontologyClass = new Node(contentClass);
+        const ontologyClass = new Subject(contentClass);
         const items = getFullItems();
         const flatItem = new FlatItem(items.item);
         await completion(flatItem);
@@ -289,7 +289,7 @@ describe('FlatItem', function() {
     });
 
     it('can flatten a bare class', async function() {
-        const ontologyClass = new Node(contentClass);
+        const ontologyClass = new Subject(contentClass);
         const flatClass = new FlatItem(ontologyClass);
         await completion(flatClass);
         expect(flatClass.attributes).toEqual(assign({
@@ -319,7 +319,7 @@ describe('FlatItem', function() {
     });
 
     it('can flatten a bare property', async function() {
-        const ontologyProp = new Node(descriptionOfProperty);
+        const ontologyProp = new Subject(descriptionOfProperty);
         const flatProp = new FlatItem(ontologyProp);
         await completion(flatProp);
         expect(flatProp.attributes).toEqual({

@@ -4,7 +4,7 @@ import Model from '../core/model';
 import { CompositeView } from '../core/view';
 import ldChannel from '../common-rdf/radio';
 import { rdf } from '../common-rdf/ns';
-import Node from '../common-rdf/node';
+import Subject from '../common-rdf/subject';
 import Graph from '../common-rdf/graph';
 import PickerView from '../forms/base-picker-view';
 import RangePicker from '../forms/range-picker-view';
@@ -47,7 +47,7 @@ export default class RelationEditor extends CompositeView {
         this.model.set('object', picker.collection.get(id));
     }
 
-    resetObjectPicker(predicate: Node): this {
+    resetObjectPicker(predicate: Subject): this {
         if (this.objectPicker) {
             if (this.objectPicker.model === predicate) return this;
             this.objectPicker.remove();
@@ -62,21 +62,21 @@ export default class RelationEditor extends CompositeView {
         return this;
     }
 
-    createPicker(predicate: Node): RangePicker {
+    createPicker(predicate: Subject): RangePicker {
         return ldChannel.request('visit', store => new RangePicker({
             model: predicate,
             collection: store,
         }));
     }
 
-    predicateFromModel(model: Model, selectedPredicate?: Node): this {
+    predicateFromModel(model: Model, selectedPredicate?: Subject): this {
         selectedPredicate || (selectedPredicate = model.get('predicate'));
         if (!selectedPredicate) return this;
         this.predicatePicker.val(selectedPredicate.id as string);
         return this.resetObjectPicker(selectedPredicate);
     }
 
-    objectFromModel(model: Model, selectedObject?: Node): this {
+    objectFromModel(model: Model, selectedObject?: Subject): this {
         selectedObject || (selectedObject = model.get('object'));
         selectedObject && this.objectPicker.val(selectedObject.id as string)
         return this;
