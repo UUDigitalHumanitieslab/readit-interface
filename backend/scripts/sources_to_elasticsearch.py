@@ -9,6 +9,7 @@ Then:
 >>> text_to_index()
 """
 
+from django.conf import settings
 if __name__ == '__main__':
     import sys
     print(__doc__)
@@ -16,20 +17,19 @@ if __name__ == '__main__':
 
 from os import environ
 from os.path import isfile, join
-import html
+
+from readit.es import elasticsearch
 
 environ.setdefault('DJANGO_SETTINGS_MODULE', 'readit.settings')
-from django.conf import settings
-from django.core.files.storage import default_storage
-from elasticsearch import Elasticsearch
 from elasticsearch.client import IndicesClient
 
 from rdf.ns import SCHEMA, ISO6391
 from sources.graph import graph as sources_graph
 from sources.utils import get_media_filename, get_serial_from_subject
 
-es = Elasticsearch(hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
+es = elasticsearch()
 ind_client = IndicesClient(es)
+
 
 def text_to_index():
     lang_predicate = SCHEMA.inLanguage
@@ -40,7 +40,7 @@ def text_to_index():
             "query" : {
                 "term" : { "id" : serial }
             }
-        }, index=settings.ES_ALIASNAME)
+        }, index=settings.ES_CONFIG['alias_name'])
         if result['hits']['total']['value'] > 0:
             continue
         filename = join(settings.MEDIA_ROOT, get_media_filename(serial))
@@ -50,7 +50,7 @@ def text_to_index():
         language = resolve_language(language_object)
         with open(filename, 'r', encoding='utf8') as f:
             text = f.read()
-        es.index(settings.ES_ALIASNAME, {
+        es.index(settings.ES_CONFIG['alias_name'], {
             'id': serial,
             'language': language,
             'text': text,
@@ -60,8 +60,7 @@ def text_to_index():
 
 def title_author_to_index():
     sg = sources_graph()
-    ind_client.put_mapping(index=settings.ES_ALIASNAME, body=
-    {
+    ind_client.put_mapping(index=settings.ES_CONFIG['alias_name'], body=    {
         "properties": {
             "author": {
                 "type": "text"
@@ -79,12 +78,12 @@ def title_author_to_index():
         document = es.search(body={
             "query" : {
                 "term" : { "id" : serial }
-            }}, index=settings.ES_ALIASNAME)
+            }}, index=settings.ES_CONFIG['alias_name'])
         if document['hits']['total']['value']==0:
             print("serial {} not found in the index".format(serial))
             continue
         source_id = document['hits']['hits'][0]['_id']
-        es.update(index=settings.ES_ALIASNAME, id=source_id, body={
+        es.update(index=settings.ES_CONFIG['alias_name'], id=source_id, body={
             "doc": {
                 "author": author,
                 "title": title

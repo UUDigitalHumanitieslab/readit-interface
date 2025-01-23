@@ -22,8 +22,7 @@ from rest_framework.reverse import reverse
 from rdflib import BNode, Graph, URIRef, Literal
 from rdflib.plugins.sparql import prepareQuery
 
-from elasticsearch import Elasticsearch
-
+from readit.es import elasticsearch
 from rdf.ns import *
 from rdf.views import RDFView, RDFResourceView
 from rdf.utils import graph_from_triples, prune_triples_cascade, get_conjunctive_graph, sample_graph
@@ -40,8 +39,7 @@ from .models import SourcesCounter
 from .permissions import UploadSourcePermission, DeleteSourcePermission
 from .tasks import poll_automated_annotations
 
-es = Elasticsearch(
-    hosts=[{'host': settings.ES_HOST, 'port': settings.ES_PORT}])
+es = elasticsearch()
 
 # Get sources logger for logging on server
 logger = logging.getLogger(__name__)
@@ -116,7 +114,7 @@ def inject_fulltext(input, inline, request):
                 "query": {
                     "term": {"id": serial}
                 }
-            }, index=settings.ES_ALIASNAME)
+            }, index=settings.ES_CONFIG['alias_name'])
             f = result['hits']['hits'][0]['_source']['text']
             text_triples.add((s, SCHEMA.text, Literal(f)))
         else:
@@ -147,7 +145,7 @@ class SourceSelection(RDFView):
         page = request.GET.get('page')
         if page:
             from_value = (int(page)-1) * settings.RESULTS_PER_PAGE
-        results = es.search(body=body, index=settings.ES_ALIASNAME,
+        results = es.search(body=body, index=settings.ES_CONFIG['alias_name'],
                             size=settings.RESULTS_PER_PAGE, from_=from_value)
         if results['hits']['total']['value'] == 0:
             return Graph()
@@ -173,7 +171,7 @@ class SourceHighlights(RDFView):
             raise NotFound
         serial = get_serial_from_subject(source)
         body = self.construct_es_body(serial, query, fields)
-        results = es.search(body=body, index=settings.ES_ALIASNAME)
+        results = es.search(body=body, index=settings.ES_CONFIG['alias_name'])
         try:
             highlights = results['hits']['hits'][0]['highlight']
         except KeyError:
@@ -263,7 +261,7 @@ class SourcesAPISingular(RDFResourceView):
         )
         serial = get_serial_from_subject(source_uri)
         es.delete_by_query(
-            index=settings.ES_ALIASNAME,
+            index=settings.ES_CONFIG['alias_name'],
             body={"query": {
                 "match": {
                     "id": serial
@@ -280,7 +278,7 @@ def source_fulltext(request, serial, query=None):
             "term": {"id": serial}
         }
     }
-    result = es.search(body=body, index=settings.ES_ALIASNAME)
+    result = es.search(body=body, index=settings.ES_CONFIG['alias_name'])
     if result:
         f = result['hits']['hits'][0]['_source']['text']
         return HttpResponse(f, content_type='text/plain; charset=utf-8')
@@ -316,7 +314,7 @@ class AddSource(RDFResourceView):
         raw_text = str(source_file.read().decode('utf8'))
         xml_sanitized_text = invalid_xml_remove(raw_text)
         text = html.escape(xml_sanitized_text)
-        es.index(settings.ES_ALIASNAME, {
+        es.index(settings.ES_CONFIG['alias_name'], {
             'id': source_id,
             'language': source_language,
             'author': author,
@@ -481,7 +479,8 @@ def construct_es_body(request):
 
 def get_number_search_results(request):
     body = construct_es_body(request)
-    results = es.search(body=body, index=settings.ES_ALIASNAME, size=0)
+    results = es.search(
+        body=body, index=settings.ES_CONFIG['alias_name'], size=0)
     response = {'total_results': results['hits']['total']
                 ['value'], 'results_per_page': settings.RESULTS_PER_PAGE}
     return JsonResponse(response)
