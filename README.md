@@ -1,7 +1,8 @@
 # READ-IT
 
-Public interface for READ-IT
+[![DOI](https://zenodo.org/badge/141561607.svg)](https://doi.org/10.5281/zenodo.17093249)
 
+Public interface for READ-IT
 
 ## Before you start
 

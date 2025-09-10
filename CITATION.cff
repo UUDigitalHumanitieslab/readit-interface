@@ -1,0 +1,106 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: READ-IT interface
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - name: >-
+      Research Software Lab, Centre for Digital Humanities,
+      Utrecht University
+    website: >-
+      https://cdh.uu.nl/centre-for-digital-humanities/research-software-lab/
+    city: Utrecht
+    country: NL
+  - given-names: Brigitte
+    family-names: Ouvry-Vial
+    affiliation: Université du Maine Le Mans France
+    orcid: 'https://orcid.org/0000-0002-4474-8243'
+  - given-names: Shafquat
+    family-names: Towheed
+    affiliation: Open University Milton Keynes United Kingdom
+    orcid: 'https://orcid.org/0000-0002-1942-6090'
+  - given-names: José
+    family-names: de Kruif
+    affiliation: Utrecht University Netherlands
+  - given-names: Michael
+    family-names: Wögerbauer
+    affiliation: >-
+      Institute of Czech Literature – Czech Academy of
+      Sciences Prague Czech Republic
+    orcid: 'https://orcid.org/0000-0002-8730-7907'
+  - given-names: Guillaume
+    family-names: Gravier
+    affiliation: CNRS-IRISA Rennes France
+    orcid: 'https://orcid.org/0000-0002-2266-5682'
+  - given-names: Matthew
+    family-names: Rubery
+    affiliation: 'Queen Mary University London, London, UK'
+  - given-names: Corinna
+    family-names: Norrick-Ruehl
+    affiliation: 'University of Münster, Münster, Germany'
+    orcid: 'https://orcid.org/0000-0003-2490-0735'
+  - given-names: Gustavo
+    family-names: Gomez-Mejia
+    affiliation: 'Université François Rabelais, Tours, France'
+    orcid: 'https://orcid.org/0000-0001-5940-7989'
+  - given-names: Lodovica
+    family-names: Braida
+    affiliation: 'Universita Degli Studi di Milano, Milan, Italy'
+  - given-names: Damiano
+    family-names: Rebecchini
+    affiliation: 'Universita Degli Studi di Milano, Milan, Italy'
+  - given-names: Alessio
+    family-names: Antonini
+    affiliation: 'Knowledge Media Institute, The Open University'
+    orcid: 'https://orcid.org/0000-0002-3639-3622'
+  - given-names: Francesca
+    family-names: Benatti
+    affiliation: >-
+      School of Arts and Cultures, Faculty of Arts and
+      Social Science, The Open University
+    orcid: 'https://orcid.org/0000-0002-1456-7812'
+  - given-names: Maya
+    family-names: Parmar
+    affiliation: >-
+      School of Arts and Cultures, Faculty of Arts and
+      Social Science, The Open University
+    orcid: 'https://orcid.org/0000-0002-4534-9519'
+  - given-names: Alexandru
+    family-names: Stan
+    affiliation: IN2
+  - given-names: François
+    family-names: Vignale
+    affiliation: >-
+      University Library – 3L.AM Laboratory, Le Mans
+      University
+    orcid: 'https://orcid.org/0000-0003-1916-4315'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.17093249
+repository-code: >-
+  https://github.com/CentreForDigitalHumanities/readit-interface
+url: 'https://readit-project.eu/'
+abstract: >-
+  READ-IT (Reading Europe Advanced Data Investigation Tool)
+  was a 3-year (2018-2021) transnational, interdisciplinary
+  Research & Development project funded by the Joint
+  Programming Initiative for Cultural Heritage (JPICH).
+  READ-IT built a unique large-scale, user-friendly, open
+  access, semantically-enriched investigation tool to
+  identify and share groundbreaking evidence about the
+  Cultural Heritage of reading in Europe from the 18th
+  century to the present day.
+keywords:
+  - semantic web
+  - community
+  - reading experience
+  - multilingual
+  - cultural heritage
+license: CC-BY-NC-SA-4.0
+commit: e9eedee58290ae2b572127a65225aa0807401ffa
+version: 0.15.5
+date-released: '2025-09-10'
