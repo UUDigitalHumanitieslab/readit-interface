@@ -2,9 +2,9 @@
   "name": "READ-IT-application",
   "version": "0.15.4",
   "description": "Public interface for READ-IT",
-  "author": "UU Digital Humanities Lab",
+  "author": "Research Software Lab, Centre for Digital Humanities, Utrecht University",
   "license": "cc-by-nc-sa 4.0",
-  "repository": "github:UUDigitalHumanitieslab/readit-interface",
+  "repository": "github:CentreForDigitalHumanities/readit-interface",
   "private": true,
   "scripts": {
     "front": "cd frontend && ",

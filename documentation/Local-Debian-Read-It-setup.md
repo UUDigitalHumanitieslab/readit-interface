@@ -109,7 +109,7 @@ Check the installation:
 
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
     apt-get install ./google-chrome-stable_current_amd64.deb
-    
+
     CHROME_MAIN_VERSION=`google-chrome-stable --version | sed -E 's/(^Google Chrome |\.[0-9]+ )//g'
     CHROMEDRIVER_VERSION=`curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAIN_VERSION"
     curl "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip" -O
@@ -124,9 +124,9 @@ As non-root `yourname` account:
 
 # Setup Read-It
 
-Follow the steps as described in the READMEs. For a quick development setup: 
+Follow the steps as described in the READMEs. For a quick development setup:
 
-- Create an ElasticSearch index [as described here](https://github.com/UUDigitalHumanitieslab/readit-interface/blob/develop/backend/README.md#setting-up-elasticsearch).
+- Create an ElasticSearch index [as described here](https://github.com/CentreForDigitalHumanities/readit-interface/blob/develop/backend/README.md#setting-up-elasticsearch).
 
 - Run Fuseki:
 
@@ -137,7 +137,7 @@ Follow the steps as described in the READMEs. For a quick development setup:
 
 - Download and install -- basically:
 
-        git clone git@github.com:UUDigitalHumanitieslab/readit-interface.git
+        git clone git@github.com:CentreForDigitalHumanities/readit-interface.git
         cd readit-interface
         python bootstrap.py # Use "psql -U postgres" as psql prompt
 

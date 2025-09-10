@@ -1,8 +1,8 @@
 {
     "name": "READ-IT-frontend",
     "description": "Public interface for READ-IT (frontend)",
-    "repository": "github:UUDigitalHumanitieslab/readit-interface",
-    "author": "UU Digital Humanities Lab",
+    "repository": "github:CentreForDigitalHumanities/readit-interface",
+    "author": "Research Software Lab, Centre for Digital Humanities, Utrecht University",
     "license": "cc-by-nc-sa 4.0",
     "private": true,
     "browserslist": [
