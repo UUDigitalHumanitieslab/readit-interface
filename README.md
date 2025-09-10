@@ -2,7 +2,9 @@
 
 [![DOI](https://zenodo.org/badge/141561607.svg)](https://doi.org/10.5281/zenodo.17093249)
 
-Public interface for READ-IT
+This is the [public interface](https://read-it.hum.uu.nl/) for the [READ-IT project](https://readit-project.eu). READ-IT (Reading Europe Advanced Data Investigation Tool) is a 3-years (2018-2020) transnational, interdisciplinary R&D project funded by the Joint Programming Initiative for Cultural Heritage that will build a unique large-scale, user-friendly, open access, semantically-enriched investigation tool to identify and share groundbreaking evidence about the Cultural Heritage of reading in Europe from the 18th century to the present day.
+
+ State-of-the art technology in Semantic Web and information systems will provide a versatile, end-users oriented environment enabling scholars and ordinary readers to retrieve information from a vast amount of community-generated digital data leading to new understanding about the circumstances and effects of reading in Europe.
 
 ## Before you start
 
