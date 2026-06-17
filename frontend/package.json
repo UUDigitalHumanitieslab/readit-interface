@@ -36,7 +36,7 @@
         "streamify-string": "^1.0.1"
     },
     "devDependencies": {
-        "@babel/core": "^7.6.4",
+        "@babel/core": "^7.29.6",
         "@babel/preset-env": "^7.6.3",
         "@tsconfig/node12": "^1.0.9",
         "@types/backbone": "^1.4.13",
